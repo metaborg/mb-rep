@@ -36,6 +36,8 @@ public class TAFReader {
             ATermReader reader = new ATermReader(new StringReader(trm));
             reader.readSkippingWS();
             ATerm result = parseFromReader(reader);
+            //Nick
+            reader.close();
             return result;
         }
         catch (IOException e) {
@@ -81,7 +83,7 @@ public class TAFReader {
     }
 
     private ATerm parseNumber(ATermReader reader) throws IOException {
-        StringBuffer str = new StringBuffer();
+        StringBuilder str = new StringBuilder();
         ATerm result;
 
         do {
@@ -151,7 +153,7 @@ public class TAFReader {
 
     private String parseString(ATermReader reader) throws IOException {
         boolean escaped;
-        StringBuffer str = new StringBuffer();
+        StringBuilder str = new StringBuilder();
 
         do {
             escaped = false;

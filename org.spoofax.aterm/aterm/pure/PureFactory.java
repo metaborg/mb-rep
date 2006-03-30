@@ -359,8 +359,11 @@ public class PureFactory extends SharedObjectFactory implements ATermFactory {
 		ATermReader reader = new ATermReader(new InputStreamReader(stream));
 		reader.readSkippingWS();
 
-		return readFromTextFile(reader);
-	}
+		ATerm t = readFromTextFile(reader);
+        //Nick
+        reader.close();
+        return t;
+    }
 
 	public ATerm readFromSharedTextFile(InputStream stream) throws IOException {
 		ATermReader reader = new ATermReader(new InputStreamReader(stream));
@@ -372,8 +375,11 @@ public class PureFactory extends SharedObjectFactory implements ATermFactory {
 
 		reader.readSkippingWS();
 
-		return readFromSharedTextFile(reader);
-	}
+        //Nick
+        ATerm t = readFromSharedTextFile(reader);
+        reader.close();
+        return t;
+    }
 
 	public ATerm readFromBinaryFile(InputStream stream) throws ParseError, IOException {
         return readFromBinaryFile(stream, false);
@@ -381,8 +387,10 @@ public class PureFactory extends SharedObjectFactory implements ATermFactory {
     
     public ATerm readFromBinaryFile(InputStream stream, boolean headerRead) throws ParseError, IOException {
         BAFReader r = new BAFReader(this, stream);
-        return r.readFromBinaryFile(headerRead);
-	}
+        ATerm t = r.readFromBinaryFile(headerRead);
+        r.close();
+        return t;
+    }
 
 	public ATerm readFromFile(InputStream stream) throws IOException {
         
@@ -390,25 +398,31 @@ public class PureFactory extends SharedObjectFactory implements ATermFactory {
         
         if(r)
             return readFromBinaryFile(stream, true);
-        
+
 		ATermReader reader = new ATermReader(new InputStreamReader(stream));
         
         
 		reader.readSkippingWS();
 
 		int last_char = reader.getLastChar();
-		if (last_char == '!') {
+        ATerm t;
+        if (last_char == '!') {
 			reader.readSkippingWS();
-			return readFromSharedTextFile(reader);
+            // Nick
+            t = readFromSharedTextFile(reader);
 		}
 		else if (
 			Character.isLetterOrDigit((char) last_char) || last_char == '_' || last_char == '[' || last_char == '-') {
-			return readFromTextFile(reader);
+			// Nick
+            t = readFromTextFile(reader);
 		}
 		else {
-			throw new RuntimeException("BAF files are not supported by this factory.");
+            reader.close();
+            throw new RuntimeException("BAF files are not supported by this factory.");
 		}
-	}
+        reader.close();
+        return t;
+    }
 
 	public ATerm readFromFile(String file) throws IOException {
 		return readFromFile(new FileInputStream(file));
@@ -529,5 +543,24 @@ class ATermReader {
 	public int getPosition() {
 		return pos;
 	}
-    
+
+    // Nick
+    public void close() {
+        try {
+            if(reader != null) {
+                reader.close();
+                reader = null;
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (table != null) {
+            for (int i = 0; i < table.length; i++) {
+                table[i] = null;
+            }
+            table = null;
+        }
+    }
 }
