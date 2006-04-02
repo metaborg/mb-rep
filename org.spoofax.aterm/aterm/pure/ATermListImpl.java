@@ -21,7 +21,7 @@
 package aterm.pure;
 
 import java.util.List;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import jjtraveler.VisitFailure;
 import shared.SharedObject;
@@ -354,7 +354,7 @@ public class ATermListImpl extends ATermImpl implements ATermList {
 		}
 
 		cur = this;
-		elems = new Vector();
+		elems = new ArrayList();
 
 		while (true) {
 			next = cur.getNext();
@@ -377,7 +377,7 @@ public class ATermListImpl extends ATermImpl implements ATermList {
 		ATermList result = ((PureFactory) getFactory()).getEmpty();
 		ATermList list;
 
-		List buffer = new Vector(size);
+		List buffer = new ArrayList(size);
 
 		list = this;
 		for (i = 0; i < start; i++) {
@@ -405,7 +405,7 @@ public class ATermListImpl extends ATermImpl implements ATermList {
 			throw new IllegalArgumentException("illegal list index: " + i);
 		}
 
-		buffer = new Vector(i);
+		buffer = new ArrayList(i);
 
 		cur = this;
 		for (lcv = 0; lcv < i; lcv++) {

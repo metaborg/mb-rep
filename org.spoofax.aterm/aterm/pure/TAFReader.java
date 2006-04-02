@@ -8,10 +8,10 @@
 package aterm.pure;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.nio.ByteBuffer;
 
 import aterm.ATerm;
 import aterm.ATermList;
@@ -33,7 +33,9 @@ public class TAFReader {
     
     public ATerm parse(String trm) {
         try {
-            ATermReader reader = new ATermReader(new StringReader(trm));
+            // Nick
+            ByteBuffer buffer = ByteBuffer.wrap(trm.getBytes());
+            ATermReader reader = new ATermReader(buffer);
             reader.readSkippingWS();
             ATerm result = parseFromReader(reader);
             //Nick
@@ -83,7 +85,7 @@ public class TAFReader {
     }
 
     private ATerm parseNumber(ATermReader reader) throws IOException {
-        StringBuilder str = new StringBuilder();
+        StringBuilder str = new StringBuilder(5);
         ATerm result;
 
         do {
@@ -128,7 +130,7 @@ public class TAFReader {
             }
             double val;
             try {
-                val = Double.valueOf(str.toString()).doubleValue();
+                val = Double.valueOf(str.toString());
             }
             catch (NumberFormatException e) {
                 throw new ParseError("malformed real");
@@ -140,7 +142,7 @@ public class TAFReader {
 
     private String parseId(ATermReader reader) throws IOException {
         int c = reader.getLastChar();
-        StringBuffer buf = new StringBuffer(32);
+        StringBuilder buf = new StringBuilder(32);
 
         do {
             buf.append((char) c);
@@ -153,7 +155,7 @@ public class TAFReader {
 
     private String parseString(ATermReader reader) throws IOException {
         boolean escaped;
-        StringBuilder str = new StringBuilder();
+        StringBuilder str = new StringBuilder(30);
 
         do {
             escaped = false;
@@ -221,7 +223,7 @@ public class TAFReader {
     }
 
     private ATerm[] parseATermsArray(ATermReader reader) throws IOException {
-        List list = new Vector();
+        List list = new ArrayList();
         ATerm term;
 
         term = parseFromReader(reader);
@@ -263,7 +265,7 @@ public class TAFReader {
 
                 if (c == ']') {
                     c = reader.readSkippingWS();
-                    result = (ATerm) factory.getEmpty();
+                    result = factory.getEmpty();
                 }
                 else {
                     result = parseATerms(reader);

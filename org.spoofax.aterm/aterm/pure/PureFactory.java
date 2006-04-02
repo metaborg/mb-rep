@@ -28,6 +28,9 @@ import java.io.Reader;
 import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 import java.util.List;
+import java.nio.MappedByteBuffer;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 
 import shared.SharedObjectFactory;
 import aterm.AFun;
@@ -399,8 +402,9 @@ public class PureFactory extends SharedObjectFactory implements ATermFactory {
         if(r)
             return readFromBinaryFile(stream, true);
 
-		ATermReader reader = new ATermReader(new InputStreamReader(stream));
-        
+		//Nick ATermReader reader = new ATermReader(new InputStreamReader(stream));
+        ATermReader reader = new ATermReader(toBuffer((FileInputStream)stream));
+
         
 		reader.readSkippingWS();
 
@@ -424,9 +428,28 @@ public class PureFactory extends SharedObjectFactory implements ATermFactory {
         return t;
     }
 
-	public ATerm readFromFile(String file) throws IOException {
-		return readFromFile(new FileInputStream(file));
-	}
+    private ByteBuffer toBuffer(FileInputStream fis) {
+        FileChannel fc = fis.getChannel();
+
+        // Get the file's size and then map it into memory
+        try {
+            int sz = (int)fc.size();
+            MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, sz);
+            // See also http://javaalmanac.com/egs/java.nio/ReadChannel.html?l=rel
+            bb = bb.load();
+            fc.close();
+
+            return bb;
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public ATerm readFromFile(String file) throws IOException {
+        return readFromFile(new FileInputStream(file));
+    }
 
 	public ATerm importTerm(ATerm term) {
 		throw new RuntimeException("not yet implemented!");
@@ -451,17 +474,25 @@ class ATermReader {
 	private static final int INITIAL_TABLE_SIZE = 2048;
 	private static final int TABLE_INCREMENT = 4096;
 	private Reader reader;
-	private int last_char;
+    private ByteBuffer buffer;
+    private int last_char;
 	private int pos;
 
 	private int nr_terms;
 	private ATerm[] table;
 
 	public ATermReader(Reader reader) {
-		this.reader = reader;
+        assert false : "Do not use this!";
+        this.reader = reader;
 		last_char = -1;
 		pos = 0;
 	}
+
+    public ATermReader(ByteBuffer buffer) {
+        this.buffer = buffer;
+        last_char = -1;
+        pos = 0;
+    }
 
 	public void initializeSharing() {
 		table = new ATerm[INITIAL_TABLE_SIZE];
@@ -493,31 +524,49 @@ class ATermReader {
 		return table[index];
 	}
 
-	public int read() throws IOException {
-		last_char = reader.read();
-		pos++;
-		return last_char;
+    public int read() throws IOException {
+        try {
+            last_char = buffer.get();
+            pos++;
+            return last_char;
+        }
+        catch (RuntimeException e) {
+            return -1;
+        }
+    }
+
+    public int readSkippingWS() throws IOException {
+        try {
+            do {
+                last_char = buffer.get();
+                pos++;
+            }
+            while (isWhiteSpace((char) last_char));
+            return last_char;
+        }
+        catch (RuntimeException e) {
+            return -1;
+        }
 	}
 
-	public int readSkippingWS() throws IOException {
-		do {
-			last_char = reader.read();
-			pos++;
-		}
-		while (Character.isWhitespace((char) last_char));
+    private static boolean isWhiteSpace(final char ch) {
+        //Nick Character.isWhitespace(ch);
+        return ch == ' ' || ch == '\r' || ch == '\n' || ch == '\t';
+    }
 
-		return last_char;
+    public int skipWS() throws IOException {
+        try {
+            while (isWhiteSpace((char) last_char)) {
+                last_char = buffer.get();
+                pos++;
+            }
 
-	}
-
-	public int skipWS() throws IOException {
-		while (Character.isWhitespace((char) last_char)) {
-			last_char = reader.read();
-			pos++;
-		}
-
-		return last_char;
-	}
+            return last_char;
+        }
+        catch (RuntimeException e) {
+            return -1;
+        }
+    }
 
 	public int readOct() throws IOException {
 		int val = Character.digit((char) last_char, 8);
@@ -555,7 +604,9 @@ class ATermReader {
         catch (IOException e) {
             e.printStackTrace();
         }
-
+        if(buffer != null) {
+            buffer.clear();
+        }
         if (table != null) {
             for (int i = 0; i < table.length; i++) {
                 table[i] = null;

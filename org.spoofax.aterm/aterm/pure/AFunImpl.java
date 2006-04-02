@@ -99,7 +99,7 @@ class AFunImpl extends ATermImpl implements AFun {
 	}
 
 	public String toString() {
-		StringBuffer result = new StringBuffer(name.length());
+		StringBuilder result = new StringBuilder(name.length());
 
 		if (isQuoted) {
 			result.append('"');
