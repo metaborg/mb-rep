@@ -362,10 +362,7 @@ public class PureFactory extends SharedObjectFactory implements ATermFactory {
 		ATermReader reader = new ATermReader(new InputStreamReader(stream));
 		reader.readSkippingWS();
 
-		ATerm t = readFromTextFile(reader);
-        //Nick
-        reader.close();
-        return t;
+		return readFromTextFile(reader);
     }
 
 	public ATerm readFromSharedTextFile(InputStream stream) throws IOException {
@@ -378,54 +375,47 @@ public class PureFactory extends SharedObjectFactory implements ATermFactory {
 
 		reader.readSkippingWS();
 
-        //Nick
-        ATerm t = readFromSharedTextFile(reader);
-        reader.close();
-        return t;
+        return readFromSharedTextFile(reader);
     }
 
 	public ATerm readFromBinaryFile(InputStream stream) throws ParseError, IOException {
         return readFromBinaryFile(stream, false);
     }
-    
+
     public ATerm readFromBinaryFile(InputStream stream, boolean headerRead) throws ParseError, IOException {
         BAFReader r = new BAFReader(this, stream);
         ATerm t = r.readFromBinaryFile(headerRead);
-        r.close();
         return t;
-    }
+	}
 
 	public ATerm readFromFile(InputStream stream) throws IOException {
-        
+
         boolean r = BAFReader.isBinaryATerm(stream);
-        
+
         if(r)
             return readFromBinaryFile(stream, true);
 
-		//Nick ATermReader reader = new ATermReader(new InputStreamReader(stream));
+        //Nick ATermReader reader = new ATermReader(new InputStreamReader(stream));
         ATermReader reader = new ATermReader(toBuffer((FileInputStream)stream));
 
-        
+
 		reader.readSkippingWS();
 
 		int last_char = reader.getLastChar();
-        ATerm t;
-        if (last_char == '!') {
+
+		if (last_char == '!') {
 			reader.readSkippingWS();
-            // Nick
-            t = readFromSharedTextFile(reader);
+
+            return readFromSharedTextFile(reader);
 		}
 		else if (
 			Character.isLetterOrDigit((char) last_char) || last_char == '_' || last_char == '[' || last_char == '-') {
-			// Nick
-            t = readFromTextFile(reader);
+
+            return readFromTextFile(reader);
 		}
 		else {
-            reader.close();
-            throw new RuntimeException("BAF files are not supported by this factory.");
-		}
-        reader.close();
-        return t;
+			throw new RuntimeException("BAF files are not supported by this factory.");
+        }
     }
 
     private ByteBuffer toBuffer(FileInputStream fis) {
@@ -447,9 +437,9 @@ public class PureFactory extends SharedObjectFactory implements ATermFactory {
         }
     }
 
-    public ATerm readFromFile(String file) throws IOException {
-        return readFromFile(new FileInputStream(file));
-    }
+	public ATerm readFromFile(String file) throws IOException {
+		return readFromFile(new FileInputStream(file));
+	}
 
 	public ATerm importTerm(ATerm term) {
 		throw new RuntimeException("not yet implemented!");
@@ -471,19 +461,19 @@ class HashedWeakRef extends WeakReference {
 }
 
 class ATermReader {
-	private static final int INITIAL_TABLE_SIZE = 2048;
-	private static final int TABLE_INCREMENT = 4096;
-	private Reader reader;
+    private static final int INITIAL_TABLE_SIZE = 2048;
+    private static final int TABLE_INCREMENT = 4096;
+    //private Reader reader;
     private ByteBuffer buffer;
     private int last_char;
-	private int pos;
+    private int pos;
 
 	private int nr_terms;
 	private ATerm[] table;
 
 	public ATermReader(Reader reader) {
         assert false : "Do not use this!";
-        this.reader = reader;
+        //this.reader = reader;
 		last_char = -1;
 		pos = 0;
 	}
@@ -592,26 +582,4 @@ class ATermReader {
 	public int getPosition() {
 		return pos;
 	}
-
-    // Nick
-    public void close() {
-        try {
-            if(reader != null) {
-                reader.close();
-                reader = null;
-            }
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        if(buffer != null) {
-            buffer.clear();
-        }
-        if (table != null) {
-            for (int i = 0; i < table.length; i++) {
-                table[i] = null;
-            }
-            table = null;
-        }
-    }
 }

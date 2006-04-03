@@ -15,6 +15,7 @@ import aterm.AFun;
 import aterm.ATerm;
 import aterm.ATermList;
 import aterm.ParseError;
+import aterm.pure.PureFactory;
 
 public class BAFReader {
 
@@ -50,15 +51,6 @@ public class BAFReader {
 
         public int[][] topSyms;
 
-        //Nick
-        void cleanup() {
-            for (int i = 0; i < terms.length; i++) {
-                terms[i] = null;
-            }
-            terms = null;
-            topSyms = null;
-            symWidth = null;
-        }
     }
 
     public BAFReader(PureFactory factory, InputStream inputStream) {
@@ -237,17 +229,6 @@ public class BAFReader {
         return factory.makeAFun(s, arity, quoted != 0);
     }
     
-    // Nick
-    public void close() {
-        reader.close();
-        reader = null;
-        for (int i = 0; i < symbols.length; i++) {
-            symbols[i] = null;
-        }
-        symbols = null;
-        factory = null;
-    }
-
     public static class BitStream {
 
         InputStream stream;
@@ -328,16 +309,6 @@ public class BAFReader {
 
         public void flushBitsFromReader() {
             bitsInBuffer = 0;
-        }
-
-        // Nick
-        public void close() {
-            try {
-                this.stream.close();
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 }
