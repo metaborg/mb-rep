@@ -25,10 +25,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 import java.util.List;
-import java.nio.MappedByteBuffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
@@ -129,6 +127,10 @@ public class PureFactory extends SharedObjectFactory implements ATermFactory {
 	}
 
 	public ATermInt makeInt(int value, ATermList annos) {
+        //todo: for no max sharing
+//        ATermIntImpl clone = new ATermIntImpl(this);
+//        clone.initHashCode(annos, value);
+//        return clone;
 		synchronized (protoInt) {
 			protoInt.initHashCode(annos, value);
 			return (ATermInt) build(protoInt);
@@ -136,6 +138,10 @@ public class PureFactory extends SharedObjectFactory implements ATermFactory {
 	}
 
 	public ATermReal makeReal(double value, ATermList annos) {
+        //todo: for no max sharing
+//        ATermRealImpl clone = new ATermRealImpl(this);
+//        clone.init(hashReal(annos, value), annos, value);
+//        return clone;
 		synchronized (protoReal) {
 			protoReal.init(hashReal(annos, value), annos, value);
 			return (ATermReal) build(protoReal);
@@ -418,15 +424,20 @@ public class PureFactory extends SharedObjectFactory implements ATermFactory {
         }
     }
 
-    private ByteBuffer toBuffer(FileInputStream fis) {
+    /**
+     * See also http://javaalmanac.com/egs/java.nio/ReadChannel.html?l=rel
+     */
+    private static ByteBuffer toBuffer(FileInputStream fis) {
         FileChannel fc = fis.getChannel();
 
-        // Get the file's size and then map it into memory
         try {
             int sz = (int)fc.size();
-            MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, sz);
-            // See also http://javaalmanac.com/egs/java.nio/ReadChannel.html?l=rel
-            bb = bb.load();
+            ByteBuffer bb = ByteBuffer.allocate(sz);//todo ?.allocateDirect(sz);
+            bb.rewind();
+            fc.read(bb);
+            bb.rewind();
+//            MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, sz);
+//            bb = bb.load();
             fc.close();
 
             return bb;
@@ -451,14 +462,14 @@ public class PureFactory extends SharedObjectFactory implements ATermFactory {
     }
 }
 
-class HashedWeakRef extends WeakReference {
-	protected HashedWeakRef next;
-
-	public HashedWeakRef(Object object, HashedWeakRef next) {
-		super(object);
-		this.next = next;
-	}
-}
+//class HashedWeakRef extends WeakReference {
+//	protected HashedWeakRef next;
+//
+//	public HashedWeakRef(Object object, HashedWeakRef next) {
+//		super(object);
+//		this.next = next;
+//	}
+//}
 
 class ATermReader {
     private static final int INITIAL_TABLE_SIZE = 2048;
@@ -536,12 +547,12 @@ class ATermReader {
         }
         catch (RuntimeException e) {
             return -1;
-        }
+	}
 	}
 
     private static boolean isWhiteSpace(final char ch) {
         //Nick Character.isWhitespace(ch);
-        return ch == ' ' || ch == '\r' || ch == '\n' || ch == '\t';
+        return ch == ' ' || ch == '\n'/* || ch == '\r' || ch == '\t'*/; //todo: is this the minimum necessary?
     }
 
     public int skipWS() throws IOException {

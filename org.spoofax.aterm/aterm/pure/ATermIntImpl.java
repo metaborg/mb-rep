@@ -62,7 +62,25 @@ class ATermIntImpl extends ATermImpl implements ATermInt {
 		return clone;
 	}
 
-	public boolean equivalent(SharedObject obj) {
+    //todo: for no max sharing
+//    public boolean equals(Object o) {
+//        if (this == o) {
+//            return true;
+//        }
+//        if (o == null || getClass() != o.getClass()) {
+//            return false;
+//        }
+////        if (!super.equals(o)) {
+////            return false;
+////        }
+//
+//        final ATermIntImpl aTermInt = (ATermIntImpl)o;
+//
+//        return value == aTermInt.value;
+//
+//    }
+
+    public boolean equivalent(SharedObject obj) {
 		if (super.equivalent(obj)) {
 			ATermInt peer = (ATermInt) obj;
 			return peer.getInt() == value;

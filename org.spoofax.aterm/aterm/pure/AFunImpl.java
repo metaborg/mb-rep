@@ -268,6 +268,7 @@ class AFunImpl extends ATermImpl implements AFun {
 		return c;
 	}
 
+    // static char[] source = new char[500]; //todo: this is not thread safe.
 	private int hashFunction2() {
 		int offset = 0;
 		int count = name.length();

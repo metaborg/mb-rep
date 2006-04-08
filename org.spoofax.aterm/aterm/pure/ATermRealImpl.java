@@ -63,7 +63,25 @@ class ATermRealImpl extends ATermImpl implements ATermReal {
 		return false;
 	}
 
-	protected boolean match(ATerm pattern, List list) {
+    //todo: for no max sharing
+//    public boolean equals(Object o) {
+//        if (this == o) {
+//            return true;
+//        }
+//        if (o == null || getClass() != o.getClass()) {
+//            return false;
+//        }
+////        if (!super.equals(o)) {
+////            return false;
+////        }
+////
+//        final ATermRealImpl aTermReal = (ATermRealImpl)o;
+//
+//        return Double.compare(aTermReal.value, value) == 0;
+//
+//    }
+
+    protected boolean match(ATerm pattern, List list) {
 		if (this.equals(pattern)) {
 			return true;
 		}
