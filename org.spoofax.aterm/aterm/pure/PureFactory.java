@@ -429,8 +429,8 @@ public class PureFactory extends SharedObjectFactory implements ATermFactory {
      */
     private static ByteBuffer toBuffer(FileInputStream fis) {
         FileChannel fc = fis.getChannel();
-
         try {
+            fc.position(0);
             int sz = (int)fc.size();
             ByteBuffer bb = ByteBuffer.allocate(sz);//todo ?.allocateDirect(sz);
             bb.rewind();
@@ -551,7 +551,7 @@ class ATermReader {
 	}
 
     private static boolean isWhiteSpace(final char ch) {
-        //Nick Character.isWhitespace(ch);
+        //return Character.isWhitespace(ch);
         return ch == ' ' || ch == '\n'/* || ch == '\r' || ch == '\t'*/; //todo: is this the minimum necessary?
     }
 
