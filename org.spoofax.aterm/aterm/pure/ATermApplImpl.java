@@ -28,7 +28,8 @@ import shared.SharedObject;
 
 import aterm.*;
 
-public class ATermApplImpl extends ATermImpl implements ATermAppl {  	
+public class ATermApplImpl extends ATermImpl implements ATermAppl {
+  static final long serialVersionUID = -6094226664780803158L;
   AFun fun;
   ATerm[] args;
 
@@ -56,6 +57,10 @@ public class ATermApplImpl extends ATermImpl implements ATermAppl {
     this.internSetAnnotations(annos);
     this.setHashCode(this.hashFunction());
   }
+
+    protected Object readResolve() {
+        return the_factory.makeAppl(fun, args, getAnnotations());
+    }
 
   public SharedObject duplicate() {
     ATermApplImpl clone = new ATermApplImpl(factory);

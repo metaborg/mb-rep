@@ -33,6 +33,9 @@ import aterm.ATermPlaceholder;
 import aterm.Visitor;
 
 public class ATermListImpl extends ATermImpl implements ATermList {
+
+    static final long serialVersionUID = -8195498525237930026L;
+
 	ATerm first;
 	ATermList next;
 	int length;
@@ -48,7 +51,7 @@ public class ATermListImpl extends ATermImpl implements ATermList {
 	/**
 	 * init is used internally by the PureFactory to initialize a prototype of
 	 * an ATermList without using the new operator all the time
-	 * 
+	 *
 	 */
 	protected void init(int hashCode, ATermList annos, ATerm first, ATermList next) {
 		super.init(hashCode, annos);
@@ -76,7 +79,14 @@ public class ATermListImpl extends ATermImpl implements ATermList {
 		else {
 			this.length = 1 + next.getLength();
 		}
-	}
+    }
+
+    protected Object readResolve() {
+        if(first == null) { //for "[]"!!
+            return the_factory.makeList();
+        }
+        return the_factory.makeList(first, next, getAnnotations());
+    }
 
 	public SharedObject duplicate() {
 		ATermListImpl clone = new ATermListImpl(factory);

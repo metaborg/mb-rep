@@ -26,6 +26,7 @@ import shared.SharedObject;
 import aterm.*;
 
 class AFunImpl extends ATermImpl implements AFun {
+    static final long serialVersionUID = -5799291066029793852L;
 
     protected AFunImpl(PureFactory factory) {
 		super(factory);
@@ -45,6 +46,11 @@ class AFunImpl extends ATermImpl implements AFun {
 		this.arity = arity;
 		this.isQuoted = isQuoted;
 	}
+
+
+    protected Object readResolve() {
+        return the_factory.makeAFun(name, arity, isQuoted);
+    }
 
 	protected void initHashCode(String name, int arity, boolean isQuoted) {
 		this.name = name.intern();

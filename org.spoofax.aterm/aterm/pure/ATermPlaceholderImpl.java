@@ -29,6 +29,7 @@ import shared.SharedObject;
 import aterm.*;
 
 class ATermPlaceholderImpl extends ATermImpl implements ATermPlaceholder {
+    static final long serialVersionUID = 474954673405551592L;
 	ATerm type;
 
 	protected ATermPlaceholderImpl(PureFactory factory) {
@@ -43,6 +44,10 @@ class ATermPlaceholderImpl extends ATermImpl implements ATermPlaceholder {
 		super.init(hashCode, annos);
 		this.type = type;
 	}
+
+    protected Object readResolve() {
+        return null; //todo
+    }
 
 	public SharedObject duplicate() {
 		ATermPlaceholderImpl clone = new ATermPlaceholderImpl(factory);

@@ -34,6 +34,7 @@ import aterm.ATermPlaceholder;
 import aterm.Visitor;
 
 class ATermIntImpl extends ATermImpl implements ATermInt {
+    static final long serialVersionUID = 6920572266462107799L;
 	int value;
 
 	protected ATermIntImpl(PureFactory factory) {
@@ -56,6 +57,10 @@ class ATermIntImpl extends ATermImpl implements ATermInt {
 		//super.init(hashCode, annos);
 	}
 
+    protected Object readResolve() {
+        return the_factory.makeInt(value, getAnnotations());
+    }
+    
 	public SharedObject duplicate() {
 		ATermIntImpl clone = new ATermIntImpl(factory);
 		clone.init(hashCode(), getAnnotations(), value);

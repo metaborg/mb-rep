@@ -15,7 +15,6 @@ import aterm.AFun;
 import aterm.ATerm;
 import aterm.ATermList;
 import aterm.ParseError;
-import aterm.pure.PureFactory;
 
 public class BAFReader {
 
@@ -62,7 +61,7 @@ public class BAFReader {
 
         if(!headerAlreadyRead && !isBinaryATerm(reader))
             throw new ParseError("Input is not a BAF file");
-        
+
         int val = reader.readInt();
 
         if (val != BAF_VERSION)
@@ -86,18 +85,18 @@ public class BAFReader {
     public static boolean isBinaryATerm(InputStream in) throws IOException {
         return isBinaryATerm(new BitStream(in));
     }
-    
+
     private static boolean isBinaryATerm(BitStream in) throws IOException {
         int w0 = in.readInt();
         int w1 = in.readInt();
-        
+
         if (w0 == 0 && w1 == BAF_MAGIC)
             return true;
-        
+
         return false;
     }
 
-    
+
     private void debug(String s) {
         // System.out.println(s);
     }
@@ -136,7 +135,7 @@ public class BAFReader {
             return factory.makePlaceholder(args[0]);
         }
         */
-        
+
         if (e.fun.getName().equals("<int>")) {
             int val = reader.readBits(HEADER_BITS);
             return factory.makeInt(val);
@@ -158,7 +157,7 @@ public class BAFReader {
         // FIXME: Add annotation case
         // FIXME: Add blob case
         // FIXME: Add placeholder case
-        
+
         debug(e.fun + " / " + args);
         for (int i = 0; i < args.length; i++)
             debug("" + args[i]);
@@ -228,20 +227,20 @@ public class BAFReader {
 
         return factory.makeAFun(s, arity, quoted != 0);
     }
-    
+
     public static class BitStream {
 
         InputStream stream;
         private int bitsInBuffer;
         private int bitBuffer;
-        
+
         public BitStream(InputStream inputStream) {
             stream = inputStream;
         }
 
         public int readInt() throws IOException {
             int[] buf = new int[5];
-            
+
             buf[0] = readByte();
             
             // Check if 1st character is enough

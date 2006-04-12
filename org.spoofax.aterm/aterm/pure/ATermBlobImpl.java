@@ -29,6 +29,7 @@ import shared.SharedObject;
 import aterm.*;
 
 class ATermBlobImpl extends ATermImpl implements ATermBlob {
+	static final long serialVersionUID = -5014589658212210803L;
 	byte[] data;
 
 	protected ATermBlobImpl(PureFactory factory) {

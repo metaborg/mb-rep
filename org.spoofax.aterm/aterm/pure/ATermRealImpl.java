@@ -33,6 +33,7 @@ import aterm.ATermReal;
 import aterm.Visitor;
 
 class ATermRealImpl extends ATermImpl implements ATermReal {
+    static final long serialVersionUID = -1664798035587037862L;
 	double value;
 
 	protected ATermRealImpl(PureFactory factory) {
@@ -47,6 +48,10 @@ class ATermRealImpl extends ATermImpl implements ATermReal {
 		super.init(hashCode, annos);
 		this.value = value;
 	}
+
+    protected Object readResolve() {
+        return the_factory.makeReal(value, getAnnotations());
+    }
 
 	public SharedObject duplicate() {
 		ATermRealImpl clone = new ATermRealImpl(factory);

@@ -39,10 +39,14 @@ import aterm.ATermPlaceholder;
 import aterm.ParseError;
 
 public abstract class ATermImpl extends ATermVisitableImpl implements ATerm, SharedObjectWithID {
+
+  static final long serialVersionUID = 1419489663075647236L;
+
   private ATermList annotations;
-  protected PureFactory factory;
+  transient protected PureFactory factory;
   private int hashCode;
   private int uniqueId;
+  public static PureFactory the_factory;
  
   protected ATermImpl(PureFactory factory) {
   	super();

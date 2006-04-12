@@ -2,8 +2,10 @@ package aterm.pure;
 
 import aterm.*;
 
+import java.io.Serializable;
+
 public abstract class ATermVisitableImpl
-  implements Visitable
+  implements Visitable, Serializable
 {
   abstract public int getNrSubTerms();
   abstract public ATerm getSubTerm(int index);
