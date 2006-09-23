@@ -483,7 +483,7 @@ class ATermReader {
 	private ATerm[] table;
 
 	public ATermReader(Reader reader) {
-        assert false : "Do not use this!";
+        // assert false : "Do not use this!";
         //this.reader = reader;
 		last_char = -1;
 		pos = 0;

@@ -128,7 +128,7 @@ public class TAFReader {
             }
             double val;
             try {
-                val = Double.valueOf(str.toString());
+                val = Double.valueOf(str.toString()).doubleValue();
             }
             catch (NumberFormatException e) {
                 throw new ParseError("malformed real");
@@ -340,9 +340,6 @@ public class TAFReader {
                     result = factory.makeAppl(factory.makeAFun("", list.length, false), list);
                 }
                 c = reader.readSkippingWS();
-                if (c == -1) {
-                    throw new ParseError("premature EOF encountered.");
-                }
 
                 break;
 
