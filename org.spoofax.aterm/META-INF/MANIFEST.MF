@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Aterm
 Bundle-SymbolicName: org.spoofax.aterm
 Bundle-Version: 1.0.0
-Bundle-ClassPath: aterm.jar,
+Bundle-ClassPath: 
  jjtraveler-0.4.3.jar,
  shared-objects-1.4.jar
 Bundle-Localization: plugin

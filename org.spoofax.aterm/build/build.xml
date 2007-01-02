@@ -2,12 +2,12 @@
 
     <property name="compiler.debug" value="on"/>
 
-    <property name="src.dir" value=".."/>
-    <property name="lib.dir" value=".."/>
-    <property name="build.dir" value=".."/>
+    <property name="src.dir" value="../src/"/>
+    <property name="lib.dir" value="../lib/"/>
+    <property name="build.dir" value="../"/>
     <property name="classes.dir" value="${build.dir}/bin"/>
-    <property name="version" value="1.6"/>
-    <property name="jar.file" value="aterm-${version}.jar"/>
+    <property name="version" value="x.y"/>
+    <property name="jar.file" value="aterm.jar"/>
 
     <path id="classpath">
         <fileset dir="${lib.dir}">
