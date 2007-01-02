@@ -1,10 +1,87 @@
-$Id: ChangeLog,v 1.50.2.2 2004/12/17 08:19:55 kooiker Exp $
+# $Id: ChangeLog 20726 2006-12-14 14:30:53Z lankamp $
 
-Fri Dec 17 09:19:30 CET 2004 <kooiker@cwi.nl>
- * Bumped to 1.6.2 
+Thu Dec 14 3:25:00 CEST 2006 <lankamp@cwi.nl>
+  * Fixed a bug in the BinaryWriter that caused problems with negative integers.
+  * Added a test for the BinaryWriter that checks if negative integers are serialized correctly.
 
-Wed Dec  1 13:23:37 CET 2004 <jurgenv@cwi.nl>
- * Bumped 1.6.1
+Fri Nov 17 1:40:00 CEST 2006 <lankamp@cwi.nl>
+  * Added a streamable binary format.
+  * Added documentation for the streamable binary format.
+
+Tue Jul 25 20:32:30 CEST 2006 <martin.bravenboer@gmail.com>
+  * aterm-java.pc.in: The VERSION part of the file name of a jar
+    cannot be variable: it is read by configure by substition takes
+    place, so it needs to be literal.
+
+    This might actually have worked in old autoconfs, since the
+    @VERSION@ might be substited by its value in the
+    Makefile (yuk). However, in recent autoconf's the value is
+    'correctly' quoted, so we end up with a filename
+    foo-@VERSION@.jar.
+
+    Maybe it's a better idea not to use version in the file names of
+    jars.
+
+Tue Jul 25 09:16:05 CEST 2006 <{kooiker,jurgenv}@cwi.nl,martin.bravenboer@gmail.com>
+ * **: adapted package to use the standard meta-build-env.
+ * *.jar: removed jar file from version control
+
+2006-06-29    <storm@cwi.nl>
+  * build.xml: enabled source in generated documentation.
+
+2006-06-28    <storm@cwi.nl>
+  * doc: latex generation is now followed by pdf generation.
+  * doc, build.xml: added Javadoc documentation generation to build.xml and 
+	disabled html generation by doxygen.
+
+Tue Jun 27 12:08:20 CEST 2006 <jurgenv@cwi.nl>
+ * doc: Added doc directory which uses doxygen, in MAINTAINER_MODE,
+   to generate a website. 
+ * doc/Doxyfile: turned on every available option of doxygen.
+ * ChangeLog: restored truncated part of ChangeLog
+ * doc/DoxyFile: enabled java output optimization
+ 
+Wed May  3 13:50:13 CEST 2006 <jurgenv@cwi.nl>
+ * Bumped to 1.6.3
+
+Fri Mar 10 15:48:13 CET 2006 <kooiker@cwi.nl>
+ * aterm-1.6.jar:
+   - Add to cvs so users can build the package without
+     --enable-maintainer-mode
+
+Tue Sep 13 10:11:40 CEST 2005 <pem>
+ * we have a better solution: find a fix-point hashcode such that
+ * empty.hashcode = empty.getAnnotations().hashCode
+ * this magic value can be found using findEmptyHashCode()
+
+  Tue Sep 13 10:11:40 CEST 2005 <pem>
+ * fix a problem related to the emptyList
+ * we now have: empty == empty.setAnnotations(empty.getAnnotations())
+ * but, note that empty.getAnnotations() is not the real empty list (otherwise there would be a loop!)
+ * therefore, empty.getAnnotations() != empty.getAnnotations().setAnnotations(empty.getAnnotations().getAnnotations())
+ 
+Fri Sep  9 16:09:40 CEST 2005 <{jong,jurgenv@cwi.nl}>
+ * new implementation of Visitor
+ * Fwd has been replaced by ATermFwd and ATermFwdVoid
+ * This allows to define non-void visitors. The counter part is that old code that is using Fwd has to be rewritten to use ATermFwdVoid
+
+Fri Jun  3 16:09:40 CEST 2005 <{jong,jurgenv@cwi.nl}>
+ * test/Test1.java: Added some more parsing tests
+
+Wed May 25 16:06:13 CEST 2005 <kooiker@cwi.nl>
+ * aterm/pure/*java,test/*.java:
+   - Solved Eclipse warnings: unnecessary else and throws
+
+2004-12-17  pem
+ * improved isEmpty() implementation
+ * maintain annotations when tranforming an ATerm
+
+2004-08-06  Antoine Reilles  <tonio@bonzai>
+ * aterm/pure/SingletonFactory.java: if you need a singleton PureFactory...
+
+2004-04-08  pem  <pem@polly.loria.fr>
+ * aterm/pure/PureFactory.java: make the parseId function compatible 
+   with the C version of the ATerm library
 
 Tue Feb 10 15:27:49 CET 2004 <m336@cwi.nl>
  * upgrade auto* to: autoconf 2.59, automake 1.7.9, libtool 1.5.2
