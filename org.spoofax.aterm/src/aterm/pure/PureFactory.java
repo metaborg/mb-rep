@@ -194,7 +194,7 @@ public class PureFactory extends SharedObjectFactory implements ATermFactory {
     }
   }
 
-  private static ATerm[] array0 = new ATerm[0];
+  private final static ATerm[] array0 = new ATerm[0];
 
   public ATermAppl makeAppl(AFun fun, ATerm[] args) {
     return makeAppl(fun, args, empty);
@@ -482,7 +482,7 @@ public class PureFactory extends SharedObjectFactory implements ATermFactory {
           result = parseATerms(reader);
           if (reader.getLastChar() != ']') {
             throw new ParseError("expected ']' but got '"
-                + (char) reader.getLastChar() + "'");
+                + (char) reader.getLastChar() + "' at " + reader.getPosition());
           }
           c = reader.readSkippingWS();
         }
@@ -555,9 +555,9 @@ public class PureFactory extends SharedObjectFactory implements ATermFactory {
           result = makeAppl(makeAFun("", list.length, false), list);
         }
         c = reader.readSkippingWS();
-        if (c == -1) {
-          throw new ParseError("premature EOF encountered.");
-        }
+        //if (c == -1) {
+        //  throw new ParseError("premature EOF encountered.");
+        //}
 
         break;
 
