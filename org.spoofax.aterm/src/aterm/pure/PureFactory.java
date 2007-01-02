@@ -772,11 +772,22 @@ public class PureFactory extends SharedObjectFactory implements ATermFactory {
     return readFromSharedTextFile(reader);
   }
 
-  public ATerm readFromBinaryFile(InputStream stream) {
-    throw new RuntimeException("not yet implemented!");
+  public ATerm readFromBinaryFile(InputStream stream) throws IOException {
+      return readFromBinaryFile(stream, false);
   }
 
-  public ATerm readFromFile(InputStream stream) throws IOException {
+  private ATerm readFromBinaryFile(InputStream stream, boolean headerRead) throws ParseError, IOException {
+      BAFReader r = new BAFReader(this, stream);
+      return r.readFromBinaryFile(headerRead);
+  }   
+
+public ATerm readFromFile(InputStream stream) throws IOException {
+    
+    boolean r = BAFReader.isBinaryATerm(stream);
+    
+    if(r)
+        return readFromBinaryFile(stream, true);
+    
     ATermReader reader = new ATermReader(new BufferedReader(new InputStreamReader(stream)));
     reader.readSkippingWS();
 
