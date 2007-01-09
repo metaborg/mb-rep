@@ -7,6 +7,7 @@
  */
 package aterm.pure;
 
+import java.io.BufferedInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -65,7 +66,7 @@ public class BAFReader {
         int val = reader.readInt();
 
         if (val != BAF_VERSION)
-            throw new ParseError("Wrong BAF version, giving up");
+            throw new ParseError("Wrong BAF version (wanted " + BAF_VERSION + ", got " + val + "), giving up");
 
         nrUniqueSymbols = reader.readInt();
         int nrUniqueTerms = reader.readInt();
@@ -82,8 +83,12 @@ public class BAFReader {
         return readTerm(symbols[i]);
     }
 
-    public static boolean isBinaryATerm(InputStream in) throws IOException {
-        return isBinaryATerm(new BitStream(in));
+    public static boolean isBinaryATerm(BufferedInputStream in) throws IOException {
+        in.mark(10);
+        if(isBinaryATerm(new BitStream(in)))
+            return true;
+        in.reset();
+        return false;
     }
 
     private static boolean isBinaryATerm(BitStream in) throws IOException {

@@ -20,6 +20,7 @@
 
 package aterm.pure;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -783,12 +784,13 @@ public class PureFactory extends SharedObjectFactory implements ATermFactory {
 
 public ATerm readFromFile(InputStream stream) throws IOException {
     
-    boolean r = BAFReader.isBinaryATerm(stream);
+    BufferedInputStream bis = new BufferedInputStream(stream);
+    boolean r = BAFReader.isBinaryATerm(bis);
     
     if(r)
-        return readFromBinaryFile(stream, true);
+        return readFromBinaryFile(bis, true);
     
-    ATermReader reader = new ATermReader(new BufferedReader(new InputStreamReader(stream)));
+    ATermReader reader = new ATermReader(new BufferedReader(new InputStreamReader(bis)));
     reader.readSkippingWS();
 
     int last_char = reader.getLastChar();
