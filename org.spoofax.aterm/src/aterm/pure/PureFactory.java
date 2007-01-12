@@ -798,11 +798,14 @@ public ATerm readFromFile(InputStream stream) throws IOException {
       reader.readSkippingWS();
       return readFromSharedTextFile(reader);
     } else if (Character.isLetterOrDigit(last_char)
-        || last_char == '_' || last_char == '[' || last_char == '-') {
+            || last_char == '_' 
+            || last_char == '[' 
+            || last_char == '-' 
+            || last_char == '"'
+            || last_char == '(') {
       return readFromTextFile(reader);
     } else {
-      throw new RuntimeException(
-          "BAF files are not supported by this factory.");
+      throw new RuntimeException("Invalid ATerm.");
     }
   }
 
