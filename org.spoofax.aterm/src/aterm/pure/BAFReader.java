@@ -92,11 +92,13 @@ public class BAFReader {
     }
 
     private static boolean isBinaryATerm(BitStream in) throws IOException {
-        int w0 = in.readInt();
-        int w1 = in.readInt();
+        try {
+            int w0 = in.readInt();
+            int w1 = in.readInt();
 
-        if (w0 == 0 && w1 == BAF_MAGIC)
-            return true;
+            if (w0 == 0 && w1 == BAF_MAGIC)
+                return true;
+        } catch(EOFException e) {}
 
         return false;
     }
