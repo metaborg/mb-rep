@@ -33,7 +33,7 @@ public class BAFReader {
 
     private PureFactory factory;
 
-    private static boolean isDebugging = false;
+    public static boolean isDebugging = false;
 
     class SymEntry {
 
@@ -301,7 +301,10 @@ public class BAFReader {
         public String readString() throws IOException {
             int l = readInt();
             byte[] b = new byte[l];
-            stream.read(b, 0, b.length);
+            int v = 0;
+            while(v < b.length) {
+                v += stream.read(b, v, b.length - v);
+            }
             return new String(b);
         }
 
