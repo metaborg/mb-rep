@@ -33,6 +33,8 @@ public class BAFReader {
 
     private PureFactory factory;
 
+    private static boolean isDebugging = false;
+
     class SymEntry {
 
         public AFun fun;
@@ -71,8 +73,10 @@ public class BAFReader {
         nrUniqueSymbols = reader.readInt();
         int nrUniqueTerms = reader.readInt();
 
-        debug("" + nrUniqueSymbols + " unique symbols");
-        debug("" + nrUniqueTerms + " unique terms");
+        if(isDebugging) {
+            debug("" + nrUniqueSymbols + " unique symbols");
+            debug("" + nrUniqueTerms + " unique terms");
+        }
 
         symbols = new SymEntry[nrUniqueSymbols];
 
@@ -105,24 +109,28 @@ public class BAFReader {
 
 
     private void debug(String s) {
-        // System.out.println(s);
+        System.err.println(s);
     }
 
     private ATerm readTerm(SymEntry e) throws ParseError, IOException {
         int arity = e.arity;
         ATerm[] args = new ATerm[arity];
 
-        debug("readTerm() - " + e.fun.getName() + "[" + arity + "]");
+        if(isDebugging)
+            debug("readTerm() - " + e.fun.getName() + "[" + arity + "]");
 
         for (int i = 0; i < arity; i++) {
             int val = reader.readBits(e.symWidth[i]);
-            debug(" [" + i + "] - " + val);
-            debug(" [" + i + "] - " + e.topSyms[i].length);
+            if(isDebugging) {
+                debug(" [" + i + "] - " + val);
+                debug(" [" + i + "] - " + e.topSyms[i].length);
+            }
             SymEntry argSym = symbols[e.topSyms[i][val]];
 
             val = reader.readBits(argSym.termWidth);
             if (argSym.terms[val] == null) {
-                debug(" [" + i + "] - recurse");
+                if(isDebugging )
+                    debug(" [" + i + "] - recurse");
                 argSym.terms[val] = readTerm(argSym);
             }
 
@@ -153,9 +161,11 @@ public class BAFReader {
             return factory.makeReal(new Double(s).doubleValue());
         }
         if (e.fun.getName().equals("[_,_]")) {
-            debug("--");
-            for (int i = 0; i < args.length; i++)
-                debug(" + " + args[i].getClass());
+            if(isDebugging) {
+                debug("--");
+                for (int i = 0; i < args.length; i++)
+                    debug(" + " + args[i].getClass());
+            }
             return ((ATermList) args[1]).insert(args[0]);
         }
         if (e.fun.getName().equals("[]"))
@@ -165,9 +175,11 @@ public class BAFReader {
         // FIXME: Add blob case
         // FIXME: Add placeholder case
 
-        debug(e.fun + " / " + args);
-        for (int i = 0; i < args.length; i++)
-            debug("" + args[i]);
+        if(isDebugging) {
+            debug(e.fun + " / " + args);
+            for (int i = 0; i < args.length; i++)
+                debug("" + args[i]);
+        }
         return factory.makeAppl(e.fun, args);
     }
 
@@ -230,7 +242,8 @@ public class BAFReader {
         int arity = reader.readInt();
         int quoted = reader.readInt();
 
-        debug(s + " / " + arity + " / " + quoted);
+        if(isDebugging)
+            debug(s + " / " + arity + " / " + quoted);
 
         return factory.makeAFun(s, arity, quoted != 0);
     }
