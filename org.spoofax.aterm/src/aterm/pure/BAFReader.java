@@ -1,9 +1,21 @@
 /*
- * Created on 13.aug.2005
- *
- * Copyright (c) 2005, Karl Trygve Kalleberg <karltk@ii.uib.no>
+ * Java version of the ATerm library
+ * Copyright (C) 2006-2007, UiB, CWI, LORIA-INRIA
  * 
- * Licensed under the GNU General Public License, v2
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ * 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Library General Public
+ * License along with this library; if not, write to the
+ * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA  02111-1307, USA.
  */
 package aterm.pure;
 
@@ -73,7 +85,7 @@ public class BAFReader {
         nrUniqueSymbols = reader.readInt();
         int nrUniqueTerms = reader.readInt();
 
-        if(isDebugging) {
+        if(isDebugging()) {
             debug("" + nrUniqueSymbols + " unique symbols");
             debug("" + nrUniqueTerms + " unique terms");
         }
@@ -85,6 +97,10 @@ public class BAFReader {
         int i = reader.readInt();
 
         return readTerm(symbols[i]);
+    }
+
+    private boolean isDebugging() {
+        return isDebugging;
     }
 
     public static boolean isBinaryATerm(BufferedInputStream in) throws IOException {
@@ -111,17 +127,17 @@ public class BAFReader {
     private void debug(String s) {
         System.err.println(s);
     }
-
+    
     private ATerm readTerm(SymEntry e) throws ParseError, IOException {
         int arity = e.arity;
         ATerm[] args = new ATerm[arity];
 
-        if(isDebugging)
+        if(isDebugging())
             debug("readTerm() - " + e.fun.getName() + "[" + arity + "]");
 
         for (int i = 0; i < arity; i++) {
             int val = reader.readBits(e.symWidth[i]);
-            if(isDebugging) {
+            if(isDebugging()) {
                 debug(" [" + i + "] - " + val);
                 debug(" [" + i + "] - " + e.topSyms[i].length);
             }
@@ -129,8 +145,8 @@ public class BAFReader {
 
             val = reader.readBits(argSym.termWidth);
             if (argSym.terms[val] == null) {
-                if(isDebugging )
-                    debug(" [" + i + "] - recurse");
+                if(isDebugging())
+                    debug(" [" + i+  "] - recurse");
                 argSym.terms[val] = readTerm(argSym);
             }
 
@@ -161,7 +177,7 @@ public class BAFReader {
             return factory.makeReal(new Double(s).doubleValue());
         }
         if (e.fun.getName().equals("[_,_]")) {
-            if(isDebugging) {
+            if(isDebugging()) {
                 debug("--");
                 for (int i = 0; i < args.length; i++)
                     debug(" + " + args[i].getClass());
@@ -175,7 +191,7 @@ public class BAFReader {
         // FIXME: Add blob case
         // FIXME: Add placeholder case
 
-        if(isDebugging) {
+        if(isDebugging()) {
             debug(e.fun + " / " + args);
             for (int i = 0; i < args.length; i++)
                 debug("" + args[i]);
@@ -242,7 +258,8 @@ public class BAFReader {
         int arity = reader.readInt();
         int quoted = reader.readInt();
 
-        if(isDebugging)
+        if(isDebugging())
+//            debug(s + " / " + arity + " / " + quoted);
             debug(s + " / " + arity + " / " + quoted);
 
         return factory.makeAFun(s, arity, quoted != 0);
