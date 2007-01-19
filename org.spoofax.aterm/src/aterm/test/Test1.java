@@ -6,6 +6,7 @@ import aterm.pure.*;
 import java.util.*;
 import java.io.*;
 
+@SuppressWarnings("unchecked")
 public class Test1 {
   private ATermFactory factory;
   

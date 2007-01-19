@@ -17,6 +17,7 @@ import aterm.ATermPlaceholder;
 import aterm.ATermReal;
 import aterm.stream.BufferedOutputStreamWriter;
 
+@SuppressWarnings("unchecked")
 class ATermWriter extends ATermFwdVoid {
 
   private static char[] TOBASE64 = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',

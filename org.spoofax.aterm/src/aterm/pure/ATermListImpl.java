@@ -33,6 +33,7 @@ import aterm.ATermList;
 import aterm.ATermPlaceholder;
 import aterm.Visitor;
 
+@SuppressWarnings("unchecked")
 public class ATermListImpl extends ATermImpl implements ATermList {
   ATerm first;
 

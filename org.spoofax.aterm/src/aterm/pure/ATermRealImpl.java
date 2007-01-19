@@ -32,6 +32,7 @@ import aterm.ATermPlaceholder;
 import aterm.ATermReal;
 import aterm.Visitor;
 
+@SuppressWarnings("unchecked")
 class ATermRealImpl extends ATermImpl implements ATermReal {
   double value;
 

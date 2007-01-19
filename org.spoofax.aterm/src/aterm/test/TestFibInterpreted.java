@@ -8,6 +8,7 @@ import aterm.ATermAppl;
 import aterm.ATermFactory;
 import aterm.pure.PureFactory;
 
+@SuppressWarnings("unchecked")
 public class TestFibInterpreted {
 
 	private ATermFactory factory;

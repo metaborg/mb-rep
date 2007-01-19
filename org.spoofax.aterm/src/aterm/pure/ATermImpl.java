@@ -36,6 +36,7 @@ import aterm.ATermFactory;
 import aterm.ATermList;
 import aterm.ATermPlaceholder;
 
+@SuppressWarnings("unchecked")
 public abstract class ATermImpl extends ATermVisitableImpl implements ATerm, SharedObjectWithID{
 	private ATermList annotations;
 

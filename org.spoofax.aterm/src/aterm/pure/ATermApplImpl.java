@@ -28,6 +28,7 @@ import shared.SharedObject;
 
 import aterm.*;
 
+@SuppressWarnings("unchecked")
 public class ATermApplImpl extends ATermImpl implements ATermAppl {
   AFun fun;
 

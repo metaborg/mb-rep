@@ -28,6 +28,7 @@ import shared.SharedObject;
 
 import aterm.*;
 
+@SuppressWarnings("unchecked")
 class ATermPlaceholderImpl extends ATermImpl implements ATermPlaceholder {
   ATerm type;
 

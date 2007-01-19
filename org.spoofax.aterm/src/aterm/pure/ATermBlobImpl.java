@@ -28,6 +28,7 @@ import shared.SharedObject;
 
 import aterm.*;
 
+@SuppressWarnings("unchecked")
 class ATermBlobImpl extends ATermImpl implements ATermBlob {
   byte[] data;
 

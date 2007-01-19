@@ -46,6 +46,7 @@ import aterm.ATermPlaceholder;
 import aterm.ATermReal;
 import aterm.ParseError;
 
+@SuppressWarnings("unchecked")
 public class PureFactory extends SharedObjectFactory implements ATermFactory {
 
   private static int DEFAULT_TERM_TABLE_SIZE = 16; // means 2^16 entries
@@ -822,6 +823,7 @@ public ATerm readFromFile(InputStream stream) throws IOException {
 class HashedWeakRef extends WeakReference {
   protected HashedWeakRef next;
 
+  @SuppressWarnings("unchecked")
   public HashedWeakRef(Object object, HashedWeakRef next) {
     super(object);
     this.next = next;
