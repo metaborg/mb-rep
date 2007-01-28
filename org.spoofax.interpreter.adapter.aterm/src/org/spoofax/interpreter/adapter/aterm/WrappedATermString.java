@@ -1,4 +1,4 @@
-package org.spoofax.interpreter.adapters.aterm;
+package org.spoofax.interpreter.adapter.aterm;
 
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;

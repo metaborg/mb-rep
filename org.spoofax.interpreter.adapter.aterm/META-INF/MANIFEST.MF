@@ -8,6 +8,6 @@ Bundle-Localization: plugin
 Require-Bundle: org.spoofax.aterm,
  org.junit,
  org.spoofax.interpreter
-Export-Package: org.spoofax.interpreter.adapters.aterm
+Export-Package: org.spoofax.interpreter.adapter.aterm
 Bundle-Vendor: Spoofax.org
  
