@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: ATerm adapter for Stratego/J
+Bundle-SymbolicName: org.spoofax.interpreter.adapter.aterm
+Bundle-Version: 0.1.0
+Bundle-ClassPath: adapters.jar
+Bundle-Localization: plugin
+Require-Bundle: org.spoofax.aterm,
+ org.junit,
+ org.spoofax.interpreter
+Export-Package: org.spoofax.interpreter.adapters.aterm
+Bundle-Vendor: Spoofax.org
+ 
