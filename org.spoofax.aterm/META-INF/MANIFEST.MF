@@ -3,12 +3,14 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Annotated Term Library
 Bundle-SymbolicName: org.spoofax.aterm
 Bundle-Version: 0.2.0
-Bundle-Localization: plugin
+Bundle-Localization: plugin 
 Bundle-Vendor: Spoofax.org
+Eclipse-LazyStart: true
 Export-Package: aterm,
  aterm.pure,
  aterm.pure.binary,
  jjtraveler,
  shared
 Bundle-ClassPath: lib/jjtraveler-0.4.3.jar,
- lib/shared-objects-1.4.jar
+ lib/shared-objects-1.4.jar,
+ aterm.jar
