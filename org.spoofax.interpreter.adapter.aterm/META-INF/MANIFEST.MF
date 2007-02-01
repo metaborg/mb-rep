@@ -5,9 +5,9 @@ Bundle-SymbolicName: org.spoofax.interpreter.adapter.aterm
 Bundle-Version: 0.1.0
 Bundle-ClassPath: adapters.jar
 Bundle-Localization: plugin
-Require-Bundle: org.spoofax.aterm,
- org.junit,
- org.spoofax.interpreter
+Require-Bundle: org.junit,
+ org.spoofax.interpreter,
+ org.spoofax.aterm
 Export-Package: org.spoofax.interpreter.adapter.aterm
 Bundle-Vendor: Spoofax.org
  
