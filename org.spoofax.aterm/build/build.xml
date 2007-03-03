@@ -2,12 +2,13 @@
 
     <property name="compiler.debug" value="on"/>
 
+    <property file="build.properties"/>
+
     <property name="src.dir" value="../src/"/>
     <property name="lib.dir" value="../lib/"/>
     <property name="build.dir" value="../"/>
     <property name="classes.dir" value="${build.dir}/bin"/>
-    <property name="version" value="x.y"/>
-    <property name="jar.file" value="aterm.jar"/>
+    <property name="jar.file" value="aterm-${version}.jar"/>
 
     <path id="classpath">
         <fileset dir="${lib.dir}">
@@ -43,7 +44,7 @@
         <delete dir="${classes.dir}"/>
     </target>
 
-    <target name="clean.full" depends="clean">
+    <target name="fullclean" depends="clean">
         <delete file="${build.dir}/${jar.file}"/>
     </target>
 </project>
