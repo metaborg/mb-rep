@@ -23,7 +23,7 @@ public class WrappedATermTuple extends WrappedATerm implements IStrategoTuple {
     }
     
     @Override
-    ATerm getATerm() {
+    public ATerm getATerm() {
         return tuple;
     }
 

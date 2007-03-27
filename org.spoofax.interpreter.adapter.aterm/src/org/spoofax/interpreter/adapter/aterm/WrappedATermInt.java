@@ -65,7 +65,7 @@ public class WrappedATermInt extends WrappedATerm implements IStrategoInt {
     }
 
     @Override
-    ATerm getATerm() {
+    public ATerm getATerm() {
         return integer;
     }
 

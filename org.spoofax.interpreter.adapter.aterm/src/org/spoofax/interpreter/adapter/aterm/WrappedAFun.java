@@ -74,7 +74,7 @@ public class WrappedAFun extends WrappedATerm implements IStrategoConstructor {
     }
 
     @Override
-    ATerm getATerm() {
+    public ATerm getATerm() {
         return afun;
     }
 

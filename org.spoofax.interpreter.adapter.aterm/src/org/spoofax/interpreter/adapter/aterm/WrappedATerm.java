@@ -26,7 +26,7 @@ public abstract class WrappedATerm implements IStrategoTerm {
     }*/
     
     
-    abstract ATerm getATerm();
+    public abstract ATerm getATerm();
     
     public String prettyPrint() {
          throw new NotImplementedException();

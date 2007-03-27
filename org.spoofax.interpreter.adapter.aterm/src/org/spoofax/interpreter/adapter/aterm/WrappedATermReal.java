@@ -63,7 +63,7 @@ public class WrappedATermReal extends WrappedATerm implements IStrategoReal {
     }
 
     @Override
-    ATerm getATerm() {
+    public ATerm getATerm() {
         return real;
     }
     

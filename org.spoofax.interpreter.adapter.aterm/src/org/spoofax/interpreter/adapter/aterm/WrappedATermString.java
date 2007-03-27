@@ -57,7 +57,7 @@ class WrappedATermString extends WrappedATerm implements IStrategoString {
     }
 
     @Override
-    ATerm getATerm() {
+    public ATerm getATerm() {
         return value;
     }
 

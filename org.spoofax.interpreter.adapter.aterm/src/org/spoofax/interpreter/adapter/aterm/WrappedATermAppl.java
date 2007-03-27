@@ -68,7 +68,7 @@ public class WrappedATermAppl extends WrappedATerm implements IStrategoAppl {
     }
 
     @Override
-    ATerm getATerm() {
+    public ATerm getATerm() {
         return appl;
     }
 

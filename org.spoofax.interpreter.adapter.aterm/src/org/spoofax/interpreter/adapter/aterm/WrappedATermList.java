@@ -77,7 +77,7 @@ public class WrappedATermList extends WrappedATerm implements IStrategoList {
     }
 
     @Override
-    ATermList getATerm() {
+    public ATermList getATerm() {
         return list;
     }
 
