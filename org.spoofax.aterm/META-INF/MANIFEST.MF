@@ -13,4 +13,5 @@ Export-Package: aterm,
  shared
 Bundle-ClassPath: lib/jjtraveler-0.4.3.jar,
  lib/shared-objects-1.4.jar,
- bin/
+ bin/,
+ .
