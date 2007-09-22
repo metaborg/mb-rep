@@ -105,8 +105,8 @@ public class WrappedATermFactory implements ITermFactory {
         return ctr.instantiate(this, kids);
     }
 
-    public IStrategoConstructor makeConstructor(String name, int arity, boolean isQuoted) {
-        return wrapConstructor(realFactory.makeAFun(name, arity, isQuoted));
+    public IStrategoConstructor makeConstructor(String name, int arity) {
+        return wrapConstructor(realFactory.makeAFun(name, arity, false));
     }
 
     public IStrategoInt makeInt(int i) {
