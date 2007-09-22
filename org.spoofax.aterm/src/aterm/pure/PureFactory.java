@@ -820,6 +820,7 @@ public ATerm readFromFile(InputStream stream) throws IOException {
 
 }
 
+@SuppressWarnings("unchecked")
 class HashedWeakRef extends WeakReference {
   protected HashedWeakRef next;
 
