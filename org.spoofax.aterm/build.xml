@@ -1,11 +1,9 @@
-<project name="spoofax-aterm" default="compile" xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="spoofax-aterm" default="jar" xmlns:ivy="antlib:org.apache.ivy.ant">
     <property name="lib.dir" value="lib" />
-    <property name="build.dir" value="build/classes" />
+    <property name="build.dir" value="build" />
     <property name="src.dir" value="src" />
-<!--
-    <property name="ivy.public.default.root" value="http://www.ii.uib.no/~karltk/spoofax/ivy-repo" />
-    <property name="ivy.public.default.artifact.pattern" value="[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
--->
+ 
+    <property name="project.version" value="0.2.0" />
 
     <path id="lib.path.id">
         <fileset dir="${lib.dir}" />
@@ -24,12 +22,14 @@
     </target>
 
     <target name="compile" depends="resolve" description="--> compile the project">
-        <mkdir dir="${build.dir}" />
-        <javac srcdir="${src.dir}" destdir="${build.dir}" classpathref="lib.path.id" />
+        <mkdir dir="${build.dir}/classes" />
+        <javac srcdir="${src.dir}" destdir="${build.dir}/classes" classpathref="lib.path.id">
+           <exclude name="aterm/test/**" />
+        </javac>
     </target>
 
     <target name="jar" depends="compile">
-        <jar destfile="spoofax-aterm-0.2.0.jar" basedir="${build.dir}" />
+        <jar destfile="${build.dir}/spoofax-aterm-${project.version}.jar" basedir="${build.dir}/classes" />
     </target>
 
     <target name="clean" description="--> clean the project">
