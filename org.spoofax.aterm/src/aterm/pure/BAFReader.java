@@ -127,13 +127,17 @@ public class BAFReader {
     private void debug(String s) {
         System.err.println(s);
     }
+
+    int level = 0;
     
     private ATerm readTerm(SymEntry e) throws ParseError, IOException {
-        int arity = e.arity;
-        ATerm[] args = new ATerm[arity];
+        final int arity = e.arity;
+        final ATerm[] args = new ATerm[arity];
 
+        level++;
+        
         if(isDebugging())
-            debug("readTerm() - " + e.fun.getName() + "[" + arity + "]");
+            debug("readTerm()/" + level + " - " + e.fun.getName() + "[" + arity + "]");
 
         for (int i = 0; i < arity; i++) {
             int val = reader.readBits(e.symWidth[i]);
@@ -167,27 +171,35 @@ public class BAFReader {
         }
         */
 
-        if (e.fun.getName().equals("<int>")) {
+        final String name = e.fun.getName();
+        if (name.equals("<int>")) {
             int val = reader.readBits(HEADER_BITS);
+            level--;
             return factory.makeInt(val);
         }
-        if (e.fun.getName().equals("<real>")) {
+        else if (name.equals("<real>")) {
             reader.flushBitsFromReader();
             String s = reader.readString();
+            level--;
             return factory.makeReal(new Double(s).doubleValue());
         }
-        if (e.fun.getName().equals("[_,_]")) {
+        else if (name.equals("[_,_]")) {
             if(isDebugging()) {
                 debug("--");
                 for (int i = 0; i < args.length; i++)
                     debug(" + " + args[i].getClass());
             }
+            level--;
             return ((ATermList) args[1]).insert(args[0]);
         }
-        if (e.fun.getName().equals("[]"))
+        else if (name.equals("[]")) {
+            level--;
             return factory.makeList();
+        }
+        else if (name.equals("{_}")) {
+        	throw new RuntimeException("Annotations not implemented");
+        }
 
-        // FIXME: Add annotation case
         // FIXME: Add blob case
         // FIXME: Add placeholder case
 
@@ -196,6 +208,7 @@ public class BAFReader {
             for (int i = 0; i < args.length; i++)
                 debug("" + args[i]);
         }
+        level--;
         return factory.makeAppl(e.fun, args);
     }
 
