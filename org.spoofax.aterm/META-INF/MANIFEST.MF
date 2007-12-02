@@ -8,7 +8,11 @@ Eclipse-LazyStart: true
 Export-Package: aterm,
  aterm.pure,
  aterm.pure.binary,
+ aterm.stream,
  jjtraveler,
+ jjtraveler.graph,
+ jjtraveler.reflective,
+ jjtraveler.util,
  shared
 Bundle-ClassPath: lib/jjtraveler-0.4.3.jar,
  lib/shared-objects-1.4.jar,
