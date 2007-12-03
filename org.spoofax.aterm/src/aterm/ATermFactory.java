@@ -70,7 +70,7 @@ public interface ATermFactory
    *
    * @return the constructed term.
    */
-  ATerm make(String pattern, List args);
+  ATerm make(String pattern, List<ATerm> args);
 
   /**
    * Creates a new ATerm given a pattern and a list of arguments.
@@ -82,7 +82,7 @@ public interface ATermFactory
    *
    * @return the constructed term.
    */
-  ATerm make(ATerm pattern, List args);
+  ATerm make(ATerm pattern, List<ATerm> args);
 
   /**
    * Creates a new ATerm given a pattern and a single argument.

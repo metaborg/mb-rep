@@ -36,7 +36,6 @@ import aterm.ATermFactory;
 import aterm.ATermList;
 import aterm.ATermPlaceholder;
 
-@SuppressWarnings("unchecked")
 public abstract class ATermImpl extends ATermVisitableImpl implements ATerm, SharedObjectWithID{
 	private ATermList annotations;
 
@@ -115,12 +114,12 @@ public abstract class ATermImpl extends ATermVisitableImpl implements ATerm, Sha
 		return annotations;
 	}
 
-	public List match(String pattern){
+	public List<ATerm> match(String pattern){
 		return match(factory.parsePattern(pattern));
 	}
 
-	public List match(ATerm pattern){
-		List list = new LinkedList();
+	public List<ATerm> match(ATerm pattern){
+		List<ATerm> list = new LinkedList<ATerm>();
 		if(match(pattern, list)){
 			return list;
 		}
@@ -147,7 +146,7 @@ public abstract class ATermImpl extends ATermVisitableImpl implements ATerm, Sha
 		return false;
 	}
 
-	boolean match(ATerm pattern, List list){
+	boolean match(ATerm pattern, List<ATerm> list){
 		if(pattern.getType() == PLACEHOLDER){
 			ATerm type = ((ATermPlaceholder) pattern).getPlaceholder();
 			if(type.getType() == ATerm.APPL){
@@ -163,7 +162,7 @@ public abstract class ATermImpl extends ATermVisitableImpl implements ATerm, Sha
 		return false;
 	}
 
-	public ATerm make(List list){
+	public ATerm make(List<ATerm> list){
 		return this;
 	}
 

@@ -106,7 +106,7 @@ public interface ATerm
      * 
      * @see #match(ATerm)
      */
-    public List match(String pattern);
+	public List<ATerm> match(String pattern);
 
     /**
      * Matches this term against a term pattern. A list containing
@@ -119,7 +119,8 @@ public interface ATerm
      * if the match succeeds, or null if the match fails.
      *
      */
-    public List match(ATerm pattern);
+    @SuppressWarnings("unchecked")
+	public List match(ATerm pattern);
     
     public boolean hasAnnotations();
 
@@ -251,7 +252,7 @@ public interface ATerm
       *	
       *	@return the constructed aterm
       */
-    public ATerm make(List args);
+	public ATerm make(List<ATerm> args);
 
     /**
      * Retrieves the factory responsible for creating this ATerm.

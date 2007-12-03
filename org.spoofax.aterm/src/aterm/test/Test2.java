@@ -41,7 +41,7 @@ public class Test2 {
     System.out.println("toString: " + term[0]);
     test_assert(term[0].toString().equals("3"));
 
-    List result;
+    List<ATerm> result;
 
     result = term[0].match("3");
     test_assert(result != null);
@@ -64,7 +64,7 @@ public class Test2 {
     test_assert(term[0].getReal() == Math.PI);
     test_assert(term[0] == term[1]);
 
-    List result;
+    List<ATerm> result;
 
     result = term[0].match("<real>");
     test_assert(result != null);
@@ -207,7 +207,7 @@ public class Test2 {
 
   public void testMatch() {
     ATerm t = factory.parse("node(\"Pico-eval\",box,182,21,62,26)");
-    List result = t.match("node(<str>,<fun>,<int>,<int>,<int>,<int>)");
+    List<ATerm> result = t.match("node(<str>,<fun>,<int>,<int>,<int>,<int>)");
     test_assert(result != null);
 
     t = factory.parse("f(1,2,3)"); 
