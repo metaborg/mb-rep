@@ -22,7 +22,7 @@ public class WrappedATermInt extends WrappedATerm implements IStrategoInt {
         this.integer = integer;
     }
 
-    public int getValue() {
+    public int getIntValue() {
         return integer.getInt();
     }
 
@@ -56,7 +56,7 @@ public class WrappedATermInt extends WrappedATerm implements IStrategoInt {
     protected boolean slowCompare(Object second) {
         if (!(second instanceof IStrategoInt))
             return false;
-        return ((IStrategoInt) second).getValue() == getValue();
+        return ((IStrategoInt) second).getIntValue() == getIntValue();
     }
 
     @Override
