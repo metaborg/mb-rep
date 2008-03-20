@@ -22,7 +22,7 @@ public class WrappedATermReal extends WrappedATerm implements IStrategoReal {
         this.real = real;
     }
     
-    public double getRealValue() {
+    public double realValue() {
         return real.getReal();
     }
 
@@ -59,7 +59,7 @@ public class WrappedATermReal extends WrappedATerm implements IStrategoReal {
     protected boolean slowCompare(Object second) {
         if(!(second instanceof IStrategoReal))
             return false;
-        return ((IStrategoReal)second).getRealValue() == getRealValue();
+        return ((IStrategoReal)second).realValue() == realValue();
     }
 
     @Override

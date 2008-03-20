@@ -15,7 +15,7 @@ class WrappedATermString extends WrappedATerm implements IStrategoString {
         this.value = value;
     }
 
-    public String getStringValue() {
+    public String stringValue() {
         return value.getName();
     }
 
@@ -43,7 +43,7 @@ class WrappedATermString extends WrappedATerm implements IStrategoString {
         if(!(other instanceof IStrategoString))
             return false;
         IStrategoString o = (IStrategoString) other;
-        return o.getStringValue().equals(getStringValue());
+        return o.stringValue().equals(stringValue());
     }
 
     @Override
@@ -70,7 +70,7 @@ class WrappedATermString extends WrappedATerm implements IStrategoString {
     protected boolean slowCompare(Object second) {
         if(!(second instanceof IStrategoString))
             return false;
-        return ((IStrategoString)second).getStringValue().equals(value.getName());
+        return ((IStrategoString)second).stringValue().equals(value.getName());
     }
 
     @Override
