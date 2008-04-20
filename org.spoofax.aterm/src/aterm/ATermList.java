@@ -26,7 +26,7 @@ package aterm;
  * @author Hayco de Jong (jong@cwi.nl)
  * @author Pieter Olivier (olivierp@cwi.nl)
  */
-public interface ATermList extends ATerm {
+public interface ATermList extends ATerm, Iterable<ATerm> {
 
     /**
      * Checks if this list is the empty list.

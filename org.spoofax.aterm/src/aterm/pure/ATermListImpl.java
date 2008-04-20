@@ -21,6 +21,7 @@
 package aterm.pure;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
@@ -30,6 +31,7 @@ import aterm.AFun;
 import aterm.ATerm;
 import aterm.ATermAppl;
 import aterm.ATermList;
+import aterm.ATermListIterator;
 import aterm.ATermPlaceholder;
 import aterm.Visitor;
 
@@ -308,6 +310,14 @@ public class ATermListImpl extends ATermImpl implements ATermList {
     return cur.getFirst();
   }
 
+  /**
+   * Returns an iterator over the aterms of this list. The iterator
+   * does not support the remove operation.
+   */
+  public Iterator<ATerm> iterator() {
+    return new ATermListIterator(this);
+  }
+
   public ATermList remove(ATerm el) {
     if (first == el) {
       return next;
@@ -505,9 +515,9 @@ public class ATermListImpl extends ATermImpl implements ATermList {
     // getAnnotations());
   }
 
-	public aterm.Visitable accept(Visitor v) throws VisitFailure {
-		return v.visitList(this);
-	}
+  public aterm.Visitable accept(Visitor v) throws VisitFailure {
+    return v.visitList(this);
+  }
 
   public int getNrSubTerms() {
     return length;
