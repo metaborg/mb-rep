@@ -1,0 +1,12 @@
+<project name="spoofax-aterm" default="jar">
+	
+    <import file="common.ant.xml" />
+
+    <target name="compile" depends="resolve" description="--> compile the project">
+        <mkdir dir="${build.dir}/classes" />
+        <javac srcdir="${src.dir}" destdir="${build.dir}/classes" classpathref="lib.path.id">
+            <exclude name="aterm/test/**" />
+        </javac>
+    </target>
+
+</project>
