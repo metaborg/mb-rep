@@ -3,7 +3,7 @@
     <property name="build.dir" value="build" />
     <property name="src.dir" value="src" />
 
-    <property file="version.properties" />
+    <property file="build/version.properties" />
 
     <path id="lib.path.id">
         <fileset dir="${lib.dir}" />

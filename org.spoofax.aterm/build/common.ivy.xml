@@ -2,7 +2,7 @@
 
     <import file="common.ant.xml" />
     
-    <ivy:settings id="ivy.instance" file="../ivysettings.xml" />
+    <ivy:settings id="ivy.instance" file="build/ivysettings.xml" />
 
     <target name="resolve" description="--> retreive dependencies with ivy">
         <ivy:retrieve/>

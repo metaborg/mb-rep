@@ -1,6 +1,6 @@
 <project name="spoofax-aterm" default="jar">
 	
-    <import file="common.ant.xml" />
+    <import file="build/common.ant.xml" />
 
     <target name="compile" depends="resolve" description="--> compile the project">
         <mkdir dir="${build.dir}/classes" />
