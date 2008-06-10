@@ -10,10 +10,7 @@
     </target>
 
    <target name="install" depends="jar" description="--> install the project into prefix">
-        <mkdir dir="${prefix}/bin" />
         <mkdir dir="${prefix}/share/java" />
-        <mkdir dir="${prefix}/share/spoofax-interpreter" />
-
         <copy todir="${prefix}/share/java">
             <fileset dir="${lib.dir}/" />
         </copy>
@@ -34,6 +31,9 @@
            <tarfileset prefix="spoofax-aterm-${version}/" dir="." includes="META-INF/" />
        </tar>
        <gzip zipfile="spoofax-aterm-${version}.tar.gz" src="spoofax-aterm-${version}.tar"/>
+   </target>
+
+   <target name="check" depends="jar">
    </target>
 
 </project>
