@@ -26,6 +26,7 @@
            <tarfileset prefix="spoofax-aterm-${version}/" dir=".">
              <include name="*.xml" />
              <include name="build/*.xml" />
+             <include name="build/*.properties" />
              <include name="*.properties" />
            </tarfileset>
            <tarfileset prefix="spoofax-aterm-${version}/" dir="." includes="README AUTHORS COPYING NEWS README.spoofax INSTALL StreamableATermFormat.txt Makefile ChangeLog"/>
