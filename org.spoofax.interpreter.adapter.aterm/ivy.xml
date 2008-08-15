@@ -5,6 +5,6 @@
     <dependencies>
       <dependency org="junit" name="junit" rev="3.8.2"/>
       <dependency org="spoofax" name="spoofax-aterm" rev="0.2.0"/>
-      <dependency org="spoofax" name="spoofax-interpreter-core" rev="0.3.10"/>
+      <dependency org="spoofax" name="spoofax-interpreter-core" rev="0.3.11"/>
     </dependencies>
 </ivy-module>
