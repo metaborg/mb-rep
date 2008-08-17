@@ -4,7 +4,7 @@ Bundle-Name: Annotated Term Library
 Bundle-SymbolicName: org.spoofax.aterm
 Bundle-Version: 0.2.2.qualifier
 Bundle-Vendor: Spoofax.org
-Eclipse-LazyStart: false
+Bundle-ActivationPolicy: lazy
 Export-Package: aterm,
  aterm.pure,
  aterm.pure.binary,
