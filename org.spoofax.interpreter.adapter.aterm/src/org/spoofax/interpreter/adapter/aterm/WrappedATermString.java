@@ -11,7 +11,7 @@ class WrappedATermString extends WrappedATerm implements IStrategoString {
     private final ATermAppl value;
 
     WrappedATermString(WrappedATermFactory parent, ATermAppl value) {
-        super(parent);
+        super(parent, value.getAnnotations());
         this.value = value;
     }
 

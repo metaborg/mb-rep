@@ -32,6 +32,8 @@ import aterm.ATermList;
 import aterm.ATermReal;
 
 public class WrappedATermFactory implements ITermFactory {
+	private final IStrategoList EMPTY_LIST; 
+	
     private TrackingATermFactory realFactory;
     private WeakHashMap<ATerm, WrappedATerm> termCache;
     private WeakHashMap<AFun, IStrategoConstructor> ctorCache;
@@ -44,6 +46,7 @@ public class WrappedATermFactory implements ITermFactory {
         realFactory = new TrackingATermFactory();
         termCache = new WeakHashMap<ATerm, WrappedATerm>();
         ctorCache = new WeakHashMap<AFun, IStrategoConstructor>();
+        EMPTY_LIST = makeList(new IStrategoTerm[0]);
     }
     
     public boolean hasConstructor(String name, int arity) {
@@ -113,6 +116,10 @@ public class WrappedATermFactory implements ITermFactory {
         ATermInt x = realFactory.makeInt(i);
         return memoize(x, new WrappedATermInt(this, x));
     }
+    
+    public IStrategoList makeList() {
+    	return EMPTY_LIST;
+    }
 
     public IStrategoList makeList(IStrategoTerm... terms) {
         ATermList l = realFactory.makeList();
@@ -153,7 +160,11 @@ public class WrappedATermFactory implements ITermFactory {
         ATerm[] args = new ATerm[terms.length];
         int pos = 0;
         for(IStrategoTerm t : terms) {
-            args[pos++] = ((WrappedATerm)t).getATerm();
+            if (t instanceof WrappedATerm) {
+            	args[pos++] = ((WrappedATerm)t).getATerm();
+            } else {
+                throw new WrapperException();
+            }
         }
         AFun afun = realFactory.makeAFun("", terms.length, false);
         return (IStrategoTuple) wrapTerm(realFactory.makeAppl(afun, args));
@@ -188,5 +199,18 @@ public class WrappedATermFactory implements ITermFactory {
 
     public IStrategoTerm replaceAppl(IStrategoConstructor constructor, IStrategoTerm[] kids, IStrategoTerm old) {
         return makeAppl(constructor, kids);
+    }
+    
+    public IStrategoTerm annotate(IStrategoTerm term, IStrategoList annotations) {
+    	if (!(term instanceof WrappedATerm))
+    		throw new WrapperException();
+    	
+    	if (!(annotations instanceof WrappedATerm))
+    		throw new WrapperException();
+    	
+    	ATerm innerTerm = ((WrappedATerm) term).getATerm();
+    	ATermList annos = (ATermList) ((WrappedATerm) annotations).getATerm();
+    	
+    	return wrapTerm(innerTerm.setAnnotations(annos));
     }
 }

@@ -8,18 +8,30 @@
 package org.spoofax.interpreter.adapter.aterm;
 
 import org.spoofax.NotImplementedException;
+import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
 
 import aterm.ATerm;
+import aterm.ATermList;
 
 public abstract class WrappedATerm implements IStrategoTerm {
 
+	private final IStrategoList annotations;
+	
     protected WrappedATermFactory parent;
     
-    protected WrappedATerm(WrappedATermFactory parent) {
+    protected WrappedATerm(WrappedATermFactory parent, IStrategoList annotations) {
         this.parent = parent;
+        this.annotations = annotations;
     }
+    
+    protected WrappedATerm(WrappedATermFactory parent, ATermList annotations) {
+        this(parent, annotations.isEmpty() ? parent.makeList() : (IStrategoList) parent.wrapTerm(annotations));
+    }
+    
+    // FIXME: WrappedATerm.slowCompare does not take annotations into account
+    //        (but wrapped aterms don't play nice with other aterms anyway atm)
     
     protected abstract boolean slowCompare(Object second); /*{
         throw new WrapperException("Cannot compare with class " + second.getClass());
@@ -27,6 +39,14 @@ public abstract class WrappedATerm implements IStrategoTerm {
     
     
     public abstract ATerm getATerm();
+    
+    public IStrategoList getAnnotations() {
+    	return annotations == null ? parent.makeList() : annotations;
+    }
+    
+    protected void internalSetAnnotations(IStrategoList annotations) {
+    	
+    }
     
     public String prettyPrint() {
          throw new NotImplementedException();

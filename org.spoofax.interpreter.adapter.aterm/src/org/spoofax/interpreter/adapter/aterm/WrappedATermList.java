@@ -18,7 +18,7 @@ public class WrappedATermList extends WrappedATerm implements IStrategoList {
     private ATermList list;
     
     WrappedATermList(WrappedATermFactory parent, ATermList list) {
-        super(parent);
+        super(parent, list.getAnnotations());
         this.list = list;
     }
     

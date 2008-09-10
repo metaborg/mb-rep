@@ -19,7 +19,7 @@ public class WrappedATermAppl extends WrappedATerm implements IStrategoAppl {
     private ATermAppl appl;
     
     public WrappedATermAppl(WrappedATermFactory parent, ATermAppl appl) {
-        super(parent);
+        super(parent, appl.getAnnotations());
         this.appl = appl;
     }
     

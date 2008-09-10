@@ -18,7 +18,7 @@ public class WrappedATermReal extends WrappedATerm implements IStrategoReal {
     private ATermReal real;
     
     WrappedATermReal(WrappedATermFactory parent, ATermReal real) {
-        super(parent);
+        super(parent, real.getAnnotations());
         this.real = real;
     }
     
@@ -56,6 +56,7 @@ public class WrappedATermReal extends WrappedATerm implements IStrategoReal {
         return slowCompare(second);
     }
 
+    @Override
     protected boolean slowCompare(Object second) {
         if(!(second instanceof IStrategoReal))
             return false;

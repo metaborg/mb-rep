@@ -18,7 +18,7 @@ public class WrappedATermTuple extends WrappedATerm implements IStrategoTuple {
     private ATermAppl tuple;
     
     WrappedATermTuple(WrappedATermFactory parent, ATermAppl tuple) {
-        super(parent);
+        super(parent, tuple.getAnnotations());
         this.tuple = tuple;
     }
     

@@ -21,7 +21,7 @@ public class WrappedAFun extends WrappedATerm implements IStrategoConstructor {
     private AFun afun;
     
     WrappedAFun(WrappedATermFactory parent, AFun afun) {
-        super(parent);
+        super(parent, (IStrategoList) null);
         this.afun = afun;
     }
     
@@ -40,6 +40,11 @@ public class WrappedAFun extends WrappedATerm implements IStrategoConstructor {
         }
         // FIXME memoize
         return new WrappedATermAppl(parent, afun.getFactory().makeAppl(afun, args));
+    }
+    
+    @Override
+    public IStrategoList getAnnotations() {
+    	throw new UnsupportedOperationException();
     }
 
     @Override

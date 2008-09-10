@@ -18,7 +18,7 @@ public class WrappedATermInt extends WrappedATerm implements IStrategoInt {
     private ATermInt integer;
 
     WrappedATermInt(WrappedATermFactory parent, ATermInt integer) {
-        super(parent);
+        super(parent, integer.getAnnotations());
         this.integer = integer;
     }
 
@@ -53,6 +53,7 @@ public class WrappedATermInt extends WrappedATerm implements IStrategoInt {
         return slowCompare(second);
     }
 
+    @Override
     protected boolean slowCompare(Object second) {
         if (!(second instanceof IStrategoInt))
             return false;
