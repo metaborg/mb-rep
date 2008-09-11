@@ -201,7 +201,7 @@ public class WrappedATermFactory implements ITermFactory {
         return makeAppl(constructor, kids);
     }
     
-    public IStrategoTerm annotate(IStrategoTerm term, IStrategoList annotations) {
+    public IStrategoTerm annotateTerm(IStrategoTerm term, IStrategoList annotations) {
     	if (!(term instanceof WrappedATerm))
     		throw new WrapperException();
     	
