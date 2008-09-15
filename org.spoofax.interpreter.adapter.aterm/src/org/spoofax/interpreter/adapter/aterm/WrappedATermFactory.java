@@ -118,7 +118,7 @@ public class WrappedATermFactory implements ITermFactory {
     }
     
     public IStrategoList makeList() {
-    	return EMPTY_LIST;
+        return EMPTY_LIST;
     }
 
     public IStrategoList makeList(IStrategoTerm... terms) {
@@ -146,6 +146,11 @@ public class WrappedATermFactory implements ITermFactory {
 
     public IStrategoList makeList(Collection<IStrategoTerm> terms) {
         return makeList(terms.toArray(new IStrategoTerm[0]));
+    }
+   
+    public IStrategoList makeList(IStrategoTerm head, IStrategoList tail) {
+        // TODO: Handle list prepending in factory
+        return tail.prepend(head);
     }
 
     public IStrategoReal makeReal(double d) {

@@ -10,7 +10,6 @@ package org.spoofax.interpreter.adapter.aterm;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoList;
 
-import aterm.ATerm;
 import aterm.ATermList;
 
 public class WrappedATermList extends WrappedATerm implements IStrategoList {
@@ -23,7 +22,7 @@ public class WrappedATermList extends WrappedATerm implements IStrategoList {
     }
     
     public IStrategoTerm get(int i) {
-        return parent.wrapTerm((ATerm)list.getChildAt(i));
+        return parent.wrapTerm(list.elementAt(i));
     }
 
     public IStrategoList prepend(IStrategoTerm prefix) {
@@ -31,14 +30,14 @@ public class WrappedATermList extends WrappedATerm implements IStrategoList {
             return (IStrategoList) parent.wrapTerm((list.insert(((WrappedATerm)prefix).getATerm())));
         }
         throw new WrapperException("Is " + prefix.getClass());    
-       }
+    }
 
     public int size() {
         return list.getChildCount();
     }
 
     public IStrategoTerm getSubterm(int index) {
-        return parent.wrapTerm((ATerm)list.getChildAt(index));
+        return parent.wrapTerm(list.elementAt(index));
     }
     
     public IStrategoTerm[] getAllSubterms() {
