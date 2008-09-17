@@ -202,8 +202,16 @@ public class WrappedATermFactory implements ITermFactory {
 //            System.out.println()
     }
 
-    public IStrategoTerm replaceAppl(IStrategoConstructor constructor, IStrategoTerm[] kids, IStrategoTerm old) {
+    public IStrategoAppl replaceAppl(IStrategoConstructor constructor, IStrategoTerm[] kids, IStrategoAppl old) {
         return makeAppl(constructor, kids);
+    }
+    
+    public IStrategoList replaceList(IStrategoTerm[] kids, IStrategoList old) {
+        return makeList(kids);
+    }
+    
+    public IStrategoTuple replaceTuple(IStrategoTerm[] kids, IStrategoTuple old) {
+        return makeTuple(kids);
     }
     
     public IStrategoTerm annotateTerm(IStrategoTerm term, IStrategoList annotations) {
