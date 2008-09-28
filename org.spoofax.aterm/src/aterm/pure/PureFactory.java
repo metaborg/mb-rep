@@ -824,7 +824,6 @@ public ATerm readFromFile(InputStream stream) throws IOException {
 class HashedWeakRef extends WeakReference {
   protected HashedWeakRef next;
 
-  @SuppressWarnings("unchecked")
   public HashedWeakRef(Object object, HashedWeakRef next) {
     super(object);
     this.next = next;
