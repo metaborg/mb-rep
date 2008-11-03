@@ -23,6 +23,7 @@ import java.io.BufferedInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Stack;
 
 import aterm.AFun;
 import aterm.ATerm;
@@ -130,86 +131,143 @@ public class BAFReader {
 
     int level = 0;
     
-    private ATerm readTerm(SymEntry e) throws ParseError, IOException {
-        final int arity = e.arity;
-        final ATerm[] args = new ATerm[arity];
-
-        level++;
+    static class ReadTermFrame {
+        final SymEntry input;
+        final ATerm[] outputArgs;
         
-        if(isDebugging())
-            debug("readTerm()/" + level + " - " + e.fun.getName() + "[" + arity + "]");
+        int index;
+        SymEntry argSym;
+        int val;
+        
+        public ReadTermFrame(SymEntry input) {
+            this.input = input;
+            this.outputArgs = new ATerm[input.arity];
+        }
+    }
+    
+    private ATerm readTerm(SymEntry e) throws ParseError, IOException {
+        // TODO: Optimize readTerm?
+        //       e.g., throw in some rounds of native-stack based reading,
+        //       avoid the doubly synchronized, virtual, Vector-based Stack class,
+        final Stack<ReadTermFrame> stack = new Stack<ReadTermFrame>();
+        
+        ReadTermFrame frame = new ReadTermFrame(e);
+        boolean resumingFrame = false;
+        
+     readTerm:
+        for(;;) {
+            final SymEntry input = frame.input;
+            final ATerm[] outputArgs = frame.outputArgs;
 
-        for (int i = 0; i < arity; i++) {
-            int val = reader.readBits(e.symWidth[i]);
-            if(isDebugging()) {
-                debug(" [" + i + "] - " + val);
-                debug(" [" + i + "] - " + e.topSyms[i].length);
+            if (!resumingFrame) {
+                level++;
+                if(isDebugging()) debug("readTerm()/" + level + " - " + input.fun.getName() + "[" + input.arity + "]");
             }
-            SymEntry argSym = symbols[e.topSyms[i][val]];
+            
+            for (int i = frame.index, arity = input.arity; i < arity; i++) {
+                final SymEntry argSym;
+                final int val;
+                
+                if (!resumingFrame) {
+                    final int symVal = reader.readBits(input.symWidth[i]);
+                    if(isDebugging()) {
+                        debug(" [" + i + "] - " + symVal);
+                        debug(" [" + i + "] - " + input.topSyms[i].length);
+                    }
+                    argSym = symbols[input.topSyms[i][symVal]];
+                    val = reader.readBits(argSym.termWidth);
+                    
+                    if (argSym.terms[val] == null) {
+                        if(isDebugging()) debug(" [" + i+  "] - recurse");
 
-            val = reader.readBits(argSym.termWidth);
-            if (argSym.terms[val] == null) {
-                if(isDebugging())
-                    debug(" [" + i+  "] - recurse");
-                argSym.terms[val] = readTerm(argSym);
+                        frame.index = i;
+                        frame.argSym = argSym;
+                        frame.val = val;
+                        stack.push(frame);
+                        
+                        frame = new ReadTermFrame(argSym); // recurse: argSym.terms[val] = readTerm(argSym);
+                        continue readTerm;
+                    }
+                } else {
+                    // Re-entry after recursion
+                    resumingFrame = false;
+                    argSym = frame.argSym;
+                    val = frame.val;
+                }
+    
+                if (argSym.terms[val] == null) throw new ParseError("Cannot be null");
+    
+                outputArgs[i] = argSym.terms[val];
             }
-
-            if (argSym.terms[val] == null)
-                throw new ParseError("Cannot be null");
-
-            args[i] = argSym.terms[val];
-        }
-
-        /*
-        switch (e.fun.getType()) {
-        case ATerm.BLOB:
-            reader.flushBitsFromReader();
-            String t = reader.readString();
-            return factory.makeBlob(t.getBytes());
-        case ATerm.PLACEHOLDER:
-            return factory.makePlaceholder(args[0]);
-        }
-        */
-
-        final String name = e.fun.getName();
-        if (name.equals("<int>")) {
-            int val = reader.readBits(HEADER_BITS);
-            level--;
-            return factory.makeInt(val);
-        }
-        else if (name.equals("<real>")) {
-            reader.flushBitsFromReader();
-            String s = reader.readString();
-            level--;
-            return factory.makeReal(new Double(s).doubleValue());
-        }
-        else if (name.equals("[_,_]")) {
-            if(isDebugging()) {
-                debug("--");
-                for (int i = 0; i < args.length; i++)
-                    debug(" + " + args[i].getClass());
+            
+            final ATerm result = readTermTop(input, outputArgs);
+            
+            if (stack.isEmpty()) {
+                return result;
+            } else {
+                // Add result to parent frame
+                frame = stack.pop();
+                frame.argSym.terms[frame.val] = result;
+                resumingFrame = true;
             }
-            level--;
-            return ((ATermList) args[1]).insert(args[0]);
         }
-        else if (name.equals("[]")) {
-            level--;
-            return factory.makeList();
-        }
-        else if (name.equals("{_}")) {
-        	throw new RuntimeException("Annotations not implemented");
-        }
+    }
 
-        // FIXME: Add blob case
-        // FIXME: Add placeholder case
+    private ATerm readTermTop(SymEntry e, final ATerm[] args) throws IOException {
+      /*
+      switch (e.fun.getType()) {
+      case ATerm.BLOB:
+          reader.flushBitsFromReader();
+          String t = reader.readString();
+          return factory.makeBlob(t.getBytes());
+      case ATerm.PLACEHOLDER:
+          return factory.makePlaceholder(args[0]);
+      }
+      */
 
-        if(isDebugging()) {
-            debug(e.fun + " / " + args);
-            for (int i = 0; i < args.length; i++)
-                debug("" + args[i]);
-        }
-        level--;
-        return factory.makeAppl(e.fun, args);
+      final String name = e.fun.getName();
+      final int LONGEST_BUILTIN_NAME = 6; // longest string length of "<int>", etc.
+      
+      if (name.length() <= LONGEST_BUILTIN_NAME) {
+          if (name.equals("<int>")) {
+              int val = reader.readBits(HEADER_BITS);
+              level--;
+              return factory.makeInt(val);
+          }
+          else if (name.equals("<real>")) {
+              reader.flushBitsFromReader();
+              String s = reader.readString();
+              level--;
+              return factory.makeReal(new Double(s).doubleValue());
+          }
+          else if (name.equals("[_,_]")) {
+              if(isDebugging()) {
+                  debug("--");
+                  for (int i = 0; i < args.length; i++)
+                      debug(" + " + args[i].getClass());
+              }
+              level--;
+              return ((ATermList) args[1]).insert(args[0]);
+          }
+          else if (name.equals("[]")) {
+              level--;
+              return factory.makeList();
+          }
+          else if (name.equals("{_}")) {
+          	throw new RuntimeException("Annotations not implemented");
+          }
+      }
+
+      // FIXME: Add blob case
+      // FIXME: Add placeholder case
+
+      if(isDebugging()) {
+          debug(e.fun + " / " + args);
+          for (int i = 0; i < args.length; i++)
+              debug("" + args[i]);
+      }
+      level--;
+      return factory.makeAppl(e.fun, args);
     }
 
     private void readAllSymbols() throws IOException {
