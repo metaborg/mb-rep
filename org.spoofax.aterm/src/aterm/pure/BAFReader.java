@@ -21,6 +21,7 @@ package aterm.pure;
 
 import java.io.BufferedInputStream;
 import java.io.EOFException;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Stack;
@@ -46,7 +47,7 @@ public class BAFReader {
 
     private PureFactory factory;
 
-    public static boolean isDebugging = false;
+    public final static boolean isDebugging = false;
 
     class SymEntry {
 
@@ -70,7 +71,15 @@ public class BAFReader {
 
     public BAFReader(PureFactory factory, InputStream inputStream) {
         this.factory = factory;
-        reader = new BitStream(inputStream);
+        if(inputStream instanceof FileInputStream) {
+        	try {
+        		reader = new MemoryMappedBitStream((FileInputStream)inputStream);
+        	} catch(IOException e) {
+        		reader = new BitStream(inputStream);
+        	}
+        } else {
+        	reader = new BitStream(inputStream);
+        }
     }
 
     public ATerm readFromBinaryFile(boolean headerAlreadyRead) throws ParseError, IOException {
@@ -174,6 +183,7 @@ public class BAFReader {
                         debug(" [" + i + "] - " + symVal);
                         debug(" [" + i + "] - " + input.topSyms[i].length);
                     }
+                    
                     argSym = symbols[input.topSyms[i][symVal]];
                     val = reader.readBits(argSym.termWidth);
                     
@@ -195,7 +205,8 @@ public class BAFReader {
                     val = frame.val;
                 }
     
-                if (argSym.terms[val] == null) throw new ParseError("Cannot be null");
+                if (argSym.terms[val] == null) 
+                	throw new ParseError("Malformed ATerm: Cannot be null");
     
                 outputArgs[i] = argSym.terms[val];
             }
@@ -252,14 +263,17 @@ public class BAFReader {
           else if (name.equals("[]")) {
               level--;
               return factory.makeList();
-          }
-          else if (name.equals("{_}")) {
-          	throw new RuntimeException("Annotations not implemented");
+          } else if (name.equals("{_}")) {
+              return args[0].setAnnotations((ATermList)args[1]);
+          } else if (name.equals("<_>")) {
+        	  return factory.makePlaceholder(args[0]);
+          } else if(false) {
+        	  // FIXME: test blobs properly
+        	  reader.flushBitsFromReader();
+              String t = reader.readString();
+              return factory.makeBlob(t.getBytes());
           }
       }
-
-      // FIXME: Add blob case
-      // FIXME: Add placeholder case
 
       if(isDebugging()) {
           debug(e.fun + " / " + args);
@@ -334,91 +348,5 @@ public class BAFReader {
             debug(s + " / " + arity + " / " + quoted);
 
         return factory.makeAFun(s, arity, quoted != 0);
-    }
-
-    public static class BitStream {
-
-        InputStream stream;
-        private int bitsInBuffer;
-        private int bitBuffer;
-
-        public BitStream(InputStream inputStream) {
-            stream = inputStream;
-        }
-
-        public int readInt() throws IOException {
-            int[] buf = new int[5];
-
-            buf[0] = readByte();
-            
-            // Check if 1st character is enough
-            if((buf[0] & 0x80) == 0)
-                return buf[0];
-
-            buf[1]  = readByte();
-            
-            // Check if 2nd character is enough
-            if((buf[0] & 0x40) == 0)
-                return buf[1] + ((buf[0] & ~0xc0) << 8);
-
-            buf[2] = readByte();
-
-            // Check if 3rd character is enough
-            if((buf[0] & 0x20) == 0 )
-                return buf[2] + (buf[1] << 8) + ((buf[0] & ~0xe0) << 16);
-
-            buf[3] = readByte();
-            
-            // Check if 4th character is enough
-            if((buf[0] & 0x10) == 0 )
-                return buf[3] + (buf[2] << 8) + (buf[1] << 16) +
-                  ((buf[0] & ~0xf0) << 24);
-            
-            buf[4] = readByte();
-
-            return buf[4] + (buf[3] << 8) + (buf[2] << 16) + (buf[1] << 24);
-        }
-
-        private int readByte() throws IOException {
-            int c = stream.read();
-            if(c == -1)
-                throw new EOFException();
-            return c;
-        }
-
-        public String readString() throws IOException {
-            int l = readInt();
-            byte[] b = new byte[l];
-            int v = 0;
-            while(v < b.length) {
-                v += stream.read(b, v, b.length - v);
-            }
-            return new String(b);
-        }
-
-        public int readBits(int nrBits) throws IOException {
-            int mask = 1;
-            int val = 0;
-            
-            for (int i=0; i<nrBits; i++) {
-              if (bitsInBuffer == 0) {
-                int v = readByte();
-                if (v == -1)
-                  return -1;
-                bitBuffer = v;
-                bitsInBuffer = 8;
-              }
-              val |= (((bitBuffer & 0x80) != 0) ? mask : 0);
-              mask <<= 1;
-              bitBuffer <<= 1;
-              bitsInBuffer--;
-            }
-            
-            return val;
-        }
-
-        public void flushBitsFromReader() {
-            bitsInBuffer = 0;
-        }
     }
 }
