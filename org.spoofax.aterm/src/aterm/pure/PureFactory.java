@@ -806,7 +806,7 @@ public ATerm readFromFile(InputStream stream) throws IOException {
             || last_char == '(') {
       return readFromTextFile(reader);
     } else {
-      throw new RuntimeException("Invalid ATerm.");
+      throw new IOException("Invalid ATerm.");
     }
   }
 
