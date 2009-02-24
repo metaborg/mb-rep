@@ -34,9 +34,9 @@ import aterm.ATermReal;
 public class WrappedATermFactory implements ITermFactory {
 	private final IStrategoList EMPTY_LIST; 
 	
-    private TrackingATermFactory realFactory;
-    private WeakHashMap<ATerm, WrappedATerm> termCache;
-    private WeakHashMap<AFun, IStrategoConstructor> ctorCache;
+    private final TrackingATermFactory realFactory;
+    private final WeakHashMap<ATerm, WrappedATerm> termCache;
+    private final WeakHashMap<AFun, IStrategoConstructor> ctorCache;
     
     public TrackingATermFactory getFactory() {
     	return realFactory;
