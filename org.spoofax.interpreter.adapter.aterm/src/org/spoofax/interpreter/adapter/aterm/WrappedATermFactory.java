@@ -70,34 +70,38 @@ public class WrappedATermFactory implements ITermFactory {
 
     public WrappedATerm wrapTerm(ATerm t) {
         
-        WrappedATerm r = termCache.get(t);
+        WrappedATerm r = getInterned(t);
         if(r != null)
             return r;
         
         switch(t.getType()) {
         case ATerm.AFUN:
-            return memoize(t, new WrappedAFun(this, (AFun)t));
+            return setInterned(t, new WrappedAFun(this, (AFun)t));
         case ATerm.REAL:
-            return memoize(t, new WrappedATermReal(this, (ATermReal)t));
+            return setInterned(t, new WrappedATermReal(this, (ATermReal)t));
         case ATerm.INT:
-            return memoize(t, new WrappedATermInt(this, (ATermInt)t));
+            return setInterned(t, new WrappedATermInt(this, (ATermInt)t));
         case ATerm.LIST:
-            return memoize(t, new WrappedATermList(this, (ATermList)t));
+            return setInterned(t, new WrappedATermList(this, (ATermList)t));
         case ATerm.APPL:
             ATermAppl a = (ATermAppl)t;
             if(a.isQuoted() && a.getArity() == 0)
-                return memoize(t, new WrappedATermString(this, a));
+                return setInterned(t, new WrappedATermString(this, a));
             else if(a.getName().equals("")) // FIXME use AFun
-                return memoize(t, new WrappedATermTuple(this, a));
+                return setInterned(t, new WrappedATermTuple(this, a));
             else  
-                return memoize(t, new WrappedATermAppl(this, a));
+                return setInterned(t, new WrappedATermAppl(this, a));
         }
         throw new WrapperException();
     }
 
-     private <T extends WrappedATerm> T memoize(ATerm t, T wrapper) {
+    protected <T extends WrappedATerm> T setInterned(ATerm t, T wrapper) {
         termCache.put(t, wrapper);
         return wrapper;
+    }
+    
+    protected WrappedATerm getInterned(ATerm t) {
+        return termCache.get(t);
     }
 
     public IStrategoAppl makeAppl(IStrategoConstructor ctr, IStrategoList kids) {
@@ -114,7 +118,7 @@ public class WrappedATermFactory implements ITermFactory {
 
     public IStrategoInt makeInt(int i) {
         ATermInt x = realFactory.makeInt(i);
-        return memoize(x, new WrappedATermInt(this, x));
+        return setInterned(x, new WrappedATermInt(this, x));
     }
     
     public IStrategoList makeList() {
@@ -137,7 +141,7 @@ public class WrappedATermFactory implements ITermFactory {
         if(r != null)
             return r;
 
-        return memoize(l, new WrappedATermList(this, l));
+        return setInterned(l, new WrappedATermList(this, l));
     }
 
     private IStrategoTerm lookupTerm(ATermList l) {
