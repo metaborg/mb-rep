@@ -38,6 +38,8 @@ public class BAFReader {
     private static final int BAF_VERSION = 0x300;
 
     private static final int HEADER_BITS = 32;
+    
+    private static final ThreadLocal<Stack<ReadTermFrame>> readerStacks = new ThreadLocal<Stack<ReadTermFrame>>();
 
     private BitStream reader;
 
@@ -158,7 +160,8 @@ public class BAFReader {
         // TODO: Optimize readTerm?
         //       e.g., throw in some rounds of native-stack based reading,
         //       avoid the doubly synchronized, virtual, Vector-based Stack class,
-        final Stack<ReadTermFrame> stack = new Stack<ReadTermFrame>();
+        Stack<ReadTermFrame> stack = readerStacks.get();
+        if (stack == null) readerStacks.set(stack = new Stack<ReadTermFrame>());
         
         ReadTermFrame frame = new ReadTermFrame(e);
         boolean resumingFrame = false;
