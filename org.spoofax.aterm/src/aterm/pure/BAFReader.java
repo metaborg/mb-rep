@@ -24,7 +24,7 @@ import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Stack;
+import java.util.ArrayList;
 
 import aterm.AFun;
 import aterm.ATerm;
@@ -39,7 +39,8 @@ public class BAFReader {
 
     private static final int HEADER_BITS = 32;
     
-    private static final ThreadLocal<Stack<ReadTermFrame>> readerStacks = new ThreadLocal<Stack<ReadTermFrame>>();
+    private static final ThreadLocal<ArrayList<ReadTermFrame>> readerStacks =
+        new ThreadLocal<ArrayList<ReadTermFrame>>();
 
     private BitStream reader;
 
@@ -158,10 +159,9 @@ public class BAFReader {
     
     private ATerm readTerm(SymEntry e) throws ParseError, IOException {
         // TODO: Optimize readTerm?
-        //       e.g., throw in some rounds of native-stack based reading,
-        //       avoid the doubly synchronized, virtual, Vector-based Stack class,
-        Stack<ReadTermFrame> stack = readerStacks.get();
-        if (stack == null) readerStacks.set(stack = new Stack<ReadTermFrame>());
+        //       e.g., throw in some rounds of native-stack based reading
+        ArrayList<ReadTermFrame> stack = readerStacks.get();
+        if (stack == null) readerStacks.set(stack = new ArrayList<ReadTermFrame>());
         
         ReadTermFrame frame = new ReadTermFrame(e);
         boolean resumingFrame = false;
@@ -196,7 +196,7 @@ public class BAFReader {
                         frame.index = i;
                         frame.argSym = argSym;
                         frame.val = val;
-                        stack.push(frame);
+                        stack.add(frame);
                         
                         frame = new ReadTermFrame(argSym); // recurse: argSym.terms[val] = readTerm(argSym);
                         continue readTerm;
@@ -220,7 +220,7 @@ public class BAFReader {
                 return result;
             } else {
                 // Add result to parent frame
-                frame = stack.pop();
+                frame = stack.remove(stack.size() - 1);
                 frame.argSym.terms[frame.val] = result;
                 resumingFrame = true;
             }
