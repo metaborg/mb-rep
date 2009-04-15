@@ -20,10 +20,12 @@
 package aterm.pure;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PushbackInputStream;
 import java.util.ArrayList;
 
 import aterm.AFun;
@@ -34,6 +36,8 @@ import aterm.ParseError;
 public class BAFReader {
 
     private static final int BAF_MAGIC = 0xBAF;
+    
+    public static final int BAF_MAGIC_SIZE = 8; // bytes in BAF header magic
 
     private static final int BAF_VERSION = 0x300;
 
@@ -128,12 +132,22 @@ public class BAFReader {
         try {
             int w0 = in.readInt();
             int w1 = in.readInt();
+            System.out.println("w0w1:" + w0 + " " + w1);
 
             if (w0 == 0 && w1 == BAF_MAGIC)
                 return true;
         } catch(EOFException e) {}
 
         return false;
+    }
+
+    public static boolean isBinaryATerm(PushbackInputStream in) throws IOException {
+        byte[] header = new byte[BAF_MAGIC_SIZE];
+        
+        in.read(header);
+        in.unread(header);
+        
+        return isBinaryATerm(new BitStream(new ByteArrayInputStream(header)));
     }
 
 
