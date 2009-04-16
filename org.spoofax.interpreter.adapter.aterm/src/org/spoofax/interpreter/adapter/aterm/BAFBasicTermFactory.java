@@ -32,12 +32,10 @@ public class BAFBasicTermFactory extends BasicTermFactory {
     public IStrategoTerm parseFromStream(PushbackInputStream inputStream)
             throws IOException {
         
-        System.out.println("TEST");
         if (BAFReader.isBinaryATerm(inputStream)) {
             IStrategoTerm result = wrappedFactory.parseFromStream(inputStream);
             return converter.convert(result);
         } else {
-            System.out.println("non-binary");
             return super.parseFromStream(inputStream);
         }
     }

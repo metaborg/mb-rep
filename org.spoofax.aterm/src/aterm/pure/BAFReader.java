@@ -132,7 +132,6 @@ public class BAFReader {
         try {
             int w0 = in.readInt();
             int w1 = in.readInt();
-            System.out.println("w0w1:" + w0 + " " + w1);
 
             if (w0 == 0 && w1 == BAF_MAGIC)
                 return true;
