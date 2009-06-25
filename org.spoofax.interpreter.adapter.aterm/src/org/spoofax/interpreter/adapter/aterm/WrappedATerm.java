@@ -30,6 +30,10 @@ public abstract class WrappedATerm implements IStrategoTerm {
         this(parent, annotations.isEmpty() ? parent.makeList() : (IStrategoList) parent.wrapTerm(annotations));
     }
     
+    public int getStorageType() {
+        return MAXIMALLY_SHARED;
+    }
+    
     // FIXME: WrappedATerm.slowCompare does not take annotations into account
     //        (but wrapped aterms don't play nice with other aterms anyway atm)
     
