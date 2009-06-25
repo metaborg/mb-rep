@@ -15,7 +15,7 @@ import java.io.InputStream;
  */
 public class BitStream {
 
-    InputStream stream;
+    private final InputStream stream;
     private int bitsInBuffer;
     private int bitBuffer;
 
@@ -26,36 +26,34 @@ public class BitStream {
     }
 
     public int readInt() throws IOException {
-        int[] buf = new int[5];
-
-        buf[0] = readByte();
+        int buf0 = readByte();
         
         // Check if 1st character is enough
-        if((buf[0] & 0x80) == 0)
-            return buf[0];
+        if((buf0 & 0x80) == 0)
+            return buf0;
 
-        buf[1]  = readByte();
+        int buf1  = readByte();
         
         // Check if 2nd character is enough
-        if((buf[0] & 0x40) == 0)
-            return buf[1] + ((buf[0] & ~0xc0) << 8);
+        if((buf0 & 0x40) == 0)
+            return buf1 + ((buf0 & ~0xc0) << 8);
 
-        buf[2] = readByte();
+        int buf2 = readByte();
 
         // Check if 3rd character is enough
-        if((buf[0] & 0x20) == 0 )
-            return buf[2] + (buf[1] << 8) + ((buf[0] & ~0xe0) << 16);
+        if((buf0 & 0x20) == 0 )
+            return buf2 + (buf1 << 8) + ((buf0 & ~0xe0) << 16);
 
-        buf[3] = readByte();
+        int buf3 = readByte();
         
         // Check if 4th character is enough
-        if((buf[0] & 0x10) == 0 )
-            return buf[3] + (buf[2] << 8) + (buf[1] << 16) +
-              ((buf[0] & ~0xf0) << 24);
+        if((buf0 & 0x10) == 0 )
+            return buf3 + (buf2 << 8) + (buf1 << 16) +
+              ((buf0 & ~0xf0) << 24);
         
-        buf[4] = readByte();
+        int buf4 = readByte();
 
-        return buf[4] + (buf[3] << 8) + (buf[2] << 16) + (buf[1] << 24);
+        return buf4 + (buf3 << 8) + (buf2 << 16) + (buf1 << 24);
     }
 
     protected int readByte() throws IOException {
