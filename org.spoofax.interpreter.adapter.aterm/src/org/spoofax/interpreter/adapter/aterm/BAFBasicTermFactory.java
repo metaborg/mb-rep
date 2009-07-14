@@ -32,7 +32,11 @@ public class BAFBasicTermFactory extends BasicTermFactory {
 
     @Override
     public IStrategoTerm parseFromStream(InputStream inputStream) throws IOException {
-        BufferedInputStream bis = new BufferedInputStream(inputStream);
+        BufferedInputStream bis;
+        if (inputStream instanceof BufferedInputStream)
+            bis = (BufferedInputStream) inputStream;
+        else
+            bis = new BufferedInputStream(inputStream);
         
         if (BAFReader.isBinaryATerm(bis)) {
             ATerm result = new BAFReader(wrappedFactory.getFactory(), bis).readFromBinaryFile(true);
