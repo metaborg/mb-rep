@@ -7,7 +7,7 @@
  */
 package org.spoofax.interpreter.adapter.aterm;
 
-public class WrapperException extends RuntimeException {
+public class WrapperException extends UnsupportedOperationException {
 
     private String message;
     
