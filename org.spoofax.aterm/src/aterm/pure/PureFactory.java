@@ -50,6 +50,8 @@ import aterm.ParseError;
 public class PureFactory extends SharedObjectFactory implements ATermFactory {
 
   private static int DEFAULT_TERM_TABLE_SIZE = 16; // means 2^16 entries
+  
+  private final ATermInt[] intCache = new ATermInt[256];
 
   private ATermListImpl protoList;
 
@@ -149,6 +151,16 @@ public class PureFactory extends SharedObjectFactory implements ATermFactory {
   }
 
   public ATermInt makeInt(int value, ATermList annos) {
+    if (annos == empty && 0 <= value && value <= 255) {
+      synchronized (intCache) {
+        ATermInt result = intCache[value];
+        if (result == null) {
+          protoInt.initHashCode(annos, value);
+          intCache[value] = result = (ATermInt) build(protoInt);
+        }
+        return result;
+      }
+    }
     synchronized (protoInt) {
       protoInt.initHashCode(annos, value);
       return (ATermInt) build(protoInt);
