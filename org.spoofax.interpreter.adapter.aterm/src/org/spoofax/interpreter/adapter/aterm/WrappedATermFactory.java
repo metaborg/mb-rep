@@ -152,7 +152,12 @@ public class WrappedATermFactory implements ITermFactory {
         return makeList(terms.toArray(new IStrategoTerm[0]));
     }
    
-    public IStrategoList makeList(IStrategoTerm head, IStrategoList tail) {
+    @Deprecated
+    public final IStrategoList makeList(IStrategoTerm head, IStrategoList tail) {
+        return makeListCons(head, tail);
+    }
+   
+    public IStrategoList makeListCons(IStrategoTerm head, IStrategoList tail) {
         // TODO: Handle list prepending in factory
         return tail.prepend(head);
     }

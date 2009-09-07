@@ -22,6 +22,7 @@ package aterm.pure;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -817,6 +818,8 @@ public ATerm readFromFile(InputStream stream) throws IOException {
             || last_char == '"'
             || last_char == '(') {
       return readFromTextFile(reader);
+    } else if (last_char == -1) {
+      throw new EOFException("Empty stream: could not read ATerm");
     } else {
       throw new IOException("Invalid ATerm.");
     }

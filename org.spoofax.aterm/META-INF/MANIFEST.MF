@@ -15,5 +15,6 @@ Export-Package: aterm,
  jjtraveler.util,
  shared
 Bundle-ClassPath: lib/jjtraveler-0.4.3.jar,
- lib/shared-objects-1.4.jar, aterm.jar
+ lib/shared-objects-1.4.jar,
+ src/
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
