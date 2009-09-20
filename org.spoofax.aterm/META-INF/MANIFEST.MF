@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Annotated Term Library
 Bundle-SymbolicName: org.spoofax.aterm
-Bundle-Version: 0.2.2.qualifier
+Bundle-Version: 0.2.3.qualifier
 Bundle-Vendor: Spoofax.org
 Bundle-ActivationPolicy: lazy
 Export-Package: aterm,
@@ -14,7 +14,5 @@ Export-Package: aterm,
  jjtraveler.reflective,
  jjtraveler.util,
  shared
-Bundle-ClassPath: lib/jjtraveler-0.4.3.jar,
- lib/shared-objects-1.4.jar,
- src/
+Bundle-ClassPath: ., lib/jjtraveler-0.4.3.jar, lib/shared-objects-1.4.jar
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
