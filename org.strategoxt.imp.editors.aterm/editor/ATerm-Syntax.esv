@@ -1,0 +1,4 @@
+module ATerm-Syntax
+
+language
+  fences : ( ) // [ ] (square brackets were problematic before? IMP issue?)

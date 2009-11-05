@@ -1,0 +1,10 @@
+
+module ATerm-References
+
+imports ATerm-References.generated
+
+references
+                                                                                   
+  // This file can be used for custom reference resolving and                      
+  // occurrence highlighting rules.                                                
+  // See the imported file for a brief introduction and examples.
