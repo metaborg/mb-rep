@@ -1,3 +1,9 @@
+%%
+%% Stratego-ATerm syntax
+%%
+%% Makes parentheses after terms optional,
+%% and supports tuples.
+
 definition
 module basic/IdentifierCon
 
@@ -103,7 +109,8 @@ exports
 	IntCon 					-> ATerm {cons("int")}
 	RealCon					-> ATerm {cons("real")}
 	fun:AFun 				-> ATerm {cons("fun")}
-	fun:AFun "(" args:{ATerm ","}* ")" 	-> ATerm {cons("appl")} %% HACK: changed from + to * for Stratego/XT
+	fun:AFun "(" args:{ATerm ","}* ")" 	-> ATerm {cons("appl")}  %% changed from + to *
+	         "(" args:{ATerm ","}* ")" 	-> ATerm {cons("tuple")} %% added for tuple support
 	"<" type:ATerm ">" 			-> ATerm {cons("placeholder")}
 	"[" elems:{ATerm ","}* "]" 		-> ATerm {cons("list")}
 	trm:ATerm Annotation 			-> ATerm {cons("annotated")}
