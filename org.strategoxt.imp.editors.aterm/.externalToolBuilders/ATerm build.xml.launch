@@ -21,6 +21,8 @@
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.ant.ui.AntClasspathProvider"/>
 <mapAttribute key="org.eclipse.ui.externaltools.ATTR_ANT_PROPERTIES">
 <mapEntry key="externaldef" value="syntax/ATerm.def"/>
+<mapEntry key="eclipse.spoofaximp.strategojar" value="${env_var:HOME}/.nix-profile/share/strc-java/strategoxt.jar"/>
+<mapEntry key="eclipse.spoofaximp.jars" value="${workspace_loc:/org.strategoxt.imp.generator/lib/}"/>
 </mapAttribute>
 <stringAttribute key="org.eclipse.ui.externaltools.ATTR_LAUNCH_CONFIGURATION_BUILD_SCOPE" value="${project}"/>
 <stringAttribute key="org.eclipse.ui.externaltools.ATTR_LOCATION" value="${workspace_loc:/org.strategoxt.imp.editors.aterm/build.xml}"/>
