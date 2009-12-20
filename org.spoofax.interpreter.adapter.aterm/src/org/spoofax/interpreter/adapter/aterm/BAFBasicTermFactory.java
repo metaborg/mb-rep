@@ -14,6 +14,8 @@ import aterm.pure.BAFReader;
 /**
  * A basic term factory that can read BAF aterms.
  * 
+ * (Has been replaced by org.strategotx.lang.terms.TermFactory.)
+ * 
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 public class BAFBasicTermFactory extends BasicTermFactory {
