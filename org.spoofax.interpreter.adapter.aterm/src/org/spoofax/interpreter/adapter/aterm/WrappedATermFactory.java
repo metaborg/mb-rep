@@ -18,6 +18,7 @@ import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoInt;
 import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoPlaceholder;
 import org.spoofax.interpreter.terms.IStrategoReal;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -110,6 +111,10 @@ public class WrappedATermFactory implements ITermFactory {
 
     public IStrategoAppl makeAppl(IStrategoConstructor ctr, IStrategoTerm... kids) {
         return ctr.instantiate(this, kids);
+    }
+    
+    public IStrategoPlaceholder makePlaceholder(IStrategoTerm template) {
+        throw new NotImplementedException();
     }
 
     public IStrategoConstructor makeConstructor(String name, int arity) {
