@@ -109,11 +109,14 @@ exports
 	IntCon 					-> ATerm {cons("int")}
 	RealCon					-> ATerm {cons("real")}
 	fun:AFun 				-> ATerm {cons("fun")}
-	fun:AFun "(" args:{ATerm ","}* ")" 	-> ATerm {cons("appl")}  %% changed from + to *
-	         "(" args:{ATerm ","}* ")" 	-> ATerm {cons("tuple")} %% added for tuple support
+	fun:AFun "(" args:{ATerm ","}* ")" 	-> ATerm {cons("appl")} %% changed from + to *
+	NoAFun   "(" args:{ATerm ","}* ")" 	-> ATerm {cons("appl")} %% added for tuple support
 	"<" type:ATerm ">" 			-> ATerm {cons("placeholder")}
 	"[" elems:{ATerm ","}* "]" 		-> ATerm {cons("list")}
 	trm:ATerm Annotation 			-> ATerm {cons("annotated")}
+
+  lexical syntax
+    ^[]* -> NoAFun %% added for tuple support
 
   context-free syntax
 	"{" annos:{ ATerm ","}+ "}" 		-> Annotation {cons("default")}
