@@ -116,7 +116,7 @@ exports
 	trm:ATerm Annotation 			-> ATerm {cons("annotated")}
 
   lexical syntax
-    ^[]* -> NoAFun %% added for tuple support
+    ~[]* -> NoAFun %% added for tuple support
 
   context-free syntax
 	"{" annos:{ ATerm ","}+ "}" 		-> Annotation {cons("default")}
