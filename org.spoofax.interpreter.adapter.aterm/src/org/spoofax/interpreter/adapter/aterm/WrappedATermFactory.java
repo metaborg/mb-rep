@@ -7,9 +7,11 @@
  */
 package org.spoofax.interpreter.adapter.aterm;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Writer;
 import java.util.Collection;
 import java.util.WeakHashMap;
 
@@ -197,6 +199,12 @@ public class WrappedATermFactory implements ITermFactory {
     	if (!(t instanceof WrappedATerm))
     		throw new WrapperException();
     	((WrappedATerm)t).getATerm().writeToTextFile(ous);
+    }
+
+    public void unparseToFile(IStrategoTerm t, final Writer out) throws IOException {
+        ByteArrayOutputStream ous = new ByteArrayOutputStream();
+        unparseToFile(t, out);
+        out.write(ous.toString());
     }
 
     public IStrategoConstructor wrapConstructor(AFun fun) {
