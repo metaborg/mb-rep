@@ -156,7 +156,7 @@ public class ATermConverter {
     @SuppressWarnings("unchecked")
     protected <T extends IStrategoTerm> T annotate(T term, ATerm input) {
         ATermList annotations = input.getAnnotations();
-        if (annotations == null || annotations == emptyList) {
+        if (annotations == null || annotations == emptyList || annotations.isEmpty()) {
             return term;
         } else {
             return (T) factory.annotateTerm(term, (IStrategoList) convert(annotations));
