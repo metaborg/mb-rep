@@ -201,6 +201,7 @@ public class WrappedATermFactory implements ITermFactory {
     	((WrappedATerm)t).getATerm().writeToTextFile(ous);
     }
 
+    @Deprecated
     public void unparseToFile(IStrategoTerm t, final Writer out) throws IOException {
         ByteArrayOutputStream ous = new ByteArrayOutputStream();
         unparseToFile(t, out);
