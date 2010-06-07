@@ -11,6 +11,6 @@ language General properties
   description   : "Spoofax/IMP-generated editor for the ATerm language"
   url           : http://strategoxt.org
                   
-  extensions    : aterm,term
+  extensions    : aterm,term,meta
   table         : include/ATerm.tbl
   start symbols : ATerm
