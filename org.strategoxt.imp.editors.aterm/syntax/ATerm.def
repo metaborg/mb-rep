@@ -13,11 +13,11 @@ sorts IdCon
 
 lexical syntax
 
-head:[A-Za-z] tail:[A-Za-z\-0-9]* -> IdCon {cons("default")}
+head:[A-Za-z] tail:[A-Za-z\-0-9\_]* -> IdCon {cons("default")}
 
 lexical restrictions
 
-IdCon -/- [A-Za-z\-0-9]
+IdCon -/- [A-Za-z\-0-9\_]
 
 module basic/StrCon
 
