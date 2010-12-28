@@ -9,4 +9,3 @@ Export-Package: org.spoofax,
  org.spoofax.terms,
  org.spoofax.terms.io,
  org.spoofax.terms.io.baf
- 

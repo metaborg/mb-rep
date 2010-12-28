@@ -5,73 +5,40 @@
  * 
  * Licensed under the GNU General Public License, v2
  */
-package org.spoofax.terms.io;
+package org.spoofax.terms;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedWriter;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PushbackInputStream;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.spoofax.NotImplementedException;
+import org.spoofax.PushbackStringIterator;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
-import org.spoofax.interpreter.terms.ITermPrinter;
 import org.spoofax.interpreter.terms.ParseError;
-import org.spoofax.terms.AbstractTermFactory;
 
-public class StreamTermReader {
+/**
+ * @author Karl T. Kalleberg <karltk add strategoxt.org>
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+public class StringTermReader {
 
-	private final ITermFactory factory;
+	protected final ITermFactory factory;
 	
-    public StreamTermReader(ITermFactory factory) {
+    public StringTermReader(ITermFactory factory) {
     	this.factory = factory;
     }
     
     public ITermFactory getFactory() {
 		return factory;
 	}
-    
-    public IStrategoTerm parseFromFile(String path) throws IOException {
-        InputStream stream = new FileInputStream(path);
-        try {
-            return parseFromStream(stream);
-        } finally {
-            stream.close();
-        }
+
+    public IStrategoTerm parseFromString(String s) throws ParseError {
+        return parseFromString(new PushbackStringIterator(s));
     }
 
-    public IStrategoTerm parseFromStream(InputStream inputStream) throws IOException {
-        /*
-        PushbackInputStream pushbackStream;
-        
-        if (inputStream instanceof FileInputStream) {
-            FileChannel channel = ((FileInputStream)inputStream).getChannel();
-            pushbackStream = new ChannelPushbackInputStream(channel);
-        } else {
-            if (!(inputStream instanceof BufferedInputStream) && !(inputStream instanceof ChannelPushbackInputStream))
-                inputStream = new BufferedInputStream(inputStream);
-            pushbackStream = new PushbackInputStream(inputStream);
-        }
-        
-        return parseFromStream(pushbackStream);
-        */
-        if (!(inputStream instanceof BufferedInputStream))
-            inputStream = new BufferedInputStream(inputStream);
-        PushbackInputStream bis = new PushbackInputStream(inputStream);
-        
-        return parseFromStream(bis);
-    }
-
-    protected IStrategoTerm parseFromStream(PushbackInputStream bis) throws IOException {
+    protected IStrategoTerm parseFromString(PushbackStringIterator bis) throws ParseError {
         parseSkip(bis);
         final int ch = bis.read();
         switch(ch) {
@@ -90,7 +57,7 @@ public class StreamTermReader {
         throw new ParseError("Invalid term: '" + (char)ch + "'");
     }
     
-    private IStrategoTerm parseAnno(PushbackInputStream bis, IStrategoTerm term) throws IOException {
+    private IStrategoTerm parseAnno(PushbackStringIterator bis, IStrategoTerm term) throws ParseError {
         parseSkip(bis);
         final int ch = bis.read();
         if (ch == '{') {
@@ -102,7 +69,7 @@ public class StreamTermReader {
         }
     }
 
-    private IStrategoTerm parseString(PushbackInputStream bis) throws IOException {
+    private IStrategoTerm parseString(PushbackStringIterator bis) throws ParseError {
         int ch = bis.read();
         if(ch == '"')
             return factory.makeString("");
@@ -165,7 +132,7 @@ public class StreamTermReader {
         return factory.makeString(sb.toString());
     }
 
-    private IStrategoTerm parseAppl(PushbackInputStream bis) throws IOException {
+    private IStrategoTerm parseAppl(PushbackStringIterator bis) throws ParseError {
         //System.err.println("appl");
         // TODO: share stringbuilder instances?
         StringBuilder sb = new StringBuilder();
@@ -196,20 +163,20 @@ public class StreamTermReader {
         }
     }
     
-    private IStrategoTerm parsePlaceholder(PushbackInputStream bis) throws IOException {
-        IStrategoTerm template = parseFromStream(bis);
+    private IStrategoTerm parsePlaceholder(PushbackStringIterator bis) throws ParseError {
+        IStrategoTerm template = parseFromString(bis);
         parseSkip(bis);
         if (bis.read() != '>')
             throw new ParseError("Expected: '>'");
         return factory.makePlaceholder(template);
     }
 
-    private IStrategoTerm parseTuple(PushbackInputStream bis) throws IOException {
+    private IStrategoTerm parseTuple(PushbackStringIterator bis) throws ParseError {
         //System.err.println("tuple");
         return factory.makeTuple(parseTermSequence(bis, ')').toArray(AbstractTermFactory.EMPTY));
     }
 
-    private List<IStrategoTerm> parseTermSequence(PushbackInputStream bis, char endChar) throws IOException {
+    private List<IStrategoTerm> parseTermSequence(PushbackStringIterator bis, char endChar) throws ParseError {
         //System.err.println("sequence");
         List<IStrategoTerm> els = Collections.emptyList();
         parseSkip(bis);
@@ -219,7 +186,7 @@ public class StreamTermReader {
         els = new ArrayList<IStrategoTerm>();
         bis.unread(ch);
         do {
-            els.add(parseFromStream(bis));
+            els.add(parseFromString(bis));
             parseSkip(bis);
             ch = bis.read();
         } while(ch == ',');
@@ -236,12 +203,12 @@ public class StreamTermReader {
         return els;
     }
 
-    private IStrategoTerm parseList(PushbackInputStream bis) throws IOException {
+    private IStrategoTerm parseList(PushbackStringIterator bis) throws ParseError {
         //System.err.println("list");
         return factory.makeList(parseTermSequence(bis, ']'));
     }
 
-    private IStrategoTerm parseNumber(PushbackInputStream bis) throws IOException {
+    private IStrategoTerm parseNumber(PushbackStringIterator bis) throws ParseError {
         //System.err.println("number");
         String whole = parseDigitSequence(bis);
         
@@ -262,7 +229,7 @@ public class StreamTermReader {
         return factory.makeInt(Integer.parseInt(whole));
     }
 
-    private String parseDigitSequence(PushbackInputStream bis) throws IOException {
+    private String parseDigitSequence(PushbackStringIterator bis) throws ParseError {
         StringBuilder sb = new StringBuilder();
         int ch = bis.read();
         do {
@@ -273,7 +240,7 @@ public class StreamTermReader {
         return sb.toString(); 
     }
     
-    private void parseSkip(PushbackInputStream input) throws IOException {
+    private void parseSkip(PushbackStringIterator input) throws ParseError {
         for (;;) {
             int b = input.read();
             switch (b) {
@@ -284,16 +251,6 @@ public class StreamTermReader {
                     return;
             }
         }
-    }
-
-    public void unparseToFile(IStrategoTerm t, OutputStream ous) throws IOException {
-        Writer out = new BufferedWriter(new OutputStreamWriter(ous));
-        unparseToFile(t, out);
-    }
-
-    public void unparseToFile(IStrategoTerm t, Writer out) throws IOException {
-        ITermPrinter tp = new InlineWriter(out);
-        t.prettyPrint(tp);
     }
 
 }

@@ -19,9 +19,10 @@ import org.spoofax.interpreter.terms.ITermPrinter;
 import org.spoofax.interpreter.terms.io.IFileTermFactory;
 import org.spoofax.terms.AbstractTermFactory;
 
+@Deprecated
 public abstract class AbstractIOTermFactory extends AbstractTermFactory implements IFileTermFactory {
 	
-	private final StreamTermReader reader = new StreamTermReader(this);
+	private final TermReader reader = new TermReader(this);
 
     public IStrategoTerm parseFromStream(InputStream inputStream) throws IOException {
         return reader.parseFromStream(inputStream);

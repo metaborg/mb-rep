@@ -6,14 +6,14 @@ import java.io.InputStream;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
-import org.spoofax.terms.io.StreamTermReader;
+import org.spoofax.terms.io.TermReader;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-public class BAFStreamTermReader extends StreamTermReader {
+public class BAFTermReader extends TermReader {
 	
-	public BAFStreamTermReader(ITermFactory factory) {
+	public BAFTermReader(ITermFactory factory) {
 		super(factory);
 	}
     
