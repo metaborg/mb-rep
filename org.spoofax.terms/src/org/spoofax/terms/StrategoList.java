@@ -5,7 +5,7 @@
  * 
  * Licensed under the GNU General Public License, v2
  */
-package org.strategoxt.lang.terms;
+package org.spoofax.terms;
 
 import java.util.NoSuchElementException;
 

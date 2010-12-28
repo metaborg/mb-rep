@@ -1,36 +1,30 @@
-package org.strategoxt.lang.terms;
+package org.spoofax.terms;
 
 import static java.lang.Math.min;
 import static org.spoofax.interpreter.terms.IStrategoTerm.MAXIMALLY_SHARED;
 import static org.spoofax.interpreter.terms.IStrategoTerm.SHARABLE;
 import static org.spoofax.interpreter.terms.IStrategoTerm.STRING;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.WeakHashMap;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoInt;
 import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoPlaceholder;
 import org.spoofax.interpreter.terms.IStrategoReal;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
-import org.spoofax.terms.io.AbstractIOTermFactory;
-import org.spoofax.terms.io.baf.BAFReader;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
+ * @author Karl T. Kalleberg <karltk add strategoxt.org>
  */
-public class TermFactory extends AbstractIOTermFactory implements ITermFactory {
-
-    public static final IStrategoTerm[] EMPTY = AbstractIOTermFactory.EMPTY;
+public class TermFactory extends AbstractTermFactory implements ITermFactory {
     
     private static final int MY_STORAGE_TYPE = SHARABLE;
     
@@ -41,6 +35,8 @@ public class TermFactory extends AbstractIOTermFactory implements ITermFactory {
     public static final int MAX_POOLED_STRING_LENGTH = 100;
     
     private static final IStrategoInt[] intCache = initIntCache();
+    
+    private IStrategoConstructor placeholderConstructor;
 
     /**
      * The singleton maximally shared empty list instance.
@@ -50,15 +46,11 @@ public class TermFactory extends AbstractIOTermFactory implements ITermFactory {
      */
     public static final StrategoList EMPTY_LIST =
     	new StrategoList(null, null, null, MAXIMALLY_SHARED); 
-
-    private static final HashMap<StrategoConstructor, StrategoConstructor> asyncCtorCache =
-        new HashMap<StrategoConstructor, StrategoConstructor>();
     
     // StrategoXT/801: must use weak keys and values, and must maintain maximal sharing to avoid early collection
     private static final WeakHashMap<String, WeakReference<StrategoString>> asyncStringPool =
         new WeakHashMap<String, WeakReference<StrategoString>>();
     
-    @Override
     public boolean hasConstructor(String name, int arity) {
         synchronized (TermFactory.class) {
         	if (arity == 0) {
@@ -78,44 +70,7 @@ public class TermFactory extends AbstractIOTermFactory implements ITermFactory {
         	}
         }
     }
-    
-    @Override
-    public IStrategoTerm parseFromStream(InputStream inputStream) throws IOException {
-        /*
-    	BufferedInputStream bis;
-        if (inputStream instanceof BufferedInputStream) {
-            bis = (BufferedInputStream) inputStream;
-        } else if (inputStream instanceof FileInputStream) {
-        	FileChannel channel = ((FileInputStream) inputStream).getChannel();
-			ChannelPushbackInputStream pis = new ChannelPushbackInputStream(channel);
-			if (BAFReader.isBinaryATerm(pis)) {
-				return new BAFReader(this, pis).readFromBinaryFile(true);
-			} else {
-				return super.parseFromStream(pis);
-			}
-        } else {
-            bis = new BufferedInputStream(inputStream);
-        }
-        if (BAFReader.isBinaryATerm(bis)) {
-            return new BAFReader(this, bis).readFromBinaryFile(true);
-        } else {
-            return super.parseFromStream(bis);
-        }
-        */
-    	BufferedInputStream bis;
-        if (inputStream instanceof BufferedInputStream)
-            bis = (BufferedInputStream) inputStream;
-        else
-            bis = new BufferedInputStream(inputStream);
-        
-        if (BAFReader.isBinaryATerm(bis)) {
-            return new BAFReader(this, bis).readFromBinaryFile(true);
-        } else {
-            return super.parseFromStream(bis);
-        }
-    }
 
-    @Override
     public IStrategoAppl makeAppl(IStrategoConstructor ctr,
             IStrategoTerm[] terms, IStrategoList annotations) {
     	int storageType = MY_STORAGE_TYPE;
@@ -125,21 +80,6 @@ public class TermFactory extends AbstractIOTermFactory implements ITermFactory {
         return new StrategoAppl(ctr, terms, annotations, storageType);
     }
 
-    @Override
-    public StrategoConstructor makeConstructor(String name, int arity) {
-        StrategoConstructor result = new StrategoConstructor(name, arity);
-        synchronized (TermFactory.class) {
-	        StrategoConstructor cached = asyncCtorCache.get(result);
-	        if (cached == null) {
-	            asyncCtorCache.put(result, result);
-	        } else {
-	            result = cached;
-	        }
-        }
-        return result;
-    }
-
-    @Override
     public IStrategoInt makeInt(int i) {
     	if (0 <= i && i <= 255)
     		return intCache[i];
@@ -154,7 +94,6 @@ public class TermFactory extends AbstractIOTermFactory implements ITermFactory {
     	return results;
     }
     
-    @Override
     public IStrategoList makeList(IStrategoTerm[] terms, IStrategoList outerAnnos) {
         StrategoList result = EMPTY_LIST;
         int storageType = MY_STORAGE_TYPE;
@@ -178,12 +117,10 @@ public class TermFactory extends AbstractIOTermFactory implements ITermFactory {
         return result;
     }
 
-    @Override
     public IStrategoList makeList(Collection<IStrategoTerm> terms) {
         return makeList(terms.toArray(EMPTY));
     }
     
-    @Override
     public IStrategoList makeListCons(IStrategoTerm head, IStrategoList tail, IStrategoList annotations) {
     	int storageType = min(MY_STORAGE_TYPE, getStorageType(head, tail));
     	
@@ -191,12 +128,10 @@ public class TermFactory extends AbstractIOTermFactory implements ITermFactory {
     	return new StrategoList(head, tail, annotations, storageType);
     }
 
-    @Override
     public IStrategoReal makeReal(double d) {
         return new StrategoReal(d, null);
     }
 
-    @Override
     public IStrategoString makeString(String s) {
     	if (s.length() > MAX_POOLED_STRING_LENGTH)
     		return new StrategoString(s, null, MY_STORAGE_TYPE);
@@ -212,7 +147,6 @@ public class TermFactory extends AbstractIOTermFactory implements ITermFactory {
     	}
     }
 
-    @Override
     public IStrategoTuple makeTuple(IStrategoTerm[] terms, IStrategoList annos) {
         int storageType = min(MY_STORAGE_TYPE, getStorageType(terms));
 		return new StrategoTuple(terms, annos, storageType);
@@ -240,7 +174,6 @@ public class TermFactory extends AbstractIOTermFactory implements ITermFactory {
     	return result;
     }
     
-    @Override
     public IStrategoTerm annotateTerm(IStrategoTerm term, IStrategoList annotations) {
         if (term.getAnnotations() == annotations) { // cheap check
             return term;
@@ -278,5 +211,11 @@ public class TermFactory extends AbstractIOTermFactory implements ITermFactory {
             throw new UnsupportedOperationException("Unable to annotate term of type " + term.getClass().getName() + " in " + getClass().getName());
         }
     }
+
+	public IStrategoPlaceholder makePlaceholder(IStrategoTerm template) {
+        if (placeholderConstructor == null)
+            placeholderConstructor = makeConstructor("<>", 1);
+        return new StrategoPlaceholder(placeholderConstructor, template, EMPTY_LIST, MY_STORAGE_TYPE);
+	}
 
 }

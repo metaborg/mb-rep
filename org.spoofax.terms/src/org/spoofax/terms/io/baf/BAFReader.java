@@ -34,6 +34,7 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.interpreter.terms.ParseError;
 
 
 /**
@@ -95,15 +96,15 @@ public class BAFReader {
         }
     }
 
-    public IStrategoTerm readFromBinaryFile(boolean headerAlreadyRead) throws ParseException, IOException {
+    public IStrategoTerm readFromBinaryFile(boolean headerAlreadyRead) throws ParseError, IOException {
 
         if(!headerAlreadyRead && !isBinaryATerm(reader))
-            throw new ParseException("Input is not a BAF file");
+            throw new ParseError("Input is not a BAF file");
 
         int val = reader.readInt();
 
         if (val != BAF_VERSION)
-            throw new ParseException("Wrong BAF version (wanted " + BAF_VERSION + ", got " + val + "), giving up");
+            throw new ParseError("Wrong BAF version (wanted " + BAF_VERSION + ", got " + val + "), giving up");
 
         nrUniqueSymbols = reader.readInt();
         int nrUniqueTerms = reader.readInt();
@@ -176,7 +177,7 @@ public class BAFReader {
         }
     }
     
-    private IStrategoTerm readTerm(SymEntry e) throws ParseException, IOException {
+    private IStrategoTerm readTerm(SymEntry e) throws ParseError, IOException {
         // TODO: Optimize readTerm?
         //       e.g., throw in some rounds of native-stack based reading
         ArrayList<ReadTermFrame> stack = readerStacks.get();
@@ -228,7 +229,7 @@ public class BAFReader {
                 }
     
                 if (argSym.terms[val] == null) 
-                    throw new ParseException("Malformed ATerm: Cannot be null");
+                    throw new ParseError("Malformed ATerm: Cannot be null");
     
                 outputArgs[i] = argSym.terms[val];
             }
@@ -296,9 +297,10 @@ public class BAFReader {
           } else if (name.equals("<_>")) {
               throw new NotImplementedException("ATerm placeholders");
               // return factory.makePlaceholder(args[0]);
-          } else if (false) {
+          } /* UNDONE: exception
+            else if (false) {
               throw new NotImplementedException("ATerm blobs");
-          }
+          }*/
       }
 
       if(isDebugging()) {

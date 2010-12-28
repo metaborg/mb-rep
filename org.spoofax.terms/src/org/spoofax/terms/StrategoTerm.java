@@ -5,12 +5,13 @@
  * 
  * Licensed under the GNU General Public License, v2
  */
-package org.strategoxt.lang.terms;
+package org.spoofax.terms;
 
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
-import static org.strategoxt.lang.terms.TermFactory.EMPTY_LIST;;
+
+import static org.spoofax.terms.TermFactory.EMPTY_LIST;
 
 public abstract class StrategoTerm implements IStrategoTerm, Cloneable {
 	

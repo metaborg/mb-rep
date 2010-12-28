@@ -1,4 +1,4 @@
-package org.strategoxt.lang.terms;
+package org.spoofax.terms;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>

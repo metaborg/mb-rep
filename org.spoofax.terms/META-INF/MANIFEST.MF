@@ -8,5 +8,5 @@ Export-Package: org.spoofax,
  org.spoofax.interpreter.terms,
  org.spoofax.terms,
  org.spoofax.terms.io,
- org.spoofax.terms.io.baf,
- org.strategoxt.lang.terms
+ org.spoofax.terms.io.baf
+ 

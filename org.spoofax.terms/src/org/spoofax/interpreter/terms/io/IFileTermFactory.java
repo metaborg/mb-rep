@@ -1,4 +1,4 @@
-package org.spoofax.terms.io;
+package org.spoofax.interpreter.terms.io;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,7 +7,7 @@ import java.io.Writer;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-public interface ITermFactory extends org.spoofax.terms.INonIOTermFactory {
+public interface IFileTermFactory extends org.spoofax.interpreter.terms.ITermFactory {
 
     public IStrategoTerm parseFromFile(String path) throws IOException;
     

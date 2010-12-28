@@ -1,0 +1,299 @@
+/*
+ * Created on 27. jan.. 2007
+ *
+ * Copyright (c) 2005, Karl Trygve Kalleberg <karltk near strategoxt.org>
+ * 
+ * Licensed under the GNU General Public License, v2
+ */
+package org.spoofax.terms.io;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PushbackInputStream;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.spoofax.NotImplementedException;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.interpreter.terms.ITermPrinter;
+import org.spoofax.interpreter.terms.ParseError;
+import org.spoofax.terms.AbstractTermFactory;
+
+public class StreamTermReader {
+
+	private final ITermFactory factory;
+	
+    public StreamTermReader(ITermFactory factory) {
+    	this.factory = factory;
+    }
+    
+    public ITermFactory getFactory() {
+		return factory;
+	}
+    
+    public IStrategoTerm parseFromFile(String path) throws IOException {
+        InputStream stream = new FileInputStream(path);
+        try {
+            return parseFromStream(stream);
+        } finally {
+            stream.close();
+        }
+    }
+
+    public IStrategoTerm parseFromStream(InputStream inputStream) throws IOException {
+        /*
+        PushbackInputStream pushbackStream;
+        
+        if (inputStream instanceof FileInputStream) {
+            FileChannel channel = ((FileInputStream)inputStream).getChannel();
+            pushbackStream = new ChannelPushbackInputStream(channel);
+        } else {
+            if (!(inputStream instanceof BufferedInputStream) && !(inputStream instanceof ChannelPushbackInputStream))
+                inputStream = new BufferedInputStream(inputStream);
+            pushbackStream = new PushbackInputStream(inputStream);
+        }
+        
+        return parseFromStream(pushbackStream);
+        */
+        if (!(inputStream instanceof BufferedInputStream))
+            inputStream = new BufferedInputStream(inputStream);
+        PushbackInputStream bis = new PushbackInputStream(inputStream);
+        
+        return parseFromStream(bis);
+    }
+
+    protected IStrategoTerm parseFromStream(PushbackInputStream bis) throws IOException {
+        parseSkip(bis);
+        final int ch = bis.read();
+        switch(ch) {
+        case '[': return parseAnno(bis, parseList(bis));
+        case '(': return parseAnno(bis, parseTuple(bis));
+        case '"': return parseAnno(bis, parseString(bis));
+        case '<': return parsePlaceholder(bis);
+        default:
+            bis.unread(ch);
+            if (Character.isLetter(ch)) {
+                return parseAnno(bis, parseAppl(bis));
+            }
+            else if (Character.isDigit(ch) || ch == '-')
+                return parseAnno(bis, parseNumber(bis));
+        }
+        throw new ParseError("Invalid term: '" + (char)ch + "'");
+    }
+    
+    private IStrategoTerm parseAnno(PushbackInputStream bis, IStrategoTerm term) throws IOException {
+        parseSkip(bis);
+        final int ch = bis.read();
+        if (ch == '{') {
+            List<IStrategoTerm> annos = parseTermSequence(bis, '}');
+            return factory.annotateTerm(term, factory.makeList(annos));
+        } else {
+            bis.unread(ch);
+            return term;
+        }
+    }
+
+    private IStrategoTerm parseString(PushbackInputStream bis) throws IOException {
+        int ch = bis.read();
+        if(ch == '"')
+            return factory.makeString("");
+        StringBuilder sb = new StringBuilder();
+        boolean escaped = false;
+        do {
+            escaped = false;
+            if(ch == '\\') {
+                escaped = true;
+                ch = bis.read();
+            }
+            if(escaped) {
+                switch(ch) {
+                case 'n':
+                    sb.append('\n');
+                    break;
+                case 't':
+                    sb.append('\t');
+                    break;
+                case 'b':
+                    sb.append('\b');
+                    break;
+                case 'f':
+                    sb.append('\f');
+                    break;
+                case 'r':
+                    sb.append('\r');
+                    break;
+                case '\\':
+                    sb.append('\\');
+                    break;
+                case '\'':
+                    sb.append('\'');
+                    break;
+                case '\"':
+                    sb.append('\"');
+                    break;
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
+                    throw new NotImplementedException();
+                default:
+                    sb.append("\\" + (char)ch); 
+                }
+                ch = bis.read();
+            } else if(ch != '\"') {
+                if (ch == -1)
+                    throw new ParseError("Unterminated string: " + sb);
+                sb.append((char)ch);
+                ch = bis.read();
+            }
+        } while(escaped || ch != '\"');
+        return factory.makeString(sb.toString());
+    }
+
+    private IStrategoTerm parseAppl(PushbackInputStream bis) throws IOException {
+        //System.err.println("appl");
+        // TODO: share stringbuilder instances?
+        StringBuilder sb = new StringBuilder();
+        int ch;
+        
+        ch = bis.read();
+        do {
+            sb.append((char)ch);
+            ch = bis.read();
+        } // TODO: use a switch for this
+          while(Character.isLetterOrDigit(ch) || ch == '_' || ch == '-'
+            || ch == '+' || ch == '*' || ch == '$');
+        
+        //System.err.println(" - " + sb.toString());
+        
+        bis.unread(ch);
+        parseSkip(bis);
+        ch = bis.read();
+
+        if(ch == '(') {
+            List<IStrategoTerm> l = parseTermSequence(bis, ')');
+            IStrategoConstructor c = factory.makeConstructor(sb.toString(), l.size());
+            return factory.makeAppl(c, l.toArray(AbstractTermFactory.EMPTY));
+        } else {
+            bis.unread(ch);
+            IStrategoConstructor c = factory.makeConstructor(sb.toString(), 0);
+            return factory.makeAppl(c, new IStrategoTerm[0]);
+        }
+    }
+    
+    private IStrategoTerm parsePlaceholder(PushbackInputStream bis) throws IOException {
+        IStrategoTerm template = parseFromStream(bis);
+        parseSkip(bis);
+        if (bis.read() != '>')
+            throw new ParseError("Expected: '>'");
+        return factory.makePlaceholder(template);
+    }
+
+    private IStrategoTerm parseTuple(PushbackInputStream bis) throws IOException {
+        //System.err.println("tuple");
+        return factory.makeTuple(parseTermSequence(bis, ')').toArray(AbstractTermFactory.EMPTY));
+    }
+
+    private List<IStrategoTerm> parseTermSequence(PushbackInputStream bis, char endChar) throws IOException {
+        //System.err.println("sequence");
+        List<IStrategoTerm> els = Collections.emptyList();
+        parseSkip(bis);
+        int ch = bis.read();
+        if(ch == endChar)
+            return els;
+        els = new ArrayList<IStrategoTerm>();
+        bis.unread(ch);
+        do {
+            els.add(parseFromStream(bis));
+            parseSkip(bis);
+            ch = bis.read();
+        } while(ch == ',');
+        
+        if (ch != endChar) {
+            bis.unread(ch);
+            parseSkip(bis);
+            ch = bis.read();
+        }
+
+        if(ch != endChar)
+            throw new ParseError("Sequence must end with '" + endChar + "', saw '" + (char)ch + "'");
+        
+        return els;
+    }
+
+    private IStrategoTerm parseList(PushbackInputStream bis) throws IOException {
+        //System.err.println("list");
+        return factory.makeList(parseTermSequence(bis, ']'));
+    }
+
+    private IStrategoTerm parseNumber(PushbackInputStream bis) throws IOException {
+        //System.err.println("number");
+        String whole = parseDigitSequence(bis);
+        
+        int ch = bis.read();
+        if(ch == '.') {
+            String frac = parseDigitSequence(bis);
+            ch = bis.read();
+            if(ch == 'e' || ch == 'E') {
+                String exp = parseDigitSequence(bis);
+                double d = Double.parseDouble(whole + "." + frac + "e" + exp);
+                return factory.makeReal(d);
+            }
+            bis.unread(ch);
+            double d = Double.parseDouble(whole + "." + frac);
+            return factory.makeReal(d);
+        }
+        bis.unread(ch);
+        return factory.makeInt(Integer.parseInt(whole));
+    }
+
+    private String parseDigitSequence(PushbackInputStream bis) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        int ch = bis.read();
+        do {
+            sb.append((char)ch);
+            ch = bis.read();
+        } while(Character.isDigit(ch));
+        bis.unread(ch);
+        return sb.toString(); 
+    }
+    
+    private void parseSkip(PushbackInputStream input) throws IOException {
+        for (;;) {
+            int b = input.read();
+            switch (b) {
+                case ' ': case '\t': case '\n':
+                    continue;
+                default:
+                    input.unread(b);
+                    return;
+            }
+        }
+    }
+
+    public void unparseToFile(IStrategoTerm t, OutputStream ous) throws IOException {
+        Writer out = new BufferedWriter(new OutputStreamWriter(ous));
+        unparseToFile(t, out);
+    }
+
+    public void unparseToFile(IStrategoTerm t, Writer out) throws IOException {
+        ITermPrinter tp = new InlineWriter(out);
+        t.prettyPrint(tp);
+    }
+
+}
