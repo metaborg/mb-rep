@@ -56,4 +56,8 @@ public interface IStrategoTerm {
     public boolean match(IStrategoTerm second);
     
     public void prettyPrint(ITermPrinter pp);
+    
+    public<T extends ITermAttachment> T getAttachment(Class<T> attachment);
+    
+    public void addAttachment(ITermAttachment attachment);
 }

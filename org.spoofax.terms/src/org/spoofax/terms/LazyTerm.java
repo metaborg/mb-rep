@@ -15,7 +15,7 @@ import org.spoofax.interpreter.terms.ITermPrinter;
  */
 public abstract class LazyTerm implements IStrategoAppl, IStrategoInt, IStrategoList, IStrategoReal, IStrategoString, IStrategoTuple {
 
-	// TODO: base class should be StrategoWrapped :o
+	// TODO: base class should be StrategoWrapped, or vice versa :o
 	
 	private IStrategoTerm term;
 	

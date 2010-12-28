@@ -9,6 +9,7 @@ package org.spoofax.terms;
 
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermAttachment;
 import org.spoofax.interpreter.terms.ITermPrinter;
 
 import static org.spoofax.terms.TermFactory.EMPTY_LIST;
@@ -22,6 +23,8 @@ public abstract class StrategoTerm implements IStrategoTerm, Cloneable {
 	private int hashCode = UNKNOWN_HASH;
 
     private IStrategoList annotations;
+    
+    private ITermAttachment attachment;
     
     protected StrategoTerm(IStrategoList annotations) {
         assert annotations == null || !annotations.isEmpty() || annotations == TermFactory.EMPTY_LIST;
@@ -173,6 +176,22 @@ public abstract class StrategoTerm implements IStrategoTerm, Cloneable {
     	if (this.annotations != annotations) {
     		this.annotations = annotations;
     		this.hashCode = UNKNOWN_HASH;
+    	}
+    }
+    
+    public <T extends ITermAttachment> T getAttachment(Class<T> type) {
+    	if (attachment != null) {
+    		return attachment.tryGetAttachment(type); 
+    	} else {
+    		return null;
+    	}
+    }
+    
+    public void addAttachment(ITermAttachment attachment) {
+    	if (this.attachment == null) {
+    		this.attachment = attachment;
+    	} else {
+    		this.attachment.addAttachment(attachment);
     	}
     }
 }
