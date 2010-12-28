@@ -5,7 +5,7 @@
  * 
  * Licensed under the GNU General Public License, v2
  */
-package org.spoofax.interpreter.terms;
+package org.spoofax.terms.io;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
@@ -27,12 +27,24 @@ import java.util.Set;
 import java.util.WeakHashMap;
 
 import org.spoofax.NotImplementedException;
+import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
+import org.spoofax.interpreter.terms.IStrategoInt;
+import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoPlaceholder;
+import org.spoofax.interpreter.terms.IStrategoReal;
+import org.spoofax.interpreter.terms.IStrategoString;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.IStrategoTuple;
+import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.interpreter.terms.ITermPrinter;
+import org.spoofax.interpreter.terms.ParseError;
 
-public class BasicTermFactory implements ITermFactory {
+public class AbstractIOTermFactory implements ITermFactory {
 
     public static final IStrategoTerm[] EMPTY = {};
 
-    public static final BasicStrategoList EMPTY_LIST = new BasicStrategoList(null, null, null);
+    public static final IStrategoList EMPTY_LIST = new StrategoList(null, null, null, IStrategoTerm.MAXIMALLY_SHARED);
     
     private static final int MAX_POOLED_STRING_LENGTH = 100;
 

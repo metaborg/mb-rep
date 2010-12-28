@@ -1,7 +1,9 @@
-package org.spoofax.interpreter.terms;
+package org.spoofax.terms.io;
 
 import java.io.IOException;
 import java.io.Writer;
+
+import org.spoofax.interpreter.terms.ITermPrinter;
 
 /**
  * Term printer that writes directly to a {@link Writer}, without building the

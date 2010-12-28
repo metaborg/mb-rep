@@ -7,24 +7,12 @@
  */
 package org.spoofax.interpreter.terms;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Writer;
 
 
 
 public interface ITermFactory extends IStrategoTermBuilder {
-
-    public IStrategoTerm parseFromFile(String path) throws IOException;
-    
-    public IStrategoTerm parseFromStream(InputStream inputStream) throws IOException;
     
     public IStrategoTerm parseFromString(String text);
-    
-    public void unparseToFile(IStrategoTerm t, OutputStream ous) throws IOException;
-    
-    public void unparseToFile(IStrategoTerm t, Writer out) throws IOException;
 
     public IStrategoAppl replaceAppl(IStrategoConstructor constructor, IStrategoTerm[] kids, IStrategoAppl old);
     

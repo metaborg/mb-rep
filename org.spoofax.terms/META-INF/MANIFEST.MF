@@ -4,4 +4,9 @@ Bundle-Name: org.spoofax.terms
 Bundle-SymbolicName: org.spoofax.terms
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Export-Package: org.spoofax, org.spoofax.interpreter.terms, org.spoofax.terms, org.spoofax.terms.io
+Export-Package: org.spoofax,
+ org.spoofax.interpreter.terms,
+ org.spoofax.terms,
+ org.spoofax.terms.io,
+ org.spoofax.terms.io.baf,
+ org.strategoxt.lang.terms

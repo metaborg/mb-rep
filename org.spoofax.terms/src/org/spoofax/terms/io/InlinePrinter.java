@@ -1,4 +1,6 @@
-package org.spoofax.interpreter.terms;
+package org.spoofax.terms.io;
+
+import org.spoofax.interpreter.terms.ITermPrinter;
 
 public class InlinePrinter implements ITermPrinter {
 	private final StringBuilder out;
