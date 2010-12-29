@@ -7,6 +7,8 @@
  */
 package org.spoofax.terms;
 
+import java.io.IOException;
+
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermAttachment;
@@ -122,22 +124,39 @@ public abstract class StrategoTerm implements IStrategoTerm, Cloneable {
     protected abstract int hashFunction();
     
     @Override
-    public abstract String toString();
+    public String toString() {
+    	return toString(Integer.MAX_VALUE);
+    }
     
-    protected void appendAnnotations(StringBuilder sb) {
+    public String toString(int maxDepth) {
+    	StringBuilder result = new StringBuilder();
+    	try {
+    		writeToString(result, maxDepth);
+    	} catch (IOException e) {
+    		throw new RuntimeException(e); // shan't happen
+    	}
+    	return result.toString();
+    }
+    
+    public final void writeToString(Appendable output) throws IOException {
+    	writeToString(output, Integer.MAX_VALUE);
+    }
+
+	protected void appendAnnotations(Appendable sb, int maxDepth) throws IOException {
         IStrategoList annos = getAnnotations();
         if (annos.size() == 0) return;
         
         sb.append('{');
-        sb.append(annos.get(0));
+        annos.get(0).writeToString(sb, maxDepth);
         for (annos = annos.tail(); !annos.isEmpty(); annos = annos.tail()) {
             sb.append(',');
-            sb.append(annos.head().toString());        	
+            annos.head().writeToString(sb, maxDepth);        	
         }
         sb.append('}');
     }
     
-    protected void printAnnotations(ITermPrinter pp) {
+	@Deprecated
+	protected void printAnnotations(ITermPrinter pp) {
         IStrategoList annos = getAnnotations();
         if (annos.size() == 0) return;
         
@@ -179,19 +198,40 @@ public abstract class StrategoTerm implements IStrategoTerm, Cloneable {
     	}
     }
     
-    public <T extends ITermAttachment> T getAttachment(Class<T> type) {
-    	if (attachment != null) {
-    		return attachment.tryGetAttachment(type); 
-    	} else {
-    		return null;
-    	}
+    public boolean isList() {
+    	return getTermType() == LIST;
     }
     
-    public void addAttachment(ITermAttachment attachment) {
+    @SuppressWarnings("unchecked")
+	public<T extends ITermAttachment> T getAttachment(Class<T> type) {
+    	for (ITermAttachment a = this.attachment; a != null; a = a.getNext()) {
+    		if (a.getAttachmentType() == type)
+    			return (T) a;
+    	}
+		return null;
+    }
+    
+    public void putAttachment(ITermAttachment attachment) {
+    	assert getStorageType() == MUTABLE : "Attachments only supported for mutable, non-shared terms; failed for " + this;
+    	assert attachment.getNext() == null;
     	if (this.attachment == null) {
     		this.attachment = attachment;
     	} else {
-    		this.attachment.addAttachment(attachment);
+    		Class<?> newType = attachment.getAttachmentType();
+    		if (this.attachment.getAttachmentType() == newType) {
+    			attachment.setNext(this.attachment.getNext());
+    			this.attachment = attachment;
+    		} else {
+    			ITermAttachment previous = attachment;
+    			for (ITermAttachment a = previous.getNext(); a != null; a = a.getNext()) {
+	        		if (a.getAttachmentType() == newType) {
+	        			attachment.setNext(a.getNext());
+	        			previous.setNext(attachment);
+	        			return;
+	        		}
+	        	}
+    			previous.setNext(attachment);
+    		}
     	}
     }
 }

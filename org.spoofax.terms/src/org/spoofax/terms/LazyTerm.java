@@ -4,6 +4,7 @@ import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoInt;
 import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoNamed;
 import org.spoofax.interpreter.terms.IStrategoReal;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -11,11 +12,13 @@ import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermPrinter;
 
 /**
+ * A lazily initialized term,
+ * 
+ * @see StrategoWrapped  A non-lazy wrapped term that supports attachments separate from its base term.
+ *
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 public abstract class LazyTerm implements IStrategoAppl, IStrategoInt, IStrategoList, IStrategoReal, IStrategoString, IStrategoTuple {
-
-	// TODO: base class should be StrategoWrapped, or vice versa :o
 	
 	private IStrategoTerm term;
 	
@@ -48,6 +51,7 @@ public abstract class LazyTerm implements IStrategoAppl, IStrategoInt, IStratego
 		return getWrapped().getTermType();
 	}
 
+	@Deprecated
 	public void prettyPrint(ITermPrinter pp) {
 		getWrapped().prettyPrint(pp);
 	}
@@ -72,7 +76,7 @@ public abstract class LazyTerm implements IStrategoAppl, IStrategoInt, IStratego
 	}
 
 	public int getStorageType() {
-		return Math.min(SHARABLE, getWrapped().getStorageType());
+		return MUTABLE; // let's not spread these guys // Math.min(SHARABLE, getWrapped().getStorageType());
 	}
 
 	public boolean match(IStrategoTerm second) {
@@ -131,6 +135,12 @@ public abstract class LazyTerm implements IStrategoAppl, IStrategoInt, IStratego
 		if (getTermType() != APPL)
 			throw new TermWrapperException("Called getConstructor() on a term that is not of type APPL");
 		return ((IStrategoAppl) getWrapped()).getConstructor();
+	}
+	
+	public String getName() {
+		if (getTermType() != STRING && getTermType() != APPL)
+			throw new TermWrapperException("Called getName() on a term that is not of type STRING or APPL");
+		return ((IStrategoNamed) getWrapped()).getName();
 	}
 
 	public int intValue() {

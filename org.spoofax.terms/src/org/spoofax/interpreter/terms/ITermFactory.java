@@ -29,5 +29,6 @@ public interface ITermFactory extends IStrategoTermBuilder {
     public IStrategoList replaceList(IStrategoTerm[] kids, IStrategoList old);
     
     public IStrategoTuple replaceTuple(IStrategoTerm[] kids, IStrategoTuple old);
-
+    
+    public ITermFactory getFactoryWithStorageType(int storageType);
 }

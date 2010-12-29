@@ -8,9 +8,11 @@
 package org.spoofax.interpreter.terms;
 
 
-public interface IStrategoAppl extends IStrategoTerm {
+public interface IStrategoAppl extends IStrategoTerm, IStrategoNamed {
 
     public IStrategoConstructor getConstructor();
+    
+    @Deprecated
     public IStrategoTerm[] getArguments();
 
 }

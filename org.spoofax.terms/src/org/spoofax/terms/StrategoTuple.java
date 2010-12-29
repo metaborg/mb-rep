@@ -7,6 +7,8 @@
  */
 package org.spoofax.terms;
 
+import java.io.IOException;
+
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
@@ -96,6 +98,7 @@ public class StrategoTuple extends StrategoTerm implements IStrategoTuple {
         }
     }
 
+    @Deprecated
     public void prettyPrint(ITermPrinter pp) {
         int sz = size();
         if(sz > 0) {
@@ -118,21 +121,22 @@ public class StrategoTuple extends StrategoTerm implements IStrategoTuple {
         printAnnotations(pp);
     }
     
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("(");
+    public void writeToString(Appendable output, int maxDepth) throws IOException {
+        output.append('(');
         IStrategoTerm[] kids = getAllSubterms();
-        if(kids.length > 0) {
-            sb.append(kids[0].toString());
-            for(int i = 1; i < kids.length; i++) {
-                sb.append(",");
-                sb.append(kids[i].toString());
-            }
-        }
-        sb.append(")");
-        appendAnnotations(sb);
-        return sb.toString();
+		if (kids.length > 0) {
+			if (maxDepth == 0) {
+				output.append("...");
+			} else {
+				kids[0].writeToString(output, maxDepth - 1);
+				for (int i = 1; i < kids.length; i++) {
+					output.append(',');
+					kids[i].writeToString(output, maxDepth - 1);
+				}
+			}
+		}
+        output.append(')');
+        appendAnnotations(output, maxDepth);
     }
     
     @Override

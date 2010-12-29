@@ -13,14 +13,8 @@ import java.util.Collection;
 public interface IStrategoTermBuilder {
     
     public IStrategoConstructor makeConstructor(String string, int arity);
-
-    // TODO: Remove makeAppl() and makeList() overloads to avoid accidental invocation
     
-    /**
-     * @deprecated Use {@link #makeAppl(IStrategoConstructor, IStrategoTerm...)} instead.
-     */
-    @Deprecated
-    public IStrategoAppl makeAppl(IStrategoConstructor ctr, IStrategoList kids);
+    // @Deprecated public IStrategoAppl makeAppl(IStrategoConstructor ctr, IStrategoList kids);
     public IStrategoAppl makeAppl(IStrategoConstructor ctr, IStrategoTerm... terms);
 
     public IStrategoPlaceholder makePlaceholder(IStrategoTerm template);
@@ -31,16 +25,27 @@ public interface IStrategoTermBuilder {
     public IStrategoList makeList(IStrategoTerm... terms);
     public IStrategoList makeList(Collection<IStrategoTerm> terms);
 
-    /**
-     * @deprecated Use {@link #makeListCons(IStrategoTerm, IStrategoList)} instead. 
-     */
-    @Deprecated
-    public IStrategoList makeList(IStrategoTerm head, IStrategoList tail);
+    // @Deprecated public IStrategoList makeList(IStrategoTerm head, IStrategoList tail);
     public IStrategoList makeListCons(IStrategoTerm head, IStrategoList tail);
     
     public IStrategoTerm annotateTerm(IStrategoTerm term, IStrategoList annotations);
 
     public boolean hasConstructor(String ctorName, int arity);
+    
+    public int getDefaultStorageType();
+    
+    /**
+     * Sets the default storage type for terms, returning a (usually new) factory
+     * that guarantees it will never create terms with a higher storage
+     * type value than the given value.
+     * 
+     * Implementors should note that even strings and empty lists
+     * follow this contract, allowing users to create mutable
+     * terms and use term attachments.
+     * 
+     * @throws UnsupportedOperationException if the given storage type is not supported.
+     */
+    public IStrategoTermBuilder getFactoryWithStorageType(int storageType);
     
 }
 

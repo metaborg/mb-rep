@@ -39,17 +39,21 @@ public class BAFTermReader extends TermReader {
             return super.parseFromStream(bis);
         }
         */
-    	BufferedInputStream bis;
-        if (inputStream instanceof BufferedInputStream)
-            bis = (BufferedInputStream) inputStream;
-        else
-            bis = new BufferedInputStream(inputStream);
-        
-        if (BAFReader.isBinaryATerm(bis)) {
-            return new BAFReader(getFactory(), bis).readFromBinaryFile(true);
-        } else {
-            return super.parseFromStream(bis);
-        }
+    	BufferedInputStream bis = null;
+    	try {
+	        if (inputStream instanceof BufferedInputStream)
+	            bis = (BufferedInputStream) inputStream;
+	        else
+	            bis = new BufferedInputStream(inputStream);
+	        
+	        if (BAFReader.isBinaryATerm(bis)) {
+	            return new BAFReader(getFactory(), bis).readFromBinaryFile(true);
+	        } else {
+	            return super.parseFromStream(bis);
+	        }
+    	} finally {
+    		if (bis != null) bis.close();
+    	}
     }
 
 }

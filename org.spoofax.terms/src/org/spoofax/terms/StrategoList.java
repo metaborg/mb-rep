@@ -7,6 +7,8 @@
  */
 package org.spoofax.terms;
 
+import java.io.IOException;
+import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -16,7 +18,7 @@ import org.spoofax.interpreter.terms.ITermPrinter;
 /**
  * A basic stratego list implementation using a linked-list data structure.
  */
-public class StrategoList extends StrategoTerm implements IStrategoList {
+public class StrategoList extends StrategoTerm implements IStrategoList, Iterable<IStrategoTerm> {
 	
 	private static final int UNKNOWN_SIZE = -1;
 	
@@ -167,6 +169,7 @@ public class StrategoList extends StrategoTerm implements IStrategoList {
         }
     }
 
+    @Deprecated
     public void prettyPrint(ITermPrinter pp) {
         if(!isEmpty()) {
             pp.println("[");
@@ -188,20 +191,21 @@ public class StrategoList extends StrategoTerm implements IStrategoList {
         printAnnotations(pp);
     }
     
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("[");
+    public void writeToString(Appendable output, int maxDepth) throws IOException {
+        output.append('[');
         if(!isEmpty()) {
-            sb.append(head().toString());
-            for (IStrategoList cur = tail(); !cur.isEmpty(); cur = cur.tail()) {
-                sb.append(",");
-                sb.append(cur.head().toString());
+            if (maxDepth == 0) {
+            	output.append("...");
+            } else {
+	            head().writeToString(output, maxDepth - 1);
+	            for (IStrategoList cur = tail(); !cur.isEmpty(); cur = cur.tail()) {
+	                output.append(',');
+	                cur.head().writeToString(output, maxDepth - 1);
+	            }
             }
         }
-        sb.append("]");
-        appendAnnotations(sb);
-        return sb.toString();
+        output.append(']');
+        appendAnnotations(output, maxDepth);
     }
 
     @Override
@@ -219,4 +223,8 @@ public class StrategoList extends StrategoTerm implements IStrategoList {
 		result = prime * result + ((tail == null) ? 0 : tail.hashCode());
 		return result;
     }
+
+	public Iterator<IStrategoTerm> iterator() {
+		return new StrategoListIterator(this);
+	}
 }

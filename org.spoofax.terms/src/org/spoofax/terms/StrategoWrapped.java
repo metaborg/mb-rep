@@ -1,9 +1,12 @@
 package org.spoofax.terms;
 
+import java.io.IOException;
+
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoInt;
 import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoNamed;
 import org.spoofax.interpreter.terms.IStrategoReal;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -11,11 +14,14 @@ import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermPrinter;
 
 /**
- * A wrapped Stratego term of any type.
+ * A wrapped Stratego term of any type that supports attachments separate from its base term.
  * 
+ * @see StrategoAnnotation  A term wrapped with additional annotations.
+ * @see LazyTerm            A lazily initialized term.
+ *
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-public abstract class StrategoWrapped extends StrategoTerm implements IStrategoAppl, IStrategoInt, IStrategoList, IStrategoReal, IStrategoString, IStrategoTuple {
+public class StrategoWrapped extends StrategoTerm implements IStrategoAppl, IStrategoInt, IStrategoList, IStrategoReal, IStrategoString, IStrategoTuple {
 	
 	private final IStrategoTerm wrapped;
 	
@@ -44,7 +50,9 @@ public abstract class StrategoWrapped extends StrategoTerm implements IStrategoA
 		return wrapped;
 	}
 
-	public abstract int getStorageType();
+	public int getStorageType() {
+		return MUTABLE;
+	}
 	
 	// Common accessors
 
@@ -74,6 +82,7 @@ public abstract class StrategoWrapped extends StrategoTerm implements IStrategoA
 		return wrapped.getTermType();
 	}
 
+	@Deprecated
 	public void prettyPrint(ITermPrinter pp) {
 		wrapped.prettyPrint(pp);
 	}
@@ -82,6 +91,11 @@ public abstract class StrategoWrapped extends StrategoTerm implements IStrategoA
 	public String toString() {
 		return wrapped.toString();
 	}
+	
+	public void writeToString(Appendable output, int maxDepth) throws IOException {
+		wrapped.writeToString(output, maxDepth);
+	}
+	
 	
 	// Semi-specialized accessors
 
@@ -147,6 +161,12 @@ public abstract class StrategoWrapped extends StrategoTerm implements IStrategoA
 		if (getTermType() != REAL)
 			throw new TermWrapperException("Called realValue() on a term that is not of type REAL");
 		return ((IStrategoReal) wrapped).realValue();
+	}
+	
+	public String getName() {
+		if (getTermType() != STRING && getTermType() != APPL)
+			throw new TermWrapperException("Called getName() on a term that is not of type STRING or APPL");
+		return ((IStrategoNamed) wrapped).getName();
 	}
 
 	public String stringValue() {

@@ -7,6 +7,8 @@
  */
 package org.spoofax.terms;
 
+import java.io.IOException;
+
 import org.spoofax.interpreter.terms.IStrategoInt;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -70,17 +72,15 @@ public class StrategoInt extends StrategoTerm implements IStrategoInt {
         }
     }
 
-    public void prettyPrint(ITermPrinter pp) {
+    @Deprecated
+	public void prettyPrint(ITermPrinter pp) {
         pp.print(String.valueOf(intValue()));
         printAnnotations(pp);
     }
-
-    @Override
-    public String toString() {
-        StringBuilder result = new StringBuilder();
-        result.append(intValue());
-        appendAnnotations(result);
-        return result.toString();
+    
+    public void writeToString(Appendable output, int maxDepth) throws IOException {
+    	output.append(Integer.toString(intValue()));
+        appendAnnotations(output, maxDepth);
     }
     
     @Override

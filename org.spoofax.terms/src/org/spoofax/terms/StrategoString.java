@@ -7,6 +7,8 @@
  */
 package org.spoofax.terms;
 
+import java.io.IOException;
+
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -83,7 +85,12 @@ public class StrategoString extends StrategoTerm implements IStrategoString {
         return value;
     }
     
-    public void prettyPrint(ITermPrinter pp) {
+    public String getName() {
+    	return value;
+    }
+    
+    @Deprecated
+	public void prettyPrint(ITermPrinter pp) {
         pp.print("\"");
         pp.print(stringValue().replace("\\", "\\\\").replace("\"", "\\\"")
         		.replace("\n", "\\n").replace("\r", "\\r"));
@@ -91,15 +98,12 @@ public class StrategoString extends StrategoTerm implements IStrategoString {
         printAnnotations(pp);
     }
  
-    @Override
-    public String toString() {
-        StringBuilder result = new StringBuilder();
-        result.append("\"");
-        result.append(stringValue().replace("\\", "\\\\").replace("\"", "\\\"")
+    public void writeToString(Appendable output, int maxDepth) throws IOException {
+    	output.append("\"");
+    	output.append(stringValue().replace("\\", "\\\\").replace("\"", "\\\"")
         		.replace("\n", "\\n").replace("\r", "\\r"));
-        result.append("\"");
-        appendAnnotations(result);
-        return result.toString();
+    	output.append("\"");
+        appendAnnotations(output, maxDepth);
     }
     
     @Override

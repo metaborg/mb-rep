@@ -7,8 +7,9 @@
  */
 package org.spoofax.interpreter.terms;
 
+import java.io.IOException;
 
-public interface IStrategoTerm {
+public interface IStrategoTerm extends ISimpleTerm {
 
     public static final int APPL = 1;
     public static final int LIST = 2;
@@ -55,9 +56,19 @@ public interface IStrategoTerm {
     
     public boolean match(IStrategoTerm second);
     
+    /**
+     * @see org.spoofax.terms.io.TermReader#unparseToFile(IStrategoTerm, java.io.OutputStream)
+     * @see org.spoofax.terms.io.TermReader#unparseToFile(IStrategoTerm, java.io.Writer)
+     * @see writeToString(Appendable, int)
+     */
+    @Deprecated
     public void prettyPrint(ITermPrinter pp);
+    
+    public String toString(int maxDepth);
+    
+    public void writeToString(Appendable output, int maxDepth) throws IOException;
     
     public<T extends ITermAttachment> T getAttachment(Class<T> attachment);
     
-    public void addAttachment(ITermAttachment attachment);
+    public void putAttachment(ITermAttachment attachment);
 }

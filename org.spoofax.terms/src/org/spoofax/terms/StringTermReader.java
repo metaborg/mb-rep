@@ -155,11 +155,11 @@ public class StringTermReader {
         if(ch == '(') {
             List<IStrategoTerm> l = parseTermSequence(bis, ')');
             IStrategoConstructor c = factory.makeConstructor(sb.toString(), l.size());
-            return factory.makeAppl(c, l.toArray(AbstractTermFactory.EMPTY));
+            return factory.makeAppl(c, l.toArray(new IStrategoTerm[l.size()]));
         } else {
             bis.unread(ch);
             IStrategoConstructor c = factory.makeConstructor(sb.toString(), 0);
-            return factory.makeAppl(c, new IStrategoTerm[0]);
+            return factory.makeAppl(c, AbstractTermFactory.EMPTY);
         }
     }
     

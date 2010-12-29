@@ -7,6 +7,8 @@
  */
 package org.spoofax.terms;
 
+import java.io.IOException;
+
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -34,12 +36,17 @@ public class StrategoAppl extends StrategoTerm implements IStrategoAppl {
         return storageType;
     }
     
+    @Deprecated
     public IStrategoTerm[] getArguments() {
         return kids;
     }
 
     public IStrategoConstructor getConstructor() {
         return ctor;
+    }
+    
+    public String getName() {
+    	return ctor.getName();
     }
 
     public IStrategoTerm[] getAllSubterms() {
@@ -97,6 +104,7 @@ public class StrategoAppl extends StrategoTerm implements IStrategoAppl {
         }
     }
 
+    @Deprecated
     public void prettyPrint(ITermPrinter pp) {
         pp.print(ctor.getName());
         IStrategoTerm[] kids = getAllSubterms();
@@ -114,22 +122,23 @@ public class StrategoAppl extends StrategoTerm implements IStrategoAppl {
         printAnnotations(pp);
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(ctor.getName());
+    public void writeToString(Appendable output, int maxDepth) throws IOException {
+        output.append(ctor.getName());
         IStrategoTerm[] kids = getAllSubterms();
         if(kids.length > 0) {
-            sb.append("(");
-            sb.append(kids[0]);
-            for(int i = 1; i < kids.length; i++) {
-                sb.append(",");
-                sb.append(kids[i].toString());
+            output.append('(');
+            if (maxDepth == 0) {
+            	output.append("...");
+            } else {
+	            kids[0].writeToString(output, maxDepth - 1);
+	            for(int i = 1; i < kids.length; i++) {
+	                output.append(',');
+	                kids[i].writeToString(output, maxDepth - 1);
+	            }
+	            output.append(')');
             }
-            sb.append(")");
         }
-        appendAnnotations(sb);
-        return sb.toString();
+        appendAnnotations(output, maxDepth);
     }
 
     @Override

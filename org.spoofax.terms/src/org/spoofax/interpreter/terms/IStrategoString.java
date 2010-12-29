@@ -7,7 +7,7 @@
  */
 package org.spoofax.interpreter.terms;
 
-public interface IStrategoString extends IStrategoTerm {
+public interface IStrategoString extends IStrategoTerm, IStrategoNamed {
 
     public String stringValue();
 

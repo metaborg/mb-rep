@@ -3,10 +3,10 @@ package org.spoofax.terms;
 import static java.lang.Math.min;
 import static org.spoofax.interpreter.terms.IStrategoTerm.MAXIMALLY_SHARED;
 import static org.spoofax.interpreter.terms.IStrategoTerm.SHARABLE;
+import static org.spoofax.interpreter.terms.IStrategoTerm.MUTABLE;
 import static org.spoofax.interpreter.terms.IStrategoTerm.STRING;
 
 import java.lang.ref.WeakReference;
-import java.util.Collection;
 import java.util.WeakHashMap;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -25,8 +25,6 @@ import org.spoofax.interpreter.terms.ITermFactory;
  * @author Karl T. Kalleberg <karltk add strategoxt.org>
  */
 public class TermFactory extends AbstractTermFactory implements ITermFactory {
-    
-    private static final int MY_STORAGE_TYPE = SHARABLE;
     
     // Strings should be MAXIMALLY_SHARED, but we use
     // a weaker assumption instead to be safe (StrategoXT/834)
@@ -51,6 +49,20 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
     private static final WeakHashMap<String, WeakReference<StrategoString>> asyncStringPool =
         new WeakHashMap<String, WeakReference<StrategoString>>();
     
+    public TermFactory() {
+    	super(SHARABLE);
+    }
+    
+    public ITermFactory getFactoryWithStorageType(int storageType) {
+    	if (storageType > SHARABLE)
+    		throw new UnsupportedOperationException();
+    	if (storageType == defaultStorageType)
+    		return this;
+    	TermFactory result = new TermFactory();
+    	result.defaultStorageType = storageType;
+    	return result;
+    }
+    
     public boolean hasConstructor(String name, int arity) {
         synchronized (TermFactory.class) {
         	if (arity == 0) {
@@ -73,7 +85,7 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
 
     public IStrategoAppl makeAppl(IStrategoConstructor ctr,
             IStrategoTerm[] terms, IStrategoList annotations) {
-    	int storageType = MY_STORAGE_TYPE;
+    	int storageType = defaultStorageType;
 		storageType = min(storageType, getStorageType(terms));
     	if (storageType != 0)
         	storageType = min(storageType, getStorageType(annotations));
@@ -94,9 +106,13 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
     	return results;
     }
     
+    protected IStrategoList makeList() {
+    	return isTermSharingAllowed() ? EMPTY_LIST : new StrategoList(null, null, null, defaultStorageType);
+    }
+    
     public IStrategoList makeList(IStrategoTerm[] terms, IStrategoList outerAnnos) {
-        StrategoList result = EMPTY_LIST;
-        int storageType = MY_STORAGE_TYPE;
+    	int storageType = defaultStorageType;
+        IStrategoList result = makeList();
         int i = terms.length - 1;
         while (i > 0) {
         	IStrategoTerm head = terms[i--];
@@ -109,22 +125,18 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
 			result = new StrategoList(head, result, outerAnnos, storageType);
         } else {
         	if (outerAnnos == null || outerAnnos.isEmpty()) {
-        		return EMPTY_LIST;
+        		return makeList();
         	} else {
-        		return new StrategoList(null, null, outerAnnos, MY_STORAGE_TYPE);
+        		return new StrategoList(null, null, outerAnnos, defaultStorageType);
         	}
         }
         return result;
     }
-
-    public IStrategoList makeList(Collection<IStrategoTerm> terms) {
-        return makeList(terms.toArray(EMPTY));
-    }
     
     public IStrategoList makeListCons(IStrategoTerm head, IStrategoList tail, IStrategoList annotations) {
-    	int storageType = min(MY_STORAGE_TYPE, getStorageType(head, tail));
+    	int storageType = min(defaultStorageType, getStorageType(head, tail));
     	
-    	if (head == null) return EMPTY_LIST;
+    	if (head == null) return makeList();
     	return new StrategoList(head, tail, annotations, storageType);
     }
 
@@ -134,7 +146,7 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
 
     public IStrategoString makeString(String s) {
     	if (s.length() > MAX_POOLED_STRING_LENGTH)
-    		return new StrategoString(s, null, MY_STORAGE_TYPE);
+    		return new StrategoString(s, null, defaultStorageType);
     	
     	synchronized (TermFactory.class) {
 	    	WeakReference<StrategoString> resultRef = asyncStringPool.get(s);
@@ -143,35 +155,15 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
 	        	result = new StrategoString(s, null, STRING_STORAGE_TYPE);
 	        	asyncStringPool.put(s, new WeakReference<StrategoString>(result));
 	    	}
+        	if (!isTermSharingAllowed() && STRING_STORAGE_TYPE != MUTABLE) 
+        		return new StrategoWrapped(result);
 	    	return result;
     	}
     }
 
     public IStrategoTuple makeTuple(IStrategoTerm[] terms, IStrategoList annos) {
-        int storageType = min(MY_STORAGE_TYPE, getStorageType(terms));
+        int storageType = min(defaultStorageType, getStorageType(terms));
 		return new StrategoTuple(terms, annos, storageType);
-    }
-    
-    protected static int getStorageType(IStrategoTerm term) {
-    	return term == null ? MAXIMALLY_SHARED : term.getStorageType();
-    }
-    
-    protected static int getStorageType(IStrategoTerm term1, IStrategoTerm term2) {
-    	int result = term1.getStorageType();
-    	if (result == 0) return 0;
-    	return min(result, term2.getStorageType());
-    }
-    
-    protected static int getStorageType(IStrategoTerm[] terms) {
-    	int result = MY_STORAGE_TYPE;
-    	for (IStrategoTerm term : terms) {
-    		int type = term.getStorageType();
-    		if (type < result) { 
-        		if (type == 0) return 0;
-    			result = type;
-    		}
-    	}
-    	return result;
     }
     
     public IStrategoTerm annotateTerm(IStrategoTerm term, IStrategoList annotations) {
@@ -182,20 +174,20 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
 				if (annotations == EMPTY_LIST || annotations.isEmpty()) {
 					return EMPTY_LIST;
 				} else {
-					return new StrategoList(null, null, annotations, MY_STORAGE_TYPE);
+					return new StrategoList(null, null, annotations, defaultStorageType);
 				}
 			} else if (term.getTermType() == STRING) {
 				String value = ((IStrategoString) term).stringValue();
 				if (annotations == EMPTY_LIST || annotations.isEmpty()) {
 					return makeString(value);
 				} else {
-					return new StrategoString(value, annotations, MY_STORAGE_TYPE);
+					return new StrategoString(value, annotations, defaultStorageType);
 				}
 			} else if (term.getAnnotations() == EMPTY_LIST) {
-				return new StrategoAnnotation(this, term, annotations, MY_STORAGE_TYPE);
+				return new StrategoAnnotation(this, term, annotations, defaultStorageType);
 			} else if (term instanceof StrategoAnnotation) {
 				term = ((StrategoAnnotation) term).getWrapped();
-				int storageType = min(MY_STORAGE_TYPE, getStorageType(term));
+				int storageType = min(defaultStorageType, getStorageType(term));
 				return new StrategoAnnotation(this, term, annotations, storageType);
 			} else {
 				throw new UnsupportedOperationException("Unable to annotate term of type " + term.getClass().getName());
@@ -215,7 +207,7 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
 	public IStrategoPlaceholder makePlaceholder(IStrategoTerm template) {
         if (placeholderConstructor == null)
             placeholderConstructor = makeConstructor("<>", 1);
-        return new StrategoPlaceholder(placeholderConstructor, template, EMPTY_LIST, MY_STORAGE_TYPE);
+        return new StrategoPlaceholder(placeholderConstructor, template, EMPTY_LIST, defaultStorageType);
 	}
 
 }

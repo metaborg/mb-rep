@@ -1,5 +1,7 @@
 package org.spoofax.terms;
 
+import java.io.IOException;
+
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoPlaceholder;
@@ -23,14 +25,17 @@ public class StrategoPlaceholder extends StrategoAppl implements IStrategoPlaceh
     public int getTermType() {
         return PLACEHOLDER;
     }
-
-    @Override
-    public String toString() {
-        return "<" + getTemplate() + ">";
+    
+    public void writeToString(Appendable output, int maxDepth) throws IOException {
+    	output.append('<');
+    	getTemplate().writeToString(output, maxDepth - 1);
+    	output.append('>');
+    	appendAnnotations(output, maxDepth);
     }
     
     @Override
-    public void prettyPrint(ITermPrinter pp) {
+    @Deprecated
+	public void prettyPrint(ITermPrinter pp) {
         pp.print("<");
         getTemplate().prettyPrint(pp);
         pp.print(">");

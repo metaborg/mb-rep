@@ -7,6 +7,8 @@
  */
 package org.spoofax.terms;
 
+import java.io.IOException;
+
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoReal;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -70,17 +72,15 @@ public class StrategoReal extends StrategoTerm implements IStrategoReal {
         }
     }
 
-    public void prettyPrint(ITermPrinter pp) {
+    @Deprecated
+	public void prettyPrint(ITermPrinter pp) {
         pp.print("" + realValue());
         printAnnotations(pp);
     }
-
-    @Override
-    public String toString() {
-        StringBuilder result = new StringBuilder();
-        result.append(realValue());
-        appendAnnotations(result);
-        return result.toString();
+    
+    public void writeToString(Appendable output, int maxDepth) throws IOException {
+    	output.append(Double.toString(realValue()));
+        appendAnnotations(output, maxDepth);
     }
 
     @Override

@@ -1,5 +1,9 @@
 package org.spoofax.terms;
 
+import static java.lang.Math.min;
+import static org.spoofax.interpreter.terms.IStrategoTerm.MAXIMALLY_SHARED;
+import static org.spoofax.interpreter.terms.IStrategoTerm.MUTABLE;
+
 import java.util.Collection;
 import java.util.HashMap;
 
@@ -21,6 +25,19 @@ public abstract class AbstractTermFactory implements ITermFactory {
     private static final HashMap<StrategoConstructor, StrategoConstructor> asyncCtorCache =
         new HashMap<StrategoConstructor, StrategoConstructor>();
     
+    protected int defaultStorageType;
+    
+    public AbstractTermFactory(int defaultStorageType) {
+		this.defaultStorageType = defaultStorageType;
+	}
+    
+    public final int getDefaultStorageType() {
+		return defaultStorageType;
+	}
+    
+    protected final boolean isTermSharingAllowed() {
+    	return defaultStorageType != MUTABLE;
+    }
 
     public boolean hasConstructor(String ctorName, int arity) {
     	throw new UnsupportedOperationException();
@@ -79,7 +96,7 @@ public abstract class AbstractTermFactory implements ITermFactory {
     }
 
     public IStrategoList makeList(Collection<IStrategoTerm> terms) {
-        return makeList(terms.toArray(EMPTY));
+        return makeList(terms.toArray(new IStrategoTerm[terms.size()]));
     }
     
     @Deprecated
@@ -99,6 +116,28 @@ public abstract class AbstractTermFactory implements ITermFactory {
     
     public IStrategoTerm parseFromString(String text) {
     	return reader.parseFromString(text);
+    }
+    
+    protected static int getStorageType(IStrategoTerm term) {
+    	return term == null ? MAXIMALLY_SHARED : term.getStorageType();
+    }
+    
+    protected static int getStorageType(IStrategoTerm term1, IStrategoTerm term2) {
+    	int result = term1.getStorageType();
+    	if (result == 0) return 0;
+    	return min(result, term2.getStorageType());
+    }
+    
+    protected int getStorageType(IStrategoTerm[] terms) {
+    	int result = defaultStorageType;
+    	for (IStrategoTerm term : terms) {
+    		int type = term.getStorageType();
+    		if (type < result) { 
+        		if (type == 0) return 0;
+    			result = type;
+    		}
+    	}
+    	return result;
     }
 
 }

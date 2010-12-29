@@ -21,8 +21,12 @@ import org.spoofax.terms.AbstractTermFactory;
 
 @Deprecated
 public abstract class AbstractIOTermFactory extends AbstractTermFactory implements IFileTermFactory {
-	
+
 	private final TermReader reader = new TermReader(this);
+	
+	public AbstractIOTermFactory(int defaultStorageType) {
+		super(defaultStorageType);
+	}
 
     public IStrategoTerm parseFromStream(InputStream inputStream) throws IOException {
         return reader.parseFromStream(inputStream);

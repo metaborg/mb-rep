@@ -1,11 +1,18 @@
 package org.spoofax.terms;
 
+import java.io.IOException;
+
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.interpreter.terms.ITermPrinter;
 
 /**
+ * Wraps any term with annotations.
+ * 
+ * @see ITermFactory#annotateTerm(IStrategoTerm, IStrategoList)
+ *          Should generally be used to efficiently annotate a term.
+ * 
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 public class StrategoAnnotation extends StrategoWrapped {
@@ -14,7 +21,7 @@ public class StrategoAnnotation extends StrategoWrapped {
 	
 	private final ITermFactory factory;
 	
-	public StrategoAnnotation(ITermFactory factory, IStrategoTerm term, IStrategoList annotations, int storageType) {
+	protected StrategoAnnotation(ITermFactory factory, IStrategoTerm term, IStrategoList annotations, int storageType) {
 		super(term, annotations);
 		
 		if (!term.getAnnotations().isEmpty())
@@ -58,12 +65,22 @@ public class StrategoAnnotation extends StrategoWrapped {
 	@Override
 	public String toString() {
 		StringBuilder result = new StringBuilder();
-		result.append(getWrapped().toString());
-		appendAnnotations(result);
+		try {
+			getWrapped().writeToString(result, Integer.MAX_VALUE);
+			appendAnnotations(result, Integer.MAX_VALUE);
+		} catch (IOException e) {
+			throw new RuntimeException(e); // shan't happen
+		}
 		return result.toString();
 	}
 	
+	public void writeToString(Appendable output, int maxDepth) throws IOException {
+		getWrapped().writeToString(output, maxDepth);
+		appendAnnotations(output, maxDepth);
+	}
+	
 	@Override
+	@Deprecated
 	public void prettyPrint(ITermPrinter pp) {
 		getWrapped().prettyPrint(pp);
 		printAnnotations(pp);

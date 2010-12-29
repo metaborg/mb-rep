@@ -7,6 +7,8 @@
  */
 package org.spoofax.terms;
 
+import java.io.IOException;
+
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -75,7 +77,14 @@ public final class StrategoConstructor extends StrategoTerm implements IStratego
     @Override
     public String toString() {
         return name + "/" + arity;
-    }    
+    }
+    
+    public void writeToString(Appendable output, int maxDepth) throws IOException {
+    	output.append(name);
+    	output.append('/');
+    	output.append(Integer.toString(arity));
+    }
+    
     public IStrategoConstructor getConstructor() {
         return this;
     }
