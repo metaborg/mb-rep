@@ -11,7 +11,7 @@ import org.strategoxt.imp.runtime.dynamicloading.DynamicParseController;
 
 public class ATermParseController extends DynamicParseController 
 { 
-  public static final String LANGUAGE = new String("ATerm");
+  public static final String LANGUAGE = new String("IStrategoTerm");
 
   private static final String TABLE = "/include/" + LANGUAGE + ".tbl";
 

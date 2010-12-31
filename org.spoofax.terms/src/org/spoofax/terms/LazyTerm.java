@@ -1,5 +1,7 @@
 package org.spoofax.terms;
 
+import java.io.IOException;
+
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoInt;
@@ -9,6 +11,7 @@ import org.spoofax.interpreter.terms.IStrategoReal;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
+import org.spoofax.interpreter.terms.ITermAttachment;
 import org.spoofax.interpreter.terms.ITermPrinter;
 
 /**
@@ -159,6 +162,26 @@ public abstract class LazyTerm implements IStrategoAppl, IStrategoInt, IStratego
 		if (getTermType() != STRING)
 			throw new TermWrapperException("Called stringValue() on a term that is not of type STRING");
 		return ((IStrategoString) getWrapped()).stringValue();
+	}
+
+	public String toString(int maxDepth) {
+		return getWrapped().toString(maxDepth);
+	}
+
+	public void writeToString(Appendable output, int maxDepth) throws IOException {
+		getWrapped().writeToString(output, maxDepth);
+	}
+
+	public <T extends ITermAttachment> T getAttachment(Class<T> attachment) {
+		return getWrapped().getAttachment(attachment);
+	}
+
+	public void putAttachment(ITermAttachment attachment) {
+		getWrapped().putAttachment(attachment);
+	}
+
+	public boolean isList() {
+		return getWrapped().isList();
 	}
 
 }
