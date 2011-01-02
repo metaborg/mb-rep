@@ -9,6 +9,9 @@ package org.spoofax.interpreter.terms;
 
 import java.io.IOException;
 
+import org.spoofax.terms.attachments.ITermAttachment;
+import org.spoofax.terms.attachments.TermAttachmentType;
+
 public interface IStrategoTerm extends ISimpleTerm {
 
     public static final int APPL = 1;
@@ -57,8 +60,8 @@ public interface IStrategoTerm extends ISimpleTerm {
     public boolean match(IStrategoTerm second);
     
     /**
-     * @see org.spoofax.terms.io.TermReader#unparseToFile(IStrategoTerm, java.io.OutputStream)
-     * @see org.spoofax.terms.io.TermReader#unparseToFile(IStrategoTerm, java.io.Writer)
+     * @see org.spoofax.terms.io.TAFTermReader#unparseToFile(IStrategoTerm, java.io.OutputStream)
+     * @see org.spoofax.terms.io.TAFTermReader#unparseToFile(IStrategoTerm, java.io.Writer)
      * @see writeToString(Appendable, int)
      */
     @Deprecated
@@ -68,7 +71,9 @@ public interface IStrategoTerm extends ISimpleTerm {
     
     public void writeToString(Appendable output, int maxDepth) throws IOException;
     
-    public<T extends ITermAttachment> T getAttachment(Class<T> attachment);
+    public<T extends ITermAttachment> T getAttachment(TermAttachmentType<T> attachmentType);
     
-    public void putAttachment(ITermAttachment attachment);
+    public<T extends ITermAttachment> void putAttachment(ITermAttachment attachment);
+    
+    public void removeAttachment(TermAttachmentType<?> attachmentType);
 }

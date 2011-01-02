@@ -1,4 +1,4 @@
-package org.spoofax.interpreter.terms;
+package org.spoofax.terms.attachments;
 
 /** 
  * @author Lennart Kats <lennart add lclnet.nl>

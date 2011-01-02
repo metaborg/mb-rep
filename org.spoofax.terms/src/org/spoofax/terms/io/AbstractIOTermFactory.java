@@ -18,11 +18,12 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
 import org.spoofax.interpreter.terms.io.IFileTermFactory;
 import org.spoofax.terms.AbstractTermFactory;
+import org.spoofax.terms.io.baf.TermReader;
 
 @Deprecated
 public abstract class AbstractIOTermFactory extends AbstractTermFactory implements IFileTermFactory {
 
-	private final TermReader reader = new TermReader(this);
+	private final TAFTermReader reader = new TermReader(this);
 	
 	public AbstractIOTermFactory(int defaultStorageType) {
 		super(defaultStorageType);

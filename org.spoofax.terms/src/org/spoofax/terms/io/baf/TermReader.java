@@ -6,14 +6,16 @@ import java.io.InputStream;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
-import org.spoofax.terms.io.TermReader;
+import org.spoofax.terms.io.TAFTermReader;
 
 /**
+ * A term reader that supports both textual and binary ATerms.
+ * 
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-public class BAFTermReader extends TermReader {
+public class TermReader extends TAFTermReader {
 	
-	public BAFTermReader(ITermFactory factory) {
+	public TermReader(ITermFactory factory) {
 		super(factory);
 	}
     

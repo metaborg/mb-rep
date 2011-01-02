@@ -7,7 +7,7 @@
  */
 package org.spoofax.interpreter.terms;
 
-import org.spoofax.terms.io.TermReader;
+import org.spoofax.terms.io.TAFTermReader;
 
 /**
  * 
@@ -19,8 +19,8 @@ public interface ITermFactory extends IStrategoTermBuilder {
 	/**
 	 * Parses a term from a string.
 	 * 
-	 * @see TermReader#parseFromStream(java.io.InputStream)
-	 * @see TermReader#parseFromFile(String)
+	 * @see TAFTermReader#parseFromStream(java.io.InputStream)
+	 * @see TAFTermReader#parseFromFile(String)
 	 */
     public IStrategoTerm parseFromString(String text);
 

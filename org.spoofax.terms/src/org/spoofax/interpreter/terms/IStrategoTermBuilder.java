@@ -25,6 +25,11 @@ public interface IStrategoTermBuilder {
     public IStrategoList makeList(IStrategoTerm... terms);
     public IStrategoList makeList(Collection<IStrategoTerm> terms);
 
+	public IStrategoAppl makeAppl(IStrategoConstructor constructor, IStrategoTerm[] kids, IStrategoList annotations);
+	public IStrategoList makeList(IStrategoTerm[] kids, IStrategoList annotations);
+	public IStrategoList makeListCons(IStrategoTerm head, IStrategoList tail, IStrategoList annotations);
+	public IStrategoTuple makeTuple(IStrategoTerm[] kids, IStrategoList annotations);
+
     // @Deprecated public IStrategoList makeList(IStrategoTerm head, IStrategoList tail);
     public IStrategoList makeListCons(IStrategoTerm head, IStrategoList tail);
     

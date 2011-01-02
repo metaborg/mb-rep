@@ -98,11 +98,6 @@ public abstract class AbstractTermFactory implements ITermFactory {
     public IStrategoList makeList(Collection<IStrategoTerm> terms) {
         return makeList(terms.toArray(new IStrategoTerm[terms.size()]));
     }
-    
-    @Deprecated
-    public final IStrategoList makeList(IStrategoTerm head, IStrategoList tail) {
-        return makeListCons(head, tail);
-    }
 
     public final IStrategoList makeListCons(IStrategoTerm head, IStrategoList tail) {
         return makeListCons (head, tail, null);

@@ -39,6 +39,8 @@ import org.spoofax.interpreter.terms.ParseError;
 
 /**
  * A BAFReader that uses IStrategoTerms.
+ * 
+ * @see TermReader A helper class that supports both binary and textual ATerms.
  */
 public class BAFReader {
 

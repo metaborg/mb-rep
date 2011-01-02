@@ -7,5 +7,6 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: org.spoofax,
  org.spoofax.interpreter.terms,
  org.spoofax.terms,
+ org.spoofax.terms.attachments,
  org.spoofax.terms.io,
  org.spoofax.terms.io.baf

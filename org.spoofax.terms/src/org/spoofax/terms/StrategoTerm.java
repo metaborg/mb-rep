@@ -9,10 +9,12 @@ package org.spoofax.terms;
 
 import java.io.IOException;
 
+import org.spoofax.NotImplementedException;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.ITermAttachment;
 import org.spoofax.interpreter.terms.ITermPrinter;
+import org.spoofax.terms.attachments.ITermAttachment;
+import org.spoofax.terms.attachments.TermAttachmentType;
 
 import static org.spoofax.terms.TermFactory.EMPTY_LIST;
 
@@ -203,7 +205,7 @@ public abstract class StrategoTerm implements IStrategoTerm, Cloneable {
     }
     
     @SuppressWarnings("unchecked")
-	public<T extends ITermAttachment> T getAttachment(Class<T> type) {
+	public<T extends ITermAttachment> T getAttachment(TermAttachmentType<T> type) {
     	for (ITermAttachment a = this.attachment; a != null; a = a.getNext()) {
     		if (a.getAttachmentType() == type)
     			return (T) a;
@@ -217,7 +219,7 @@ public abstract class StrategoTerm implements IStrategoTerm, Cloneable {
     	if (this.attachment == null) {
     		this.attachment = attachment;
     	} else {
-    		Class<?> newType = attachment.getAttachmentType();
+    		TermAttachmentType<?> newType = attachment.getAttachmentType();
     		if (this.attachment.getAttachmentType() == newType) {
     			attachment.setNext(this.attachment.getNext());
     			this.attachment = attachment;
@@ -227,11 +229,14 @@ public abstract class StrategoTerm implements IStrategoTerm, Cloneable {
 	        		if (a.getAttachmentType() == newType) {
 	        			attachment.setNext(a.getNext());
 	        			previous.setNext(attachment);
-	        			return;
 	        		}
 	        	}
     			previous.setNext(attachment);
     		}
     	}
+    }
+    
+    public void removeAttachment(TermAttachmentType<?> attachmentType) {
+    	throw new NotImplementedException();
     }
 }

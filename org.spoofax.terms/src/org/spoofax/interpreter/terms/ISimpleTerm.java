@@ -1,5 +1,8 @@
 package org.spoofax.interpreter.terms;
 
+import org.spoofax.terms.attachments.ITermAttachment;
+import org.spoofax.terms.attachments.TermAttachmentType;
+
 
 /**
  * A simple tree-like interface for terms.
@@ -12,7 +15,7 @@ public interface ISimpleTerm {
 	
 	ISimpleTerm getSubterm(int i);
 
-	public<T extends ITermAttachment> T getAttachment(Class<T> type);
+	public<T extends ITermAttachment> T getAttachment(TermAttachmentType<T> type);
 	
 	boolean isList();
 }

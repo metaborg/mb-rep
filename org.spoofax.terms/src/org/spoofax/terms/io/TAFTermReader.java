@@ -24,14 +24,19 @@ import org.spoofax.NotImplementedException;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
-import org.spoofax.interpreter.terms.ITermPrinter;
 import org.spoofax.interpreter.terms.ParseError;
 import org.spoofax.terms.AbstractTermFactory;
 import org.spoofax.terms.StringTermReader;
+import org.spoofax.terms.io.baf.TermReader;
 
-public class TermReader extends StringTermReader {
+/**
+ * @see TermReader  An extension of this class that also supports binary ATerms.
+ * 
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+public class TAFTermReader extends StringTermReader {
 	
-    public TermReader(ITermFactory factory) {
+    public TAFTermReader(ITermFactory factory) {
     	super(factory);
     }
     
@@ -291,8 +296,7 @@ public class TermReader extends StringTermReader {
     }
 
     public void unparseToFile(IStrategoTerm t, Writer out) throws IOException {
-        ITermPrinter tp = new InlineWriter(out);
-        t.prettyPrint(tp);
+        t.writeToString(out, Integer.MAX_VALUE);
     }
 
 }

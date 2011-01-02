@@ -11,8 +11,9 @@ import org.spoofax.interpreter.terms.IStrategoReal;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
-import org.spoofax.interpreter.terms.ITermAttachment;
 import org.spoofax.interpreter.terms.ITermPrinter;
+import org.spoofax.terms.attachments.ITermAttachment;
+import org.spoofax.terms.attachments.TermAttachmentType;
 
 /**
  * A lazily initialized term,
@@ -172,14 +173,18 @@ public abstract class LazyTerm implements IStrategoAppl, IStrategoInt, IStratego
 		getWrapped().writeToString(output, maxDepth);
 	}
 
-	public <T extends ITermAttachment> T getAttachment(Class<T> attachment) {
-		return getWrapped().getAttachment(attachment);
+	public<T extends ITermAttachment> T getAttachment(TermAttachmentType<T> attachmentType) {
+		return getWrapped().getAttachment(attachmentType);
 	}
 
-	public void putAttachment(ITermAttachment attachment) {
-		getWrapped().putAttachment(attachment);
-	}
-
+    public void putAttachment(ITermAttachment attachment) {
+    	getWrapped().putAttachment(attachment);
+    }
+    
+    public void removeAttachment(TermAttachmentType<?> attachmentType) {
+    	getWrapped().removeAttachment(attachmentType);
+    }
+    
 	public boolean isList() {
 		return getWrapped().isList();
 	}
