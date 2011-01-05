@@ -16,6 +16,8 @@ public interface ISimpleTerm {
 	ISimpleTerm getSubterm(int i);
 
 	public<T extends ITermAttachment> T getAttachment(TermAttachmentType<T> type);
+
+	void putAttachment(ITermAttachment resourceAttachment);
 	
 	boolean isList();
 }

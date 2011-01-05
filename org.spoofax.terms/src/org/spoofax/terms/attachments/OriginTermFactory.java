@@ -27,6 +27,7 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 	
 	public OriginTermFactory(ITermFactory baseFactory) {
 		super(MUTABLE, baseFactory);
+		assert !(baseFactory instanceof OriginTermFactory);
 	}
 
 	public ITermFactory getFactoryWithStorageType(int storageType) {

@@ -23,6 +23,7 @@ public class ParentTermFactory extends AbstractTermFactory {
 
 	public ParentTermFactory(ITermFactory baseFactory) {
 		super(MUTABLE);
+		assert !(baseFactory instanceof ParentTermFactory);
 		this.baseFactory = baseFactory.getFactoryWithStorageType(MUTABLE);
 	}
 
@@ -54,6 +55,8 @@ public class ParentTermFactory extends AbstractTermFactory {
 	@Override
 	public IStrategoAppl makeAppl(IStrategoConstructor constructor, IStrategoTerm[] kids, IStrategoList annotations) {
 		IStrategoAppl result = baseFactory.makeAppl(constructor, kids, annotations);
+		assert ParentAttachment.get(result) == null :
+			"Unexpected parent attachment; doubly wrapped term factory?";
 		configure(result, kids);
 		return result;
 	}

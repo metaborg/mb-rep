@@ -1,5 +1,6 @@
 package org.spoofax.terms.attachments;
 
+import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 /** 
@@ -53,22 +54,42 @@ public class ParentAttachment extends AbstractTermAttachment {
 	/**
 	 * Gets the *original* parent of this term at the time of creation, if available.
 	 */
-	public static IStrategoTerm getParent(IStrategoTerm term) {
+	public static IStrategoTerm getParent(ISimpleTerm term) {
 		ParentAttachment attachment = term.getAttachment(TYPE);
 		return attachment == null ? null : attachment.getParent();
+	}
+
+	/**
+	 * Gets the *original* root of this term tree at the time of creation, if available.
+	 */
+	public static IStrategoTerm getRoot(IStrategoTerm term) {
+		for (IStrategoTerm parent = term; parent != null; term = parent) {
+			parent = ParentAttachment.getParent(term);
+		}
+		return term;
+	}
+
+	/**
+	 * Gets the *original* root of this term tree at the time of creation, if available.
+	 */
+	public static ISimpleTerm getRoot(ISimpleTerm term) {
+		for (ISimpleTerm parent = term; parent != null; term = parent) {
+			parent = ParentAttachment.getParent(term);
+		}
+		return term;
 	}
 	
 	/**
 	 * @param parent         The parent of this term, if available
 	 * @param elementParent  The direct 'Cons' node parent of a list element 
 	 */
-	public static void setParent(IStrategoTerm term, IStrategoTerm parent, IStrategoTerm elementParent) {
+	public static void setParent(ISimpleTerm term, IStrategoTerm parent, IStrategoTerm elementParent) {
 		ParentAttachment attachment = term.getAttachment(TYPE);
 		if (attachment == null || attachment.parent != null || attachment.elementParent != null) {
 			attachment = new ParentAttachment();
 			term.putAttachment(attachment);
 		}
-		attachment.parent = parent;
+		attachment.setParent(parent, elementParent);
 	}
 	
 }

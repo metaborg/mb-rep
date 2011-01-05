@@ -1,9 +1,15 @@
 package org.spoofax.terms;
 
+import static org.spoofax.interpreter.terms.IStrategoTerm.APPL;
+import static org.spoofax.interpreter.terms.IStrategoTerm.INT;
+import static org.spoofax.interpreter.terms.IStrategoTerm.LIST;
+import static org.spoofax.interpreter.terms.IStrategoTerm.REAL;
+import static org.spoofax.interpreter.terms.IStrategoTerm.STRING;
+import static org.spoofax.interpreter.terms.IStrategoTerm.TUPLE;
+
 import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoInt;
-import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoReal;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
@@ -20,13 +26,13 @@ public class Term {
     public static<T extends IStrategoTerm> T termAt(IStrategoTerm t, int i) {
         return (T) t.getSubterm(i);
     }
-
-    public static IStrategoReal realAt(IStrategoList t, int i) {
-        return (IStrategoReal) t.getSubterm(i);
+    
+    public static IStrategoAppl applAt(IStrategoTerm t, int i) {
+    	return (IStrategoAppl) t.getSubterm(i);
     }
 
     public static boolean isTermString(IStrategoTerm t) {
-        return t.getTermType() == IStrategoTerm.STRING;
+        return t.getTermType() == STRING;
     }
 
     public static String javaString(IStrategoTerm t) {
@@ -34,24 +40,24 @@ public class Term {
     }
 
     public static boolean isTermList(IStrategoTerm t) {
-        return t.getTermType() == IStrategoTerm.LIST;
+        return t.getTermType() == LIST;
     }
     
     public static boolean isTermInt(IStrategoTerm t) {
-        return t.getTermType() == IStrategoTerm.INT;
+        return t.getTermType() == INT;
     }
 
     public static boolean isTermReal(IStrategoTerm t) {
-        return t.getTermType() == IStrategoTerm.REAL;
+        return t.getTermType() == REAL;
     }
 
     public static boolean isTermAppl(IStrategoTerm t) {
-        return t.getTermType() == IStrategoTerm.APPL;
+        return t.getTermType() == APPL;
     }
     
     public static boolean isTermNamed(IStrategoTerm t) {
     	int type = t.getTermType();
-    	return type == IStrategoTerm.APPL || type == IStrategoTerm.STRING;
+    	return type == APPL || type == STRING;
     }
 
     public static int javaInt(IStrategoTerm term) {
@@ -63,7 +69,7 @@ public class Term {
     }
 
     public static boolean isTermTuple(IStrategoTerm t) {
-        return t.getTermType() == IStrategoTerm.TUPLE;
+        return t.getTermType() == TUPLE;
     }
 
     public static int asJavaInt(IStrategoTerm term) {
@@ -74,5 +80,8 @@ public class Term {
         return ((IStrategoString)term).stringValue();
     }
 
-
+    public static IStrategoConstructor tryGetConstructor(IStrategoTerm term) {
+    	return term != null && term.getTermType() == APPL ? ((IStrategoAppl) term).getConstructor() : null;
+    }
+ 
 }
