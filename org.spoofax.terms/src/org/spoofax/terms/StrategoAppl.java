@@ -135,8 +135,8 @@ public class StrategoAppl extends StrategoTerm implements IStrategoAppl {
 	                output.append(',');
 	                kids[i].writeToString(output, maxDepth - 1);
 	            }
-	            output.append(')');
             }
+            output.append(')');
         }
         appendAnnotations(output, maxDepth);
     }
