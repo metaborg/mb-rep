@@ -78,7 +78,7 @@ public class StrategoReal extends StrategoTerm implements IStrategoReal {
         printAnnotations(pp);
     }
     
-    public void writeToString(Appendable output, int maxDepth) throws IOException {
+    public void writeAsString(Appendable output, int maxDepth) throws IOException {
     	output.append(Double.toString(realValue()));
         appendAnnotations(output, maxDepth);
     }

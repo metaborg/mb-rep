@@ -191,16 +191,16 @@ public class StrategoList extends StrategoTerm implements IStrategoList, Iterabl
         printAnnotations(pp);
     }
     
-    public void writeToString(Appendable output, int maxDepth) throws IOException {
+    public void writeAsString(Appendable output, int maxDepth) throws IOException {
         output.append('[');
         if(!isEmpty()) {
             if (maxDepth == 0) {
             	output.append("...");
             } else {
-	            head().writeToString(output, maxDepth - 1);
+	            head().writeAsString(output, maxDepth - 1);
 	            for (IStrategoList cur = tail(); !cur.isEmpty(); cur = cur.tail()) {
 	                output.append(',');
-	                cur.head().writeToString(output, maxDepth - 1);
+	                cur.head().writeAsString(output, maxDepth - 1);
 	            }
             }
         }

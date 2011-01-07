@@ -78,7 +78,7 @@ public class StrategoInt extends StrategoTerm implements IStrategoInt {
         printAnnotations(pp);
     }
     
-    public void writeToString(Appendable output, int maxDepth) throws IOException {
+    public void writeAsString(Appendable output, int maxDepth) throws IOException {
     	output.append(Integer.toString(intValue()));
         appendAnnotations(output, maxDepth);
     }

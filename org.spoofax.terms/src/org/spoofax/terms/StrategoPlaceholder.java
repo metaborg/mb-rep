@@ -26,9 +26,9 @@ public class StrategoPlaceholder extends StrategoAppl implements IStrategoPlaceh
         return PLACEHOLDER;
     }
     
-    public void writeToString(Appendable output, int maxDepth) throws IOException {
+    public void writeAsString(Appendable output, int maxDepth) throws IOException {
     	output.append('<');
-    	getTemplate().writeToString(output, maxDepth - 1);
+    	getTemplate().writeAsString(output, maxDepth - 1);
     	output.append('>');
     	appendAnnotations(output, maxDepth);
     }

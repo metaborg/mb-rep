@@ -98,7 +98,7 @@ public class StrategoString extends StrategoTerm implements IStrategoString {
         printAnnotations(pp);
     }
  
-    public void writeToString(Appendable output, int maxDepth) throws IOException {
+    public void writeAsString(Appendable output, int maxDepth) throws IOException {
     	output.append("\"");
     	output.append(stringValue().replace("\\", "\\\\").replace("\"", "\\\"")
         		.replace("\n", "\\n").replace("\r", "\\r"));

@@ -79,7 +79,7 @@ public final class StrategoConstructor extends StrategoTerm implements IStratego
         return name + "/" + arity;
     }
     
-    public void writeToString(Appendable output, int maxDepth) throws IOException {
+    public void writeAsString(Appendable output, int maxDepth) throws IOException {
     	output.append(name);
     	output.append('/');
     	output.append(Integer.toString(arity));

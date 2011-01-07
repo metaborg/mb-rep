@@ -71,7 +71,7 @@ public class StrategoAnnotation extends StrategoWrapped {
 	public String toString() {
 		StringBuilder result = new StringBuilder();
 		try {
-			getWrapped().writeToString(result, Integer.MAX_VALUE);
+			getWrapped().writeAsString(result, Integer.MAX_VALUE);
 			appendAnnotations(result, Integer.MAX_VALUE);
 		} catch (IOException e) {
 			throw new RuntimeException(e); // shan't happen
@@ -79,8 +79,8 @@ public class StrategoAnnotation extends StrategoWrapped {
 		return result.toString();
 	}
 	
-	public void writeToString(Appendable output, int maxDepth) throws IOException {
-		getWrapped().writeToString(output, maxDepth);
+	public void writeAsString(Appendable output, int maxDepth) throws IOException {
+		getWrapped().writeAsString(output, maxDepth);
 		appendAnnotations(output, maxDepth);
 	}
 	

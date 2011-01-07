@@ -169,8 +169,8 @@ public abstract class LazyTerm implements IStrategoAppl, IStrategoInt, IStratego
 		return getWrapped().toString(maxDepth);
 	}
 
-	public void writeToString(Appendable output, int maxDepth) throws IOException {
-		getWrapped().writeToString(output, maxDepth);
+	public void writeAsString(Appendable output, int maxDepth) throws IOException {
+		getWrapped().writeAsString(output, maxDepth);
 	}
 
 	public<T extends ITermAttachment> T getAttachment(TermAttachmentType<T> attachmentType) {

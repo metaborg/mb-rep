@@ -69,7 +69,7 @@ public interface IStrategoTerm extends ISimpleTerm {
     
     public String toString(int maxDepth);
     
-    public void writeToString(Appendable output, int maxDepth) throws IOException;
+    public void writeAsString(Appendable output, int maxDepth) throws IOException;
     
     public<T extends ITermAttachment> T getAttachment(TermAttachmentType<T> attachmentType);
     

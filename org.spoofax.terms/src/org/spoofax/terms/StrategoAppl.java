@@ -122,7 +122,7 @@ public class StrategoAppl extends StrategoTerm implements IStrategoAppl {
         printAnnotations(pp);
     }
 
-    public void writeToString(Appendable output, int maxDepth) throws IOException {
+    public void writeAsString(Appendable output, int maxDepth) throws IOException {
         output.append(ctor.getName());
         IStrategoTerm[] kids = getAllSubterms();
         if(kids.length > 0) {
@@ -130,10 +130,10 @@ public class StrategoAppl extends StrategoTerm implements IStrategoAppl {
             if (maxDepth == 0) {
             	output.append("...");
             } else {
-	            kids[0].writeToString(output, maxDepth - 1);
+	            kids[0].writeAsString(output, maxDepth - 1);
 	            for(int i = 1; i < kids.length; i++) {
 	                output.append(',');
-	                kids[i].writeToString(output, maxDepth - 1);
+	                kids[i].writeAsString(output, maxDepth - 1);
 	            }
             }
             output.append(')');

@@ -133,7 +133,7 @@ public abstract class StrategoTerm implements IStrategoTerm, Cloneable {
     public String toString(int maxDepth) {
     	StringBuilder result = new StringBuilder();
     	try {
-    		writeToString(result, maxDepth);
+    		writeAsString(result, maxDepth);
     	} catch (IOException e) {
     		throw new RuntimeException(e); // shan't happen
     	}
@@ -141,7 +141,7 @@ public abstract class StrategoTerm implements IStrategoTerm, Cloneable {
     }
     
     public final void writeToString(Appendable output) throws IOException {
-    	writeToString(output, Integer.MAX_VALUE);
+    	writeAsString(output, Integer.MAX_VALUE);
     }
 
 	protected void appendAnnotations(Appendable sb, int maxDepth) throws IOException {
@@ -149,10 +149,10 @@ public abstract class StrategoTerm implements IStrategoTerm, Cloneable {
         if (annos.size() == 0) return;
         
         sb.append('{');
-        annos.get(0).writeToString(sb, maxDepth);
+        annos.get(0).writeAsString(sb, maxDepth);
         for (annos = annos.tail(); !annos.isEmpty(); annos = annos.tail()) {
             sb.append(',');
-            annos.head().writeToString(sb, maxDepth);        	
+            annos.head().writeAsString(sb, maxDepth);        	
         }
         sb.append('}');
     }

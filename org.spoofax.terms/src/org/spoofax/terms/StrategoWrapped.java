@@ -92,8 +92,8 @@ public class StrategoWrapped extends StrategoTerm implements IStrategoAppl, IStr
 		return wrapped.toString();
 	}
 	
-	public void writeToString(Appendable output, int maxDepth) throws IOException {
-		wrapped.writeToString(output, maxDepth);
+	public void writeAsString(Appendable output, int maxDepth) throws IOException {
+		wrapped.writeAsString(output, maxDepth);
 	}
 	
 	

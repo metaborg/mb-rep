@@ -293,10 +293,11 @@ public class TAFTermReader extends StringTermReader {
     public void unparseToFile(IStrategoTerm t, OutputStream ous) throws IOException {
         Writer out = new BufferedWriter(new OutputStreamWriter(ous));
         unparseToFile(t, out);
+        out.flush();
     }
 
     public void unparseToFile(IStrategoTerm t, Writer out) throws IOException {
-        t.writeToString(out, Integer.MAX_VALUE);
+        t.writeAsString(out, Integer.MAX_VALUE);
     }
 
 }
