@@ -151,7 +151,10 @@ public class BAFReader {
 
 
     private void debug(String s) {
-        System.err.println(s);
+      for (int i=0; i<level-1; i++) {
+        System.err.print(" ");
+      }
+      System.err.println(s);
     }
 
     int level = 0;
@@ -186,7 +189,7 @@ public class BAFReader {
 
             if (!resumingFrame) {
                 level++;
-                if(isDebugging()) debug("readTerm()/" + level + " - " + input.fun.getName() + "[" + input.arity + "]");
+                if(isDebugging()) debug("readTerm: " + input.fun);
             }
             
             for (int i = frame.index, arity = input.arity; i < arity; i++) {
@@ -195,16 +198,18 @@ public class BAFReader {
                 
                 if (!resumingFrame) {
                     final int symVal = reader.readBits(input.symWidth[i]);
+                    /*
                     if(isDebugging()) {
                         debug(" [" + i + "] - " + symVal);
                         debug(" [" + i + "] - " + input.topSyms[i].length);
                     }
+                    */
                     
                     argSym = symbols[input.topSyms[i][symVal]];
                     val = reader.readBits(argSym.termWidth);
                     
                     if (argSym.terms[val] == null) {
-                        if(isDebugging()) debug(" [" + i+  "] - recurse");
+                        //if(isDebugging()) debug(" [" + i+  "] - recurse");
 
                         frame.index = i;
                         frame.argSym = argSym;
@@ -235,6 +240,8 @@ public class BAFReader {
                 // Add result to parent frame
                 frame = stack.remove(stack.size() - 1);
                 frame.argSym.terms[frame.val] = result;
+                if (isDebugging)
+                  debug(frame.input.fun + ": arg " + frame.index + ": " + result);
                 resumingFrame = true;
             }
         }
@@ -255,7 +262,8 @@ public class BAFReader {
       final String name = e.fun.getName();
       final int LONGEST_BUILTIN_NAME = 6; // longest string length of "<int>", etc.
       
-      if (name.length() <= LONGEST_BUILTIN_NAME) {
+      // !e.fun.isQuoted: otherwise the literal "<int>" will be read as an int 
+      if (!e.fun.isQuoted() && name.length() <= LONGEST_BUILTIN_NAME) {
           if (name.equals("<int>")) {
               int val = reader.readBits(HEADER_BITS);
               level--;
@@ -268,11 +276,6 @@ public class BAFReader {
               return factory.makeReal(new Double(s).doubleValue());
           }
           else if (name.equals("[_,_]")) {
-              if(isDebugging()) {
-                  debug("--");
-                  for (int i = 0; i < args.length; i++)
-                      debug(" + " + args[i].getClass());
-              }
               level--;
               return ((ATermList) args[1]).insert(args[0]);
           }
@@ -291,11 +294,6 @@ public class BAFReader {
           }
       }
 
-      if(isDebugging()) {
-          debug(e.fun + " / " + args);
-          for (int i = 0; i < args.length; i++)
-              debug("" + args[i]);
-      }
       level--;
       return factory.makeAppl(e.fun, args);
     }
@@ -360,7 +358,6 @@ public class BAFReader {
         int quoted = reader.readInt();
 
         if(isDebugging())
-//            debug(s + " / " + arity + " / " + quoted);
             debug(s + " / " + arity + " / " + quoted);
 
         return factory.makeAFun(s, arity, quoted != 0);
