@@ -1,4 +1,4 @@
-package org.spoofax.terms.io.baf;
+package org.spoofax.terms.io.binary;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -7,6 +7,7 @@ import java.io.InputStream;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.io.TAFTermReader;
+import org.spoofax.terms.io.binary.BAFReader;
 
 /**
  * A term reader that supports both textual and binary ATerms.
@@ -50,6 +51,8 @@ public class TermReader extends TAFTermReader {
 	        
 	        if (BAFReader.isBinaryATerm(bis)) {
 	            return new BAFReader(getFactory(), bis).readFromBinaryFile(true);
+	        } else if (SAFReader.isStreamingATerm(bis)) {
+	        	return SAFReader.readTermFromSAFStream(factory, bis);
 	        } else {
 	            return super.parseFromStream(bis);
 	        }

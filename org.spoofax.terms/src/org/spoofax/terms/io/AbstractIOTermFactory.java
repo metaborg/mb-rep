@@ -18,7 +18,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
 import org.spoofax.interpreter.terms.io.IFileTermFactory;
 import org.spoofax.terms.AbstractTermFactory;
-import org.spoofax.terms.io.baf.TermReader;
+import org.spoofax.terms.io.binary.TermReader;
 
 @Deprecated
 public abstract class AbstractIOTermFactory extends AbstractTermFactory implements IFileTermFactory {

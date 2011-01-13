@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.spoofax.terms.io.baf;
+package org.spoofax.terms.io.binary;
 
 import java.io.EOFException;
 import java.io.IOException;

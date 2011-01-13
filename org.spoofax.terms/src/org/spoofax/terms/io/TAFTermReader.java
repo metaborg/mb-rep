@@ -27,7 +27,7 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.interpreter.terms.ParseError;
 import org.spoofax.terms.AbstractTermFactory;
 import org.spoofax.terms.StringTermReader;
-import org.spoofax.terms.io.baf.TermReader;
+import org.spoofax.terms.io.binary.TermReader;
 
 /**
  * @see TermReader  An extension of this class that also supports binary ATerms.

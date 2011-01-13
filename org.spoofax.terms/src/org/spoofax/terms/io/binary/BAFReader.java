@@ -17,7 +17,7 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA  02111-1307, USA.
  */
-package org.spoofax.terms.io.baf;
+package org.spoofax.terms.io.binary;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -36,13 +36,12 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.interpreter.terms.ParseError;
 
-
 /**
- * A BAFReader that uses IStrategoTerms.
+ * A term reader that uses IStrategoTerms.
  * 
  * @see TermReader A helper class that supports both binary and textual ATerms.
  */
-public class BAFReader {
+class BAFReader {
 
     private static final int BAF_MAGIC = 0xBAF;
     
@@ -88,11 +87,11 @@ public class BAFReader {
     public BAFReader(ITermFactory factory, InputStream inputStream) {
         this.factory = factory;
         if(inputStream instanceof FileInputStream) {
-            try {
+            /*try {
                 reader = new MemoryMappedBitStream((FileInputStream)inputStream);
-            } catch(IOException e) {
+            } catch(IOException e) {*/
                 reader = new BitStream(inputStream);
-            }
+            /*}*/
         } else {
             reader = new BitStream(inputStream);
         }
