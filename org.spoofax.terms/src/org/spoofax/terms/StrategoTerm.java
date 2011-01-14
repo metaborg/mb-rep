@@ -214,6 +214,7 @@ public abstract class StrategoTerm implements IStrategoTerm, Cloneable {
     }
     
     public void putAttachment(ITermAttachment attachment) {
+    	if (attachment == null) return;
     	assert getStorageType() == MUTABLE : "Attachments only supported for mutable, non-shared terms; failed for " + this;
     	assert attachment.getNext() == null;
     	if (this.attachment == null) {

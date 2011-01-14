@@ -73,7 +73,7 @@ public interface IStrategoTerm extends ISimpleTerm {
     
     public<T extends ITermAttachment> T getAttachment(TermAttachmentType<T> attachmentType);
     
-    public<T extends ITermAttachment> void putAttachment(ITermAttachment attachment);
+    public void putAttachment(ITermAttachment attachment);
     
     public void removeAttachment(TermAttachmentType<?> attachmentType);
 }

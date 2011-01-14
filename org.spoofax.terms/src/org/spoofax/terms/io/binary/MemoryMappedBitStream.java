@@ -1,4 +1,4 @@
-package org.spoofax.terms.io.baf;
+package org.spoofax.terms.io.binary;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -10,9 +10,13 @@ import java.nio.channels.FileChannel;
  * Reads bits from a FileInputStream using memory mapping. At least 2x 
  * faster than BitStream.
  * 
+ * Unsafe:
+ * 
+ * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4715154 
+ * 
  * @author karltk
- *
  */
+@Deprecated
 public class MemoryMappedBitStream extends BitStream {
 
 	private FileChannel channel; 

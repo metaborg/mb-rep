@@ -79,17 +79,4 @@ public class ParentAttachment extends AbstractTermAttachment {
 		return term;
 	}
 	
-	/**
-	 * @param parent         The parent of this term, if available
-	 * @param elementParent  The direct 'Cons' node parent of a list element 
-	 */
-	public static void setParent(ISimpleTerm term, IStrategoTerm parent, IStrategoTerm elementParent) {
-		ParentAttachment attachment = term.getAttachment(TYPE);
-		if (attachment == null || attachment.parent != null || attachment.elementParent != null) {
-			attachment = new ParentAttachment();
-			term.putAttachment(attachment);
-		}
-		attachment.setParent(parent, elementParent);
-	}
-	
 }
