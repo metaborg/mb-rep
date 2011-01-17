@@ -13,31 +13,31 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
  */
 public abstract class TermVisitor implements ITermVisitor {
 	
-	public final boolean visit(IStrategoTerm tree) {
-		Iterator<IStrategoTerm> iterator = tryGetListIterator(tree); 
-		for (int i = 0, max = tree.getSubtermCount(); i < max; i++) {
-			IStrategoTerm child = iterator == null ? tree.getSubterm(i) : iterator.next();
+	public final boolean visit(IStrategoTerm term) {
+		Iterator<IStrategoTerm> iterator = tryGetListIterator(term); 
+		for (int i = 0, max = term.getSubtermCount(); i < max; i++) {
+			IStrategoTerm child = iterator == null ? term.getSubterm(i) : iterator.next();
 			preVisit(child);
 			boolean isDone = visit(child);
 			postVisit(child);
-			if (isDone || isDone()) return true;
+			if (isDone || isDone(null)) return true;
 		}
 		return false;
 	}
 
-	public static Iterator<IStrategoTerm> tryGetListIterator(IStrategoTerm tree) {
-		if (isTermList(tree)) {
-			return StrategoListIterator.iterable((IStrategoList) tree).iterator();
+	public static Iterator<IStrategoTerm> tryGetListIterator(IStrategoTerm term) {
+		if (isTermList(term)) {
+			return StrategoListIterator.iterable((IStrategoList) term).iterator();
 		} else {
 			return null;
 		}
 	}
 	
-	public void postVisit(IStrategoTerm node) {
+	public void postVisit(IStrategoTerm term) {
 		// No default implementation
 	}
 	
-	public boolean isDone() {
+	public boolean isDone(IStrategoTerm term) {
 		return false;
 	}
 }
@@ -48,4 +48,6 @@ interface ITermVisitor {
 	void preVisit(IStrategoTerm node);
 
 	void postVisit(IStrategoTerm node);
+	
+	boolean isDone(IStrategoTerm node);
 }

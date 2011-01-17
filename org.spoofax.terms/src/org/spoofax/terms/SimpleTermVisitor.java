@@ -11,26 +11,26 @@ import org.spoofax.interpreter.terms.IStrategoList;
  */
 public abstract class SimpleTermVisitor implements ISimpleTermVisitor {
 	
-	public final boolean visit(ISimpleTerm tree) {
-		Iterator<ISimpleTerm> iterator = tryGetListIterator(tree); 
-		for (int i = 0, max = tree.getSubtermCount(); i < max; i++) {
-			ISimpleTerm child = iterator == null ? tree.getSubterm(i) : iterator.next();
+	public final boolean visit(ISimpleTerm term) {
+		Iterator<ISimpleTerm> iterator = tryGetListIterator(term); 
+		for (int i = 0, max = term.getSubtermCount(); i < max; i++) {
+			ISimpleTerm child = iterator == null ? term.getSubterm(i) : iterator.next();
 			preVisit(child);
 			boolean isDone = visit(child);
 			postVisit(child);
-			if (isDone || isDone()) return true;
+			if (isDone || isDone(null)) return true;
 		}
 		return false;
 	}
 
 	@SuppressWarnings("unchecked")
-	public static Iterator<ISimpleTerm> tryGetListIterator(ISimpleTerm tree) {
-		boolean isList = tree.isList();
+	public static Iterator<ISimpleTerm> tryGetListIterator(ISimpleTerm term) {
+		boolean isList = term.isList();
 		if (isList) {
-			if (tree instanceof Iterable) {
-				return ((Iterable<ISimpleTerm>) tree).iterator();
-			} else if (tree instanceof IStrategoList) {
-				Iterator<?> iterator = StrategoListIterator.iterable((IStrategoList) tree).iterator();
+			if (term instanceof Iterable) {
+				return ((Iterable<ISimpleTerm>) term).iterator();
+			} else if (term instanceof IStrategoList) {
+				Iterator<?> iterator = StrategoListIterator.iterable((IStrategoList) term).iterator();
 				return (Iterator<ISimpleTerm>) iterator;
 			}
 		}
@@ -41,7 +41,7 @@ public abstract class SimpleTermVisitor implements ISimpleTermVisitor {
 		// No default implementation
 	}
 	
-	public boolean isDone() {
+	public boolean isDone(ISimpleTerm term) {
 		return false;
 	}
 }
@@ -49,7 +49,9 @@ public abstract class SimpleTermVisitor implements ISimpleTermVisitor {
 //Local interface avoids abstract method and subsequent @Override annotation requirement
 
 interface ISimpleTermVisitor {
-	void preVisit(ISimpleTerm node);
+	void preVisit(ISimpleTerm term);
 
-	void postVisit(ISimpleTerm node);
+	void postVisit(ISimpleTerm term);
+	
+	boolean isDone(ISimpleTerm term);
 }
