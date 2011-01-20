@@ -24,4 +24,8 @@ public class PushbackStringIterator {
 	public int getOffset() {
 		return position;
 	}
+
+	public void setOffset(int offset) {
+		this.position = offset;
+	}
 }
