@@ -235,7 +235,7 @@ public class TAFTermReader extends StringTermReader {
         }
 
         if(ch != endChar)
-            throw new ParseError("Sequence must end with '" + endChar + "', saw '" + (char)ch + "'");
+        	throw new ParseError("Sequence must end with '" + endChar + "', saw '" + (char)ch + "' '" + (char) bis.read() + "' after items " + els);
         
         return els;
     }
