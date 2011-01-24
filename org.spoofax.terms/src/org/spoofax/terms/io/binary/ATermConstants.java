@@ -1,12 +1,13 @@
 package org.spoofax.terms.io.binary;
 
-import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoInt;
-import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoReal;
-import org.spoofax.interpreter.terms.IStrategoString;
+import static org.spoofax.interpreter.terms.IStrategoTerm.APPL;
+import static org.spoofax.interpreter.terms.IStrategoTerm.INT;
+import static org.spoofax.interpreter.terms.IStrategoTerm.LIST;
+import static org.spoofax.interpreter.terms.IStrategoTerm.REAL;
+import static org.spoofax.interpreter.terms.IStrategoTerm.STRING;
+import static org.spoofax.interpreter.terms.IStrategoTerm.TUPLE;
+
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.IStrategoTuple;
 
 public class ATermConstants {
 
@@ -19,22 +20,15 @@ public class ATermConstants {
     public static final int AT_LIST = 4;
 
     public static int ATermTypeForTerm(IStrategoTerm term) {
-        if (term instanceof IStrategoAppl) {
-            return AT_APPL;
-        } else if (term instanceof IStrategoString) {
-            return AT_APPL;
-        } else if (term instanceof IStrategoTuple) {
-            return AT_APPL;
-        } else if (term instanceof IStrategoInt) {
-            return AT_INT;
-        } else if (term instanceof IStrategoReal) {
-            return AT_REAL;
-        } else if (term instanceof IStrategoList) {
-            return AT_LIST;
-        } else {
-            throw new RuntimeException("Unknown term type '"
-                    + term.getClass().getName()
-                    + "', cannot convert to ATerm type");
+    	switch (term.getTermType()) {
+    		case APPL:  case STRING: case TUPLE: return AT_APPL;
+    		case INT: return AT_INT;
+    		case REAL: return AT_REAL;
+    		case LIST: return AT_LIST;
+    		default:
+	            throw new RuntimeException("Unknown term type '"
+	                    + term.getClass().getName()
+	                    + "', cannot convert to ATerm type");
         }
     }
 

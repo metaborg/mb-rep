@@ -1,5 +1,6 @@
 package org.spoofax.terms.attachments;
 
+import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 /** 
@@ -7,34 +8,31 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
  */
 public class OriginAttachment extends AbstractTermAttachment {
 	
+	private static final long serialVersionUID = 1180953352629370705L;
+
 	public static TermAttachmentType<OriginAttachment> TYPE =
 		TermAttachmentType.create(OriginAttachment.class);
-
-	private IStrategoTerm parent;
 	
 	private IStrategoTerm origin;
 
-	public OriginAttachment() {
-		// No default initialization
+	/**
+	 * Creates a new origin attachment.
+	 * 
+	 * Should not be called directly, as origin attachment instances
+	 * should not be shared.
+	 * 
+	 * @see #setOrigin(ISimpleTerm, IStrategoTerm)
+	 */
+	private OriginAttachment(IStrategoTerm origin) {
+		this.origin = origin;
 	}
 	
 	public TermAttachmentType<OriginAttachment> getAttachmentType() {
 		return TYPE;
 	}
 	
-	public static OriginAttachment get(IStrategoTerm term) {
+	public static OriginAttachment get(ISimpleTerm term) {
 		return term.getAttachment(TYPE);
-	}
-	
-	/**
-	 * Gets the *original* parent of this term at the time of creation, if available.
-	 */
-	public IStrategoTerm getParent() {
-		return parent;
-	}
-
-	public void setParent(IStrategoTerm parent) {
-		this.parent = parent;
 	}
 	
 	public IStrategoTerm getOrigin() {
@@ -45,35 +43,26 @@ public class OriginAttachment extends AbstractTermAttachment {
 		this.origin = origin;
 	}
 	
-	/**
-	 * Gets the *original* parent of this term at the time of creation, if available.
-	 */
-	public static IStrategoTerm getParent(IStrategoTerm term) {
+	public static IStrategoTerm getOrigin(ISimpleTerm term) {
 		OriginAttachment attachment = term.getAttachment(TYPE);
-		return attachment == null ? null : attachment.getParent();
+		return attachment == null ? null : attachment.getOrigin();
 	}
 	
-	public static IStrategoTerm getOrigin(IStrategoTerm term) {
+	public static IStrategoTerm tryGetOrigin(IStrategoTerm term) {
 		OriginAttachment attachment = term.getAttachment(TYPE);
-		return attachment == null ? null : attachment.getParent();
+		return attachment == null ? term : attachment.getOrigin();
 	}
 	
-	public static void setParent(IStrategoTerm term, IStrategoTerm parent) {
-		OriginAttachment attachment = term.getAttachment(TYPE);
-		if (attachment == null) {
-			attachment = new OriginAttachment();
-			term.putAttachment(attachment);
-		}
-		attachment.parent = parent;
-	}
-	
-	public static void setOrigin(IStrategoTerm term, IStrategoTerm origin) {
+	public static void setOrigin(ISimpleTerm term, IStrategoTerm origin) {
+		/* Let's not assume there's a reusable origin attachment
 		OriginAttachment attachment = term.getAttachment(TYPE);
 		if (attachment == null) {
 			attachment = new OriginAttachment();
 			term.putAttachment(attachment);
 		}
 		attachment.origin = origin;
+		*/
+		term.putAttachment(new OriginAttachment(origin));
 	}
 	
 }

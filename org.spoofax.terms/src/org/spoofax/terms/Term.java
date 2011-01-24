@@ -83,5 +83,9 @@ public class Term {
     public static IStrategoConstructor tryGetConstructor(IStrategoTerm term) {
     	return term != null && term.getTermType() == APPL ? ((IStrategoAppl) term).getConstructor() : null;
     }
+
+    public static String tryGetName(IStrategoTerm term) {
+    	return term != null && term.getTermType() == APPL ? ((IStrategoAppl) term).getConstructor().getName() : null;
+    }
  
 }

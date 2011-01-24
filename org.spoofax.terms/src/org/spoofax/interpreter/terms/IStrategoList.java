@@ -10,7 +10,11 @@ package org.spoofax.interpreter.terms;
 
 public interface IStrategoList extends IStrategoTerm {
 
-    public IStrategoTerm get(int index);
+    /**
+     * @deprecated Use {@link #getSubterm(int)} instead.
+     */
+	@Deprecated // useless; only causes incompatibility with other base classes
+	public IStrategoTerm get(int index);
 
     public int size();
 
@@ -24,7 +28,6 @@ public interface IStrategoList extends IStrategoTerm {
 
     public IStrategoTerm head();
 
-    // FIXME this should go into the factory -- it may be a builder
     public IStrategoList tail();
 
     public boolean isEmpty();

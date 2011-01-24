@@ -27,6 +27,8 @@
 
 package org.spoofax.terms.io.binary;
 
+import static org.spoofax.terms.Term.isTermList;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -494,7 +496,7 @@ class SAFReader {
                 // Remove?
                 if (!hasAnnos)
                     parent.annos = factory.makeList();
-            } else if (hasAnnos && (term instanceof IStrategoList)) {
+            } else if (hasAnnos && isTermList(term)) {
                 parent.annos = (IStrategoList) term;
             } else {
                 throw new RuntimeException(

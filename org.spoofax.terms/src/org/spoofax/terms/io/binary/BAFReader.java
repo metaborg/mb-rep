@@ -19,6 +19,8 @@
  */
 package org.spoofax.terms.io.binary;
 
+import static org.spoofax.terms.Term.isTermString;
+
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;
@@ -260,7 +262,7 @@ class BAFReader {
       }
       */
 
-      if (e.fun instanceof IStrategoString) {
+      if (isTermString(e.fun)) {
           level--;
           return e.fun;
       }

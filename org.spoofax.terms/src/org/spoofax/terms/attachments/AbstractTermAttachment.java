@@ -5,6 +5,8 @@ package org.spoofax.terms.attachments;
  */
 public abstract class AbstractTermAttachment implements ITermAttachment {
 	
+	private static final long serialVersionUID = -8243986540022517890L;
+
 	private ITermAttachment next;
 
 	public final ITermAttachment getNext() {

@@ -28,6 +28,13 @@
 
 package org.spoofax.terms.io.binary;
 
+import static org.spoofax.interpreter.terms.IStrategoTerm.APPL;
+import static org.spoofax.interpreter.terms.IStrategoTerm.INT;
+import static org.spoofax.interpreter.terms.IStrategoTerm.LIST;
+import static org.spoofax.interpreter.terms.IStrategoTerm.REAL;
+import static org.spoofax.interpreter.terms.IStrategoTerm.STRING;
+import static org.spoofax.interpreter.terms.IStrategoTerm.TUPLE;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -182,20 +189,21 @@ public class SAFWriter {
      */
     protected void visit(IStrategoTerm term) {
 
-        if (term instanceof IStrategoAppl) {
-            voidVisitAppl((IStrategoAppl) term);
-        } else if (term instanceof IStrategoInt) {
-            voidVisitInt((IStrategoInt) term);
-        } else if (term instanceof IStrategoList) {
-            voidVisitList((IStrategoList) term);
-        } else if (term instanceof IStrategoReal) {
-            voidVisitReal((IStrategoReal) term);
-        } else if (term instanceof IStrategoString) {
-            voidVisitString((IStrategoString) term);
-        } else if (term instanceof IStrategoTuple) {
-            voidVisitTuple((IStrategoTuple) term);
-        } else {
-            throw new RuntimeException("Could not serializate term of type "
+        switch (term.getTermType()) {
+        	case APPL:
+        		voidVisitAppl((IStrategoAppl) term);
+        	case INT:
+        		voidVisitInt((IStrategoInt) term);
+        	case LIST:
+        		voidVisitList((IStrategoList) term);
+        	case REAL:
+        		voidVisitReal((IStrategoReal) term);
+        	case STRING:
+        		voidVisitString((IStrategoString) term);
+        	case TUPLE:
+        		voidVisitTuple((IStrategoTuple) term);
+        	default:
+        		throw new RuntimeException("Could not serializate term of type "
                     + term.getClass().getName() + " to SAF format.");
         }
 

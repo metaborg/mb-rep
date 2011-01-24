@@ -149,7 +149,7 @@ public abstract class StrategoTerm implements IStrategoTerm, Cloneable {
         if (annos.size() == 0) return;
         
         sb.append('{');
-        annos.get(0).writeAsString(sb, maxDepth);
+        annos.getSubterm(0).writeAsString(sb, maxDepth);
         for (annos = annos.tail(); !annos.isEmpty(); annos = annos.tail()) {
             sb.append(',');
             annos.head().writeAsString(sb, maxDepth);        	
@@ -225,7 +225,7 @@ public abstract class StrategoTerm implements IStrategoTerm, Cloneable {
     			attachment.setNext(this.attachment.getNext());
     			this.attachment = attachment;
     		} else {
-    			ITermAttachment previous = attachment;
+    			ITermAttachment previous = this.attachment;
     			for (ITermAttachment a = previous.getNext(); a != null; a = a.getNext()) {
 	        		if (a.getAttachmentType() == newType) {
 	        			attachment.setNext(a.getNext());
