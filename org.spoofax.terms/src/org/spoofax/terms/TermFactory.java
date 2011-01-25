@@ -28,7 +28,9 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
     
     // Strings should be MAXIMALLY_SHARED, but we use
     // a weaker assumption instead to be safe (StrategoXT/834)
-    private static final int STRING_STORAGE_TYPE = SHARABLE;
+    private static final int STRING_POOL_STORAGE_TYPE = SHARABLE;
+    
+    private static final int INT_POOL_STORAGE_TYPE = MAXIMALLY_SHARED;
     
     public static final int MAX_POOLED_STRING_LENGTH = 100;
     
@@ -72,7 +74,7 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
             		throw new UnsupportedOperationException("String too long to be pooled (newname not allowed): " + name);
             	} else {
                 	// HACK: pre-allocating strings to avoid race condition 
-            		asyncStringPool.put(name, new WeakReference<StrategoString>(new StrategoString(name, null, STRING_STORAGE_TYPE)));
+            		asyncStringPool.put(name, new WeakReference<StrategoString>(new StrategoString(name, null, STRING_POOL_STORAGE_TYPE)));
             		return false;
             	}
         	} else {
@@ -93,15 +95,15 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
     }
 
     public IStrategoInt makeInt(int i) {
-    	if (0 <= i && i <= 255)
+    	if (0 <= i && i <= 255 && isTermSharingAllowed())
     		return intCache[i];
-    	return new StrategoInt(i, null);
+    	return new StrategoInt(i, null, defaultStorageType);
     }
 
     private static final IStrategoInt[] initIntCache() {
     	IStrategoInt[] results = new IStrategoInt[256];
     	for (int i = 0; i < results.length; i++) {
-    		results[i] = new StrategoInt(i);
+    		results[i] = new StrategoInt(i, INT_POOL_STORAGE_TYPE);
     	}
     	return results;
     }
@@ -141,7 +143,7 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
     }
 
     public IStrategoReal makeReal(double d) {
-        return new StrategoReal(d, null);
+        return new StrategoReal(d, null, defaultStorageType);
     }
 
     public IStrategoString makeString(String s) {
@@ -152,10 +154,10 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
 	    	WeakReference<StrategoString> resultRef = asyncStringPool.get(s);
 	    	StrategoString result = resultRef == null ? null : resultRef.get();
 	    	if (result == null) {
-	        	result = new StrategoString(s, null, STRING_STORAGE_TYPE);
+	        	result = new StrategoString(s, null, STRING_POOL_STORAGE_TYPE);
 	        	asyncStringPool.put(s, new WeakReference<StrategoString>(result));
 	    	}
-        	if (!isTermSharingAllowed() && STRING_STORAGE_TYPE != MUTABLE) 
+        	if (!isTermSharingAllowed() && STRING_POOL_STORAGE_TYPE != MUTABLE) 
         		return new StrategoWrapped(result);
 	    	return result;
     	}
@@ -184,11 +186,11 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
 					return new StrategoString(value, annotations, defaultStorageType);
 				}
 			} else if (term.getAnnotations() == EMPTY_LIST) {
-				return new StrategoAnnotation(this, term, annotations, defaultStorageType);
+				return new StrategoAnnotation(this, term, annotations);
 			} else if (term instanceof StrategoAnnotation) {
 				term = ((StrategoAnnotation) term).getWrapped();
-				int storageType = min(defaultStorageType, getStorageType(term));
-				return new StrategoAnnotation(this, term, annotations, storageType);
+				// int storageType = min(defaultStorageType, getStorageType(term));
+				return new StrategoAnnotation(this, term, annotations);
 			} else {
 				throw new UnsupportedOperationException("Unable to annotate term of type " + term.getClass().getName());
 			}

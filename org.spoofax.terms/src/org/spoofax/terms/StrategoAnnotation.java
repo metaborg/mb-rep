@@ -22,21 +22,18 @@ import org.spoofax.terms.attachments.TermAttachmentType;
  */
 public class StrategoAnnotation extends StrategoWrapped {
 	
-	private final int storageType;
-	
 	private final ITermFactory factory;
 	
-	protected StrategoAnnotation(ITermFactory factory, IStrategoTerm term, IStrategoList annotations, int storageType) {
+	protected StrategoAnnotation(ITermFactory factory, IStrategoTerm term, IStrategoList annotations) {
 		super(term, annotations);
 		
 		if (!term.getAnnotations().isEmpty())
 			throw new IllegalArgumentException("Annotated term cannot already have annotations");
 		
 		this.factory = factory;
-		this.storageType = storageType;
 		
-		if (storageType != MUTABLE)
-			initImmutableHashCode();
+		//if (storageType != MUTABLE)
+		//	initImmutableHashCode();
 	}
 	
 	@Override
@@ -89,11 +86,6 @@ public class StrategoAnnotation extends StrategoWrapped {
 	public void prettyPrint(ITermPrinter pp) {
 		getWrapped().prettyPrint(pp);
 		printAnnotations(pp);
-	}
-
-	@Override
-	public int getStorageType() {
-		return storageType;
 	}
 
 	@Override

@@ -18,6 +18,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
 import org.spoofax.interpreter.terms.io.IFileTermFactory;
 import org.spoofax.terms.AbstractTermFactory;
+import org.spoofax.terms.ParseError;
 import org.spoofax.terms.io.binary.TermReader;
 
 @Deprecated
@@ -29,11 +30,11 @@ public abstract class AbstractIOTermFactory extends AbstractTermFactory implemen
 		super(defaultStorageType);
 	}
 
-    public IStrategoTerm parseFromStream(InputStream inputStream) throws IOException {
+    public IStrategoTerm parseFromStream(InputStream inputStream) throws IOException, ParseError {
         return reader.parseFromStream(inputStream);
     }
     
-    public IStrategoTerm parseFromFile(String path) throws IOException {
+    public IStrategoTerm parseFromFile(String path) throws IOException, ParseError {
     	return reader.parseFromFile(path);
     }
 

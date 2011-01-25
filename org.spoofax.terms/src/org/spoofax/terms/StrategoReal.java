@@ -19,17 +19,13 @@ public class StrategoReal extends StrategoTerm implements IStrategoReal {
 
     private final double value;
     
-    protected StrategoReal(double value, IStrategoList annotations) {
-        super(annotations);
+    protected StrategoReal(double value, IStrategoList annotations, int storageType) {
+        super(annotations, storageType);
         this.value = value;
     }
     
-    protected StrategoReal(double value) {
-        this(value, null);
-    }
-    
-    public int getStorageType() {
-    	return SHARABLE;
+    protected StrategoReal(double value, int storageType) {
+        this(value, null, storageType);
     }
     
     public double realValue() {

@@ -19,17 +19,13 @@ public class StrategoInt extends StrategoTerm implements IStrategoInt {
 
     private final int value;
     
-    protected StrategoInt(int value, IStrategoList annotations) {
-        super(annotations);
+    protected StrategoInt(int value, IStrategoList annotations, int storageType) {
+        super(annotations, storageType);
         this.value = value;
     }
     
-    public int getStorageType() {
-    	return SHARABLE;
-    }
-    
-    protected StrategoInt(int value) {
-        this(value, null);
+    protected StrategoInt(int value, int storageType) {
+        this(value, null, storageType);
     }
     
     public int intValue() {

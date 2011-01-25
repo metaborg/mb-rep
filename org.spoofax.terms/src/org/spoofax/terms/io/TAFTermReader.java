@@ -24,8 +24,8 @@ import org.spoofax.NotImplementedException;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
-import org.spoofax.interpreter.terms.ParseError;
 import org.spoofax.terms.AbstractTermFactory;
+import org.spoofax.terms.ParseError;
 import org.spoofax.terms.StringTermReader;
 import org.spoofax.terms.io.binary.TermReader;
 
@@ -40,7 +40,7 @@ public class TAFTermReader extends StringTermReader {
     	super(factory);
     }
     
-    public IStrategoTerm parseFromFile(String path) throws IOException {
+    public IStrategoTerm parseFromFile(String path) throws IOException, ParseError {
         InputStream stream = new FileInputStream(path);
         try {
             return parseFromStream(stream);
@@ -49,7 +49,7 @@ public class TAFTermReader extends StringTermReader {
         }
     }
 
-    public IStrategoTerm parseFromStream(InputStream inputStream) throws IOException {
+    public IStrategoTerm parseFromStream(InputStream inputStream) throws IOException, ParseError {
         /*
         PushbackInputStream pushbackStream;
         
@@ -75,7 +75,7 @@ public class TAFTermReader extends StringTermReader {
     	}
     }
 
-    protected IStrategoTerm parseFromStream(PushbackInputStream bis) throws IOException {
+    protected IStrategoTerm parseFromStream(PushbackInputStream bis) throws IOException, ParseError {
         parseSkip(bis);
         final int ch = bis.read();
         switch(ch) {
@@ -94,7 +94,7 @@ public class TAFTermReader extends StringTermReader {
         throw new ParseError("Invalid term: '" + (char)ch + "'");
     }
     
-    private IStrategoTerm parseAnno(PushbackInputStream bis, IStrategoTerm term) throws IOException {
+    private IStrategoTerm parseAnno(PushbackInputStream bis, IStrategoTerm term) throws IOException, ParseError {
         parseSkip(bis);
         final int ch = bis.read();
         if (ch == '{') {
@@ -106,7 +106,7 @@ public class TAFTermReader extends StringTermReader {
         }
     }
 
-    private IStrategoTerm parseString(PushbackInputStream bis) throws IOException {
+    private IStrategoTerm parseString(PushbackInputStream bis) throws IOException, ParseError {
         int ch = bis.read();
         if(ch == '"')
             return factory.makeString("");
@@ -169,7 +169,7 @@ public class TAFTermReader extends StringTermReader {
         return factory.makeString(sb.toString());
     }
 
-    private IStrategoTerm parseAppl(PushbackInputStream bis) throws IOException {
+    private IStrategoTerm parseAppl(PushbackInputStream bis) throws IOException, ParseError {
         //System.err.println("appl");
         // TODO: share stringbuilder instances?
         StringBuilder sb = new StringBuilder();
@@ -200,7 +200,7 @@ public class TAFTermReader extends StringTermReader {
         }
     }
     
-    private IStrategoTerm parsePlaceholder(PushbackInputStream bis) throws IOException {
+    private IStrategoTerm parsePlaceholder(PushbackInputStream bis) throws IOException, ParseError {
         IStrategoTerm template = parseFromStream(bis);
         parseSkip(bis);
         if (bis.read() != '>')
@@ -208,12 +208,12 @@ public class TAFTermReader extends StringTermReader {
         return factory.makePlaceholder(template);
     }
 
-    private IStrategoTerm parseTuple(PushbackInputStream bis) throws IOException {
+    private IStrategoTerm parseTuple(PushbackInputStream bis) throws IOException, ParseError {
         //System.err.println("tuple");
         return factory.makeTuple(parseTermSequence(bis, ')').toArray(AbstractTermFactory.EMPTY));
     }
 
-    private List<IStrategoTerm> parseTermSequence(PushbackInputStream bis, char endChar) throws IOException {
+    private List<IStrategoTerm> parseTermSequence(PushbackInputStream bis, char endChar) throws IOException, ParseError {
         //System.err.println("sequence");
         List<IStrategoTerm> els = Collections.emptyList();
         parseSkip(bis);
@@ -240,7 +240,7 @@ public class TAFTermReader extends StringTermReader {
         return els;
     }
 
-    private IStrategoTerm parseList(PushbackInputStream bis) throws IOException {
+    private IStrategoTerm parseList(PushbackInputStream bis) throws IOException, ParseError {
         //System.err.println("list");
         return factory.makeList(parseTermSequence(bis, ']'));
     }

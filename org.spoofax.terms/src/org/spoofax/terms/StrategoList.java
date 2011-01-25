@@ -21,8 +21,6 @@ import org.spoofax.interpreter.terms.ITermPrinter;
 public class StrategoList extends StrategoTerm implements IStrategoList, Iterable<IStrategoTerm> {
 	
 	private static final int UNKNOWN_SIZE = -1;
-	
-	private static final int UNKNOWN_STORAGE = -1;
     
     /**
      * @see #hashFunction()
@@ -34,8 +32,6 @@ public class StrategoList extends StrategoTerm implements IStrategoList, Iterabl
     
     private IStrategoList tail;
     
-    private int storageType = UNKNOWN_STORAGE;
-    
     private int size = UNKNOWN_SIZE;
 
     /**
@@ -44,16 +40,11 @@ public class StrategoList extends StrategoTerm implements IStrategoList, Iterabl
      * @see #prepend(IStrategoTerm) Adds a new head element to a list.
      */
     protected StrategoList(IStrategoTerm head, IStrategoList tail, IStrategoList annotations, int storageType) {
-        super(annotations);
+        super(annotations, storageType);
         this.head = head;
         this.tail = tail;
-        this.storageType = storageType;
         
         if (storageType != MUTABLE) initImmutableHashCode();
-    }
-    
-    public final int getStorageType() {
-    	return storageType;
     }
     
     public IStrategoTerm head() {

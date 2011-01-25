@@ -18,22 +18,15 @@ import org.spoofax.interpreter.terms.ITermPrinter;
 public class StrategoAppl extends StrategoTerm implements IStrategoAppl {
 
     private final IStrategoConstructor ctor;
-    
-    private final int storageType;
 
     private IStrategoTerm[] kids;
 
     protected StrategoAppl(IStrategoConstructor ctor, IStrategoTerm[] kids, IStrategoList annotations, int storageType) {
-        super(annotations);
+        super(annotations, storageType);
         this.ctor = ctor;
         this.kids = kids;
-        this.storageType = storageType;
         
         if (storageType != MUTABLE) initImmutableHashCode();
-    }
-    
-    public final int getStorageType() {
-        return storageType;
     }
     
     @Deprecated

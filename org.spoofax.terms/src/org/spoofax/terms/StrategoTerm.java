@@ -23,6 +23,8 @@ public abstract class StrategoTerm implements IStrategoTerm, Cloneable {
 	private static final int UNKNOWN_HASH = -1;
 	
 	private static final int MUTABLE_HASH = MUTABLE;
+
+	private final int storageType;
 	
 	private int hashCode = UNKNOWN_HASH;
 
@@ -30,14 +32,19 @@ public abstract class StrategoTerm implements IStrategoTerm, Cloneable {
     
     private ITermAttachment attachment;
     
-    protected StrategoTerm(IStrategoList annotations) {
+    protected StrategoTerm(IStrategoList annotations, int storageType) {
         assert annotations == null || !annotations.isEmpty() || annotations == TermFactory.EMPTY_LIST;
     	if (annotations != TermFactory.EMPTY_LIST)
     		this.annotations = annotations;
+    	this.storageType = storageType;
     }
     
-    protected StrategoTerm() {
-    	this(null);
+    protected StrategoTerm(int storageType) {
+    	this(null, storageType);
+    }
+    
+    public final int getStorageType() {
+    	return storageType;
     }
 
     /**

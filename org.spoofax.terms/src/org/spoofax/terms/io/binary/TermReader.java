@@ -6,8 +6,8 @@ import java.io.InputStream;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.terms.ParseError;
 import org.spoofax.terms.io.TAFTermReader;
-import org.spoofax.terms.io.binary.BAFReader;
 
 /**
  * A term reader that supports both textual and binary ATerms.
@@ -20,7 +20,7 @@ public class TermReader extends TAFTermReader {
 		super(factory);
 	}
     
-    public IStrategoTerm parseFromStream(InputStream inputStream) throws IOException {
+    public IStrategoTerm parseFromStream(InputStream inputStream) throws IOException, ParseError {
         /*
     	BufferedInputStream bis;
         if (inputStream instanceof BufferedInputStream) {

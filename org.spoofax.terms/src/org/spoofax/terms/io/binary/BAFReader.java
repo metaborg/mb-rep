@@ -33,10 +33,9 @@ import java.util.ArrayList;
 import org.spoofax.NotImplementedException;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
-import org.spoofax.interpreter.terms.ParseError;
+import org.spoofax.terms.ParseError;
 
 /**
  * A term reader that uses IStrategoTerms.

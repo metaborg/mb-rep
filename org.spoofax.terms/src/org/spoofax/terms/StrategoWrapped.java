@@ -42,16 +42,12 @@ public class StrategoWrapped extends StrategoTerm implements IStrategoAppl, IStr
 	 * {@link #prettyPrint(ITermPrinter)}.
 	 */
 	protected StrategoWrapped(IStrategoTerm wrapped, IStrategoList annotations) {
-		super(annotations);
+		super(annotations, MUTABLE);
 		this.wrapped = wrapped;
 	}
 	
 	public final IStrategoTerm getWrapped() {
 		return wrapped;
-	}
-
-	public int getStorageType() {
-		return MUTABLE;
 	}
 	
 	// Common accessors

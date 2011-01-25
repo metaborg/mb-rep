@@ -109,7 +109,7 @@ public abstract class AbstractTermFactory implements ITermFactory {
         return makeTuple(terms, null);
     }
     
-    public IStrategoTerm parseFromString(String text) {
+    public IStrategoTerm parseFromString(String text) throws ParseError {
     	return reader.parseFromString(text);
     }
     

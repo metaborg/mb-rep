@@ -15,22 +15,15 @@ import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermPrinter;
 
 public class StrategoTuple extends StrategoTerm implements IStrategoTuple {
-    
-    private final int storageType;
 
     private IStrategoTerm[] kids;
     
     protected StrategoTuple(IStrategoTerm[] kids, IStrategoList annotations, int storageType) {
-        super(annotations);
+        super(annotations, storageType);
         this.kids = kids;
-        this.storageType = storageType;
         
         // (not pre-initializing hash code here; tuples are mostly short-lived)
         // if (storageType != MUTABLE) initImmutableHashCode();
-    }
-    
-    public final int getStorageType() {
-    	return storageType;
     }
     
     public IStrategoTerm get(int index) {

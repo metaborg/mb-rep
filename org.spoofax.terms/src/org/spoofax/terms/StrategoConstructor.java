@@ -23,15 +23,10 @@ public final class StrategoConstructor extends StrategoTerm implements IStratego
     private final int arity;
 
     public StrategoConstructor(String name, int arity) {
-        super(null);
+        super(null, SHARABLE); // MAXIMALLY_SHARED causes problems before sharing with regular hash maps
         this.name = name;
         this.arity = arity;
         if (name == null) throw new IllegalArgumentException("name cannot be null");
-    }
-    
-    public int getStorageType() {
-    	// MAXIMALLY_SHARED causes problems before sharing with regular hash maps
-    	return SHARABLE; 
     }
     
     public int getArity() {

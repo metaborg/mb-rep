@@ -16,21 +16,14 @@ import org.spoofax.interpreter.terms.ITermPrinter;
 
 
 public class StrategoString extends StrategoTerm implements IStrategoString {
-
-	private final int storageType;
 	
     private final String value;
     
     public StrategoString(String value, IStrategoList annotations, int storageType) {
-        super(annotations);
+        super(annotations, storageType);
         this.value = value;
-        this.storageType = storageType;
         assert storageType == MAXIMALLY_SHARED ? annotations == null : true;
         initImmutableHashCode();
-    }
-    
-    public int getStorageType() {
-    	return storageType;
     }
     
     public IStrategoTerm getSubterm(int index) {

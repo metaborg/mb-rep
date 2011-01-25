@@ -16,7 +16,6 @@ import org.spoofax.PushbackStringIterator;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
-import org.spoofax.interpreter.terms.ParseError;
 
 /**
  * @author Karl T. Kalleberg <karltk add strategoxt.org>
