@@ -7,6 +7,8 @@
  */
 package org.spoofax.interpreter.terms;
 
+import org.spoofax.terms.ParseError;
+import org.spoofax.terms.StringTermReader;
 import org.spoofax.terms.io.TAFTermReader;
 
 /**
@@ -19,10 +21,11 @@ public interface ITermFactory extends IStrategoTermBuilder {
 	/**
 	 * Parses a term from a string.
 	 * 
+	 * @see StringTermReader#parseFromString(java.lang.String)
 	 * @see TAFTermReader#parseFromStream(java.io.InputStream)
 	 * @see TAFTermReader#parseFromFile(String)
 	 */
-    public IStrategoTerm parseFromString(String text);
+	public IStrategoTerm parseFromString(String text) throws ParseError;
 
     public IStrategoAppl replaceAppl(IStrategoConstructor constructor, IStrategoTerm[] kids, IStrategoAppl old);
     
