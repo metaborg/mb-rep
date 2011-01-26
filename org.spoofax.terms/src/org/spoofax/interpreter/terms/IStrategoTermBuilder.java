@@ -39,6 +39,8 @@ public interface IStrategoTermBuilder {
     
     public int getDefaultStorageType();
     
+    public IStrategoTerm copyAttachments(IStrategoTerm from, IStrategoTerm to);
+    
     /**
      * Sets the default storage type for terms, returning a (usually new) factory
      * that guarantees it will never create terms with a higher storage

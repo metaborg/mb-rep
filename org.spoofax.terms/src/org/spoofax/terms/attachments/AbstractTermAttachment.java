@@ -17,4 +17,9 @@ public abstract class AbstractTermAttachment implements ITermAttachment {
 		this.next = next;
 	}
 
+	public ITermAttachment clone() throws CloneNotSupportedException {
+		AbstractTermAttachment result = (AbstractTermAttachment) super.clone();
+		result.next = null;
+		return result;
+	}
 }

@@ -11,7 +11,10 @@ public class TermAttachmentType<T extends ITermAttachment> {
 	private static Map<Class<?>, TermAttachmentType<?>> types =
 		new HashMap<Class<?>, TermAttachmentType<?>>();
 	
-	private TermAttachmentType() {
+	private final Class<?> type;
+	
+	private TermAttachmentType(Class<?> type) {
+		this.type = type;
 		// Private default constructor
 	}
 	
@@ -25,7 +28,7 @@ public class TermAttachmentType<T extends ITermAttachment> {
 		if (result != null) {
 			return result;
 		} else {
-			result = new TermAttachmentType<T>();
+			result = new TermAttachmentType<T>(baseClass);
 			for (Class<?> otherClass : types.keySet()) {
 				if (otherClass.isAssignableFrom(baseClass) || baseClass.isAssignableFrom(otherClass))
 					throw new IllegalArgumentException("An attachment type based on class "
@@ -34,5 +37,10 @@ public class TermAttachmentType<T extends ITermAttachment> {
 			types.put(baseClass, result);
 			return result;
 		}
+	}
+	
+	@Override
+	public String toString() {
+		return type.getName(); // (reflective call)
 	}
 }

@@ -213,6 +213,8 @@ public abstract class StrategoTerm implements IStrategoTerm, Cloneable {
     
     @SuppressWarnings("unchecked")
 	public<T extends ITermAttachment> T getAttachment(TermAttachmentType<T> type) {
+    	if (type == null)
+    		return (T) this.attachment;
     	for (ITermAttachment a = this.attachment; a != null; a = a.getNext()) {
     		if (a.getAttachmentType() == type)
     			return (T) a;

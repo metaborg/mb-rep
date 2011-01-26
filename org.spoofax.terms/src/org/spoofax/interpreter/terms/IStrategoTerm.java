@@ -71,6 +71,14 @@ public interface IStrategoTerm extends ISimpleTerm {
     
     public void writeAsString(Appendable output, int maxDepth) throws IOException;
     
+	/**
+	 * Gets the term attachment of the specified type, if one is available for
+	 * this term, or returns null.
+	 * 
+	 * @param attachmentType
+	 *            The desired term attachment type, or null if the first
+	 *            attachment should be returned
+	 */
     public<T extends ITermAttachment> T getAttachment(TermAttachmentType<T> attachmentType);
     
     public void putAttachment(ITermAttachment attachment);

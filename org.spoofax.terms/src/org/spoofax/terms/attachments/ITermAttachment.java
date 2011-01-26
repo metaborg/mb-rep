@@ -10,11 +10,13 @@ import java.io.Serializable;
  *  
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-public interface ITermAttachment extends Serializable {
+public interface ITermAttachment extends Serializable, Cloneable {
 	
 	TermAttachmentType<?> getAttachmentType();
 	
 	void setNext(ITermAttachment attachment);
 
 	ITermAttachment getNext();
+	
+	ITermAttachment clone() throws CloneNotSupportedException;
 }

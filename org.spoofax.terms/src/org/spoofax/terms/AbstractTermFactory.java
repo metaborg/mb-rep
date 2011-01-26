@@ -13,6 +13,7 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.terms.attachments.ITermAttachment;
 
 public abstract class AbstractTermFactory implements ITermFactory {
 
@@ -133,6 +134,21 @@ public abstract class AbstractTermFactory implements ITermFactory {
     		}
     	}
     	return result;
+    }
+    
+    public IStrategoTerm copyAttachments(IStrategoTerm from, IStrategoTerm to) {
+    	if (to.getStorageType() != MUTABLE)
+    		throw new IllegalArgumentException("Target term is not mutable and does not support attachments");
+    	ITermAttachment attach = from.getAttachment(null);
+    	while (attach != null) {
+    		try {
+				to.putAttachment(attach.clone());
+			} catch (CloneNotSupportedException e) {
+				throw new IllegalArgumentException("Copying attachments of this type is not supported: " + attach.getAttachmentType(), e);
+			}
+    		attach = attach.getNext();
+    	}
+    	return to;
     }
 
 }
