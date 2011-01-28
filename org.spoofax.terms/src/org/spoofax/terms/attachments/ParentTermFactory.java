@@ -20,6 +20,9 @@ import org.spoofax.terms.AbstractTermFactory;
  */
 public class ParentTermFactory extends AbstractTermFactory {
 	
+	// (doesn't implement WrappedTermFactory since it crucially needs
+	//  to override all and any new term construction methods)
+	
 	private final ITermFactory baseFactory;
 
 	public ParentTermFactory(ITermFactory baseFactory) {
@@ -87,6 +90,20 @@ public class ParentTermFactory extends AbstractTermFactory {
 	protected void configure(IStrategoTerm parent, IStrategoTerm[] kids) {
 		for (IStrategoTerm kid : kids)
 			setParent(kid, parent, null);
+	}
+
+	public void copyAttachments(IStrategoTerm from, IStrategoTerm to, boolean ignoreParentAttachments) {
+		if (!ignoreParentAttachments) {
+			super.copyAttachments(from, to);
+		} else {
+			ParentAttachment parent = ParentAttachment.get(to);
+			super.copyAttachments(from, to);
+			setParent(to, parent);
+		}
+	}
+
+	public boolean hasConstructor(String ctorName, int arity) {
+		return baseFactory.hasConstructor(ctorName, arity);
 	}
 
 }

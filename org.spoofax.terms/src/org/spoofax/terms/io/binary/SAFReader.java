@@ -717,8 +717,6 @@ class SAFReader {
     /**
      * Read from stream. Uses buffer of 65535 bytes.
      * 
-     * @param term
-     * @param out
      * @throws IOException
      */
     public static IStrategoTerm readTermFromSAFStream(ITermFactory factory,

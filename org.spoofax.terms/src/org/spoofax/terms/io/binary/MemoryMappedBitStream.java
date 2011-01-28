@@ -30,11 +30,13 @@ public class MemoryMappedBitStream extends BitStream {
 		offset = 0;
 	}
 	
-    protected int readByte() throws IOException {
+    @Override
+	protected int readByte() throws IOException {
     	return byteBuffer.get() & 0xFF; 
     }
     
-    public String readString() throws IOException {
+    @Override
+	public String readString() throws IOException {
         final int l = readInt();
         byte[] b = new byte[l];
         //byteBuffer.position(offset);

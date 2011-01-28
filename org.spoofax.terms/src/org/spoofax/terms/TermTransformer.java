@@ -65,8 +65,10 @@ public abstract class TermTransformer {
 				case APPL:
 					result = factory.makeAppl(((IStrategoAppl) current).getConstructor(),
 							results, current.getAnnotations());
+					break;
 				case TUPLE:
 					result = factory.makeTuple(results, current.getAnnotations());
+					break;
 				default:
 					throw new IllegalStateException("unexpected term type: " + termType + " - " + current);
 			}

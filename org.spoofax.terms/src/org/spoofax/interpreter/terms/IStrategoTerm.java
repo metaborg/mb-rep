@@ -62,7 +62,7 @@ public interface IStrategoTerm extends ISimpleTerm {
     /**
      * @see org.spoofax.terms.io.TAFTermReader#unparseToFile(IStrategoTerm, java.io.OutputStream)
      * @see org.spoofax.terms.io.TAFTermReader#unparseToFile(IStrategoTerm, java.io.Writer)
-     * @see writeToString(Appendable, int)
+     * @see #writeAsString(Appendable, int)
      */
     @Deprecated
     public void prettyPrint(ITermPrinter pp);

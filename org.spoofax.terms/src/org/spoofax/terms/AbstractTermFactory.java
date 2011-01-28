@@ -40,10 +40,6 @@ public abstract class AbstractTermFactory implements ITermFactory {
     	return defaultStorageType != MUTABLE;
     }
 
-    public boolean hasConstructor(String ctorName, int arity) {
-    	throw new UnsupportedOperationException();
-    }
-
     public StrategoConstructor makeConstructor(String name, int arity) {
         StrategoConstructor result = new StrategoConstructor(name, arity);
         synchronized (TermFactory.class) {

@@ -85,7 +85,8 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
         }
     }
 
-    public IStrategoAppl makeAppl(IStrategoConstructor ctr,
+    @Override
+	public IStrategoAppl makeAppl(IStrategoConstructor ctr,
             IStrategoTerm[] terms, IStrategoList annotations) {
     	int storageType = defaultStorageType;
 		storageType = min(storageType, getStorageType(terms));
@@ -112,7 +113,8 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
     	return isTermSharingAllowed() ? EMPTY_LIST : new StrategoList(null, null, null, defaultStorageType);
     }
     
-    public IStrategoList makeList(IStrategoTerm[] terms, IStrategoList outerAnnos) {
+    @Override
+	public IStrategoList makeList(IStrategoTerm[] terms, IStrategoList outerAnnos) {
     	int storageType = defaultStorageType;
         IStrategoList result = makeList();
         int i = terms.length - 1;
@@ -135,7 +137,8 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
         return result;
     }
     
-    public IStrategoList makeListCons(IStrategoTerm head, IStrategoList tail, IStrategoList annotations) {
+    @Override
+	public IStrategoList makeListCons(IStrategoTerm head, IStrategoList tail, IStrategoList annotations) {
     	int storageType = min(defaultStorageType, getStorageType(head, tail));
     	
     	if (head == null) return makeList();
@@ -163,7 +166,8 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
     	}
     }
 
-    public IStrategoTuple makeTuple(IStrategoTerm[] terms, IStrategoList annos) {
+    @Override
+	public IStrategoTuple makeTuple(IStrategoTerm[] terms, IStrategoList annos) {
         int storageType = min(defaultStorageType, getStorageType(terms));
 		return new StrategoTuple(terms, annos, storageType);
     }

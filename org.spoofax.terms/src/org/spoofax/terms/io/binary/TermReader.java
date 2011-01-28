@@ -20,7 +20,8 @@ public class TermReader extends TAFTermReader {
 		super(factory);
 	}
     
-    public IStrategoTerm parseFromStream(InputStream inputStream) throws IOException, ParseError {
+    @Override
+	public IStrategoTerm parseFromStream(InputStream inputStream) throws IOException, ParseError {
         /*
     	BufferedInputStream bis;
         if (inputStream instanceof BufferedInputStream) {

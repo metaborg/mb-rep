@@ -89,6 +89,7 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 	 * Replaces all subterms in a list,
 	 * maintaining only the outer annotations.
 	 */
+	@Override
 	public IStrategoList replaceList(IStrategoTerm[] terms, IStrategoList old) {
 		assert terms.length == old.getSubtermCount();
 		for (int i = 0; i < terms.length; i++) {

@@ -192,16 +192,22 @@ public class SAFWriter {
         switch (term.getTermType()) {
         	case APPL:
         		voidVisitAppl((IStrategoAppl) term);
+        		break;
         	case INT:
         		voidVisitInt((IStrategoInt) term);
+        		break;
         	case LIST:
         		voidVisitList((IStrategoList) term);
+        		break;
         	case REAL:
         		voidVisitReal((IStrategoReal) term);
+        		break;
         	case STRING:
         		voidVisitString((IStrategoString) term);
+        		break;
         	case TUPLE:
         		voidVisitTuple((IStrategoTuple) term);
+        		break;
         	default:
         		throw new RuntimeException("Could not serializate term of type "
                     + term.getClass().getName() + " to SAF format.");

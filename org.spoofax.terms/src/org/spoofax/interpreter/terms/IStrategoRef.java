@@ -8,5 +8,5 @@
 package org.spoofax.interpreter.terms;
 
 public interface IStrategoRef extends IStrategoTerm {
-
+	// Nothing to see here...
 }

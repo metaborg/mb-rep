@@ -76,6 +76,7 @@ public class StrategoAnnotation extends StrategoWrapped {
 		return result.toString();
 	}
 	
+	@Override
 	public void writeAsString(Appendable output, int maxDepth) throws IOException {
 		getWrapped().writeAsString(output, maxDepth);
 		appendAnnotations(output, maxDepth);

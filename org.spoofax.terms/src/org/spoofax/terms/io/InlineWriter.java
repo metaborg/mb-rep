@@ -37,12 +37,15 @@ public class InlineWriter implements ITermPrinter {
     }
 
     public void indent(int i) {
+		// Do nothing
     }
 
     public void nextIndentOff() {
+		// Do nothing
     }
 
     public void outdent(int i) {
+		// Do nothing
     }
 
     @Override

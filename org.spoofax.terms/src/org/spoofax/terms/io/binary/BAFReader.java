@@ -144,7 +144,9 @@ class BAFReader {
 
             if (w0 == 0 && w1 == BAF_MAGIC)
                 return true;
-        } catch(EOFException e) {}
+        } catch(EOFException e) {
+        	// Fine, not BAF then
+        }
 
         return false;
     }
