@@ -2,8 +2,8 @@ package org.spoofax.terms;
 
 import static java.lang.Math.min;
 import static org.spoofax.interpreter.terms.IStrategoTerm.MAXIMALLY_SHARED;
-import static org.spoofax.interpreter.terms.IStrategoTerm.SHARABLE;
 import static org.spoofax.interpreter.terms.IStrategoTerm.MUTABLE;
+import static org.spoofax.interpreter.terms.IStrategoTerm.SHARABLE;
 import static org.spoofax.interpreter.terms.IStrategoTerm.STRING;
 
 import java.lang.ref.WeakReference;
@@ -64,26 +64,6 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
     	result.defaultStorageType = storageType;
     	return result;
     }
-    
-    public boolean hasConstructor(String name, int arity) {
-        synchronized (TermFactory.class) {
-        	if (arity == 0) {
-            	if (asyncStringPool.containsKey(name)) {
-            		return true;
-            	} else if (name.length() > MAX_POOLED_STRING_LENGTH) {
-            		throw new UnsupportedOperationException("String too long to be pooled (newname not allowed): " + name);
-            	} else {
-                	// HACK: pre-allocating strings to avoid race condition 
-            		asyncStringPool.put(name, new WeakReference<StrategoString>(new StrategoString(name, null, STRING_POOL_STORAGE_TYPE)));
-            		return false;
-            	}
-        	} else {
-        		// UNDONE: requires zeroary constructors to be registered in the string pool 
-        		// return asyncCtorCache.get(new StrategoConstructor(name, arity)) != null;
-        		throw new UnsupportedOperationException();
-        	}
-        }
-    }
 
     @Override
 	public IStrategoAppl makeAppl(IStrategoConstructor ctr,
@@ -92,6 +72,7 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
 		storageType = min(storageType, getStorageType(terms));
     	if (storageType != 0)
         	storageType = min(storageType, getStorageType(annotations));
+    	assert ctr.getArity() == terms.length;
         return new StrategoAppl(ctr, terms, annotations, storageType);
     }
 
@@ -157,13 +138,34 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
 	    	WeakReference<StrategoString> resultRef = asyncStringPool.get(s);
 	    	StrategoString result = resultRef == null ? null : resultRef.get();
 	    	if (result == null) {
-	        	result = new StrategoString(s, null, STRING_POOL_STORAGE_TYPE);
-	        	asyncStringPool.put(s, new WeakReference<StrategoString>(result));
-	    	}
-        	if (!isTermSharingAllowed() && STRING_POOL_STORAGE_TYPE != MUTABLE) 
-        		return new StrategoWrapped(result);
+    			// StrategoString was garbage collected, but key string might still be in memory
+    			// Reallocation should be safe either way
+    			int type = isTermSharingAllowed() ? STRING_POOL_STORAGE_TYPE : MUTABLE;
+				result = new StrategoString(s, null, type);
+    			asyncStringPool.put(s, new WeakReference<StrategoString>(result));
+	    	} else if (result.getStorageType() == MUTABLE || !isTermSharingAllowed()) {
+	    		// We cannot reuse the existing string,
+	    		// but to satisfy the tryMakeUniqueString() contract
+	    		// we *must* keep a reference to the original
+	    		// hashmap key alive as long as our result lives
+	    		result = new KeepAliveString(s, result);
+        	}
 	    	return result;
     	}
+    }
+    
+    public IStrategoString tryMakeUniqueString(String name) {
+        synchronized (TermFactory.class) {
+        	if (asyncStringPool.containsKey(name)) {
+        		return null;
+        	} else if (name.length() > MAX_POOLED_STRING_LENGTH) {
+        		throw new UnsupportedOperationException("String too long to be pooled (newname not allowed): " + name);
+        	} else {
+            	StrategoString result = new StrategoString(name, null, STRING_POOL_STORAGE_TYPE);
+        		asyncStringPool.put(name, new WeakReference<StrategoString>(result));
+        		return result;
+        	}
+        }
     }
 
     @Override
@@ -202,6 +204,7 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
     		return makeString(((IStrategoString) term).stringValue());
         } else if (term instanceof StrategoTerm) {
         	StrategoTerm result = ((StrategoTerm) term).clone();
+        	assert !(result instanceof StrategoWrapped) : "not yet supported";
     	    result.internalSetAnnotations(annotations);
     	    assert result.getStorageType() != MAXIMALLY_SHARED;
     	    return result;
@@ -214,6 +217,23 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
         if (placeholderConstructor == null)
             placeholderConstructor = makeConstructor("<>", 1);
         return new StrategoPlaceholder(placeholderConstructor, template, EMPTY_LIST, defaultStorageType);
+	}
+    
+    /**
+     * A Stratego string that maintains 
+     * a reference to an existing string,
+     * that must be kept alive by the garbage collector
+     * at least as long as the current string is alive. 
+     * 
+     * @author Lennart Kats <lennart add lclnet.nl>
+     */
+    static class KeepAliveString extends StrategoString {
+		final Object gcKeepAlive;
+
+		public KeepAliveString(String s, Object gcKeepAlive) {
+			super(s, null, MUTABLE);
+			this.gcKeepAlive = gcKeepAlive;
+		}
 	}
 
 }

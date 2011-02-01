@@ -21,7 +21,7 @@ import org.spoofax.terms.AbstractTermFactory;
 public class ParentTermFactory extends AbstractTermFactory {
 	
 	// (doesn't implement WrappedTermFactory since it crucially needs
-	//  to override all and any new term construction methods)
+	//  to override any and all new term construction methods)
 	
 	private final ITermFactory baseFactory;
 
@@ -29,6 +29,7 @@ public class ParentTermFactory extends AbstractTermFactory {
 		super(MUTABLE);
 		assert !(baseFactory instanceof ParentTermFactory);
 		this.baseFactory = baseFactory.getFactoryWithStorageType(MUTABLE);
+		assert checkStorageType(this.baseFactory, MUTABLE);
 	}
 
 	public ITermFactory getFactoryWithStorageType(int storageType) {
@@ -102,8 +103,8 @@ public class ParentTermFactory extends AbstractTermFactory {
 		}
 	}
 
-	public boolean hasConstructor(String ctorName, int arity) {
-		return baseFactory.hasConstructor(ctorName, arity);
+	public IStrategoString tryMakeUniqueString(String name) {
+		return baseFactory.tryMakeUniqueString(name);
 	}
 
 }

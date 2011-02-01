@@ -2,15 +2,14 @@ package org.spoofax.terms.attachments;
 
 import static org.spoofax.interpreter.terms.IStrategoTerm.MUTABLE;
 import static org.spoofax.terms.attachments.OriginAttachment.getOrigin;
-import static org.spoofax.terms.attachments.OriginAttachment.setOrigin;
 
+import org.spoofax.NotImplementedException;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
-import org.spoofax.terms.StrategoWrapped;
 
 /**
  * A factory creating ATerms from AST nodes.
@@ -76,10 +75,12 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 				return term;
 			}
 		} else if (REASSIGN_ORIGINS || OriginAttachment.get(term) != null) {
-			assert !REASSIGN_ORIGINS : "Not implemented: unwrapping of possibly already wrapped term";
+			throw new NotImplementedException("Not implemented: unwrapping of possibly already wrapped term");
+			/*
 			StrategoWrapped result = new StrategoWrapped(term);
 			setOrigin(result, origin);
 			return result;
+			*/
 		} else {
 			return term;
 		}
@@ -127,8 +128,7 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 	}
 	
 	protected IStrategoTerm[] ensureChildLinks(IStrategoTerm[] kids, IStrategoTerm old) {
-		assert isOriginRoot(old);
-		assert !old.isList(); // has an expensive getAllSubterms()
+		assert !old.isList(); // has an expensive getAllSubterms(); shouldn't use this method
 		if (!isOriginRoot(old)) return kids;
 		
 		IStrategoTerm[] oldKids = old.getAllSubterms();
@@ -151,7 +151,8 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 		if (isOriginRoot(term)) {
 			return term;
 		} else {
-			return makeLink(term, getOriginRoot(old));
+			IStrategoTerm originRoot = getOriginRoot(old);
+			return originRoot == null ? term : makeLink(term, originRoot);
 		}
 	}
 	

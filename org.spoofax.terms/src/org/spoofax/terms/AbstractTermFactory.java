@@ -147,4 +147,14 @@ public abstract class AbstractTermFactory implements ITermFactory {
     	return to;
     }
 
+	/**
+	 * Performs a sanity check on a factory,
+	 * testing if it produces terms with a storage type
+	 * smaller or equal than the given value.
+	 */
+    public static boolean checkStorageType(ITermFactory factory, int storageType) {
+		return factory.getDefaultStorageType() <= storageType
+				&& factory.makeList(EMPTY).getStorageType() <= storageType
+				&& factory.makeString("Sanity").getStorageType() <= storageType;
+	}
 }

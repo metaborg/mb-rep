@@ -22,6 +22,7 @@ public abstract class AbstractWrappedTermFactory extends AbstractTermFactory {
 	public AbstractWrappedTermFactory(int storageType, ITermFactory baseFactory) {
 		super(storageType);
 		this.baseFactory = baseFactory.getFactoryWithStorageType(storageType);
+		assert checkStorageType(this.baseFactory, storageType);
 	}
 
 	public IStrategoPlaceholder makePlaceholder(IStrategoTerm template) {
@@ -62,5 +63,9 @@ public abstract class AbstractWrappedTermFactory extends AbstractTermFactory {
 	@Override
 	public IStrategoList makeListCons(IStrategoTerm head, IStrategoList tail, IStrategoList annos) {
 		return baseFactory.makeListCons(head, tail, annos);
+	}
+
+	public IStrategoString tryMakeUniqueString(String name) {
+		return baseFactory.tryMakeUniqueString(name);
 	}
 }

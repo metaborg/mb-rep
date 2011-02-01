@@ -7,18 +7,15 @@
  */
 package org.spoofax.terms;
 
+import static org.spoofax.terms.TermFactory.EMPTY_LIST;
+
 import java.io.IOException;
 
-import org.spoofax.NotImplementedException;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
-import org.spoofax.terms.attachments.ITermAttachment;
-import org.spoofax.terms.attachments.TermAttachmentType;
 
-import static org.spoofax.terms.TermFactory.EMPTY_LIST;
-
-public abstract class StrategoTerm implements IStrategoTerm, Cloneable {
+public abstract class StrategoTerm extends AbstractSimpleTerm implements IStrategoTerm, Cloneable {
 	
 	private static final int UNKNOWN_HASH = -1;
 	
@@ -29,8 +26,6 @@ public abstract class StrategoTerm implements IStrategoTerm, Cloneable {
 	private int hashCode = UNKNOWN_HASH;
 
     private IStrategoList annotations;
-    
-    private ITermAttachment attachment;
     
     protected StrategoTerm(IStrategoList annotations, int storageType) {
         assert annotations == null || !annotations.isEmpty() || annotations == TermFactory.EMPTY_LIST;
@@ -193,9 +188,7 @@ public abstract class StrategoTerm implements IStrategoTerm, Cloneable {
     }
     
     protected final void internalSetAnnotations(IStrategoList annotations) {
-        assert annotations == null || !annotations.isEmpty() || annotations == TermFactory.EMPTY_LIST;
-        
-    	if (annotations == TermFactory.EMPTY_LIST)
+    	if (annotations == TermFactory.EMPTY_LIST || annotations.isEmpty())
     		annotations = null; // essential for hash code calculation
     	
     	assert getTermType() != STRING || getStorageType() != MAXIMALLY_SHARED :
@@ -209,44 +202,5 @@ public abstract class StrategoTerm implements IStrategoTerm, Cloneable {
     
     public boolean isList() {
     	return getTermType() == LIST;
-    }
-    
-    @SuppressWarnings("unchecked")
-	public<T extends ITermAttachment> T getAttachment(TermAttachmentType<T> type) {
-    	if (type == null)
-    		return (T) this.attachment;
-    	for (ITermAttachment a = this.attachment; a != null; a = a.getNext()) {
-    		if (a.getAttachmentType() == type)
-    			return (T) a;
-    	}
-		return null;
-    }
-    
-    public void putAttachment(ITermAttachment attachment) {
-    	if (attachment == null) return;
-    	assert getStorageType() == MUTABLE : "Attachments only supported for mutable, non-shared terms; failed for " + this;
-    	assert attachment.getNext() == null;
-    	if (this.attachment == null) {
-    		this.attachment = attachment;
-    	} else {
-    		TermAttachmentType<?> newType = attachment.getAttachmentType();
-    		if (this.attachment.getAttachmentType() == newType) {
-    			attachment.setNext(this.attachment.getNext());
-    			this.attachment = attachment;
-    		} else {
-    			ITermAttachment previous = this.attachment;
-    			for (ITermAttachment a = previous.getNext(); a != null; a = a.getNext()) {
-	        		if (a.getAttachmentType() == newType) {
-	        			attachment.setNext(a.getNext());
-	        			previous.setNext(attachment);
-	        		}
-	        	}
-    			previous.setNext(attachment);
-    		}
-    	}
-    }
-    
-    public void removeAttachment(TermAttachmentType<?> attachmentType) {
-    	throw new NotImplementedException();
     }
 }

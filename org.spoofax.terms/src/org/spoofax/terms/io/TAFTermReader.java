@@ -83,6 +83,7 @@ public class TAFTermReader extends StringTermReader {
         case '(': return parseAnno(bis, parseTuple(bis));
         case '"': return parseAnno(bis, parseString(bis));
         case '<': return parsePlaceholder(bis);
+        case '!': throw new ParseError("Unsupported ATerm format: TAF");
         default:
             bis.unread(ch);
             if (Character.isLetter(ch)) {

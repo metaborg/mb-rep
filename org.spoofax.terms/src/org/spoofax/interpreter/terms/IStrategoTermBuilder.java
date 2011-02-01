@@ -34,8 +34,8 @@ public interface IStrategoTermBuilder {
     public IStrategoList makeListCons(IStrategoTerm head, IStrategoList tail);
     
     public IStrategoTerm annotateTerm(IStrategoTerm term, IStrategoList annotations);
-
-    public boolean hasConstructor(String ctorName, int arity);
+    
+    public IStrategoString tryMakeUniqueString(String name);
     
     public int getDefaultStorageType();
     
