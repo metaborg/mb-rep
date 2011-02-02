@@ -65,4 +65,9 @@ public class OriginAttachment extends AbstractTermAttachment {
 		term.putAttachment(new OriginAttachment(origin));
 	}
 	
+	@Override
+	public String toString() {
+		return "" + origin;
+	}
+	
 }
