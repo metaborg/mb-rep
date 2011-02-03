@@ -9,9 +9,6 @@ package org.spoofax.interpreter.terms;
 
 import java.io.IOException;
 
-import org.spoofax.terms.attachments.ITermAttachment;
-import org.spoofax.terms.attachments.TermAttachmentType;
-
 public interface IStrategoTerm extends ISimpleTerm {
 
     public static final int APPL = 1;
@@ -70,18 +67,4 @@ public interface IStrategoTerm extends ISimpleTerm {
     public String toString(int maxDepth);
     
     public void writeAsString(Appendable output, int maxDepth) throws IOException;
-    
-	/**
-	 * Gets the term attachment of the specified type, if one is available for
-	 * this term, or returns null.
-	 * 
-	 * @param attachmentType
-	 *            The desired term attachment type, or null if the first
-	 *            attachment should be returned
-	 */
-    public<T extends ITermAttachment> T getAttachment(TermAttachmentType<T> attachmentType);
-    
-    public void putAttachment(ITermAttachment attachment);
-    
-    public void removeAttachment(TermAttachmentType<?> attachmentType);
 }
