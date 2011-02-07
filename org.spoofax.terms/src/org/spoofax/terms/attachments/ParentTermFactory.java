@@ -1,6 +1,7 @@
 package org.spoofax.terms.attachments;
 
 import static org.spoofax.interpreter.terms.IStrategoTerm.MUTABLE;
+import static org.spoofax.terms.attachments.ParentAttachment.getParent;
 import static org.spoofax.terms.attachments.ParentAttachment.setParent;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -105,6 +106,13 @@ public class ParentTermFactory extends AbstractTermFactory {
 
 	public IStrategoString tryMakeUniqueString(String name) {
 		return baseFactory.tryMakeUniqueString(name);
+	}
+	
+	public static boolean isParentTermFactory(ITermFactory factory) {
+		if (factory instanceof ParentTermFactory)
+			return true;
+		IStrategoTerm i = factory.makeInt(42);
+		return getParent(factory.makeTuple(i).getSubterm(0)) != null;
 	}
 
 }

@@ -1,5 +1,9 @@
 package org.spoofax.terms.attachments;
 
+import static org.spoofax.terms.SimpleTermVisitor.tryGetListIterator;
+
+import java.util.Iterator;
+
 import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
@@ -102,6 +106,36 @@ public class ParentAttachment extends AbstractTermAttachment {
 			parent = ParentAttachment.getParent(term);
 		}
 		return term;
+	}
+	
+	/**
+	 * Gets the parent of an attachment, either through {@link #getParent(ISimpleTerm)}
+	 * or through {@link #traverseGetParent()}.
+	 */
+	public static ISimpleTerm tryTraverseGetParent(ISimpleTerm child, ISimpleTerm root) {
+		ISimpleTerm result = getParent(child);
+		return result != null ? result : traverseGetParent(child, root);
+	}
+
+	/**
+	 * Fetch the parent of a term by pure traversal from the root of the tree.
+	 */
+	public static ISimpleTerm traverseGetParent(ISimpleTerm child, ISimpleTerm root) {
+		return traverseGetParent(child, root, null);
+	}
+	
+	private static ISimpleTerm traverseGetParent(ISimpleTerm child, ISimpleTerm current, ISimpleTerm lastParent) {
+		if (current == child) return lastParent;
+		
+		Iterator<ISimpleTerm> iterator = tryGetListIterator(current); 
+		for (int i = 0, max = current.getSubtermCount(); i < max; i++) {
+			ISimpleTerm currentChild = iterator == null ? current.getSubterm(i) : iterator.next();
+			ISimpleTerm result = traverseGetParent(child, currentChild, current);
+			if (result != null)
+				return result;
+		}
+		
+		return null;
 	}
 	
 	@Override
