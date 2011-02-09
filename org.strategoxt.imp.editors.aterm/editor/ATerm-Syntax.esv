@@ -1,9 +1,0 @@
-module ATerm-Syntax
-
-language
-
-  fences: ( ) [ ] { } < >
-  
-  indent after: ","
-  
-  identifier lexical: [A-Za-z][A-Za-z\-0-9]*
