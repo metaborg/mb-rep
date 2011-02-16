@@ -36,6 +36,8 @@ import org.spoofax.terms.io.binary.TermReader;
  */
 public class TAFTermReader extends StringTermReader {
 	
+	private final StringBuilder sharedBuilder = new StringBuilder();
+	
     public TAFTermReader(ITermFactory factory) {
     	super(factory);
     }
@@ -111,7 +113,8 @@ public class TAFTermReader extends StringTermReader {
         int ch = bis.read();
         if(ch == '"')
             return factory.makeString("");
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = sharedBuilder;
+        sb.setLength(0);
         boolean escaped = false;
         do {
             escaped = false;
@@ -172,8 +175,8 @@ public class TAFTermReader extends StringTermReader {
 
     private IStrategoTerm parseAppl(PushbackInputStream bis) throws IOException, ParseError {
         //System.err.println("appl");
-        // TODO: share stringbuilder instances?
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = sharedBuilder;
+        sb.setLength(0);
         int ch;
         
         ch = bis.read();
@@ -183,6 +186,8 @@ public class TAFTermReader extends StringTermReader {
         } // TODO: use a switch for this
           while(Character.isLetterOrDigit(ch) || ch == '_' || ch == '-'
             || ch == '+' || ch == '*' || ch == '$');
+
+        String constructor = sb.toString();
         
         //System.err.println(" - " + sb.toString());
         
@@ -192,11 +197,11 @@ public class TAFTermReader extends StringTermReader {
 
         if(ch == '(') {
             List<IStrategoTerm> l = parseTermSequence(bis, ')');
-            IStrategoConstructor c = factory.makeConstructor(sb.toString(), l.size());
+            IStrategoConstructor c = factory.makeConstructor(constructor, l.size());
             return factory.makeAppl(c, l.toArray(new IStrategoTerm[l.size()]));
         } else {
             bis.unread(ch);
-            IStrategoConstructor c = factory.makeConstructor(sb.toString(), 0);
+            IStrategoConstructor c = factory.makeConstructor(constructor, 0);
             return factory.makeAppl(c, AbstractTermFactory.EMPTY);
         }
     }
@@ -268,7 +273,8 @@ public class TAFTermReader extends StringTermReader {
     }
 
     private String parseDigitSequence(PushbackInputStream bis) throws IOException {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = sharedBuilder;
+        sb.setLength(0);
         int ch = bis.read();
         do {
             sb.append((char)ch);
