@@ -129,7 +129,6 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 	
 	protected IStrategoTerm[] ensureChildLinks(IStrategoTerm[] kids, IStrategoTerm old) {
 		assert !old.isList(); // has an expensive getAllSubterms(); shouldn't use this method
-		if (!isOriginRoot(old)) return kids;
 		
 		IStrategoTerm[] oldKids = old.getAllSubterms();
 		if (oldKids == kids) return kids; // no changes; happens with interpreter's all
