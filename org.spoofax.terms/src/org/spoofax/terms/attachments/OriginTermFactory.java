@@ -71,19 +71,18 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 			if (term.getSubtermCount() == origin.getSubtermCount()
 				&& origin.isList()) {
 				return makeListLink((IStrategoList) term, (IStrategoList) origin);
-			} else {
-				return term;
 			}
-		} else if (REASSIGN_ORIGINS || OriginAttachment.get(term) != null) {
+		} else if (OriginAttachment.get(term) == null) {
+			OriginAttachment.setOrigin(term, origin);
+		} else if (REASSIGN_ORIGINS) {
 			throw new NotImplementedException("Not implemented: unwrapping of possibly already wrapped term");
 			/*
 			StrategoWrapped result = new StrategoWrapped(term);
 			setOrigin(result, origin);
 			return result;
 			*/
-		} else {
-			return term;
 		}
+		return term;
 	}
 	
 	/**
@@ -133,7 +132,7 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 		IStrategoTerm[] oldKids = old.getAllSubterms();
 		if (oldKids == kids) return kids; // no changes; happens with interpreter's all
 		for (int i = 0; i < kids.length; i++) {
-			kids[i] = ensureLink(kids[i], old.getSubterm(i));
+			kids[i] = ensureLink(kids[i], oldKids[i]);
 		}
 		return kids;
 		/* Before opimization (avoid array copy and exit if kids == oldTerm.getAllSubterms())
