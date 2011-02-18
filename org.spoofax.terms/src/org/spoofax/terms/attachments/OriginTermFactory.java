@@ -59,6 +59,23 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 		IStrategoTuple result = makeTuple(ensureChildLinks(kids, old), old.getAnnotations());
 		return (IStrategoTuple) ensureLink(result, old);
 	}
+	
+	@Override
+	public IStrategoTerm replaceTerm(IStrategoTerm term, IStrategoTerm origin) {
+		if (term.isList()) {
+			if (term.getSubtermCount() == origin.getSubtermCount()
+					&& origin.isList()) {
+				return makeListLink((IStrategoList) term, (IStrategoList) origin);
+			} else {
+				return term;
+			}
+		} else if (term.getTermType() == origin.getTermType() && term.getSubtermCount() == origin.getSubtermCount()) {
+			ensureChildLinks(term.getAllSubterms(), origin);
+			return ensureLink(term, origin);
+		} else {
+			return ensureLink(term, origin);
+		}
+	}
 
 	/**
 	 * @param origin

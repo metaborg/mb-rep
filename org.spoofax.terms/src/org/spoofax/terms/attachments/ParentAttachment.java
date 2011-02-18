@@ -140,6 +140,6 @@ public class ParentAttachment extends AbstractTermAttachment {
 	
 	@Override
 	public String toString() {
-		return "" + getParent();
+		return "parent: " + getParent();
 	}
 }
