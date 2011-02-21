@@ -8,6 +8,7 @@
 package org.spoofax.interpreter.terms;
 
 import java.io.IOException;
+import java.io.Writer;
 
 public interface IStrategoTerm extends ISimpleTerm {
 
@@ -26,6 +27,8 @@ public interface IStrategoTerm extends ISimpleTerm {
     public static final int IMMUTABLE = 1;
     public static final int SHARABLE = 2;
     public static final int MAXIMALLY_SHARED = 3;
+    
+    public static final int INFINITE = Integer.MAX_VALUE;
 
     public int getSubtermCount();
     public IStrategoTerm getSubterm(int index);
@@ -66,5 +69,10 @@ public interface IStrategoTerm extends ISimpleTerm {
     
     public String toString(int maxDepth);
     
+    /**
+     * Write a term to some output, such as a {@link Writer}.
+     * 
+     * @param maxDepth How many levels of the tree to write, or {@link #INFINITE} for infinitely many.
+     */
     public void writeAsString(Appendable output, int maxDepth) throws IOException;
 }

@@ -90,7 +90,8 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 				return makeListLink((IStrategoList) term, (IStrategoList) origin);
 			}
 		} else if (OriginAttachment.get(term) == null) {
-			OriginAttachment.setOrigin(term, origin);
+			if (term.getStorageType() == MUTABLE) // TODO: handle mutable terms (e.g., some literals)
+				OriginAttachment.setOrigin(term, origin);
 		} else if (REASSIGN_ORIGINS) {
 			throw new NotImplementedException("Not implemented: unwrapping of possibly already wrapped term");
 			/*

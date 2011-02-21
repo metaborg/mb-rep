@@ -62,7 +62,7 @@ public class ParentAttachment extends AbstractTermAttachment {
 	 * @param parent         The parent of this term
 	 * @param elementParent  The direct 'Cons' node parent of a list element 
 	 */
-	public static void setParent(ISimpleTerm term, IStrategoTerm parent, IStrategoTerm elementParent) {
+	public static void putParent(ISimpleTerm term, IStrategoTerm parent, IStrategoTerm elementParent) {
 		// Not true: assert get(term) == null : "Term parent should only be assigned once";
 		term.putAttachment(new ParentAttachment(parent, elementParent));
 	}
@@ -70,7 +70,7 @@ public class ParentAttachment extends AbstractTermAttachment {
 	/**
 	 * Copies a parent attachment from another term to the given term.
 	 */
-	public static void setParent(ISimpleTerm term, ParentAttachment parent) {
+	public static void putParent(ISimpleTerm term, ParentAttachment parent) {
 		if (parent != null)
 			term.putAttachment(new ParentAttachment(parent.parent, parent.elementParent));
 	}

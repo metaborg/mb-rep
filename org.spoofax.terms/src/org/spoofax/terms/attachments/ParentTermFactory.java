@@ -2,7 +2,7 @@ package org.spoofax.terms.attachments;
 
 import static org.spoofax.interpreter.terms.IStrategoTerm.MUTABLE;
 import static org.spoofax.terms.attachments.ParentAttachment.getParent;
-import static org.spoofax.terms.attachments.ParentAttachment.setParent;
+import static org.spoofax.terms.attachments.ParentAttachment.putParent;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
@@ -84,14 +84,14 @@ public class ParentTermFactory extends AbstractTermFactory {
 	@Override
 	public IStrategoList makeListCons(IStrategoTerm head, IStrategoList tail, IStrategoList annos) {
 		IStrategoList result = baseFactory.makeListCons(head, tail, annos);
-		setParent(head, null, result);
-		setParent(tail, null, result);
+		putParent(head, null, result);
+		putParent(tail, null, result);
 		return result;
 	}
 	
 	protected void configure(IStrategoTerm parent, IStrategoTerm[] kids) {
 		for (IStrategoTerm kid : kids)
-			setParent(kid, parent, null);
+			putParent(kid, parent, null);
 	}
 
 	public void copyAttachments(IStrategoTerm from, IStrategoTerm to, boolean ignoreParentAttachments) {
@@ -100,7 +100,7 @@ public class ParentTermFactory extends AbstractTermFactory {
 		} else {
 			ParentAttachment parent = ParentAttachment.get(to);
 			super.copyAttachments(from, to);
-			setParent(to, parent);
+			putParent(to, parent);
 		}
 	}
 
