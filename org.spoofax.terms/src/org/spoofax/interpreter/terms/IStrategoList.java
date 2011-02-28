@@ -9,6 +9,7 @@ package org.spoofax.interpreter.terms;
 
 
 public interface IStrategoList extends IStrategoTerm {
+	// Too restrictive for client classes: Iterable<IStrategoTerm>
 
     /**
      * @deprecated Use {@link #getSubterm(int)} instead.
