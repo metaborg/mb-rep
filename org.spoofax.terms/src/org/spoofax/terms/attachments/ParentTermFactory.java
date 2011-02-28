@@ -3,6 +3,7 @@ package org.spoofax.terms.attachments;
 import static org.spoofax.interpreter.terms.IStrategoTerm.MUTABLE;
 import static org.spoofax.terms.attachments.ParentAttachment.getParent;
 import static org.spoofax.terms.attachments.ParentAttachment.putParent;
+import static org.spoofax.terms.Term.*;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
@@ -15,6 +16,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.AbstractTermFactory;
+import org.spoofax.terms.StrategoListIterator;
 
 /** 
  * @author Lennart Kats <lennart add lclnet.nl>
@@ -39,7 +41,9 @@ public class ParentTermFactory extends AbstractTermFactory {
 	}
 
 	public IStrategoPlaceholder makePlaceholder(IStrategoTerm template) {
-		return baseFactory.makePlaceholder(template);
+		IStrategoPlaceholder result = baseFactory.makePlaceholder(template);
+		configure(result, template);
+		return result;
 	}
 
 	public IStrategoInt makeInt(int i) {
@@ -55,7 +59,16 @@ public class ParentTermFactory extends AbstractTermFactory {
 	}
 
 	public IStrategoTerm annotateTerm(IStrategoTerm term, IStrategoList annotations) {
-		return baseFactory.annotateTerm(term, annotations);
+		// This is a strange case
+		// SpoofaxTestingJSGLRI.parseTestedFragments() depends on it
+		IStrategoTerm result = baseFactory.annotateTerm(term, annotations);
+		if (isTermList(term)) {
+			for (IStrategoTerm subterm : StrategoListIterator.iterable((IStrategoList) term))
+				configure(result, subterm);
+		} else {
+			configure(result, result.getAllSubterms());
+		}
+		return result;
 	}
 
 	@Override
@@ -92,6 +105,10 @@ public class ParentTermFactory extends AbstractTermFactory {
 	protected void configure(IStrategoTerm parent, IStrategoTerm[] kids) {
 		for (IStrategoTerm kid : kids)
 			putParent(kid, parent, null);
+	}
+	
+	protected void configure(IStrategoTerm parent, IStrategoTerm kid) {
+		putParent(kid, parent, null);
 	}
 
 	public void copyAttachments(IStrategoTerm from, IStrategoTerm to, boolean ignoreParentAttachments) {
