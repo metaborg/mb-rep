@@ -31,10 +31,14 @@ public abstract class TermTransformer {
 
 	public final IStrategoTerm transform(IStrategoTerm term) {
 		term = preTransform(term);
-		return term == null ? null : simpleAll(term);
+		return term == null ? null : postTransform(simpleAll(term));
 	}
 	
 	public abstract IStrategoTerm preTransform(IStrategoTerm term);
+	
+	public IStrategoTerm postTransform(IStrategoTerm term) {
+		return term;
+	}
 
 	public IStrategoTerm simpleAll(IStrategoTerm current) {
 		int termType = current.getTermType();

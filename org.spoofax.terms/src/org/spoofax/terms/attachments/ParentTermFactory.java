@@ -60,7 +60,7 @@ public class ParentTermFactory extends AbstractTermFactory {
 
 	public IStrategoTerm annotateTerm(IStrategoTerm term, IStrategoList annotations) {
 		// This is a strange case
-		// SpoofaxTestingJSGLRI.parseTestedFragments() depends on it
+		// SpoofaxTestingJSGLRI.parseTestedFragments() might depend on it
 		IStrategoTerm result = baseFactory.annotateTerm(term, annotations);
 		if (isTermList(term)) {
 			for (IStrategoTerm subterm : StrategoListIterator.iterable((IStrategoList) term))
