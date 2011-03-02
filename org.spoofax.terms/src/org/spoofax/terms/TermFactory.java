@@ -175,7 +175,8 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
     }
     
     public IStrategoTerm annotateTerm(IStrategoTerm term, IStrategoList annotations) {
-        if (term.getAnnotations() == annotations) { // cheap check
+        IStrategoList currentAnnos = term.getAnnotations();
+		if (currentAnnos == annotations) { // cheap check
             return term;
         } else if (term.getStorageType() == MAXIMALLY_SHARED) {
 			if (term == EMPTY_LIST) {
@@ -191,8 +192,8 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
 				} else {
 					return new StrategoString(value, annotations, defaultStorageType);
 				}
-			} else if (term.getAnnotations() == EMPTY_LIST) {
-				return new StrategoAnnotation(this, term, annotations);
+			} else if (currentAnnos == EMPTY_LIST) {
+				return currentAnnos.isEmpty() ? term : new StrategoAnnotation(this, term, annotations);
 			} else if (term instanceof StrategoAnnotation) {
 				term = ((StrategoAnnotation) term).getWrapped();
 				// int storageType = min(defaultStorageType, getStorageType(term));
