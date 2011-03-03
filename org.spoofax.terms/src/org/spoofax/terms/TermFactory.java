@@ -193,7 +193,7 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
 					return new StrategoString(value, annotations, defaultStorageType);
 				}
 			} else if (currentAnnos == EMPTY_LIST) {
-				return currentAnnos.isEmpty() ? term : new StrategoAnnotation(this, term, annotations);
+				return annotations.isEmpty() ? term : new StrategoAnnotation(this, term, annotations);
 			} else if (term instanceof StrategoAnnotation) {
 				term = ((StrategoAnnotation) term).getWrapped();
 				// int storageType = min(defaultStorageType, getStorageType(term));
