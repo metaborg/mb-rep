@@ -27,6 +27,26 @@ public class StrategoPlaceholder extends StrategoAppl implements IStrategoPlaceh
     }
     
     @Override
+    protected boolean doSlowMatch(IStrategoTerm second, int commonStorageType) {
+        if (second.getTermType() != PLACEHOLDER)
+            return false;
+        
+        if (!getTemplate().match(((IStrategoPlaceholder) second).getTemplate()))
+        	return false;
+        
+        IStrategoList annotations = getAnnotations();
+        IStrategoList secondAnnotations = second.getAnnotations();
+        if (annotations == secondAnnotations) {
+            return true;
+        } else if (annotations.match(secondAnnotations)) {
+            if (commonStorageType == SHARABLE) internalSetAnnotations(secondAnnotations);
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    @Override
 	public void writeAsString(Appendable output, int maxDepth) throws IOException {
     	output.append('<');
     	getTemplate().writeAsString(output, maxDepth - 1);
