@@ -153,6 +153,12 @@ public abstract class LazyTerm implements IStrategoAppl, IStrategoInt, IStratego
 		return ((IStrategoInt) getWrapped()).intValue();
 	}
 
+	public boolean isUniqueValueTerm() {
+		if (getTermType() != INT)
+			throw new TermWrapperException("Called isUniqueValueTerm() on a term that is not of type INT");
+		return ((IStrategoInt) getWrapped()).isUniqueValueTerm();
+	}
+
 	public double realValue() {
 		if (getTermType() != REAL)
 			throw new TermWrapperException("Called realValue() on a term that is not of type REAL");

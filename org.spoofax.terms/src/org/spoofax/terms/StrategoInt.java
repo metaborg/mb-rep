@@ -47,6 +47,10 @@ public class StrategoInt extends StrategoTerm implements IStrategoInt {
     public int getTermType() {
         return IStrategoTerm.INT;
     }
+    
+    public boolean isUniqueValueTerm() {
+    	return false;
+    }
 
     @Override
     protected boolean doSlowMatch(IStrategoTerm second, int commonStorageType) {

@@ -10,4 +10,6 @@ package org.spoofax.interpreter.terms;
 public interface IStrategoInt extends IStrategoTerm {
 
     public int intValue();
+    
+    public boolean isUniqueValueTerm();
 }

@@ -131,5 +131,10 @@ public class ParentTermFactory extends AbstractTermFactory {
 		IStrategoTerm i = factory.makeInt(42);
 		return getParent(factory.makeTuple(i).getSubterm(0)) != null;
 	}
+	
+	@Override
+	public IStrategoTerm replaceTerm(IStrategoTerm term, IStrategoTerm old) {
+		return baseFactory.replaceTerm(term, old);
+	}
 
 }

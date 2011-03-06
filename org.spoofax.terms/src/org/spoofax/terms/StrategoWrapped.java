@@ -92,7 +92,6 @@ public class StrategoWrapped extends StrategoTerm implements IStrategoAppl, IStr
 		wrapped.writeAsString(output, maxDepth);
 	}
 	
-	
 	// Semi-specialized accessors
 
 	public final IStrategoTerm get(int index) {
@@ -151,6 +150,12 @@ public class StrategoWrapped extends StrategoTerm implements IStrategoAppl, IStr
 		if (getTermType() != INT)
 			throw new TermWrapperException("Called intValue() on a term that is not of type INT");
 		return ((IStrategoInt) wrapped).intValue();
+	}
+
+	public boolean isUniqueValueTerm() {
+		if (getTermType() != INT)
+			throw new TermWrapperException("Called isUniqueValueTerm() on a term that is not of type INT");
+		return ((IStrategoInt) wrapped).isUniqueValueTerm();
 	}
 
 	public double realValue() {

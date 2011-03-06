@@ -1,6 +1,13 @@
 package org.spoofax.interpreter.terms;
 
-import static org.spoofax.interpreter.terms.IStrategoTerm.*;
+import static org.spoofax.interpreter.terms.IStrategoTerm.APPL;
+import static org.spoofax.interpreter.terms.IStrategoTerm.BLOB;
+import static org.spoofax.interpreter.terms.IStrategoTerm.CTOR;
+import static org.spoofax.interpreter.terms.IStrategoTerm.INT;
+import static org.spoofax.interpreter.terms.IStrategoTerm.LIST;
+import static org.spoofax.interpreter.terms.IStrategoTerm.REAL;
+import static org.spoofax.interpreter.terms.IStrategoTerm.STRING;
+import static org.spoofax.interpreter.terms.IStrategoTerm.TUPLE;
 
 import java.util.HashMap;
 
@@ -17,9 +24,18 @@ public class TermConverter {
     private final HashMap<IStrategoConstructor, IStrategoConstructor> constructors =
     	new HashMap<IStrategoConstructor, IStrategoConstructor>();
     
+    private boolean isOriginEnabled;
+    
     public TermConverter(ITermFactory factory) {
         this.factory = factory;
     }
+    
+    /**
+     * Sets whether to use origin tracking when converting terms.
+     */
+    public void setOriginEnabled(boolean isOriginEnabled) {
+		this.isOriginEnabled = isOriginEnabled;
+	}
     
     public IStrategoTerm[] convertAll(IStrategoTerm[] terms) {
         IStrategoTerm[] results = new IStrategoTerm[terms.length];
@@ -34,6 +50,7 @@ public class TermConverter {
     }
     
     public IStrategoTerm convert(IStrategoTerm term) {
+    	IStrategoTerm result;
         switch (term.getTermType()) {
             // APPL and LIST are inlined to help stack usage
             case APPL:
@@ -44,7 +61,7 @@ public class TermConverter {
                     subTerms[i] = convert(terms[i]);
                 }
                 IStrategoConstructor ctor = convert(appl.getConstructor());
-                return annotate(factory.makeAppl(ctor, subTerms), appl);
+                result = annotate(factory.makeAppl(ctor, subTerms), appl); break;
             case LIST:
                 IStrategoList list = (IStrategoList) term;
                 IStrategoTerm[] terms2 = list.getAllSubterms();
@@ -52,16 +69,19 @@ public class TermConverter {
                 for (int i = 0; i < terms2.length; i++) {
                     subTerms2[i] = convert(terms2[i]);
                 }
-                return annotate(factory.makeList(subTerms2), list);
-            case CTOR: return convert((IStrategoConstructor) term);
-            case INT: return convert((IStrategoInt) term);
-            case REAL: return convert((IStrategoReal) term);
-            case STRING: return convert((IStrategoString) term);
-            case TUPLE: return convert((IStrategoTuple) term);
-            case BLOB: return term;
+                result =  annotate(factory.makeList(subTerms2), list); break;
+            case CTOR: result =  convert((IStrategoConstructor) term); break;
+            case INT: result =  convert((IStrategoInt) term); break;
+            case REAL: result =  convert((IStrategoReal) term); break;
+            case STRING: result =  convert((IStrategoString) term); break;
+            case TUPLE: result =  convert((IStrategoTuple) term); break;
+            case BLOB: result =  term; break;
             default:
                 throw new IllegalStateException("Unknown term type: " + term.getClass().getSimpleName());
         }
+        if (isOriginEnabled)
+        	factory.replaceTerm(result, term);
+        return result;
     }
 
     public final IStrategoAppl convert(IStrategoAppl term) {
@@ -80,7 +100,12 @@ public class TermConverter {
     }
 
     public IStrategoInt convert(IStrategoInt term) {
-        return annotate(factory.makeInt(term.intValue()), term);
+    	if (term.isUniqueValueTerm()) {
+    		// re-creating this one destroys term equality and creates subtle bugs..
+    		throw new IllegalArgumentException("Cannot recreate a tree that contains <newterm> terms:" + term);
+    	} else {
+    		return annotate(factory.makeInt(term.intValue()), term);
+    	}
     }
 
     public final IStrategoList convert(IStrategoList term) {

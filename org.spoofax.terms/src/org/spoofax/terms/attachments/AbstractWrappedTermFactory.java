@@ -68,4 +68,9 @@ public abstract class AbstractWrappedTermFactory extends AbstractTermFactory {
 	public IStrategoString tryMakeUniqueString(String name) {
 		return baseFactory.tryMakeUniqueString(name);
 	}
+	
+	@Override
+	public IStrategoTerm replaceTerm(IStrategoTerm term, IStrategoTerm old) {
+		return baseFactory.replaceTerm(term, old);
+	}
 }
