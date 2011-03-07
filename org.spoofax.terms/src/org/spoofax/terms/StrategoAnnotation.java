@@ -12,8 +12,9 @@ import org.spoofax.terms.attachments.TermAttachmentType;
 /**
  * Wraps any term with annotations.
  * 
- * Uses the attachments of the wrapped term, rather than
- * its own set of attachments.
+ * Uses its own set of attachments, rather than
+ * the attachments of the wrapped term.
+ * 
  * 
  * @see ITermFactory#annotateTerm(IStrategoTerm, IStrategoList)
  *          Should generally be used to efficiently annotate a term.
@@ -93,21 +94,6 @@ public class StrategoAnnotation extends StrategoWrapped {
 	@Deprecated
 	public IStrategoList prepend(IStrategoTerm prefix) {
 		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public <T extends ITermAttachment> T getAttachment(TermAttachmentType<T> type) {
-		return getWrapped().getAttachment(type);
-	}
-	
-	@Override
-	public void putAttachment(ITermAttachment attachment) {
-		getWrapped().putAttachment(attachment);
-	}
-	
-	@Override
-	public void removeAttachment(TermAttachmentType<?> attachmentType) {
-		getWrapped().removeAttachment(attachmentType);
 	}
 	
 }

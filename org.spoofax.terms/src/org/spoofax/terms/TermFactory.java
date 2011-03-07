@@ -204,7 +204,7 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
         } else if ((annotations == EMPTY_LIST || annotations.isEmpty()) && term.getTermType() == STRING) {
     		return makeString(((IStrategoString) term).stringValue());
         } else if (term instanceof StrategoTerm) {
-        	StrategoTerm result = ((StrategoTerm) term).clone();
+        	StrategoTerm result = ((StrategoTerm) term).clone(true);
         	assert !(result instanceof StrategoWrapped) : "not yet supported";
     	    result.internalSetAnnotations(annotations);
     	    assert result.getStorageType() != MAXIMALLY_SHARED;

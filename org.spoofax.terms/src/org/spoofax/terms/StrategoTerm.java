@@ -183,6 +183,13 @@ public abstract class StrategoTerm extends AbstractSimpleTerm implements IStrate
         }
     }
     
+    protected StrategoTerm clone(boolean stripAttachments) {
+    	StrategoTerm result = clone();
+    	if (stripAttachments)
+    		result.clearAttachments();
+    	return result;
+    }
+    
     public final IStrategoList getAnnotations() {
         return annotations == null ? TermFactory.EMPTY_LIST : annotations;
     }

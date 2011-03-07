@@ -181,4 +181,12 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 			return result;
 		}
 	}
+	
+	@Override
+	public IStrategoTerm annotateTerm(IStrategoTerm term,
+			IStrategoList annotations) {
+		IStrategoTerm result = super.annotateTerm(term, annotations);
+		ensureLink(result, term);
+		return result;
+	}
 }

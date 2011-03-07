@@ -50,4 +50,8 @@ public abstract class AbstractSimpleTerm implements ISimpleTerm, Cloneable {
     public void removeAttachment(TermAttachmentType<?> attachmentType) {
     	throw new NotImplementedException();
     }
+    
+    protected void clearAttachments() {
+    	attachment = null;
+    }
 }
