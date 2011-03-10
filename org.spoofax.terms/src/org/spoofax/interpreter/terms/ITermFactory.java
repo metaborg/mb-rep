@@ -31,6 +31,8 @@ public interface ITermFactory extends IStrategoTermBuilder {
     
     public IStrategoList replaceList(IStrategoTerm[] kids, IStrategoList old);
     
+    public IStrategoList replaceListCons(IStrategoTerm head, IStrategoList tail, IStrategoTerm oldHead, IStrategoList oldTail);
+    
     public IStrategoTerm replaceTerm(IStrategoTerm term, IStrategoTerm old);
     
     public IStrategoTuple replaceTuple(IStrategoTerm[] kids, IStrategoTuple old);

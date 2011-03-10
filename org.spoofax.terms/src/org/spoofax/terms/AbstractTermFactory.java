@@ -75,6 +75,10 @@ public abstract class AbstractTermFactory implements ITermFactory {
         return makeList(kids, old.getAnnotations());
     }
     
+    public IStrategoList replaceListCons(IStrategoTerm head, IStrategoList tail, IStrategoTerm oldHead, IStrategoList oldTail) {
+        return makeListCons(head, tail);
+    }
+    
     public IStrategoTerm replaceTerm(IStrategoTerm term, IStrategoTerm old) {
     	return term;
     }

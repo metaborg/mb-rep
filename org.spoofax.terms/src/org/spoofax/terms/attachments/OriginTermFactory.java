@@ -61,8 +61,18 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 	}
 	
 	@Override
+	public IStrategoList replaceListCons(IStrategoTerm head, IStrategoList tail, IStrategoTerm oldHead, IStrategoList oldTail) {
+		IStrategoList result = makeListCons(head, tail);
+		if (oldHead != head)
+			replaceTerm(head, oldHead); // HACK: origin track one level extra in lists...
+		return result;
+	}
+	
+	@Override
 	public IStrategoTerm replaceTerm(IStrategoTerm term, IStrategoTerm origin) {
-		if (term.isList()) {
+		if (term == origin) {
+			return term;
+		} else if (term.isList()) {
 			if (term.getSubtermCount() == origin.getSubtermCount()
 					&& origin.isList()) {
 				return makeListLink((IStrategoList) term, (IStrategoList) origin);
@@ -111,7 +121,7 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 	public IStrategoList replaceList(IStrategoTerm[] terms, IStrategoList old) {
 		assert terms.length == old.getSubtermCount();
 		for (int i = 0; i < terms.length; i++) {
-			terms[i] = ensureLink(terms[i], old.head());
+			terms[i] = replaceTerm(terms[i], old.head()); // HACK: origin track one level extra in lists...
 			old = old.tail();
 		}
 		return makeList(terms, old.getAnnotations());
@@ -164,7 +174,7 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 	}
 	
 	protected IStrategoTerm ensureLink(IStrategoTerm term, IStrategoTerm old) {
-		if (isOriginRoot(term)) {
+		if (term == old || isOriginRoot(term)) {
 			return term;
 		} else {
 			IStrategoTerm originRoot = getOriginRoot(old);

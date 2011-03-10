@@ -137,10 +137,10 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
     	synchronized (TermFactory.class) {
 	    	WeakReference<StrategoString> resultRef = asyncStringPool.get(s);
 	    	StrategoString result = resultRef == null ? null : resultRef.get();
+	    	int type = isTermSharingAllowed() ? STRING_POOL_STORAGE_TYPE : MUTABLE;
 	    	if (result == null) {
     			// StrategoString was garbage collected, but key string might still be in memory
     			// Reallocation should be safe either way
-    			int type = isTermSharingAllowed() ? STRING_POOL_STORAGE_TYPE : MUTABLE;
 				result = new StrategoString(s, null, type);
     			asyncStringPool.put(s, new WeakReference<StrategoString>(result));
 	    	} else if (result.getStorageType() == MUTABLE || !isTermSharingAllowed()) {
@@ -148,7 +148,10 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
 	    		// but to satisfy the tryMakeUniqueString() contract
 	    		// we *must* keep a reference to the original
 	    		// hashmap key alive as long as our result lives
-	    		result = new KeepAliveString(s, result);
+	    		//
+	    		// UNDONE: actually, the hashtable key is s 
+	    		//   result = new KeepAliveString(s, result);
+	    		result = new StrategoString(s, null, type);
         	}
 	    	return result;
     	}
@@ -220,14 +223,14 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
         return new StrategoPlaceholder(placeholderConstructor, template, EMPTY_LIST, defaultStorageType);
 	}
     
-    /**
+    /*
      * A Stratego string that maintains 
      * a reference to an existing string,
      * that must be kept alive by the garbage collector
      * at least as long as the current string is alive. 
      * 
      * @author Lennart Kats <lennart add lclnet.nl>
-     */
+     *
     static class KeepAliveString extends StrategoString {
 		final Object gcKeepAlive;
 
@@ -236,5 +239,6 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
 			this.gcKeepAlive = gcKeepAlive;
 		}
 	}
+	 */
 
 }
