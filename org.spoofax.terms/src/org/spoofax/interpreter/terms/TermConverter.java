@@ -77,7 +77,7 @@ public class TermConverter {
             case TUPLE: result =  convert((IStrategoTuple) term); break;
             case BLOB: result =  term; break;
             default:
-                throw new IllegalStateException("Unknown term type: " + term.getClass().getSimpleName());
+                throw new IllegalStateException("Unknown term type: " + term.getClass().getName());
         }
         if (isOriginEnabled)
         	factory.replaceTerm(result, term);
