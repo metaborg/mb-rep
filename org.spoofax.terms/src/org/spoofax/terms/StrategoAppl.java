@@ -21,7 +21,7 @@ public class StrategoAppl extends StrategoTerm implements IStrategoAppl {
 
     private IStrategoTerm[] kids;
 
-    protected StrategoAppl(IStrategoConstructor ctor, IStrategoTerm[] kids, IStrategoList annotations, int storageType) {
+    public StrategoAppl(IStrategoConstructor ctor, IStrategoTerm[] kids, IStrategoList annotations, int storageType) {
         super(annotations, storageType);
         this.ctor = ctor;
         this.kids = kids;

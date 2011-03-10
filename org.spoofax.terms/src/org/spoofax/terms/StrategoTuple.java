@@ -18,7 +18,7 @@ public class StrategoTuple extends StrategoTerm implements IStrategoTuple {
 
     private IStrategoTerm[] kids;
     
-    protected StrategoTuple(IStrategoTerm[] kids, IStrategoList annotations, int storageType) {
+    public StrategoTuple(IStrategoTerm[] kids, IStrategoList annotations, int storageType) {
         super(annotations, storageType);
         this.kids = kids;
         

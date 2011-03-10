@@ -39,7 +39,7 @@ public class StrategoList extends StrategoTerm implements IStrategoList, Iterabl
      * 
      * @see #prepend(IStrategoTerm) Adds a new head element to a list.
      */
-    protected StrategoList(IStrategoTerm head, IStrategoList tail, IStrategoList annotations, int storageType) {
+    public StrategoList(IStrategoTerm head, IStrategoList tail, IStrategoList annotations, int storageType) {
         super(annotations, storageType);
         this.head = head;
         this.tail = tail;

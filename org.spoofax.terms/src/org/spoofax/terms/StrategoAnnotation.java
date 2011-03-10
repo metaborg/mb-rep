@@ -25,7 +25,7 @@ public class StrategoAnnotation extends StrategoWrapped {
 	
 	private final ITermFactory factory;
 	
-	protected StrategoAnnotation(ITermFactory factory, IStrategoTerm term, IStrategoList annotations) {
+	public StrategoAnnotation(ITermFactory factory, IStrategoTerm term, IStrategoList annotations) {
 		super(term, annotations);
 		
 		if (!term.getAnnotations().isEmpty())

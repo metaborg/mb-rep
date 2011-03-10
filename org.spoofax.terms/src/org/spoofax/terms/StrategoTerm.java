@@ -183,7 +183,7 @@ public abstract class StrategoTerm extends AbstractSimpleTerm implements IStrate
         }
     }
     
-    protected StrategoTerm clone(boolean stripAttachments) {
+    public StrategoTerm clone(boolean stripAttachments) {
     	StrategoTerm result = clone();
     	if (stripAttachments)
     		result.clearAttachments();
@@ -194,7 +194,7 @@ public abstract class StrategoTerm extends AbstractSimpleTerm implements IStrate
         return annotations == null ? TermFactory.EMPTY_LIST : annotations;
     }
     
-    protected final void internalSetAnnotations(IStrategoList annotations) {
+    public final void internalSetAnnotations(IStrategoList annotations) {
     	if (annotations == TermFactory.EMPTY_LIST || annotations.isEmpty())
     		annotations = null; // essential for hash code calculation
     	
