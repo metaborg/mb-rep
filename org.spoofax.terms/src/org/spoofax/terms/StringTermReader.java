@@ -47,10 +47,10 @@ public class StringTermReader {
         case '<': return parsePlaceholder(bis);
         default:
             bis.unread(ch);
-            if (Character.isLetter(ch)) {
+            if (Character.isLetter((char)ch)) {
                 return parseAnno(bis, parseAppl(bis));
             }
-            else if (Character.isDigit(ch) || ch == '-')
+            else if (Character.isDigit((char)ch) || ch == '-')
                 return parseAnno(bis, parseNumber(bis));
         }
         throw new ParseError("Invalid term: '" + (char)ch + "'");
@@ -142,7 +142,7 @@ public class StringTermReader {
             sb.append((char)ch);
             ch = bis.read();
         } // TODO: use a switch for this
-          while(Character.isLetterOrDigit(ch) || ch == '_' || ch == '-'
+          while(Character.isLetterOrDigit((char)ch) || ch == '_' || ch == '-'
             || ch == '+' || ch == '*' || ch == '$');
         
         //System.err.println(" - " + sb.toString());
@@ -234,7 +234,7 @@ public class StringTermReader {
         do {
             sb.append((char)ch);
             ch = bis.read();
-        } while(Character.isDigit(ch));
+        } while(Character.isDigit((char)ch));
         bis.unread(ch);
         return sb.toString(); 
     }
