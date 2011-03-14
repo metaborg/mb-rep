@@ -70,7 +70,9 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 	
 	@Override
 	public IStrategoTerm replaceTerm(IStrategoTerm term, IStrategoTerm origin) {
-		if (term == origin) {
+		if (term == null) {
+			return term;
+		} else if (term == origin) {
 			return term;
 		} else if (term.isList()) {
 			if (term.getSubtermCount() == origin.getSubtermCount()
