@@ -164,7 +164,8 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
         	} else if (name.length() > MAX_POOLED_STRING_LENGTH) {
         		throw new UnsupportedOperationException("String too long to be pooled (newname not allowed): " + name);
         	} else {
-            	StrategoString result = new StrategoString(name, null, STRING_POOL_STORAGE_TYPE);
+            	StrategoString result = new StrategoString(name, null,
+            			isTermSharingAllowed() ? STRING_POOL_STORAGE_TYPE : MUTABLE);
         		asyncStringPool.put(name, new WeakReference<StrategoString>(result));
         		return result;
         	}
