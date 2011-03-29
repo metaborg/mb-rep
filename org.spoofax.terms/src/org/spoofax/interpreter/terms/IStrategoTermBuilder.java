@@ -22,6 +22,7 @@ public interface IStrategoTermBuilder {
     public IStrategoReal makeReal(double d);
     public IStrategoTuple makeTuple(IStrategoTerm... terms);
     public IStrategoString makeString(String s);
+    public IStrategoList makeList();
     public IStrategoList makeList(IStrategoTerm... terms);
     public IStrategoList makeList(Collection<IStrategoTerm> terms);
 

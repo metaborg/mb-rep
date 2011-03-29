@@ -90,7 +90,8 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
     	return results;
     }
     
-    protected IStrategoList makeList() {
+    @Override
+	public IStrategoList makeList() {
     	return isTermSharingAllowed() ? EMPTY_LIST : new StrategoList(null, null, null, defaultStorageType);
     }
     

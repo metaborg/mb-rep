@@ -17,6 +17,7 @@ import org.spoofax.terms.attachments.ITermAttachment;
 
 public abstract class AbstractTermFactory implements ITermFactory {
 
+	@Deprecated
 	public static final IStrategoList EMPTY_LIST = new StrategoList(null, null, null, IStrategoTerm.MAXIMALLY_SHARED);
 
     public static final IStrategoTerm[] EMPTY = new IStrategoTerm[0];
@@ -98,6 +99,10 @@ public abstract class AbstractTermFactory implements ITermFactory {
 
     public final IStrategoList makeList(IStrategoTerm... terms) {
         return makeList(terms, null);
+    }
+
+    public IStrategoList makeList() {
+        return makeList(EMPTY, null);
     }
 
     public IStrategoList makeList(Collection<IStrategoTerm> terms) {
