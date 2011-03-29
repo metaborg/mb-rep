@@ -14,14 +14,17 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 public abstract class TermVisitor implements ITermVisitor {
 	
 	public final boolean visit(IStrategoTerm term) {
+		preVisit(term);
 		Iterator<IStrategoTerm> iterator = tryGetListIterator(term); 
 		for (int i = 0, max = term.getSubtermCount(); i < max; i++) {
 			IStrategoTerm child = iterator == null ? term.getSubterm(i) : iterator.next();
-			preVisit(child);
 			boolean isDone = visit(child);
-			postVisit(child);
-			if (isDone || isDone(null)) return true;
+			if (isDone || isDone(null)) {
+				postVisit(term);
+				return true;
+			}
 		}
+		postVisit(term);
 		return false;
 	}
 
@@ -45,9 +48,9 @@ public abstract class TermVisitor implements ITermVisitor {
 //Local interface avoids abstract method and subsequent @Override annotation requirement
 
 interface ITermVisitor {
-	void preVisit(IStrategoTerm node);
+	void preVisit(IStrategoTerm term);
 
-	void postVisit(IStrategoTerm node);
+	void postVisit(IStrategoTerm term);
 	
-	boolean isDone(IStrategoTerm node);
+	boolean isDone(IStrategoTerm term);
 }

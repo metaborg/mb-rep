@@ -12,14 +12,17 @@ import org.spoofax.interpreter.terms.IStrategoList;
 public abstract class SimpleTermVisitor implements ISimpleTermVisitor {
 	
 	public final boolean visit(ISimpleTerm term) {
+		preVisit(term);
 		Iterator<ISimpleTerm> iterator = tryGetListIterator(term); 
 		for (int i = 0, max = term.getSubtermCount(); i < max; i++) {
 			ISimpleTerm child = iterator == null ? term.getSubterm(i) : iterator.next();
-			preVisit(child);
 			boolean isDone = visit(child);
-			postVisit(child);
-			if (isDone || isDone(null)) return true;
+			if (isDone || isDone(null)) {
+				postVisit(term);
+				return true;
+			}
 		}
+		postVisit(term);
 		return false;
 	}
 
@@ -37,7 +40,7 @@ public abstract class SimpleTermVisitor implements ISimpleTermVisitor {
 		return null;
 	}
 	
-	public void postVisit(ISimpleTerm node) {
+	public void postVisit(ISimpleTerm term) {
 		// No default implementation
 	}
 	
