@@ -187,8 +187,8 @@ public abstract class LazyTerm implements IStrategoAppl, IStrategoInt, IStratego
     	getWrapped().putAttachment(attachment);
     }
     
-    public void removeAttachment(TermAttachmentType<?> attachmentType) {
-    	getWrapped().removeAttachment(attachmentType);
+    public ITermAttachment removeAttachment(TermAttachmentType<?> attachmentType) {
+    	return getWrapped().removeAttachment(attachmentType);
     }
     
 	public boolean isList() {

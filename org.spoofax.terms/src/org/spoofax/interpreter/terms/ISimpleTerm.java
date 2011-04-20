@@ -27,7 +27,7 @@ public interface ISimpleTerm {
 
 	void putAttachment(ITermAttachment resourceAttachment);
     
-    void removeAttachment(TermAttachmentType<?> attachmentType);
+	ITermAttachment removeAttachment(TermAttachmentType<?> attachmentType);
 	
 	boolean isList();
 }

@@ -1,6 +1,5 @@
 package org.spoofax.terms;
 
-import org.spoofax.NotImplementedException;
 import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.attachments.ITermAttachment;
@@ -40,15 +39,35 @@ public abstract class AbstractSimpleTerm implements ISimpleTerm, Cloneable {
 	        		if (a.getAttachmentType() == newType) {
 	        			attachment.setNext(a.getNext());
 	        			previous.setNext(attachment);
+	        			break;
 	        		}
+	        		previous = a;
 	        	}
     			previous.setNext(attachment);
     		}
     	}
     }
     
-    public void removeAttachment(TermAttachmentType<?> attachmentType) {
-    	throw new NotImplementedException();
+    public ITermAttachment removeAttachment(TermAttachmentType<?> type) {
+    	if (attachment != null) {
+    		if (attachment.getAttachmentType() == type) {
+    			ITermAttachment old = attachment;
+    			attachment = attachment.getNext();
+    			old.setNext(null);
+    			return old;
+    		}
+    	} else {
+			ITermAttachment previous = this.attachment;
+			for (ITermAttachment a = attachment.getNext(); a != null; a = a.getNext()) {
+        		if (a.getAttachmentType() == type) {
+        			previous.setNext(a.getNext());
+        			a.setNext(null);
+        			return a;
+        		}
+        		previous = a;
+        	}
+    	}
+    	return null;
     }
     
     protected void clearAttachments() {
