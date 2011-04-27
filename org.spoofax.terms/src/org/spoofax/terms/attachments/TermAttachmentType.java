@@ -1,6 +1,5 @@
 package org.spoofax.terms.attachments;
 
-import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -27,7 +26,9 @@ public abstract class TermAttachmentType<T extends ITermAttachment> {
 	 */
 	protected TermAttachmentType(Class<T> type, String constructorName, int constructorArity) {
 		this.type = type;
-		this.constructor = new TermFactory().makeConstructor(constructorName, constructorArity);
+		this.constructor = constructorName == null
+			? null
+			: new TermFactory().makeConstructor(constructorName, constructorArity);
 		// assert isNotOverlapping(type) : "Term attachments do not support inheritance, failed on: " + type.getName();
 	}
 	
