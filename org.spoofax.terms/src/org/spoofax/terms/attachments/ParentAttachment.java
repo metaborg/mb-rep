@@ -17,7 +17,7 @@ public class ParentAttachment extends AbstractTermAttachment {
 	private static final long serialVersionUID = -159325782499007370L;
 
 	public static TermAttachmentType<ParentAttachment> TYPE =
-		TermAttachmentType.create(ParentAttachment.class);
+		new VolatileTermAttachmentType<ParentAttachment>(ParentAttachment.class);
 
 	private IStrategoTerm parent;
 	

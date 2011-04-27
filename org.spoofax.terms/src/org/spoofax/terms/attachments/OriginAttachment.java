@@ -11,7 +11,7 @@ public class OriginAttachment extends AbstractTermAttachment {
 	private static final long serialVersionUID = 1180953352629370705L;
 
 	public static TermAttachmentType<OriginAttachment> TYPE =
-		TermAttachmentType.create(OriginAttachment.class);
+		new VolatileTermAttachmentType<OriginAttachment>(OriginAttachment.class);
 	
 	private IStrategoTerm origin;
 
