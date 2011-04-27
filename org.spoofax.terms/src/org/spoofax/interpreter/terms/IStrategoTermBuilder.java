@@ -24,7 +24,7 @@ public interface IStrategoTermBuilder {
     public IStrategoString makeString(String s);
     public IStrategoList makeList();
     public IStrategoList makeList(IStrategoTerm... terms);
-    public IStrategoList makeList(Collection<IStrategoTerm> terms);
+    public IStrategoList makeList(Collection<? extends IStrategoTerm> terms);
 
 	public IStrategoAppl makeAppl(IStrategoConstructor constructor, IStrategoTerm[] kids, IStrategoList annotations);
 	public IStrategoList makeList(IStrategoTerm[] kids, IStrategoList annotations);

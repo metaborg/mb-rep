@@ -222,7 +222,7 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
 	public IStrategoPlaceholder makePlaceholder(IStrategoTerm template) {
         if (placeholderConstructor == null)
             placeholderConstructor = makeConstructor("<>", 1);
-        return new StrategoPlaceholder(placeholderConstructor, template, EMPTY_LIST, defaultStorageType);
+        return new StrategoPlaceholder(placeholderConstructor, template, makeList(), defaultStorageType);
 	}
     
     /*

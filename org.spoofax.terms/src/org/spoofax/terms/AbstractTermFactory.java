@@ -105,7 +105,7 @@ public abstract class AbstractTermFactory implements ITermFactory {
         return makeList(EMPTY, null);
     }
 
-    public IStrategoList makeList(Collection<IStrategoTerm> terms) {
+    public IStrategoList makeList(Collection<? extends IStrategoTerm> terms) {
         return makeList(terms.toArray(new IStrategoTerm[terms.size()]));
     }
 

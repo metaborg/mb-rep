@@ -11,6 +11,8 @@ import static org.spoofax.interpreter.terms.IStrategoTerm.TUPLE;
 
 import java.util.HashMap;
 
+import org.spoofax.terms.StrategoAnnotation;
+
 /**
  * Copies terms created by one {@link ITermFactory} to
  * terms created by another (or the same) factory. 
@@ -83,6 +85,33 @@ public class TermConverter {
         	factory.replaceTerm(result, term);
         return result;
     }
+    
+    public IStrategoTerm convertShallow(IStrategoTerm term, IStrategoTerm[] kids, IStrategoList annos) {
+		switch (term.getTermType()) {
+			case APPL:
+				IStrategoConstructor cons = ((IStrategoAppl)term).getConstructor();
+				return factory.makeAppl(cons, kids, annos);
+			case LIST:
+				return factory.makeList(kids, annos);
+			case INT:
+				int i = ((IStrategoInt) term).intValue();
+				return factory.annotateTerm(factory.makeInt(i), annos);
+			case REAL:
+				double r = ((IStrategoReal) term).realValue();
+				return factory.annotateTerm(factory.makeReal(r), annos);
+			case STRING:
+				String s = ((IStrategoString) term).stringValue();
+				return factory.annotateTerm(factory.makeString(s), annos);
+			case TUPLE:
+				return factory.makeTuple(kids, annos);
+			case BLOB:
+				return new StrategoAnnotation(factory, term, annos);
+			case CTOR:
+				return convert((IStrategoConstructor) term);
+			default:
+				throw new IllegalStateException("Unknown term type: " + term.getClass().getName()); 
+		}
+	}
 
     public final IStrategoAppl convert(IStrategoAppl term) {
         IStrategoTerm[] subTerms = convertAll(term.getAllSubterms());
