@@ -10,18 +10,18 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
  */
 public class LANG_index_clear_all extends AbstractPrimitive {
 
-	private static String NAME = "LANG_index_persist";
+	private static String NAME = "LANG_index_clear_all";
 	
 	private final SemanticIndex index;
 	
 	public LANG_index_clear_all(SemanticIndex index) {
-		super(NAME, 0, 1);
+		super(NAME, 0, 0);
 		this.index = index;
 	}
 
 	@Override
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
-		// TODO Auto-generated method stub
-		return false;
+		index.clear();
+		return true;
 	}
 }

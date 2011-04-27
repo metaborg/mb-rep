@@ -10,7 +10,17 @@ public class LanguageLibrary extends AbstractStrategoOperatorRegistry {
 	public static final String REGISTRY_NAME = "LANGUAGE";
 
 	public LanguageLibrary() {
-		// TODO Auto-generated constructor stub
+		SemanticIndex index = new SemanticIndex();
+		add(new LANG_index_add(index));
+		add(new LANG_index_clear_all(index));
+		add(new LANG_index_clear_file(index));
+		add(new LANG_index_get_all_files(index));
+		add(new LANG_index_get_children(index));
+		add(new LANG_index_get_descendants(index));
+		add(new LANG_index_get_files_of(index));
+		add(new LANG_index_get(index));
+		add(new LANG_index_is_indexed_file(index));
+		add(new LANG_index_setup(index));
 	}
 
 	public String getOperatorRegistryName() {
