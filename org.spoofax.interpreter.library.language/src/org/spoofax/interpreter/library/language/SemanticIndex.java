@@ -195,11 +195,11 @@ public class SemanticIndex {
 		IStrategoTerm type = factory.getEntryType(template);
 		IStrategoTerm namespace = factory.getEntryNamespace(template);
 		SemanticIndexEntryParent parent = getEntryParentAt(namespace, factory.getEntryId(template));
-		IStrategoList results = termFactory.makeList();
 		if (parent == null)
-			return results;
+			return termFactory.makeList();
 		if (type == factory.getDefCon() && parent.getAllDefsCached() != null)
 			return parent.getAllDefsCached();
+		IStrategoList results = termFactory.makeList();
 		for (SemanticIndexEntry entry : parent.getChildren()) {
 			if (entry.getType() == type) {
 				assert !entry.isParent();

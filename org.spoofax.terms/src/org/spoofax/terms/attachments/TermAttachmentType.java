@@ -1,7 +1,8 @@
 package org.spoofax.terms.attachments;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collections;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
@@ -14,8 +15,8 @@ import org.spoofax.terms.TermFactory;
  */
 public abstract class TermAttachmentType<T extends ITermAttachment> {
 	
-	private static Map<Class<?>, TermAttachmentType<?>> asyncTypes =
-		new HashMap<Class<?>, TermAttachmentType<?>>();
+	private static Set<TermAttachmentType<?>> asyncTypes =
+		new CopyOnWriteArraySet<TermAttachmentType<?>>();
 	
 	private final Class<T> type;
 	
@@ -27,13 +28,22 @@ public abstract class TermAttachmentType<T extends ITermAttachment> {
 	protected TermAttachmentType(Class<T> type, String constructorName, int constructorArity) {
 		this.type = type;
 		this.constructor = new TermFactory().makeConstructor(constructorName, constructorArity);
-		assert isNotOverlapping(type) : "Term attachments do not support inheritance, failed on: " + type.getName();
+		// assert isNotOverlapping(type) : "Term attachments do not support inheritance, failed on: " + type.getName();
 	}
 	
-	/**
+	public static TermAttachmentType<?>[] getKnownTypes() {
+		Set<TermAttachmentType<?>> copy = asyncTypes;
+		return copy.toArray(new TermAttachmentType[copy.size()]);
+	}
+	
+	/*
 	 * Sanity check: can only create attachment types that are not
 	 * a superclass or subclass of another, existing attachment type.
-	 */
+	 *
+	 * (Not supported with GWT: isAssignableFrom.)
+	 *
+	private static Map<Class<?>, TermAttachmentType<?>> asyncTypes =
+		new HashMap<Class<?>, TermAttachmentType<?>>();
 	private boolean isNotOverlapping(Class<T> baseClass) {
 		synchronized (TermAttachmentType.class) {
 			for (Class<?> otherClass : asyncTypes.keySet()) {
@@ -44,13 +54,20 @@ public abstract class TermAttachmentType<T extends ITermAttachment> {
 		}
 		return false;
 	}
+	*/
 	
 	public boolean isSerializationSupported() {
 		return constructor != null;
 	}
 	
-	public final IStrategoAppl toTerm(ITermFactory factory, T attachment) {
-		return factory.makeAppl(constructor, toSubterms(factory, attachment));
+	public IStrategoConstructor getTermConstructor() {
+		return constructor;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public final IStrategoAppl toTerm(ITermFactory factory, ITermAttachment attachment) {
+		assert this == attachment.getAttachmentType();
+		return factory.makeAppl(constructor, toSubterms(factory, (T) attachment));
 	}
 
 	public final T fromTerm(IStrategoAppl term) {
