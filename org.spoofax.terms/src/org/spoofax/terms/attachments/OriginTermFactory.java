@@ -10,6 +10,7 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.terms.StrategoAppl;
 
 /**
  * A factory creating ATerms from AST nodes.
@@ -23,7 +24,19 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 	 * Whether to reassign the origin for terms that already have an origin.
 	 */
 	private static boolean REASSIGN_ORIGINS = false;
-	
+
+	/**
+	 * Whether to assign new terms as desugared origins
+	 */
+	private boolean assignDesugaredOrigins = false;
+
+	/**
+	 * Sets whether to assign new terms as desugared origins
+	 */
+	public void setAssignDesugaredOrigins(boolean assignDesugaredOrigins) {
+		this.assignDesugaredOrigins = assignDesugaredOrigins;
+	}
+
 	public OriginTermFactory(ITermFactory baseFactory) {
 		super(MUTABLE, baseFactory);
 		assert !(baseFactory instanceof OriginTermFactory);
@@ -50,14 +63,14 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 		
 		IStrategoList annos = oldTerm.getAnnotations();
 		IStrategoAppl result = makeAppl(constructor, ensureChildLinks(kids, oldTerm), annos);
-		
-		return (IStrategoAppl) ensureLink(result, oldTerm);
+		//TODO: child links only when same signature
+		return (IStrategoAppl) ensureLink(result, oldTerm, false);
 	}
 	
 	@Override
 	public IStrategoTuple replaceTuple(IStrategoTerm[] kids, IStrategoTuple old) {
 		IStrategoTuple result = makeTuple(ensureChildLinks(kids, old), old.getAnnotations());
-		return (IStrategoTuple) ensureLink(result, old);
+		return (IStrategoTuple) ensureLink(result, old, false);
 	}
 	
 	@Override
@@ -81,12 +94,24 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 			} else {
 				return term;
 			}
-		} else if (term.getTermType() == origin.getTermType() && term.getSubtermCount() == origin.getSubtermCount()) {
+		} else if (
+			haveSameSignature(term, origin)
+		) {
 			ensureChildLinks(term.getAllSubterms(), origin);
-			return ensureLink(term, origin);
+			return ensureLink(term, origin, false);
 		} else {
-			return ensureLink(term, origin);
+			return ensureLink(term, origin, false);
 		}
+	}
+
+	private boolean haveSameSignature(IStrategoTerm term, IStrategoTerm origin) {
+		if(term instanceof StrategoAppl && origin instanceof StrategoAppl){
+			if(!((StrategoAppl)term).getConstructor().equals(((StrategoAppl)origin).getConstructor()))
+				return false;
+		}
+		return 	
+			term.getTermType() == origin.getTermType() && 
+			term.getSubtermCount() == origin.getSubtermCount();
 	}
 
 	/**
@@ -96,7 +121,7 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 	 */
 	public IStrategoTerm makeLink(IStrategoTerm term, IStrategoTerm origin) {
 		assert isOriginRoot(origin);
-		if (term.isList()) {
+		if (term.isList()) { 
 			if (term.getSubtermCount() == origin.getSubtermCount()
 				&& origin.isList()) {
 				return makeListLink((IStrategoList) term, (IStrategoList) origin);
@@ -115,6 +140,21 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 		return term;
 	}
 	
+	/**
+	 * @param origin
+	 *            The origin term. For lists, this must be the exact
+	 *            corresponding term with the same offset and length.
+	 */
+	public IStrategoTerm makeLinkDesugared(IStrategoTerm term, IStrategoTerm desugared) {
+		if (!term.isList() && DesugaredOriginAttachment.get(term) == null) {
+			if (term.getStorageType() == MUTABLE)
+				DesugaredOriginAttachment.setDesugaredOrigin(term, desugared);
+		} else if (REASSIGN_ORIGINS) {
+			throw new NotImplementedException("Not implemented: unwrapping of possibly already wrapped term");
+		}
+		return term;
+	}
+
 	/**
 	 * Replaces all subterms in a list,
 	 * maintaining only the outer annotations.
@@ -141,7 +181,7 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 		} else {
 			IStrategoTerm head = terms.head();
 			IStrategoList tail = terms.tail();
-			IStrategoTerm newHead = ensureLink(head, old.head());
+			IStrategoTerm newHead = ensureLink(head, old.head(), false);
 			IStrategoList newTail = makeListLink(tail, old.tail());
 			
 			/* UNDONE: Origin tracking for Cons nodes
@@ -162,7 +202,7 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 		IStrategoTerm[] oldKids = old.getAllSubterms();
 		if (oldKids == kids) return kids; // no changes; happens with interpreter's all
 		for (int i = 0; i < kids.length; i++) {
-			kids[i] = ensureLink(kids[i], oldKids[i]);
+			kids[i] = ensureLink(kids[i], oldKids[i], true);
 		}
 		return kids;
 		/* Before opimization (avoid array copy and exit if kids == oldTerm.getAllSubterms())
@@ -175,13 +215,20 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 		*/
 	}
 	
-	protected IStrategoTerm ensureLink(IStrategoTerm term, IStrategoTerm old) {
+	protected IStrategoTerm ensureLink(IStrategoTerm term, IStrategoTerm old, boolean isChildLink) {
 		if (term == old || isOriginRoot(term)) {
-			return term;
-		} else {
-			IStrategoTerm originRoot = getOriginRoot(old);
-			return originRoot == null ? term : makeLink(term, originRoot);
+			return term; //TODO: track desugared origins for not origin root lists?
+		}		
+		if(assignDesugaredOrigins){
+			//do not trust child link heuristic
+			if(!isChildLink) DesugaredOriginAttachment.setDesugaredOrigin(term, term);
+		} 
+		else {
+			IStrategoTerm desugared = DesugaredOriginAttachment.getDesugaredOrigin(old);
+			if(desugared != null) term = makeLinkDesugared(term, desugared);			
 		}
+		IStrategoTerm originRoot = getOriginRoot(old);
+		return originRoot == null ? term : makeLink(term, originRoot);
 	}
 	
 	protected IStrategoTerm getOriginRoot(IStrategoTerm term) {
@@ -198,7 +245,7 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 	public IStrategoTerm annotateTerm(IStrategoTerm term,
 			IStrategoList annotations) {
 		IStrategoTerm result = super.annotateTerm(term, annotations);
-		ensureLink(result, term);
+		ensureLink(result, term, false);
 		return result;
 	}
 }
