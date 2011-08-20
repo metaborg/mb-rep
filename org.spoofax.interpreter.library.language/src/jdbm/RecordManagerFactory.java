@@ -29,9 +29,14 @@ import java.util.Properties;
  * 
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @author <a href="cg@cdegroot.com">Cees de Groot</a>
- * @version $Id: RecordManagerFactory.java,v 1.2 2005/06/25 23:12:31 doomdark
- *          Exp $
+ * @author <a href="adil.bd@hotmail.com">Adil Akhter</a>
+ * @version $Id: RecordManagerFactory.java,v 1.3 2011/08/19 06:33:20 $
+ *
+ *	Modified by : Adil Akhter
+ *	Configuring the RecordManger with the relative path of the index.  
+ *
  */
+
 public final class RecordManagerFactory {
 
 	/**

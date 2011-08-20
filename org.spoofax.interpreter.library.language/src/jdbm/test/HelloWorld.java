@@ -2,20 +2,16 @@ package jdbm.test;
 
 import java.io.IOException;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
-
-import jdbm.PrimaryHashMap;
-import jdbm.PrimaryTreeMap;
 import jdbm.RecordManager;
 import jdbm.RecordManagerFactory;
 
-/**
- * This program demonstrates basic JDBM usage.
+ /**
+ * This program demonstrates basic JDBM usage. Updated to support separate-chaining using PrimaryMap.
  * 
  * @author Jan Kotek
- *
+ * @author Adil Akhter
  */
 public class HelloWorld {
 	

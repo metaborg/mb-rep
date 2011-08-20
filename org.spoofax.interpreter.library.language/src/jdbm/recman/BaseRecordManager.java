@@ -62,7 +62,11 @@ import jdbm.helper.RecordManagerImpl;
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @author <a href="cg@cdegroot.com">Cees de Groot</a>
+ * @author <a href="mailto:adil.bd@hotmail.com">Adil Akhter</a>
  * @version $Id: BaseRecordManager.java,v 1.8 2005/06/25 23:12:32 doomdark Exp $
+ * 
+ * Updates : New Parameter is added for refer to the directory of the index relative 
+ * to the current working directory.  RecordFile is configured with this extra parameter. 
  */
 public final class BaseRecordManager
     extends RecordManagerImpl

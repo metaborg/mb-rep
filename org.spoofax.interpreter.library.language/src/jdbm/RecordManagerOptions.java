@@ -21,7 +21,13 @@ package jdbm;
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @author <a href="cg@cdegroot.com">Cees de Groot</a>
- * @version $Id: RecordManagerOptions.java,v 1.1 2002/05/31 06:33:20 boisvert Exp $
+ * @author <a href="adil.bd@hotmail.com">Adil Akhter</a>
+ * @version $Id: RecordManagerOptions.java,v 1.1 2011/08/19 06:33:20 $
+ *
+ *	Modified by : Adil Akhter
+ *
+ *	Added the following option : INDEX_DIRECTORY_RELATIVE_PATH to configure the relative path of the directory where
+ *	all the index will be stored.
  */
 public class RecordManagerOptions
 {

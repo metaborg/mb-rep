@@ -38,7 +38,12 @@ import jdbm.helper.LongHashMap;
  *  The set of dirty records on the in-use list constitutes a transaction.
  *  Later on, we will send these records to some recovery thingy.
  *<p>
- *  RecordFile is splited between more files, each with max size 1GB. 
+ *  RecordFile is splited between more files, each with max size 1GB.
+ *  <P>
+ *  Updates : RecordFile can be configured with the relative path where
+ *  the files are stored. By default it is specified statically using 
+ *  RecordManager.DEFAULT_RELATIVE_PATH_INDEX.
+ *  </p> 
  */
 final class RecordFile {
     final TransactionManager txnMgr;
@@ -72,11 +77,7 @@ final class RecordFile {
     
     private String indexDirRelativePath ; 
     
-    
-    
-  
-
-	static final int DEFAULT_BLOCK_SIZE = 4096;
+    static final int DEFAULT_BLOCK_SIZE = 4096;
 
 //    /** The length of a single block. */
     final int BLOCK_SIZE ;//= 8192;//4096;
