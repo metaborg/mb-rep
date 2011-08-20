@@ -9,4 +9,5 @@ Require-Bundle: org.spoofax.interpreter.core,
  org.spoofax.jsglr;bundle-version="0.3.0",
  org.eclipse.core.runtime,
  org.eclipse.core.resources
-Export-Package: org.spoofax.interpreter.library.language
+Export-Package: org.spoofax.interpreter.library.language,
+ org.spoofax.interpreter.library.language.spxlang
