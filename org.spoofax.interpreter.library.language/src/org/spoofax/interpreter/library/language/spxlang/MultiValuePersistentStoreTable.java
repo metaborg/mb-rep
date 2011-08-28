@@ -9,10 +9,19 @@ import jdbm.PrimaryMap;
 import jdbm.PrimaryStoreMap;
 import jdbm.RecordManager;
 
-//TODO : convert it to a actual HashMap . Currently, it is just acting 
-// as a wrapper around HashMap
+/**
+ * Implementation of  Generic Table which supports persistence of the entries 
+ * and loading of those entries in a lazy manner. Entries are loaded only when 
+ * it is needed. Hence, memory usage is optimize significantly.
+ * 
+ * Support for Persistence mechanism is implemented using {@link PrimaryStoreMap} 
+ *  
+ */
 class MultiValuePersistentStoreTable<K, V> {
+	//TODO : convert it to a actual HashMap . Currently, it is just acting 
+	// as a wrapper around HashMap
 
+	
 	private final PrimaryMap<K, ArrayList<Long>> _keyMap;
 	
 	private final PrimaryStoreMap<Long, V> _valueMap;
