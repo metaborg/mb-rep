@@ -109,7 +109,8 @@ final public class SecondaryKeyHelper {
     }
 
     static public <A,K,V> HTree<A,Iterable<K>>  secondaryHTree(String objectName, 
-    		final SecondaryKeyExtractor<A,K,V> keyExtractor, JdbmBase<K,V> b,Serializer<A> secondaryKeySerializer)
+    		final SecondaryKeyExtractor<A,K,V> keyExtractor, 
+    		JdbmBase<K,V> b,Serializer<A> secondaryKeySerializer)
     		throws IOException{
     	HTree<A,Iterable<K>> secIndex = null;
         long recid = b.getRecordManager().getNamedObject( objectName );

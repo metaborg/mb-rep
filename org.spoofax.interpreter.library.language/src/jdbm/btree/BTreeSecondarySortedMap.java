@@ -26,6 +26,7 @@ public class BTreeSecondarySortedMap<A,K,V> extends BTreeSortedMap<A,Iterable<K>
 	implements SecondaryTreeMap<A,K,V>{
 
 	protected final JdbmBase<K,V > b;
+	
 	public BTreeSecondarySortedMap(BTree<A, Iterable<K>> tree, JdbmBase<K,V> b) {
 		super(tree, true);
 		this.b = b;

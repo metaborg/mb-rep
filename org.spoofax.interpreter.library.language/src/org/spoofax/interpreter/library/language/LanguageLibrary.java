@@ -1,6 +1,9 @@
 package org.spoofax.interpreter.library.language;
 
 import org.spoofax.interpreter.library.AbstractStrategoOperatorRegistry;
+import org.spoofax.interpreter.library.language.spxlang.SPX_index_init;
+import org.spoofax.interpreter.library.language.spxlang.SPX_index_save;
+import org.spoofax.interpreter.library.language.spxlang.SpxSemanticIndex;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
@@ -22,6 +25,11 @@ public class LanguageLibrary extends AbstractStrategoOperatorRegistry {
 		add(new LANG_index_is_indexed_file(index));
 		add(new LANG_index_setup(index));
 		add(new LANG_get_all_projects_in_Workspace());
+		
+		SpxSemanticIndex spxIndex= new SpxSemanticIndex();
+		
+		add(new SPX_index_init(spxIndex));
+		add(new SPX_index_save(spxIndex));
 	}
 
 	public String getOperatorRegistryName() {

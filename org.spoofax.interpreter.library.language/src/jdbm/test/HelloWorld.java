@@ -25,7 +25,7 @@ public class HelloWorld {
 		{
 			LinkedList<String> l = new LinkedList<String>();
 			l.add(value);
-			
+		
 			hashmap.put(key, l);
 		}
 	}

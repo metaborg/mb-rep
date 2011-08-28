@@ -91,5 +91,12 @@ public class RecordManagerOptions
      */
 	public static final String COMPRESS = "jdbm.compress";
 
-	public static final String INDEX_DIRECTORY_RELATIVE_PATH = ".index";
+	
+
+	
+	public static final String INDEX_RELATIVE_PATH_OPTION = "jdbm.index.relativepath" ;
+	
+	
+	// TODO : make this similar to the above implementation.
+	public static String INDEX_DIRECTORY_RELATIVE_PATH = ".index";
 }
