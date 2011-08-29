@@ -25,7 +25,10 @@ class SpxPersistenceManager {
 	//and perform operation on that.  
 	private final RecordManager _recordManager;
 	
-	private final String indexDirectory = ".index" ;
+	private final String indexDirectory = ".index" ; //TODO : remove hardcoding  
+	
+	private final SpxCompilationUnitSymbolTable _spxUnitsTable;  
+	
 	
 	//TODO : All the maps will be hosted by this  object 
 	public SpxPersistenceManager(String projectName) throws IOException
@@ -44,6 +47,9 @@ class SpxPersistenceManager {
 	
 		//creating recordmanager for the particular project
 		_recordManager = RecordManagerFactory.createRecordManager(projectName , options);
+		
+		
+		_spxUnitsTable = new SpxCompilationUnitSymbolTable(this);
 	}
 	
 	

@@ -10,7 +10,7 @@ import java.net.URI;
  * @author Md. Adil Akhter
  * Created On : Aug 29, 2011
  */
-class SpxComplicationUnitInfo implements Serializable
+class SpxCompilationUnitInfo implements Serializable
 {
 	private static final long serialVersionUID = 4874917828420267542L;
 
@@ -20,7 +20,7 @@ class SpxComplicationUnitInfo implements Serializable
 	
 	private URI _absPath;
 	
-	public SpxComplicationUnitInfo( long recourceId, int versionNo, URI absPath)
+	public SpxCompilationUnitInfo( long recourceId, int versionNo, URI absPath)
 	{
 		_recId = recourceId;
 		_version = versionNo;
@@ -80,7 +80,7 @@ class SpxComplicationUnitInfo implements Serializable
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		SpxComplicationUnitInfo other = (SpxComplicationUnitInfo) obj;
+		SpxCompilationUnitInfo other = (SpxCompilationUnitInfo) obj;
 		if (_absPath == null) {
 			if (other._absPath != null)
 				return false;
