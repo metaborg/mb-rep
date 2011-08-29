@@ -63,7 +63,7 @@ class SpxSemanticIndexFacadeRegistry
 
 class SpxSemanticIndexFacade {
 
-	private final SpxPersistenceManager _persistenceManager;
+	private final ISpxPersistenceManager _persistenceManager;
 	
 	private final String _projectName ; 
 	
@@ -125,7 +125,7 @@ class SpxSemanticIndexFacade {
 	 * 
 	 * @return
 	 */
-	public SpxPersistenceManager getPersistenceManager()
+	public ISpxPersistenceManager getPersistenceManager()
 	{
 		return _persistenceManager;
 	}

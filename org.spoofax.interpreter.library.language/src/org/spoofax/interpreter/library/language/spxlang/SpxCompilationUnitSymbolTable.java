@@ -12,15 +12,24 @@ class SpxCompilationUnitSymbolTable {
 	
 	PrimaryHashMap<String , SpxCompilationUnitInfo> _infoMap;
 	
-	PrimaryStoreMap<Long,IStrategoTerm> _unitStorage;
+	PrimaryStoreMap<Long,IStrategoTerm> _spxUnitStorageMap;
 	
 	
-	public SpxCompilationUnitSymbolTable(SpxPersistenceManager manager)
+	/**
+	 * 
+	 * @param tableName
+	 * @param manager
+	 */
+	public SpxCompilationUnitSymbolTable(String tableName , ISpxPersistenceManager manager)
 	{
-		
+		_infoMap = manager.loadHashMap(tableName+ "._infomap");
+		_spxUnitStorageMap = manager.loadStoreMap(tableName + "._spxUnitStorageMap");
 	}
 	
-	
+	/**
+	 * @param info
+	 * @param compilationUnit
+	 */
 	public void define ( SpxCompilationUnitInfo info, IStrategoAppl compilationUnit)
 	{
 		

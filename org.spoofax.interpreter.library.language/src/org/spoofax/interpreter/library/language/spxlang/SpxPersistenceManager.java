@@ -19,7 +19,7 @@ import jdbm.RecordManagerOptions;
  * @author Md. Adil Akhter
  * Created On : Aug 22, 2011
  */
-class SpxPersistenceManager {
+class SpxPersistenceManager implements ISpxPersistenceManager {
 
 	//TODO : create a registry that keeps all the loaded SymbolTable
 	//and perform operation on that.  
@@ -48,8 +48,7 @@ class SpxPersistenceManager {
 		//creating recordmanager for the particular project
 		_recordManager = RecordManagerFactory.createRecordManager(projectName , options);
 		
-		
-		_spxUnitsTable = new SpxCompilationUnitSymbolTable(this);
+		_spxUnitsTable = new SpxCompilationUnitSymbolTable(projectName+"_spxUnitTable", this);
 	}
 	
 	
@@ -61,7 +60,7 @@ class SpxPersistenceManager {
 	 * @param mapName
 	 * @return
 	 */
-	<K,V> PrimaryHashMap<K,V> loadHashMap ( String mapName)
+	public <K,V> PrimaryHashMap<K,V> loadHashMap ( String mapName)
 	{
 		return _recordManager.hashMap(mapName) ;
 		
@@ -75,7 +74,7 @@ class SpxPersistenceManager {
 	 * @param storeMapName
 	 * @return
 	 */
-	<V> PrimaryStoreMap <Long, V> loadStoreMap( String storeMapName)
+	public <V> PrimaryStoreMap <Long, V> loadStoreMap( String storeMapName)
 	{
 		return _recordManager.storeMap(storeMapName);
 	}
@@ -101,10 +100,8 @@ class SpxPersistenceManager {
 		_recordManager.close();	
 	}
 	
-	/**
-	 * Commits the unsaved and closes the connection.
-	 *  
-	 * @throws IOException
+	/* (non-Javadoc)
+	 * @see org.spoofax.interpreter.library.language.spxlang.ISpxPersistenceManager#commitAndClose()
 	 */
 	public void commitAndClose() throws IOException
 	{	
