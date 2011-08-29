@@ -7,8 +7,8 @@ import jdbm.PrimaryMap;
 import jdbm.RecordManager;
 
 /**
- * MultiValue Symbol Table to store the symbols. Symbols are stored in memory and persisted
- * on the disk whenever specified to do so.  
+ * Generic MultiValue Symbol Table to store the symbols. Symbols are stored in memory and persisted
+ * on the disk if committed via {@link SpxPersistenceManager}.
  * 
  * @author Md. Adil Akhter
  * Created On : Aug 22, 2011

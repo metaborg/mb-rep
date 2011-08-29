@@ -13,6 +13,9 @@ import jdbm.RecordManagerOptions;
  * PersistenceManager responsible for initializing and maintaining various 
  * symbol table needed for SpoofaxLang Implementation. 
  * 
+ * It hosts all the SymbolTables. SymbolTables are loaded whenever is needed 
+ * and changes are persisted when following operation is performed : {@link SpxPersistenceManager}.commit.
+ * 
  * @author Md. Adil Akhter
  * Created On : Aug 22, 2011
  */
@@ -20,62 +23,81 @@ class SpxPersistenceManager {
 
 	//TODO : create a registry that keeps all the loaded SymbolTable
 	//and perform operation on that.  
-	private RecordManager _recordManager = null;
+	private final RecordManager _recordManager;
 	
 	private final String indexDirectory = ".index" ;
 	
-	public void initialize (String projectName) throws IOException
+	//TODO : All the maps will be hosted by this  object 
+	public SpxPersistenceManager(String projectName) throws IOException
 	{
-		initialize( projectName, null);
+		this( projectName, null);
 	}
 	
-	public void initialize(String projectName , Properties options) throws IOException
+	public SpxPersistenceManager (String projectName , Properties options) throws IOException
 	{
 		// Creating empty properties collection if it is null
 		if( options  == null)
 			options = new Properties();
+		
 		// setting up the working directory for the Index 
 		options.put(RecordManagerOptions.INDEX_RELATIVE_PATH_OPTION, indexDirectory + "/" + projectName);
 	
-		//If recordmanager is not null, saving and closing the recordmanager
-		if ( _recordManager != null)
-			commitAndClose();
-		
 		//creating recordmanager for the particular project
 		_recordManager = RecordManagerFactory.createRecordManager(projectName , options);
 	}
 	
-	/* 
-	 * Creates named symbol table. If the symbol table already exists , it loads the particular
-	 * symbol table.
+	
+	/**
+	 * Instantiates a new HashMap 
 	 * 
-	 * */
-	public <K, V>  MultiValuePersistentTable<K, V>  loadTable(String tableName)
+	 * @param <K>
+	 * @param <V>
+	 * @param mapName
+	 * @return
+	 */
+	<K,V> PrimaryHashMap<K,V> loadHashMap ( String mapName)
 	{
+		return _recordManager.hashMap(mapName) ;
 		
-		return new MultiValuePersistentTable<K, V>( tableName, _recordManager);
-	}
-		
-	/*
-	 * Creates a storage table with the name specified. 
-	 * */
-	public <K, V>  MultiValuePersistentStoreTable<K, V>  loadStorage (String storageName)
-	{	
-		return new MultiValuePersistentStoreTable<K,V>(storageName,  _recordManager);
 	}
 	
-	private void commit() throws IOException
+	
+	/**
+	 * Instantiates a new StoreHashMap
+	 * 
+	 * @param <V>
+	 * @param storeMapName
+	 * @return
+	 */
+	<V> PrimaryStoreMap <Long, V> loadStoreMap( String storeMapName)
+	{
+		return _recordManager.storeMap(storeMapName);
+	}
+	
+	
+	/**
+	 * Commits any unsaved changes to the disk 
+	 * @throws IOException
+	 */
+	void commit() throws IOException
 	{
 		_recordManager.commit();
 	}
 	
-	private void close() throws IOException
+	
+	/**
+	 * Closes RecordManager
+	 * 
+	 * @throws IOException
+	 */
+	void close() throws IOException
 	{
 		_recordManager.close();	
 	}
 	
 	/**
-	 * Commits the unsaved and closes the connection. 
+	 * Commits the unsaved and closes the connection.
+	 *  
 	 * @throws IOException
 	 */
 	public void commitAndClose() throws IOException

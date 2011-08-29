@@ -34,9 +34,6 @@ public class SPX_index_save extends AbstractPrimitive {
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars)
 			throws InterpreterException {
 	
-		if ( tvars.length != 1)
-			return false;
-		
 		if (Tools.isTermString(tvars[0]))
 			return false;
 		
@@ -46,7 +43,7 @@ public class SPX_index_save extends AbstractPrimitive {
 		}
 		catch(Exception ex)
 		{
-			SSLLibrary.instance(env).getIOAgent().printError("["+NAME+"] Error : "+ ex.getMessage());
+			SSLLibrary.instance(env).getIOAgent().printError("["+NAME+"] Invokation failed. Error : "+ ex.getMessage());
 			return false;
 		}
 		

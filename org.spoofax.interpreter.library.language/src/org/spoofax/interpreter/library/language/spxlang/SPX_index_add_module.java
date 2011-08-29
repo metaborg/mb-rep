@@ -26,14 +26,13 @@ public class SPX_index_add_module extends AbstractPrimitive {
 	private final SpxSemanticIndex index;
 
 	public SPX_index_add_module(SpxSemanticIndex index) {
-		super(NAME, 0, 0);
+		super(NAME, 0, 1);
 		this.index = index;
 	}
 
-
 	@Override
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
-		if (isTermAppl(tvars[0]) && isTermString(tvars[1])) {
+		if (isTermAppl(tvars[0])) {
 			//IStrategoAppl entry = (IStrategoAppl) tvars[0];
 			//URI file = index.toFileURI(asJavaString(tvars[1]));
 			

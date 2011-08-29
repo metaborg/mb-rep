@@ -90,7 +90,7 @@ public class SpxSemanticIndex {
 	 * @param projectName Term representation of the projectName 
 	 * @return true if the operation is successful ; otherwise false.
 	 */
-	public boolean save(IStrategoTerm projectName) 
+	public boolean save(IStrategoTerm projectName) throws IllegalStateException
 	{
 		boolean retvalue = false;
 		
@@ -110,11 +110,10 @@ public class SpxSemanticIndex {
 
 		SpxSemanticIndexFacade facade = _facadeRegistry.getFacade(projectName);
 		ensureInitialized(facade);
-		
 		return facade;
 	}
 	
-	private void ensureInitialized(SpxSemanticIndexFacade idxFactory) {
+	private void ensureInitialized(SpxSemanticIndexFacade idxFactory) throws IllegalStateException {
 		if (idxFactory == null)
 			throw new IllegalStateException("Semantic index not initialized");
 	}
@@ -122,6 +121,24 @@ public class SpxSemanticIndex {
 	private URI toFileURI(SpxSemanticIndexFacade idxFactory, String uriString)
 	{
 		return idxFactory.toFileURI(uriString);
+	}
+
+	
+	public boolean indexCompilationUnit(IStrategoString projectName,
+			IStrategoString spxCompilationUnitPath,
+			IStrategoAppl spxCompilationUnitAST) throws IllegalStateException, Exception{
+
+		boolean successStatement = false;
+		
+		SpxSemanticIndexFacade idxFacade = getFacade(projectName);
+		try {
+			
+		}
+		catch (Exception ex)
+		{
+			throw ex;
+		}
+		return successStatement;
 	}
 
 }

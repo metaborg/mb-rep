@@ -84,11 +84,9 @@ class SpxSemanticIndexFacade {
 		_projectName = asJavaString(projectName);	
 		_entryFactory = new SpxSemanticIndexEntryFactory(termFactory);
 		
-		_persistenceManager = new SpxPersistenceManager();
-	
 		//Initializes persistent manager
-		_persistenceManager.initialize(_projectName) ; // Initializing PersistenceManger for the current Project
-			
+		_persistenceManager = new SpxPersistenceManager(_projectName);
+	
 		//Sets the Term Factory 
 		_termFactory = termFactory;
 
