@@ -117,7 +117,7 @@ class SpxSemanticIndexFacade {
 	}
 
 	/**
-	 * Printing error message
+	 * Prints error message
 	 * 
 	 * @param errMessage
 	 */
@@ -141,5 +141,23 @@ class SpxSemanticIndexFacade {
 		
 		SpxCompilationUnitSymbolTable table = _persistenceManager.spxCompilcationUnitTable();
 		table.define(resUri, spxCompilationUnitAST);
+	}
+
+	public IStrategoTerm getCompilationUnit(IStrategoString spxCompilationUnitPath)
+	{
+		URI resUri = toFileURI(spxCompilationUnitPath);
+		
+		SpxCompilationUnitSymbolTable table = _persistenceManager.spxCompilcationUnitTable();
+		
+		return table.get(resUri);
+	}
+	
+	public void removeCompilationUnit( IStrategoString spxCompilationUnitPath )
+	{
+		URI resUri = toFileURI(spxCompilationUnitPath);
+		
+		SpxCompilationUnitSymbolTable table = _persistenceManager.spxCompilcationUnitTable();
+		
+		table.remove(resUri);
 	}
 }

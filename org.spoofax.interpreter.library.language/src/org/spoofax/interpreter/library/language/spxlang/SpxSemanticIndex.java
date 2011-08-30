@@ -131,9 +131,42 @@ public class SpxSemanticIndex {
 		}
 		catch (Exception ex)
 		{	
-			idxFacade.printError( "[SPX_Index_Save failed] Error : "+ ex.getMessage()) ;	//logging exception.
+			idxFacade.printError( "[SPX_Index_CompilationUnit failed] Error : "+ ex.getMessage()) ;	//logging exception.
 		}
 		return successStatement;
 	}
 
+	public boolean getCompilationUnit(IStrategoString projectName,
+			IStrategoString spxCompilationUnitPath) {
+		
+		boolean successStatement = false;
+		
+		SpxSemanticIndexFacade idxFacade = getFacade(projectName);
+		try {
+			idxFacade.getCompilationUnit(spxCompilationUnitPath);
+			successStatement = true; // setting the flag to indicate the operation is successful
+		}
+		catch (Exception ex)
+		{	
+			idxFacade.printError( "[SPX_Index_getCompilationUnit failed] Error : "+ ex.getMessage()) ;	//logging exception.
+		}
+		return successStatement;
+	}
+	
+	public boolean removeCompilationUnit(IStrategoString projectName,
+			IStrategoString spxCompilationUnitPath) {
+		
+		boolean successStatement = false;
+		
+		SpxSemanticIndexFacade idxFacade = getFacade(projectName);
+		try {
+			idxFacade.removeCompilationUnit(spxCompilationUnitPath);
+			successStatement = true; // setting the flag to indicate the operation is successful
+		}
+		catch (Exception ex)
+		{	
+			idxFacade.printError( "[SPX_Index_removeCompilationUnit failed] Error : "+ ex.getMessage()) ;	//logging exception.
+		}
+		return successStatement;
+	}
 }
