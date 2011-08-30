@@ -117,12 +117,6 @@ public class SpxSemanticIndex {
 		if (idxFactory == null)
 			throw new IllegalStateException("Semantic index not initialized");
 	}
-
-	private URI toFileURI(SpxSemanticIndexFacade idxFactory, String uriString)
-	{
-		return idxFactory.toFileURI(uriString);
-	}
-
 	
 	public boolean indexCompilationUnit(IStrategoString projectName,
 			IStrategoString spxCompilationUnitPath,
@@ -132,11 +126,12 @@ public class SpxSemanticIndex {
 		
 		SpxSemanticIndexFacade idxFacade = getFacade(projectName);
 		try {
-			
+			idxFacade.indexCompilationUnit( spxCompilationUnitPath, spxCompilationUnitAST);
+			successStatement = true; // setting the flag to indicate the operation is successful
 		}
 		catch (Exception ex)
-		{
-			throw ex;
+		{	
+			idxFacade.printError( "[SPX_Index_Save failed] Error : "+ ex.getMessage()) ;	//logging exception.
 		}
 		return successStatement;
 	}

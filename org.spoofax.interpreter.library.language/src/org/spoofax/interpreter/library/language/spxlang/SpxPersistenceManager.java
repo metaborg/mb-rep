@@ -108,5 +108,11 @@ class SpxPersistenceManager implements ISpxPersistenceManager {
 		this.commit();
 		this.close();
 	}
+
+	
+	public SpxCompilationUnitSymbolTable spxCompilcationUnitTable() {
+		
+		return _spxUnitsTable;
+	}
 }
 

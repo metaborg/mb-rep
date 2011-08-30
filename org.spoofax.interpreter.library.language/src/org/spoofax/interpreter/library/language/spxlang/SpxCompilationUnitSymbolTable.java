@@ -4,7 +4,6 @@ import java.net.URI;
 
 import static org.spoofax.interpreter.library.language.spxlang.SpxCompilationUnitInfo.toAbsulatePath;
 
-import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import jdbm.PrimaryHashMap;
@@ -32,7 +31,7 @@ class SpxCompilationUnitSymbolTable {
 	 * @param info
 	 * @param compilationUnit
 	 */
-	public void define(URI absPath , IStrategoAppl compilationUnitRTree)
+	public void define(URI absPath , IStrategoTerm compilationUnitRTree)
 	{	
 		String abspathString = toAbsulatePath(absPath);
 		
@@ -46,7 +45,7 @@ class SpxCompilationUnitSymbolTable {
 	 * Adding the new CompilationUnit in this symbol table 
 	 * @param absPath
 	 */
-	private void add(URI absPath , IStrategoAppl compilationUnitRTree) 
+	private void add(URI absPath , IStrategoTerm compilationUnitRTree) 
 	{
 		// adding Compilation Unit to the storemap
 		long resID = _spxUnitStoreMap.putValue(compilationUnitRTree);
@@ -58,7 +57,13 @@ class SpxCompilationUnitSymbolTable {
 	}
 	
 	
-	private void update(URI absPath , IStrategoAppl compilationUnitRTree)
+	/**
+	 * Updates an Existing Table Entry 
+	 * 
+	 * @param absPath
+	 * @param compilationUnitRTree
+	 */
+	private void update(URI absPath , IStrategoTerm compilationUnitRTree)
 	{	
 		
 		// key is already there in the info map .
@@ -85,6 +90,22 @@ class SpxCompilationUnitSymbolTable {
 		{	
 			_spxUnitStoreMap.remove(resInfoToUpdate.getRecId());
 		}
+	}
+	
+	/**
+	 * Returns SPXCompilationUnit mapped by the specified absPath argument.
+	 * 
+	 * @param absPath
+	 * @return
+	 */
+	public IStrategoTerm get(URI absPath)
+	{
+		String key = toAbsulatePath(absPath);
+		
+		SpxCompilationUnitInfo retUnitData= _infoMap.get(key);
+		
+		return _spxUnitStoreMap.get(retUnitData.getRecId());
+		
 	}
 	
 	
