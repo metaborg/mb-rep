@@ -39,10 +39,10 @@ public class SPX_index_compilation_unit extends AbstractPrimitive {
 		{
 			IStrategoString projectName = (IStrategoString)tvars[0];
 			IStrategoString spxCompilationUnitPath = (IStrategoString)tvars[1];
-			IStrategoAppl  spxCompilationUnitAST = (IStrategoAppl)tvars[2];
+			IStrategoAppl  compilationUnitRTree = (IStrategoAppl)tvars[2];
 			
 			try {
-				successStatement  = index.indexCompilationUnit(projectName ,  spxCompilationUnitPath ,  spxCompilationUnitAST);
+				successStatement  = index.indexCompilationUnit(projectName ,  spxCompilationUnitPath ,  compilationUnitRTree);
 			} 
 			catch(Exception ex)
 			{

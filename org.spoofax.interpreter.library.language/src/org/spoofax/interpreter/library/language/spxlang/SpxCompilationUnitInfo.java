@@ -14,13 +14,18 @@ class SpxCompilationUnitInfo implements Serializable
 {
 	private static final long serialVersionUID = 4874917828420267542L;
 
-	private long _recId;
+	private final long _recId;
 	
 	private int _version;
 	
-	private URI _absPath;
+	private final URI _absPath;
 	
-	public SpxCompilationUnitInfo( long recourceId, int versionNo, URI absPath)
+	public SpxCompilationUnitInfo(URI absPath,long recourceId)
+	{
+		this (0 , absPath , recourceId);
+	}
+	
+	public SpxCompilationUnitInfo( int versionNo, URI absPath,long recourceId)
 	{
 		_recId = recourceId;
 		_version = versionNo;
@@ -31,18 +36,10 @@ class SpxCompilationUnitInfo implements Serializable
 		return _recId;
 	}
 
-	void setRecId(long recId) {
-		this._recId = recId;
-	}
-
 	int getVersionNo() {
 		return _version;
 	}
-
-	void setVersionNo(int version) {
-		this._version = version;
-	}
-
+	
 	URI getAbsPath() {
 		return _absPath;
 	}
@@ -52,10 +49,23 @@ class SpxCompilationUnitInfo implements Serializable
 		return new File(getAbsPath()).getAbsolutePath();
 	}
 	
-	void setAbsPath(URI absPath) {
-		this._absPath = absPath;
+
+	void IncrementVersionNo()
+	{
+		_version = _version + 1;
 	}
+
 	
+	/**
+	 * Returns the Absolute Path of the given URI 
+	 * @param uri URI of the Resource. 
+	 * @return Absolute Path represented by the URI  
+	 */
+	public static String toAbsulatePath( URI uri)
+	{
+		return new File( uri).getAbsolutePath();
+		
+	}
 	public String toString() {
 		return "SpxComplicationUnitResourceInfo [ResourceId=" + _recId
 				+ ", VersionNo=" + _version + ", AbsPath=" + _absPath + "]";
