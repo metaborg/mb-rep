@@ -13,6 +13,8 @@ import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.jsglr.client.imploder.ImploderAttachment;
+import org.spoofax.terms.attachments.TermAttachmentStripper;
 
 
 
@@ -27,7 +29,8 @@ class SpxSemanticIndexFacade {
 	private final IOAgent _agent;
 
 	private final SpxSemanticIndexEntryFactory _entryFactory;
-
+	
+	private final TermAttachmentStripper stripper;
 	/**
 	 * Initializes the SemanticIndexFactory
 	 * @param projectName
@@ -39,14 +42,20 @@ class SpxSemanticIndexFacade {
 		_projectName = asJavaString(projectName);	
 		_entryFactory = new SpxSemanticIndexEntryFactory(termFactory);
 
-		//Initializes persistent manager
-		_persistenceManager = new SpxPersistenceManager(_projectName);
-
 		//Sets the Term Factory 
 		_termFactory = termFactory;
 
 		//IOAgent to handle URI
 		_agent = agent;
+		
+		stripper = new TermAttachmentStripper(termFactory);
+		
+		String projectAbsPath = _agent.getWorkingDir();
+		
+		//Initializes persistent manager
+		_persistenceManager = new SpxPersistenceManager(_projectName , projectAbsPath);
+
+		
 	}
 
 	/**
@@ -111,11 +120,7 @@ class SpxSemanticIndexFacade {
 		return _agent;
 	}
 
-	public void persistChanges() throws IOException 
-	{
-		_persistenceManager.commitAndClose();
-	}
-
+	
 	/**
 	 * Prints error message
 	 * 
@@ -139,8 +144,14 @@ class SpxSemanticIndexFacade {
 
 		URI resUri = toFileURI(spxCompilationUnitPath); // Converting IStrategoString to File URI 
 		
+		ImploderAttachment astAttachment = ImploderAttachment.getCompactPositionAttachment(spxCompilationUnitAST, true);
+		IStrategoTerm astTerm = stripper.strip(spxCompilationUnitAST);
+		astTerm.putAttachment(astAttachment);
+
+		//TODO : Implement Custom Serializer for the IStrategoTerm 
+		
 		SpxCompilationUnitSymbolTable table = _persistenceManager.spxCompilcationUnitTable();
-		table.define(resUri, spxCompilationUnitAST);
+		table.define(resUri, astTerm);
 	}
 
 	public IStrategoTerm getCompilationUnit(IStrategoString spxCompilationUnitPath)
@@ -159,5 +170,14 @@ class SpxSemanticIndexFacade {
 		SpxCompilationUnitSymbolTable table = _persistenceManager.spxCompilcationUnitTable();
 		
 		table.remove(resUri);
+	}
+	public void persistChanges() throws IOException 
+	{
+		_persistenceManager.commit();
+	}
+
+	public void close() throws IOException {
+		_persistenceManager.commitAndClose();
+		
 	}
 }

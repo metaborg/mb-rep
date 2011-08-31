@@ -25,25 +25,25 @@ class SpxPersistenceManager implements ISpxPersistenceManager {
 	//and perform operation on that.  
 	private final RecordManager _recordManager;
 	
-	private final String indexDirectory = ".index" ; //TODO : remove hardcoding  
+	private String indexDirectory;  
 	
 	private final SpxCompilationUnitSymbolTable _spxUnitsTable;  
 	
-	
-	//TODO : All the maps will be hosted by this  object 
-	public SpxPersistenceManager(String projectName) throws IOException
-	{
-		this( projectName, null);
+
+	public SpxPersistenceManager(String projectName, String projectAbsPath) throws IOException{
+		this(projectName, projectAbsPath+ "/.Index" , null);
 	}
 	
-	public SpxPersistenceManager (String projectName , Properties options) throws IOException
+	public SpxPersistenceManager (String projectName ,String indexDirectory, Properties options) throws IOException
 	{
+		this.indexDirectory = indexDirectory;
+		
 		// Creating empty properties collection if it is null
 		if( options  == null)
 			options = new Properties();
 		
 		// setting up the working directory for the Index 
-		options.put(RecordManagerOptions.INDEX_RELATIVE_PATH_OPTION, indexDirectory + "/" + projectName);
+		options.put(RecordManagerOptions.INDEX_RELATIVE_PATH_OPTION, indexDirectory + "/" + projectName + ".idx");
 	
 		//creating recordmanager for the particular project
 		_recordManager = RecordManagerFactory.createRecordManager(projectName , options);
@@ -51,7 +51,8 @@ class SpxPersistenceManager implements ISpxPersistenceManager {
 		_spxUnitsTable = new SpxCompilationUnitSymbolTable(projectName+"_spxUnitTable", this);
 	}
 	
-	
+		
+
 	/**
 	 * Instantiates a new HashMap 
 	 * 
@@ -84,7 +85,7 @@ class SpxPersistenceManager implements ISpxPersistenceManager {
 	 * Commits any unsaved changes to the disk 
 	 * @throws IOException
 	 */
-	void commit() throws IOException
+	public void commit() throws IOException
 	{
 		_recordManager.commit();
 	}

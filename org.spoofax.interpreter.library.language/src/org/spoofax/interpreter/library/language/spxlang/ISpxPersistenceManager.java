@@ -19,4 +19,6 @@ interface ISpxPersistenceManager {
 	public <K,V> PrimaryHashMap<K,V> loadHashMap ( String mapName);
 
 	public SpxCompilationUnitSymbolTable  spxCompilcationUnitTable();
+
+	public void commit() throws IOException;
 }

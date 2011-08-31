@@ -27,9 +27,13 @@ public class LanguageLibrary extends AbstractStrategoOperatorRegistry {
 		SpxSemanticIndex spxIndex= new SpxSemanticIndex();
 		
 		add(new SPX_index_init(spxIndex));
+		add(new SPX_index_close(spxIndex));
 		add(new SPX_index_save(spxIndex));
+		
 		add(new SPX_index_add_module(spxIndex));
+		
 		add(new SPX_index_compilation_unit(spxIndex));
+		add(new SPX_index_compilation_unit_get(spxIndex));
 	}
 
 	public String getOperatorRegistryName() {

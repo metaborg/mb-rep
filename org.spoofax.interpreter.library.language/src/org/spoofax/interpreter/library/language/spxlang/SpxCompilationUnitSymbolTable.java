@@ -23,8 +23,8 @@ class SpxCompilationUnitSymbolTable {
 	 */
 	public SpxCompilationUnitSymbolTable(String tableName , ISpxPersistenceManager manager)
 	{
-		_infoMap = manager.loadHashMap(tableName+ "._infomap");
-		_spxUnitStoreMap = manager.loadStoreMap(tableName + "._spxUnitStorageMap");
+		_infoMap = manager.loadHashMap(tableName+ "._infomap.idx");
+		_spxUnitStoreMap = manager.loadStoreMap(tableName + "._spxUnitStorageMap.idx");
 	}
 	
 	/**

@@ -55,5 +55,12 @@ class SpxSemanticIndexFacadeRegistry
 	{
 		_registry.clear();
 	}
+
+
+	public SpxSemanticIndexFacade removeFacade(IStrategoTerm projectName) {
+		String key = asJavaString(projectName);
+		
+		return _registry.remove(key);
+	}
 	
 }

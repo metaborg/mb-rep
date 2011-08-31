@@ -35,7 +35,7 @@ public class SPX_index_init extends AbstractPrimitive {
 			return false;
 
 		IStrategoString projectName = (IStrategoString)tvars[0];
-		
+	
 		return index.initialize(projectName , env.getFactory(), SSLLibrary.instance(env).getIOAgent());
 
 	}

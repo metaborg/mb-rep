@@ -16,13 +16,13 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
  * @author Md. Adil Akhter
  * Created On : Aug 25, 2011
  */
-public class SPX_index_save extends AbstractPrimitive {
+public class SPX_index_close extends AbstractPrimitive {
 
 	private static String NAME = "SPX_index_save";
 
 	private final SpxSemanticIndex index;
 
-	public SPX_index_save(SpxSemanticIndex index) {
+	public SPX_index_close(SpxSemanticIndex index) {
 		super(NAME, 0, 1);
 		this.index = index;
 	}
@@ -39,7 +39,7 @@ public class SPX_index_save extends AbstractPrimitive {
 		
 		try 
 		{
-			return index.save(tvars[0]);
+			return index.close(tvars[0]);
 		}
 		catch(Exception ex)
 		{
