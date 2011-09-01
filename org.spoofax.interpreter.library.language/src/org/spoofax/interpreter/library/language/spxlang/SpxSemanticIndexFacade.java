@@ -176,8 +176,9 @@ class SpxSemanticIndexFacade {
 		_persistenceManager.commit();
 	}
 
+	
 	public void close() throws IOException {
-		_persistenceManager.commitAndClose();
-		
+		if (! _persistenceManager.IsPersistenceManagerClosed())
+			_persistenceManager.commitAndClose();
 	}
 }

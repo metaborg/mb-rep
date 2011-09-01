@@ -153,7 +153,8 @@ public interface  RecordManager
     public abstract void close()
         throws IOException;
 
-
+    public boolean IsClosed();
+    
     /**
      * Empty cache. This may be usefull if you need to release memory.
      * 

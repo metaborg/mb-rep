@@ -93,54 +93,96 @@ public class SpxSemanticIndex {
 
 		boolean successStatement = false;
 		
-		SpxSemanticIndexFacade idxFacade = getFacade(projectName);
 		try {
+			SpxSemanticIndexFacade idxFacade = getFacade(projectName);
 			idxFacade.indexCompilationUnit( spxCompilationUnitPath, spxCompilationUnitAST);
-			successStatement = true; // setting the flag to indicate the operation is successful
+			successStatement =  true; // setting the flag to indicate the operation is successful
 		}
-		catch (Exception ex)
-		{	
-			idxFacade.printError( "[SPX_Index_CompilationUnit failed] Error : "+ ex.getMessage()) ;	//logging exception.
+		catch(IllegalStateException e)
+		{
+			tryCleanupResources(projectName);
+			throw e;
 		}
+		catch(Error er)
+		{
+			tryCleanupResources(projectName);
+			throw er;
+		}	
 		return successStatement;
 	}
 
 	public IStrategoTerm getCompilationUnit(IStrategoString projectName,
-			IStrategoString spxCompilationUnitPath) {
+			IStrategoString spxCompilationUnitPath) throws IllegalStateException{
 		
-		SpxSemanticIndexFacade idxFacade = getFacade(projectName);
-		
-		return idxFacade.getCompilationUnit(spxCompilationUnitPath);
+		try 
+		{
+			SpxSemanticIndexFacade idxFacade = getFacade(projectName);
+			
+			return idxFacade.getCompilationUnit(spxCompilationUnitPath);
+		}
+		catch(IllegalStateException e)
+		{
+			tryCleanupResources(projectName);
+			throw e;
+		}
+		catch(Error er)
+		{
+			tryCleanupResources(projectName);
+			throw er;
+		}	
 	}
 	
 	public boolean removeCompilationUnit(IStrategoString projectName,
-			IStrategoString spxCompilationUnitPath) {
+			IStrategoString spxCompilationUnitPath) throws IllegalStateException{
 		
 		boolean successStatement = false;
 		
-		SpxSemanticIndexFacade idxFacade = getFacade(projectName);
+		
 		try {
+			SpxSemanticIndexFacade idxFacade = getFacade(projectName);
 			idxFacade.removeCompilationUnit(spxCompilationUnitPath);
+			
 			successStatement = true; // setting the flag to indicate the operation is successful
 		}
-		catch (Exception ex)
-		{	
-			idxFacade.printError( "[SPX_Index_removeCompilationUnit failed] Error : "+ ex.getMessage()) ;	//logging exception.
+		catch(IllegalStateException exception)
+		{
+			tryCleanupResources(projectName);
+			throw exception;
+		}
+		catch(Error er)
+		{
+			tryCleanupResources(projectName);
+			throw er;
 		}
 		return successStatement;
 	}
 	
 	/**
 	 * Saves the indexes of the project specified by the projectName
-	 * @param projectName Term representation of the projectName 
+	 * @param tvars Term representation of the projectName 
 	 * @return true if the operation is successful ; otherwise false.
 	 * @throws IOException 
 	 */
-	public boolean save(IStrategoTerm projectName) throws IllegalStateException, IOException
+	public boolean save(IStrategoTerm tvars) throws IllegalStateException, IOException
 	{
-		SpxSemanticIndexFacade idxFacade = getFacade(projectName);
-		idxFacade.persistChanges();
-		return true;
+		boolean retValue = false; 
+		try
+		{
+			SpxSemanticIndexFacade idxFacade = getFacade(tvars);
+			idxFacade.persistChanges();
+			retValue = true;
+		}
+		catch(IllegalStateException e)
+		{
+			tryCleanupResources(tvars);
+			throw e;
+		}
+		catch(Error er)
+		{
+			tryCleanupResources(tvars);
+			throw er;
+		}
+		return retValue;
 	}
 	
 	public boolean close(IStrategoTerm projectName) throws IOException {
@@ -149,13 +191,25 @@ public class SpxSemanticIndex {
 		return true;
 	}
 	
+	private void tryCleanupResources( IStrategoTerm projectName){
+		
+		if ( _facadeRegistry.containsFacade(projectName))
+		{
+			SpxSemanticIndexFacade facade = _facadeRegistry.removeFacade(projectName);
+			try {
+				facade.close();
+			} catch (IOException e) {
+				facade.printError( "[SPXSemanticIndex] . Cleanup Failed due to following Error : "+ e.getMessage()) ;	//logging exception.
+			}
+		}	
+	}
+	
 	private SpxSemanticIndexFacade getFacade(IStrategoTerm projectName) {
 
 		SpxSemanticIndexFacade facade = _facadeRegistry.getFacade(projectName);
 		ensureInitialized(facade);
 		return facade;
 	}
-	
 	
 	private SpxSemanticIndexFacade removeFacade(IStrategoTerm projectName) {
 
@@ -168,6 +222,7 @@ public class SpxSemanticIndex {
 		if (idxFactory == null)
 			throw new IllegalStateException("Spoofaxlang Semantic index not initialized");
 	}
+	
 	
 	
 }

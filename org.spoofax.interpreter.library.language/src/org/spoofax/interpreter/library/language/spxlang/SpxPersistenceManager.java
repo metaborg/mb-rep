@@ -115,5 +115,11 @@ class SpxPersistenceManager implements ISpxPersistenceManager {
 		
 		return _spxUnitsTable;
 	}
+
+	public boolean IsPersistenceManagerClosed() {
+		
+		return _recordManager.IsClosed();
+		
+	}
 }
 

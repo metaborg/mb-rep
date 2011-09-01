@@ -21,4 +21,6 @@ interface ISpxPersistenceManager {
 	public SpxCompilationUnitSymbolTable  spxCompilcationUnitTable();
 
 	public void commit() throws IOException;
+	
+	public boolean IsPersistenceManagerClosed();
 }

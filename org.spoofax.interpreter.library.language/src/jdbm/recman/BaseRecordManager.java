@@ -695,6 +695,13 @@ public final class BaseRecordManager
         }
     }
 
+    public boolean IsClosed()
+    {
+    	if ( _physFile == null ) 
+    		return true;
+    	
+    	return false;
+    }
 
 	public synchronized void clearCache() throws IOException {
 		//no cache		

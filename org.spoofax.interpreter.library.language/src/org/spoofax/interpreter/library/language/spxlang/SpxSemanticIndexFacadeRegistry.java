@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import org.spoofax.interpreter.library.IOAgent;
+import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
@@ -62,5 +63,13 @@ class SpxSemanticIndexFacadeRegistry
 		
 		return _registry.remove(key);
 	}
+	
+	
+	public boolean containsFacade(IStrategoTerm projectName)
+	{
+		String key = asJavaString(projectName);
+		
+		return _registry.containsKey(key);
+	}	
 	
 }

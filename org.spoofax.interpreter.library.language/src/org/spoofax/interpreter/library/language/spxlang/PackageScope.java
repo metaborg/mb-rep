@@ -22,12 +22,10 @@ class PackageScope  extends BaseScope {
 		return getTermFactory().makeConstructor(_scopeType, 0);
 	}
 
-
 	@Override public Scope getEnclosingScope() {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -39,7 +37,6 @@ class PackageScope  extends BaseScope {
 				+ ((_scopeType == null) ? 0 : _scopeType.hashCode());
 		return result;
 	}
-
 	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
@@ -59,8 +56,6 @@ class PackageScope  extends BaseScope {
 			return false;
 		return true;
 	}
-
-	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */

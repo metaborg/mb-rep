@@ -549,6 +549,12 @@ public class CacheRecordManager
 		commit();
 		_recman.defrag();		
 	}
-  
 
+
+	public boolean IsClosed() {
+		if ( _recman == null )
+			return true;
+		return false;
+	}
+ 
 }

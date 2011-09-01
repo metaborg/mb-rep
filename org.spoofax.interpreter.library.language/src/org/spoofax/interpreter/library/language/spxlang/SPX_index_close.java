@@ -46,7 +46,5 @@ public class SPX_index_close extends AbstractPrimitive {
 			SSLLibrary.instance(env).getIOAgent().printError("["+NAME+"] Invokation failed. Error : "+ ex.getMessage());
 			return false;
 		}
-		
-	}
-
+	}	
 }
