@@ -20,21 +20,30 @@ class SpxSemanticIndexFacadeRegistry
 	final HashMap<String, SpxSemanticIndexFacade> _registry = new HashMap<String, SpxSemanticIndexFacade>();
 	
 	/**
-	 * Initializes the SemanticIndexFactory
+	 * Initializes the SemanticIndexFactory if the registry does not contain any mapping of existing Facade, or it 
+	 * has facade object in the registry , but the underlying persistence manager is closed.
+	 * 
 	 * @param projectName
 	 * @param factory
 	 * @throws IOException
 	 */
 	public void add(IStrategoTerm projectName , ITermFactory factory , IOAgent agent) throws IOException
 	{	
-		String projectNameString = asJavaString(projectName);
+		SpxSemanticIndexFacade fac = null;
 		
-		if ( !_registry.containsKey(projectNameString))
+		if ( !containsFacade(projectName))
+			fac = new SpxSemanticIndexFacade(projectName, factory, agent);
+		else
 		{
-			SpxSemanticIndexFacade fac = new SpxSemanticIndexFacade(projectName, factory, agent);
-			
-			_registry.put(fac.getProjectNameString(), fac);
+			SpxSemanticIndexFacade f = _registry.get(projectName);
+			if(f.isPersistenceManagerClosed())
+			{
+				fac = new SpxSemanticIndexFacade(projectName, factory, agent);
+			}	
 		}
+		
+		if(fac != null)
+			_registry.put(fac.getProjectNameString(), fac);
 	}
 	
 	

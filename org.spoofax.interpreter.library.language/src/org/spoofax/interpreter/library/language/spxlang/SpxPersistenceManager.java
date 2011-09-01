@@ -116,7 +116,7 @@ class SpxPersistenceManager implements ISpxPersistenceManager {
 		return _spxUnitsTable;
 	}
 
-	public boolean IsPersistenceManagerClosed() {
+	public boolean IsClosed() {
 		
 		return _recordManager.IsClosed();
 		

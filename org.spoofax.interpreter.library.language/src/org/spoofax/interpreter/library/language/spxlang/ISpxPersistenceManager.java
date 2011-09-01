@@ -22,5 +22,5 @@ interface ISpxPersistenceManager {
 
 	public void commit() throws IOException;
 	
-	public boolean IsPersistenceManagerClosed();
+	public boolean IsClosed();
 }
