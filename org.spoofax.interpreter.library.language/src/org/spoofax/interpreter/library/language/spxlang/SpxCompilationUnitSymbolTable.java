@@ -17,9 +17,11 @@ class SpxCompilationUnitSymbolTable {
 	
 	
 	/**
+	 * Creates a new instance of SymbolTable or loads existing SymbolTable with name specified  
+	 * in the following tableName argument.
 	 * 
-	 * @param tableName
-	 * @param manager
+	 * @param tableName name of the SymbolTable
+	 * @param manager an instance of IPersistenceManager
 	 */
 	public SpxCompilationUnitSymbolTable(String tableName , ISpxPersistenceManager manager)
 	{
@@ -28,8 +30,11 @@ class SpxCompilationUnitSymbolTable {
 	}
 	
 	/**
-	 * @param info
-	 * @param compilationUnit
+	 * Defines a new symbol table entry. If the entry is already present in the symboltable, 
+	 * it updates the existing entry by invoking {@link #update(URI, IStrategoTerm)}. 
+	 * 
+	 * @param absPath URI representing the absolute path of the Compilation Unit.   
+	 * @param compilationUnit compilation unit AST represented by {@link IStrategoTerm}
 	 */
 	public void define(URI absPath , IStrategoTerm compilationUnitRTree)
 	{	
@@ -42,8 +47,10 @@ class SpxCompilationUnitSymbolTable {
 	}
 	
 	/**
-	 * Adding the new CompilationUnit in this symbol table 
+	 * Adds the new CompilationUnit.
+	 * 
 	 * @param absPath
+	 * @param compilationUnitRTree
 	 */
 	private void add(URI absPath , IStrategoTerm compilationUnitRTree) 
 	{
@@ -58,7 +65,7 @@ class SpxCompilationUnitSymbolTable {
 	
 	
 	/**
-	 * Updates an Existing Table Entry 
+	 * Updates existing symbol table entry. 
 	 * 
 	 * @param absPath
 	 * @param compilationUnitRTree
@@ -107,8 +114,4 @@ class SpxCompilationUnitSymbolTable {
 		return _spxUnitStoreMap.get(retUnitData.getRecId());
 		
 	}
-	
-	
-	
-	
 }
