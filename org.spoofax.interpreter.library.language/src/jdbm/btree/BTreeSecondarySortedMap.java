@@ -15,7 +15,6 @@
  ******************************************************************************/
 package jdbm.btree;
 
-import java.io.IOError;
 import java.io.IOException;
 
 import jdbm.SecondaryTreeMap;
@@ -36,7 +35,10 @@ public class BTreeSecondarySortedMap<A,K,V> extends BTreeSortedMap<A,Iterable<K>
 		try {
 			return b.find(k);
 		} catch (IOException e) {
-			throw new IOError(e);
+			//TODO : Since IOError is introduced in Java1.6 and
+			//source code has to be compatible with Java1.5, 
+			//using Error instead of IOError.
+			throw new Error(e);
 		}
 	}
 

@@ -15,7 +15,6 @@
  ******************************************************************************/
 package jdbm.htree;
 
-import java.io.IOError;
 import java.io.IOException;
 import java.util.AbstractSet;
 import java.util.Iterator;
@@ -26,7 +25,7 @@ import jdbm.PrimaryHashMap;
 import jdbm.RecordListener;
 import jdbm.RecordManager;
 import jdbm.helper.AbstractPrimaryMap;
-
+import jdbm.helper.JbdmSimpleEntry;
 
 public class HTreeMap<K,V> extends AbstractPrimaryMap<K,V> implements PrimaryHashMap<K,V>{
 	
@@ -43,7 +42,7 @@ public class HTreeMap<K,V> extends AbstractPrimaryMap<K,V> implements PrimaryHas
 		return new AbstractSet<Entry<K,V>>(){
 			
 			protected Entry<K,V> newEntry(K k,V v){
-				return new SimpleEntry<K,V>(k,v){
+				return new JbdmSimpleEntry<K,V>(k,v){
 					private static final long serialVersionUID = 978651696969194154L;
 
 					public V setValue(V arg0) {
@@ -66,7 +65,7 @@ public class HTreeMap<K,V> extends AbstractPrimaryMap<K,V> implements PrimaryHas
 					tree.put(e.getKey(), e.getValue());
 					return true;
 				} catch (IOException e1) {
-					throw new IOError(e1);
+					throw new Error(e1);
 				}
 			}
 
@@ -78,7 +77,7 @@ public class HTreeMap<K,V> extends AbstractPrimaryMap<K,V> implements PrimaryHas
 						if(e.getKey()!=null && tree.find(e.getKey())!=null)
 							return true;
 					} catch (IOException e1) {
-						throw new IOError(e1);
+						throw new Error(e1);
 					}
 				}
 				return false;
@@ -100,7 +99,7 @@ public class HTreeMap<K,V> extends AbstractPrimaryMap<K,V> implements PrimaryHas
 							}else
 								next = null;
 						}catch (IOException e){
-							throw new IOError(e);
+							throw new Error(e);
 						}
 					}
 					{
@@ -134,7 +133,7 @@ public class HTreeMap<K,V> extends AbstractPrimaryMap<K,V> implements PrimaryHas
 					}};
 					
 				} catch (IOException e) {
-					throw new IOError(e);
+					throw new Error(e);
 				}
 					
 			}
@@ -157,7 +156,7 @@ public class HTreeMap<K,V> extends AbstractPrimaryMap<K,V> implements PrimaryHas
 						tree.remove(e.getKey());
 						return true;
 					} catch (IOException e1) {
-						throw new IOError(e1);
+						throw new Error(e1);
 					}
 				}
 				return false;
@@ -175,7 +174,7 @@ public class HTreeMap<K,V> extends AbstractPrimaryMap<K,V> implements PrimaryHas
 					}
 					return counter;
 				}catch (IOException e){
-					throw new IOError(e);
+					throw new Error(e);
 				}
 					
 			}
@@ -193,7 +192,7 @@ public class HTreeMap<K,V> extends AbstractPrimaryMap<K,V> implements PrimaryHas
 		}catch (ClassCastException e){
 			return null;
 		}catch (IOException e){
-			throw new IOError(e);
+			throw new Error(e);
 		}
 	}
 	
@@ -213,7 +212,7 @@ public class HTreeMap<K,V> extends AbstractPrimaryMap<K,V> implements PrimaryHas
 		}catch (ClassCastException e){
 			return null;
 		}catch (IOException e){
-			throw new IOError(e);
+			throw new Error(e);
 		}
 	}
 	
@@ -228,7 +227,7 @@ public class HTreeMap<K,V> extends AbstractPrimaryMap<K,V> implements PrimaryHas
 			tree.put(key, value);
 			return oldVal;
 		} catch (IOException e) {
-			throw new IOError(e);
+			throw new Error(e);
 		}
 	};
 	
@@ -241,7 +240,7 @@ public class HTreeMap<K,V> extends AbstractPrimaryMap<K,V> implements PrimaryHas
 			V v = tree.find((K) key);
 			return v!=null;
 		} catch (IOException e) {
-			throw new IOError(e);
+			throw new Error(e);
 		} catch (ClassCastException e){
 			return false;
 		}
@@ -271,7 +270,7 @@ public class HTreeMap<K,V> extends AbstractPrimaryMap<K,V> implements PrimaryHas
             while(keyIter.hasNext())
                 tree.remove(keyIter.next());
         }catch(IOException e){
-            throw new IOError(e);
+            throw new Error(e);
         }
     }
 

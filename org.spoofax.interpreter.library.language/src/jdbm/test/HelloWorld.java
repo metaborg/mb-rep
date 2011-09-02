@@ -1,18 +1,46 @@
 package jdbm.test;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
 import jdbm.RecordManager;
 import jdbm.RecordManagerFactory;
 
- /**
+
+import static java.lang.System.out;
+
+
+/**
  * This program demonstrates basic JDBM usage. Updated to support separate-chaining using PrimaryMap.
  * 
  * @author Jan Kotek
  * @author Adil Akhter
  */
+
+class VersionInfo
+{
+	private int _versionNO = 0;
+	
+	void Increment()
+	{
+		_versionNO = _versionNO + 1;
+	}
+	
+	int VersionNo()
+	{
+		return _versionNO;
+		
+	}
+
+	@Override
+	public String toString() {
+		return "VersionInfo [VersionNO=" + _versionNO + "]";
+	}
+	
+	
+}
 public class HelloWorld {
 	
 	public static void put( Map<Integer,LinkedList<String>> hashmap , int key, String value )
@@ -30,8 +58,9 @@ public class HelloWorld {
 		}
 	}
 	
-	public static void main(String[] args) throws IOException {
-
+	
+	public static void TestPrimaryMap() throws Exception
+	{
 		/** create (or open existing) database */
 		String fileName = "helloWorld2";
 		RecordManager recMan = RecordManagerFactory.createRecordManager(fileName);
@@ -79,7 +108,37 @@ public class HelloWorld {
 		
 		/** close record manager */
 		recMan.close();
+	}
+	
+	
+	public static void TestHashMap ()
+	{
+		HashMap<String, VersionInfo> info = new  HashMap<String, VersionInfo>();
 		
+		info.put("test", new VersionInfo());
+		
+		info.get("test").Increment();
+		
+		out.println(info.get("test").toString() );
+		
+		
+		info.get("test").Increment();
+		
+		out.println(info.get("test").toString() );
+		
+		
+		
+		info.put("test", new VersionInfo());
+		
+		info.get("test").Increment();
+		
+		out.println(info.get("test").toString() );
+		
+	}
+	
+	public static void main(String[] args) throws Exception {
+
+		TestPrimaryMap();
 		
 	}
 	

@@ -15,7 +15,6 @@
  ******************************************************************************/
 package jdbm.btree;
 
-import java.io.IOError;
 import java.io.IOException;
 import java.util.AbstractSet;
 import java.util.Comparator;
@@ -30,7 +29,7 @@ import jdbm.RecordManager;
 import jdbm.helper.AbstractPrimaryMap;
 import jdbm.helper.Tuple;
 import jdbm.helper.TupleBrowser;
-
+import jdbm.helper.JbdmSimpleEntry;
 
 public class BTreeSortedMap<K,V> extends AbstractPrimaryMap<K,V> implements PrimaryTreeMap<K,V>{
 	
@@ -58,7 +57,7 @@ public class BTreeSortedMap<K,V> extends AbstractPrimaryMap<K,V> implements Prim
 		return new AbstractSet<Entry<K,V>>(){
 			
 			protected Entry<K,V> newEntry(K k,V v){
-				return new SimpleEntry<K,V>(k,v){
+				return new JbdmSimpleEntry<K,V>(k,v){
 					private static final long serialVersionUID = 978651696969194154L;
 
 					public V setValue(V arg0) {
@@ -80,7 +79,7 @@ public class BTreeSortedMap<K,V> extends AbstractPrimaryMap<K,V> implements Prim
 						throw new IllegalArgumentException("key outside of bounds");
 					return tree.insert(e.getKey(), e.getValue(), true) == null;
 				} catch (IOException e1) {
-					throw new IOError(e1);
+					throw new Error(e1);
 				}
 			}
 
@@ -95,7 +94,7 @@ public class BTreeSortedMap<K,V> extends AbstractPrimaryMap<K,V> implements Prim
 						if(e.getKey()!=null && tree.find(e.getKey())!=null)
 							return true;
 					} catch (IOException e1) {
-						throw new IOError(e1);
+						throw new Error(e1);
 					}
 				}
 				return false;
@@ -118,7 +117,7 @@ public class BTreeSortedMap<K,V> extends AbstractPrimaryMap<K,V> implements Prim
 							else
 								next = null;
 						} catch (IOException e1) {
-							throw new IOError(e1);
+							throw new Error(e1);
 						}						
 					}
 					{
@@ -153,7 +152,7 @@ public class BTreeSortedMap<K,V> extends AbstractPrimaryMap<K,V> implements Prim
 					}};
 					
 				} catch (IOException e) {
-					throw new IOError(e);
+					throw new Error(e);
 				}
 					
 			}
@@ -178,7 +177,7 @@ public class BTreeSortedMap<K,V> extends AbstractPrimaryMap<K,V> implements Prim
 						V v2 = tree.remove(e.getKey());
 						return v2!=null;
 					} catch (IOException e1) {
-						throw new IOError(e1);
+						throw new Error(e1);
 					}
 				}
 				return false;
@@ -225,7 +224,7 @@ public class BTreeSortedMap<K,V> extends AbstractPrimaryMap<K,V> implements Prim
 		}catch (ClassCastException e){
 			return null;
 		}catch (IOException e){
-			throw new IOError(e);
+			throw new Error(e);
 		}
 	}
 	
@@ -244,7 +243,7 @@ public class BTreeSortedMap<K,V> extends AbstractPrimaryMap<K,V> implements Prim
 		}catch (ClassCastException e){
 			return null;
 		}catch (IOException e){
-			throw new IOError(e);
+			throw new Error(e);
 		}
 	}
 	
@@ -259,7 +258,7 @@ public class BTreeSortedMap<K,V> extends AbstractPrimaryMap<K,V> implements Prim
 				throw new IllegalArgumentException("out of bounds");
 			return tree.insert(key, value, true);
 		} catch (IOException e) {
-			throw new IOError(e);
+			throw new Error(e);
 		}
 	};
 	
@@ -274,7 +273,7 @@ public class BTreeSortedMap<K,V> extends AbstractPrimaryMap<K,V> implements Prim
 			V v = tree.find((K) key);
 			return v!=null;
 		} catch (IOException e) {
-			throw new IOError(e);
+			throw new Error(e);
 		} catch (ClassCastException e){
 			return false;
 		}
@@ -293,7 +292,7 @@ public class BTreeSortedMap<K,V> extends AbstractPrimaryMap<K,V> implements Prim
 			b.getNext(t);
 			return t.getKey();
 		}catch(IOException e){
-			throw new IOError(e);
+			throw new Error(e);
 		}
 	}
 	
@@ -306,7 +305,7 @@ public class BTreeSortedMap<K,V> extends AbstractPrimaryMap<K,V> implements Prim
 			b.getPrevious(t);
 			return t.getKey();
 		}catch(IOException e){
-			throw new IOError(e);
+			throw new Error(e);
 		}
 	}
 

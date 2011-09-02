@@ -11,17 +11,18 @@ import jdbm.SecondaryHashMap;
 import jdbm.SecondaryKeyExtractor;
 import jdbm.SecondaryTreeMap;
 
+import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.terms.TermFactory;
 
-
 class SpxModuleLookupTable {
-
+	
+	private final PrimaryHashMap<IStrategoList, IStrategoAppl> _moduleDefinition;
+	private final PrimaryHashMap<IStrategoList, IStrategoAppl> _moduleAnalyzedDefinition;
+	
 	private final PrimaryHashMap<IStrategoList, ModuleDeclaration> _moduleLookupMap;
 	private final SecondaryTreeMap <String , IStrategoList , ModuleDeclaration> _uriMap;
-
 	private final SecondaryHashMap<IStrategoList, IStrategoList,ModuleDeclaration> _enclosingPackageIdReferences;
-	
 
 	/**
 	 * Instantiates a lookup table for the base constructs (e.g. , packages and modules)of  Spoofaxlang.
@@ -36,7 +37,7 @@ class SpxModuleLookupTable {
 		
 		_moduleLookupMap = manager.loadHashMap(tableName+ "._lookupModuleMap.idx");
 		
-		// readonly secondary view of the the lookup table . 
+		// read-only secondary view of the the lookup table . 
 		_uriMap = _moduleLookupMap.secondaryTreeMap(tableName+ "._urimap.idx", 
 				new SecondaryKeyExtractor<String, IStrategoList, ModuleDeclaration>() {
 
@@ -68,6 +69,9 @@ class SpxModuleLookupTable {
 			}
 		}
 		);
+		
+		this._moduleDefinition = manager.loadHashMap(tableName+ "._moduleDefinition.idx");
+		this._moduleAnalyzedDefinition = manager.loadHashMap(tableName+ "._moduleAnalyzedDefinition.idx");
 	}
 	
 	/**
@@ -81,6 +85,17 @@ class SpxModuleLookupTable {
 		_moduleLookupMap.put(decl.getId(), decl);
 		
 	}
+	
+	public void addModuleDefinition(IStrategoList id, IStrategoAppl moduleDefinition)
+	{
+		_moduleDefinition.put(id, moduleDefinition);
+	}
+	
+	public void addAnalyzedModuleDefinition(IStrategoList id, IStrategoAppl moduleDefinition)
+	{
+		_moduleAnalyzedDefinition.put(id, moduleDefinition);
+	}
+	
 	/**
 	 * Removes {@link BaseConstructDeclaration} from the lookup table mapped by the {@code id}
 	 * 
@@ -89,8 +104,19 @@ class SpxModuleLookupTable {
 	 */
 	public ModuleDeclaration remove(IStrategoList id)
 	{
+		if ( containsModuleDeclaration(id))
+		{
+			//removing module definition and analyzed module definition
+			
+			this._moduleDefinition.remove(id);
+			this._moduleAnalyzedDefinition.remove(id);
+		}
+		
+		//removing module declaration from the table 
+		//and returning it.
 		return _moduleLookupMap.remove(id);
 	}
+	
 	/**
 	 * Returns {@link BaseConstructDeclaration} that is mapped by the specified {@code id} argument.
 	 * 
@@ -101,11 +127,21 @@ class SpxModuleLookupTable {
 		return _moduleLookupMap.get(id);
 	}
 	
-	
 	public boolean containsModuleDeclaration(IStrategoList id)
 	{
 		return _moduleLookupMap.containsKey(id);
 	}
+	
+	public IStrategoAppl getModuleDefinition(IStrategoList id)
+	{
+		return this._moduleDefinition.get(id);
+	}
+	
+	public IStrategoAppl getAnalyzedModuleDefinition(IStrategoList id)
+	{
+		return this._moduleAnalyzedDefinition.get(id);
+	}
+	
 	/**
 	 * Returns ModuleDeclarations mapped by absPath
 	 * 
@@ -118,10 +154,8 @@ class SpxModuleLookupTable {
 	
 		for ( IStrategoList l: _uriMap.get(absUri))
 			ret.add(_uriMap.getPrimaryValue(l));
-		
 		return ret;
 	}
-	
 	
 	public Iterable<ModuleDeclaration> moduleDeclarationsByPackageId(IStrategoList packageID)
 	{
@@ -129,18 +163,15 @@ class SpxModuleLookupTable {
 	
 		for ( IStrategoList l: _enclosingPackageIdReferences.get(packageID))
 			ret.add(_enclosingPackageIdReferences.getPrimaryValue(l));
-		
 		return ret;
 	}
 	
-
 	public IStrategoList packageId(IStrategoList moduleId)
 	{
 		if( containsModuleDeclaration(moduleId))
 		{
 			return get(moduleId).enclosingPackageID;
 		}	
-		
 		return null;
 	}
 	
@@ -153,8 +184,6 @@ class SpxModuleLookupTable {
 	public static void main(String[] args) throws IOException { 
 		//TODO :  add actual unit tests
 		//TODO :  add reference to JUnit  
-	 
-		
 		ISpxPersistenceManager manager = new SpxPersistenceManager( "test" , "c:/temp");
 		
 		SpxModuleLookupTable lookupTable = new SpxModuleLookupTable("lookup", manager);

@@ -59,7 +59,7 @@ public class HTree<K,V> implements JdbmBase<K,V>
                     throw new InternalError("Wrong HTree header: "+i);
                 }
             }catch(ClassNotFoundException e){
-                throw new IOException(e);
+                throw new IOException(e.getMessage());
             }
 
         }

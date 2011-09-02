@@ -18,7 +18,6 @@ package jdbm.htree;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.IOError;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -480,7 +479,7 @@ final class HashDirectory <K,V>
               try {
                 prepareNext();
               } catch ( IOException except ) {
-                throw new IOError( except );
+                throw new Error( except );
               }
               if ( _iter != null && _iter.hasNext() ) {
                 return next2();

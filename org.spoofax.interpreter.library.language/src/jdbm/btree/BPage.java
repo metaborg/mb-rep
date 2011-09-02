@@ -1058,7 +1058,7 @@ public final class BPage<K,V>
           try {
               readValues(ois, bpage);
           } catch ( ClassNotFoundException except ) {
-              throw new IOException( except);
+        	  throw new IOException(except.getMessage());
           }
       } else {
           bpage._children = new long[ _btree._pageSize ];
@@ -1129,10 +1129,22 @@ public final class BPage<K,V>
 		  }
 	}
 
+	 private static Object[] copyOfRange(Object[] original, int from, int to) {
+	        int newLength = to - from;
+	        if (newLength < 0)
+	            throw new IllegalArgumentException(from + " > " + to);
+	        Object[] copy = new Object[newLength];
+	        System.arraycopy(original, from, copy, 0,
+	                         Math.min(original.length - from, newLength));
+	        return copy;
+	    }
 
+	 
 	private void writeValues(SerializerOutput oos, BPage<K, V> bpage) throws IOException {
 		if ( _btree.valueSerializer == null || _btree.valueSerializer == DefaultSerializer.INSTANCE ) {
-			Object[] vals2 = Arrays.copyOfRange(bpage._values, bpage._first, bpage._values.length);
+			
+			Object[] vals2 = copyOfRange(bpage._values, bpage._first, bpage._values.length);
+			
 			Serialization.writeObject(oos, vals2);
 		}else{
 			for ( int i=bpage._first; i<_btree._pageSize; i++ ) {                                                

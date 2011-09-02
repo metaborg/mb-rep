@@ -20,7 +20,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.IOError;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.channels.FileLock;
@@ -564,7 +563,7 @@ public final class BaseRecordManager
 			else
 				return serializer.deserialize( insertIn );
 		}catch(ClassNotFoundException e){
-			throw new IOError(e);
+			throw new Error(e);
 		}
 	}
 

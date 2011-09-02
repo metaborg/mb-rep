@@ -15,7 +15,6 @@
  ******************************************************************************/
 package jdbm.helper;
 
-import java.io.IOError;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -333,7 +332,7 @@ final public class SecondaryKeyHelper {
     		HTreeSecondaryMap<A, K, V> ret = new HTreeSecondaryMap<A, K, V>(secTree, b);
     		return ret;
     	}catch (IOException e){
-    		throw new IOError(e);
+    		throw new Error(e);
     	}
     }
 
@@ -348,7 +347,7 @@ final public class SecondaryKeyHelper {
     		BTreeSecondarySortedMap<A, K, V> ret = new BTreeSecondarySortedMap<A, K, V>(secTree, b);
     		return ret;
     	}catch (IOException e){
-    		throw new IOError(e);
+    		throw new Error(e);
     	}
     }
     
@@ -361,7 +360,7 @@ final public class SecondaryKeyHelper {
     		HTreeSecondaryMap<A, K, V> ret = new HTreeSecondaryMap<A, K, V>(secTree, b);
     		return ret;
     	}catch (IOException e){
-    		throw new IOError(e);
+    		throw new Error(e);
     	}
     }
 
@@ -375,7 +374,7 @@ final public class SecondaryKeyHelper {
     		BTreeSecondarySortedMap<A, K, V> ret = new BTreeSecondarySortedMap<A, K, V>(secTree, b);
     		return ret;
     	}catch (IOException e){
-    		throw new IOError(e);
+    		throw new Error(e);
     	}
     }
 
@@ -442,7 +441,7 @@ final public class SecondaryKeyHelper {
 						try {
 							return b.find(iter.next());
 						} catch (IOException e) {
-							throw new IOError(e);
+							throw new Error(e);
 						}
 					}
 

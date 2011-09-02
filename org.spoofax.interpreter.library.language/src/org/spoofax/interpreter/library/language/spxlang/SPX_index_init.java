@@ -35,9 +35,15 @@ public class SPX_index_init extends AbstractPrimitive {
 			return false;
 
 		IStrategoString projectName = (IStrategoString)tvars[0];
-	
-		return index.initialize(projectName , env.getFactory(), SSLLibrary.instance(env).getIOAgent());
-
+		try
+		{
+			return index.initialize(projectName , env.getFactory(), SSLLibrary.instance(env).getIOAgent());
+		}
+		catch(Exception ex)
+		{
+			SSLLibrary.instance(env).getIOAgent().printError("["+NAME+"] Invokation failed. Error : "+ ex.getMessage());
+			return false;
+		}
 	}
 
 }

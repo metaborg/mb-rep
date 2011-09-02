@@ -17,7 +17,6 @@ package jdbm.helper;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.IOError;
 import java.io.IOException;
 
 import jdbm.RecordManager;
@@ -46,7 +45,7 @@ public class StoreReference<E> {
 		try {
 			recid = recman.insert(val, serializer);
 		} catch (IOException e) {
-			throw new IOError(e);
+			throw new Error(e);
 		}
 	}
 	
@@ -61,7 +60,7 @@ public class StoreReference<E> {
 		if(recid!=-1)try{			
 			return recman2.fetch(recid,serializer2);
 		}catch(IOException e){
-			throw new IOError(e);
+			throw new Error(e);
 		}
 		throw new IllegalStateException("Should not be here");			
 	}
@@ -95,7 +94,7 @@ public class StoreReference<E> {
 		try {
 			recordManager.delete(recid);
 		} catch (IOException e) {
-			throw new IOError(e);
+			throw new Error(e);
 		}
 	}
 	

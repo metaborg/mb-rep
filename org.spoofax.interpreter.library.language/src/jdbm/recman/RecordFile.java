@@ -127,9 +127,9 @@ final class RecordFile {
         try{
         	f0.tryLock();
         }catch(IOException e){
-        	throw new IOException("Could not lock DB file: "+fileName,e);
+        	throw new IOException("Could not lock DB file: "+fileName);
         }catch(OverlappingFileLockException e){
-            throw new IOException("Could not lock DB file: "+fileName,e);
+            throw new IOException("Could not lock DB file: "+fileName);
         }
         txnMgr = new TransactionManager(this);
 	}

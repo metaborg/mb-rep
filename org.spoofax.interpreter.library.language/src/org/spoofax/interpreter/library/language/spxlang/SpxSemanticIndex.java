@@ -46,22 +46,27 @@ public class SpxSemanticIndex {
 	 * @param termFactory Term Factory  
 	 * @param agent IOAgent responsible for providing IO operations.
 	 * @return true if the operation is successful ; false otherwise.
+	 * @throws IOException 
 	 */
-	public boolean initialize(IStrategoTerm projectName,  ITermFactory termFactory, IOAgent agent) 
+	public boolean initialize(IStrategoTerm projectName,  ITermFactory termFactory, IOAgent agent) throws IOException 
 	{
 		try
 		{	// Adding a new entry of the facade for the project 
 			// in the registry. 
 			_facadeRegistry.add(projectName, termFactory, agent) ;
-			
+
 			return true; 
 		}
-		catch (IOException ex)
+		catch(IllegalStateException e)
 		{
-			agent.printError("[SPX_Index_Initialize] Error : "+ex.getMessage());
-			
-			return false;	
+			tryCleanupResources(projectName);
+			throw e;
 		}
+		catch(Error er)
+		{
+			tryCleanupResources(projectName);
+			throw er;
+		}	
 	}
 
 

@@ -15,7 +15,7 @@
  ******************************************************************************/
 package jdbm.helper;
 
-import java.io.IOError;
+
 import java.io.IOException;
 import java.util.AbstractSet;
 import java.util.Iterator;
@@ -70,7 +70,7 @@ public class PrimaryStoreMapImpl<K extends Long, V> extends AbstractPrimaryMap<L
 			map.put(recid, "");
 			return recid;
 		} catch (IOException e) {
-			throw new IOError(e);
+			throw new Error(e);
 		}
 
 	}	
@@ -95,12 +95,12 @@ public class PrimaryStoreMapImpl<K extends Long, V> extends AbstractPrimaryMap<L
 		return map.containsKey(key);
 	}
 
-
+	
 	public Set<java.util.Map.Entry<Long, V>> entrySet() {
 		return new AbstractSet<java.util.Map.Entry<Long,V>>(){
 			
 			protected java.util.Map.Entry<Long,V> newEntry(Long k,V v){
-				return new SimpleEntry<Long,V>(k,v){
+				return new JbdmSimpleEntry<Long,V>(k,v){
 
 					public V setValue(V arg0) {
 						throw new UnsupportedOperationException();
@@ -182,7 +182,7 @@ public class PrimaryStoreMapImpl<K extends Long, V> extends AbstractPrimaryMap<L
 		try {
 			return getRecordManager().fetch((Long)key,valueSerializer);
 		} catch (IOException e) {
-			throw new IOError(e);
+			throw new Error(e);
 		}
 	}
 
@@ -201,7 +201,7 @@ public class PrimaryStoreMapImpl<K extends Long, V> extends AbstractPrimaryMap<L
 					listener.recordUpdated(key, oldVal, value);
 				return oldVal;
 			} catch (IOException e) {
-				throw new IOError(e);
+				throw new Error(e);
 			}
 			
 		}else{			
@@ -218,7 +218,7 @@ public class PrimaryStoreMapImpl<K extends Long, V> extends AbstractPrimaryMap<L
 			map.remove(key);		
 			return v;
 		}catch (IOException e){
-			throw new IOError(e);
+			throw new Error(e);
 		}
 	}
 

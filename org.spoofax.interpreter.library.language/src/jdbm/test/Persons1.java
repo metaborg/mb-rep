@@ -76,6 +76,10 @@ public class Persons1 {
 		
 	}
 		
+	/**
+	 * @param args
+	 * @throws IOException
+	 */
 	public static void main(String[] args) throws IOException {
 		//init Record Manager and dao
 		RecordManager recman = RecordManagerFactory.createRecordManager("persons1");
@@ -105,19 +109,38 @@ public class Persons1 {
 		Person paul = new Person("Paul Moore", 
 				new Address("Shop street", "Galway","Ireland"),
 				patrick.name);
+		
 		personsByName.put(paul.name, paul	);
+		
+		Person abdul = new Person("abdul akhter", 
+				new Address("Shop street", "dhaka","Bangladesh"),
+				patrick.name);
+		
+		personsByName.put(abdul.name, abdul);
+		
+		Person adil  = new Person("adil akhter", 
+				new Address("Shop street", "dhaka","Bangladesh"),
+				patrick.name);
+		
+		personsByName.put(adil.name, adil );
+		
 
+		Person adil1  = new Person("adil akhter", 
+				new Address("Shop street", "dhaka","Bangladesh"),
+				patrick.name);
+		
+		personsByName.put(adil1.name, adil );
 		
 					
 		System.out.println("Number of persons: "+personsByName.size());
 		
-		System.out.println("Persons with name Patrick Moore: "+personsByName.get("Patrick Moore"));
+		System.out.println("Persons with name adil akhter: "+personsByName.find("adil akhter"));
 		System.out.println("Name of persons living in Galway: "+personsByTown.get("Galway"));
 		System.out.println("Father of Paul Moore: "+
 				personsByName.get(
 						personsByName.get("Paul Moore").fatherName
 					));
-
+		System.out.println("Name of persons living in Dhaka: "+personsByTown.get("dhaka"));
 	}
 	
 }

@@ -15,7 +15,6 @@
  ******************************************************************************/
 package jdbm.htree;
 
-import java.io.IOError;
 import java.io.IOException;
 
 import jdbm.SecondaryHashMap;
@@ -34,7 +33,7 @@ public class HTreeSecondaryMap<A,K,V> extends HTreeMap<A,Iterable<K>> implements
 		try {
 			return b.find(k);
 		} catch (IOException e) {
-			throw new IOError(e);
+			throw new Error(e);
 		}
 	}
 

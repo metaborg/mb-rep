@@ -71,7 +71,10 @@ public class DefaultSerializer
          try {
             return in.readObject();
          } catch ( ClassNotFoundException except ) {
-            throw new IOException( except );
+	         //TODO : Add custom IOEXception that can accept except as 
+	         //an inner exception. 
+	         //Due to compatibility issue , changed to Java1.5 IOException 
+            throw new IOException( except.getMessage() );
          }
      }
 

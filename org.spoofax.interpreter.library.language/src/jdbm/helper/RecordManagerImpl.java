@@ -15,7 +15,6 @@
  ******************************************************************************/
 package jdbm.helper;
 
-import java.io.IOError;
 import java.io.IOException;
 import java.util.Comparator;
 
@@ -57,7 +56,7 @@ public abstract class RecordManagerImpl implements RecordManager{
 			}
 			return tree.asMap();
 		}catch(IOException  e){
-			throw new IOError(e);
+			throw new Error(e);
 		}
 	}
 
@@ -107,7 +106,7 @@ public abstract class RecordManagerImpl implements RecordManager{
 			
 			return tree.asMap();
 		}catch(IOException  e){
-			throw new IOError(e);
+			throw new Error(e);
 		}	
 	}
 
@@ -126,7 +125,7 @@ public abstract class RecordManagerImpl implements RecordManager{
 			}
 			return new PrimaryStoreMapImpl<Long, V>(tree.asMap(),valueSerializer);
 		}catch(IOException  e){
-			throw new IOError(e);
+			throw new Error(e);
 		}	
 	}
 	

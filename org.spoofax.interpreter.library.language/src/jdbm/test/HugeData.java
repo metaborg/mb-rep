@@ -18,8 +18,8 @@ public class HugeData {
 	public static void main(String[] args) throws IOException {
 
 		/** open db */
-        RecordManager recman = RecordManagerFactory.createRecordManager( "hugedata");        
-        PrimaryTreeMap<Long, String> m = recman.treeMap("hugemap");
+        RecordManager recman = RecordManagerFactory.createRecordManager( "hugedata1");        
+        PrimaryTreeMap<Long, String> m = recman.treeMap("hugemap1");
         
         /** insert 1e7 records */
         for(long i = 0;i<1e8;i++){
