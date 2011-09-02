@@ -7,6 +7,10 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 /*
  * This interface defines Scope for semantic index.
  * */
+/**
+ * @author Md. Adil Akhter
+ * Created On : Sep 1, 2011
+ */
 interface Scope 
 {
 	public IStrategoTerm getScopeId();

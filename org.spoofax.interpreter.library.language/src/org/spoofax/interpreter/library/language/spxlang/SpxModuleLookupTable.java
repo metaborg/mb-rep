@@ -53,7 +53,6 @@ class SpxModuleLookupTable {
 		}
 		);
 		
-		
 		_enclosingPackageIdReferences = _moduleLookupMap.secondaryHashMap(tableName+ "._enclosingPackageIdReferences.idx", 
 				new SecondaryKeyExtractor<IStrategoList, IStrategoList, ModuleDeclaration>() {
 
@@ -102,6 +101,11 @@ class SpxModuleLookupTable {
 		return _moduleLookupMap.get(id);
 	}
 	
+	
+	public boolean containsModuleDeclaration(IStrategoList id)
+	{
+		return _moduleLookupMap.containsKey(id);
+	}
 	/**
 	 * Returns ModuleDeclarations mapped by absPath
 	 * 
@@ -127,6 +131,17 @@ class SpxModuleLookupTable {
 			ret.add(_enclosingPackageIdReferences.getPrimaryValue(l));
 		
 		return ret;
+	}
+	
+
+	public IStrategoList packageId(IStrategoList moduleId)
+	{
+		if( containsModuleDeclaration(moduleId))
+		{
+			return get(moduleId).enclosingPackageID;
+		}	
+		
+		return null;
 	}
 	
 	/**

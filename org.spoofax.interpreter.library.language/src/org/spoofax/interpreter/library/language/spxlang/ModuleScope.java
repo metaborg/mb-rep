@@ -17,9 +17,9 @@ class ModuleScope extends BaseScope
 	private final String _scopeType = "Module" ;
 	
 	private URI _file; 
-	
 	/**
-	 * Instantiates ModuleScope 
+	 * Instantiates ModuleScope.  
+	 * 
 	 * @param id refers to the ID of the Scope
 	 * @param enclosingScope refers to the enclosing scope. It
 	 * provides a reference to the container of the current Scope.  
@@ -41,7 +41,7 @@ class ModuleScope extends BaseScope
 	public IStrategoTerm getType() {
 		return getTermFactory().makeConstructor(_scopeType, 0);
 	}
-	
+
 	/* 
 	 * (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
@@ -99,7 +99,4 @@ class ModuleScope extends BaseScope
 				+",enclosingScope=" + _enclosingScope
 				+ ", _scopeType=" + _scopeType + ", _file=" + _file ;
 	}
-
-	
-	
 }

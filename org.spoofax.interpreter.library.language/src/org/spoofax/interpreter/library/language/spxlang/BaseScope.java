@@ -38,8 +38,7 @@ abstract class BaseScope implements Scope {
 	}
 	
 	public abstract IStrategoTerm getType(); 
-	
-	
+
 	/* 
 	 * Returns the enclosing scope of the current scope.
 	 * */
@@ -71,7 +70,7 @@ abstract class BaseScope implements Scope {
 			return false;
 		return true;
 	}
-
+	
 	/* Gets the URI of the current scope. Returns Null is scope is not associated with 
 	 * any URI.
 	 * 

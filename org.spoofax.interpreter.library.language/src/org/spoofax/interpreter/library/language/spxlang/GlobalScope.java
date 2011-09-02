@@ -19,6 +19,4 @@ class GlobalScope extends BaseScope {
 		
 		return getTermFactory().makeConstructor(_scopeType, 0);
 	}
-	
-	
 }
