@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.net.URI;
 
 /**
- * Represent information regarding Spoofaxlang CompilationUnit 
+ * Contains information regarding Spoofaxlang CompilationUnit. 
  * 
  * @author Md. Adil Akhter
  * Created On : Aug 29, 2011
@@ -48,14 +48,12 @@ class SpxCompilationUnitInfo implements Serializable
 	{
 		return new File(getAbsPath()).getAbsolutePath();
 	}
-	
 
 	void IncrementVersionNo()
 	{
 		_version = _version + 1;
 	}
 
-	
 	/**
 	 * Returns the Absolute Path of the given URI 
 	 * @param uri URI of the Resource. 

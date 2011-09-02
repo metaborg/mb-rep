@@ -261,10 +261,13 @@ class ModuleDeclaration extends BaseConstructDeclaration
 	
 	final String resourceAbsPath; 
 	
-	public ModuleDeclaration(String resourceAbsPath, IStrategoList id) {
+	final IStrategoList enclosingPackageID;
+	
+	public ModuleDeclaration(String resourceAbsPath, IStrategoList id , IStrategoList packageID) {
 		super(id);
 		
 		this.resourceAbsPath = resourceAbsPath;
+		this.enclosingPackageID = packageID;
 	}
 
 	/* (non-Javadoc)
@@ -272,8 +275,9 @@ class ModuleDeclaration extends BaseConstructDeclaration
 	 */
 	@Override
 	public String toString() {
-		return "ModuleDeclaration [resourceAbsPath=" + resourceAbsPath
-				+ ", id=" + id + "]";
+		return "ModuleDeclaration [ id= " + id 
+				+ ", packageId ="+ enclosingPackageID 
+				+ ", resourceAbsPath= " + resourceAbsPath+ "]";
 	}
 
 	/* (non-Javadoc)
@@ -285,6 +289,9 @@ class ModuleDeclaration extends BaseConstructDeclaration
 		int result = super.hashCode();
 		result = prime * result
 				+ ((resourceAbsPath == null) ? 0 : resourceAbsPath.hashCode());
+		
+		result = prime * result + ((enclosingPackageID == null) ? 0 : enclosingPackageID.hashCode());
+		
 		return result;
 	}
 
@@ -305,6 +312,13 @@ class ModuleDeclaration extends BaseConstructDeclaration
 				return false;
 		} else if (!resourceAbsPath.equals(other.resourceAbsPath))
 			return false;
+		
+		if (enclosingPackageID == null) {
+			if (other.enclosingPackageID!= null)
+				return false;
+		} else if (!enclosingPackageID.match(other.enclosingPackageID))
+			return false;
+		
 		return true;
 	}
 }
@@ -372,5 +386,4 @@ class PackageDeclaration extends BaseConstructDeclaration
 		return true;
 	}
 }
-
 

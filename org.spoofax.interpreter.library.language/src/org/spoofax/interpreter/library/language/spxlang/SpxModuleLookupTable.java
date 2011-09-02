@@ -5,7 +5,9 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import jdbm.InverseHashView;
 import jdbm.PrimaryHashMap;
+import jdbm.SecondaryHashMap;
 import jdbm.SecondaryKeyExtractor;
 import jdbm.SecondaryTreeMap;
 
@@ -17,6 +19,9 @@ class SpxModuleLookupTable {
 
 	private final PrimaryHashMap<IStrategoList, ModuleDeclaration> _moduleLookupMap;
 	private final SecondaryTreeMap <String , IStrategoList , ModuleDeclaration> _uriMap;
+
+	private final SecondaryHashMap<IStrategoList, IStrategoList,ModuleDeclaration> _enclosingPackageIdReferences;
+	
 
 	/**
 	 * Instantiates a lookup table for the base constructs (e.g. , packages and modules)of  Spoofaxlang.
@@ -47,6 +52,23 @@ class SpxModuleLookupTable {
 			}
 		}
 		);
+		
+		
+		_enclosingPackageIdReferences = _moduleLookupMap.secondaryHashMap(tableName+ "._enclosingPackageIdReferences.idx", 
+				new SecondaryKeyExtractor<IStrategoList, IStrategoList, ModuleDeclaration>() {
+
+			/**
+			 * Returns the Secondary key of the lookup table. 
+			 *   
+			 * @param key current primary key 
+			 * @param value value to be mapped using primary key
+			 * @return secondary key to map the value with . 
+			 */
+			public IStrategoList extractSecondaryKey(IStrategoList key, ModuleDeclaration value) {
+				return value.enclosingPackageID;
+			}
+		}
+		);
 	}
 	
 	/**
@@ -57,7 +79,8 @@ class SpxModuleLookupTable {
 	 */
 	public void define(ModuleDeclaration decl)
 	{	
-		_moduleLookupMap.put(decl.getId(), decl);  
+		_moduleLookupMap.put(decl.getId(), decl);
+		
 	}
 	/**
 	 * Removes {@link BaseConstructDeclaration} from the lookup table mapped by the {@code id}
@@ -96,6 +119,16 @@ class SpxModuleLookupTable {
 	}
 	
 	
+	public Iterable<ModuleDeclaration> moduleDeclarationsByPackageId(IStrategoList packageID)
+	{
+		List<ModuleDeclaration> ret = new ArrayList<ModuleDeclaration>();
+	
+		for ( IStrategoList l: _enclosingPackageIdReferences.get(packageID))
+			ret.add(_enclosingPackageIdReferences.getPrimaryValue(l));
+		
+		return ret;
+	}
+	
 	/**
 	 * added only for the testing purpose.
 	 *  
@@ -114,23 +147,26 @@ class SpxModuleLookupTable {
 		final TermFactory f = new TermFactory();
 		final String absPathString = "c:/temp/test.spx" ;
 		final String absPathString2 = "c:/temp/test2.spx" ;
+		
+		IStrategoList pId = f.makeList(f.makeString("test"));
+		
 		//module declaration 
 		IStrategoList idm1 = f.makeList(f.makeString("test") , f.makeString("m1"));
-		ModuleDeclaration m1 = new ModuleDeclaration(absPathString, idm1);
+		ModuleDeclaration m1 = new ModuleDeclaration(absPathString, idm1,pId );
 		
 		lookupTable.define(m1);
 		
 		IStrategoList idm2 = f.makeList(f.makeString("test") , f.makeString("m2"));
-		ModuleDeclaration m2 = new ModuleDeclaration(absPathString, idm2);
+		ModuleDeclaration m2 = new ModuleDeclaration(absPathString, idm2,pId );
 		
 		lookupTable.define(m2);
 		
 		IStrategoList idm3 = f.makeList(f.makeString("test") , f.makeString("m3"));
-		ModuleDeclaration m3 = new ModuleDeclaration(absPathString2, idm3);
+		ModuleDeclaration m3 = new ModuleDeclaration(absPathString2, idm3,pId );
 		
 		lookupTable.define(m3);
 		
-		m2 = new ModuleDeclaration(absPathString2, idm2);
+		m2 = new ModuleDeclaration(absPathString2, idm2,pId );
 		lookupTable.define(m2);
 	
 		
@@ -144,6 +180,10 @@ class SpxModuleLookupTable {
 		
 		System.out.println("lookup for URI " + absPathString2);
 		System.out.println("Result : " + lookupTable.moduleDeclarationsByUri(absPathString2));
+		System.out.println();
+		
+		System.out.println("lookup for PackageID " + pId);
+		System.out.println("Result : " + lookupTable.moduleDeclarationsByPackageId(pId));
 		System.out.println();
 	}
 }
