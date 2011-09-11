@@ -5,7 +5,7 @@ import java.io.IOException;
 import jdbm.PrimaryHashMap;
 import jdbm.PrimaryStoreMap;
 
-interface ISpxPersistenceManager {
+public interface ISpxPersistenceManager {
 
 	/**
 	 * Commits the unsaved and closes the connection.
@@ -18,8 +18,12 @@ interface ISpxPersistenceManager {
 	
 	public <K,V> PrimaryHashMap<K,V> loadHashMap ( String mapName);
 
-	public SpxCompilationUnitSymbolTable  spxCompilcationUnitTable();
+	public SpxCompilationUnitTable  spxCompilcationUnitTable();
 
+	public SpxPackageLookupTable  spxPackageTable();
+	
+	public SpxModuleLookupTable spxModuleTable();
+	
 	public void commit() throws IOException;
 	
 	public boolean IsClosed();

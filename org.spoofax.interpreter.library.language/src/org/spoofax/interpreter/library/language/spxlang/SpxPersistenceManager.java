@@ -19,16 +19,16 @@ import jdbm.RecordManagerOptions;
  * @author Md. Adil Akhter
  * Created On : Aug 22, 2011
  */
-class SpxPersistenceManager implements ISpxPersistenceManager {
+public class SpxPersistenceManager implements ISpxPersistenceManager {
 
 	//TODO : create a registry that keeps all the loaded SymbolTable
 	//and perform operation on that.  
 	private final RecordManager _recordManager;
+	private final String indexDirectory;  
 	
-	private String indexDirectory;  
-	
-	private final SpxCompilationUnitSymbolTable _spxUnitsTable;  
-	
+	private SpxCompilationUnitTable _spxUnitsTable;  
+	private SpxPackageLookupTable _spxPackageTable;
+	private SpxModuleLookupTable _spxModuleTable;
 
 	public SpxPersistenceManager(String projectName, String projectAbsPath) throws IOException{
 		this(projectName, projectAbsPath+ "/.Index" , null);
@@ -45,14 +45,39 @@ class SpxPersistenceManager implements ISpxPersistenceManager {
 		// setting up the working directory for the Index 
 		options.put(RecordManagerOptions.INDEX_RELATIVE_PATH_OPTION, indexDirectory + "/" + projectName + ".idx");
 	
-		//creating recordmanager for the particular project
+		//creating record manager for the particular project
 		_recordManager = RecordManagerFactory.createRecordManager(projectName , options);
 		
-		_spxUnitsTable = new SpxCompilationUnitSymbolTable(projectName+"_spxUnitTable", this);
+		initTables(projectName);
+		initListeners();
+	}
+
+	/**
+	 * Initializes Symbol Tables for {@code projectName} Project
+	 * 
+	 * @param projectName name of the Project 
+	 */
+	private void initTables(String projectName) {
+		
+		_spxUnitsTable   = new SpxCompilationUnitTable(projectName+"_spxUnitTable", this);
+		_spxPackageTable = new SpxPackageLookupTable(projectName+"_spxPackageTable", this);
+		_spxModuleTable  = new SpxModuleLookupTable(projectName+"_spxModuleTable", this);
 	}
 	
-		
-
+	
+	/**
+	 * Initializes RecordListeners
+	 */
+	private void initListeners()
+	{
+		// chain record listeners among the tables. 
+		// If compilation unit is removed, automatically remove packages.
+		// If package is removed , automatically remove the modules that is located.
+		_spxUnitsTable.addRecordListener((ICompilationUnitRecordListener)_spxPackageTable);
+		_spxUnitsTable.addRecordListener((ICompilationUnitRecordListener)_spxModuleTable);
+	}
+	
+	
 	/**
 	 * Instantiates a new HashMap 
 	 * 
@@ -66,8 +91,6 @@ class SpxPersistenceManager implements ISpxPersistenceManager {
 		return _recordManager.hashMap(mapName) ;
 		
 	}
-	
-	
 	/**
 	 * Instantiates a new StoreHashMap
 	 * 
@@ -80,7 +103,6 @@ class SpxPersistenceManager implements ISpxPersistenceManager {
 		return _recordManager.storeMap(storeMapName);
 	}
 	
-	
 	/**
 	 * Commits any unsaved changes to the disk 
 	 * @throws IOException
@@ -89,7 +111,6 @@ class SpxPersistenceManager implements ISpxPersistenceManager {
 	{
 		_recordManager.commit();
 	}
-	
 	
 	/**
 	 * Closes RecordManager
@@ -110,8 +131,7 @@ class SpxPersistenceManager implements ISpxPersistenceManager {
 		this.close();
 	}
 
-	
-	public SpxCompilationUnitSymbolTable spxCompilcationUnitTable() {
+	public SpxCompilationUnitTable spxCompilcationUnitTable() {
 		
 		return _spxUnitsTable;
 	}
@@ -120,6 +140,14 @@ class SpxPersistenceManager implements ISpxPersistenceManager {
 		
 		return _recordManager.IsClosed();
 		
+	}
+
+	public SpxPackageLookupTable spxPackageTable() {
+		return _spxPackageTable;
+	}
+
+	public SpxModuleLookupTable spxModuleTable() {
+		return _spxModuleTable;
 	}
 }
 

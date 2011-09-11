@@ -7,7 +7,8 @@ import jdbm.PrimaryMap;
 import jdbm.RecordManager;
 
 /**
- * Generic MultiValue Symbol Table to store the symbols. Symbols are stored in memory and persisted
+ * Generic MultiValue Symbol Table to store the symbols. 
+ * Symbols are stored in memory and persisted
  * on the disk if committed via {@link SpxPersistenceManager}.
  * 
  * @author Md. Adil Akhter
@@ -16,9 +17,7 @@ import jdbm.RecordManager;
 class MultiValuePersistentTable<K, V> {
 
 	private final PrimaryMap<K,ArrayList<V>> _primaryMap;
-	
 	private final RecordManager _recordManager;
-	
 	private String _mapName ;
 	
 	public MultiValuePersistentTable(String name, RecordManager manager)
@@ -30,9 +29,9 @@ class MultiValuePersistentTable<K, V> {
 		_primaryMap = _recordManager.hashMap(_mapName);
 	}
 	
-	
 	/**
-	 * Clears the Map
+	 * removes all the entries from current map
+	 * 
 	 * @throws IOException 
 	 */
 	public void clear() throws IOException
@@ -41,7 +40,6 @@ class MultiValuePersistentTable<K, V> {
 		
 		_recordManager.commit();
 	}
-	
 	
 	/**
 	 * Defines symbol in the current symbol table. Define does not replace  
@@ -54,9 +52,7 @@ class MultiValuePersistentTable<K, V> {
 	public void define(K key , V symbol)
 	{	
 		if ( _primaryMap.containsKey(key))
-		{
 			_primaryMap.get(key).add(symbol);
-		}
 		else
 		{
 			ArrayList<V> values = new ArrayList<V>(); 
@@ -66,4 +62,3 @@ class MultiValuePersistentTable<K, V> {
 		}
 	}
 }
-

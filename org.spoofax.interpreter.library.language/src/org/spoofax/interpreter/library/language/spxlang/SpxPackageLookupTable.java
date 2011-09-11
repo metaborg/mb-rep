@@ -2,25 +2,33 @@ package org.spoofax.interpreter.library.language.spxlang;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import jdbm.PrimaryHashMap;
+import jdbm.RecordListener;
+import jdbm.SecondaryHashMap;
 import jdbm.SecondaryKeyExtractor;
-import jdbm.SecondaryTreeMap;
 
+import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.terms.TermFactory;
+import org.spoofax.interpreter.terms.IStrategoString;
 
 /**
+ * SymbolTable for Spx Packages 
  * @author Md. Adil Akhter
  * Created On : Sep 1, 2011
  */
+public class SpxPackageLookupTable  implements ICompilationUnitRecordListener{
 
-class SpxPackageLookupTable {
-
+	// Symbol table that stores package declarations 
 	private final PrimaryHashMap<IStrategoList, PackageDeclaration> _packageLookupTable;
-	private final SecondaryTreeMap <String , IStrategoList , PackageDeclaration> _uriMap;
+	private final SecondaryHashMap <String , IStrategoList , PackageDeclaration> _uriMap;
 
+	//Symbol table for language descriptor
+	private final PrimaryHashMap<IStrategoList, LanguageDescriptor> _languageDescriptors;
+	private final SecondaryHashMap <String , IStrategoList , LanguageDescriptor> _packagesByLangaugeName;
+	
 	/**
 	 * Instantiates a lookup table for the base constructs (e.g. , packages and modules)of  Spoofaxlang.
 	 *  
@@ -35,7 +43,7 @@ class SpxPackageLookupTable {
 		_packageLookupTable = manager.loadHashMap(tableName+ "._lookupPackageMap.idx");
 		
 		// readonly secondary view of the the lookup table . 
-		_uriMap = _packageLookupTable.secondaryTreeMapManyToOne(tableName+ "._urimap.idx", 
+		_uriMap = _packageLookupTable.secondaryHashMapManyToOne(tableName+ "._urimap.idx", 
 				
 				new SecondaryKeyExtractor<Iterable<String>, IStrategoList, PackageDeclaration>() {
 					/**
@@ -46,107 +54,255 @@ class SpxPackageLookupTable {
 					 * @return secondary key to map the value with . 
 					 */
 					public Iterable<String> extractSecondaryKey(IStrategoList key, PackageDeclaration value) {
+						
 						return value.getAllFilePaths();
+					}
+			}
+		);
+		
+		initListeners();
+	
+		// initializing language Descriptor for the package   
+		_languageDescriptors = manager.loadHashMap(tableName+ "._languageDescriptors.idx");
+		
+		_packagesByLangaugeName = _languageDescriptors.secondaryHashMapManyToOne(tableName+ "._packagesByLangaugeName.idx", 
+				
+				new SecondaryKeyExtractor<Iterable<String>, IStrategoList, LanguageDescriptor>() {
+					/**
+					 * Returns the Secondary keys as Language Name Strings  
+					 *   
+					 * @param key current primary key 
+					 * @param value value to be mapped using primary key
+					 * @return secondary key to map the value with . 
+					 */
+					public Iterable<String> extractSecondaryKey(IStrategoList key, LanguageDescriptor value) {
+						return value.asLanguageNameStrings();
 					}
 			}
 		);
 	}
 	
+	/**
+	 * adding a record listener to remove/cleanup symbol table and make it consistent in several scenario.
+	 */
+	private void initListeners() {
+		
+		_packageLookupTable.addRecordListener(
+				new RecordListener<IStrategoList , PackageDeclaration>(){
+
+					public void recordInserted(IStrategoList key,
+							PackageDeclaration value) throws IOException {
+						// do nothing 
+					}
+					public void recordUpdated(IStrategoList key,
+							PackageDeclaration oldValue,
+							PackageDeclaration newValue) throws IOException {
+						
+							if(newValue.getAllFilePaths().size() == 0)
+							{
+								// since there is no URI left for the Package 
+								// removing it from the table.
+								_packageLookupTable.remove(key);
+								_languageDescriptors.remove(key);
+							}
+					}
+					public void recordRemoved(IStrategoList key,
+							PackageDeclaration value) throws IOException {
+						
+						//removing language descriptors 
+						_languageDescriptors.remove(key);
+						
+					}}
+		);
 	
-	public void define( PackageDeclaration packageDeclaration )
+	}
+	
+	/** Returns the size of the symbol table 
+	 * 
+	 * @return
+	 */
+	public int size() 
+	{
+		assert _packageLookupTable.size() ==  _languageDescriptors.size() ;
+		
+		return _packageLookupTable.size();
+	}
+	/**
+	 * Defines {@code PackageDeclaration} in current symbol table 
+	 * 
+	 * @param packageDeclaration an Instance of {@link PackageDeclaration}
+	 */
+	public void definePackageDeclaration( PackageDeclaration packageDeclaration )
 	{
 		assert packageDeclaration != null;
 		
 		_packageLookupTable.put( packageDeclaration.getId(), packageDeclaration);
 	}
 	
-	public boolean appendFilePath( IStrategoList key , String absPath )
+	/**
+	 * Defines {@link LanguageDescriptor}  for the Spx Package with {@code packageId} 
+	 * 
+	 * @param packageId Qualified ID of the package
+	 * @param newDesc {@link LanguageDescriptor} of package with ID  - {@code newDesc}
+	 */
+	public void defineLanguageDescriptor ( IStrategoList packageId, LanguageDescriptor newDesc) 
 	{
-		assert key!= null & absPath != null ;
+		if( containsPackage (packageId))
+		{
+			this._languageDescriptors.put(packageId, newDesc);
+		}
+		else
+			throw new IllegalArgumentException("Unknown Package ID : "+ packageId.toString());	
+	}
+	
+	/**
+	 * Adds a SPX Package Declaration location 
+	 * 
+	 * @param packageId Package ID represented by {@link IStrategoList} 
+	 * @param absPath
+	 * @return
+	 */
+	public boolean addPackageDeclarationLocation( IStrategoList packageId , String absPath )
+	{
+		assert packageId!= null & absPath != null ;
 		
-		PackageDeclaration decl  = _packageLookupTable.get(key);
+		PackageDeclaration decl  = PackageDeclaration.newInstance( _packageLookupTable.get(packageId) );
 		
 		if ( decl != null)
 		{
 			decl.add(absPath);
-			this.define(decl);
+			this.definePackageDeclaration(decl);
 			return true;
 		}
-		
 		return false;
 	}
 	
-	public PackageDeclaration get(IStrategoList id) {
-		return _packageLookupTable.get(id);
+	public boolean removePackageDeclarationLocation( IStrategoList key , String absPath )
+	{
+		assert key!= null & absPath != null ;
+		
+		PackageDeclaration decl  = PackageDeclaration.newInstance( _packageLookupTable.get(key));
+		
+		if ( decl != null)
+		{
+			decl.remove(absPath);
+			
+			// redefining it again 
+			this.definePackageDeclaration(decl);
+			return true;
+		}
+		return false;
 	}
 	
+	public PackageDeclaration getPackageDeclaration(IStrategoList id) {
+		return _packageLookupTable.get(id);
+	}
+	/**
+	 * Returns language descriptor associated with id 
+	 * @param id package id whose language descriptor is to be returned
+	 * @return {@link LanguageDescriptor}
+	 */
+	public LanguageDescriptor getLangaugeDescriptor(IStrategoList id) {
+		return _languageDescriptors.get(id);
+	}
+
+	/**
+	 * Removes a PackageDeclaration from the table 
+	 * 
+	 * @param id Package Id whose language descriptor is to be returned 
+	 * and removed from the table. 
+	 * @return associated {@link PackageDeclaration}}
+	 */
 	public PackageDeclaration remove(IStrategoList id)
 	{
 		return _packageLookupTable.remove(id);
 	}
-	
+	/**
+	 * Returns Package located in the uri specified by {@code absUri}
+	 * @param absUri
+	 * @return {@link Iterable}}
+	 */
 	public Iterable<PackageDeclaration> packageDeclarationsByUri( String absUri)
 	{
-		List<PackageDeclaration> ret = new ArrayList<PackageDeclaration>();
+		Set<PackageDeclaration> ret = new HashSet<PackageDeclaration>();
 	
 		for ( IStrategoList l: _uriMap.get(absUri))
 			ret.add(_uriMap.getPrimaryValue(l));
-		
 		return ret;
 	}
 	
+	/**
+	 * Removes all packages located in the {@code absUri} 
+	 * 
+	 * @param absUri Absolute Path of the File 
+	 */
+	public void removePackageDeclarationsByUri( String absUri)
+	{	
+		ArrayList<IStrategoList> list = new ArrayList<IStrategoList>();
+		
+		// constructing a temporary list to be removed from 
+		// the symbol table. 
+		for ( IStrategoList l: _uriMap.get(absUri))
+			list.add(l);
+		
+		// removing the package declaration from the lookup table.
+		for(Object o : list.toArray())
+			_packageLookupTable.remove(o);
+	}
 	
 	/**
-	 * Only for testing purpose
-	 * @param args
-	 * @throws IOException 
+	 * Clears Symbol table  
 	 */
-	public static void main(String[] args) throws IOException {
-		ISpxPersistenceManager manager = new SpxPersistenceManager( "test" , "c:/temp");
-		
-		SpxPackageLookupTable lookupTable = new SpxPackageLookupTable("lookup", manager);
-		
-		final TermFactory f = new TermFactory();
-		final String absPathString1 = "c:/temp/test.spx" ;
-		final String absPathString2 = "c:/temp/test2.spx" ;
-		
-		//module declaration 
-		IStrategoList idp1 = f.makeList(f.makeString("test") , f.makeString("p1"));
-		PackageDeclaration p1 = new PackageDeclaration(absPathString2, idp1);
-		
-		lookupTable.define(p1);
-		
-		IStrategoList idp2 = f.makeList(f.makeString("test") , f.makeString("p2"));
-		PackageDeclaration  p2 = new PackageDeclaration(absPathString2, idp2);
-		p2.add(absPathString1);
-		
-		lookupTable.define(p2);
-		//saving and closing the persistence manager
-		manager.commitAndClose();
-		
-		
-		// loading the symbol table again
-		ISpxPersistenceManager manager1 = new SpxPersistenceManager( "test" , "c:/temp");
-		SpxPackageLookupTable  lookupTable1 = new SpxPackageLookupTable("lookup", manager1);
-		
-		System.out.println("lookup for ID" + idp2 );
-		System.out.println("Result : " + lookupTable1.get(idp2));
-		System.out.println();
-		
-		System.out.println("lookup for packages in the following URI : " + absPathString1);
-		System.out.println("Result : " + lookupTable1.packageDeclarationsByUri(absPathString1));
-		System.out.println();
-		
-		//update p1 with new uri . Will verify whether the changes are persisted  
-		lookupTable1.appendFilePath(idp2, absPathString2);
-		
-		System.out.println("lookup for ID . [Should return 2 URIs]" + idp2 );
-		System.out.println("Result : " + lookupTable1.get(idp2));
-		System.out.println();
-		
-		System.out.println("lookup for packages in the following URI : " + absPathString2);
-		System.out.println("Result : " + lookupTable1.packageDeclarationsByUri(absPathString2));
-		System.out.println();
+	public synchronized void clear() { 
+		_packageLookupTable.clear();
+		_languageDescriptors.clear();
+	} 
+
+	/**
+	 * Checks whether the package with packageId exists in the symbol table.
+	 * @param packageId
+	 * @return
+	 */
+	public boolean containsPackage( IStrategoList packageId)
+	{
+		return _packageLookupTable.containsKey(packageId);
 	}
 
+	/**
+	 * Returns the packages indexed using languageName 
+	 * 
+	 * @param langaugeName
+	 * @return
+	 */
+	public Iterable<IStrategoList> getPackageIdsByLangaugeName( String langaugeName )
+	{
+		return _packagesByLangaugeName.get(langaugeName);
+	}
+	
+	public Iterable<IStrategoList> getPackageIdsByLangaugeName( IStrategoString langaugeName )
+	{
+		return getPackageIdsByLangaugeName(Tools.asJavaString(langaugeName));
+	}
+
+	public RecordListener<String, SpxCompilationUnitInfo> getCompilationUnitRecordListener() {
+		
+		return new RecordListener<String, SpxCompilationUnitInfo>() {
+			
+			public void recordUpdated(String key, SpxCompilationUnitInfo oldValue,
+					SpxCompilationUnitInfo newValue) throws IOException {
+				// do nothing 
+			}
+			
+			public void recordRemoved(String key, SpxCompilationUnitInfo value)
+					throws IOException {
+				removePackageDeclarationsByUri(key);
+				
+			}
+			
+			public void recordInserted(String key, SpxCompilationUnitInfo value)
+					throws IOException {
+				//do nothing 
+			}
+		};
+	}
 }

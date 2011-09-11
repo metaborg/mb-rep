@@ -7,11 +7,11 @@ import java.util.List;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
-class PackageScope  extends BaseScope {
+class PackageSymbol  extends BaseScope {
 	
 	private final String _scopeType = "Package" ;
 	
-	public PackageScope(IStrategoTerm id , ITermFactory factory) {
+	public PackageSymbol(IStrategoTerm id , ITermFactory factory) {
 		
 		super(id,factory);
 		
@@ -48,7 +48,7 @@ class PackageScope  extends BaseScope {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		PackageScope other = (PackageScope) obj;
+		PackageSymbol other = (PackageSymbol) obj;
 		if (_scopeType == null) {
 			if (other._scopeType != null)
 				return false;

@@ -29,9 +29,11 @@ import java.util.SortedMap;
  * or <code<StoreReference</code> to minimalize size of index.
  *  
  * @author Jan Kotek
- *
+ *  
  * @param <K> key type
  * @param <V> value type
+ * 
+ * Modified by {@author adil akhter} to make it Java1.5 Compliance
  */
 
 public interface PrimaryTreeMap<K,V>  extends PrimaryMap<K,V>, SortedMap<K,V>{

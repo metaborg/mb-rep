@@ -15,16 +15,14 @@ class SpxCompilationUnitInfo implements Serializable
 	private static final long serialVersionUID = 4874917828420267542L;
 
 	private final long _recId;
-	
 	private int _version;
-	
 	private final URI _absPath;
 	
 	public SpxCompilationUnitInfo(URI absPath,long recourceId)
 	{
 		this (0 , absPath , recourceId);
 	}
-	
+
 	public SpxCompilationUnitInfo( int versionNo, URI absPath,long recourceId)
 	{
 		_recId = recourceId;
@@ -49,21 +47,22 @@ class SpxCompilationUnitInfo implements Serializable
 		return new File(getAbsPath()).getAbsolutePath();
 	}
 
-	void IncrementVersionNo()
-	{
-		_version = _version + 1;
-	}
+	/**
+	 * Increment version no
+	 */
+	public void IncrementVersionNo() { _version = _version + 1; }
 
 	/**
 	 * Returns the Absolute Path of the given URI 
+	 * 
 	 * @param uri URI of the Resource. 
 	 * @return Absolute Path represented by the URI  
 	 */
 	public static String toAbsulatePath( URI uri)
 	{
 		return new File( uri).getAbsolutePath();
-		
 	}
+	
 	public String toString() {
 		return "SpxComplicationUnitResourceInfo [ResourceId=" + _recId
 				+ ", VersionNo=" + _version + ", AbsPath=" + _absPath + "]";
@@ -99,5 +98,22 @@ class SpxCompilationUnitInfo implements Serializable
 		if (_version != other._version)
 			return false;
 		return true;
+	}
+	
+	/**
+	 * Creates a new instance of {@code inf}.
+	 * 
+	 * @param inf an instance of {@link SpxCompilationUnitInfo}
+	 * @return a cloned version of {@code inf}
+	 */
+	public static SpxCompilationUnitInfo newInstance( SpxCompilationUnitInfo inf)
+	{
+		if( inf == null) 
+			return null; 
+		else	
+			return new SpxCompilationUnitInfo(
+					inf.getVersionNo(), 
+					inf.getAbsPath() , 
+					inf.getRecId());
 	}
 }

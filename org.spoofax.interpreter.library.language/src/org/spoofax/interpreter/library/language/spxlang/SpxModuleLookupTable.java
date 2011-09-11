@@ -7,6 +7,7 @@ import java.util.List;
 
 import jdbm.InverseHashView;
 import jdbm.PrimaryHashMap;
+import jdbm.RecordListener;
 import jdbm.SecondaryHashMap;
 import jdbm.SecondaryKeyExtractor;
 import jdbm.SecondaryTreeMap;
@@ -15,14 +16,18 @@ import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.terms.TermFactory;
 
-class SpxModuleLookupTable {
+public class SpxModuleLookupTable implements ICompilationUnitRecordListener{
 	
-	private final PrimaryHashMap<IStrategoList, IStrategoAppl> _moduleDefinition;
+	private final PrimaryHashMap<IStrategoList, ModuleDeclaration> _moduleLookupMap; 
+	
+	/* TODO : Using separate HashMap due to the consideration of converting them store map
+	 * to load module AST lazily. 
+	 */
+	private final PrimaryHashMap<IStrategoList, IStrategoAppl> _moduleDefinition; 
 	private final PrimaryHashMap<IStrategoList, IStrategoAppl> _moduleAnalyzedDefinition;
 	
-	private final PrimaryHashMap<IStrategoList, ModuleDeclaration> _moduleLookupMap;
-	private final SecondaryTreeMap <String , IStrategoList , ModuleDeclaration> _uriMap;
-	private final SecondaryHashMap<IStrategoList, IStrategoList,ModuleDeclaration> _enclosingPackageIdReferences;
+	private final SecondaryHashMap <String , IStrategoList , ModuleDeclaration> _moduleByFileAbsPath;
+	private final SecondaryHashMap<IStrategoList, IStrategoList,ModuleDeclaration> _moduleByPackageId;
 
 	/**
 	 * Instantiates a lookup table for the base constructs (e.g. , packages and modules)of  Spoofaxlang.
@@ -38,7 +43,7 @@ class SpxModuleLookupTable {
 		_moduleLookupMap = manager.loadHashMap(tableName+ "._lookupModuleMap.idx");
 		
 		// read-only secondary view of the the lookup table . 
-		_uriMap = _moduleLookupMap.secondaryTreeMap(tableName+ "._urimap.idx", 
+		_moduleByFileAbsPath = _moduleLookupMap.secondaryHashMap(tableName+ "._moduleByFileAbsPath.idx", 
 				new SecondaryKeyExtractor<String, IStrategoList, ModuleDeclaration>() {
 
 			/**
@@ -54,7 +59,7 @@ class SpxModuleLookupTable {
 		}
 		);
 		
-		_enclosingPackageIdReferences = _moduleLookupMap.secondaryHashMap(tableName+ "._enclosingPackageIdReferences.idx", 
+		_moduleByPackageId = _moduleLookupMap.secondaryHashMap(tableName+ "._moduleByPackageId.idx", 
 				new SecondaryKeyExtractor<IStrategoList, IStrategoList, ModuleDeclaration>() {
 
 			/**
@@ -72,28 +77,88 @@ class SpxModuleLookupTable {
 		
 		this._moduleDefinition = manager.loadHashMap(tableName+ "._moduleDefinition.idx");
 		this._moduleAnalyzedDefinition = manager.loadHashMap(tableName+ "._moduleAnalyzedDefinition.idx");
+	
+		initRecordListener();
 	}
 	
+	private void initRecordListener()
+	{
+		_moduleLookupMap.addRecordListener(
+				new RecordListener<IStrategoList, ModuleDeclaration>() {
+
+					public void recordInserted(IStrategoList key,
+							ModuleDeclaration value) throws IOException {
+						//do nothing 
+						
+					}
+
+					public void recordUpdated(IStrategoList key,
+							ModuleDeclaration oldValue,
+							ModuleDeclaration newValue) throws IOException {
+						//do nothing 
+						
+					}
+
+					public void recordRemoved(IStrategoList key,
+							ModuleDeclaration value) throws IOException {
+					
+						// cleanup other table to make it consistent 
+						_moduleDefinition.remove(key);
+						_moduleAnalyzedDefinition.remove(key);
+					}
+				
+				}
+		);
+	}
+	
+	/** Size of the Symbol Table 
+	 * 
+	 * @return
+	 */
+	public int size() 
+	{
+		assert _moduleLookupMap.size() == _moduleDefinition.size();
+		assert _moduleLookupMap.size() == _moduleAnalyzedDefinition.size();
+		
+		return _moduleLookupMap.size();
+	}
 	/**
 	 * Defines a new entry in this symbol table 
 	 * 
 	 * @param info
 	 * @param compilationUnit
 	 */
-	public void define(ModuleDeclaration decl)
+	SpxModuleLookupTable define(ModuleDeclaration decl)
 	{	
 		_moduleLookupMap.put(decl.getId(), decl);
-		
+		return this;
 	}
 	
-	public void addModuleDefinition(IStrategoList id, IStrategoAppl moduleDefinition)
+	/**
+	 * Defines Module Definition in the Symbole Table
+	 * @param decl
+	 * @param originalModuleDefinition
+	 * @param analyzedModuleDefinition
+	 */
+	public void define(ModuleDeclaration decl, IStrategoAppl originalModuleDefinition , IStrategoAppl analyzedModuleDefinition)
+	{
+		this.define(decl)
+			.addModuleDefinition(decl.getId(), originalModuleDefinition)
+			.addAnalyzedModuleDefinition(decl.getId(), analyzedModuleDefinition);
+	}
+	
+	public SpxModuleLookupTable addModuleDefinition(IStrategoList id, IStrategoAppl moduleDefinition)
 	{
 		_moduleDefinition.put(id, moduleDefinition);
+		
+		return this;
 	}
 	
-	public void addAnalyzedModuleDefinition(IStrategoList id, IStrategoAppl moduleDefinition)
+	public SpxModuleLookupTable addAnalyzedModuleDefinition(IStrategoList id, IStrategoAppl moduleDefinition)
 	{
 		_moduleAnalyzedDefinition.put(id, moduleDefinition);
+		
+		return this;
 	}
 	
 	/**
@@ -103,47 +168,58 @@ class SpxModuleLookupTable {
 	 * @return {@link BaseConstructDeclaration} mapped by {@code id}
 	 */
 	public ModuleDeclaration remove(IStrategoList id)
-	{
-		if ( containsModuleDeclaration(id))
-		{
-			//removing module definition and analyzed module definition
-			
-			this._moduleDefinition.remove(id);
-			this._moduleAnalyzedDefinition.remove(id);
-		}
-		
+	{	
 		//removing module declaration from the table 
 		//and returning it.
 		return _moduleLookupMap.remove(id);
 	}
 	
 	/**
-	 * Returns {@link BaseConstructDeclaration} that is mapped by the specified {@code id} argument.
+	 * Returns {@link ModuleDeclaration} that is mapped by the specified {@code id} argument.
 	 * 
 	 * @param id
 	 * @return
 	 */
-	public ModuleDeclaration get(IStrategoList id) {
+	public ModuleDeclaration getModuleDeclaration(IStrategoList id) {
 		return _moduleLookupMap.get(id);
 	}
 	
+	/**
+	 * Check whether particular module exists in the Symbol Table 
+	 * 
+	 * @param id
+	 * @return
+	 */
 	public boolean containsModuleDeclaration(IStrategoList id)
 	{
 		return _moduleLookupMap.containsKey(id);
 	}
 	
+	/**
+	 * Gets a module definition 
+	 * 
+	 * @param id
+	 * @return
+	 */
 	public IStrategoAppl getModuleDefinition(IStrategoList id)
 	{
 		return this._moduleDefinition.get(id);
 	}
 	
+	/**
+	 * Gets module definition (analyzed) 
+	 * 
+	 * @param id
+	 * @return
+	 */
 	public IStrategoAppl getAnalyzedModuleDefinition(IStrategoList id)
 	{
 		return this._moduleAnalyzedDefinition.get(id);
 	}
 	
 	/**
-	 * Returns ModuleDeclarations mapped by absPath
+	 * Returns ModuleDeclarations mapped by a filepath. It actually returns 
+	 * all the module declaration exists in a file . 
 	 * 
 	 * @param absUri
 	 * @return
@@ -152,8 +228,8 @@ class SpxModuleLookupTable {
 	{
 		List<ModuleDeclaration> ret = new ArrayList<ModuleDeclaration>();
 	
-		for ( IStrategoList l: _uriMap.get(absUri))
-			ret.add(_uriMap.getPrimaryValue(l));
+		for ( IStrategoList l: _moduleByFileAbsPath.get(absUri))
+			ret.add(_moduleByFileAbsPath.getPrimaryValue(l));
 		return ret;
 	}
 	
@@ -161,8 +237,8 @@ class SpxModuleLookupTable {
 	{
 		List<ModuleDeclaration> ret = new ArrayList<ModuleDeclaration>();
 	
-		for ( IStrategoList l: _enclosingPackageIdReferences.get(packageID))
-			ret.add(_enclosingPackageIdReferences.getPrimaryValue(l));
+		for ( IStrategoList l: _moduleByPackageId.get(packageID))
+			ret.add(_moduleByPackageId.getPrimaryValue(l));
 		return ret;
 	}
 	
@@ -170,64 +246,67 @@ class SpxModuleLookupTable {
 	{
 		if( containsModuleDeclaration(moduleId))
 		{
-			return get(moduleId).enclosingPackageID;
+			return getModuleDeclaration(moduleId).enclosingPackageID;
 		}	
 		return null;
 	}
 	
-	/**
-	 * added only for the testing purpose.
-	 *  
-	 * @param args
-	 * @throws IOException
-	 */
-	public static void main(String[] args) throws IOException { 
-		//TODO :  add actual unit tests
-		//TODO :  add reference to JUnit  
-		ISpxPersistenceManager manager = new SpxPersistenceManager( "test" , "c:/temp");
-		
-		SpxModuleLookupTable lookupTable = new SpxModuleLookupTable("lookup", manager);
-		
-		final TermFactory f = new TermFactory();
-		final String absPathString = "c:/temp/test.spx" ;
-		final String absPathString2 = "c:/temp/test2.spx" ;
-		
-		IStrategoList pId = f.makeList(f.makeString("test"));
-		
-		//module declaration 
-		IStrategoList idm1 = f.makeList(f.makeString("test") , f.makeString("m1"));
-		ModuleDeclaration m1 = new ModuleDeclaration(absPathString, idm1,pId );
-		
-		lookupTable.define(m1);
-		
-		IStrategoList idm2 = f.makeList(f.makeString("test") , f.makeString("m2"));
-		ModuleDeclaration m2 = new ModuleDeclaration(absPathString, idm2,pId );
-		
-		lookupTable.define(m2);
-		
-		IStrategoList idm3 = f.makeList(f.makeString("test") , f.makeString("m3"));
-		ModuleDeclaration m3 = new ModuleDeclaration(absPathString2, idm3,pId );
-		
-		lookupTable.define(m3);
-		
-		m2 = new ModuleDeclaration(absPathString2, idm2,pId );
-		lookupTable.define(m2);
 	
+	/**
+	 * Removes all the module {@link ModuleDeclaration} located in the 
+	 * following URI : {@code absUri}
+	 *  
+	 * @param absUri String representation of absolute path of the file 
+	 * 
+	 */
+	public void removeModuleDeclarationsByUri( String absUri)
+	{	
+		ArrayList<IStrategoList> list = new ArrayList<IStrategoList>();
 		
-		System.out.println("lookup for ID" + idm2 );
-		System.out.println("Result : " + lookupTable.get(idm2));
-		System.out.println();
+		// constructing a temporary list to be removed from 
+		// the symbol table. 
+		for ( IStrategoList l: _moduleByFileAbsPath.get(absUri))
+			list.add(l);
 		
-		System.out.println("lookup for URI " + absPathString);
-		System.out.println("Result : " + lookupTable.moduleDeclarationsByUri(absPathString));
-		System.out.println();
-		
-		System.out.println("lookup for URI " + absPathString2);
-		System.out.println("Result : " + lookupTable.moduleDeclarationsByUri(absPathString2));
-		System.out.println();
-		
-		System.out.println("lookup for PackageID " + pId);
-		System.out.println("Result : " + lookupTable.moduleDeclarationsByPackageId(pId));
-		System.out.println();
+		// removing the package declaration from the lookup table.
+		for(Object o : list.toArray())
+			_moduleLookupMap.remove(o);
+	}
+	
+	
+	/**
+	 * Clears the symbol table
+	 */
+	public synchronized void clear()
+	{
+		this._moduleLookupMap.clear();
+		this._moduleDefinition.clear();
+		this._moduleAnalyzedDefinition.clear();
+	}
+	
+	
+	public RecordListener<String, SpxCompilationUnitInfo> getCompilationUnitRecordListener() {
+		return new RecordListener<String, SpxCompilationUnitInfo>() {
+
+			public void recordInserted(String key, SpxCompilationUnitInfo value)
+					throws IOException {
+				// do nothing 
+				
+			}
+
+			public void recordUpdated(String key,
+					SpxCompilationUnitInfo oldValue,
+					SpxCompilationUnitInfo newValue) throws IOException {
+				// do nothing 
+				
+			}
+
+			public void recordRemoved(String key, SpxCompilationUnitInfo value)
+					throws IOException {
+				
+				removeModuleDeclarationsByUri(key);
+				
+			}
+		};
 	}
 }

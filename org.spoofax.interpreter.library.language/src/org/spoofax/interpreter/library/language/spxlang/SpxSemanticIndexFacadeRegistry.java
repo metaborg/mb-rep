@@ -36,7 +36,7 @@ class SpxSemanticIndexFacadeRegistry
 		else
 		{
 			SpxSemanticIndexFacade f = _registry.get(projectName);
-			if(f.isPersistenceManagerClosed())
+			if( (f!= null) && f.isPersistenceManagerClosed())
 			{
 				fac = new SpxSemanticIndexFacade(projectName, factory, agent);
 			}	
@@ -61,7 +61,7 @@ class SpxSemanticIndexFacadeRegistry
 	}
 	
 	
-	public void ClearAll()
+	public void clearAll()
 	{
 		_registry.clear();
 	}

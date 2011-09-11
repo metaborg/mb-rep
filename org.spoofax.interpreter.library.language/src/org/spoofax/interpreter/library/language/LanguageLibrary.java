@@ -26,14 +26,25 @@ public class LanguageLibrary extends AbstractStrategoOperatorRegistry {
 		
 		SpxSemanticIndex spxIndex= new SpxSemanticIndex();
 		
+		//primitives for index initialization and management
 		add(new SPX_index_init(spxIndex));
 		add(new SPX_index_close(spxIndex));
 		add(new SPX_index_save(spxIndex));
 		
-		add(new SPX_index_add_module(spxIndex));
-		
+		//primitives to index spoofaxlang compilation unit 
 		add(new SPX_index_compilation_unit(spxIndex));
 		add(new SPX_index_compilation_unit_get(spxIndex));
+		
+		//primitives to index packages, language descriptions  and modules 
+		add(new SPX_index_package_declaration(spxIndex));
+		add(new SPX_index_language_desriptor(spxIndex));
+		add(new SPX_index_module_definition(spxIndex));
+		
+		add(new SPX_index_get_language_descriptor(spxIndex));
+		add(new SPX_index_get_package_declaration(spxIndex));
+		add(new SPX_index_get_module_declaration(spxIndex));
+		add(new SPX_index_get_module_definition(spxIndex));
+		
 	}
 
 	public String getOperatorRegistryName() {

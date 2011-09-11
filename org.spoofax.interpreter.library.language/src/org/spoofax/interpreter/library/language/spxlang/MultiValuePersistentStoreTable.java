@@ -103,6 +103,7 @@ class MultiValuePersistentStoreTable<K, V> {
 	
 	/**
 	 * Gets the collection of values that are hashed using the key specified.
+	 * 
 	 * @param key  The Key whose associated value is to be returned
 	 * @return The values to which this key is mapped to in this Symbol Table. 
 	 * Returns empty list if no mapping for the keys is not found.   
@@ -142,7 +143,9 @@ class MultiValuePersistentStoreTable<K, V> {
 	}
 	
 	/**
-	 * Returns the physical storage keys. Given virtual key, it gets the physical keys for the storage elements.
+	 * Returns the physical storage keys. Given virtual key, 
+	 * it gets the physical keys for the storage elements.
+	 * 
 	 * @param key virtual key 
 	 * @return  Collection of Physical Storage Key
 	 */
