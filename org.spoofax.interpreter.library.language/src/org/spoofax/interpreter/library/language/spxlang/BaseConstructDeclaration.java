@@ -12,6 +12,7 @@ import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 public abstract class BaseConstructDeclaration implements Serializable
 {
 	private static final long serialVersionUID = 1055862481052307186L;
+	protected static final String qnameContructorName = "QName";
 	
 	final IStrategoList id;
 	
@@ -70,8 +71,10 @@ public abstract class BaseConstructDeclaration implements Serializable
 	public static IStrategoAppl toIdTerm ( ITermFactory factory ,  String constructorName , IStrategoList id)
 	{
 		IStrategoConstructor cons = factory.makeConstructor(constructorName, 1);
+		IStrategoConstructor qnameCons = factory.makeConstructor(qnameContructorName, 1);
+		IStrategoAppl qnameAppl = factory.makeAppl(qnameCons, id);
 		
-		return factory.makeAppl(cons, id);
+		return factory.makeAppl(cons, qnameAppl);
 	}
 	
 	protected IStrategoTerm forceImploderAttachment(IStrategoTerm term) {
@@ -88,4 +91,14 @@ public abstract class BaseConstructDeclaration implements Serializable
 	}
 	
 	protected String getFileLocation() {return null;}
+	
+	protected static IStrategoList getID(ITermFactory fac, IStrategoAppl qName) {
+		
+		final IStrategoConstructor qnameCon = fac.makeConstructor(qnameContructorName, 1);
+		
+		if(qName.getConstructor() == qnameCon)
+			return (IStrategoList)qName.getSubterm(0);
+		
+		throw new IllegalArgumentException("Invalid QName : " + qName);
+	}
 }

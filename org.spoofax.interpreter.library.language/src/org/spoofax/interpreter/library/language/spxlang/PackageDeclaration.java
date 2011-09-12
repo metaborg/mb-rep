@@ -84,14 +84,14 @@ public class PackageDeclaration extends BaseConstructDeclaration
 	 */
 	public static IStrategoList getPackageId(ITermFactory fac,IStrategoAppl packageQName)
 	{
-		final IStrategoConstructor packageQNameCons = fac.makeConstructor("Package", 1);
+		final IStrategoConstructor packageQNameCon = fac.makeConstructor(_packageIdContructorName, 1);
 		
-		if(packageQNameCons == packageQName.getConstructor())
+		if(packageQNameCon == packageQName.getConstructor())
 		{
-			return (IStrategoList)packageQName.getSubterm(0);
+			getID(fac, (IStrategoAppl)packageQName.getSubterm(0));	
 		}
-		else
-			throw new IllegalArgumentException("packageQName");
+		
+		throw new IllegalArgumentException("Invalid Package Typed QName : "+ packageQName);
 	}
 	
 	/**

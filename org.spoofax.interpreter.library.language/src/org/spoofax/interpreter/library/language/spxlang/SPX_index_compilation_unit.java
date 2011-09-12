@@ -13,6 +13,8 @@ import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 /**
+ * Primitive to index spoofaxlang CompilationUnit
+ * 
  * @author Md. Adil Akhter
  * Created On : Aug 25, 2011
  */

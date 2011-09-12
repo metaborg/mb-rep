@@ -90,11 +90,9 @@ public class ModuleDeclaration extends BaseConstructDeclaration
 		final IStrategoConstructor moduleQNameCons = fac.makeConstructor(_moduleIdContructorName, 1);
 		
 		if(moduleQNameCons == moduleQName.getConstructor())
-		{
-			return (IStrategoList)moduleQName.getSubterm(0);
-		}
-		else
-			throw new IllegalArgumentException("Invalid module qname : "+ moduleQName.toString());
+			getID(fac, (IStrategoAppl)moduleQName.getSubterm(ModuleTypedQNameIndex));	
+		
+		throw new IllegalArgumentException("Invalid module qname : "+ moduleQName.toString());
 	}
 	
 	public static IStrategoAppl toModuleIdTerm(ITermFactory termFactory , ModuleDeclaration decl)
@@ -102,7 +100,7 @@ public class ModuleDeclaration extends BaseConstructDeclaration
 		return toIdTerm(termFactory, _moduleIdContructorName, decl.getId());
 	}
 
-	/* Transforms {@link ModuleDeclaration} to following term-
+	/* Transforms {@link ModuleDeclaration} to following term : 
 	 * 		ModuleDecl :  Module * String * Package -> Def
 	 * 
 	 * (non-Javadoc)

@@ -19,8 +19,9 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 public class SPX_index_get_language_descriptor extends AbstractPrimitive {
 
 	private static String NAME = "SPX_index_get_language_descriptor";
-	private static int PROJECT_NAME_INDEX = 0;
-	private static int PACKAGE_ID_INDEX = 1;
+	
+	private final static int PROJECT_NAME_INDEX = 0;
+	private final static int PACKAGE_ID_INDEX = 1;
 	
 	private final SpxSemanticIndex index;
 
