@@ -222,9 +222,9 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
 	public IStrategoPlaceholder makePlaceholder(IStrategoTerm template) {
         if (placeholderConstructor == null)
             placeholderConstructor = makeConstructor("<>", 1);
-        return new StrategoPlaceholder(placeholderConstructor, template, makeList(), defaultStorageType);
+        return new StrategoPlaceholder(placeholderConstructor, template, TermFactory.EMPTY_LIST, defaultStorageType);
 	}
-    
+
     /*
      * A Stratego string that maintains 
      * a reference to an existing string,

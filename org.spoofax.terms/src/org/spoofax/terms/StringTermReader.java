@@ -61,7 +61,9 @@ public class StringTermReader {
         final int ch = bis.read();
         if (ch == '{') {
             List<IStrategoTerm> annos = parseTermSequence(bis, '}');
-            return factory.annotateTerm(term, factory.makeList(annos));
+            if (annos.size()==0)
+                return factory.annotateTerm(term, TermFactory.EMPTY_LIST); 
+            return factory.annotateTerm(term, factory.makeList(annos)); 
         } else {
             bis.unread(ch);
             return term;
