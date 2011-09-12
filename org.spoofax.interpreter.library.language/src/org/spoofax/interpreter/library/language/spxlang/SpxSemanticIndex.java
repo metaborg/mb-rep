@@ -1,21 +1,9 @@
 package org.spoofax.interpreter.library.language.spxlang;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.spoofax.interpreter.library.IOAgent;
-import org.spoofax.interpreter.library.language.SemanticIndexEntry;
-import org.spoofax.interpreter.library.language.SemanticIndexEntryFactory;
-import org.spoofax.interpreter.library.language.SemanticIndexEntryParent;
 import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
@@ -157,6 +145,7 @@ public class SpxSemanticIndex {
 				idxFacade.indexLanguageDescriptor(languageDescriptor);
 				}
 		};
+		
 
 		return indexSymbol(projectName, languageDescriptor,  idx);
 	}
@@ -196,7 +185,6 @@ public class SpxSemanticIndex {
 	
 	public IStrategoTerm getCompilationUnit(IStrategoString projectName, IStrategoString spxCompilationUnitPath) throws Exception{
 		ISymbolResolver<IStrategoTerm> resolver = new ISymbolResolver<IStrategoTerm>() {
-			@Override
 			public IStrategoTerm get(IStrategoString projectName,IStrategoTerm key) {
 		
 				SpxSemanticIndexFacade idxFacade = getFacade(projectName);

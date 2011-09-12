@@ -14,12 +14,12 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
  * @author Md. Adil Akhter
  * Created On : Aug 25, 2011
  */
-public class SPX_index_compilation_unit_get extends AbstractPrimitive {
+public class SPX_index_get_compilation_unit extends AbstractPrimitive {
 
-	private static String NAME = "SPX_index_compilation_unit_get";
+	private static String NAME = "SPX_index_get_compilation_unit";
 	private final SpxSemanticIndex index;
 
-	public SPX_index_compilation_unit_get(SpxSemanticIndex index) {
+	public SPX_index_get_compilation_unit(SpxSemanticIndex index) {
 		super(NAME, 0, 2);
 		this.index = index;
 	}	

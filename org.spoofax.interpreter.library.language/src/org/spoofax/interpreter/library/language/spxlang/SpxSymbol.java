@@ -4,24 +4,20 @@ import java.util.UUID;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-class ScopeIndentifier 
+class ScopeIdentifier 
 {
 	private UUID _scopeId;
 	
-	public ScopeIndentifier( UUID scopeId)
+	public ScopeIdentifier( UUID scopeId)
 	{
 		_scopeId = scopeId;
 	}
-	
 	
 	public IScope resolve( ISpxPersistenceManager manager)
 	{
 		return null;
 	}
-	
-	
 }
-
 
 
 /**
@@ -33,7 +29,7 @@ class SpxSymbol {
 	private String _name;
 	private IStrategoTerm _data;
 	private ISpxType _type;
-	private ScopeIndentifier _scope;
+	private ScopeIdentifier _scope;
 	
 	
 	public SpxSymbol (String name){	_name = name; }
@@ -102,39 +98,7 @@ class SpxSymbol {
 }
 
 
-class SpxScopedSymbol extends SpxSymbol implements IScope  
-{
-	public SpxScopedSymbol(String name) {
-		super(name);
-		// TODO Auto-generated constructor stub
-	}
 
-	ScopeIndentifier _enclosingScope;
-	
-	@Override
-	public String getScopeName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Scope getEnclosingScope() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void define(SpxSymbol sym) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public SpxSymbol resolve(String name) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-}
 //
 ///**
 // * @author Md. Adil Akhter

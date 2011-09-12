@@ -3,6 +3,8 @@ package org.spoofax.interpreter.library.language.spxlang;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.spoofax.interpreter.terms.IStrategoTerm;
+
 import jdbm.PrimaryHashMap;
 import jdbm.PrimaryStoreMap;
 import jdbm.RecordManager;
@@ -148,6 +150,5 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 
 	public SpxModuleLookupTable spxModuleTable() {
 		return _spxModuleTable;
-	}
+	}	
 }
-

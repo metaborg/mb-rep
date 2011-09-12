@@ -2,6 +2,8 @@ package org.spoofax.interpreter.library.language.spxlang;
 
 import java.io.IOException;
 
+import org.spoofax.interpreter.terms.IStrategoTerm;
+
 import jdbm.PrimaryHashMap;
 import jdbm.PrimaryStoreMap;
 
