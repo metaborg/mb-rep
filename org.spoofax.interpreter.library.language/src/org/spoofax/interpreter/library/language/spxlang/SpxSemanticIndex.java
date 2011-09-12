@@ -113,7 +113,6 @@ public class SpxSemanticIndex {
 	public boolean indexModuleDefinition(IStrategoString projectName, final IStrategoAppl moduleDefinition)
 	{
 		IIndexer idx = new IIndexer() {
-			@Override
 			public void index(IStrategoString projectName, IStrategoAppl appl) {
 				SpxSemanticIndexFacade idxFacade = getFacade(projectName);
 				idxFacade.indexModuleDefinition(moduleDefinition);
@@ -126,7 +125,6 @@ public class SpxSemanticIndex {
 	
 	public boolean indexPackageDeclaration(IStrategoString projectName, final IStrategoAppl packageDecl) {
 		IIndexer idx = new IIndexer() {
-			@Override
 			public void index(IStrategoString projectName, IStrategoAppl appl) {
 				SpxSemanticIndexFacade idxFacade = getFacade(projectName);
 				idxFacade.indexPackageDeclaration(packageDecl);
@@ -139,7 +137,6 @@ public class SpxSemanticIndex {
 	
 	public boolean indexLanguageDescriptor(IStrategoString projectName,	final IStrategoAppl languageDescriptor) {
 		IIndexer idx = new IIndexer() {
-			@Override
 			public void index(IStrategoString projectName, IStrategoAppl appl) {
 				SpxSemanticIndexFacade idxFacade = getFacade(projectName);
 				idxFacade.indexLanguageDescriptor(languageDescriptor);
@@ -198,7 +195,6 @@ public class SpxSemanticIndex {
 	
 	public IStrategoTerm getPackageDeclaration(IStrategoString projectName, final IStrategoAppl packageTypedQname) throws Exception{
 		ISymbolResolver<IStrategoTerm> resolver = new ISymbolResolver<IStrategoTerm>() {
-			@Override
 			public IStrategoTerm get(IStrategoString projectName,IStrategoTerm qname) {
 				SpxSemanticIndexFacade idxFacade = getFacade(projectName);
 				return idxFacade.getPackageDeclaration((IStrategoAppl)qname);
@@ -211,7 +207,6 @@ public class SpxSemanticIndex {
 	
 	public IStrategoTerm getModuleDeclaration(IStrategoString projectName, final IStrategoAppl moduleTypedQname) throws Exception{
 		ISymbolResolver<IStrategoTerm> resolver = new ISymbolResolver<IStrategoTerm>() {
-			@Override
 			public IStrategoTerm get(IStrategoString projectName,IStrategoTerm qname) {
 				SpxSemanticIndexFacade idxFacade = getFacade(projectName);
 				return idxFacade.getModuleDeclaration((IStrategoAppl)qname);
@@ -223,7 +218,6 @@ public class SpxSemanticIndex {
 	
 	public IStrategoTerm getModuleDefinition(IStrategoString projectName, final IStrategoAppl moduleTypedQname) throws Exception {
 		ISymbolResolver<IStrategoTerm> resolver = new ISymbolResolver<IStrategoTerm>() {
-			@Override
 			public IStrategoTerm get(IStrategoString projectName,IStrategoTerm qname) {
 				SpxSemanticIndexFacade idxFacade = getFacade(projectName);
 				return idxFacade.getModuleDefinition((IStrategoAppl)qname);
@@ -235,7 +229,6 @@ public class SpxSemanticIndex {
 	
 	public IStrategoTerm getLanguageDescriptor(IStrategoString projectName, final IStrategoAppl packageTypedQname) throws Exception{
 		ISymbolResolver<IStrategoTerm> resolver = new ISymbolResolver<IStrategoTerm>() {
-			@Override
 			public IStrategoTerm get(IStrategoString projectName,IStrategoTerm qname) throws Exception  {
 					SpxSemanticIndexFacade idxFacade = getFacade(projectName);
 					return idxFacade.getLanguageDescriptor((IStrategoAppl)qname);
