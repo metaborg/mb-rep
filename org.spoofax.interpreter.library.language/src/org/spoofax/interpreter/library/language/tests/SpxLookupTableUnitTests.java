@@ -436,7 +436,7 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		
 		
 		ArrayList<ModuleDeclaration> modulesByPackageID 
-			= (ArrayList<ModuleDeclaration>)lookupTable.moduleDeclarationsByPackageId(pId);
+			= (ArrayList<ModuleDeclaration>)lookupTable.getModuleDeclarationsByPackageId(pId);
 		
 		assertEquals(2, modulesByPackageID.size());
 	}
@@ -484,7 +484,7 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		manager.commit();
 		
 		ArrayList<ModuleDeclaration> modulesByFileUri 
-			= (ArrayList<ModuleDeclaration>)lookupTable.moduleDeclarationsByUri(absPathString1);
+			= (ArrayList<ModuleDeclaration>)lookupTable.getModuleDeclarationsByUri(absPathString1);
 		
 		assertEquals(1, modulesByFileUri.size());
 	}

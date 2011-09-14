@@ -225,23 +225,35 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener{
 	 * @param absUri
 	 * @return
 	 */
-	public Iterable<ModuleDeclaration> moduleDeclarationsByUri( String absUri)
+	public Iterable<ModuleDeclaration> getModuleDeclarationsByUri( String absUri)
 	{
 		List<ModuleDeclaration> ret = new ArrayList<ModuleDeclaration>();
-	
-		for ( IStrategoList l: _moduleByFileAbsPath.get(absUri))
-			ret.add(_moduleByFileAbsPath.getPrimaryValue(l));
+		
+		Iterable<IStrategoList> foundModuleDecls = _moduleByFileAbsPath.get(absUri);
+		
+		if(foundModuleDecls  != null)
+		{
+			for ( IStrategoList l: foundModuleDecls)
+				ret.add(_moduleByFileAbsPath.getPrimaryValue(l));
+		}
+		
 		return ret;
 	}
 	
-	public Iterable<ModuleDeclaration> moduleDeclarationsByPackageId(IStrategoList packageID)
+	public Iterable<ModuleDeclaration> getModuleDeclarationsByPackageId(IStrategoList packageID)
 	{
 		List<ModuleDeclaration> ret = new ArrayList<ModuleDeclaration>();
-	
-		for ( IStrategoList l: _moduleByPackageId.get(packageID))
-			ret.add(_moduleByPackageId.getPrimaryValue(l));
+		
+		Iterable<IStrategoList> foundModuleDecls = _moduleByPackageId.get(packageID);
+		
+		if(foundModuleDecls  != null)
+		{
+			for ( IStrategoList l: foundModuleDecls)
+				ret.add(_moduleByPackageId.getPrimaryValue(l));
+		}
 		return ret;
 	}
+	
 	
 	public IStrategoList packageId(IStrategoList moduleId)
 	{

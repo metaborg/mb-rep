@@ -135,4 +135,76 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		_facade.assertConstructor(moduleDeclaration.getConstructor(), _facade.getModuleDeclCon(), "Wrong Module Declaration Constructs");
 	}
 	
+	private void indexTestModuleDefs( String moduleName , String packageQName , String filePath)
+	{
+		String moduleQName = packageQName  + ", \""+ moduleName  +"\"" ;
+		IStrategoAppl pQnameAppl = (IStrategoAppl)termFactory().parseFromString("Package(QName(["+packageQName+"]))");
+		
+		IStrategoAppl mQnameAppl = (IStrategoAppl)termFactory().parseFromString("Module(QName(["+moduleQName+ "]))");
+		IStrategoAppl ast = (IStrategoAppl)SpxLookupTableUnitTests.getModuleDefinition(termFactory(), moduleName);
+		IStrategoAppl analyzed_ast = (IStrategoAppl)SpxLookupTableUnitTests.getAnalyzedModuleDefinition(termFactory(), moduleName);
+		
+		_facade.indexModuleDefinition(mQnameAppl, termFactory().makeString(absPathString1), pQnameAppl, ast, analyzed_ast);
+	}
+	
+	private IStrategoAppl indexTestPackageDecl(String packageName , String fileName) {
+		
+		IStrategoAppl pQnameAppl = (IStrategoAppl)termFactory().parseFromString("Package(QName(["+packageName+"]))");
+		_facade.indexPackageDeclaration(pQnameAppl, termFactory().makeString(absPathString1));
+		return pQnameAppl;
+	}
+	
+	public void testGetModuleDeclarationsByPackageId()
+	{
+		String packageName1 =  	"\"languages\", \"entitylang\"" ;
+		
+		IStrategoAppl pQnameAppl = indexTestPackageDecl(packageName1, absPathString1);
+		indexTestModuleDefs ( "m1" , packageName1 , absPathString1);
+		indexTestModuleDefs ( "m2" , packageName1 , absPathString1);
+		
+		String packageName2 =  	"\"languages\", \"entitylang2\"" ;
+		IStrategoAppl pQnameAppl2 = indexTestPackageDecl(packageName2, absPathString1);
+		indexTestModuleDefs ( "m2" , packageName2 , absPathString1);
+		
+		IStrategoList actuals = null;
+		
+		//following invocation should return 2 ModuleDeclarations
+		actuals = _facade.getModuleDeclarations( pQnameAppl );
+		
+		assertEquals(2, actuals.getSubtermCount());
+		
+		//following invocation should return 1 ModuleDeclarations
+		actuals = _facade.getModuleDeclarations( pQnameAppl2 );
+		
+		assertEquals(1, actuals.getSubtermCount());
+	}
+
+	public void testGetModuleDeclarationsWithUnknownPackageID()
+	{
+		String packageName1 =  	"\"languages\", \"entitylang\"" ;
+		
+		indexTestPackageDecl(packageName1, absPathString1);
+		indexTestModuleDefs ( "m1" , packageName1 , absPathString1);
+		indexTestModuleDefs ( "m2" , packageName1 , absPathString1);
+		
+		String packageName2 =  	"\"languages\", \"entitylang2\"" ;
+		indexTestPackageDecl(packageName2, absPathString1);
+		indexTestModuleDefs ( "m2" , packageName2 , absPathString1);
+		
+		
+		String unknown =  	"\"languages\", \"unknown\"" ;
+		IStrategoAppl pUnknownQnameAppl = (IStrategoAppl)termFactory().parseFromString("Package(QName(["+unknown+"]))");
+		IStrategoList actuals = null;
+		
+		//following invocation should return 2 ModuleDeclarations
+		actuals = _facade.getModuleDeclarations( pUnknownQnameAppl );
+		
+		assertEquals(0, actuals.getSubtermCount());
+		
+	}
+	
+	
+	
+	
+	
 }

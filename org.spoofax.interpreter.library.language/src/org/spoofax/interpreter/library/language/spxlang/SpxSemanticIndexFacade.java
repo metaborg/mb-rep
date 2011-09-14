@@ -344,6 +344,30 @@ public class SpxSemanticIndexFacade {
 		return decl.toTerm(this);
 	}
 	
+
+	public IStrategoList getModuleDeclarations(IStrategoAppl packageQName) {
+
+		logMessage("getModuleDeclarations | Arguments : " + packageQName);
+		
+		SpxModuleLookupTable table = getPersistenceManager().spxModuleTable();
+		
+		IStrategoList packageID = PackageDeclaration.getPackageId(getTermFactory(), packageQName);
+		
+		Iterable<ModuleDeclaration> decls = table.getModuleDeclarationsByPackageId(packageID);
+		
+		logMessage("getModuleDeclarations | Found following result from SymbolTable : " + decls);
+		
+		IStrategoList result = _termFactory.makeList();
+		
+		for ( ModuleDeclaration decl: decls)
+			result = _termFactory.makeListCons(decl.toTerm(this), result);
+		
+		logMessage("getModuleDeclarations | After converting it to IStrategoList : " + result );
+		
+		return result;
+	}	
+
+	
 	/** 
 	 * Returns ModuleDefinition for the Module with ID :  {@code moduleTypedQName}
 	 * 
@@ -468,11 +492,6 @@ public class SpxSemanticIndexFacade {
 				ast, analyzedAst);
 	}
 
-	public IStrategoList getModuleDeclarations(IStrategoAppl packageQNameTerm) {
-
-		return null;
-	}
-
 	
 	/**
 	 * Saves(Commits) any unsaved data. 
@@ -500,6 +519,7 @@ public class SpxSemanticIndexFacade {
 		if (! isPersistenceManagerClosed())
 			_persistenceManager.clearAll();
 	}
+
 	/**
 	 * Checks whether the underlying persistence manager is already open. 
 	 * 
@@ -583,7 +603,7 @@ public class SpxSemanticIndexFacade {
 	 */
 	private void logMessage(String message) {
 		
-		final String src = "["+ _projectName+ ": IndexFacade] ";
+		final String src = "["+ _projectName+ ".SpxSemanticIndexFacade]  ";
 		if(DEBUG)
 		{		
 			try {
