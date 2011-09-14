@@ -21,11 +21,16 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 public class SPX_index_remove_compilation_unit extends AbstractPrimitive {
 
 	private static String NAME = "SPX_index_remove_compilation_unit";
+	
+	private final static int PROJECT_NAME_INDEX = 0;
+	private final static int FILE_PATH_INDEX = 1;
 
+	private final static int NO_ARGS = 2;
+	
 	private final SpxSemanticIndex index;
 
 	public SPX_index_remove_compilation_unit(SpxSemanticIndex index) {
-		super(NAME, 0, 2);
+		super(NAME, 0, NO_ARGS);
 		this.index = index;
 	}
 
@@ -37,22 +42,22 @@ public class SPX_index_remove_compilation_unit extends AbstractPrimitive {
 	{
 		boolean successStatement = false;
 		 
-		if ( Tools.isTermString(tvars[0]) && Tools.isTermString(tvars[1])) 
+		if ( (NO_ARGS == tvars.length) && Tools.isTermString(tvars[PROJECT_NAME_INDEX]) && Tools.isTermString(tvars[FILE_PATH_INDEX])) 
 		{
-			IStrategoString projectName = (IStrategoString)tvars[0];
-			IStrategoString spxCompilationUnitPath = (IStrategoString)tvars[1];
+			IStrategoString projectName = (IStrategoString)tvars[PROJECT_NAME_INDEX];
+			IStrategoString spxCompilationUnitPath = (IStrategoString)tvars[FILE_PATH_INDEX];
 		
 			try {
 				successStatement  = index.removeCompilationUnit(projectName ,  spxCompilationUnitPath);
 			} 
 			catch(Exception ex)
 			{
-				// logging any unhandled exception 
 				SSLLibrary.instance(env).getIOAgent().printError("["+NAME+" Invokation failed . ] Error : "+ ex.getMessage());
 			}
 		}
+		else
+			SSLLibrary.instance(env).getIOAgent().printError("["+NAME+" Invokation failed . ] Error :  Mismatch in provided arguments. Variables provided : "+ tvars);
 		
 		return successStatement;
 	}
-
 }

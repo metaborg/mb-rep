@@ -1,9 +1,5 @@
 package org.spoofax.interpreter.library.language.spxlang;
 
-import static org.spoofax.interpreter.core.Tools.isTermAppl;
-
-import java.io.IOException;
-
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.core.InterpreterException;
 import org.spoofax.interpreter.core.Tools;
@@ -19,11 +15,13 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 public class SPX_index_save extends AbstractPrimitive {
 
 	private static String NAME = "SPX_index_save";
-
+	private static int PROJECT_NAME_INDEX = 0;
+	private final static int NO_ARGS = 1;
+	
 	private final SpxSemanticIndex index;
 
 	public SPX_index_save(SpxSemanticIndex index) {
-		super(NAME, 0, 1);
+		super(NAME, 0, NO_ARGS);
 		this.index = index;
 	}
 	
@@ -31,15 +29,17 @@ public class SPX_index_save extends AbstractPrimitive {
 	 * @see org.spoofax.interpreter.library.AbstractPrimitive#call(org.spoofax.interpreter.core.IContext, org.spoofax.interpreter.stratego.Strategy[], org.spoofax.interpreter.terms.IStrategoTerm[])
 	 */
 	@Override
-	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars)
-			throws InterpreterException {
+	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars){
 	
-		if (!Tools.isTermString(tvars[0]))
+		if ( (tvars.length != NO_ARGS) && !Tools.isTermString(tvars[PROJECT_NAME_INDEX]))
+		{	
+			SSLLibrary.instance(env).getIOAgent().printError("["+NAME+" Invokation failed . ] Error :  Mismatch in provided arguments. Variables provided : "+ tvars);
 			return false;
+		}
 		
 		try 
 		{
-			return index.save(tvars[0]);
+			return index.save(tvars[PROJECT_NAME_INDEX]);
 		}
 		catch(Exception ex)
 		{

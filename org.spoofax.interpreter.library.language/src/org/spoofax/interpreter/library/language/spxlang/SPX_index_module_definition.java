@@ -21,11 +21,14 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 public class SPX_index_module_definition extends AbstractPrimitive {
 
 	private static String NAME = "SPX_index_module_definition";
-
+	private static int PROJECT_NAME_INDEX = 0;
+	private static int MODULE_DEF_INDEX = 1;
+	private final static int NO_ARGS = 2;
+	
 	private final SpxSemanticIndex index;
 
 	public SPX_index_module_definition(SpxSemanticIndex index) {
-		super(NAME, 0, 2);
+		super(NAME, 0, NO_ARGS);
 		this.index = index;
 	}
 
@@ -33,10 +36,10 @@ public class SPX_index_module_definition extends AbstractPrimitive {
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
 		boolean successStatement = false;
 		
-		if (isTermString(tvars[0]) && isTermAppl(tvars[0])) {
+		if ( (tvars.length == NO_ARGS) && isTermString(tvars[PROJECT_NAME_INDEX]) && isTermAppl(tvars[MODULE_DEF_INDEX])) {
 			
-			IStrategoString projectName = (IStrategoString)tvars[0];
-			IStrategoAppl moduleDef = (IStrategoAppl) tvars[1];
+			IStrategoString projectName = (IStrategoString)tvars[PROJECT_NAME_INDEX];
+			IStrategoAppl moduleDef = (IStrategoAppl) tvars[MODULE_DEF_INDEX ];
 			
 			try
 			{
@@ -47,6 +50,8 @@ public class SPX_index_module_definition extends AbstractPrimitive {
 				SSLLibrary.instance(env).getIOAgent().printError("["+NAME+" Invokation failed . ] Error : "+ ex.getMessage());
 			}
 		}
+		else
+			SSLLibrary.instance(env).getIOAgent().printError("["+NAME+" Invokation failed . ] Error :  Mismatch in provided arguments. Variables provided : "+ tvars);
 		
 		return successStatement;	
 	}

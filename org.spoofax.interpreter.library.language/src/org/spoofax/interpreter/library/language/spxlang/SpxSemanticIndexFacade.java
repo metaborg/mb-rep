@@ -51,10 +51,10 @@ public class SpxSemanticIndexFacade {
 		_agent = agent;
 		_stripper = new TermAttachmentStripper(_termFactory);
 		
-		_moduleDefCon  			= _termFactory.makeConstructor("ModuleDefinition", 5);
-		_moduleDeclCon 			= _termFactory.makeConstructor("ModuleDeclaration", 3);
-		_packageDeclCon 		= _termFactory.makeConstructor("PackageDeclaration", 2);
-		_languageDescriptorCon  = _termFactory.makeConstructor("LanguageDescriptor", 5);
+		_moduleDefCon  			= _termFactory.makeConstructor("ModuleDef", 5);
+		_moduleDeclCon 			= _termFactory.makeConstructor("ModuleDecl", 3);
+		_packageDeclCon 		= _termFactory.makeConstructor("PackageDecl", 2);
+		_languageDescriptorCon  = _termFactory.makeConstructor("PackageDeclaration", 5);
 		
 		_persistenceManager = new SpxPersistenceManager(_projectName , _agent.getWorkingDir());
 	}
@@ -223,7 +223,7 @@ public class SpxSemanticIndexFacade {
 	 */
 	public void indexPackageDeclaration(IStrategoAppl packageDeclaration)
 	{
-		verifyDeclarationType(
+		assertConstructor(
 				packageDeclaration.getConstructor(), 
 				getPackageDeclCon(), 
 				"Illegal PackageDeclaration");
@@ -269,7 +269,7 @@ public class SpxSemanticIndexFacade {
 	 */
 	public void indexLanguageDescriptor (IStrategoAppl languageDescriptor)
 	{
-		verifyDeclarationType(languageDescriptor.getConstructor(), getLanguageDescriptorCon(), "Invalid LanguageDescriptor argument : "+ languageDescriptor.toString());
+		assertConstructor(languageDescriptor.getConstructor(), getLanguageDescriptorCon(), "Invalid LanguageDescriptor argument : "+ languageDescriptor.toString());
 		
 		IStrategoList qualifiedPackageId = PackageDeclaration.getPackageId(getTermFactory(), (IStrategoAppl)languageDescriptor.getSubterm(0)) ;
 		SpxPackageLookupTable table = _persistenceManager.spxPackageTable();
@@ -423,7 +423,7 @@ public class SpxSemanticIndexFacade {
 	 */
 	public void indexModuleDefinition(IStrategoAppl moduleDefinition) throws IllegalArgumentException
 	{
-		verifyDeclarationType(moduleDefinition.getConstructor() , _moduleDefCon , "Illegal Module Definition" );
+		assertConstructor(moduleDefinition.getConstructor() , _moduleDefCon , "Illegal Module Definition" );
 		
 		indexModuleDefinition(	(IStrategoAppl)   moduleDefinition.getSubterm(ModuleDeclaration.ModuleTypedQNameIndex), 
 								(IStrategoString) moduleDefinition.getSubterm(ModuleDeclaration.ModulePathIndex), 
@@ -441,36 +441,36 @@ public class SpxSemanticIndexFacade {
 	 * @param ast
 	 * @param analyzedAst
 	 */
-	public void indexModuleDefinition(
-			IStrategoAppl moduleQName,
-			IStrategoString spxCompilationUnitPath ,
-			IStrategoAppl packageQName,
-			IStrategoAppl ast , 
-			IStrategoAppl analyzedAst)
-	{
-		
+	public void indexModuleDefinition(IStrategoAppl moduleQName,
+			IStrategoString spxCompilationUnitPath, IStrategoAppl packageQName,
+			IStrategoAppl ast, IStrategoAppl analyzedAst) {
+
 		SpxModuleLookupTable table = _persistenceManager.spxModuleTable();
-		
-		IStrategoList moduleId = ModuleDeclaration.getModuleId(this.getTermFactory(), moduleQName);
-		IStrategoList packageId = PackageDeclaration.getPackageId(this.getTermFactory(), packageQName);
 
-		moduleId 				= (IStrategoList)toCompactPositionInfo(moduleId);
-		packageId 				= (IStrategoList)toCompactPositionInfo(packageId);
-		ast 					= (IStrategoAppl)strip(ast);
-		analyzedAst 			= (IStrategoAppl)strip(analyzedAst);
-		spxCompilationUnitPath  = (IStrategoString) strip(spxCompilationUnitPath);
-		
-		//verify whether the enclosing package exists in symbol table 
+		IStrategoList moduleId = ModuleDeclaration.getModuleId(
+				this.getTermFactory(), moduleQName);
+		IStrategoList packageId = PackageDeclaration.getPackageId(
+				this.getTermFactory(), packageQName);
+
+		moduleId = (IStrategoList) toCompactPositionInfo(moduleId);
+		packageId = (IStrategoList) toCompactPositionInfo(packageId);
+		ast = (IStrategoAppl) strip(ast);
+		analyzedAst = (IStrategoAppl) strip(analyzedAst);
+		spxCompilationUnitPath = (IStrategoString) strip(spxCompilationUnitPath);
+
+		// verify whether the enclosing package exists in symbol table
 		if (!_persistenceManager.spxPackageTable().containsPackage(packageId))
-			throw new IllegalArgumentException("Unknown Package : "+packageId.toString());
+			throw new IllegalArgumentException("Unknown Package : "
+					+ packageId.toString());
 
-		table.define(
-				new ModuleDeclaration(
-						toAbsulatePath(spxCompilationUnitPath) ,
-						moduleId, 
-						packageId)
-				,ast
-				,analyzedAst);
+		table.define(new ModuleDeclaration(
+				toAbsulatePath(spxCompilationUnitPath), moduleId, packageId),
+				ast, analyzedAst);
+	}
+
+	public IStrategoList getModuleDeclarations(IStrategoAppl packageQNameTerm) {
+
+		return null;
 	}
 
 	
@@ -513,7 +513,7 @@ public class SpxSemanticIndexFacade {
 	/**
 	 * @return the PackageDeclaration Constructor
 	 */
-	IStrategoConstructor getPackageDeclCon() {
+	public IStrategoConstructor getPackageDeclCon() {
 		return _packageDeclCon;
 	}
 	
@@ -565,7 +565,7 @@ public class SpxSemanticIndexFacade {
 	 * @param expected
 	 * @param message
 	 */
-	private void verifyDeclarationType( IStrategoConstructor actual , IStrategoConstructor expected , String message)
+	public  void assertConstructor( IStrategoConstructor actual , IStrategoConstructor expected , String message)
 	{
 		if( actual != expected)
 			throw new IllegalArgumentException(message);
@@ -588,7 +588,5 @@ public class SpxSemanticIndexFacade {
 			}
 		}
 	}
-	
-	
-	
+
 }

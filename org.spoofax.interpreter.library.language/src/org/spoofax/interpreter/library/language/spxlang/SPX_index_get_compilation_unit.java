@@ -1,7 +1,5 @@
 package org.spoofax.interpreter.library.language.spxlang;
 
-import java.io.IOException;
-
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.library.AbstractPrimitive;
@@ -41,7 +39,6 @@ public class SPX_index_get_compilation_unit extends AbstractPrimitive {
 		if(tvars.length != NO_ARGS)
 			return successStatement;
 		
-		
 		if ( Tools.isTermString(tvars[PROJECT_NAME_INDEX]) && Tools.isTermString(tvars[COMP_UNIT_PATH_INDEX])) 
 		{
 			IStrategoString projectName = (IStrategoString)tvars[PROJECT_NAME_INDEX];
@@ -51,12 +48,13 @@ public class SPX_index_get_compilation_unit extends AbstractPrimitive {
 				env.setCurrent(t);
 				successStatement = true;
 			} 
-			catch(Exception ex)
-			{
-				// Logging any exception throw from the underlying symbol table. 
+			catch(Exception ex){
 				SSLLibrary.instance(env).getIOAgent().printError("["+NAME+" Invokation failed . ] Error : "+ ex.getMessage());
 			}
 		}
+		else
+			SSLLibrary.instance(env).getIOAgent().printError("["+NAME+" Invokation failed . ] Error :  Mismatch in provided arguments. Variables provided : "+ tvars);
+		
 		return successStatement;
 	}
 

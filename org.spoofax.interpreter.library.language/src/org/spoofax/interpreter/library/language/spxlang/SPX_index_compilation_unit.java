@@ -21,11 +21,17 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 public class SPX_index_compilation_unit extends AbstractPrimitive {
 
 	private static String NAME = "SPX_index_compilation_unit";
-
+	
+	private static int PROJECT_NAME_INDEX = 0;
+	private static int COMPILATION_UNIT_PATH_INDEX = 1;
+	private static int COMPILATION_UNIT_AST_INDEX = 2;
+	
+	private final static int NO_ARGS = 3;
+	
 	private final SpxSemanticIndex index;
 
 	public SPX_index_compilation_unit(SpxSemanticIndex index) {
-		super(NAME, 0, 3);
+		super(NAME, 0, NO_ARGS);
 		this.index = index;
 	}
 
@@ -37,11 +43,12 @@ public class SPX_index_compilation_unit extends AbstractPrimitive {
 	{
 		boolean successStatement = false;
 		 
-		if ( Tools.isTermString(tvars[0]) && Tools.isTermString(tvars[1]) && Tools.isTermAppl(tvars[2])) 
-		{
-			IStrategoString projectName = (IStrategoString)tvars[0];
-			IStrategoString spxCompilationUnitPath = (IStrategoString)tvars[1];
-			IStrategoAppl  compilationUnitRTree = (IStrategoAppl)tvars[2];
+		if (Tools.isTermString(tvars[PROJECT_NAME_INDEX])
+				&& Tools.isTermString(tvars[COMPILATION_UNIT_PATH_INDEX])
+				&& Tools.isTermAppl(tvars[COMPILATION_UNIT_AST_INDEX])) {
+			IStrategoString projectName = (IStrategoString)tvars[PROJECT_NAME_INDEX];
+			IStrategoString spxCompilationUnitPath = (IStrategoString)tvars[COMPILATION_UNIT_PATH_INDEX];
+			IStrategoAppl  compilationUnitRTree = (IStrategoAppl)tvars[COMPILATION_UNIT_AST_INDEX];
 			
 			try {
 				successStatement  = index.indexCompilationUnit(projectName ,  spxCompilationUnitPath ,  compilationUnitRTree);
@@ -51,7 +58,9 @@ public class SPX_index_compilation_unit extends AbstractPrimitive {
 				SSLLibrary.instance(env).getIOAgent().printError("["+NAME+" Invokation failed . ] Error : "+ ex.getMessage());
 			}
 		}
-		
+		else
+			SSLLibrary.instance(env).getIOAgent().printError("["+NAME+" Invokation failed . ] Error :  Mismatch in provided arguments. Variables provided : "+ tvars);
+			
 		return successStatement;
 	}
 

@@ -19,11 +19,12 @@ public class SPX_index_get_package_declaration extends AbstractPrimitive {
 	private static String NAME = "SPX_index_get_package_declaration";
 	private static int PROJECT_NAME_INDEX = 0;
 	private static int PACKAGE_ID_INDEX = 1;
+	private final static int NO_ARGS = 2;
 	
 	private final SpxSemanticIndex index;
 
 	public SPX_index_get_package_declaration(SpxSemanticIndex index) {
-		super(NAME, 0, 2);
+		super(NAME, 0, NO_ARGS);
 		this.index = index;
 	}
 	
@@ -37,7 +38,7 @@ public class SPX_index_get_package_declaration extends AbstractPrimitive {
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars){
 		boolean successStatement = false;
 		
-		if ( Tools.isTermString(tvars[PROJECT_NAME_INDEX]) && Tools.isTermAppl(tvars[PACKAGE_ID_INDEX])) 
+		if ( (tvars.length == NO_ARGS) && Tools.isTermString(tvars[PROJECT_NAME_INDEX]) && Tools.isTermAppl(tvars[PACKAGE_ID_INDEX])) 
 		{
 			IStrategoString projectName    = (IStrategoString)tvars[PROJECT_NAME_INDEX];
 			IStrategoAppl typedPackageIdQName = (IStrategoAppl)tvars[PACKAGE_ID_INDEX];
@@ -53,6 +54,8 @@ public class SPX_index_get_package_declaration extends AbstractPrimitive {
 				SSLLibrary.instance(env).getIOAgent().printError("["+NAME+" Invokation failed . ] Error : "+ ex.getMessage());
 			}
 		}
+		else
+			SSLLibrary.instance(env).getIOAgent().printError("["+NAME+" Invokation failed . ] Error :  Mismatch in provided arguments. Variables provided : "+ tvars);
 		
 		return successStatement;
 	}

@@ -88,7 +88,7 @@ public class PackageDeclaration extends BaseConstructDeclaration
 		
 		if(packageQNameCon == packageQName.getConstructor())
 		{
-			getID(fac, (IStrategoAppl)packageQName.getSubterm(0));	
+			return getID(fac, (IStrategoAppl)packageQName.getSubterm(0));	
 		}
 		
 		throw new IllegalArgumentException("Invalid Package Typed QName : "+ packageQName);

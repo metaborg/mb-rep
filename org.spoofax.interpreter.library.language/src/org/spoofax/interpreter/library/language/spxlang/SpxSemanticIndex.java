@@ -118,7 +118,6 @@ public class SpxSemanticIndex {
 				idxFacade.indexModuleDefinition(moduleDefinition);
 			}
 		};
-
 		return indexSymbol(projectName, moduleDefinition,  idx);
 	}
 	
@@ -297,6 +296,11 @@ public class SpxSemanticIndex {
 		return true;
 	}
 	
+	/**
+	 * Closes any underlying open connection and clean up unmanaged resources. 
+	 * 
+	 * @param projectName
+	 */
 	private void tryCleanupResources( IStrategoTerm projectName){
 		
 		if ( _facadeRegistry.containsFacade(projectName))

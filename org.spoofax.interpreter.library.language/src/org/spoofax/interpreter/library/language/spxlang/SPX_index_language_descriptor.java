@@ -3,11 +3,8 @@
  */
 package org.spoofax.interpreter.library.language.spxlang;
 
-import static org.spoofax.interpreter.core.Tools.asJavaString;
 import static org.spoofax.interpreter.core.Tools.isTermAppl;
 import static org.spoofax.interpreter.core.Tools.isTermString;
-
-import java.net.URI;
 
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.library.AbstractPrimitive;
@@ -21,14 +18,17 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
  * @author Md. Adil Akhter
  *
  */
-public class SPX_index_language_desriptor extends AbstractPrimitive {
+public class SPX_index_language_descriptor extends AbstractPrimitive {
 
 	private static String NAME = "SPX_index_language_descriptor";
+	private static int PROJECT_NAME_INDEX = 0;
+	private static int LANGUAGE_DESCRIPTOR_INDEX = 1;
+	private final static int NO_ARGS = 2;
 
 	private final SpxSemanticIndex index;
 
-	public SPX_index_language_desriptor(SpxSemanticIndex index) {
-		super(NAME, 0, 2);
+	public SPX_index_language_descriptor(SpxSemanticIndex index) {
+		super(NAME, 0, NO_ARGS);
 		this.index = index;
 	}
 
@@ -36,11 +36,10 @@ public class SPX_index_language_desriptor extends AbstractPrimitive {
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
 		boolean successStatement = false;
 
-		if (isTermString(tvars[0]) && isTermAppl(tvars[0])) {
+		if ((NO_ARGS == tvars.length) && isTermString(tvars[PROJECT_NAME_INDEX]) && isTermAppl(tvars[LANGUAGE_DESCRIPTOR_INDEX])) {
 
-			IStrategoString projectName = (IStrategoString)tvars[0];
-			IStrategoAppl languageDescriptor= (IStrategoAppl) tvars[1];
-
+			IStrategoString projectName = (IStrategoString)tvars[PROJECT_NAME_INDEX];
+			IStrategoAppl languageDescriptor= (IStrategoAppl) tvars[LANGUAGE_DESCRIPTOR_INDEX];
 			try
 			{
 				successStatement = index.indexLanguageDescriptor(projectName, languageDescriptor);
@@ -50,7 +49,9 @@ public class SPX_index_language_desriptor extends AbstractPrimitive {
 				SSLLibrary.instance(env).getIOAgent().printError("["+NAME+" Invokation failed . ] Error : "+ ex.getMessage());
 			}
 		}
-
+		else
+			SSLLibrary.instance(env).getIOAgent().printError("["+NAME+" Invokation failed . ] Error :  Mismatch in provided arguments. Variables provided : "+ tvars);
+		
 		return successStatement;	
 	}
 }

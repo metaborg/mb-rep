@@ -357,8 +357,8 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		
 		lookupTable.define(
 					m1 , 
-					(IStrategoAppl)getModuleDefinition("m1") , 
-					(IStrategoAppl)getAnalyzedModuleDefinition("m1")
+					(IStrategoAppl)getModuleDefinition(f, "m1") , 
+					(IStrategoAppl)getAnalyzedModuleDefinition(f, "m1")
 				);
 		
 		IStrategoList idm2 = f.makeList(f.makeString("test") , f.makeString("m2"));
@@ -366,8 +366,8 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		
 		lookupTable.define(
 				m2 , 
-				(IStrategoAppl)getModuleDefinition("m2") , 
-				(IStrategoAppl)getAnalyzedModuleDefinition("m2")
+				(IStrategoAppl)getModuleDefinition(f, "m2") , 
+				(IStrategoAppl)getAnalyzedModuleDefinition(f, "m2")
 			);
 	
 		
@@ -376,8 +376,8 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 
 		lookupTable.define(
 				m3 , 
-				(IStrategoAppl)getModuleDefinition("m3") , 
-				(IStrategoAppl)getAnalyzedModuleDefinition("m3")
+				(IStrategoAppl)getModuleDefinition(f, "m3") , 
+				(IStrategoAppl)getAnalyzedModuleDefinition(f, "m3")
 			);
 	
 		assertEquals(3, lookupTable.size());
@@ -407,8 +407,8 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		
 		lookupTable.define(
 					m1 , 
-					(IStrategoAppl)getModuleDefinition("m1") , 
-					(IStrategoAppl)getAnalyzedModuleDefinition("m1")
+					(IStrategoAppl)getModuleDefinition(f, "m1") , 
+					(IStrategoAppl)getAnalyzedModuleDefinition(f, "m1")
 				);
 		
 		IStrategoList idm2 = f.makeList(f.makeString("test") , f.makeString("m2"));
@@ -416,8 +416,8 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		
 		lookupTable.define(
 				m2 , 
-				(IStrategoAppl)getModuleDefinition("m2") , 
-				(IStrategoAppl)getAnalyzedModuleDefinition("m2")
+				(IStrategoAppl)getModuleDefinition(f, "m2") , 
+				(IStrategoAppl)getAnalyzedModuleDefinition(f, "m2")
 			);
 	
 		
@@ -426,8 +426,8 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 
 		lookupTable.define(
 				m3 , 
-				(IStrategoAppl)getModuleDefinition("m3") , 
-				(IStrategoAppl)getAnalyzedModuleDefinition("m3")
+				(IStrategoAppl)getModuleDefinition(f, "m3") , 
+				(IStrategoAppl)getAnalyzedModuleDefinition(f, "m3")
 			);
 	
 		assertEquals(3, lookupTable.size());
@@ -456,8 +456,8 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		
 		lookupTable.define(
 					m1 , 
-					(IStrategoAppl)getModuleDefinition("m1") , 
-					(IStrategoAppl)getAnalyzedModuleDefinition("m1")
+					(IStrategoAppl)getModuleDefinition(f, "m1") , 
+					(IStrategoAppl)getAnalyzedModuleDefinition(f, "m1")
 				);
 		
 		IStrategoList idm2 = f.makeList(f.makeString("test") , f.makeString("m2"));
@@ -465,8 +465,8 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		
 		lookupTable.define(
 				m2 , 
-				(IStrategoAppl)getModuleDefinition("m2") , 
-				(IStrategoAppl)getAnalyzedModuleDefinition("m2")
+				(IStrategoAppl)getModuleDefinition(f, "m2") , 
+				(IStrategoAppl)getAnalyzedModuleDefinition(f, "m2")
 			);
 	
 		
@@ -475,8 +475,8 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 
 		lookupTable.define(
 				m3 , 
-				(IStrategoAppl)getModuleDefinition("m3") , 
-				(IStrategoAppl)getAnalyzedModuleDefinition("m3")
+				(IStrategoAppl)getModuleDefinition(f, "m3") , 
+				(IStrategoAppl)getAnalyzedModuleDefinition(f, "m3")
 			);
 	
 		assertEquals(3, lookupTable.size());
@@ -506,8 +506,8 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		
 		lookupTable.define(
 					m1 , 
-					(IStrategoAppl)getModuleDefinition("m1") , 
-					(IStrategoAppl)getAnalyzedModuleDefinition("m1")
+					(IStrategoAppl)getModuleDefinition(f, "m1") , 
+					(IStrategoAppl)getAnalyzedModuleDefinition(f, "m1")
 				);
 		
 		IStrategoList idm2 = f.makeList(f.makeString("test") , f.makeString("m2"));
@@ -515,8 +515,8 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		
 		lookupTable.define(
 				m2 , 
-				(IStrategoAppl)getModuleDefinition("m2") , 
-				(IStrategoAppl)getAnalyzedModuleDefinition("m2")
+				(IStrategoAppl)getModuleDefinition(f, "m2") , 
+				(IStrategoAppl)getAnalyzedModuleDefinition(f, "m2")
 			);
 	
 		
@@ -525,8 +525,8 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 
 		lookupTable.define(
 				m3 , 
-				(IStrategoAppl)getModuleDefinition("m3") , 
-				(IStrategoAppl)getAnalyzedModuleDefinition("m3")
+				(IStrategoAppl)getModuleDefinition(f, "m3") , 
+				(IStrategoAppl)getAnalyzedModuleDefinition(f , "m3")
 			);
 	
 		assertEquals(3, lookupTable.size());
@@ -537,10 +537,9 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		
 		assertEquals(1, lookupTable.size());
 	}
-	private IStrategoTerm getModuleDefinition( String moduleName )
+	static IStrategoTerm getModuleDefinition( ITermFactory f, String moduleName )
 	{
-		ITermFactory f = this.termFactory();
-
+		
 		String text = "Module(" + 
 		"None()"+
 		", SPXModuleName(\""+moduleName+"\")"+
@@ -549,8 +548,8 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		return f.parseFromString(text);
 	}
 
-	private IStrategoTerm getAnalyzedModuleDefinition(String moduleName) 
+	static IStrategoTerm getAnalyzedModuleDefinition(ITermFactory f , String moduleName) 
 	{ 
-		return getModuleDefinition(moduleName);
+		return getModuleDefinition(f, moduleName);
 	}
 }

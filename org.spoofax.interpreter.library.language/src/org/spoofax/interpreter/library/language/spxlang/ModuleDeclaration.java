@@ -16,7 +16,7 @@ public class ModuleDeclaration extends BaseConstructDeclaration
 	static final int ModulePathIndex = 1;
 	static final int PackageTypedQNameIndex = 2;
 	static final int AstIndex = 3;
-	static final int AnalyzedAstIndex = 3;
+	static final int AnalyzedAstIndex = 4;
 	
 	final String resourceAbsPath; 
 	
@@ -90,7 +90,7 @@ public class ModuleDeclaration extends BaseConstructDeclaration
 		final IStrategoConstructor moduleQNameCons = fac.makeConstructor(_moduleIdContructorName, 1);
 		
 		if(moduleQNameCons == moduleQName.getConstructor())
-			getID(fac, (IStrategoAppl)moduleQName.getSubterm(ModuleTypedQNameIndex));	
+			return getID(fac, (IStrategoAppl)moduleQName.getSubterm(ModuleTypedQNameIndex));	
 		
 		throw new IllegalArgumentException("Invalid module qname : "+ moduleQName.toString());
 	}

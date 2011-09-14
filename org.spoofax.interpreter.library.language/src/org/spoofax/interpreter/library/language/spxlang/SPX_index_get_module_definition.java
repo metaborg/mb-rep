@@ -47,6 +47,9 @@ public class SPX_index_get_module_definition extends AbstractPrimitive {
 				SSLLibrary.instance(env).getIOAgent().printError("["+NAME+" Invokation failed . ] Error : "+ ex.getMessage());
 			}
 		}
+		else
+			SSLLibrary.instance(env).getIOAgent().printError("["+NAME+" Invokation failed . ] Error :  Mismatch in provided arguments. Variables provided : "+ tvars);
+		
 		return successStatement;
 	}
 

@@ -48,10 +48,11 @@ class ModuleDefinition  extends ModuleDeclaration
 		ITermFactory termFactory = idxFacade.getTermFactory();
 		
 		IStrategoTerm moduleDeclarationTerm = super.toTerm(idxFacade);
-		IStrategoConstructor moduleDefCons = idxFacade.getModuleDeclCon();
+		IStrategoConstructor moduleDefCons = idxFacade.getModuleDefCon();
 		
 		
-		IStrategoTerm retTerm = termFactory.makeAppl(moduleDefCons,
+		IStrategoTerm retTerm = termFactory.makeAppl(
+				moduleDefCons,
 				moduleDeclarationTerm.getSubterm(0),
 				moduleDeclarationTerm.getSubterm(1),
 				moduleDeclarationTerm.getSubterm(2),
