@@ -3,7 +3,9 @@ package org.spoofax.interpreter.library.language.spxlang;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import static org.spoofax.interpreter.library.language.spxlang.SpxCompilationUnitInfo.toAbsulatePath;
@@ -187,6 +189,13 @@ public class SpxCompilationUnitTable {
 		
 		return _spxUnitStoreMap.get(retUnitData.getRecId());
 		
+	}
+	
+	public void clear() {
+		Iterator<String> keyIter = _infoMap.keySet().iterator();
+		while (keyIter.hasNext())
+			_infoMap.remove(keyIter.next());
+
 	}
 	
 }

@@ -3,6 +3,7 @@ package org.spoofax.interpreter.library.language.spxlang;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import jdbm.InverseHashView;
@@ -147,14 +148,14 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener{
 			.addAnalyzedModuleDefinition(decl.getId(), analyzedModuleDefinition);
 	}
 	
-	public SpxModuleLookupTable addModuleDefinition(IStrategoList id, IStrategoAppl moduleDefinition)
+	private SpxModuleLookupTable addModuleDefinition(IStrategoList id, IStrategoAppl moduleDefinition)
 	{
 		_moduleDefinition.put(id, moduleDefinition);
 		
 		return this;
 	}
 	
-	public SpxModuleLookupTable addAnalyzedModuleDefinition(IStrategoList id, IStrategoAppl moduleDefinition)
+	private SpxModuleLookupTable addAnalyzedModuleDefinition(IStrategoList id, IStrategoAppl moduleDefinition)
 	{
 		_moduleAnalyzedDefinition.put(id, moduleDefinition);
 		
@@ -275,13 +276,15 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener{
 	
 	
 	/**
-	 * Clears the symbol table
+	 * Clears ModuleLookup Table
 	 */
 	public synchronized void clear()
 	{
-		this._moduleLookupMap.clear();
-		this._moduleDefinition.clear();
-		this._moduleAnalyzedDefinition.clear();
+		Iterator<IStrategoList> keyIter = _moduleLookupMap.keySet().iterator();
+		
+		while (keyIter.hasNext())
+			_moduleLookupMap.remove(keyIter.next());
+		
 	}
 	
 	

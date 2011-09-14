@@ -3,6 +3,7 @@ package org.spoofax.interpreter.library.language.spxlang;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import jdbm.PrimaryHashMap;
@@ -106,13 +107,15 @@ public class SpxPackageLookupTable  implements ICompilationUnitRecordListener{
 								_languageDescriptors.remove(key);
 							}
 					}
+
 					public void recordRemoved(IStrategoList key,
 							PackageDeclaration value) throws IOException {
-						
-						//removing language descriptors 
+
+						// removing language descriptors
 						_languageDescriptors.remove(key);
-						
-					}}
+
+					}
+				}
 		);
 	
 	}
@@ -253,9 +256,11 @@ public class SpxPackageLookupTable  implements ICompilationUnitRecordListener{
 	/**
 	 * Clears Symbol table  
 	 */
-	public synchronized void clear() { 
-		_packageLookupTable.clear();
-		_languageDescriptors.clear();
+	public synchronized void clear() {
+		Iterator<IStrategoList> keyIter = _packageLookupTable.keySet().iterator();
+		
+		while (keyIter.hasNext())
+			_packageLookupTable.remove(keyIter.next());
 	} 
 
 	/**

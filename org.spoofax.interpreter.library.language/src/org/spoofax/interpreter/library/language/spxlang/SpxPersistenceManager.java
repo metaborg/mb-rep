@@ -74,9 +74,14 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	{
 		// chain record listeners among the tables. 
 		// If compilation unit is removed, automatically remove packages.
-		// If package is removed , automatically remove the modules that is located.
+		// If package is removed , automatically remove the modules that is located 
+		// in that particular compilation units 
+		
 		_spxUnitsTable.addRecordListener((ICompilationUnitRecordListener)_spxPackageTable);
 		_spxUnitsTable.addRecordListener((ICompilationUnitRecordListener)_spxModuleTable);
+		
+		//TODO : also chain package removed event so that whenever a package is removed from
+		//symbol table, remove enclosing module declaration. 
 	}
 	
 	
@@ -151,4 +156,11 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	public SpxModuleLookupTable spxModuleTable() {
 		return _spxModuleTable;
 	}	
+
+	public void clearAll(){
+		this._spxUnitsTable.clear();	
+		
+		this._spxPackageTable.clear();
+		this._spxModuleTable.clear();
+	}
 }

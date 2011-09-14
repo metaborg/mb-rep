@@ -29,4 +29,6 @@ public interface ISpxPersistenceManager {
 	public void commit() throws IOException;
 	
 	public boolean IsClosed();
+	
+	public void clearAll();
 }

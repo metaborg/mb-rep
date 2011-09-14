@@ -42,12 +42,13 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		
 		projectNameTerm = termFactory().makeString(_projectName);
 		
-		
+	
 		_facade = new SpxSemanticIndexFacade(projectNameTerm , termFactory() , ioAgent());
-		
+		_facade.clearSymbolTable();
 	}
 	
-	@Override protected void tearDown() throws Exception {
+	@Override 
+	protected void tearDown() throws Exception {
 		_facade.close();
 	}
 	
@@ -112,4 +113,26 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		
 		assertEquals(2, ((IStrategoList)packageDeclaration.getSubterm(1)).getAllSubterms().length);
 	}
+	
+	
+	public void testIndexModuleDeclaration() 
+	{
+		ITermFactory f = termFactory() ;
+
+		String moduleName =  "m1" ;
+		IStrategoAppl pQnameAppl = (IStrategoAppl)f.parseFromString("Package(QName([\"languages\", \"entitylang\"]))"); 
+		
+		IStrategoAppl mQnameAppl = (IStrategoAppl)f.parseFromString("Module(QName([\"languages\", \"entitylang\" , \""+ moduleName  +"\"]))");
+		IStrategoAppl ast = (IStrategoAppl)SpxLookupTableUnitTests.getModuleDefinition(f, moduleName);
+		IStrategoAppl analyzed_ast = (IStrategoAppl)SpxLookupTableUnitTests.getAnalyzedModuleDefinition(f, moduleName);
+		
+		_facade.indexPackageDeclaration(pQnameAppl, f.makeString(absPathString1));
+		_facade.indexModuleDefinition(mQnameAppl, f.makeString(absPathString1), pQnameAppl, ast, analyzed_ast);
+		
+		
+		IStrategoAppl moduleDeclaration = (IStrategoAppl)_facade.getModuleDeclaration( mQnameAppl );
+		
+		_facade.assertConstructor(moduleDeclaration.getConstructor(), _facade.getModuleDeclCon(), "Wrong Module Declaration Constructs");
+	}
+	
 }

@@ -2,6 +2,7 @@ package jdbm.test;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -116,6 +117,8 @@ public class HelloWorld {
 		HashMap<String, VersionInfo> info = new  HashMap<String, VersionInfo>();
 		
 		info.put("test", new VersionInfo());
+		info.put("test2", new VersionInfo());
+		info.put("test3", new VersionInfo());
 		
 		info.get("test").Increment();
 		
@@ -125,8 +128,6 @@ public class HelloWorld {
 		info.get("test").Increment();
 		
 		out.println(info.get("test").toString() );
-		
-		
 		
 		info.put("test", new VersionInfo());
 		
@@ -134,11 +135,19 @@ public class HelloWorld {
 		
 		out.println(info.get("test").toString() );
 		
+		for (Object s : info.keySet().toArray())
+		{
+			out.println("Removing : " + s);
+			info.remove(s);
+		}	
+		
+		out.println( "Current Size : " + info.keySet().size());
 	}
+	
 	
 	public static void main(String[] args) throws Exception {
 
-		TestPrimaryMap();
+		TestHashMap();
 		
 	}
 	

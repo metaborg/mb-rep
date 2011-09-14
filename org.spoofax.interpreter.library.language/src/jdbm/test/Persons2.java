@@ -218,7 +218,8 @@ public class Persons2 {
 		dao.insertPerson(jack);
 		dao.insertPerson(patrick);
 		dao.insertPerson(paul);
-				
+		
+		
 		System.out.println("Number of persons: "+dao.persons.size());
 		
 		System.out.println("Persons with name Patrick Moore: "+dao.personByName("Patrick Moore"));

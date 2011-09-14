@@ -494,6 +494,12 @@ public class SpxSemanticIndexFacade {
 			_persistenceManager.commitAndClose();
 	}
 	
+	
+	public void clearSymbolTable() 
+	{
+		if (! isPersistenceManagerClosed())
+			_persistenceManager.clearAll();
+	}
 	/**
 	 * Checks whether the underlying persistence manager is already open. 
 	 * 
@@ -502,14 +508,6 @@ public class SpxSemanticIndexFacade {
 	boolean isPersistenceManagerClosed() { 
 		return _persistenceManager.IsClosed();
 	}
-
-	/**
-	 * @return the ModuleDefinition Constructor
-	 */
-	IStrategoConstructor getModuleDefCon() {
-		return _moduleDefCon;
-	}
-
 	/**
 	 * @return the PackageDeclaration Constructor
 	 */
@@ -517,11 +515,18 @@ public class SpxSemanticIndexFacade {
 		return _packageDeclCon;
 	}
 	
-	IStrategoConstructor getModuleDeclCon() {
+	public IStrategoConstructor getModuleDeclCon() {
 		return _moduleDeclCon;
 	}
 
-	IStrategoConstructor getLanguageDescriptorCon() {
+	/**
+	 * @return the ModuleDefinition Constructor
+	 */
+	public IStrategoConstructor getModuleDefCon() {
+		return _moduleDefCon;
+	}
+
+	public IStrategoConstructor getLanguageDescriptorCon() {
 		return _languageDescriptorCon;
 	}
 	
