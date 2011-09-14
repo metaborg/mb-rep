@@ -201,10 +201,10 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		
 	}
 	
-	public void testGetModuleDeclarationsByFilePath()
+	public void testGetModuleDeclarationsByFileUri()
 	{
 		String packageName1 =  	"\"languages\", \"entitylang\"" ;
-		
+
 		indexTestPackageDecl(packageName1, absPathString1);
 		indexTestModuleDefs ( "p1m1" , packageName1 , absPathString1);
 		indexTestModuleDefs ( "p1m2" , packageName1 , absPathString1);
@@ -213,11 +213,9 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		indexTestPackageDecl(packageName2, absPathString1);
 		indexTestModuleDefs ( "p2m2" , packageName2 , absPathString1);
 		
-
 		String packageName3 =  	"\"languages\", \"entitylang2\"" ;
 		indexTestPackageDecl(packageName3, absPathString2);
 		indexTestModuleDefs ( "p3m2" , packageName3 , absPathString2);
-		
 		
 		IStrategoList actuals = null;
 		//following invocation should return 2 ModuleDeclarations

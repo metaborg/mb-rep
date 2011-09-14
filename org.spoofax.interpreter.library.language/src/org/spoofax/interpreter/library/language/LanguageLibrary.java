@@ -45,6 +45,7 @@ public class LanguageLibrary extends AbstractStrategoOperatorRegistry {
 		add(new SPX_index_get_module_declaration(spxIndex));
 		add(new SPX_index_get_module_definition(spxIndex));
 		
+		add(new SPX_index_get_module_declarations_of(spxIndex));
 	}
 
 	public String getOperatorRegistryName() {

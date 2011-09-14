@@ -169,10 +169,10 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener{
 	}
 	
 	/**
-	 * Removes {@link BaseConstructDeclaration} from the lookup table mapped by the {@code id}
+	 * Removes {@link IdentifiableConstruct} from the lookup table mapped by the {@code id}
 	 * 
 	 * @param id {@link IStrategoList} representing qualified ID of the Construct
-	 * @return {@link BaseConstructDeclaration} mapped by {@code id}
+	 * @return {@link IdentifiableConstruct} mapped by {@code id}
 	 */
 	public ModuleDeclaration remove(IStrategoList id)
 	{	

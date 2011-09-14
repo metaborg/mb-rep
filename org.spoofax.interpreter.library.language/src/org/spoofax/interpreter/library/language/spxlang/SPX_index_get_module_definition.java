@@ -11,18 +11,19 @@ import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 public class SPX_index_get_module_definition extends AbstractPrimitive {
-
 	private static String NAME = "SPX_index_get_module_definition";
 	private static int PROJECT_NAME_INDEX = 0;
 	private static int MODULE_ID_INDEX = 1;
-	
+
+	private final static int NO_ARGS = 2;
+
 	private final SpxSemanticIndex index;
 
 	public SPX_index_get_module_definition(SpxSemanticIndex index) {
-		super(NAME, 0, 2);
+		super(NAME, 0, NO_ARGS);
 		this.index = index;
 	}
-	
+
 	/* Retrieve Spoofaxlang ModuleDefinition with Module ID 
 	 * specified in {@code tvars}.    
 	 * 
@@ -32,10 +33,12 @@ public class SPX_index_get_module_definition extends AbstractPrimitive {
 	@Override
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars){
 		boolean successStatement = false;
-		if ( Tools.isTermString(tvars[PROJECT_NAME_INDEX]) && Tools.isTermAppl(tvars[MODULE_ID_INDEX])) 
+	
+		if ( (tvars.length == NO_ARGS)  && Tools.isTermString(tvars[PROJECT_NAME_INDEX]) && Tools.isTermAppl(tvars[MODULE_ID_INDEX])) 
 		{
 			IStrategoString projectName    = (IStrategoString)tvars[PROJECT_NAME_INDEX];
 			IStrategoAppl typedModuleQName = (IStrategoAppl)tvars[MODULE_ID_INDEX];
+		
 			try {
 				IStrategoTerm t = index.getModuleDefinition(projectName, typedModuleQName);
 				env.setCurrent(t);
@@ -43,14 +46,12 @@ public class SPX_index_get_module_definition extends AbstractPrimitive {
 			} 
 			catch(Exception ex)
 			{
-				// Logging any exception throw from the underlying symbol table. 
 				SSLLibrary.instance(env).getIOAgent().printError("["+NAME+" Invokation failed . ] Error : "+ ex.getMessage());
 			}
 		}
 		else
 			SSLLibrary.instance(env).getIOAgent().printError("["+NAME+" Invokation failed . ] Error :  Mismatch in provided arguments. Variables provided : "+ tvars);
-		
+
 		return successStatement;
 	}
-
 }

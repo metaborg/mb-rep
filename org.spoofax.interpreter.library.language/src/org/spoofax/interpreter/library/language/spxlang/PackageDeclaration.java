@@ -10,7 +10,7 @@ import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
-public class PackageDeclaration extends BaseConstructDeclaration
+public class PackageDeclaration extends IdentifiableConstruct
 {
 	private static final long serialVersionUID = -9081890582103567413L;
 	private static final String _packageIdContructorName = "Package";

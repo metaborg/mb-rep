@@ -326,6 +326,21 @@ public class SpxSemanticIndexFacade {
 		return decl.toTerm(this);
 	}
 	
+
+	public IStrategoTerm getModuleDeclarationsOf(IStrategoTerm res) {
+		
+		IStrategoTerm retValue ;
+		
+		if(Tools.isTermAppl(res))
+			retValue  = this.getModuleDeclarations((IStrategoAppl)res);
+		else if(Tools.isTermString(res))
+			retValue = this.getModuleDeclarations((IStrategoString)res);
+		else
+			throw new IllegalArgumentException("Unknown argument in getModuleDeclarationOf: " + res);
+		
+		return retValue;
+	}
+
 	public IStrategoList getModuleDeclarations (IStrategoString filePath)
 	{
 		logMessage("getModuleDeclarations | Arguments : " + filePath);

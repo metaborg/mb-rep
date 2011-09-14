@@ -9,21 +9,20 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 
-public abstract class BaseConstructDeclaration implements Serializable
+public abstract class IdentifiableConstruct implements Serializable
 {
 	private static final long serialVersionUID = 1055862481052307186L;
 	protected static final String qnameContructorName = "QName";
 	
-	final IStrategoList id;
+	protected final IStrategoList id;
 	
-	public BaseConstructDeclaration(IStrategoList uri) {
+	public IdentifiableConstruct(IStrategoList uri) {
 		super();
 		this.id = uri;
 	}
 	
 	public IStrategoList getId()
 	{
-		//returns String representation of the BaseConstruct.
 		return id;
 	}
 
@@ -49,7 +48,7 @@ public abstract class BaseConstructDeclaration implements Serializable
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		BaseConstructDeclaration other = (BaseConstructDeclaration) obj;
+		IdentifiableConstruct other = (IdentifiableConstruct) obj;
 		if (id == null) {
 			if (other.id != null)
 				return false;
@@ -63,12 +62,12 @@ public abstract class BaseConstructDeclaration implements Serializable
 	 */
 	@Override
 	public String toString() {
-		return "BaseConstructDeclaration [id=" + id + "]";
+		return "IdentifiableConstruct [id=" + id + "]";
 	}
 	
 	public abstract IStrategoTerm toTerm(SpxSemanticIndexFacade idxFacade);  
 
-	public static IStrategoAppl toIdTerm ( ITermFactory factory ,  String constructorName , IStrategoList id)
+	static IStrategoAppl toIdTerm ( ITermFactory factory ,  String constructorName , IStrategoList id)
 	{
 		IStrategoConstructor cons = factory.makeConstructor(constructorName, 1);
 		IStrategoConstructor qnameCons = factory.makeConstructor(qnameContructorName, 1);

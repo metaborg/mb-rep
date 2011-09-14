@@ -18,7 +18,7 @@ import org.spoofax.terms.StrategoListIterator;
  * @author Md. Adil Akhter
  * Created On : Sep 3, 2011
  */
-public class LanguageDescriptor extends BaseConstructDeclaration {
+public class LanguageDescriptor extends IdentifiableConstruct {
 
 	private static final long serialVersionUID = 7099736990601308645L;
 	

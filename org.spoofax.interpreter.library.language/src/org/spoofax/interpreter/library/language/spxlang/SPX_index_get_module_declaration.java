@@ -22,10 +22,12 @@ public class SPX_index_get_module_declaration extends AbstractPrimitive {
 	private static int PROJECT_NAME_INDEX = 0;
 	private static int MODULE_ID_INDEX = 1;
 	
+	private final static int NO_ARGS = 2;
+	
 	private final SpxSemanticIndex index;
 
 	public SPX_index_get_module_declaration(SpxSemanticIndex index) {
-		super(NAME, 0, 2);
+		super(NAME, 0, NO_ARGS);
 		this.index = index;
 	}
 	
@@ -38,7 +40,7 @@ public class SPX_index_get_module_declaration extends AbstractPrimitive {
 	@Override
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars){
 		boolean successStatement = false;
-		if ( Tools.isTermString(tvars[PROJECT_NAME_INDEX]) && Tools.isTermAppl(tvars[MODULE_ID_INDEX])) 
+		if ( (NO_ARGS == tvars.length) && Tools.isTermString(tvars[PROJECT_NAME_INDEX]) && Tools.isTermAppl(tvars[MODULE_ID_INDEX])) 
 		{
 			IStrategoString projectName    = (IStrategoString)tvars[PROJECT_NAME_INDEX];
 			IStrategoAppl typedModuleQName = (IStrategoAppl)tvars[MODULE_ID_INDEX];

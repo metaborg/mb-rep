@@ -9,11 +9,6 @@ import jdbm.PrimaryStoreMap;
 
 public interface ISpxPersistenceManager {
 
-	/**
-	 * Commits the unsaved and closes the connection.
-	 *  
-	 * @throws IOException
-	 */
 	public void commitAndClose()  throws IOException;
 	
 	public <V> PrimaryStoreMap <Long, V> loadStoreMap( String storeMapName);
