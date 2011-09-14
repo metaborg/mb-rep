@@ -17,6 +17,7 @@ import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.AbstractTermFactory;
 import org.spoofax.terms.StrategoListIterator;
+import org.spoofax.terms.StrategoSubList;
 
 /** 
  * @author Lennart Kats <lennart add lclnet.nl>
@@ -97,6 +98,7 @@ public class ParentTermFactory extends AbstractTermFactory {
 	@Override
 	public IStrategoList makeListCons(IStrategoTerm head, IStrategoList tail, IStrategoList annos) {
 		IStrategoList result = baseFactory.makeListCons(head, tail, annos);
+		assert(!(result instanceof StrategoSubList));
 		putParent(head, null, result);
 		putParent(tail, null, result);
 		return result;
