@@ -30,6 +30,8 @@ public class SpxPackageLookupTable  implements ICompilationUnitRecordListener{
 	private final PrimaryHashMap<IStrategoList, LanguageDescriptor> _languageDescriptors;
 	private final SecondaryHashMap <String , IStrategoList , LanguageDescriptor> _packagesByLangaugeName;
 	
+	private final String SRC  = this.getClass().getSimpleName();
+	private final ISpxPersistenceManager _manager;
 	/**
 	 * Instantiates a lookup table for the base constructs (e.g. , packages and modules)of  Spoofaxlang.
 	 *  
@@ -41,6 +43,7 @@ public class SpxPackageLookupTable  implements ICompilationUnitRecordListener{
 		assert tableName != null;
 		assert manager != null;
 		
+		_manager = manager;
 		_packageLookupTable = manager.loadHashMap(tableName+ "._lookupPackageMap.idx");
 		
 		// readonly secondary view of the the lookup table . 
@@ -218,6 +221,8 @@ public class SpxPackageLookupTable  implements ICompilationUnitRecordListener{
 	 */
 	public PackageDeclaration remove(IStrategoList id)
 	{
+		_manager.logMessage(SRC+".remove", "Removing Package " + id + " from symbol table.");
+		
 		return _packageLookupTable.remove(id);
 	}
 	/**
@@ -250,17 +255,19 @@ public class SpxPackageLookupTable  implements ICompilationUnitRecordListener{
 		
 		// removing the package declaration from the lookup table.
 		for(Object o : list.toArray())
-			_packageLookupTable.remove(o);
+			remove((IStrategoList)o);
 	}
 	
 	/**
 	 * Clears Symbol table  
 	 */
 	public synchronized void clear() {
+		
+		_manager.logMessage(SRC+".clear", "Removing " + this.size() + " entries from symbol table.");
 		Iterator<IStrategoList> keyIter = _packageLookupTable.keySet().iterator();
 		
 		while (keyIter.hasNext())
-			_packageLookupTable.remove(keyIter.next());
+			remove(keyIter.next());
 	} 
 
 	/**

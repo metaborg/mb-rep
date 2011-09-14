@@ -25,8 +25,6 @@ public class SpxSemanticIndexFacade {
 	private final IOAgent _agent;
 	private final SpxSemanticIndexEntryFactory _entryFactory;
 	private final TermAttachmentStripper _stripper;
-	public static final boolean DEBUG = true;
-	
 	
 	private final IStrategoConstructor _moduleDefCon;
 	private final IStrategoConstructor _moduleDeclCon;
@@ -56,7 +54,7 @@ public class SpxSemanticIndexFacade {
 		_packageDeclCon 		= _termFactory.makeConstructor("PackageDecl", 2);
 		_languageDescriptorCon  = _termFactory.makeConstructor("PackageDeclaration", 5);
 		
-		_persistenceManager = new SpxPersistenceManager(_projectName , _agent.getWorkingDir());
+		_persistenceManager = new SpxPersistenceManager(_projectName , _agent.getWorkingDir(),agent);
 	}
 
 	/**
@@ -95,23 +93,7 @@ public class SpxSemanticIndexFacade {
 		return _persistenceManager;
 	}
 
-	/**
-	 * Returns URI 
-	 * @param path
-	 * @return
-	 */
-	URI toFileURI(String path)
-	{
-		File file = new File(path);
-		return	file.isAbsolute()? file.toURI()
-			  			 : new File(_agent.getWorkingDir(), path).toURI();
-	}
-
-	URI toFileURI(IStrategoTerm filePath) 
-	{
-		return toFileURI(Tools.asJavaString(filePath));
-	}
-
+	
 	String fromFileURI(URI uri) {
 		File file = new File(uri);
 		return file.toString();
@@ -252,11 +234,11 @@ public class SpxSemanticIndexFacade {
 		if(table.containsPackage(packageId))
 			table.addPackageDeclarationLocation(
 					packageId, 
-					asJavaString(spxCompilationUnitPath));
+					toAbsulatePath(spxCompilationUnitPath));
 		else
 		{	
 			PackageDeclaration pDecl = new PackageDeclaration(
-					asJavaString(spxCompilationUnitPath), 
+					toAbsulatePath(spxCompilationUnitPath), 
 					packageId);
 			table.definePackageDeclaration(pDecl);
 		}
@@ -344,6 +326,22 @@ public class SpxSemanticIndexFacade {
 		return decl.toTerm(this);
 	}
 	
+	public IStrategoList getModuleDeclarations (IStrategoString filePath)
+	{
+		logMessage("getModuleDeclarations | Arguments : " + filePath);
+		
+		String absFilePath = toAbsulatePath(filePath);
+		
+		SpxModuleLookupTable table = getPersistenceManager().spxModuleTable();
+		
+		Iterable<ModuleDeclaration> decls = table.getModuleDeclarationsByUri(absFilePath);
+		
+		IStrategoList result =  ModuleDeclaration.toTerm(this, decls);
+		
+		logMessage("getModuleDeclarations | After converting it to IStrategoList : " + result );
+		
+		return result;
+	}
 
 	public IStrategoList getModuleDeclarations(IStrategoAppl packageQName) {
 
@@ -357,10 +355,7 @@ public class SpxSemanticIndexFacade {
 		
 		logMessage("getModuleDeclarations | Found following result from SymbolTable : " + decls);
 		
-		IStrategoList result = _termFactory.makeList();
-		
-		for ( ModuleDeclaration decl: decls)
-			result = _termFactory.makeListCons(decl.toTerm(this), result);
+		IStrategoList result =  ModuleDeclaration.toTerm(this, decls);
 		
 		logMessage("getModuleDeclarations | After converting it to IStrategoList : " + result );
 		
@@ -391,6 +386,7 @@ public class SpxSemanticIndexFacade {
 		else
 			throw new IllegalArgumentException( "Unknown Module Id"+ moduleTypedQName.toString());
 	}
+	
 	
 	/**
 	 * Returns {@link LanguageDescriptor} for Spoofaxlang package with {@link packageTypedQName}}
@@ -471,10 +467,8 @@ public class SpxSemanticIndexFacade {
 
 		SpxModuleLookupTable table = _persistenceManager.spxModuleTable();
 
-		IStrategoList moduleId = ModuleDeclaration.getModuleId(
-				this.getTermFactory(), moduleQName);
-		IStrategoList packageId = PackageDeclaration.getPackageId(
-				this.getTermFactory(), packageQName);
+		IStrategoList moduleId = ModuleDeclaration.getModuleId( this.getTermFactory(), moduleQName);
+		IStrategoList packageId = PackageDeclaration.getPackageId(this.getTermFactory(), packageQName);
 
 		moduleId = (IStrategoList) toCompactPositionInfo(moduleId);
 		packageId = (IStrategoList) toCompactPositionInfo(packageId);
@@ -487,9 +481,7 @@ public class SpxSemanticIndexFacade {
 			throw new IllegalArgumentException("Unknown Package : "
 					+ packageId.toString());
 
-		table.define(new ModuleDeclaration(
-				toAbsulatePath(spxCompilationUnitPath), moduleId, packageId),
-				ast, analyzedAst);
+		table.define(new ModuleDeclaration(toAbsulatePath(spxCompilationUnitPath), moduleId, packageId), ast, analyzedAst);
 	}
 
 	
@@ -514,7 +506,7 @@ public class SpxSemanticIndexFacade {
 	}
 	
 	
-	public void clearSymbolTable() 
+	public void clearSymbolTable() throws IOException 
 	{
 		if (! isPersistenceManagerClosed())
 			_persistenceManager.clearAll();
@@ -579,9 +571,27 @@ public class SpxSemanticIndexFacade {
 	{
 		URI resUri = toFileURI(uri);
 		
-		return new File( resUri).getAbsolutePath();
+		return new File(resUri).getAbsolutePath();
 		
 	}
+	/**
+	 * Returns URI 
+	 * @param path
+	 * @return
+	 */
+	URI toFileURI(String path)
+	{
+		File file = new File(path);
+		return	file.isAbsolute()? file.toURI()
+			  			 : new File(_agent.getWorkingDir(), path).toURI();
+	}
+
+	URI toFileURI(IStrategoTerm filePath) 
+	{
+		return toFileURI(Tools.asJavaString(filePath));
+	}
+
+	
 
 	/**
 	 * Verify type of declaration . 
@@ -603,15 +613,7 @@ public class SpxSemanticIndexFacade {
 	 */
 	private void logMessage(String message) {
 		
-		final String src = "["+ _projectName+ ".SpxSemanticIndexFacade]  ";
-		if(DEBUG)
-		{		
-			try {
-				_agent.getWriter(IOAgent.CONST_STDOUT).write(src + message+ "\n");
-			} catch (IOException e) {
-				// Like System.err.println, we swallow excpetions
-			}
-		}
+		_persistenceManager.logMessage("SpxSemanticIndexFacade", message);
 	}
 
 }

@@ -30,5 +30,7 @@ public interface ISpxPersistenceManager {
 	
 	public boolean IsClosed();
 	
-	public void clearAll();
+	public void clearAll() throws IOException;
+	
+	public void logMessage(String origin, String message);
 }

@@ -51,7 +51,7 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		super.setUp("C:/work/projects/spoofax/spx-imp/source-codes/trunk/org.strategoxt.imp.editors.spoofax/include");
 		interpreter().addOperatorRegistry(new LanguageLibrary());
 		
-		manager = new SpxPersistenceManager( "test" , "c:/temp");
+		manager = new SpxPersistenceManager( "test" , "c:/temp" , ioAgent());
 		symtable = new SpxPackageLookupTable("lookupPackage", manager);
 		mSymTable = new SpxModuleLookupTable("lookupModule", manager);
 		

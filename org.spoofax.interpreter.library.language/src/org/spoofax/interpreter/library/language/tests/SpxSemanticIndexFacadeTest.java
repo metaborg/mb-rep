@@ -93,7 +93,6 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		_facade.assertConstructor(packageDeclaration.getConstructor(), _facade.getPackageDeclCon(), "Wrong Package Declaration"); 
 	}
 	
-	
 	public void testIndexPackageDeclarationInMultipleFiles() 
 	{
 		ITermFactory f = termFactory() ;
@@ -113,7 +112,6 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		
 		assertEquals(2, ((IStrategoList)packageDeclaration.getSubterm(1)).getAllSubterms().length);
 	}
-	
 	
 	public void testIndexModuleDeclaration() 
 	{
@@ -144,7 +142,7 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		IStrategoAppl ast = (IStrategoAppl)SpxLookupTableUnitTests.getModuleDefinition(termFactory(), moduleName);
 		IStrategoAppl analyzed_ast = (IStrategoAppl)SpxLookupTableUnitTests.getAnalyzedModuleDefinition(termFactory(), moduleName);
 		
-		_facade.indexModuleDefinition(mQnameAppl, termFactory().makeString(absPathString1), pQnameAppl, ast, analyzed_ast);
+		_facade.indexModuleDefinition(mQnameAppl, termFactory().makeString(filePath), pQnameAppl, ast, analyzed_ast);
 	}
 	
 	private IStrategoAppl indexTestPackageDecl(String packageName , String fileName) {
@@ -203,8 +201,33 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		
 	}
 	
-	
-	
-	
+	public void testGetModuleDeclarationsByFilePath()
+	{
+		String packageName1 =  	"\"languages\", \"entitylang\"" ;
+		
+		indexTestPackageDecl(packageName1, absPathString1);
+		indexTestModuleDefs ( "p1m1" , packageName1 , absPathString1);
+		indexTestModuleDefs ( "p1m2" , packageName1 , absPathString1);
+		
+		String packageName2 =  	"\"languages\", \"entitylang2\"" ;
+		indexTestPackageDecl(packageName2, absPathString1);
+		indexTestModuleDefs ( "p2m2" , packageName2 , absPathString1);
+		
+
+		String packageName3 =  	"\"languages\", \"entitylang2\"" ;
+		indexTestPackageDecl(packageName3, absPathString2);
+		indexTestModuleDefs ( "p3m2" , packageName3 , absPathString2);
+		
+		
+		IStrategoList actuals = null;
+		//following invocation should return 2 ModuleDeclarations
+		actuals = _facade.getModuleDeclarations( termFactory().makeString(absPathString1));
+		
+		assertEquals(3, actuals.getSubtermCount());
+		
+		//following invocation should return 1  ModuleDeclarations
+		actuals = _facade.getModuleDeclarations( termFactory().makeString(absPathString2));
+		assertEquals(1, actuals.getSubtermCount());
+	}
 	
 }

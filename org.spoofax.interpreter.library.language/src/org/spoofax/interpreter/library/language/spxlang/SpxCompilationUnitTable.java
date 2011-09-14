@@ -161,7 +161,12 @@ public class SpxCompilationUnitTable {
 	{
 		String key = toAbsulatePath(absPath);
 		
-		SpxCompilationUnitInfo removedValue = _infoMap.remove(key);
+		remove(key);
+	}
+	
+	void remove(String absPathString) throws IOException
+	{
+		SpxCompilationUnitInfo removedValue = _infoMap.remove(absPathString);
 		
 		if ( removedValue != null)
 			_spxUnitStoreMap.remove(removedValue.getRecId());
@@ -170,7 +175,7 @@ public class SpxCompilationUnitTable {
 		{	
 			for(RecordListener<String, SpxCompilationUnitInfo> r:recordListeners)
 			{
-				r.recordRemoved(toAbsulatePath(absPath),removedValue);
+				r.recordRemoved(absPathString,removedValue);
 			}
 		}
 	}
@@ -191,11 +196,10 @@ public class SpxCompilationUnitTable {
 		
 	}
 	
-	public void clear() {
+	public void clear() throws IOException{
 		Iterator<String> keyIter = _infoMap.keySet().iterator();
 		while (keyIter.hasNext())
-			_infoMap.remove(keyIter.next());
-
+			remove(keyIter.next());
 	}
 	
 }

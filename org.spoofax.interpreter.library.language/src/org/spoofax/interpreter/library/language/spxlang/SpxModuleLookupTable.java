@@ -29,7 +29,11 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener{
 	
 	private final SecondaryHashMap <String , IStrategoList , ModuleDeclaration> _moduleByFileAbsPath;
 	private final SecondaryHashMap<IStrategoList, IStrategoList,ModuleDeclaration> _moduleByPackageId;
-
+	
+	private final ISpxPersistenceManager _manager;
+	
+	private final String SRC  = this.getClass().getSimpleName();
+	
 	/**
 	 * Instantiates a lookup table for the base constructs (e.g. , packages and modules)of  Spoofaxlang.
 	 *  
@@ -40,6 +44,8 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener{
 	{
 		assert tableName != null;
 		assert manager != null;
+		
+		_manager = manager;
 		
 		_moduleLookupMap = manager.loadHashMap(tableName+ "._lookupModuleMap.idx");
 		
@@ -170,6 +176,7 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener{
 	 */
 	public ModuleDeclaration remove(IStrategoList id)
 	{	
+		_manager.logMessage(SRC+".remove", "Removing following Module : "+ id);
 		//removing module declaration from the table 
 		//and returning it.
 		return _moduleLookupMap.remove(id);
@@ -292,11 +299,12 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener{
 	 */
 	public synchronized void clear()
 	{
+		_manager.logMessage(SRC + ".clear", "Removing "+ this.size()+" entries ");
+		
 		Iterator<IStrategoList> keyIter = _moduleLookupMap.keySet().iterator();
 		
 		while (keyIter.hasNext())
-			_moduleLookupMap.remove(keyIter.next());
-		
+			remove(keyIter.next());
 	}
 	
 	

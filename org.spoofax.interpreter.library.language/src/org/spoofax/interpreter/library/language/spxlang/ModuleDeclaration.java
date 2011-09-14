@@ -121,5 +121,25 @@ public class ModuleDeclaration extends BaseConstructDeclaration
 		
 		return this.forceImploderAttachment(retTerm);
 	}
+	
+	/**
+	 * Constructs {@link IStrategoList} from {@code decls}  
+	 * 
+	 * @param idxFacade an instance of {@link SpxSemanticIndexFacade }
+	 * @param decls A collection of ModuleDeclataions 
+	 * @return {@link IStrategoList}
+	 */
+	public static IStrategoList toTerm( SpxSemanticIndexFacade idxFacade , Iterable<ModuleDeclaration> decls)
+	{
+		ITermFactory termFactory = idxFacade.getTermFactory();
+		IStrategoList result = termFactory.makeList();
+		
+		if(decls!=null)
+		{	
+			for ( ModuleDeclaration decl: decls)
+				result = termFactory.makeListCons(decl.toTerm(idxFacade), result);
+		}
+		return result;
+	}
 }
 

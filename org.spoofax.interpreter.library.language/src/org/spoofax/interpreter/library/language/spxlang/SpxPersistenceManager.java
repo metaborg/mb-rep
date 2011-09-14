@@ -3,6 +3,7 @@ package org.spoofax.interpreter.library.language.spxlang;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import jdbm.PrimaryHashMap;
@@ -23,35 +24,57 @@ import jdbm.RecordManagerOptions;
  */
 public class SpxPersistenceManager implements ISpxPersistenceManager {
 
-	//TODO : create a registry that keeps all the loaded SymbolTable
-	//and perform operation on that.  
+	private static final boolean DEBUG = true;
+	private static final String SRC =   "SpxPersistenceManager" ;
+	
+	
 	private final RecordManager _recordManager;
-	private final String indexDirectory;  
+	private final String _indexDirectory;  
+	private final IOAgent _agent;
+	private final String _projectName ;
 	
 	private SpxCompilationUnitTable _spxUnitsTable;  
 	private SpxPackageLookupTable _spxPackageTable;
 	private SpxModuleLookupTable _spxModuleTable;
 
-	public SpxPersistenceManager(String projectName, String projectAbsPath) throws IOException{
-		this(projectName, projectAbsPath+ "/.Index" , null);
+	/**
+	 * Instantiates a new instance of SpxPersistenceManager. Main Responsibility of this class  
+	 * is to store symbol table in disk and manage it . 
+	 * 
+	 * @param projectName
+	 * @param projectAbsPath
+	 * @param ioAgent
+	 * @throws IOException
+	 */
+	public SpxPersistenceManager(String projectName, String projectAbsPath , IOAgent ioAgent) throws IOException{
+		this(projectName, projectAbsPath+ "/.Index" ,ioAgent, null );
 	}
 	
-	public SpxPersistenceManager (String projectName ,String indexDirectory, Properties options) throws IOException
-	{
-		this.indexDirectory = indexDirectory;
-		
-		// Creating empty properties collection if it is null
-		if( options  == null)
-			options = new Properties();
-		
-		// setting up the working directory for the Index 
-		options.put(RecordManagerOptions.INDEX_RELATIVE_PATH_OPTION, indexDirectory + "/" + projectName + ".idx");
 	
-		//creating record manager for the particular project
+	/**
+	 * @param projectName
+	 * @param indexDirectory
+	 * @param ioAgent
+	 * @param options
+	 * @throws IOException
+	 */
+	SpxPersistenceManager (String projectName ,String indexDirectory,  IOAgent ioAgent,Properties options) throws IOException
+	{
+		this._agent = ioAgent;
+		this._projectName = projectName;
+		this._indexDirectory = indexDirectory;
+		
+		if( options  == null)
+			options = new Properties();// Creating empty properties collection if it is null
+		
+		options.put(RecordManagerOptions.INDEX_RELATIVE_PATH_OPTION, indexDirectory + "/" + projectName + ".idx");
+		
 		_recordManager = RecordManagerFactory.createRecordManager(projectName , options);
 		
 		initTables(projectName);
 		initListeners();
+		
+		logMessage(SRC+".ctor" , "Instantiation of PersistenceManager is done. Index Directory : "+ _indexDirectory );
 	}
 
 	/**
@@ -84,7 +107,6 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 		//symbol table, remove enclosing module declaration. 
 	}
 	
-	
 	/**
 	 * Instantiates a new HashMap 
 	 * 
@@ -98,6 +120,7 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 		return _recordManager.hashMap(mapName) ;
 		
 	}
+	
 	/**
 	 * Instantiates a new StoreHashMap
 	 * 
@@ -157,10 +180,40 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 		return _spxModuleTable;
 	}	
 
-	public void clearAll(){
-		this._spxUnitsTable.clear();	
+	public void clearAll() throws IOException{
+		try
+		{
+			this._spxUnitsTable.clear();	
+			this._spxPackageTable.clear();
+			this._spxModuleTable.clear();
+			
+			logMessage(SRC + ".clearAll", "SymbolTable is cleaned successfully. ");
+		}catch(IOException ex)
+		{
+			logMessage(SRC + ".clearAll", "Exception occured . "+ ex);
+			throw ex;
+		}
 		
-		this._spxPackageTable.clear();
-		this._spxModuleTable.clear();
+		
 	}
+
+
+	/* Logs Message 
+	 * 
+	 * @see org.spoofax.interpreter.library.language.spxlang.ISpxPersistenceManager#logMessage(java.lang.String, java.lang.String)
+	 */
+	public void logMessage(String origin, String message) {
+		if(DEBUG)
+		{		
+			try {
+				_agent.getWriter(IOAgent.CONST_STDOUT).write(
+						"[" + this._projectName + "." + origin + "]   " + message
+								+ "\n");
+			} 
+			catch (IOException e) {
+				
+			}
+		}
+	}
+	
 }
