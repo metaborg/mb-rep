@@ -304,7 +304,21 @@ public class SpxSemanticIndexFacade {
 		
 		return decl.toTerm(this);
 	}
-	
+
+	public IStrategoList getPackageDeclarationsByUri(IStrategoString uri) {
+
+		logMessage("getPackageDeclarationsByUri | Arguments : " + uri);
+
+		SpxPackageLookupTable table = getPersistenceManager().spxPackageTable();
+
+		Iterable<PackageDeclaration> decls = table.packageDeclarationsByUri(toAbsulatePath(uri));
+
+		IStrategoList result =  PackageDeclaration.toTerm(this, decls);
+		logMessage("getPackageDeclarationsByUri | Returning IStrategoList : " + result );
+
+		return result;
+	}
+
 	/**
 	 * Returns {@link ModuleDeclaration} indexed with Module Id - {@code moduleTypeQName}  
 	 * 
@@ -353,7 +367,7 @@ public class SpxSemanticIndexFacade {
 		
 		IStrategoList result =  ModuleDeclaration.toTerm(this, decls);
 		
-		logMessage("getModuleDeclarations | After converting it to IStrategoList : " + result );
+		logMessage("getModuleDeclarations | Returning IStrategoList : " + result );
 		
 		return result;
 	}
@@ -372,7 +386,7 @@ public class SpxSemanticIndexFacade {
 		
 		IStrategoList result =  ModuleDeclaration.toTerm(this, decls);
 		
-		logMessage("getModuleDeclarations | After converting it to IStrategoList : " + result );
+		logMessage("getModuleDeclarations | Returning IStrategoList : " + result );
 		
 		return result;
 	}	

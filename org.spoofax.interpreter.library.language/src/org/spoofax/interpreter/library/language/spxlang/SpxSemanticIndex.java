@@ -203,7 +203,17 @@ public class SpxSemanticIndex {
 		return resolve(projectName, packageTypedQname, resolver);
 	}
 
-	
+	public IStrategoTerm getPackageDeclarationsByUri(IStrategoString projectName, IStrategoString compilationUnitUri)  throws Exception{
+		ISymbolResolver<IStrategoTerm> resolver = new ISymbolResolver<IStrategoTerm>() {
+			public IStrategoTerm get(IStrategoString projectName,IStrategoTerm uri) throws Exception  {
+					SpxSemanticIndexFacade idxFacade = getFacade(projectName);
+					return idxFacade.getPackageDeclarationsByUri((IStrategoString)uri);
+			} 
+		};
+		
+		return resolve(projectName, compilationUnitUri, resolver);
+	}
+
 	public IStrategoTerm getModuleDeclaration(IStrategoString projectName, final IStrategoAppl moduleTypedQname) throws Exception{
 		ISymbolResolver<IStrategoTerm> resolver = new ISymbolResolver<IStrategoTerm>() {
 			public IStrategoTerm get(IStrategoString projectName,IStrategoTerm qname) {
@@ -218,9 +228,9 @@ public class SpxSemanticIndex {
 	public IStrategoTerm getModuleDeclarations(IStrategoString projectName, IStrategoTerm retTerm) throws Exception {
 		
 		ISymbolResolver<IStrategoTerm> resolver = new ISymbolResolver<IStrategoTerm>() {
-			public IStrategoTerm get(IStrategoString projectName,IStrategoTerm qname) {
+			public IStrategoTerm get(IStrategoString projectName ,IStrategoTerm res) {
 				SpxSemanticIndexFacade idxFacade = getFacade(projectName);
-				return idxFacade.getModuleDeclarationsOf(qname);
+				return idxFacade.getModuleDeclarationsOf(res);
 			}
 		};
 		
@@ -249,7 +259,6 @@ public class SpxSemanticIndex {
 		
 		return resolve(projectName, packageTypedQname, resolver);
 	}
-
 	
 	public boolean removeCompilationUnit(IStrategoString projectName,IStrategoString spxCompilationUnitPath) throws IllegalStateException, IOException{
 		
@@ -345,5 +354,4 @@ public class SpxSemanticIndex {
 		if (idxFactory == null)
 			throw new IllegalStateException("Spoofaxlang Semantic index not initialized");
 	}
-	
 }

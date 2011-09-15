@@ -233,9 +233,13 @@ public class SpxPackageLookupTable  implements ICompilationUnitRecordListener{
 	public Iterable<PackageDeclaration> packageDeclarationsByUri( String absUri)
 	{
 		Set<PackageDeclaration> ret = new HashSet<PackageDeclaration>();
-	
-		for ( IStrategoList l: _uriMap.get(absUri))
-			ret.add(_uriMap.getPrimaryValue(l));
+		Iterable<IStrategoList> retList =_uriMap.get(absUri);
+		if(retList != null)
+		{
+			for ( IStrategoList l: retList)
+				ret.add(_uriMap.getPrimaryValue(l));
+		}
+
 		return ret;
 	}
 	
@@ -247,12 +251,16 @@ public class SpxPackageLookupTable  implements ICompilationUnitRecordListener{
 	public void removePackageDeclarationsByUri( String absUri)
 	{	
 		ArrayList<IStrategoList> list = new ArrayList<IStrategoList>();
-		
-		// constructing a temporary list to be removed from 
-		// the symbol table. 
-		for ( IStrategoList l: _uriMap.get(absUri))
-			list.add(l);
-		
+
+		Iterable<IStrategoList> toRemove =_uriMap.get(absUri);
+
+		if(toRemove != null)
+		{
+			// constructing a temporary list to be removed from 
+			// the symbol table. 
+			for ( IStrategoList l: toRemove)
+				list.add(l);
+		}
 		// removing the package declaration from the lookup table.
 		for(Object o : list.toArray())
 			remove((IStrategoList)o);

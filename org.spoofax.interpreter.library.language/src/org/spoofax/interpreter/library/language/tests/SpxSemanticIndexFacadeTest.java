@@ -148,7 +148,7 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 	private IStrategoAppl indexTestPackageDecl(String packageName , String fileName) {
 		
 		IStrategoAppl pQnameAppl = (IStrategoAppl)termFactory().parseFromString("Package(QName(["+packageName+"]))");
-		_facade.indexPackageDeclaration(pQnameAppl, termFactory().makeString(absPathString1));
+		_facade.indexPackageDeclaration(pQnameAppl, termFactory().makeString(fileName));
 		return pQnameAppl;
 	}
 	
@@ -228,4 +228,29 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		assertEquals(1, actuals.getSubtermCount());
 	}
 	
+	
+	public void testGetPackageDeclarationsByUri()
+	{
+		String packageName1 =  	"\"languages\", \"entitylang\"" ;
+
+		indexTestPackageDecl(packageName1, absPathString1);
+		
+		String packageName2 =  	"\"languages\", \"entitylang2\"" ;
+		indexTestPackageDecl(packageName2, absPathString1);
+		
+		String packageName3 =  	"\"languages\", \"entitylang2\"" ;
+		indexTestPackageDecl(packageName3, absPathString2);
+		
+		
+		IStrategoList actuals = null;
+
+		
+		actuals = _facade.getPackageDeclarationsByUri(termFactory().makeString(absPathString2));
+		assertEquals(1, actuals.getSubtermCount());
+		
+
+		actuals = _facade.getPackageDeclarationsByUri(termFactory().makeString(absPathString1));
+		assertEquals(2, actuals.getSubtermCount());
+	}
+
 }
