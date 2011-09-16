@@ -230,8 +230,7 @@ public final class BaseRecordManager
      *  @throws IOException when the file cannot be opened or is not
      *          a valid file content-wise.
      */
-    public BaseRecordManager( String filename )
-        throws IOException
+    public BaseRecordManager( String filename ) throws IOException
     {
     	// If relativeDirPath is empty, all the jbdm storage will 
     	// created in the currently working directory.
@@ -241,38 +240,45 @@ public final class BaseRecordManager
     }
     
     
-    public BaseRecordManager( String filename , String relativeDirPath)
-    throws IOException
+    public BaseRecordManager( String filename , String relativeDirPath)   throws IOException
     {	
     	
     	_indexDirRelativePathString = relativeDirPath;
     	_filename = filename;
-    	reopen();
+		reopen();
+    	
     }
 
 	private void reopen() throws IOException {
-		_physFileFree = new RecordFile( _filename +  DBF, FREE_BLOCK_SIZE , _indexDirRelativePathString);
-		
-		
-    	_physPagemanFree = new PageManager(_physFileFree);    	
-        _physFile = new RecordFile( _filename + DBR, DATA_BLOCK_SIZE);
-        _physPageman = new PageManager( _physFile );
-        _physMgr = new PhysicalRowIdManager( _physFile, _physPageman, 
-        		new FreePhysicalRowIdPageManager(_physFileFree, _physPagemanFree,appendToEnd));
-        
-        _logicFileFree= new RecordFile( _filename +IDF,FREE_BLOCK_SIZE );
-        _logicPagemanFree = new PageManager( _logicFileFree );
-        if(TRANS_BLOCK_SIZE>256*8)
-        	throw new InternalError(); //to big page, slot number would not fit into page
-        _logicFile = new RecordFile( _filename +IDR,TRANS_BLOCK_SIZE );
-        _logicPageman = new PageManager( _logicFile );
-        _logicMgr = new LogicalRowIdManager( _logicFile, _logicPageman, 
-        		new FreeLogicalRowIdPageManager(_logicFileFree, _logicPagemanFree));
+		_physFileFree = new RecordFile(_filename + DBF, FREE_BLOCK_SIZE,
+				_indexDirRelativePathString);
 
-        long versionNumber = getRoot(STORE_VERSION_NUMBER_ROOT);
-        if(versionNumber>STORE_FORMAT_VERSION)
-        	throw new IOException("Unsupported version of store. Please update JDBM. Minimal supported ver:"+STORE_FORMAT_VERSION+", store ver:"+versionNumber);
-        setRoot(STORE_VERSION_NUMBER_ROOT, STORE_FORMAT_VERSION);
+		_physPagemanFree = new PageManager(_physFileFree);
+		_physFile = new RecordFile(_filename + DBR, DATA_BLOCK_SIZE);
+		_physPageman = new PageManager(_physFile);
+		_physMgr = new PhysicalRowIdManager(_physFile, _physPageman,
+				new FreePhysicalRowIdPageManager(_physFileFree,
+						_physPagemanFree, appendToEnd));
+
+		_logicFileFree = new RecordFile(_filename + IDF, FREE_BLOCK_SIZE);
+		_logicPagemanFree = new PageManager(_logicFileFree);
+		if (TRANS_BLOCK_SIZE > 256 * 8)
+			throw new InternalError(); // to big page, slot number would not fit
+										// into page
+		_logicFile = new RecordFile(_filename + IDR, TRANS_BLOCK_SIZE);
+		_logicPageman = new PageManager(_logicFile);
+		_logicMgr = new LogicalRowIdManager(_logicFile, _logicPageman,
+				new FreeLogicalRowIdPageManager(_logicFileFree,
+						_logicPagemanFree));
+
+		long versionNumber = getRoot(STORE_VERSION_NUMBER_ROOT);
+		if (versionNumber > STORE_FORMAT_VERSION)
+			throw new IOException(
+					"Unsupported version of store. Please update JDBM. Minimal supported ver:"
+							+ STORE_FORMAT_VERSION + ", store ver:"
+							+ versionNumber);
+		
+		setRoot(STORE_VERSION_NUMBER_ROOT, STORE_FORMAT_VERSION);
 	}
 
 
@@ -318,7 +324,7 @@ public final class BaseRecordManager
         throws IOException
     {
         checkIfClosed();
-
+        
         _physPageman.close();
         _physPageman = null;
 

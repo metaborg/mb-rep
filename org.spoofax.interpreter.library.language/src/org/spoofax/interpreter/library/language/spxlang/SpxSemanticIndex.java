@@ -345,8 +345,9 @@ public class SpxSemanticIndex {
 	 * Closes any underlying open connection and clean up unmanaged resources. 
 	 * 
 	 * @param projectName
+	 * @throws IOException 
 	 */
-	private void tryCleanupResources( IStrategoTerm projectName){
+	private void tryCleanupResources( IStrategoTerm projectName) throws IOException{
 		
 		if ( _facadeRegistry.containsFacade(projectName))
 		{
@@ -366,7 +367,7 @@ public class SpxSemanticIndex {
 		return facade;
 	}
 	
-	private SpxSemanticIndexFacade removeFacade(IStrategoTerm projectName) {
+	private SpxSemanticIndexFacade removeFacade(IStrategoTerm projectName) throws IOException {
 
 		SpxSemanticIndexFacade facade = _facadeRegistry.removeFacade(projectName);
 		ensureInitialized(facade);

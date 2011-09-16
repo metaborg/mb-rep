@@ -69,18 +69,28 @@ class SpxSemanticIndexFacadeRegistry
 	}
 	
 	
-	public void clearAll()
+	public void clearAll() throws IOException
 	{
-		_registry.clear();
+		for ( String fname : _registry.keySet())
+			remove(fname);
 	}
 
 
-	public SpxSemanticIndexFacade removeFacade(IStrategoTerm projectName) {
+	public SpxSemanticIndexFacade removeFacade(IStrategoTerm projectName) throws IOException {
 		String key = asJavaString(projectName);
 		
-		return _registry.remove(key);
+		return remove(key);
 	}
 	
+	private SpxSemanticIndexFacade remove(String projectName) throws IOException {
+		
+		SpxSemanticIndexFacade facade = _registry.remove(projectName);
+		
+		if((facade != null) &&  !facade.isPersistenceManagerClosed())
+			facade.close();
+		
+		return facade;
+	}
 	
 	public boolean containsFacade(IStrategoTerm projectName)
 	{
