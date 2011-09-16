@@ -129,8 +129,6 @@ public class SpxPackageLookupTable  implements ICompilationUnitRecordListener{
 	 */
 	public int size() 
 	{
-		assert _packageLookupTable.size() ==  _languageDescriptors.size() ;
-		
 		return _packageLookupTable.size();
 	}
 	/**
@@ -140,7 +138,10 @@ public class SpxPackageLookupTable  implements ICompilationUnitRecordListener{
 	 */
 	public void definePackageDeclaration( PackageDeclaration packageDeclaration )
 	{
-		assert packageDeclaration != null;
+		assert packageDeclaration 		  != null;
+		assert packageDeclaration.getId() != null;
+		
+		_manager.logMessage(SRC+".definePackageDeclaration", "Indexing package declaration : "+ packageDeclaration);
 		
 		_packageLookupTable.put( packageDeclaration.getId(), packageDeclaration);
 	}
@@ -261,17 +262,18 @@ public class SpxPackageLookupTable  implements ICompilationUnitRecordListener{
 			for ( IStrategoList l: toRemove)
 				list.add(l);
 		}
+		
 		// removing the package declaration from the lookup table.
 		for(Object o : list.toArray())
 			remove((IStrategoList)o);
 	}
 	
 	/**
-	 * Clears Symbol table  
+	 * Clears this symbol table. 
 	 */
 	public synchronized void clear() {
 		
-		_manager.logMessage(SRC+".clear", "Removing " + this.size() + " entries from symbol table.");
+		_manager.logMessage(SRC+".clear", "Removing "+ this.size() + " entries from symbol table ") ;
 		Iterator<IStrategoList> keyIter = _packageLookupTable.keySet().iterator();
 		
 		while (keyIter.hasNext())

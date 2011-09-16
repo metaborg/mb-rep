@@ -29,6 +29,12 @@ public class SPX_index_remove_compilation_unit extends AbstractPrimitive {
 	
 	private final SpxSemanticIndex index;
 
+	/**
+	 * Instantiates a new instance of {@link SPX_index_remove_compilation_unit}  that removes a
+	 * Spoofaxlang Compilation Unit entry from the symbol table given the absolute path of the resource.
+	 *   
+	 * @param index an instance of {@link SpxSemanticIndex}
+	 */
 	public SPX_index_remove_compilation_unit(SpxSemanticIndex index) {
 		super(NAME, 0, NO_ARGS);
 		this.index = index;

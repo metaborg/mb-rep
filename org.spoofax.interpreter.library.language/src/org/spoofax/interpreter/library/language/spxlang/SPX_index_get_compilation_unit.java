@@ -49,11 +49,11 @@ public class SPX_index_get_compilation_unit extends AbstractPrimitive {
 				successStatement = true;
 			} 
 			catch(Exception ex){
-				SSLLibrary.instance(env).getIOAgent().printError("["+NAME+" Invokation failed . ] Error : "+ ex.getMessage());
+				SSLLibrary.instance(env).getIOAgent().printError("["+NAME+"]  Invokation failed . Error : "+ ex.getMessage());
 			}
 		}
 		else
-			SSLLibrary.instance(env).getIOAgent().printError("["+NAME+" Invokation failed . ] Error :  Mismatch in provided arguments. Variables provided : "+ tvars);
+			SSLLibrary.instance(env).getIOAgent().printError("["+NAME+"]  Invokation failed . Error :  Mismatch in provided arguments. Variables provided : "+ tvars);
 		
 		return successStatement;
 	}

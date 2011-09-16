@@ -2,16 +2,14 @@ package org.spoofax.interpreter.library.language.spxlang;
 
 import java.util.UUID;
 
+import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 class ScopeIdentifier 
 {
 	private UUID _scopeId;
 	
-	public ScopeIdentifier( UUID scopeId)
-	{
-		_scopeId = scopeId;
-	}
+	public ScopeIdentifier( UUID scopeId){	_scopeId = scopeId; }
 	
 	public IScope resolve( ISpxPersistenceManager manager)
 	{
@@ -19,24 +17,55 @@ class ScopeIdentifier
 	}
 }
 
-
 /**
+ * Class to represent SpxSymbol 
+ * 
  * @author Md. Adil Akhter
  * Created On : Aug 20, 2011
  */
-class SpxSymbol {
+class SpxSymbol  extends IdentifiableConstruct {
+	
+	private static final long serialVersionUID = -5293805213473800423L;
 	
 	private String _name;
 	private IStrategoTerm _data;
 	private ISpxType _type;
 	private ScopeIdentifier _scope;
 	
+	/**
+	 * Instantiates a new instance of {@link SpxSymbol}
+	 * 
+	 * @param id
+	 * @param name
+	 */
+	public SpxSymbol (IStrategoList id , String name)
+	{	
+		super(id);
+		
+		_name = name; 
+	}
+	/**
+	 * Instantiates a new instance of {@link SpxSymbol}
+	 * 
+	 * @param id
+	 * @param name
+	 * @param type
+	 */
+	public SpxSymbol (IStrategoList id ,  String name , ISpxType type)
+	{ 
+		this(id , name) ; 
+		_type = type;
+	}
 	
-	public SpxSymbol (String name){	_name = name; }
-	public SpxSymbol (String name , ISpxType type){ this(name) ; _type = type;}
-	
+	/**
+	 * returns the name of the symbol 
+	 * 
+	 * @return
+	 */
 	public String getName() { return _name; }
 	
+	public ISpxType getType() {return _type; }
+
 	/**
 	 * @return the data
 	 */
@@ -94,6 +123,12 @@ class SpxSymbol {
 		} else if (!_data.match(other._data))
 			return false;
 		return true;
+	}
+	
+	@Override
+	public IStrategoTerm toTerm(SpxSemanticIndexFacade idxFacade) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
 

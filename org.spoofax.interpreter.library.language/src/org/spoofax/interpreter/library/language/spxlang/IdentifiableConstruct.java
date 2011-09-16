@@ -16,16 +16,85 @@ public abstract class IdentifiableConstruct implements Serializable
 	
 	protected final IStrategoList id;
 	
-	public IdentifiableConstruct(IStrategoList uri) {
-		super();
-		this.id = uri;
+	public IdentifiableConstruct(IStrategoList id) {
+		assert id != null;
+		
+		this.id = id;
 	}
 	
-	public IStrategoList getId()
+	public IStrategoList getId(){ return id; }
+
+	public abstract IStrategoTerm toTerm(SpxSemanticIndexFacade idxFacade);  
+
+	static IStrategoAppl toIdTerm ( ITermFactory factory ,  String constructorName , IStrategoList id)
 	{
-		return id;
+		IStrategoConstructor cons = factory.makeConstructor(constructorName, 1);
+		IStrategoConstructor qnameCons = factory.makeConstructor(qnameContructorName, 1);
+		IStrategoAppl qnameAppl = factory.makeAppl(qnameCons, id);
+		
+		return factory.makeAppl(cons, qnameAppl);
+	}
+	
+	protected IStrategoTerm forceImploderAttachment(IStrategoTerm term) {
+		ImploderAttachment attach = ImploderAttachment.get(id);
+		if (attach != null) {
+			ImploderAttachment.putImploderAttachment(term, false, attach.getSort(), attach.getLeftToken(), attach.getRightToken());
+		} 
+		else {
+			String fn = getFileLocation();
+			term.putAttachment(ImploderAttachment.createCompactPositionAttachment(
+					fn, 0, 0, 0, -1));
+		}
+		return term;
+	}
+	
+	/**
+	 * Returns the location of the construct 
+	 * 
+	 * @return {@link String} representing the absolute path of the  Construct
+	 */
+	protected String getFileLocation() {
+		return null;
+	}
+	
+	/**
+	 * Returns {@link IStrategoList} representation of qualified ID of the {@link IdentifiableConstruct}  
+	 * 
+	 * @param fac an instance of {@link ITermFactory}
+	 * @param qName Typed qualified Name of the construct 
+	 * 
+	 * @return underlying {@link IStrategoList} qualified name
+	 */
+	protected static IStrategoList getID(ITermFactory fac, IStrategoAppl qName) {
+		
+		final IStrategoConstructor qnameCon = fac.makeConstructor(qnameContructorName, 1);
+		
+		if(qName.getConstructor() == qnameCon)
+			return (IStrategoList)qName.getSubterm(0);
+		
+		throw new IllegalArgumentException("Invalid QName : " + qName);
 	}
 
+	/**
+	 * Constructs {@link IStrategoList} from {@code decls}  
+	 * 
+	 * @param idxFacade an instance of {@link SpxSemanticIndexFacade }
+	 * @param decls A collection of ModuleDeclataions 
+	 * @return {@link IStrategoList}
+	 */
+	public static <T extends IdentifiableConstruct> IStrategoList toTerm( SpxSemanticIndexFacade idxFacade , Iterable<T> decls)
+	{
+		ITermFactory termFactory = idxFacade.getTermFactory();
+		IStrategoList result = termFactory.makeList();
+		
+		if(decls!=null)
+		{	
+			for ( T decl: decls)
+				result = termFactory.makeListCons(decl.toTerm(idxFacade), result);
+		}
+		return result;
+	}
+	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -65,59 +134,4 @@ public abstract class IdentifiableConstruct implements Serializable
 		return "IdentifiableConstruct [id=" + id + "]";
 	}
 	
-	public abstract IStrategoTerm toTerm(SpxSemanticIndexFacade idxFacade);  
-
-	static IStrategoAppl toIdTerm ( ITermFactory factory ,  String constructorName , IStrategoList id)
-	{
-		IStrategoConstructor cons = factory.makeConstructor(constructorName, 1);
-		IStrategoConstructor qnameCons = factory.makeConstructor(qnameContructorName, 1);
-		IStrategoAppl qnameAppl = factory.makeAppl(qnameCons, id);
-		
-		return factory.makeAppl(cons, qnameAppl);
-	}
-	
-	protected IStrategoTerm forceImploderAttachment(IStrategoTerm term) {
-		ImploderAttachment attach = ImploderAttachment.get(id);
-		if (attach != null) {
-			ImploderAttachment.putImploderAttachment(term, false, attach.getSort(), attach.getLeftToken(), attach.getRightToken());
-		} 
-		else {
-			String fn = getFileLocation();
-			term.putAttachment(ImploderAttachment.createCompactPositionAttachment(
-					fn, 0, 0, 0, -1));
-		}
-		return term;
-	}
-	
-	protected String getFileLocation() {return null;}
-	
-	protected static IStrategoList getID(ITermFactory fac, IStrategoAppl qName) {
-		
-		final IStrategoConstructor qnameCon = fac.makeConstructor(qnameContructorName, 1);
-		
-		if(qName.getConstructor() == qnameCon)
-			return (IStrategoList)qName.getSubterm(0);
-		
-		throw new IllegalArgumentException("Invalid QName : " + qName);
-	}
-
-	/**
-	 * Constructs {@link IStrategoList} from {@code decls}  
-	 * 
-	 * @param idxFacade an instance of {@link SpxSemanticIndexFacade }
-	 * @param decls A collection of ModuleDeclataions 
-	 * @return {@link IStrategoList}
-	 */
-	public static <T extends IdentifiableConstruct> IStrategoList toTerm( SpxSemanticIndexFacade idxFacade , Iterable<T> decls)
-	{
-		ITermFactory termFactory = idxFacade.getTermFactory();
-		IStrategoList result = termFactory.makeList();
-		
-		if(decls!=null)
-		{	
-			for ( T decl: decls)
-				result = termFactory.makeListCons(decl.toTerm(idxFacade), result);
-		}
-		return result;
-	}
 }

@@ -30,6 +30,7 @@ public class LanguageLibrary extends AbstractStrategoOperatorRegistry {
 		add(new SPX_index_init(spxIndex));
 		add(new SPX_index_close(spxIndex));
 		add(new SPX_index_save(spxIndex));
+		add(new SPX_index_clearall(spxIndex));
 		
 		//primitives to index spoofaxlang compilation unit 
 		add(new SPX_index_compilation_unit(spxIndex));

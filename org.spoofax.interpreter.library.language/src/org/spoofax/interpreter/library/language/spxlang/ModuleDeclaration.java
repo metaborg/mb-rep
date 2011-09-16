@@ -20,7 +20,11 @@ public class ModuleDeclaration extends IdentifiableConstruct
 	
 	final String resourceAbsPath; 
 	
-	@Override protected String getFileLocation() {
+	/* (non-Javadoc)
+	 * @see org.spoofax.interpreter.library.language.spxlang.IdentifiableConstruct#getFileLocation()
+	 */
+	@Override 
+	protected String getFileLocation() {
 		return resourceAbsPath;
 	}
 

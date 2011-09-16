@@ -10,7 +10,7 @@ import org.spoofax.interpreter.terms.ITermFactory;
 
 interface IIndexer 
 {	
-	public void index(IStrategoString projectName , IStrategoAppl appl);
+	public void index(IStrategoString projectName , IStrategoAppl appl) throws Exception ;
 }
 
 interface ISymbolResolver<T> 
@@ -69,7 +69,7 @@ public class SpxSemanticIndex {
 		}	
 	}
 	
-	private boolean indexSymbol(IStrategoString projectName , IStrategoAppl appl , IIndexer indexer)
+	private boolean indexSymbol(IStrategoString projectName , IStrategoAppl appl , IIndexer indexer) throws Exception
 	{
 		boolean successStatement = false;
 		try {
@@ -110,10 +110,10 @@ public class SpxSemanticIndex {
 	
 	
 	// Index module definition . 
-	public boolean indexModuleDefinition(IStrategoString projectName, final IStrategoAppl moduleDefinition)
+	public boolean indexModuleDefinition(IStrategoString projectName, final IStrategoAppl moduleDefinition) throws Exception
 	{
 		IIndexer idx = new IIndexer() {
-			public void index(IStrategoString projectName, IStrategoAppl appl) {
+			public void index(IStrategoString projectName, IStrategoAppl appl) throws Exception {
 				SpxSemanticIndexFacade idxFacade = getFacade(projectName);
 				idxFacade.indexModuleDefinition(moduleDefinition);
 			}
@@ -122,9 +122,9 @@ public class SpxSemanticIndex {
 	}
 	
 	
-	public boolean indexPackageDeclaration(IStrategoString projectName, final IStrategoAppl packageDecl) {
+	public boolean indexPackageDeclaration(IStrategoString projectName, final IStrategoAppl packageDecl) throws Exception {
 		IIndexer idx = new IIndexer() {
-			public void index(IStrategoString projectName, IStrategoAppl appl) {
+			public void index(IStrategoString projectName, IStrategoAppl appl) throws Exception {
 				SpxSemanticIndexFacade idxFacade = getFacade(projectName);
 				idxFacade.indexPackageDeclaration(packageDecl);
 				}
@@ -134,9 +134,9 @@ public class SpxSemanticIndex {
 	}
 
 	
-	public boolean indexLanguageDescriptor(IStrategoString projectName,	final IStrategoAppl languageDescriptor) {
+	public boolean indexLanguageDescriptor(IStrategoString projectName,	final IStrategoAppl languageDescriptor) throws Exception {
 		IIndexer idx = new IIndexer() {
-			public void index(IStrategoString projectName, IStrategoAppl appl) {
+			public void index(IStrategoString projectName, IStrategoAppl appl) throws Exception  {
 				SpxSemanticIndexFacade idxFacade = getFacade(projectName);
 				idxFacade.indexLanguageDescriptor(languageDescriptor);
 				}
@@ -181,7 +181,7 @@ public class SpxSemanticIndex {
 	
 	public IStrategoTerm getCompilationUnit(IStrategoString projectName, IStrategoString spxCompilationUnitPath) throws Exception{
 		ISymbolResolver<IStrategoTerm> resolver = new ISymbolResolver<IStrategoTerm>() {
-			public IStrategoTerm get(IStrategoString projectName,IStrategoTerm key) {
+			public IStrategoTerm get(IStrategoString projectName,IStrategoTerm key) throws Exception  {
 		
 				SpxSemanticIndexFacade idxFacade = getFacade(projectName);
 				return idxFacade.getCompilationUnit((IStrategoString)key);
@@ -194,7 +194,7 @@ public class SpxSemanticIndex {
 	
 	public IStrategoTerm getPackageDeclaration(IStrategoString projectName, final IStrategoAppl packageTypedQname) throws Exception{
 		ISymbolResolver<IStrategoTerm> resolver = new ISymbolResolver<IStrategoTerm>() {
-			public IStrategoTerm get(IStrategoString projectName,IStrategoTerm qname) {
+			public IStrategoTerm get(IStrategoString projectName,IStrategoTerm qname) throws Exception  {
 				SpxSemanticIndexFacade idxFacade = getFacade(projectName);
 				return idxFacade.getPackageDeclaration((IStrategoAppl)qname);
 			}
@@ -216,7 +216,7 @@ public class SpxSemanticIndex {
 
 	public IStrategoTerm getModuleDeclaration(IStrategoString projectName, final IStrategoAppl moduleTypedQname) throws Exception{
 		ISymbolResolver<IStrategoTerm> resolver = new ISymbolResolver<IStrategoTerm>() {
-			public IStrategoTerm get(IStrategoString projectName,IStrategoTerm qname) {
+			public IStrategoTerm get(IStrategoString projectName,IStrategoTerm qname)  throws Exception {
 				SpxSemanticIndexFacade idxFacade = getFacade(projectName);
 				return idxFacade.getModuleDeclaration((IStrategoAppl)qname);
 			}
@@ -228,7 +228,7 @@ public class SpxSemanticIndex {
 	public IStrategoTerm getModuleDeclarations(IStrategoString projectName, IStrategoTerm retTerm) throws Exception {
 		
 		ISymbolResolver<IStrategoTerm> resolver = new ISymbolResolver<IStrategoTerm>() {
-			public IStrategoTerm get(IStrategoString projectName ,IStrategoTerm res) {
+			public IStrategoTerm get(IStrategoString projectName ,IStrategoTerm res) throws Exception  {
 				SpxSemanticIndexFacade idxFacade = getFacade(projectName);
 				return idxFacade.getModuleDeclarationsOf(res);
 			}
@@ -240,7 +240,7 @@ public class SpxSemanticIndex {
 	
 	public IStrategoTerm getModuleDefinition(IStrategoString projectName, final IStrategoAppl moduleTypedQname) throws Exception {
 		ISymbolResolver<IStrategoTerm> resolver = new ISymbolResolver<IStrategoTerm>() {
-			public IStrategoTerm get(IStrategoString projectName,IStrategoTerm qname) {
+			public IStrategoTerm get(IStrategoString projectName,IStrategoTerm qname) throws Exception {
 				SpxSemanticIndexFacade idxFacade = getFacade(projectName);
 				return idxFacade.getModuleDefinition((IStrategoAppl)qname);
 			}
@@ -260,7 +260,7 @@ public class SpxSemanticIndex {
 		return resolve(projectName, packageTypedQname, resolver);
 	}
 	
-	public boolean removeCompilationUnit(IStrategoString projectName,IStrategoString spxCompilationUnitPath) throws IllegalStateException, IOException{
+	public boolean removeCompilationUnit(IStrategoString projectName,IStrategoString spxCompilationUnitPath) throws IllegalStateException, IOException, SpxSymbolTableException{
 		
 		boolean successStatement = false;
 		
@@ -283,14 +283,35 @@ public class SpxSemanticIndex {
 		return successStatement;
 	}
 	
+	public boolean clearall(IStrategoString projectName) throws SpxSymbolTableException, IOException {
+		boolean retValue = false; 
+		try
+		{
+			SpxSemanticIndexFacade idxFacade = getFacade(projectName);
+			idxFacade.clearSymbolTable();
+			retValue = true;
+		}
+		catch(IllegalStateException e)
+		{
+			tryCleanupResources(projectName);
+			throw e;
+		}
+		catch(Error er)
+		{
+			tryCleanupResources(projectName);
+			throw er;
+		}
+		return retValue;
+	}
 	/**
 	 * Saves the indexes of the project specified by the projectName
 	 * 
 	 * @param projectName Term representation of the projectName 
 	 * @return true if the operation is successful ; otherwise false.
 	 * @throws IOException 
+	 * @throws SpxSymbolTableException 
 	 */
-	public boolean save(IStrategoTerm projectName) throws IllegalStateException, IOException
+	public boolean save(IStrategoTerm projectName) throws IllegalStateException, IOException, SpxSymbolTableException
 	{
 		boolean retValue = false; 
 		try
@@ -311,6 +332,8 @@ public class SpxSemanticIndex {
 		}
 		return retValue;
 	}
+	
+	
 	
 	public boolean close(IStrategoTerm projectName) throws IOException {
 		SpxSemanticIndexFacade idxFacade = removeFacade(projectName);
@@ -336,7 +359,7 @@ public class SpxSemanticIndex {
 		}	
 	}
 	
-	private SpxSemanticIndexFacade getFacade(IStrategoTerm projectName) {
+	private SpxSemanticIndexFacade getFacade(IStrategoTerm projectName) throws SpxSymbolTableException {
 
 		SpxSemanticIndexFacade facade = _facadeRegistry.getFacade(projectName);
 		ensureInitialized(facade);
@@ -354,4 +377,6 @@ public class SpxSemanticIndex {
 		if (idxFactory == null)
 			throw new IllegalStateException("Spoofaxlang Semantic index not initialized");
 	}
+
+	
 }

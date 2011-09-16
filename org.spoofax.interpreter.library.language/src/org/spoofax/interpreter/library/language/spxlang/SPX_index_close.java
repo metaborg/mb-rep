@@ -37,7 +37,7 @@ public class SPX_index_close extends AbstractPrimitive {
 	
 		if ( tvars.length != NO_ARGS || !Tools.isTermString(tvars[PROJECT_NAME_INDEX]))
 		{
-			SSLLibrary.instance(env).getIOAgent().printError("["+NAME+" Invokation failed . ] Error :  Mismatch in provided arguments. Variables provided : "+ tvars);
+			SSLLibrary.instance(env).getIOAgent().printError("["+NAME+" ] Invokation failed . Error :  Mismatch in provided arguments. Variables provided : "+ tvars);
 			return false;
 		}
 		

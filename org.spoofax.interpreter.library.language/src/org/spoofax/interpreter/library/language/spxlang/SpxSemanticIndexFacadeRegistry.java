@@ -52,12 +52,20 @@ class SpxSemanticIndexFacadeRegistry
 	 * @param projectName  ProjectName Term
 	 * 
 	 * @return SpxSemanticIndexFactory mapped with the projectName. If no mapping is found, it is returning null. 
+	 * @throws SpxSymbolTableException 
 	 */
-	public SpxSemanticIndexFacade getFacade( IStrategoTerm projectName)
+	public SpxSemanticIndexFacade getFacade( IStrategoTerm projectName) throws SpxSymbolTableException
 	{
 		String key = asJavaString(projectName);
 		
-		return _registry.get(key);
+		SpxSemanticIndexFacade facade =  _registry.get(key);
+		
+		if(facade == null || facade.isPersistenceManagerClosed())
+		{
+			throw new SpxSymbolTableException("Symbol Table is not initialized for project : " + projectName + " . Invoke SPX_index_init. ");
+		}	
+		
+		return facade;
 	}
 	
 	
