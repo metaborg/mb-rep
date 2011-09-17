@@ -346,10 +346,10 @@ public class SpxSemanticIndexFacade {
 	{
 		logMessage("getModuleDeclarations | Arguments : " + filePath);
 		
-		String absFilePath = toAbsulatePath(filePath);
 		
-		//TODO : Check abspath is valid 
 		SpxModuleLookupTable table = getPersistenceManager().spxModuleTable();
+		
+		String absFilePath = toAbsulatePath(filePath);
 		table.verifyUriExists(absFilePath);
 		
 		Iterable<ModuleDeclaration> decls = table.getModuleDeclarationsByUri(absFilePath);
@@ -410,18 +410,14 @@ public class SpxSemanticIndexFacade {
 	 * @throws IllegalArgumentException if the package id is not found in the symbol table 
 	 * @throws Exception  If package Id is valid but does not have any language descriptor registered
 	 */
-	public IStrategoTerm getLanguageDescriptor ( IStrategoAppl packageTypedQName) throws IllegalArgumentException, Exception
-	{
+	public IStrategoTerm getLanguageDescriptor ( IStrategoAppl packageTypedQName) throws IllegalArgumentException, Exception{
 		IStrategoList  packageQName = PackageDeclaration.getPackageId(getTermFactory(), packageTypedQName);
-		
-		
+
 		SpxPackageLookupTable table = getPersistenceManager().spxPackageTable();
 		table.verifyPackageIDExists(packageQName) ;
 		
-		
 		LanguageDescriptor desc = table.getLangaugeDescriptor(packageQName);
-		if ( desc == null)
-		{	
+		if ( desc == null){	
 			throw new SpxSymbolTableException("Not Found LanguageDescriptor for " + packageQName.toString()); 
 		}
 		return desc.toTerm(this);
@@ -436,8 +432,7 @@ public class SpxSemanticIndexFacade {
 	 */
 	public void removePackageDeclaration(
 			IStrategoString spxCompilationUnitPath , 
-			IStrategoList packageId)
-	{
+			IStrategoList packageId){
 		SpxPackageLookupTable table = _persistenceManager.spxPackageTable();
 		
 		spxCompilationUnitPath  = (IStrategoString)toCompactPositionInfo((IStrategoTerm)spxCompilationUnitPath);

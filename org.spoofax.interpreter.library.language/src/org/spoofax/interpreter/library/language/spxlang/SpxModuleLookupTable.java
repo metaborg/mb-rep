@@ -246,15 +246,13 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener{
 		
 		return ret;
 	}
-	
 
 	void verifyUriExists(String uri){
-		if(containsUri(uri)){ 
-			throw new IllegalArgumentException(" Unknown Module Uri " + uri) ;
+		if(!containsUri(uri)){ 
+			throw new IllegalArgumentException("Illegal URI argument " + uri) ;
 		}
 	}
-	
-	
+
 	private boolean containsUri ( String absPath ) { return _moduleByFileAbsPath.containsKey(absPath);}
 	 
 	public Iterable<ModuleDeclaration> getModuleDeclarationsByPackageId(IStrategoList packageID)

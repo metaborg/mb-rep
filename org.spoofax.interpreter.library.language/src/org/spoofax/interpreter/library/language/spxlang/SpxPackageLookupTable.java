@@ -190,10 +190,8 @@ public class SpxPackageLookupTable  implements ICompilationUnitRecordListener{
 		
 		PackageDeclaration decl  = PackageDeclaration.newInstance( _packageLookupTable.get(key));
 		
-		if ( decl != null)
-		{
+		if ( decl != null){
 			decl.remove(absPath);
-			
 			// redefining it again 
 			this.definePackageDeclaration(decl);
 			return true;
@@ -220,8 +218,7 @@ public class SpxPackageLookupTable  implements ICompilationUnitRecordListener{
 	 * and removed from the table. 
 	 * @return associated {@link PackageDeclaration}}
 	 */
-	public PackageDeclaration remove(IStrategoList id)
-	{
+	public PackageDeclaration remove(IStrategoList id){
 		_manager.logMessage(SRC+".remove", "Removing Package " + id + " from symbol table.");
 		
 		return _packageLookupTable.remove(id);
@@ -245,7 +242,7 @@ public class SpxPackageLookupTable  implements ICompilationUnitRecordListener{
 	}
 	
 	void verifyUriExists(String uri){
-		if(containsUri(uri)){ 
+		if(!containsUri(uri)){ 
 			throw new IllegalArgumentException("Unknown Package Uri " + uri) ;
 		}
 	}

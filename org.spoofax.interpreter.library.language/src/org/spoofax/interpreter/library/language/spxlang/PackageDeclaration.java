@@ -118,8 +118,7 @@ public class PackageDeclaration extends IdentifiableConstruct
 	 * @param decl an instance of {@link PackageDeclaration} to copy from. 
 	 * @return {@link PackageDeclaration}
 	 */
-	public static PackageDeclaration newInstance( PackageDeclaration decl)
-	{
+	public static PackageDeclaration newInstance( PackageDeclaration decl){
 		if (decl == null) 
 			return decl;
 		
@@ -172,7 +171,3 @@ public class PackageDeclaration extends IdentifiableConstruct
 		return true;
 	}
 }
-
-
-
-
