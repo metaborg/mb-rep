@@ -48,7 +48,9 @@ class SpxSemanticIndexFacadeRegistry
 	
 	
 	/**
-	 * Gets the porject's Semantic Index factory
+	 * Gets the porject's Semantic Index factory . If it is initialized and somehow is not closed 
+	 * then it returns the instance of the factory to perform further operation. 
+	 * 
 	 * @param projectName  ProjectName Term
 	 * 
 	 * @return SpxSemanticIndexFactory mapped with the projectName. If no mapping is found, it is returning null. 

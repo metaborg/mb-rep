@@ -336,8 +336,7 @@ public class SpxSemanticIndex {
 	
 	
 	public boolean close(IStrategoTerm projectName) throws IOException {
-		SpxSemanticIndexFacade idxFacade = removeFacade(projectName);
-		idxFacade.close();
+		removeFacade(projectName);
 		return true;
 	}
 	

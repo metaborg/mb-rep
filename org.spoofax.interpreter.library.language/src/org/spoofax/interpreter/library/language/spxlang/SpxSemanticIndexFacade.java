@@ -52,7 +52,7 @@ public class SpxSemanticIndexFacade {
 		_moduleDefCon  			= _termFactory.makeConstructor("ModuleDef", 5);
 		_moduleDeclCon 			= _termFactory.makeConstructor("ModuleDecl", 3);
 		_packageDeclCon 		= _termFactory.makeConstructor("PackageDecl", 2);
-		_languageDescriptorCon  = _termFactory.makeConstructor("PackageDeclaration", 5);
+		_languageDescriptorCon  = _termFactory.makeConstructor("LanguageDescriptor", 5);
 		
 		_persistenceManager = new SpxPersistenceManager(_projectName , _agent.getWorkingDir(),agent);
 	}
@@ -232,7 +232,7 @@ public class SpxSemanticIndexFacade {
 		packageId = (IStrategoList)toCompactPositionInfo((IStrategoTerm)packageId);
 		
 		if(table.containsPackage(packageId))
-			table.addPackageDeclarationLocation(
+ 			table.addPackageDeclarationLocation(
 					packageId, 
 					toAbsulatePath(spxCompilationUnitPath));
 		else
@@ -252,36 +252,34 @@ public class SpxSemanticIndexFacade {
 	public void indexLanguageDescriptor (IStrategoAppl languageDescriptor)
 	{
 		assertConstructor(languageDescriptor.getConstructor(), getLanguageDescriptorCon(), "Invalid LanguageDescriptor argument : "+ languageDescriptor.toString());
-		
+
 		IStrategoList qualifiedPackageId = PackageDeclaration.getPackageId(getTermFactory(), (IStrategoAppl)languageDescriptor.getSubterm(0)) ;
 		SpxPackageLookupTable table = _persistenceManager.spxPackageTable();
-		
-		if( table.containsPackage(qualifiedPackageId))
-		{
-			//TODO : move the following logic to extract information and 
-			//construct instance in respective classes . e.g. in LanguageDesrciptor class
-			qualifiedPackageId = (IStrategoList)toCompactPositionInfo((IStrategoTerm)qualifiedPackageId);
-		
-			IStrategoList lNames = (IStrategoList) this.strip(languageDescriptor.getSubterm(LanguageDescriptor.LanguageNamesIndex));
-			IStrategoList lIds = (IStrategoList) this.strip(languageDescriptor.getSubterm(LanguageDescriptor.LanguageIdsIndex));
-			IStrategoList lEsvStartSymbols = (IStrategoList) this.strip(languageDescriptor.getSubterm(LanguageDescriptor.EsvStartSymbolsIndex));
-			IStrategoList lSDFStartSymbols = (IStrategoList) this.strip(languageDescriptor.getSubterm(LanguageDescriptor.SdfStartSymbolsIndex));
-			
-			LanguageDescriptor current = table.getLangaugeDescriptor(qualifiedPackageId);
-			if( current != null)
-			{	
-				current.addEsvDeclaredStartSymbols(this.getTermFactory(), lEsvStartSymbols);
-				current.addSDFDeclaredStartSymbols(this.getTermFactory(), lSDFStartSymbols );
-				current.addLanguageIDs(this.getTermFactory(), lIds);
-				current.addLanguageNames(this.getTermFactory(), lNames);
-			}
-			else
-				current = LanguageDescriptor.newInstance(this.getTermFactory() , qualifiedPackageId , lIds, lNames,lSDFStartSymbols , lEsvStartSymbols);
-			
-			table.defineLanguageDescriptor(qualifiedPackageId, current);
+
+		checkIfValidPackageId(qualifiedPackageId , "Unknown Package ID :  "+ qualifiedPackageId) ;
+
+		//TODO : move the following logic to extract information and 
+		//construct instance in respective classes . e.g. in LanguageDesrciptor class
+		qualifiedPackageId = (IStrategoList)toCompactPositionInfo((IStrategoTerm)qualifiedPackageId);
+
+		IStrategoList lNames = (IStrategoList) this.strip(languageDescriptor.getSubterm(LanguageDescriptor.LanguageNamesIndex));
+		IStrategoList lIds = (IStrategoList) this.strip(languageDescriptor.getSubterm(LanguageDescriptor.LanguageIdsIndex));
+		IStrategoList lEsvStartSymbols = (IStrategoList) this.strip(languageDescriptor.getSubterm(LanguageDescriptor.EsvStartSymbolsIndex));
+		IStrategoList lSDFStartSymbols = (IStrategoList) this.strip(languageDescriptor.getSubterm(LanguageDescriptor.SdfStartSymbolsIndex));
+
+		LanguageDescriptor current = table.getLangaugeDescriptor(qualifiedPackageId);
+		if( current != null)
+		{	
+			current.addEsvDeclaredStartSymbols(this.getTermFactory(), lEsvStartSymbols);
+			current.addSDFDeclaredStartSymbols(this.getTermFactory(), lSDFStartSymbols );
+			current.addLanguageIDs(this.getTermFactory(), lIds);
+			current.addLanguageNames(this.getTermFactory(), lNames);
 		}
 		else
-			throw new IllegalArgumentException( "Unknown Package Id : "+ qualifiedPackageId.toString());
+			current = LanguageDescriptor.newInstance(this.getTermFactory() , qualifiedPackageId , lIds, lNames,lSDFStartSymbols , lEsvStartSymbols);
+
+		table.defineLanguageDescriptor(qualifiedPackageId, current);
+
 	}
 	
 	/**
@@ -361,6 +359,7 @@ public class SpxSemanticIndexFacade {
 		
 		String absFilePath = toAbsulatePath(filePath);
 		
+		//TODO : Check abspath is valid 
 		SpxModuleLookupTable table = getPersistenceManager().spxModuleTable();
 		
 		Iterable<ModuleDeclaration> decls = table.getModuleDeclarationsByUri(absFilePath);
@@ -373,19 +372,15 @@ public class SpxSemanticIndexFacade {
 	}
 
 	public IStrategoList getModuleDeclarations(IStrategoAppl packageQName) {
-
 		logMessage("getModuleDeclarations | Arguments : " + packageQName);
-		
 		SpxModuleLookupTable table = getPersistenceManager().spxModuleTable();
-		
 		IStrategoList packageID = PackageDeclaration.getPackageId(getTermFactory(), packageQName);
 		
+		checkIfValidPackageId(packageID , "Unknown Package ID :  "+ packageID) ;
+		
 		Iterable<ModuleDeclaration> decls = table.getModuleDeclarationsByPackageId(packageID);
-		
 		logMessage("getModuleDeclarations | Found following result from SymbolTable : " + decls);
-		
 		IStrategoList result =  ModuleDeclaration.toTerm(this, decls);
-		
 		logMessage("getModuleDeclarations | Returning IStrategoList : " + result );
 		
 		return result;
@@ -428,15 +423,14 @@ public class SpxSemanticIndexFacade {
 	public IStrategoTerm getLanguageDescriptor ( IStrategoAppl packageTypedQName) throws IllegalArgumentException, Exception
 	{
 		IStrategoList  packageQName = PackageDeclaration.getPackageId(getTermFactory(), packageTypedQName);
-		SpxPackageLookupTable table = getPersistenceManager().spxPackageTable();
 		
+		checkIfValidPackageId(packageQName , "Unknown Package ID :  "+ packageQName) ;
+		
+		SpxPackageLookupTable table = getPersistenceManager().spxPackageTable();
 		LanguageDescriptor desc = table.getLangaugeDescriptor(packageQName);
 		if ( desc == null)
 		{	
-			if( table.containsPackage(packageQName))
-				throw new IllegalArgumentException( "Unknown Package Id"+ packageTypedQName.toString());
-			else	
-				throw new SpxSymbolTableException("Not Found LanguageDescriptor for " + packageQName.toString()); 
+			throw new SpxSymbolTableException("Not Found LanguageDescriptor for " + packageQName.toString()); 
 		}
 		return desc.toTerm(this);
 	}
@@ -457,6 +451,7 @@ public class SpxSemanticIndexFacade {
 		spxCompilationUnitPath  = (IStrategoString)toCompactPositionInfo((IStrategoTerm)spxCompilationUnitPath);
 		packageId = (IStrategoList)toCompactPositionInfo((IStrategoTerm)packageId);
 		
+		checkIfValidPackageId(packageId , "Unknown Package ID :  "+ packageId) ;
 		
 		table.removePackageDeclarationLocation(
 				packageId, 
@@ -498,7 +493,9 @@ public class SpxSemanticIndexFacade {
 
 		IStrategoList moduleId = ModuleDeclaration.getModuleId( this.getTermFactory(), moduleQName);
 		IStrategoList packageId = PackageDeclaration.getPackageId(this.getTermFactory(), packageQName);
-
+		
+		checkIfValidPackageId(packageId , "Unknown Package ID :  "+ packageId) ;
+		
 		moduleId = (IStrategoList) toCompactPositionInfo(moduleId);
 		packageId = (IStrategoList) toCompactPositionInfo(packageId);
 		ast = (IStrategoAppl) strip(ast);
@@ -530,10 +527,12 @@ public class SpxSemanticIndexFacade {
 	 * @throws IOException
 	 */
 	public void close() throws IOException {
-		if (! isPersistenceManagerClosed())
+		if (!isPersistenceManagerClosed()) {
+			logMessage("close | closing underlying persistence manager instance.");
 			_persistenceManager.commitAndClose();
-	}
-	
+		} else
+			logMessage("close | underlying persistence manager is already closed. ");
+	}	
 	
 	public void clearSymbolTable() throws IOException 
 	{
@@ -634,6 +633,13 @@ public class SpxSemanticIndexFacade {
 		if( actual != expected)
 			throw new IllegalArgumentException(message);
 	}
+	
+	
+	private void checkIfValidPackageId ( IStrategoList packageId , String errorMessage) {
+		SpxPackageLookupTable table = _persistenceManager.spxPackageTable();
+		
+		if(!table.containsPackage(packageId)) { throw new IllegalArgumentException(errorMessage);}
+	}  
 	
 	/**
 	 * Logs message 
