@@ -13,19 +13,6 @@ import jdbm.PrimaryHashMap;
 import jdbm.PrimaryStoreMap;
 import jdbm.RecordListener;
 
-/**
- * Record Listener for Compilation Unit.  
- *  
- * @author Md. Adil Akhter
- * Created On : Sep 5, 2011
- */
-interface ICompilationUnitRecordListener
-{
-	public RecordListener<String, SpxCompilationUnitInfo> getCompilationUnitRecordListener();
-}
-
-
-
 public class SpxCompilationUnitTable {
 	
 	private PrimaryHashMap<String , SpxCompilationUnitInfo> _infoMap;
@@ -49,14 +36,6 @@ public class SpxCompilationUnitTable {
 		_spxUnitStoreMap = manager.loadStoreMap(tableName + "._spxUnitStorageMap.idx");
 	}
 	
-	/**
-	 * Adds a {@code listener} in the collection of record listener 
-	 * @param listener
-	 */
-	public void addRecordListener(final RecordListener<String, SpxCompilationUnitInfo> listener) {
-		recordListeners.add((RecordListener<String, SpxCompilationUnitInfo>) listener);
-	}
-	
 	public void addRecordListener( final ICompilationUnitRecordListener rl)
 	{
 		this.addRecordListener(rl.getCompilationUnitRecordListener());
@@ -65,14 +44,6 @@ public class SpxCompilationUnitTable {
 	public void removeRecordListener( final ICompilationUnitRecordListener rl)
 	{
 		this.removeRecordListener(rl.getCompilationUnitRecordListener());
-	}
-	
-	/**
-	 * Removes {@code listener} from the collection of record listeners
-	 * @param listener
-	 */
-	public void removeRecordListener(RecordListener<String, SpxCompilationUnitInfo> listener) {	
-		recordListeners.remove(listener);
 	}
 	
 	/**
@@ -110,7 +81,6 @@ public class SpxCompilationUnitTable {
 		SpxCompilationUnitInfo newResInfo = new SpxCompilationUnitInfo(absPath,resID);
 		String key = newResInfo.getAbsPathString();
 		
-		
 		_infoMap.put(key, newResInfo);
 		
 		if(!recordListeners.isEmpty())
@@ -124,7 +94,11 @@ public class SpxCompilationUnitTable {
 	
 	
 	/**
-	 * Updates existing symbol table entry. 
+	 * Updates existing symbol table entry. Invokes all the {@link RecordListener}s' update event  
+	 * which updates the respective symbol tables accordingly. For example, if 
+	 * SpxCompilationUnit is updated in symbol table , then it invalidates all the 
+	 * enclosed {@link PackageDeclaration} and {@link ModuleDeclaration}  
+	 * and hence, {@link RecordListener} cleans up respective SymbolTable.   
 	 * 
 	 * @param absPath
 	 * @param compilationUnitRTree
@@ -135,11 +109,11 @@ public class SpxCompilationUnitTable {
 		
 		SpxCompilationUnitInfo oldValue = _infoMap.get(toAbsulatePath(absPath));
 		
-		SpxCompilationUnitInfo newValue 
-			= SpxCompilationUnitInfo.newInstance(oldValue);
+		SpxCompilationUnitInfo newValue = SpxCompilationUnitInfo.newInstance(oldValue);
+		newValue.IncrementVersionNo();
 		
 		_spxUnitStoreMap.put(newValue.getRecId(), compilationUnitRTree);
-		newValue.IncrementVersionNo();
+		
 	
 		if(!recordListeners.isEmpty())
 		{	
@@ -207,4 +181,19 @@ public class SpxCompilationUnitTable {
 			remove(keyIter.next());
 	}
 	
+	/**
+	 * Adds a {@code listener} in the collection of record listener 
+	 * @param listener
+	 */
+	private void addRecordListener(final RecordListener<String, SpxCompilationUnitInfo> listener) {
+		recordListeners.add((RecordListener<String, SpxCompilationUnitInfo>) listener);
+	}
+	
+	/**
+	 * Removes {@code listener} from the collection of record listeners
+	 * @param listener
+	 */
+	private void removeRecordListener(RecordListener<String, SpxCompilationUnitInfo> listener) {	
+		recordListeners.remove(listener);
+	}
 }

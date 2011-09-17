@@ -328,15 +328,19 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener{
 			public void recordUpdated(String key,
 					SpxCompilationUnitInfo oldValue,
 					SpxCompilationUnitInfo newValue) throws IOException {
-				// do nothing 
 				
+				if(oldValue.getVersionNo() != newValue.getVersionNo()){
+					//Whenever compilation unit version no is updated , 
+					//remove all the related module declaration 
+					//from the symbol table , since it is obsolete now. 
+					removeModuleDeclarationsByUri(key);
+				}
 			}
 
 			public void recordRemoved(String key, SpxCompilationUnitInfo value)
 					throws IOException {
-				
+		
 				removeModuleDeclarationsByUri(key);
-				
 			}
 		};
 	}

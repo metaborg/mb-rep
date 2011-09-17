@@ -60,27 +60,26 @@ public class LanguageDescriptor extends IdentifiableConstruct {
 		return sdfDeclaredStartSymbols;
 	}
 
-	public void addLanguageNames( ITermFactory fac , IStrategoList langNames) 
-	{ 
+	public void addLanguageNames(ITermFactory fac, IStrategoList langNames) {
 		if (languageNames == null)
 			this.languageNames = fac.makeList();
-	
-		this.languageNames =  prepend(fac, languageNames , langNames);
+
+		this.languageNames = prepend(fac, languageNames, langNames);
 	}
 
-	public void addLanguageIDs( ITermFactory fac , IStrategoList langIds) 
-	{ 
-		languageIDs =  prepend(fac, languageIDs , langIds);
+	public void addLanguageIDs(ITermFactory fac, IStrategoList langIds) {
+		languageIDs = prepend(fac, languageIDs, langIds);
 	}
 	
-	public void addEsvDeclaredStartSymbols( ITermFactory fac , IStrategoList startSymbols)
-	{
-		this.esvDeclaredStartSymbols =  prepend(fac, this.esvDeclaredStartSymbols  , startSymbols);
+	public void addEsvDeclaredStartSymbols(ITermFactory fac,
+			IStrategoList startSymbols) {
+		this.esvDeclaredStartSymbols = prepend(fac,
+				this.esvDeclaredStartSymbols, startSymbols);
 	}
-	
+
 	public void addSDFDeclaredStartSymbols( ITermFactory fac , IStrategoList startSymbols)
 	{
-		this.esvDeclaredStartSymbols =  prepend(fac, this.esvDeclaredStartSymbols  , startSymbols);
+		this.sdfDeclaredStartSymbols =  prepend(fac, this.esvDeclaredStartSymbols  , startSymbols);
 	}
 	
 	public Iterable<String> asLanguageNameStrings()

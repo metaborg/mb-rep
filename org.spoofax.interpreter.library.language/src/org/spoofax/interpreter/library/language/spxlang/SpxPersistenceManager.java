@@ -95,7 +95,7 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	 */
 	private void initListeners()
 	{
-		// chain record listeners among the tables. 
+		// chain record listeners among the tables to keep the consistency in inter-table symbols. 
 		// If compilation unit is removed, automatically remove packages.
 		// If package is removed , automatically remove the modules that is located 
 		// in that particular compilation units 
@@ -103,8 +103,11 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 		_spxUnitsTable.addRecordListener((ICompilationUnitRecordListener)_spxPackageTable);
 		_spxUnitsTable.addRecordListener((ICompilationUnitRecordListener)_spxModuleTable);
 		
-		//TODO : also chain package removed event so that whenever a package is removed from
-		//symbol table, remove enclosing module declaration. 
+		
+		//TODO : Chain package removed event so that whenever a package is removed from
+		//symbol table, remove enclosing module declaration.  Currently it is linked with 
+		//the record listener of the SpxCompilationUnit. Hence, whenever a SpxCompilationUnit
+		//is updated , it updates both package and module table and underlying symbols .
 	}
 	
 	/**

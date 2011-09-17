@@ -86,11 +86,11 @@ public class SpxPackageLookupTable  implements ICompilationUnitRecordListener{
 		);
 	}
 	
+	
 	/**
 	 * adding a record listener to remove/cleanup symbol table and make it consistent in several scenario.
 	 */
 	private void initListeners() {
-		
 		_packageLookupTable.addRecordListener(
 				new RecordListener<IStrategoList , PackageDeclaration>(){
 
@@ -123,14 +123,15 @@ public class SpxPackageLookupTable  implements ICompilationUnitRecordListener{
 	
 	}
 	
-	/** Returns the size of the symbol table 
+	private boolean containsUri ( String absPath ) { return _uriMap.containsKey(absPath);}
+	
+	/** 
+	 * Returns no of entries in this symbol table. 
 	 * 
-	 * @return
+	 * @return {@link Integer}
 	 */
-	public int size() 
-	{
-		return _packageLookupTable.size();
-	}
+	public int size(){ return _packageLookupTable.size(); }
+	
 	/**
 	 * Defines {@code PackageDeclaration} in current symbol table 
 	 * 
@@ -251,8 +252,6 @@ public class SpxPackageLookupTable  implements ICompilationUnitRecordListener{
 		if(!containsPackage(packageId)) { throw new IllegalArgumentException("Unknown Package ID : "+ packageId);}
 	}  
 	
-	
-	private boolean containsUri ( String absPath ) { return _uriMap.containsKey(absPath);}
 	/**
 	 * Removes all packages located in the {@code absUri} 
 	 * 
@@ -319,19 +318,23 @@ public class SpxPackageLookupTable  implements ICompilationUnitRecordListener{
 		
 		return new RecordListener<String, SpxCompilationUnitInfo>() {
 			
-			public void recordUpdated(String key, SpxCompilationUnitInfo oldValue,
-					SpxCompilationUnitInfo newValue) throws IOException {
-				// do nothing 
+			public void recordUpdated(String key, SpxCompilationUnitInfo oldValue,SpxCompilationUnitInfo newValue) throws IOException {
+				
+				if(oldValue.getVersionNo() != newValue.getVersionNo()){
+					//Whenever compilation unit version no is updated , 
+					//remove all the related module declaration 
+					//from the symbol table , since it is obsolete now. 
+					recordRemoved(key, oldValue); 
+				}
+
 			}
 			
-			public void recordRemoved(String key, SpxCompilationUnitInfo value)
-					throws IOException {
+			public void recordRemoved(String key, SpxCompilationUnitInfo value) throws IOException {
 				removePackageDeclarationsByUri(key);
 				
 			}
 			
-			public void recordInserted(String key, SpxCompilationUnitInfo value)
-					throws IOException {
+			public void recordInserted(String key, SpxCompilationUnitInfo value) throws IOException {
 				//do nothing 
 			}
 		};
