@@ -244,6 +244,18 @@ public class SpxPackageLookupTable  implements ICompilationUnitRecordListener{
 		return ret;
 	}
 	
+	void verifyUriExists(String uri){
+		if(containsUri(uri)){ 
+			throw new IllegalArgumentException("Unknown Package Uri " + uri) ;
+		}
+	}
+	
+	void verifyPackageIDExists ( IStrategoList packageId) {
+		if(!containsPackage(packageId)) { throw new IllegalArgumentException("Unknown Package ID : "+ packageId);}
+	}  
+	
+	
+	private boolean containsUri ( String absPath ) { return _uriMap.containsKey(absPath);}
 	/**
 	 * Removes all packages located in the {@code absUri} 
 	 * 

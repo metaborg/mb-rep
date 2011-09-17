@@ -164,8 +164,13 @@ public class SpxCompilationUnitTable {
 		remove(key);
 	}
 	
-	void remove(String absPathString) throws IOException
-	{
+	public void verifyUriExists(String uri)	{
+		if(!_infoMap.containsKey(uri)){
+			throw new IllegalArgumentException(" Unknown CompilationUnit Uri: "+ uri);
+		}	
+	}
+	
+	void remove(String absPathString) throws IOException{
 		SpxCompilationUnitInfo removedValue = _infoMap.remove(absPathString);
 		
 		if ( removedValue != null)
