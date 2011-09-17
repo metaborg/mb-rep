@@ -30,23 +30,18 @@ public class SPX_index_save extends AbstractPrimitive {
 	 */
 	@Override
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars){
-	
-		if ( (tvars.length != NO_ARGS) || !Tools.isTermString(tvars[PROJECT_NAME_INDEX]))
-		{	
-			SSLLibrary.instance(env).getIOAgent().printError("["+NAME+"] Invokation failed . Error :  Mismatch in provided arguments. Variables provided : "+ tvars);
-			return false;
+		boolean retValue = false;
+		if ( (tvars.length == NO_ARGS) && Tools.isTermString(tvars[PROJECT_NAME_INDEX])) {
+			try {
+				retValue = index.save(tvars[PROJECT_NAME_INDEX]);
+			}
+			catch(Exception ex)	{
+				SSLLibrary.instance(env).getIOAgent().printError("["+NAME+"]  Invocation failed . "+ ex.getClass().getSimpleName() +" | error message: " + ex.getMessage());
+			}
 		}
-		
-		try 
-		{
-			return index.save(tvars[PROJECT_NAME_INDEX]);
-		}
-		catch(Exception ex)
-		{
-			SSLLibrary.instance(env).getIOAgent().printError("["+NAME+"] Invokation failed. Error : "+ ex.getMessage());
-			return false;
-		}
-		
+		else
+			SSLLibrary.instance(env).getIOAgent().printError("["+NAME+"] Invocation failed . Error :  Mismatch in provided arguments. Variables provided : "+ tvars);
+		return retValue;
 	}
 
 }

@@ -48,10 +48,9 @@ public class SPX_index_get_package_declarations_of extends AbstractPrimitive {
 				
 				successStatement = true;
 			} 
-			catch(Exception ex)
-			{
+			catch(Exception ex){
 				// Logging any exception throw from the underlying symbol table. 
-				SSLLibrary.instance(env).getIOAgent().printError("["+NAME+"]  Invokation failed . Error : "+ ex.getMessage());
+				SSLLibrary.instance(env).getIOAgent().printError("["+NAME+"]  Invocation failed . "+ ex.getClass().getSimpleName() +" | error message: " + ex.getMessage());
 			}
 		}
 		else

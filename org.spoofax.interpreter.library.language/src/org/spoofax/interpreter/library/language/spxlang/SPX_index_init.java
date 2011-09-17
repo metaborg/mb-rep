@@ -31,25 +31,22 @@ public class SPX_index_init extends AbstractPrimitive {
 	 * @see org.spoofax.interpreter.library.AbstractPrimitive#call(org.spoofax.interpreter.core.IContext, org.spoofax.interpreter.stratego.Strategy[], org.spoofax.interpreter.terms.IStrategoTerm[])
 	 */
 	@Override
-	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars)
-	{
-		if ( tvars.length != NO_ARGS || !Tools.isTermString(tvars[PROJECT_NAME_INDEX]))
-		{
-			SSLLibrary.instance(env).getIOAgent().printError("["+NAME+" Invokation failed . ] Error :  Mismatch in provided arguments. Variables provided : "+ tvars);
-			return false;
-		}	
-		
-		IStrategoString projectName = (IStrategoString)tvars[PROJECT_NAME_INDEX];
-		
-		try
-		{
-			return index.initialize(projectName , env.getFactory(), SSLLibrary.instance(env).getIOAgent());
+	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
+		boolean retStatement  = false;
+
+		if(tvars.length == NO_ARGS && Tools.isTermString(tvars[PROJECT_NAME_INDEX])) {
+			IStrategoString projectName = (IStrategoString)tvars[PROJECT_NAME_INDEX];
+			try{
+				retStatement   = index.initialize(projectName , env.getFactory(), SSLLibrary.instance(env).getIOAgent());
+			}
+			catch(Exception ex){
+				SSLLibrary.instance(env).getIOAgent().printError("["+NAME+"] Invocation failed . "+ ex.getClass().getSimpleName() +" | error message: " + ex.getMessage());
+			}
 		}
-		catch(Exception ex)
-		{
-			SSLLibrary.instance(env).getIOAgent().printError("["+NAME+"] Invokation failed. Error : "+ ex.getMessage());
-			return false;
-		}
+		else
+			SSLLibrary.instance(env).getIOAgent().printError("["+NAME+" Invocation failed . ] Error :  Mismatch in provided arguments. Variables provided : "+ tvars);
+
+		return retStatement;
 	}
 
 }

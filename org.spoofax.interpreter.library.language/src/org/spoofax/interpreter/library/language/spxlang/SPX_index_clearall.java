@@ -36,8 +36,8 @@ public class SPX_index_clearall extends AbstractPrimitive {
 	 */
 	@Override
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars){
-	
 		boolean retValue = false;	
+		
 		if ( (tvars.length == NO_ARGS) && Tools.isTermString(tvars[PROJECT_NAME_INDEX]))
 		{	
 			try 
@@ -46,7 +46,7 @@ public class SPX_index_clearall extends AbstractPrimitive {
 			}
 			catch(Exception ex)
 			{
-				SSLLibrary.instance(env).getIOAgent().printError("["+NAME+"] Invokation failed. Error : "+ ex.getMessage());
+				SSLLibrary.instance(env).getIOAgent().printError("["+NAME+"]  Invocation failed . "+ ex.getClass().getSimpleName() +" | error message: " + ex.getMessage());
 			}	
 				
 		}

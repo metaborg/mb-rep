@@ -32,23 +32,21 @@ public class SPX_index_close extends AbstractPrimitive {
 	 * @see org.spoofax.interpreter.library.AbstractPrimitive#call(org.spoofax.interpreter.core.IContext, org.spoofax.interpreter.stratego.Strategy[], org.spoofax.interpreter.terms.IStrategoTerm[])
 	 */
 	@Override
-	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars)
-			throws InterpreterException {
-	
-		if ( tvars.length != NO_ARGS || !Tools.isTermString(tvars[PROJECT_NAME_INDEX]))
-		{
+	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars){
+		boolean retValue = false;
+		if ( tvars.length == NO_ARGS && Tools.isTermString(tvars[PROJECT_NAME_INDEX])) {
+
+			try {
+				retValue = index.close(tvars[PROJECT_NAME_INDEX]);
+			}
+			catch(Exception ex){
+				SSLLibrary.instance(env).getIOAgent().printError("["+NAME+"]  Invocation failed . "+ ex.getClass().getSimpleName() +" | error message: " + ex.getMessage());
+
+			}
+		}else{
 			SSLLibrary.instance(env).getIOAgent().printError("["+NAME+" ] Invokation failed . Error :  Mismatch in provided arguments. Variables provided : "+ tvars);
-			return false;
 		}
-		
-		try 
-		{
-			return index.close(tvars[PROJECT_NAME_INDEX]);
-		}
-		catch(Exception ex)
-		{
-			SSLLibrary.instance(env).getIOAgent().printError("["+NAME+"] Invokation failed. Error : "+ ex.getMessage());
-			return false;
-		}
+
+		return retValue;
 	}	
 }

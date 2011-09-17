@@ -48,14 +48,12 @@ public class SPX_index_get_package_declaration extends AbstractPrimitive {
 				
 				successStatement = true;
 			} 
-			catch(Exception ex)
-			{
-				// Logging any exception throw from the underlying symbol table. 
-				SSLLibrary.instance(env).getIOAgent().printError("["+NAME+"]  Invokation failed . Error : "+ ex.getMessage());
+			catch(Exception ex){
+				SSLLibrary.instance(env).getIOAgent().printError("["+NAME+"]  Invocation failed . "+ ex.getClass().getSimpleName() +" | error message: " + ex.getMessage());
 			}
 		}
 		else
-			SSLLibrary.instance(env).getIOAgent().printError("["+NAME+"]  Invokation failed . Error :  Mismatch in provided arguments. Variables provided : "+ tvars);
+			SSLLibrary.instance(env).getIOAgent().printError("["+NAME+"]  Invocation failed . Error :  Mismatch in provided arguments. Variables provided : "+ tvars);
 		
 		return successStatement;
 	}
