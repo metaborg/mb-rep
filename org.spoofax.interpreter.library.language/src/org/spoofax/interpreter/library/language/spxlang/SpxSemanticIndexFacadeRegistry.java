@@ -70,7 +70,7 @@ class SpxSemanticIndexFacadeRegistry
 	}
 
 	public void clearAll() throws IOException{
-		for ( String fname : _registry.keySet())
+		for(String fname : _registry.keySet())
 			remove(fname);
 	}
 	

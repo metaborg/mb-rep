@@ -207,7 +207,7 @@ public class SpxSemanticIndex {
 		ISymbolResolver<IStrategoTerm> resolver = new ISymbolResolver<IStrategoTerm>() {
 			public IStrategoTerm get(IStrategoString projectName,IStrategoTerm uri) throws Exception  {
 					SpxSemanticIndexFacade idxFacade = getFacade(projectName);
-					return idxFacade.getPackageDeclarationsByUri((IStrategoString)uri);
+					return idxFacade.getPackageDeclarations((IStrategoString)uri);
 			} 
 		};
 		

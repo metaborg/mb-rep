@@ -248,11 +248,11 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		IStrategoList actuals = null;
 
 		
-		actuals = _facade.getPackageDeclarationsByUri(termFactory().makeString(absPathString2));
+		actuals = _facade.getPackageDeclarations(termFactory().makeString(absPathString2));
 		assertEquals(1, actuals.getSubtermCount());
 		
 
-		actuals = _facade.getPackageDeclarationsByUri(termFactory().makeString(absPathString1));
+		actuals = _facade.getPackageDeclarations(termFactory().makeString(absPathString1));
 		assertEquals(2, actuals.getSubtermCount());
 	}
 

@@ -344,4 +344,13 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener{
 			}
 		};
 	}
+
+	/**
+	 * Returns all the {@link ModuleDeclaration} declared in the current package. 
+	 * 
+	 * @return 
+	 */
+	public Iterable<ModuleDeclaration> getModuleDeclarations() {
+		return this._moduleLookupMap.values();
+	}
 }

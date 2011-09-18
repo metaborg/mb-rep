@@ -31,6 +31,10 @@ public class SpxSemanticIndexFacade {
 	private final IStrategoConstructor _packageDeclCon;
 	private final IStrategoConstructor _languageDescriptorCon;
 
+	private static final String All= "*";
+	
+
+	
 	/**
 	 * Initializes the SemanticIndexFactory
 	 * @param projectName name of the project 
@@ -287,16 +291,24 @@ public class SpxSemanticIndexFacade {
 		
 		return decl.toTerm(this);
 	}
+	
+	public IStrategoList getPackageDeclarations(IStrategoString filePath) {
 
-	public IStrategoList getPackageDeclarationsByUri(IStrategoString uri) {
-
-		logMessage("getPackageDeclarationsByUri | Arguments : " + uri);
+		logMessage("getPackageDeclarationsByUri | Arguments : " + filePath);
 
 		SpxPackageLookupTable table = getPersistenceManager().spxPackageTable();
-		String absFilePath = toAbsulatePath(uri);
-		table.verifyUriExists(absFilePath);
-		Iterable<PackageDeclaration> decls = table.packageDeclarationsByUri(absFilePath);
+		String filepathString = asJavaString(filePath);
+		
+		Iterable<PackageDeclaration> decls; 
+		if(All == filepathString) {
+			decls = table.getPackageDeclarations();  //returning all the package declarations found in the current project
+		}else{
 
+			String absFilePath = toAbsulatePath(filePath);
+			table.verifyUriExists(absFilePath);
+			decls = table.packageDeclarationsByUri(absFilePath);
+		}
+		
 		IStrategoList result =  PackageDeclaration.toTerm(this, decls);
 		logMessage("getPackageDeclarationsByUri | Returning IStrategoList : " + result );
 
@@ -338,21 +350,23 @@ public class SpxSemanticIndexFacade {
 		return retValue;
 	}
 
-	public IStrategoList getModuleDeclarations (IStrategoString filePath)
-	{
+	public IStrategoList getModuleDeclarations (IStrategoString filePath){
 		logMessage("getModuleDeclarations | Arguments : " + filePath);
 		
 		SpxModuleLookupTable table = getPersistenceManager().spxModuleTable();
+		String filepathString = asJavaString(filePath);
 		
-		String absFilePath = toAbsulatePath(filePath);
-		table.verifyUriExists(absFilePath);
-		
-		Iterable<ModuleDeclaration> decls = table.getModuleDeclarationsByUri(absFilePath);
+		Iterable<ModuleDeclaration> decls; 
+		if(All == filepathString) {
+			decls = table.getModuleDeclarations();  //returning all the package declarations found in the current project
+		}else{	
+			String absFilePath = toAbsulatePath(filePath);
+			table.verifyUriExists(absFilePath);
+			decls = table.getModuleDeclarationsByUri(absFilePath);
+		}
 		
 		IStrategoList result =  ModuleDeclaration.toTerm(this, decls);
-		
 		logMessage("getModuleDeclarations | Returning IStrategoList : " + result );
-		
 		return result;
 	}
 
@@ -569,9 +583,9 @@ public class SpxSemanticIndexFacade {
 	{
 		URI resUri = toFileURI(uri);
 		
-		return new File(resUri).getAbsolutePath();
-		
+		return new File(resUri).getAbsolutePath().trim();
 	}
+
 	/**
 	 * Returns URI 
 	 * @param path

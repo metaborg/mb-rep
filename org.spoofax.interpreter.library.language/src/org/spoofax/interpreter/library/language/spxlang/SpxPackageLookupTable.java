@@ -203,6 +203,11 @@ public class SpxPackageLookupTable  implements ICompilationUnitRecordListener{
 	public PackageDeclaration getPackageDeclaration(IStrategoList id) {
 		return _packageLookupTable.get(id);
 	}
+	
+	
+	public Iterable<PackageDeclaration> getPackageDeclarations(){
+		return _packageLookupTable.values();
+	}
 	/**
 	 * Returns language descriptor associated with id 
 	 * @param id package id whose language descriptor is to be returned
