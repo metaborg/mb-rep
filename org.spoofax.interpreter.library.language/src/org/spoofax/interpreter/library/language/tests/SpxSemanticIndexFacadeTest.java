@@ -44,7 +44,7 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		
 	
 		_facade = new SpxSemanticIndexFacade(projectNameTerm , termFactory() , ioAgent());
-		_facade.clearSymbolTable();
+		_facade.reinitSymbolTable();
 	}
 	
 	@Override 
@@ -90,7 +90,7 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		
 		IStrategoAppl packageDeclaration = (IStrategoAppl)_facade.getPackageDeclaration(pQnameAppl);
 		
-		_facade.assertConstructor(packageDeclaration.getConstructor(), _facade.getPackageDeclCon(), "Wrong Package Declaration"); 
+		_facade.verifyConstructor(packageDeclaration.getConstructor(), _facade.getPackageDeclCon(), "Wrong Package Declaration"); 
 	}
 	
 	public void testIndexPackageDeclarationInMultipleFiles() 
@@ -108,7 +108,7 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		
 		IStrategoAppl packageDeclaration = (IStrategoAppl)_facade.getPackageDeclaration(pQnameAppl);
 		
-		_facade.assertConstructor(packageDeclaration.getConstructor(), _facade.getPackageDeclCon(), "Wrong Package Declaration");
+		_facade.verifyConstructor(packageDeclaration.getConstructor(), _facade.getPackageDeclCon(), "Wrong Package Declaration");
 		
 		assertEquals(2, ((IStrategoList)packageDeclaration.getSubterm(1)).getAllSubterms().length);
 	}
@@ -130,7 +130,7 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		
 		IStrategoAppl moduleDeclaration = (IStrategoAppl)_facade.getModuleDeclaration( mQnameAppl );
 		
-		_facade.assertConstructor(moduleDeclaration.getConstructor(), _facade.getModuleDeclCon(), "Wrong Module Declaration Constructs");
+		_facade.verifyConstructor(moduleDeclaration.getConstructor(), _facade.getModuleDeclCon(), "Wrong Module Declaration Constructs");
 	}
 	
 	private void indexTestModuleDefs( String moduleName , String packageQName , String filePath)

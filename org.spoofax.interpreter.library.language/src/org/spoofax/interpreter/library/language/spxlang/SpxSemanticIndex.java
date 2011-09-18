@@ -288,7 +288,7 @@ public class SpxSemanticIndex {
 		try
 		{
 			SpxSemanticIndexFacade idxFacade = getFacade(projectName);
-			idxFacade.clearSymbolTable();
+			idxFacade.reinitSymbolTable();
 			retValue = true;
 		}
 		catch(IllegalStateException e)
@@ -336,7 +336,7 @@ public class SpxSemanticIndex {
 	
 	
 	public boolean close(IStrategoTerm projectName) throws IOException {
-		removeFacade(projectName);
+		_facadeRegistry.removeFacade(projectName);
 		return true;
 	}
 	
@@ -362,13 +362,6 @@ public class SpxSemanticIndex {
 	private SpxSemanticIndexFacade getFacade(IStrategoTerm projectName) throws SpxSymbolTableException {
 
 		SpxSemanticIndexFacade facade = _facadeRegistry.getFacade(projectName);
-		ensureInitialized(facade);
-		return facade;
-	}
-	
-	private SpxSemanticIndexFacade removeFacade(IStrategoTerm projectName) throws IOException {
-
-		SpxSemanticIndexFacade facade = _facadeRegistry.removeFacade(projectName);
 		ensureInitialized(facade);
 		return facade;
 	}

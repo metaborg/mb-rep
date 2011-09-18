@@ -45,8 +45,7 @@ class SpxSemanticIndexFacadeRegistry
 		if(fac != null)
 			_registry.put(fac.getProjectNameString(), fac);
 	}
-	
-	
+
 	/**
 	 * Gets the porject's Semantic Index factory . If it is initialized and somehow is not closed 
 	 * then it returns the instance of the factory to perform further operation. 
@@ -69,15 +68,12 @@ class SpxSemanticIndexFacadeRegistry
 		
 		return facade;
 	}
-	
-	
-	public void clearAll() throws IOException
-	{
+
+	public void clearAll() throws IOException{
 		for ( String fname : _registry.keySet())
 			remove(fname);
 	}
-
-
+	
 	public SpxSemanticIndexFacade removeFacade(IStrategoTerm projectName) throws IOException {
 		String key = asJavaString(projectName);
 		
@@ -94,8 +90,7 @@ class SpxSemanticIndexFacadeRegistry
 		return facade;
 	}
 	
-	public boolean containsFacade(IStrategoTerm projectName)
-	{
+	public boolean containsFacade(IStrategoTerm projectName){
 		String key = asJavaString(projectName);
 		
 		return _registry.containsKey(key);

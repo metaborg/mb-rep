@@ -36,11 +36,20 @@ public class SpxCompilationUnitTable {
 		_spxUnitStoreMap = manager.loadStoreMap(tableName + "._spxUnitStorageMap.idx");
 	}
 	
+	/**
+	 * Adds {@link ICompilationUnitRecordListener} in recordlistener collection 
+	 * @param rl
+	 */
 	public void addRecordListener( final ICompilationUnitRecordListener rl)
 	{
 		this.addRecordListener(rl.getCompilationUnitRecordListener());
 	}
 	
+	/**
+	 * Removes {@link ICompilationUnitRecordListener} in recordlistener collection
+	 * 
+	 * @param rl
+	 */
 	public void removeRecordListener( final ICompilationUnitRecordListener rl)
 	{
 		this.removeRecordListener(rl.getCompilationUnitRecordListener());
@@ -68,13 +77,12 @@ public class SpxCompilationUnitTable {
 	 * Adds the new CompilationUnit.
 	 * 
 	 * @param absPath
-	 * @param compilationUnitRTree
+	 * @param compilationUnitAST
 	 * @throws IOException 
 	 */
-	private void add(URI absPath , IStrategoTerm compilationUnitRTree) throws IOException 
-	{
-		// adding Compilation Unit to the storemap
-		long resID = _spxUnitStoreMap.putValue(compilationUnitRTree);
+	private void add(URI absPath , IStrategoTerm compilationUnitAST) throws IOException {
+		
+		long resID = _spxUnitStoreMap.putValue(compilationUnitAST); // Adding Compilation Unit to the storemap
 		
 		// instantiating a new SpxCompilationUnitInfo object with the newly created resID
 		// and storing it in infomap
@@ -92,7 +100,6 @@ public class SpxCompilationUnitTable {
 		}
 	}
 	
-	
 	/**
 	 * Updates existing symbol table entry. Invokes all the {@link RecordListener}s' update event  
 	 * which updates the respective symbol tables accordingly. For example, if 
@@ -101,29 +108,23 @@ public class SpxCompilationUnitTable {
 	 * and hence, {@link RecordListener} cleans up respective SymbolTable.   
 	 * 
 	 * @param absPath
-	 * @param compilationUnitRTree
+	 * @param compilationUnitAterm
 	 * @throws IOException 
 	 */
-	private void update(URI absPath , IStrategoTerm compilationUnitRTree) throws IOException
-	{	
+	private void update(URI absPath , IStrategoTerm compilationUnitAterm) throws IOException {	
 		
 		SpxCompilationUnitInfo oldValue = _infoMap.get(toAbsulatePath(absPath));
-		
 		SpxCompilationUnitInfo newValue = SpxCompilationUnitInfo.newInstance(oldValue);
 		newValue.IncrementVersionNo();
 		
-		_spxUnitStoreMap.put(newValue.getRecId(), compilationUnitRTree);
-		
+		_spxUnitStoreMap.put(newValue.getRecId(), compilationUnitAterm);
 	
-		if(!recordListeners.isEmpty())
-		{	
-			for(RecordListener<String, SpxCompilationUnitInfo> r:recordListeners)
-			{
+		if(!recordListeners.isEmpty()){	
+			for(RecordListener<String, SpxCompilationUnitInfo> r:recordListeners){
 				r.recordUpdated(toAbsulatePath(absPath), oldValue , newValue);
 			}
 		}
 	}
-	
 	
 	/**
 	 * Removes a SPX Compilation Unit from the symbol table.
@@ -131,8 +132,7 @@ public class SpxCompilationUnitTable {
 	 * @param absPath URI for the SPXCompilationUnit to remove
 	 * @throws IOException 
 	 */
-	public void remove(URI absPath) throws IOException
-	{
+	public void remove(URI absPath) throws IOException{
 		String key = toAbsulatePath(absPath);
 		
 		remove(key);
@@ -165,14 +165,12 @@ public class SpxCompilationUnitTable {
 	 * @param absPath
 	 * @return
 	 */
-	public IStrategoTerm get(URI absPath)
-	{
+	public IStrategoTerm get(URI absPath){
 		String key = toAbsulatePath(absPath);
 		
 		SpxCompilationUnitInfo retUnitData= _infoMap.get(key);
 		
 		return _spxUnitStoreMap.get(retUnitData.getRecId());
-		
 	}
 	
 	public void clear() throws IOException{
