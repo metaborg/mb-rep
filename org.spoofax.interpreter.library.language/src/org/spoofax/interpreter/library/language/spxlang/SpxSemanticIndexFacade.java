@@ -14,17 +14,21 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.interpreter.terms.TermConverter;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.terms.attachments.TermAttachmentStripper;
 
 public class SpxSemanticIndexFacade {
 
 	private final ISpxPersistenceManager _persistenceManager;
+	
 	private final String _projectName ; 
 	private final ITermFactory _termFactory;
 	private final IOAgent _agent;
+	
 	private final SpxSemanticIndexEntryFactory _entryFactory;
 	private final TermAttachmentStripper _stripper;
+	private final TermConverter _converter;
 	
 	private final IStrategoConstructor _moduleDefCon;
 	private final IStrategoConstructor _moduleDeclCon;
@@ -51,7 +55,10 @@ public class SpxSemanticIndexFacade {
 
 		_termFactory = termFactory;
 		_agent = agent;
+		
 		_stripper = new TermAttachmentStripper(_termFactory);
+		_converter = new TermConverter(_termFactory);
+		_converter.setOriginEnabled(true);
 		
 		_moduleDefCon  			= _termFactory.makeConstructor("ModuleDef", 5);
 		_moduleDeclCon 			= _termFactory.makeConstructor("ModuleDecl", 3);
@@ -67,6 +74,7 @@ public class SpxSemanticIndexFacade {
 	 */
 	public ITermFactory getTermFactory() { return _termFactory; }
 
+	public TermConverter getTermConverter() {return _converter ; }
 	/**
 	 * Gets the project name as String
 	 * @return
@@ -402,7 +410,10 @@ public class SpxSemanticIndexFacade {
 		
 		if (decl != null)
 		{	
-			ModuleDefinition def = new ModuleDefinition( decl , table.getModuleDefinition(qualifiedModuleId) , table.getAnalyzedModuleDefinition(qualifiedModuleId));
+			IStrategoTerm moduleAterm =table.getModuleDefinition(qualifiedModuleId) ;
+			IStrategoTerm moduleAnnotatedAterm  = table.getAnalyzedModuleDefinition(qualifiedModuleId);
+			
+			ModuleDefinition def = new ModuleDefinition( decl , (IStrategoAppl)moduleAterm, (IStrategoAppl)moduleAnnotatedAterm);
 			return def.toTerm(this);
 		}
 		else
@@ -491,9 +502,9 @@ public class SpxSemanticIndexFacade {
 		
 		moduleId = (IStrategoList) toCompactPositionInfo(moduleId);
 		packageId = (IStrategoList) toCompactPositionInfo(packageId);
-		ast = (IStrategoAppl) strip(ast);
-		analyzedAst = (IStrategoAppl) strip(analyzedAst);
-		spxCompilationUnitPath = (IStrategoString) strip(spxCompilationUnitPath);
+		ast = (IStrategoAppl) ast;
+		analyzedAst = (IStrategoAppl)analyzedAst;
+		spxCompilationUnitPath = (IStrategoString) spxCompilationUnitPath;
 
 		// verify whether the enclosing package exists in symbol table
 		if (!_persistenceManager.spxPackageTable().containsPackage(packageId))

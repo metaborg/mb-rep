@@ -5,6 +5,7 @@ import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.interpreter.terms.TermConverter;
 
 /**
  * @author Md. Adil Akhter
@@ -46,6 +47,7 @@ class ModuleDefinition  extends ModuleDeclaration
 	public IStrategoTerm toTerm(SpxSemanticIndexFacade idxFacade) {
 
 		ITermFactory termFactory = idxFacade.getTermFactory();
+		TermConverter termConverter = idxFacade.getTermConverter();
 		
 		IStrategoTerm moduleDeclarationTerm = super.toTerm(idxFacade);
 		IStrategoConstructor moduleDefCons = idxFacade.getModuleDefCon();
@@ -56,8 +58,9 @@ class ModuleDefinition  extends ModuleDeclaration
 				moduleDeclarationTerm.getSubterm(0),
 				moduleDeclarationTerm.getSubterm(1),
 				moduleDeclarationTerm.getSubterm(2),
-				ast,
-				analyzedAst);
+				termConverter.convert( ast),
+				termConverter.convert( analyzedAst ) 
+				);
 		
 		return this.forceImploderAttachment(retTerm);
 	}
