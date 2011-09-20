@@ -23,6 +23,7 @@ public class SpxCompilationUnitTable {
      */
     protected List<RecordListener<String,SpxCompilationUnitInfo>> recordListeners = new ArrayList<RecordListener<String,SpxCompilationUnitInfo>>();
     
+    private final String SRC  = this.getClass().getSimpleName();
 	/**
 	 * Creates a new instance of SymbolTable or loads existing SymbolTable with name specified  
 	 * in the following tableName argument.
@@ -30,9 +31,11 @@ public class SpxCompilationUnitTable {
 	 * @param tableName name of the SymbolTable
 	 * @param manager an instance of IPersistenceManager
 	 */
-	public SpxCompilationUnitTable(String tableName , ISpxPersistenceManager manager)
+	public SpxCompilationUnitTable(ISpxPersistenceManager manager)
 	{
-		_infoMap = manager.loadHashMap(tableName+ "._infomap.idx");
+		String tableName = SRC+ "_"+ manager.getProjectName();
+		
+		_infoMap = manager.loadHashMap(tableName  + "._infomap.idx");
 		_spxUnitStoreMap = manager.loadStoreMap(tableName + "._spxUnitStorageMap.idx");
 	}
 	

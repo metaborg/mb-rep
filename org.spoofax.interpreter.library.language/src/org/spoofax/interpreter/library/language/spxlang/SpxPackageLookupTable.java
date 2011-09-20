@@ -38,13 +38,14 @@ public class SpxPackageLookupTable  implements ICompilationUnitRecordListener{
 	 * @param tableName name of the table 
 	 * @param manager an instance of {@link ISpxPersistenceManager}
 	 */
-	public SpxPackageLookupTable(String tableName , ISpxPersistenceManager manager)
+	public SpxPackageLookupTable(ISpxPersistenceManager manager)
 	{
-		assert tableName != null;
 		assert manager != null;
 		
+		String tableName = SRC+ "_"+ manager.getProjectName();
+		
 		_manager = manager;
-		_packageLookupTable = manager.loadHashMap(tableName+ "._lookupPackageMap.idx");
+		_packageLookupTable = manager.loadHashMap(manager.getProjectName() + "._lookupPackageMap.idx");
 		
 		// readonly secondary view of the the lookup table . 
 		_uriMap = _packageLookupTable.secondaryHashMapManyToOne(tableName+ "._urimap.idx", 

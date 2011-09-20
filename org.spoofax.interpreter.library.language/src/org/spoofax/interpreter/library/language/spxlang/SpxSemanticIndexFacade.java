@@ -26,7 +26,6 @@ public class SpxSemanticIndexFacade {
 	private final ITermFactory _termFactory;
 	private final IOAgent _agent;
 	
-	private final SpxSemanticIndexEntryFactory _entryFactory;
 	private final TermAttachmentStripper _stripper;
 	private final TermConverter _converter;
 	
@@ -50,9 +49,6 @@ public class SpxSemanticIndexFacade {
 	{
 		_projectName = asJavaString(projectName);
 		
-		//TODO : consider removing following instance 
-		_entryFactory = new SpxSemanticIndexEntryFactory(termFactory);
-
 		_termFactory = termFactory;
 		_agent = agent;
 		
@@ -506,11 +502,7 @@ public class SpxSemanticIndexFacade {
 		analyzedAst = (IStrategoAppl)analyzedAst;
 		spxCompilationUnitPath = (IStrategoString) spxCompilationUnitPath;
 
-		// verify whether the enclosing package exists in symbol table
-		if (!_persistenceManager.spxPackageTable().containsPackage(packageId))
-			throw new IllegalArgumentException("Unknown Package : "
-					+ packageId.toString());
-
+		
 		table.define(new ModuleDeclaration(toAbsulatePath(spxCompilationUnitPath), moduleId, packageId), ast, analyzedAst);
 	}
 	

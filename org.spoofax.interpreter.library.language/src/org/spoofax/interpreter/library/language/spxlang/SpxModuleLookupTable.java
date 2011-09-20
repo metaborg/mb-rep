@@ -1,21 +1,17 @@
 package org.spoofax.interpreter.library.language.spxlang;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import jdbm.InverseHashView;
 import jdbm.PrimaryHashMap;
 import jdbm.RecordListener;
 import jdbm.SecondaryHashMap;
 import jdbm.SecondaryKeyExtractor;
-import jdbm.SecondaryTreeMap;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.terms.TermFactory;
 
 public class SpxModuleLookupTable implements ICompilationUnitRecordListener{
 	
@@ -40,13 +36,13 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener{
 	 * @param tableName name of the table 
 	 * @param manager an instance of {@link ISpxPersistenceManager}
 	 */
-	public SpxModuleLookupTable(String tableName , ISpxPersistenceManager manager)
+	public SpxModuleLookupTable(ISpxPersistenceManager manager)
 	{
-		assert tableName != null;
 		assert manager != null;
 		
-		_manager = manager;
+		String tableName = SRC+ "_"+ manager.getProjectName();
 		
+		_manager = manager;
 		_moduleLookupMap = manager.loadHashMap(tableName+ "._lookupModuleMap.idx");
 		
 		// read-only secondary view of the the lookup table . 
@@ -65,6 +61,7 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener{
 			}
 		}
 		);
+		
 		
 		_moduleByPackageId = _moduleLookupMap.secondaryHashMap(tableName+ "._moduleByPackageId.idx", 
 				new SecondaryKeyExtractor<IStrategoList, IStrategoList, ModuleDeclaration>() {

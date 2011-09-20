@@ -1,10 +1,11 @@
 package org.spoofax.interpreter.library.language.spxlang;
 
 
-import java.net.URI;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.ITermFactory;
 
 /**
  * BaseScope  is an abstract base class that implements Scope Interface
@@ -12,72 +13,56 @@ import org.spoofax.interpreter.terms.ITermFactory;
  * @author Md. Adil Akhter
  * Created On : Aug 27, 2011
  */
-abstract class BaseScope implements Scope {
+abstract class BaseScope implements INamespace {
 	
-	private IStrategoTerm _id;
-		
-	private final ITermFactory _termFactory;
-		
-	public BaseScope(IStrategoTerm id, ITermFactory termFactory) {
-		
-		_termFactory = termFactory;
-		
-		setScopeId(id);
-	}
+	private static final long serialVersionUID = 2052337390283813190L;
 	
-	protected ITermFactory getTermFactory() {
-		return _termFactory;
-	}
+	protected final IStrategoConstructor type;
+	protected final String  src;
 	
-	public IStrategoTerm getScopeId() {
-		return _id;
+	private  final NamespaceId _currentNamespace; 
+	private final NamespaceId _enclosingNamespace;
+	
+	private final MultiValuePersistentTable _symbols;
+	
+	
+	public BaseScope(NamespaceId currentNS , IStrategoConstructor type, NamespaceId enclosingNS, ISpxPersistenceManager manager) {
+		assert currentNS!= null : "Current NS Identifier is null";
+		assert type!= null      : "Non-null Type is expected";
+		
+		_currentNamespace = currentNS;
+		_enclosingNamespace = enclosingNS; 
+		
+		this.type = type;
+		
+		src = type().toString() + _enclosingNamespace.UniqueID(); 
+			
+		_symbols = new MultiValuePersistentTable( manager.getProjectName()+src , manager);
 	}
 
-	private void setScopeId(IStrategoTerm _id) {
-		this._id = _id;
+	public void define(SpxSymbol sym,ILogger logger){
+		sym.setNamespace(_currentNamespace);
+		
+		logger.logMessage(src, "Defining Symbol "+ sym);
+		
+		_symbols.define(sym);
 	}
-	
-	public abstract IStrategoTerm getType(); 
-
+		
 	/* 
 	 * Returns the enclosing scope of the current scope.
 	 * */
-	public Scope getEnclosingScope() {
-		return null;
-	}
+	public NamespaceId getEnclosingNamespace() { return _enclosingNamespace; }
 	
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((_id == null) ? 0 : _id.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		BaseScope other = (BaseScope) obj;
-		if (_id == null) {
-			if (other._id != null)
-				return false;
-		} else if (!_id.match(other._id))
-			return false;
-		return true;
-	}
+	public NamespaceId getCurrentNamespace(){ return _currentNamespace; }
 	
-	/* Gets the URI of the current scope. Returns Null is scope is not associated with 
-	 * any URI.
-	 * 
-	 * @see org.spoofax.interpreter.library.language.spxlang.Scope#getScopeURI()
-	 */
-	public URI getScopeURI() {
+	public Iterable<SpxSymbol> resolve(INamespaceResolver nsResolver, IStrategoTerm id, SearchPattern pattern,ILogger logger){
+		Set<SpxSymbol> symbols = new HashSet<SpxSymbol>(); 
 		
-		return null;
-	} 
+		
+		return symbols;
+	}
+	
+	public IStrategoConstructor type() {
+		return type;
+	}
 }

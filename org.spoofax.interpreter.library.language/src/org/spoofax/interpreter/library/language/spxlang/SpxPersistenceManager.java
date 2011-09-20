@@ -84,9 +84,11 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	 */
 	private void initTables(String projectName) {
 		
-		_spxUnitsTable   = new SpxCompilationUnitTable(projectName+"_spxUnitTable", this);
-		_spxPackageTable = new SpxPackageLookupTable(projectName+"_spxPackageTable", this);
-		_spxModuleTable  = new SpxModuleLookupTable(projectName+"_spxModuleTable", this);
+		_spxUnitsTable   = new SpxCompilationUnitTable(this);
+		_spxPackageTable = new SpxPackageLookupTable(this);
+		_spxModuleTable  = new SpxModuleLookupTable(this);
+	
+		// TODO : add primary symbol table
 	}
 	
 	
@@ -200,7 +202,6 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 		
 	}
 
-
 	/* Logs Message 
 	 * 
 	 * @see org.spoofax.interpreter.library.language.spxlang.ISpxPersistenceManager#logMessage(java.lang.String, java.lang.String)
@@ -217,6 +218,10 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 				
 			}
 		}
+	}
+
+	public String getProjectName() {
+		return _projectName;
 	}
 	
 }

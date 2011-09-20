@@ -2,6 +2,9 @@ package org.spoofax.interpreter.library.language.spxlang;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+
+import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import jdbm.PrimaryMap;
 import jdbm.RecordManager;
@@ -14,19 +17,13 @@ import jdbm.RecordManager;
  * @author Md. Adil Akhter
  * Created On : Aug 22, 2011
  */
-class MultiValuePersistentTable<K, V> {
+class MultiValuePersistentTable {
 
-	private final PrimaryMap<K,ArrayList<V>> _primaryMap;
-	private final RecordManager _recordManager;
-	private String _mapName ;
+	final PrimaryMap<IStrategoTerm,ArrayList<SpxSymbol>> symbols;
 	
-	public MultiValuePersistentTable(String name, RecordManager manager)
-	{
-		_mapName  = name ;
+	public MultiValuePersistentTable(String name, ISpxPersistenceManager manager){
 		
-		_recordManager = manager;
-	
-		_primaryMap = _recordManager.hashMap(_mapName);
+		symbols = manager.loadHashMap(name);
 	}
 	
 	/**
@@ -34,12 +31,10 @@ class MultiValuePersistentTable<K, V> {
 	 * 
 	 * @throws IOException 
 	 */
-	public void clear() throws IOException
-	{
-		_primaryMap.clear();
-		
-		_recordManager.commit();
+	public void clear() throws IOException{
+		symbols.clear();
 	}
+
 	
 	/**
 	 * Defines symbol in the current symbol table. Define does not replace  
@@ -49,16 +44,17 @@ class MultiValuePersistentTable<K, V> {
 	 * @param key - The key that the symbol will be mapped to .
 	 * @param symbol - The symbol to store. 
 	 */
-	public void define(K key , V symbol)
-	{	
-		if ( _primaryMap.containsKey(key))
-			_primaryMap.get(key).add(symbol);
-		else
-		{
-			ArrayList<V> values = new ArrayList<V>(); 
+	public void define(SpxSymbol symbol){
+		IStrategoTerm key = symbol.Id();
+		
+		if ( symbols.containsKey(key)){
+			symbols.get(key).add(symbol);
+		}else{
+			ArrayList<SpxSymbol> values = new ArrayList<SpxSymbol>(); 
 			values.add(symbol);
-			
-			_primaryMap.put( key , values );
+			symbols.put( key , values );
 		}
 	}
+	
+	public List<SpxSymbol> get(IStrategoTerm id){ return symbols.get(id); }
 }

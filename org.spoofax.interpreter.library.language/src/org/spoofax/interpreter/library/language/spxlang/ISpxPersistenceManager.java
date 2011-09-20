@@ -7,7 +7,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import jdbm.PrimaryHashMap;
 import jdbm.PrimaryStoreMap;
 
-public interface ISpxPersistenceManager {
+public interface ISpxPersistenceManager  extends ILogger{
 
 	public void commitAndClose()  throws IOException;
 	
@@ -27,5 +27,9 @@ public interface ISpxPersistenceManager {
 	
 	public void clearAll() throws IOException;
 	
-	public void logMessage(String origin, String message);
+	public String getProjectName();
+}
+
+interface ILogger{ 
+	public void logMessage(String origin, String message); 
 }

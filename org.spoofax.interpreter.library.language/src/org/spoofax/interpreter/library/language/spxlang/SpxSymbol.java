@@ -5,104 +5,30 @@ import java.util.UUID;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-class ScopeIdentifier 
+class NamespaceId 
 {
-	private UUID _scopeId;
+	private final IStrategoList _id;
+	private final UUID _uId ;
 	
-	public ScopeIdentifier( UUID scopeId){	_scopeId = scopeId; }
+	public NamespaceId(IStrategoList id){_id = id ; _uId = UUID.randomUUID();}
 	
-	public IScope resolve( ISpxPersistenceManager manager)
-	{
-		return null;
-	}
-}
-
-/**
- * Class to represent SpxSymbol 
- * 
- * @author Md. Adil Akhter
- * Created On : Aug 20, 2011
- */
-class SpxSymbol  extends IdentifiableConstruct {
+	public IStrategoList ID(){ return _id ; }
 	
-	private static final long serialVersionUID = -5293805213473800423L;
+	public String UniqueID(){ return _uId.toString();};
 	
-	private String _name;
-	private IStrategoTerm _data;
-	private ISpxType _type;
-	private ScopeIdentifier _scope;
-	
-	/**
-	 * Instantiates a new instance of {@link SpxSymbol}
-	 * 
-	 * @param id
-	 * @param name
-	 */
-	public SpxSymbol (IStrategoList id , String name)
-	{	
-		super(id);
-		
-		_name = name; 
-	}
-	/**
-	 * Instantiates a new instance of {@link SpxSymbol}
-	 * 
-	 * @param id
-	 * @param name
-	 * @param type
-	 */
-	public SpxSymbol (IStrategoList id ,  String name , ISpxType type)
-	{ 
-		this(id , name) ; 
-		_type = type;
-	}
-	
-	/**
-	 * returns the name of the symbol 
-	 * 
-	 * @return
-	 */
-	public String getName() { return _name; }
-	
-	public ISpxType getType() {return _type; }
-
-	/**
-	 * @return the data
-	 */
-	protected IStrategoTerm getData() {
-		return _data;
+	public INamespace resolve(SpxPrimarySymbolTable sTable) {
+		return sTable.resolveScope(this);
 	}
 
-	/**
-	 * @param data the data to set
-	 */
-	protected void setData(IStrategoTerm data) {
-		this._data = data;
-	}
-	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return "SpxSymbol[_scope =" + _scope + ", data=" + _data + "]";
-	}
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((_scope == null) ? 0 : _scope.hashCode());
-		result = prime * result + ((_data == null) ? 0 : _data.hashCode());
+		result = prime * result + ((_id == null) ? 0 : _id.hashCode());
+		result = prime * result + ((_uId == null) ? 0 : _uId.hashCode());
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -111,129 +37,53 @@ class SpxSymbol  extends IdentifiableConstruct {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		SpxSymbol other = (SpxSymbol) obj;
-		if (_scope == null) {
-			if (other._scope != null)
+		NamespaceId other = (NamespaceId) obj;
+		if (_id == null) {
+			if (other._id != null)
 				return false;
-		} else if (!_scope.equals(other._scope))
+		} else if (!_id.match(other._id))
 			return false;
-		if (_data == null) {
-			if (other._data != null)
+		if (_uId == null) {
+			if (other._uId != null)
 				return false;
-		} else if (!_data.match(other._data))
+		} else if (!_uId.equals(other._uId))
 			return false;
 		return true;
 	}
-	
+
 	@Override
-	public IStrategoTerm toTerm(SpxSemanticIndexFacade idxFacade) {
-		// TODO Auto-generated method stub
-		return null;
+	public String toString() {
+		return "NamespaceId [_id=" + _id + ", _uId=" + _uId + "]";
 	}
 }
 
 
+class SpxSymbol{
 
-//
-///**
-// * @author Md. Adil Akhter
-// * Created On : Sep 1, 2011
-// */
-//class SpxSemanticIndexKey extends SpxSymbol
-//{	
-//	public SpxSemanticIndexKey(Scope scope, IStrategoTerm key)
-//	{
-//		super(scope);
-//	}
-//	
-//	public IStrategoTerm getKey()
-//	{
-//		return getData(); 
-//	}
-//
-//	/* (non-Javadoc)
-//	 * @see java.lang.Object#toString()
-//	 */
-//	@Override
-//	public String toString() {
-//		return "SpxSemanticIndexKey [ " +
-//				"key =" + getData().toString() +
-//				"scope="  + getScope().toString() +
-//				"]";
-//	}
-//}
-//
-///**
-// * 
-// * @author Md. Adil Akhter
-// * Created On : Sep 1, 2011
-// */
-//class SpxSemanticIndexSymbol extends SpxSymbol
-//{
-//	private final IStrategoTerm _key ;
-//
-//	public SpxSemanticIndexSymbol ( Scope scope, IStrategoTerm symbol, IStrategoTerm key)
-//	{
-//		super(scope);
-//		
-//		_key = key;
-//		setData(symbol);
-//	}
-//	
-//	/**
-//	 * 
-//	 * @return the _key
-//	 */
-//	public IStrategoTerm getKey() {
-//		return _key;
-//	}
-//
-//	public IStrategoTerm getValue()
-//	{
-//		return getData();
-//	}
-//
-//	/* (non-Javadoc)
-//	 * @see java.lang.Object#hashCode()
-//	 */
-//	@Override
-//	public int hashCode() {
-//		final int prime = 31;
-//		int result = super.hashCode();
-//		result = prime * result + ((_key == null) ? 0 : _key.hashCode());
-//		return result;
-//	}
-//
-//	/* (non-Javadoc)
-//	 * @see java.lang.Object#equals(java.lang.Object)
-//	 */
-//	@Override
-//	public boolean equals(Object obj) {
-//		if (this == obj)
-//			return true;
-//		if (!super.equals(obj))
-//			return false;
-//		if (getClass() != obj.getClass())
-//			return false;
-//		SpxSemanticIndexSymbol other = (SpxSemanticIndexSymbol) obj;
-//		if (_key == null) {
-//			if (other._key != null)
-//				return false;
-//		} else if (!_key.match(other._key))
-//			return false;
-//		return true;
-//	}
-//
-//	/* (non-Javadoc)
-//	 * @see java.lang.Object#toString()
-//	 */
-//	@Override
-//	public String toString() {
-//		return "SpxSemanticIndexSymbol [ " +
-//				"key=" + _key.toString() + 
-//				"symbol=" + getData().toString() +
-//				"scope="  + getScope().toString() +
-//				"]";
-//	}
-//}
+	private static final long serialVersionUID = -5293805213473800423L;
 
+	private IStrategoList _id;
+	private IStrategoTerm _data;
+	private IStrategoTerm _type;
+	
+	private NamespaceId _namespace;
+	
+	public SpxSymbol (IStrategoList id){_id = id;}
+	
+	public SpxSymbol (IStrategoList id , IStrategoTerm type){ 
+		this(id) ;
+		_type = type;
+	}
+	
+	IStrategoList Id(){return _id;}
+	
+	IStrategoTerm Type() {return _type; }
+
+	IStrategoTerm Data() { return _data; }
+	
+	NamespaceId Namespace() { return _namespace; }
+
+	void setData(IStrategoTerm data) { _data = data; }
+
+	void setNamespace(NamespaceId id){ _namespace = id;}
+}
