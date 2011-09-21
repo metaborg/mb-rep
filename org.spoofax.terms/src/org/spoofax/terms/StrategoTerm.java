@@ -17,6 +17,8 @@ import org.spoofax.interpreter.terms.ITermPrinter;
 
 public abstract class StrategoTerm extends AbstractSimpleTerm implements IStrategoTerm, Cloneable {
 	
+	private static final long serialVersionUID = -2803845954655431574L;
+
 	private static final int UNKNOWN_HASH = -1;
 	
 	private static final int MUTABLE_HASH = MUTABLE;

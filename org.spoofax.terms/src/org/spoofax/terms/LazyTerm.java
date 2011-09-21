@@ -24,6 +24,8 @@ import org.spoofax.terms.attachments.TermAttachmentType;
  */
 public abstract class LazyTerm implements IStrategoAppl, IStrategoInt, IStrategoList, IStrategoReal, IStrategoString, IStrategoTuple {
 	
+	private static final long serialVersionUID = 4886871162797987326L;
+	
 	private IStrategoTerm term;
 	
 	public final IStrategoTerm getWrapped() {

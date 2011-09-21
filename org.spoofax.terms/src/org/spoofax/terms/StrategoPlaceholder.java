@@ -13,7 +13,9 @@ import org.spoofax.interpreter.terms.ITermPrinter;
  */
 public class StrategoPlaceholder extends StrategoAppl implements IStrategoPlaceholder {
 
-    public StrategoPlaceholder(IStrategoConstructor ctor, IStrategoTerm template, IStrategoList annotations, int storageType) {
+    private static final long serialVersionUID = -1212433450601997725L;
+
+	public StrategoPlaceholder(IStrategoConstructor ctor, IStrategoTerm template, IStrategoList annotations, int storageType) {
         super(ctor, new IStrategoTerm[] { template }, annotations, storageType);
     }
     

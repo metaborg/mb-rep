@@ -21,6 +21,8 @@ import org.spoofax.interpreter.terms.ITermPrinter;
  */
 public class StrategoAnnotation extends StrategoWrapped {
 	
+	private static final long serialVersionUID = 2918341202178665547L;
+
 	private final ITermFactory factory;
 	
 	public StrategoAnnotation(ITermFactory factory, IStrategoTerm term, IStrategoList annotations) {

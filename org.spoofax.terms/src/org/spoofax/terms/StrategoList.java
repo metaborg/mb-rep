@@ -20,6 +20,8 @@ import org.spoofax.interpreter.terms.ITermPrinter;
  */
 public class StrategoList extends StrategoTerm implements IStrategoList, Iterable<IStrategoTerm> {
 	
+	private static final long serialVersionUID = 624120573663698628L;
+
 	private static final int UNKNOWN_SIZE = -1;
     
     /**

@@ -17,6 +17,8 @@ import org.spoofax.interpreter.terms.ITermPrinter;
 
 public class StrategoReal extends StrategoTerm implements IStrategoReal {
 
+    private static final long serialVersionUID = 9005617684098182139L;
+	
     private final double value;
     
     public StrategoReal(double value, IStrategoList annotations, int storageType) {

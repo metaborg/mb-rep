@@ -18,7 +18,9 @@ import org.spoofax.interpreter.terms.ITermPrinter;
 
 public final class StrategoConstructor extends StrategoTerm implements IStrategoConstructor {
 
-    private final String name;
+    private static final long serialVersionUID = -4477361122406081825L;
+
+	private final String name;
     
     private final int arity;
 

@@ -16,6 +16,8 @@ import org.spoofax.interpreter.terms.ITermPrinter;
 
 public class StrategoTuple extends StrategoTerm implements IStrategoTuple {
 
+    private static final long serialVersionUID = -6034069486754146955L;
+	
     private IStrategoTerm[] kids;
     
     public StrategoTuple(IStrategoTerm[] kids, IStrategoList annotations, int storageType) {

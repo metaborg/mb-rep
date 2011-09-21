@@ -15,6 +15,8 @@ import org.spoofax.terms.TermFactory;
  */
 public final class UniqueValueTerm extends AbstractSimpleTerm implements IStrategoInt {
 	
+	private static final long serialVersionUID = 2464633689395266636L;
+
 	private static final AtomicInteger counter = new AtomicInteger();
 	
 	private final int value = counter.incrementAndGet();

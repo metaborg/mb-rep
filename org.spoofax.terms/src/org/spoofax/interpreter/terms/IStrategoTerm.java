@@ -8,9 +8,10 @@
 package org.spoofax.interpreter.terms;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.Writer;
 
-public interface IStrategoTerm extends ISimpleTerm {
+public interface IStrategoTerm extends ISimpleTerm, Serializable{
 
     public static final int APPL = 1;
     public static final int LIST = 2;

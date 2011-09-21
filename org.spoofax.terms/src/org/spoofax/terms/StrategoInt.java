@@ -17,6 +17,8 @@ import org.spoofax.interpreter.terms.ITermPrinter;
 
 public class StrategoInt extends StrategoTerm implements IStrategoInt {
 
+    private static final long serialVersionUID = 2915870332171452430L;
+	
     private final int value;
     
     public StrategoInt(int value, IStrategoList annotations, int storageType) {

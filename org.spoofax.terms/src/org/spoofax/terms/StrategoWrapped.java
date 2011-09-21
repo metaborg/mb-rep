@@ -23,6 +23,9 @@ import org.spoofax.interpreter.terms.ITermPrinter;
  */
 public class StrategoWrapped extends StrategoTerm implements IStrategoAppl, IStrategoInt, IStrategoList, IStrategoReal, IStrategoString, IStrategoTuple {
 	
+	
+	private static final long serialVersionUID = 3470735405007721813L;
+	
 	private final IStrategoTerm wrapped;
 	
 	/**
