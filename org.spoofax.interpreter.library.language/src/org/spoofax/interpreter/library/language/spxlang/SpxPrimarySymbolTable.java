@@ -32,7 +32,7 @@ public class SpxPrimarySymbolTable implements INamespaceResolver{
 	}
 	
 	
-	public INamespace resolveScope(NamespaceId id) {
+	public INamespace resolveNamespace(NamespaceId id) {
 		return namespaces.get(id); 
 	}
 	

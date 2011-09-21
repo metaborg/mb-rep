@@ -9,26 +9,23 @@ import org.spoofax.interpreter.terms.ITermFactory;
 
 interface INamespace extends Serializable {
     
-	public NamespaceId getEnclosingNamespace();
+	NamespaceId getEnclosingNamespace();
 
-	public NamespaceId getCurrentNamespace();
+	NamespaceId getCurrentNamespace();
 	
-	public void define(SpxSymbol sym , ILogger logger) ;
+	void define(SpxSymbol sym , ILogger logger) ;
     
-	public Iterable<SpxSymbol> resolve(INamespaceResolver nsResolver, IStrategoTerm id, SearchPattern pattern , ILogger logger);
+	SpxSymbol resolve(IStrategoTerm id, INamespaceResolver nsResolver,ISpxPersistenceManager manager );
     
-	IStrategoConstructor type(); 
+	Iterable<SpxSymbol> resolveAll(IStrategoTerm id, INamespaceResolver nsResolver,ISpxPersistenceManager manager);
+	
+	IStrategoConstructor type();
+	
+	MultiValuePersistentTable getMembers();
 }
-
-enum SearchPattern
-{
-	ALL,
-	ONE
-}
-
 
 interface INamespaceResolver {
 	
-	public INamespace resolveScope(NamespaceId nsId);
+	public INamespace resolveNamespace(NamespaceId nsId);
 }
 

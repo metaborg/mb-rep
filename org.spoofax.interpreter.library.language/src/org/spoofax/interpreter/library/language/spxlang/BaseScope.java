@@ -2,6 +2,7 @@ package org.spoofax.interpreter.library.language.spxlang;
 
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.spoofax.interpreter.terms.IStrategoConstructor;
@@ -23,8 +24,7 @@ abstract class BaseScope implements INamespace {
 	private  final NamespaceId _currentNamespace; 
 	private final NamespaceId _enclosingNamespace;
 	
-	private final MultiValuePersistentTable _symbols;
-	
+	protected final MultiValuePersistentTable _symbols;
 	
 	public BaseScope(NamespaceId currentNS , IStrategoConstructor type, NamespaceId enclosingNS, ISpxPersistenceManager manager) {
 		assert currentNS!= null : "Current NS Identifier is null";
@@ -55,14 +55,45 @@ abstract class BaseScope implements INamespace {
 	
 	public NamespaceId getCurrentNamespace(){ return _currentNamespace; }
 	
-	public Iterable<SpxSymbol> resolve(INamespaceResolver nsResolver, IStrategoTerm id, SearchPattern pattern,ILogger logger){
-		Set<SpxSymbol> symbols = new HashSet<SpxSymbol>(); 
+	public SpxSymbol resolve(IStrategoTerm id, INamespaceResolver nsResolver, ISpxPersistenceManager manager){
+		List<SpxSymbol> lookupResult = getMembers().get(id);
+		if( lookupResult.size() > 0 ){
+			return lookupResult.get(0) ;
+		}else{
+			// Symbols could not be found in the current scope
+			// Hence, searching any enclosing scope if it is not 
+			// null. After searching global scope, it is not searching
+			// anymore.
+			if( getEnclosingNamespace() != null) {
+				INamespace namespace = getEnclosingNamespace().resolve(nsResolver);
+				return namespace.resolve(id, nsResolver, manager);
+			}	 
+		}
+		return null; // symbol is not found
+	}
+	
+	public Iterable<SpxSymbol> resolveAll(IStrategoTerm id,
+			INamespaceResolver nsResolver, ISpxPersistenceManager manager) {
 		
+		Set<SpxSymbol> retResult = new HashSet<SpxSymbol>();
 		
-		return symbols;
+		List<SpxSymbol> lookupResult = getMembers().get(id);
+		retResult.addAll(lookupResult);
+		
+		if( getEnclosingNamespace() != null)
+		{
+			INamespace namespace = getEnclosingNamespace().resolve(nsResolver);
+			Set<SpxSymbol> parentResults  = (Set<SpxSymbol>)namespace.resolveAll(id, nsResolver, manager);
+			
+			retResult.addAll(parentResults);
+		}	 
+		
+		return retResult;
 	}
 	
 	public IStrategoConstructor type() {
 		return type;
 	}
+
+	public MultiValuePersistentTable getMembers(){return _symbols;}
 }

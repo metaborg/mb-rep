@@ -16,8 +16,8 @@ class NamespaceId
 	
 	public String UniqueID(){ return _uId.toString();};
 	
-	public INamespace resolve(SpxPrimarySymbolTable sTable) {
-		return sTable.resolveScope(this);
+	public INamespace resolve(INamespaceResolver sTable) {
+		return sTable.resolveNamespace(this);
 	}
 
 	@Override

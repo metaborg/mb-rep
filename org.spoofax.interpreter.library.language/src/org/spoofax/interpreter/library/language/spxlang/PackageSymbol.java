@@ -13,7 +13,19 @@ class PackageScope  extends BaseScope {
 	}
 	
 	
-
+	@Override
+	public SpxSymbol resolve(org.spoofax.interpreter.terms.IStrategoTerm id, INamespaceResolver nsResolver, ISpxPersistenceManager logger) 
+	{
+		return null;
+	};
+	
+	
+	
+	@Override
+	public Iterable<SpxSymbol> resolveAll(org.spoofax.interpreter.terms.IStrategoTerm id, INamespaceResolver nsResolver, ISpxPersistenceManager logger) 
+	{
+		return null;
+	};
 	
 	
 	/**
@@ -34,4 +46,6 @@ class PackageScope  extends BaseScope {
 											);
 		return scope;
 	}
+
+
 }
