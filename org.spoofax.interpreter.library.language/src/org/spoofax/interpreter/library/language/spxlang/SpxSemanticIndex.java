@@ -8,15 +8,6 @@ import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
-interface IIndexer 
-{	
-	public void index(IStrategoString projectName , IStrategoAppl appl) throws Exception ;
-}
-
-interface ISymbolResolver<T> 
-{	
-	public T get(IStrategoString projectName , IStrategoTerm key) throws Exception;
-}
 
 /**
  * Semantic Index to store the symbols of SPXlang projects. 
@@ -26,9 +17,6 @@ interface ISymbolResolver<T>
  */
 public class SpxSemanticIndex {
 
-	//TODO : have to do something about exception handling . Bored copying 
-	// same exception handling code again and again. 
-	
 	/**
 	 * Registry keeps the mapping of projectName to its own facade
 	 * to create and perform various operations related to semantic index.
