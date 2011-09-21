@@ -55,20 +55,23 @@ abstract class BaseScope implements INamespace {
 	
 	public NamespaceId getCurrentNamespace(){ return _currentNamespace; }
 	
-	public SpxSymbol resolve(IStrategoTerm id, INamespaceResolver nsResolver, ISpxPersistenceManager manager){
+	public SpxSymbol resolve(IStrategoTerm id, IStrategoTerm type, INamespaceResolver nsResolver, ISpxPersistenceManager manager){
 		List<SpxSymbol> lookupResult = getMembers().get(id);
-		if( lookupResult.size() > 0 ){
-			return lookupResult.get(0) ;
-		}else{
-			// Symbols could not be found in the current scope
-			// Hence, searching any enclosing scope if it is not 
-			// null. After searching global scope, it is not searching
-			// anymore.
-			if( getEnclosingNamespace() != null) {
-				INamespace namespace = getEnclosingNamespace().resolve(nsResolver);
-				return namespace.resolve(id, nsResolver, manager);
-			}	 
+		if( lookupResult!=null){
+			List<SpxSymbol> expectedTypedSymbol = SpxSymbol.filterByType(type, lookupResult);
+			if(expectedTypedSymbol.size() >0 )
+				return lookupResult.get(0) ;
 		}
+
+		// Symbols could not be found in the current scope
+		// Hence, searching any enclosing scope if it is not 
+		// null. After searching global scope, it is not searching
+		// anymore.
+		if( getEnclosingNamespace() != null) {
+			INamespace namespace = getEnclosingNamespace().resolve(nsResolver);
+			return namespace.resolve(id, type, nsResolver, manager);
+		}	 
+		
 		return null; // symbol is not found
 	}
 	

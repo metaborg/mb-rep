@@ -1,6 +1,7 @@
 package org.spoofax.interpreter.library.language.spxlang;
 
 import org.spoofax.interpreter.terms.IStrategoConstructor;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
 class PackageScope  extends BaseScope {
@@ -14,7 +15,7 @@ class PackageScope  extends BaseScope {
 	
 	
 	@Override
-	public SpxSymbol resolve(org.spoofax.interpreter.terms.IStrategoTerm id, INamespaceResolver nsResolver, ISpxPersistenceManager logger) 
+	public SpxSymbol resolve(IStrategoTerm id, IStrategoTerm type,INamespaceResolver nsResolver, ISpxPersistenceManager logger) 
 	{
 		return null;
 	};
@@ -22,10 +23,11 @@ class PackageScope  extends BaseScope {
 	
 	
 	@Override
-	public Iterable<SpxSymbol> resolveAll(org.spoofax.interpreter.terms.IStrategoTerm id, INamespaceResolver nsResolver, ISpxPersistenceManager logger) 
+	public Iterable<SpxSymbol> resolveAll(IStrategoTerm id,INamespaceResolver nsResolver, ISpxPersistenceManager manager) 
 	{
 		return null;
 	};
+	
 	
 	
 	/**
@@ -46,6 +48,6 @@ class PackageScope  extends BaseScope {
 											);
 		return scope;
 	}
-
-
+	
+	
 }

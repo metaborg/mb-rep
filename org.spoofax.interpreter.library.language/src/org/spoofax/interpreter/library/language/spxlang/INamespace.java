@@ -15,7 +15,7 @@ interface INamespace extends Serializable {
 	
 	void define(SpxSymbol sym , ILogger logger) ;
     
-	SpxSymbol resolve(IStrategoTerm id, INamespaceResolver nsResolver,ISpxPersistenceManager manager );
+	SpxSymbol resolve(IStrategoTerm id, IStrategoTerm type, INamespaceResolver nsResolver,ISpxPersistenceManager manager );
     
 	Iterable<SpxSymbol> resolveAll(IStrategoTerm id, INamespaceResolver nsResolver,ISpxPersistenceManager manager);
 	

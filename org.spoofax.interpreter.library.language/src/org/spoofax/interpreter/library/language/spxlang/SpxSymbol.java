@@ -1,5 +1,7 @@
 package org.spoofax.interpreter.library.language.spxlang;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -86,4 +88,16 @@ class SpxSymbol{
 	void setData(IStrategoTerm data) { _data = data; }
 
 	void setNamespace(NamespaceId id){ _namespace = id;}
+	
+	boolean equalType (IStrategoTerm term) { return _type == term; }
+	
+	static List<SpxSymbol> filterByType( IStrategoTerm expectedType , Iterable<SpxSymbol> symbols)
+	{
+		List<SpxSymbol> retSymbols = new ArrayList<SpxSymbol>();
+		
+		for(SpxSymbol s : symbols){
+			if( s.equalType(expectedType) ){ retSymbols.add(s) ;}
+		}
+		return retSymbols;
+	}
 }
