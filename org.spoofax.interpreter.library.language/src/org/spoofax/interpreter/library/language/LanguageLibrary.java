@@ -26,11 +26,12 @@ public class LanguageLibrary extends AbstractStrategoOperatorRegistry {
 		
 		SpxSemanticIndex spxIndex= new SpxSemanticIndex();
 		
+		//TODO : generalize and reduce/refactor primitives
 		//primitives for index initialization and management
 		add(new SPX_index_init(spxIndex));
 		add(new SPX_index_close(spxIndex));
 		add(new SPX_index_save(spxIndex));
-		add(new SPX_index_clearall(spxIndex));
+		add(new SPX_index_clear(spxIndex));
 		
 		//primitives to index spoofaxlang compilation unit 
 		add(new SPX_index_compilation_unit(spxIndex));
@@ -48,6 +49,8 @@ public class LanguageLibrary extends AbstractStrategoOperatorRegistry {
 		
 		add(new SPX_index_get_module_declarations_of(spxIndex));
 		add(new SPX_index_get_package_declarations_of(spxIndex));
+		add(new SPX_index_import_references(spxIndex));
+		add(new SPX_index_get_imports(spxIndex));
 	}
 
 	public String getOperatorRegistryName() {

@@ -1,38 +1,46 @@
 package org.spoofax.interpreter.library.language.spxlang;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
+import org.spoofax.terms.StrategoListIterator;
 
 public abstract class IdentifiableConstruct implements Serializable
 {
 	private static final long serialVersionUID = 1055862481052307186L;
-	protected static final String qnameContructorName = "QName";
+	private static final String qnameContructorName = "QName";
+	private static IStrategoConstructor qnameCon;
 	
-	protected final IStrategoList id;
+	final IStrategoList id;
+	final Set<IStrategoTerm> imports; 
 	
 	public IdentifiableConstruct(IStrategoList id) {
 		assert id != null;
 		
 		this.id = id;
+		this.imports = new HashSet<IStrategoTerm>();
 	}
 	
 	public IStrategoList getId(){ return id; }
 
 	public abstract IStrategoTerm toTerm(SpxSemanticIndexFacade idxFacade);  
 
-	static IStrategoAppl toIdTerm ( ITermFactory factory ,  String constructorName , IStrategoList id)
+	static IStrategoAppl toIdTerm ( SpxSemanticIndexFacade facade , IStrategoConstructor namespaceCon, IStrategoList id)
 	{
-		IStrategoConstructor cons = factory.makeConstructor(constructorName, 1);
+		ITermFactory factory = facade.getTermFactory();
+		
 		IStrategoConstructor qnameCons = factory.makeConstructor(qnameContructorName, 1);
 		IStrategoAppl qnameAppl = factory.makeAppl(qnameCons, id);
 		
-		return factory.makeAppl(cons, qnameAppl);
+		return factory.makeAppl(namespaceCon, qnameAppl);
 	}
 	
 	protected IStrategoTerm forceImploderAttachment(IStrategoTerm term) {
@@ -65,16 +73,35 @@ public abstract class IdentifiableConstruct implements Serializable
 	 * 
 	 * @return underlying {@link IStrategoList} qualified name
 	 */
-	protected static IStrategoList getID(ITermFactory fac, IStrategoAppl qName) {
+	protected static IStrategoList getID(SpxSemanticIndexFacade facade, IStrategoAppl qName) {
 		
-		final IStrategoConstructor qnameCon = fac.makeConstructor(qnameContructorName, 1);
+		if ( qnameCon != null)
+			qnameCon = facade.getTermFactory().makeConstructor(qnameContructorName, 1);
 		
 		if(qName.getConstructor() == qnameCon)
 			return (IStrategoList)qName.getSubterm(0);
 		
 		throw new IllegalArgumentException("Invalid QName : " + qName);
 	}
-
+	
+	
+	void appendImports ( IStrategoList  imports) {
+		
+		for (IStrategoTerm i: StrategoListIterator.iterable(imports)) {
+			this.imports.add(i);
+		}
+	}
+	
+	public IStrategoList getImports( SpxSemanticIndexFacade idxFacade) 
+	{
+		ITermFactory termFactory = idxFacade.getTermFactory();
+		IStrategoList result = termFactory.makeList();
+		
+		for (IStrategoTerm t: imports)
+			result = termFactory.makeListCons(t, result);
+		return result;
+	}
+	
 	/**
 	 * Constructs {@link IStrategoList} from {@code decls}  
 	 * 

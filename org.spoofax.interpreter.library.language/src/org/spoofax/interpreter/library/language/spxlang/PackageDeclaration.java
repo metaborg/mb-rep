@@ -13,12 +13,14 @@ import org.spoofax.interpreter.terms.ITermFactory;
 public class PackageDeclaration extends IdentifiableConstruct
 {
 	private static final long serialVersionUID = -9081890582103567413L;
-	private static final String _packageIdContructorName = "Package";
+	
 	
 	static final int PACKAGE_ID_INDEX = 0;
 	static final int SPX_COMPILATION_UNIT_PATH = 1;
 	
 	final Set<String> resourceAbsPaths = new HashSet<String>();
+	final Set<IStrategoList> importedScopes  =  new HashSet<IStrategoList>();
+	
 	
 	PackageDeclaration(IStrategoList id)
 	{
@@ -69,7 +71,7 @@ public class PackageDeclaration extends IdentifiableConstruct
 		
 		IStrategoTerm retTerm = termFactory.makeAppl(
 				packageDeclCons, 
-				toPackageIdTerm(termFactory, this),
+				toPackageIdTerm(idxFacade, this),
 				absPathList 
 		);
 		
@@ -82,13 +84,13 @@ public class PackageDeclaration extends IdentifiableConstruct
 	 * @param packageQName
 	 * @return
 	 */
-	public static IStrategoList getPackageId(ITermFactory fac,IStrategoAppl packageQName)
+	public static IStrategoList getPackageId(SpxSemanticIndexFacade facade,IStrategoAppl packageQName)
 	{
-		final IStrategoConstructor packageQNameCon = fac.makeConstructor(_packageIdContructorName, 1);
+		final IStrategoConstructor packageQNameCon = facade.getPackageQNameCon();
 		
 		if(packageQNameCon == packageQName.getConstructor())
 		{
-			return getID(fac, (IStrategoAppl)packageQName.getSubterm(0));	
+			return getID( facade, (IStrategoAppl)packageQName.getSubterm(0));	
 		}
 		
 		throw new IllegalArgumentException("Invalid Package Typed QName : "+ packageQName);
@@ -101,14 +103,14 @@ public class PackageDeclaration extends IdentifiableConstruct
 	 * @param decl
 	 * @return
 	 */
-	public static IStrategoAppl toPackageIdTerm (ITermFactory termFactory , PackageDeclaration decl)
+	public static IStrategoAppl toPackageIdTerm (SpxSemanticIndexFacade facade, PackageDeclaration decl)
 	{
-		return toPackageIdTerm (termFactory, decl.getId());
+		return toPackageIdTerm (facade, decl.getId());
 	}
 	
-	public static IStrategoAppl toPackageIdTerm (ITermFactory termFactory , IStrategoList id)
+	public static IStrategoAppl toPackageIdTerm (SpxSemanticIndexFacade facade, IStrategoList id)
 	{
-		return toIdTerm(termFactory, _packageIdContructorName, id);
+		return toIdTerm(facade ,  facade.getPackageQNameCon(), id);
 	}
 	
 	/**

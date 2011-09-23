@@ -46,6 +46,7 @@ public class SPX_index_compilation_unit extends AbstractPrimitive {
 		if (Tools.isTermString(tvars[PROJECT_NAME_INDEX])
 				&& Tools.isTermString(tvars[COMPILATION_UNIT_PATH_INDEX])
 				&& Tools.isTermAppl(tvars[COMPILATION_UNIT_AST_INDEX])) {
+			
 			IStrategoString projectName = (IStrategoString)tvars[PROJECT_NAME_INDEX];
 			IStrategoString spxCompilationUnitPath = (IStrategoString)tvars[COMPILATION_UNIT_PATH_INDEX];
 			IStrategoAppl  compilationUnitRTree = (IStrategoAppl)tvars[COMPILATION_UNIT_AST_INDEX];

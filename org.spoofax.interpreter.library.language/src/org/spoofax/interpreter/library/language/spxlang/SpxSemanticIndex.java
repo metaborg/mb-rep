@@ -2,6 +2,10 @@ package org.spoofax.interpreter.library.language.spxlang;
 
 import java.io.IOException;
 
+import jdbm.PrimaryStoreMap;
+import jdbm.RecordManager;
+import jdbm.RecordManagerFactory;
+
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoString;
@@ -22,10 +26,14 @@ public class SpxSemanticIndex {
 	 * to create and perform various operations related to semantic index.
 	 */
 	private SpxSemanticIndexFacadeRegistry _facadeRegistry;
-
+	public PrimaryStoreMap<Long, String> tempMap;
+	public RecordManager tempManager;
+	
 	public SpxSemanticIndex()
 	{
 		_facadeRegistry = new SpxSemanticIndexFacadeRegistry();
+		
+		
 	}
 	
 	/**
@@ -96,6 +104,18 @@ public class SpxSemanticIndex {
 		}
 	}
 	
+	public boolean indexImportReferences(IStrategoString projectName,
+			final IStrategoAppl importReferences) throws Exception {
+	
+		IIndexer idx = new IIndexer() {
+			public void index(IStrategoString projectName, IStrategoAppl appl) throws Exception {
+				SpxSemanticIndexFacade idxFacade = getFacade(projectName);
+				idxFacade.indexImportReferences(importReferences);
+			}
+		};
+		return indexSymbol(projectName, importReferences,  idx);
+	
+	}
 	
 	// Index module definition . 
 	public boolean indexModuleDefinition(IStrategoString projectName, final IStrategoAppl moduleDefinition) throws Exception
@@ -211,6 +231,18 @@ public class SpxSemanticIndex {
 		};
 		
 		return resolve(projectName, moduleTypedQname, resolver);
+	}
+	
+	
+	public IStrategoTerm getImports(IStrategoString projectName, final IStrategoAppl namespaceID) throws Exception{
+		ISymbolResolver<IStrategoTerm> resolver = new ISymbolResolver<IStrategoTerm>() {
+			public IStrategoTerm get(IStrategoString projectName,IStrategoTerm qname)  throws Exception {
+				SpxSemanticIndexFacade idxFacade = getFacade(projectName);
+				return idxFacade.getImportReferences((IStrategoAppl)namespaceID);
+			}
+		};
+		
+		return resolve(projectName, namespaceID, resolver);
 	}
 	
 	public IStrategoTerm getModuleDeclarations(IStrategoString projectName, IStrategoTerm retTerm) throws Exception {
@@ -359,5 +391,5 @@ public class SpxSemanticIndex {
 			throw new IllegalStateException("Spoofaxlang Semantic index not initialized");
 	}
 
-	
+		
 }

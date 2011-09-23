@@ -10,8 +10,7 @@ import org.spoofax.interpreter.terms.ITermFactory;
 public class ModuleDeclaration extends IdentifiableConstruct 
 {
 	private static final long serialVersionUID = -6249406731326662111L;
-	static final String _moduleIdContructorName = "Module";
-	
+
 	static final int ModuleTypedQNameIndex = 0;
 	static final int ModulePathIndex = 1;
 	static final int PackageTypedQNameIndex = 2;
@@ -89,19 +88,21 @@ public class ModuleDeclaration extends IdentifiableConstruct
 		return true;
 	}
 	
-	public static IStrategoList getModuleId(ITermFactory fac, IStrategoAppl moduleQName )
+	
+	public static IStrategoList getModuleId(SpxSemanticIndexFacade facade, IStrategoAppl moduleQName )
 	{
-		final IStrategoConstructor moduleQNameCons = fac.makeConstructor(_moduleIdContructorName, 1);
+		IStrategoConstructor moduleCon  = facade.getModuleQNameCon();
 		
-		if(moduleQNameCons == moduleQName.getConstructor())
-			return getID(fac, (IStrategoAppl)moduleQName.getSubterm(ModuleTypedQNameIndex));	
+		if(moduleCon   == moduleQName.getConstructor())
+			return getID(facade, (IStrategoAppl)moduleQName.getSubterm(ModuleTypedQNameIndex));	
 		
 		throw new IllegalArgumentException("Invalid module qname : "+ moduleQName.toString());
 	}
 	
-	public static IStrategoAppl toModuleIdTerm(ITermFactory termFactory , ModuleDeclaration decl)
+	
+	public static IStrategoAppl toModuleIdTerm(SpxSemanticIndexFacade facade , ModuleDeclaration decl)
 	{
-		return toIdTerm(termFactory, _moduleIdContructorName, decl.getId());
+		return toIdTerm(facade, facade.getModuleQNameCon() , decl.getId());
 	}
 
 	/* Transforms {@link ModuleDeclaration} to following term : 
@@ -117,14 +118,13 @@ public class ModuleDeclaration extends IdentifiableConstruct
 
 		IStrategoConstructor moduleDeclCons = idxFacade.getModuleDeclCon();
 		
-		IStrategoAppl moduleQNameAppl =toModuleIdTerm( termFactory ,  this);
+		IStrategoAppl moduleQNameAppl =toModuleIdTerm( idxFacade,  this);
 		IStrategoString resAbsPathTerm = termFactory.makeString(resourceAbsPath) ;
-		IStrategoAppl packageQNameAppl = PackageDeclaration.toPackageIdTerm(termFactory, this.enclosingPackageID);
+		IStrategoAppl packageQNameAppl = PackageDeclaration.toPackageIdTerm(idxFacade, this.enclosingPackageID);
 		
 		IStrategoTerm retTerm = termFactory.makeAppl(moduleDeclCons,moduleQNameAppl,resAbsPathTerm,packageQNameAppl);
 		
 		return this.forceImploderAttachment(retTerm);
 	}
-	
 }
 

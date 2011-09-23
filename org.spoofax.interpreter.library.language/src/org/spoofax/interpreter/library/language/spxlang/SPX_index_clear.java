@@ -16,15 +16,16 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
  * @author Md. Adil Akhter
  * Created On : Aug 25, 2011
  */
-public class SPX_index_clearall extends AbstractPrimitive {
+public class SPX_index_clear extends AbstractPrimitive {
 
-	private static String NAME = "SPX_index_clearall";
-	private static int PROJECT_NAME_INDEX = 0;
+	private final static String NAME = "SPX_index_clear";
+	
+	private final static int PROJECT_NAME_INDEX = 0;
 	private final static int NO_ARGS = 1;
 	
 	private final SpxSemanticIndex index;
 
-	public SPX_index_clearall(SpxSemanticIndex index) {
+	public SPX_index_clear(SpxSemanticIndex index) {
 		super(NAME, 0, NO_ARGS);
 		this.index = index;
 	}

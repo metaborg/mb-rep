@@ -24,7 +24,7 @@ import jdbm.SerializerInput;
 import jdbm.SerializerOutput;
 
 /**
- * Default java serializer. Constructor is privite, use  DefaultSerializer.INSTANCE
+ * Default java serializer. Constructor is private, use  DefaultSerializer.INSTANCE
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  */
