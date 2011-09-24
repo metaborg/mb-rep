@@ -75,7 +75,7 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		
 		PackageDeclaration  p1 = new PackageDeclaration(absPathString2, idp1);
 		PackageDeclaration  p2 = new PackageDeclaration(absPathString2, idp2);
-		p2.add(absPathString1);
+		p2.addFileUri(absPathString1);
 		
 		symtable.definePackageDeclaration(p1);
 		symtable.definePackageDeclaration(p2);
@@ -114,7 +114,7 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		
 		PackageDeclaration p1 = new PackageDeclaration(absPathString2, idp1);
 		PackageDeclaration  p2 = new PackageDeclaration(absPathString2, idp2);
-		p2.add(absPathString1);
+		p2.addFileUri(absPathString1);
 		
 		symtable.definePackageDeclaration(p1);
 		symtable.definePackageDeclaration(p2);

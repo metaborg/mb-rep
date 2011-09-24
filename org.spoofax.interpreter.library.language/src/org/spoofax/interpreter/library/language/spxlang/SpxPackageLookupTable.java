@@ -17,9 +17,11 @@ import org.spoofax.interpreter.terms.IStrategoString;
 
 /**
  * SymbolTable for Spx Packages 
+ * 
  * @author Md. Adil Akhter
  * Created On : Sep 1, 2011
  */
+
 public class SpxPackageLookupTable  implements ICompilationUnitRecordListener{
 
 	// Symbol table that stores package declarations 
@@ -179,7 +181,7 @@ public class SpxPackageLookupTable  implements ICompilationUnitRecordListener{
 		
 		if ( decl != null)
 		{
-			decl.add(absPath);
+			decl.addFileUri(absPath);
 			this.definePackageDeclaration(decl);
 			return true;
 		}
@@ -193,7 +195,7 @@ public class SpxPackageLookupTable  implements ICompilationUnitRecordListener{
 		PackageDeclaration decl  = PackageDeclaration.newInstance( _packageLookupTable.get(key));
 		
 		if ( decl != null){
-			decl.remove(absPath);
+			decl.removeFileUri(absPath);
 			// redefining it again 
 			this.definePackageDeclaration(decl);
 			return true;

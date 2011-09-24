@@ -14,18 +14,10 @@ public class PackageDeclaration extends IdentifiableConstruct
 {
 	private static final long serialVersionUID = -9081890582103567413L;
 	
-	
 	static final int PACKAGE_ID_INDEX = 0;
 	static final int SPX_COMPILATION_UNIT_PATH = 1;
 	
 	final Set<String> resourceAbsPaths = new HashSet<String>();
-	final Set<IStrategoList> importedScopes  =  new HashSet<IStrategoList>();
-	
-	
-	PackageDeclaration(IStrategoList id)
-	{
-		super(id);
-	}
 	
 	public PackageDeclaration(String resourceAbsPath, IStrategoList id) {
 		super(id);
@@ -33,24 +25,72 @@ public class PackageDeclaration extends IdentifiableConstruct
 		resourceAbsPaths.add(resourceAbsPath); 
 	}
 	
-	public void add(String resAbsolutePath)
+	/**
+	 * Initializes an instance of {@link PackageDeclaration}
+	 * 
+	 * @param id
+	 */
+	PackageDeclaration(IStrategoList id){
+		super(id);
+	}
+	
+	public void addFileUri(String resAbsolutePath)
 	{
 		resourceAbsPaths.add(resAbsolutePath);
 	}
 	
-	public void remove(String resAbsolutePath)
-	{
-		resourceAbsPaths.remove(resAbsolutePath);
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PackageDeclaration other = (PackageDeclaration) obj;
+		if (resourceAbsPaths == null) {
+			if (other.resourceAbsPaths != null)
+				return false;
+		} else if (!resourceAbsPaths.equals(other.resourceAbsPaths))
+			return false;
+		return true;
 	}
+	
 	
 	public Set<String> getAllFilePaths()
 	{
 		return resourceAbsPaths;
 	}
 	
-	public boolean doesNotExistInAnyFile()
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime
+				* result
+				+ ((resourceAbsPaths == null) ? 0 : resourceAbsPaths.hashCode());
+		return result;
+	}
+	
+	public boolean isNotExistedInAnyFile()
 	{
 		return (resourceAbsPaths == null) || (resourceAbsPaths.size() == 0) ; 
+	}
+	
+	public void removeFileUri(String resAbsolutePath){resourceAbsPaths.remove(resAbsolutePath);}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "PackageDeclaration [id=" + id + ", resourceAbsPaths=" + resourceAbsPaths + "]";
 	}
 	
 	/* (non-Javadoc)
@@ -78,14 +118,31 @@ public class PackageDeclaration extends IdentifiableConstruct
 		return this.forceImploderAttachment(retTerm);
 	}
 	
+
+	@Override
+	protected Set<IStrategoTerm> getEnclosedImportReferences(SpxSemanticIndexFacade idxFacade) {
+
+		Set<IStrategoTerm> retImportDecls = super.getEnclosedImportReferences(idxFacade);
+
+		Iterable<ModuleDeclaration> moduldeDecls = idxFacade
+				.getPersistenceManager().spxModuleTable()
+				.getModuleDeclarationsByPackageId(this.getId());
+
+		for (ModuleDeclaration m : moduldeDecls) {
+			retImportDecls.addAll(m.getImportReferneces());
+		}
+
+		return retImportDecls;
+	}
+	
 	/**
 	 * Gets PackageID from Typed Package QName
+	 * 
 	 * @param fac
 	 * @param packageQName
 	 * @return
 	 */
-	public static IStrategoList getPackageId(SpxSemanticIndexFacade facade,IStrategoAppl packageQName)
-	{
+	public static IStrategoList getPackageId(SpxSemanticIndexFacade facade,IStrategoAppl packageQName){
 		final IStrategoConstructor packageQNameCon = facade.getPackageQNameCon();
 		
 		if(packageQNameCon == packageQName.getConstructor())
@@ -94,23 +151,6 @@ public class PackageDeclaration extends IdentifiableConstruct
 		}
 		
 		throw new IllegalArgumentException("Invalid Package Typed QName : "+ packageQName);
-	}
-	
-	/**
-	 * Converts to typed Package Qualified Name
-	 *  
-	 * @param termFactory
-	 * @param decl
-	 * @return
-	 */
-	public static IStrategoAppl toPackageIdTerm (SpxSemanticIndexFacade facade, PackageDeclaration decl)
-	{
-		return toPackageIdTerm (facade, decl.getId());
-	}
-	
-	public static IStrategoAppl toPackageIdTerm (SpxSemanticIndexFacade facade, IStrategoList id)
-	{
-		return toIdTerm(facade ,  facade.getPackageQNameCon(), id);
 	}
 	
 	/**
@@ -127,49 +167,25 @@ public class PackageDeclaration extends IdentifiableConstruct
 		PackageDeclaration newDecl = new PackageDeclaration(decl.getId());
 		for( String str : decl.getAllFilePaths())
 		{
-			newDecl.add(str); 
+			newDecl.addFileUri(str); 
 		}
 		return newDecl;
 	}
-	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return "PackageDeclaration [id=" + id + ", resourceAbsPaths=" + resourceAbsPaths + "]";
+
+	public static IStrategoAppl toPackageIdTerm (SpxSemanticIndexFacade facade, IStrategoList id)
+	{
+		return toIdTerm(facade ,  facade.getPackageQNameCon(), id);
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
+	/**
+	 * Converts to typed Package Qualified Name
+	 *  
+	 * @param termFactory
+	 * @param decl
+	 * @return
 	 */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime
-				* result
-				+ ((resourceAbsPaths == null) ? 0 : resourceAbsPaths.hashCode());
-		return result;
-	}
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		PackageDeclaration other = (PackageDeclaration) obj;
-		if (resourceAbsPaths == null) {
-			if (other.resourceAbsPaths != null)
-				return false;
-		} else if (!resourceAbsPaths.equals(other.resourceAbsPaths))
-			return false;
-		return true;
+	public static IStrategoAppl toPackageIdTerm (SpxSemanticIndexFacade facade, PackageDeclaration decl)
+	{
+		return toPackageIdTerm (facade, decl.getId());
 	}
 }

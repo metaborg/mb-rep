@@ -5,6 +5,7 @@ import static org.spoofax.interpreter.core.Tools.asJavaString;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.HashMap;
 
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.library.IOAgent;
@@ -19,24 +20,16 @@ import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.terms.attachments.TermAttachmentStripper;
 
 public class SpxSemanticIndexFacade {
-
-	private final ISpxPersistenceManager _persistenceManager;
 	
+	private final ISpxPersistenceManager _persistenceManager;
 	private final String _projectName ; 
 	private final ITermFactory _termFactory;
 	private final IOAgent _agent;
-	
 	private final TermAttachmentStripper _stripper;
 	private final TermConverter _converter;
-	
-	private final IStrategoConstructor _moduleDefCon;
-	private final IStrategoConstructor _moduleDeclCon;
-	private final IStrategoConstructor _packageDeclCon;
-	private final IStrategoConstructor _languageDescriptorCon;
-	private final IStrategoConstructor _moduleQNameCon; 
-	private final IStrategoConstructor _packageQNameCon; 
-	
 	private static final String All= "*";
+	
+	private final HashMap<ConstructorDef , IStrategoConstructor> _knownCons;
 	
 	/**
 	 * Initializes the SemanticIndexFactory
@@ -56,16 +49,11 @@ public class SpxSemanticIndexFacade {
 		_converter = new TermConverter(_termFactory);
 		_converter.setOriginEnabled(true);
 		
-		_moduleDefCon  			= _termFactory.makeConstructor("ModuleDef", 5);
-		_moduleDeclCon 			= _termFactory.makeConstructor("ModuleDecl", 3);
-		_packageDeclCon 		= _termFactory.makeConstructor("PackageDecl", 2);
-		_languageDescriptorCon  = _termFactory.makeConstructor("LanguageDescriptor", 5);
-		_moduleQNameCon = _termFactory.makeConstructor("Module", 1);
-		_packageQNameCon = _termFactory.makeConstructor("Package", 1);
-		
+		_knownCons = new HashMap<ConstructorDef ,IStrategoConstructor>();
 		_persistenceManager = new SpxPersistenceManager(_projectName , _agent.getWorkingDir(),agent);
+		
+		initKnownConstructors();
 	}
-
 	/**
 	 * Returns the TermFactory 
 	 * @return
@@ -243,40 +231,39 @@ public class SpxSemanticIndexFacade {
 	 * @param importReferences
 	 */
 	public void indexImportReferences(IStrategoAppl importReferences) {
+		
 		IStrategoAppl namespaceId = (IStrategoAppl) importReferences.getSubterm(0);
 		IStrategoList imports = (IStrategoList) importReferences.getSubterm(1);
 		
-		if (namespaceId.getConstructor() == getModuleDeclCon()) {
+		if (namespaceId.getConstructor() == getModuleQNameCon()) {
 			ModuleDeclaration moduleDecl = lookupModuleDecl(namespaceId);
 			
-			moduleDecl.appendImports(imports);
+			moduleDecl.addImportRefernces(imports);
 			
 			getPersistenceManager().spxModuleTable().define(moduleDecl);
-		} else if (namespaceId.getConstructor() == getPackageDeclCon()) {
+		} else if (namespaceId.getConstructor() == getPackageQNameCon()) {
 
 			PackageDeclaration pDecl = this.lookupPackageDecl(namespaceId);
 			
-			pDecl.appendImports(imports);
+			pDecl.addImportRefernces(imports);
 			
 			getPersistenceManager().spxPackageTable().definePackageDeclaration(	pDecl);
 		} else
 			throw new IllegalArgumentException("Unknown Namespace "	+ namespaceId.toString());
 	}
 
-	
 	public IStrategoTerm getImportReferences(IStrategoAppl namespaceId) {
 		IdentifiableConstruct ns; 
 
-		if (namespaceId.getConstructor() == getModuleDeclCon()) {
+		if (namespaceId.getConstructor() == getModuleQNameCon()) {
 			ns = lookupModuleDecl(namespaceId);
-		} else if (namespaceId.getConstructor() == getPackageDeclCon()) {
+		} else if (namespaceId.getConstructor() == getPackageQNameCon()) {
 			ns = this.lookupPackageDecl(namespaceId);
 		} else
 			throw new IllegalArgumentException("Unknown Namespace "	+ namespaceId.toString());
 		
 		return ns.getImports(this);
 	}
-	
 
 	/**
 	 * Indexes LanguageDescriptor for a particular Package specified in {@code langaugeDescriptor}
@@ -405,7 +392,6 @@ public class SpxSemanticIndexFacade {
 	}
 	
 	public IStrategoTerm getModuleDeclarationsOf(IStrategoTerm res) {
-		
 		IStrategoTerm retValue ;
 		
 		if(Tools.isTermAppl(res))
@@ -523,7 +509,7 @@ public class SpxSemanticIndexFacade {
 	 */
 	public void indexModuleDefinition(IStrategoAppl moduleDefinition) throws IllegalArgumentException
 	{
-		verifyConstructor(moduleDefinition.getConstructor() , _moduleDefCon , "Illegal Module Definition" );
+		verifyConstructor(moduleDefinition.getConstructor() , getModuleDefCon() , "Illegal Module Definition" );
 		
 		indexModuleDefinition(
 				(IStrategoAppl) moduleDefinition.getSubterm(ModuleDeclaration.ModuleTypedQNameIndex),
@@ -602,23 +588,6 @@ public class SpxSemanticIndexFacade {
 	 * @return true if PersistenceManage is open. Otherwise returns false.
 	 */
 	boolean isPersistenceManagerClosed() { 	return _persistenceManager.IsClosed(); }
-	/**
-	 * @return the PackageDeclaration Constructor
-	 */
-	public IStrategoConstructor getPackageDeclCon() { return _packageDeclCon; }
-	
-	public IStrategoConstructor getModuleDeclCon() { return _moduleDeclCon; }
-
-	/**
-	 * @return the ModuleDefinition Constructor
-	 */
-	IStrategoConstructor getModuleDefCon() {	return _moduleDefCon; }
-
-	IStrategoConstructor getLanguageDescriptorCon() { return _languageDescriptorCon;	}
-
-	IStrategoConstructor getModuleQNameCon() {return _moduleQNameCon; }
-
-	IStrategoConstructor getPackageQNameCon() {	return _packageQNameCon;}
 
 
 	/**
@@ -682,5 +651,91 @@ public class SpxSemanticIndexFacade {
 	 */
 	private void logMessage(String message) {
 		_persistenceManager.logMessage("SpxSemanticIndexFacade", message);
+	}
+	
+	public IStrategoConstructor getPackageDeclCon() { return _knownCons.get(ConstructorDef.newInstance("PackageDecl",2)); }
+	
+	public IStrategoConstructor getModuleDeclCon() { return _knownCons.get(ConstructorDef.newInstance("ModuleDecl", 3));  }
+
+	public IStrategoConstructor getModuleDefCon() {	return _knownCons.get(ConstructorDef.newInstance("ModuleDef" , 5)); }
+
+	public IStrategoConstructor getLanguageDescriptorCon() { return _knownCons.get(ConstructorDef.newInstance("LanguageDescriptor" , 5));}
+
+	public IStrategoConstructor getModuleQNameCon() {return _knownCons.get(ConstructorDef.newInstance("Module" , 1));}
+
+	public IStrategoConstructor getPackageQNameCon() {return _knownCons.get(ConstructorDef.newInstance("Package" , 1));}
+	
+	public IStrategoConstructor getQNameCon() {return _knownCons.get(ConstructorDef.newInstance("QName" , 1));}
+	
+	public IStrategoConstructor getImportDeclCon() {return _knownCons.get(ConstructorDef.newInstance("ImportDecl",2));}
+	
+	
+	private void initKnownConstructors() {
+		ConstructorDef.newInstance("ModuleDef" , 5).index(_knownCons, _termFactory);
+		ConstructorDef.newInstance("ModuleDecl", 3).index(_knownCons, _termFactory);
+		ConstructorDef.newInstance("PackageDecl",2).index(_knownCons, _termFactory);
+		ConstructorDef.newInstance("ImportDecl",2).index(_knownCons, _termFactory);	
+		ConstructorDef.newInstance("LanguageDescriptor", 5).index(_knownCons, _termFactory);
+		ConstructorDef.newInstance("Module", 1).index(_knownCons, _termFactory);
+		ConstructorDef.newInstance("Package", 1).index(_knownCons, _termFactory);
+		ConstructorDef.newInstance("QName", 1).index(_knownCons, _termFactory);
+	}
+	
+	private static class ConstructorDef
+	{
+		private String _name ;
+		private int _arity;
+		ConstructorDef( String name , int arity) {  _name =  name ; _arity = arity; }
+		
+		static ConstructorDef newInstance( String name , int arity) {  return new ConstructorDef(name, arity); }
+		
+		private IStrategoConstructor toStrategoConstructor(ITermFactory fac) {  return fac.makeConstructor(_name, _arity);}
+		
+		void index( HashMap<ConstructorDef , IStrategoConstructor> cons , ITermFactory fac)
+		{
+			cons.put(this, this.toStrategoConstructor(fac)) ;
+		}
+
+	
+		@Override
+		public String toString() {
+			return "ConstructorDef [_name=" + _name + ", _arity=" + _arity
+					+ "]";
+		}
+
+		/* (non-Javadoc)
+		 * @see java.lang.Object#hashCode()
+		 */
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + _arity;
+			result = prime * result + ((_name == null) ? 0 : _name.hashCode());
+			return result;
+		}
+
+		/* (non-Javadoc)
+		 * @see java.lang.Object#equals(java.lang.Object)
+		 */
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			ConstructorDef other = (ConstructorDef) obj;
+			if (_arity != other._arity)
+				return false;
+			if (_name == null) {
+				if (other._name != null)
+					return false;
+			} else if (!_name.equals(other._name))
+				return false;
+			return true;
+		}
+		
 	}
 }
