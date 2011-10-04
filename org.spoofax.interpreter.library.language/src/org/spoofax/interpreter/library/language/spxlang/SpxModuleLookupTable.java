@@ -13,11 +13,11 @@ import jdbm.SecondaryKeyExtractor;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
 
-public class SpxModuleLookupTable implements ICompilationUnitRecordListener{
+public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPackageDeclarationRecordListener{
 	
 	private final PrimaryHashMap<IStrategoList, ModuleDeclaration> _moduleLookupMap; 
 	
-	/* TODO : Using separate HashMap due to the consideration of converting them store map
+	/* FIXME : Using separate HashMap due to the consideration of converting them store map
 	 * to load module AST lazily. 
 	 */
 	private final PrimaryHashMap<IStrategoList, IStrategoAppl> _moduleDefinition; 
@@ -252,20 +252,40 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener{
 
 	private boolean containsUri ( String absPath ) { return _moduleByFileAbsPath.containsKey(absPath);}
 	 
-	public Iterable<ModuleDeclaration> getModuleDeclarationsByPackageId(IStrategoList packageID)
+	public Iterable<ModuleDeclaration> getModuleDeclarationsByPackageId(IStrategoList packageID) throws SpxSymbolTableException
 	{
 		List<ModuleDeclaration> ret = new ArrayList<ModuleDeclaration>();
 		
 		Iterable<IStrategoList> foundModuleDecls = _moduleByPackageId.get(packageID);
 		
-		if(foundModuleDecls  != null)
-		{
+		if(foundModuleDecls  != null){
 			for ( IStrategoList l: foundModuleDecls)
 				ret.add(_moduleByPackageId.getPrimaryValue(l));
+		}else{
+			throw new SpxSymbolTableException( "Unknown Package Id "+ packageID.toString());
 		}
+		
 		return ret;
 	}
 	
+	private void removeModuleDeclarationByPackageId(IStrategoList packageId){
+		_manager.logMessage(SRC + ".removeModuleDeclarationByPackageId", "removing all the enclosed module of package "+ packageId);
+		
+		List<IStrategoList> toRemove = new ArrayList<IStrategoList>();
+		Iterable<IStrategoList> foundModuleDecls = _moduleByPackageId.get(packageId);
+		
+		if(foundModuleDecls  != null){
+			for ( IStrategoList l: foundModuleDecls)
+				toRemove.add(l);
+		}
+		
+		_manager.logMessage(SRC + ".removeModuleDeclarationByPackageId", "removing all the following modules  "+ toRemove);
+		
+		for( IStrategoList moduleId:toRemove)
+			this.remove(moduleId);
+		
+		_manager.logMessage(SRC + ".removeModuleDeclarationByPackageId", "operation successful");
+	}
 	
 	public IStrategoList packageId(IStrategoList moduleId)
 	{
@@ -284,18 +304,27 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener{
 	 * @param absUri String representation of absolute path of the file 
 	 * 
 	 */
-	public void removeModuleDeclarationsByUri( String absUri)
+	public void removeModuleDeclarationsByUri(String absUri)
 	{	
-		ArrayList<IStrategoList> list = new ArrayList<IStrategoList>();
+		ArrayList<IStrategoList> delList = new ArrayList<IStrategoList>();
 		
-		// constructing a temporary list to be removed from 
-		// the symbol table. 
-		for ( IStrategoList l: _moduleByFileAbsPath.get(absUri))
-			list.add(l);
+		_manager.logMessage(SRC + ".removeModuleDeclarationsByUri", "Removing all the module declared in "+ absUri);
+		
+		if( _moduleByFileAbsPath.get(absUri) != null ){	
+			// constructing a temporary list to be removed from 
+			// the symbol table. 
+			for ( IStrategoList l: _moduleByFileAbsPath.get(absUri))
+				delList.add(l);
+
+		}
+
+		_manager.logMessage(SRC + ".removeModuleDeclarationsByUri", " Found  "+ delList + " to remove from the table.");
 		
 		// removing the package declaration from the lookup table.
-		for(Object o : list.toArray())
-			_moduleLookupMap.remove(o);
+		for(Object o : delList.toArray())
+			remove((IStrategoList)o);
+		
+		_manager.logMessage(SRC + ".removeModuleDeclarationsByUri", " removed "+ delList + " to remove from the table.");
 	}
 	
 	
@@ -307,9 +336,10 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener{
 		_manager.logMessage(SRC + ".clear", "Removing "+ this.size()+" entries ");
 		
 		Iterator<IStrategoList> keyIter = _moduleLookupMap.keySet().iterator();
-		
-		while (keyIter.hasNext())
-			remove(keyIter.next());
+		if(keyIter!=null){
+			while (keyIter.hasNext())
+				remove(keyIter.next());
+		}
 	}
 	
 	
@@ -349,5 +379,28 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener{
 	 */
 	public Iterable<ModuleDeclaration> getModuleDeclarations() {
 		return this._moduleLookupMap.values();
+	}
+
+	
+	public RecordListener<IStrategoList, PackageDeclaration> getPackageDeclarationRecordListener() {
+		return new RecordListener<IStrategoList, PackageDeclaration>(){
+
+			public void recordInserted(IStrategoList packageID,
+					PackageDeclaration value) throws IOException {
+				// do nothing
+				
+			}
+
+			public void recordUpdated(IStrategoList packageID,
+					PackageDeclaration oldValue, PackageDeclaration newValue)
+					throws IOException {
+				// do nothing 
+			}
+
+			public void recordRemoved(IStrategoList packageID,
+					PackageDeclaration value) throws IOException {
+				
+				removeModuleDeclarationByPackageId(packageID) ;
+			}};
 	}
 }

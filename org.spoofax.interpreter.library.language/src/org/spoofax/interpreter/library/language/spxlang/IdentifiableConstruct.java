@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.spoofax.NotImplementedException;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -17,40 +18,83 @@ public abstract class IdentifiableConstruct implements Serializable
 	private static final long serialVersionUID = 1055862481052307186L;
 	
 	protected final IStrategoList id;
-	protected final Set<IStrategoTerm> importReferences; 
+	protected final Set<IStrategoList> importReferences; 
+	protected final Set<IStrategoTerm> legacyImportReferences;
 	
 	public IdentifiableConstruct(IStrategoList id) {
 		assert id != null :  " ID can not be null " ;
 
 		this.id = id;
-		this.importReferences = new HashSet<IStrategoTerm>();
+		this.importReferences = new HashSet<IStrategoList>();
+		this.legacyImportReferences = new HashSet<IStrategoTerm>();
 	}
 	
 	public IStrategoList getId(){ return id; }  
 	
 	public abstract IStrategoTerm toTerm(SpxSemanticIndexFacade idxFacade);
 	
-	public void addImportRefernces ( IStrategoList  imports) {
+	public void addImportRefernces (SpxSemanticIndexFacade idxFacade, IStrategoList  imports) throws NotImplementedException, SpxSymbolTableException {
 	
 		for (IStrategoTerm i: StrategoListIterator.iterable(imports)) {
-			this.importReferences.add(i);
+			if(i instanceof IStrategoAppl)
+				addManagedImport(idxFacade, i); 
+			else
+				addLegacyImport(i);
 		}
 	}
+
+	/**
+	 * @param i
+	 */
+	private void addLegacyImport(IStrategoTerm i) {
+		this.legacyImportReferences.add(i);
+	}
+
+	/**
+	 * @param idxFacade
+	 * @param i
+	 * @throws IllegalArgumentException
+	 * @throws NotImplementedException
+	 */
+	private void addManagedImport(SpxSemanticIndexFacade idxFacade,
+			IStrategoTerm i) throws SpxSymbolTableException,
+			NotImplementedException {
+		IStrategoAppl packageRef = (IStrategoAppl)i;
+		if( packageRef.getConstructor() ==  idxFacade.getPackageQNameCon()){
+			IStrategoList id = PackageDeclaration.getPackageId(idxFacade, packageRef);
+			PackageDeclaration decl = idxFacade.lookupPackageDecl(id);
+			if(decl != null ){	
+				this.importReferences.add(id);
+				decl.addImportedTo(this.getId());
+			}
+		}
+		else 
+			throw new NotImplementedException("Unknown Import Reference. Not implemented for : " + packageRef.toString());
+	}
 	
-	protected Set<IStrategoTerm> getEnclosedImportReferences(SpxSemanticIndexFacade idxFacade) { return new HashSet<IStrategoTerm>(); } 
+	private IStrategoTerm tranformToSpxImport(SpxSemanticIndexFacade idxFacade, IStrategoTerm i){
+		IStrategoTerm retTerm = i ; 
+		if( i instanceof IStrategoList)
+			retTerm = idxFacade.getTermFactory().makeAppl(
+					idxFacade.getPackageQNameCon(), i);
+
+		return retTerm;	
+	}
 	
-	public Set<IStrategoTerm> getImportReferneces() {return importReferences ; }
+	protected Set<IStrategoTerm> getEnclosedImportReferences(SpxSemanticIndexFacade idxFacade) throws SpxSymbolTableException { return new HashSet<IStrategoTerm>(); } 
+	
+	public Set<IStrategoList> getImportReferneces() { return importReferences; }
 	
 	IStrategoList getImports(SpxSemanticIndexFacade idxFacade) {	
 		ITermFactory termFactory = idxFacade.getTermFactory();
 		
 		HashSet<IStrategoTerm> allImportRefs = new HashSet<IStrategoTerm>();
 		allImportRefs.addAll(this.importReferences);
-		allImportRefs.addAll(getEnclosedImportReferences(idxFacade));
+		allImportRefs.addAll(this.legacyImportReferences);
 		
 		IStrategoList result = termFactory.makeList();
 		for (IStrategoTerm t: allImportRefs)
-			result = idxFacade.getTermFactory().makeListCons(t, result);
+			result = idxFacade.getTermFactory().makeListCons(tranformToSpxImport(idxFacade,t), result);
 	
 		return result;
 	}

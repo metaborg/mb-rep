@@ -14,23 +14,30 @@ import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.interpreter.terms.TermConverter;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
+import org.spoofax.terms.attachments.TermAttachmentSerializer;
 import org.spoofax.terms.attachments.TermAttachmentStripper;
 
 public class SpxSemanticIndexFacade {
+	
+	//TODO :  refactor this class  to multiple adapters one for package, one for modules 
+	//TODO FIXME : combine symbol table and index
 	
 	private final ISpxPersistenceManager _persistenceManager;
 	private final String _projectName ; 
 	private final ITermFactory _termFactory;
 	private final IOAgent _agent;
 	private final TermAttachmentStripper _stripper;
+	private final TermAttachmentSerializer _termAttachmentSerializer;
 	private final TermConverter _converter;
-	private static final String All= "*";
+	private static final String All     = "*";
+	private static final String CURRENT = ".";
 	
-	private final HashMap<ConstructorDef , IStrategoConstructor> _knownCons;
-	
+	public TermAttachmentSerializer getTermAttachmentSerializer() {return _termAttachmentSerializer;}
+
 	/**
 	 * Initializes the SemanticIndexFactory
 	 * @param projectName name of the project 
@@ -49,11 +56,16 @@ public class SpxSemanticIndexFacade {
 		_converter = new TermConverter(_termFactory);
 		_converter.setOriginEnabled(true);
 		
-		_knownCons = new HashMap<ConstructorDef ,IStrategoConstructor>();
-		_persistenceManager = new SpxPersistenceManager(_projectName , _agent.getWorkingDir(),agent);
+		_termAttachmentSerializer = new TermAttachmentSerializer(_termFactory);
 		
+		_knownCons = new HashMap<ConstructorDef ,IStrategoConstructor>();
 		initKnownConstructors();
+		
+		_persistenceManager = new SpxPersistenceManager(this);
+		_persistenceManager.initializeSymbolTables(this._projectName, this);
 	}
+	
+		
 	/**
 	 * Returns the TermFactory 
 	 * @return
@@ -78,71 +90,9 @@ public class SpxSemanticIndexFacade {
 	 * Returns an instance of the Persistence Manager active for the current Facade
 	 * @return
 	 */
-	ISpxPersistenceManager getPersistenceManager(){	return _persistenceManager; }
+	public ISpxPersistenceManager persistenceManager(){	return _persistenceManager; }
 
 	
-	String fromFileURI(URI uri) {
-		File file = new File(uri);
-		return file.toString();
-	}
-
-	IOAgent getIOAgent() {
-		return _agent;
-	}
-	
-	/**
-	 * Prints error message
-	 * @param errMessage
-	 */
-	void printError(String errMessage){
-		_agent.printError(errMessage);
-	}
-	
-	/**
-	 * Force an imploder attachment for a term.
-	 * This ensures that there is always some form of position info,
-	 * and makes sure that origin info is not added to the term.
-	 * (The latter would be bad since we cache in {@link #term}.)
-	 */
-	public static IStrategoAppl forceImploderAttachment(IStrategoAppl term , URI file) {
-		return forceImploderAttachment(term, term, file);
-	}
-	
-	public static IStrategoAppl forceImploderAttachment(IStrategoTerm id, IStrategoAppl term , URI file) {
-		
-		ImploderAttachment attach = ImploderAttachment.get(id);
-		if (attach != null) {
-			ImploderAttachment.putImploderAttachment(term, false, attach.getSort(), attach.getLeftToken(), attach.getRightToken());
-		} else {
-			String fn = file == null ? null : file.toString();
-			term.putAttachment(ImploderAttachment.createCompactPositionAttachment(
-					fn, 0, 0, 0, -1));
-		}
-		return term;
-	}
-	
-	/**
-	 * Adds CompilationUnit in the symbol table.
-	 * 
-	 * @param spxCompilationUnitPath path of the SpxCompilation Unit. It can be a relative path (  relative to project) or absolute path. 
-	 * @param spxCompilationUnitAST SPXCompilationUnit AST 
-	 * @throws IOException 
-	 */
-	public void indexCompilationUnit( IStrategoString spxCompilationUnitPath, IStrategoAppl spxCompilationUnitAST) throws IOException {
-
-		URI resUri = toFileURI(spxCompilationUnitPath); // Converting IStrategoString to File URI 
-		
-		IStrategoTerm astTerm = toCompactPositionInfo(spxCompilationUnitAST);
-
-		SpxCompilationUnitTable table = _persistenceManager.spxCompilcationUnitTable();
-	
-		logMessage("Storing following compilation unit. Path : [" 
-					+  spxCompilationUnitPath +"]"
-					+ " AST: "+ spxCompilationUnitAST );
-		
-		table.define(resUri, astTerm);
-	}
-
 	/**
 	 * Returns CompilationUnit located in {@code spxCompilationUnitPath} as {@link IStrategoTerm}
 	 * 
@@ -167,7 +117,6 @@ public class SpxSemanticIndexFacade {
 		
 		return retTerm;
 	}
-	
 
 	/**
 	 * Removes CompilationUnit located in {@code spxCompilationUnitPath} file path.  
@@ -183,324 +132,30 @@ public class SpxSemanticIndexFacade {
 		
 		table.remove(resUri);
 	}
-
+	
 	/**
-	 * Stores PackageDeclaration in Symbol Table 
+	 * Indexes CompilationUnit in the symbol table.
 	 * 
-	 * @param packageDeclaration
+	 * @param spxCompilationUnitPath path of the SpxCompilation Unit. It can be a relative path (  relative to project) or absolute path. 
+	 * @param spxCompilationUnitAST SPXCompilationUnit AST 
+	 * @throws IOException 
 	 */
-	public void indexPackageDeclaration(IStrategoAppl packageDeclaration){
-		verifyConstructor(
-				packageDeclaration.getConstructor(), 
-				getPackageDeclCon(), 
-				"Illegal PackageDeclaration");
+	public void indexCompilationUnit( IStrategoString spxCompilationUnitPath, IStrategoAppl spxCompilationUnitAST) throws IOException {
+
+		URI resUri = toFileURI(spxCompilationUnitPath); // Converting IStrategoString to File URI 
+		
+		IStrategoTerm astTerm = toCompactPositionInfo(spxCompilationUnitAST);
+
+		SpxCompilationUnitTable table = _persistenceManager.spxCompilcationUnitTable();
 	
-		indexPackageDeclaration(
-				(IStrategoAppl)  packageDeclaration.getSubterm(PackageDeclaration.PACKAGE_ID_INDEX), // package id
-				(IStrategoString)packageDeclaration.getSubterm(PackageDeclaration.SPX_COMPILATION_UNIT_PATH)  // package location absolute path  
-		);
-	}
-
-	/**
-	 * Indexes {@link PackageDeclaration}
-	 * 
-	 * @param packageIdAppl 
-	 * @param spxCompilationUnitPath
-	 */
-	public void indexPackageDeclaration(IStrategoAppl packageIdAppl, IStrategoString spxCompilationUnitPath){
-		SpxPackageLookupTable table = _persistenceManager.spxPackageTable();
+		logMessage("Storing following compilation unit. Path : [" 
+					+  spxCompilationUnitPath +"]"
+					+ " AST: "+ spxCompilationUnitAST );
 		
-		IStrategoList packageId = PackageDeclaration.getPackageId(this, packageIdAppl);
-		
-		spxCompilationUnitPath  = (IStrategoString)toCompactPositionInfo((IStrategoTerm)spxCompilationUnitPath);
-		packageId = (IStrategoList)toCompactPositionInfo((IStrategoTerm)packageId);
-		
-		if(table.containsPackage(packageId)){
- 			table.addPackageDeclarationLocation(
-					packageId, 
-					toAbsulatePath(spxCompilationUnitPath));
-		}else{	
-			PackageDeclaration pDecl = new PackageDeclaration(
-					toAbsulatePath(spxCompilationUnitPath), 
-					packageId);
-			table.definePackageDeclaration(pDecl);
-		}
-	}
-	
-	/**
-	 * @param importReferences
-	 */
-	public void indexImportReferences(IStrategoAppl importReferences) {
-		
-		IStrategoAppl namespaceId = (IStrategoAppl) importReferences.getSubterm(0);
-		IStrategoList imports = (IStrategoList) importReferences.getSubterm(1);
-		
-		if (namespaceId.getConstructor() == getModuleQNameCon()) {
-			ModuleDeclaration moduleDecl = lookupModuleDecl(namespaceId);
-			
-			moduleDecl.addImportRefernces(imports);
-			
-			getPersistenceManager().spxModuleTable().define(moduleDecl);
-		} else if (namespaceId.getConstructor() == getPackageQNameCon()) {
-
-			PackageDeclaration pDecl = this.lookupPackageDecl(namespaceId);
-			
-			pDecl.addImportRefernces(imports);
-			
-			getPersistenceManager().spxPackageTable().definePackageDeclaration(	pDecl);
-		} else
-			throw new IllegalArgumentException("Unknown Namespace "	+ namespaceId.toString());
-	}
-
-	public IStrategoTerm getImportReferences(IStrategoAppl namespaceId) {
-		IdentifiableConstruct ns; 
-
-		if (namespaceId.getConstructor() == getModuleQNameCon()) {
-			ns = lookupModuleDecl(namespaceId);
-		} else if (namespaceId.getConstructor() == getPackageQNameCon()) {
-			ns = this.lookupPackageDecl(namespaceId);
-		} else
-			throw new IllegalArgumentException("Unknown Namespace "	+ namespaceId.toString());
-		
-		return ns.getImports(this);
-	}
-
-	/**
-	 * Indexes LanguageDescriptor for a particular Package specified in {@code langaugeDescriptor}
-	 * 
-	 * @param languageDescriptor
-	 */
-	public void indexLanguageDescriptor (IStrategoAppl languageDescriptor)
-	{
-		verifyConstructor(languageDescriptor.getConstructor(), getLanguageDescriptorCon(), "Invalid LanguageDescriptor argument : "+ languageDescriptor.toString());
-
-		IStrategoList qualifiedPackageId = PackageDeclaration.getPackageId(this, (IStrategoAppl)languageDescriptor.getSubterm(0)) ;
-		SpxPackageLookupTable table = _persistenceManager.spxPackageTable();
-
-		table.verifyPackageIDExists(qualifiedPackageId) ;
-
-		//TODO : move the following logic to extract information and 
-		//construct instance in respective classes . e.g. in LanguageDesrciptor class
-		qualifiedPackageId = (IStrategoList)toCompactPositionInfo((IStrategoTerm)qualifiedPackageId);
-
-		IStrategoList lNames = (IStrategoList) this.strip(languageDescriptor.getSubterm(LanguageDescriptor.LanguageNamesIndex));
-		IStrategoList lIds = (IStrategoList) this.strip(languageDescriptor.getSubterm(LanguageDescriptor.LanguageIdsIndex));
-		IStrategoList lEsvStartSymbols = (IStrategoList) this.strip(languageDescriptor.getSubterm(LanguageDescriptor.EsvStartSymbolsIndex));
-		IStrategoList lSDFStartSymbols = (IStrategoList) this.strip(languageDescriptor.getSubterm(LanguageDescriptor.SdfStartSymbolsIndex));
-
-		LanguageDescriptor current = table.getLangaugeDescriptor(qualifiedPackageId);
-		if( current != null)
-		{	
-			current.addEsvDeclaredStartSymbols(this.getTermFactory(), lEsvStartSymbols);
-			current.addSDFDeclaredStartSymbols(this.getTermFactory(), lSDFStartSymbols );
-			current.addLanguageIDs(this.getTermFactory(), lIds);
-			current.addLanguageNames(this.getTermFactory(), lNames);
-		}
-		else
-			current = LanguageDescriptor.newInstance(this.getTermFactory() , qualifiedPackageId , lIds, lNames,lSDFStartSymbols , lEsvStartSymbols);
-
-		table.defineLanguageDescriptor(qualifiedPackageId, current);
-
-	}
-	
-	/**
-	 * Returns the package declaration indexed with {@code packageIdAppl} typed qualified name.
-	 * 
-	 * @param packageTypedQName
-	 * @return
-	 * @throws Exception 
-	 */
-	public IStrategoTerm getPackageDeclaration(IStrategoAppl packageTypedQName) throws IllegalArgumentException
-	{
-		PackageDeclaration decl = lookupPackageDecl(packageTypedQName);
-		
-		return decl.toTerm(this);
+		table.define(resUri, astTerm);
 	}
 
 	
-	/**
-	 * @param packageTypedQName
-	 * @return
-	 * @throws IllegalArgumentException
-	 */
-	private PackageDeclaration lookupPackageDecl(IStrategoAppl packageTypedQName) throws IllegalArgumentException {
-		
-		SpxPackageLookupTable table = getPersistenceManager().spxPackageTable();
-		IStrategoList packageId = PackageDeclaration.getPackageId(this, packageTypedQName);
-		PackageDeclaration decl = table.getPackageDeclaration(packageId);
-		
-		if (decl == null)
-			throw new IllegalArgumentException( "Unknown Package Id"+ packageTypedQName.toString());
-		
-		return decl;
-	}
-	
-	public IStrategoList getPackageDeclarations(IStrategoString filePath) {
-
-		logMessage("getPackageDeclarationsByUri | Arguments : " + filePath);
-
-		SpxPackageLookupTable table = getPersistenceManager().spxPackageTable();
-		String filepathString = asJavaString(filePath);
-		
-		Iterable<PackageDeclaration> decls; 
-		if(All == filepathString) {
-			decls = table.getPackageDeclarations();  //returning all the package declarations found in the current project
-		}else{
-
-			String absFilePath = toAbsulatePath(filePath);
-			table.verifyUriExists(absFilePath);
-			decls = table.packageDeclarationsByUri(absFilePath);
-		}
-		
-		IStrategoList result =  PackageDeclaration.toTerm(this, decls);
-		logMessage("getPackageDeclarationsByUri | Returning IStrategoList : " + result );
-
-		return result;
-	}
-
-	/**
-	 * Returns {@link ModuleDeclaration} indexed with Module Id - {@code moduleTypeQName}  
-	 * 
-	 * @param moduleTypeQName
-	 * @return
-	 * @throws IllegalArgumentException If {@link ModuleDeclaration} with {@code moduleTypeQName} is not found 
-	 */
-	public IStrategoTerm getModuleDeclaration(IStrategoAppl moduleTypeQName) throws IllegalArgumentException
-	{
-		ModuleDeclaration decl = lookupModuleDecl(moduleTypeQName);
-
-		return decl.toTerm(this);
-	}
-
-	/**
-	 * @param moduleTypeQName
-	 * @return
-	 */
-	private ModuleDeclaration lookupModuleDecl(IStrategoAppl moduleTypeQName) {
-		
-		SpxModuleLookupTable table = getPersistenceManager().spxModuleTable();
-		
-		IStrategoList moduleId = ModuleDeclaration.getModuleId(this, moduleTypeQName);
-		
-		ModuleDeclaration decl = table.getModuleDeclaration(moduleId);
-		
-		if (decl == null)
-			throw new IllegalArgumentException( "Unknown Module Id"+ moduleTypeQName.toString());
-		
-		
-		return decl;
-	}
-	
-	public IStrategoTerm getModuleDeclarationsOf(IStrategoTerm res) {
-		IStrategoTerm retValue ;
-		
-		if(Tools.isTermAppl(res))
-			retValue  = this.getModuleDeclarations((IStrategoAppl)res);
-		else if(Tools.isTermString(res))
-			retValue = this.getModuleDeclarations((IStrategoString)res);
-		else
-			throw new IllegalArgumentException("Unknown argument in getModuleDeclarationOf: " + res);
-		
-		return retValue;
-	}
-
-	public IStrategoList getModuleDeclarations (IStrategoString filePath){
-		logMessage("getModuleDeclarations | Arguments : " + filePath);
-		
-		SpxModuleLookupTable table = getPersistenceManager().spxModuleTable();
-		String filepathString = asJavaString(filePath);
-		
-		Iterable<ModuleDeclaration> decls; 
-		if(All == filepathString) {
-			decls = table.getModuleDeclarations();  //returning all the package declarations found in the current project
-		}else{	
-			String absFilePath = toAbsulatePath(filePath);
-			table.verifyUriExists(absFilePath);
-			decls = table.getModuleDeclarationsByUri(absFilePath);
-		}
-		
-		IStrategoList result =  ModuleDeclaration.toTerm(this, decls);
-		logMessage("getModuleDeclarations | Returning IStrategoList : " + result );
-		return result;
-	}
-
-	public IStrategoList getModuleDeclarations(IStrategoAppl packageQName) {
-		logMessage("getModuleDeclarations | Arguments : " + packageQName);
-		SpxModuleLookupTable table = getPersistenceManager().spxModuleTable();
-		IStrategoList packageID = PackageDeclaration.getPackageId(this, packageQName);
-		
-		_persistenceManager.spxPackageTable().verifyPackageIDExists(packageID ) ;
-		
-		Iterable<ModuleDeclaration> decls = table.getModuleDeclarationsByPackageId(packageID);
-		logMessage("getModuleDeclarations | Found following result from SymbolTable : " + decls);
-		IStrategoList result =  ModuleDeclaration.toTerm(this, decls);
-		logMessage("getModuleDeclarations | Returning IStrategoList : " + result );
-		
-		return result;
-	}	
-	
-	/** 
-	 * Returns ModuleDefinition for the Module with ID :  {@code moduleTypedQName}
-	 * 
-	 * @param moduleTypedQName
-	 * @return
-	 * @throws IllegalArgumentException
-	 */
-	public IStrategoTerm getModuleDefinition(IStrategoAppl moduleTypedQName) throws IllegalArgumentException
-	{
-		ModuleDeclaration decl = lookupModuleDecl(moduleTypedQName);
-
-		SpxModuleLookupTable table = getPersistenceManager().spxModuleTable();
-		
-		IStrategoList qualifiedModuleId = ModuleDeclaration.getModuleId(this, moduleTypedQName);
-		IStrategoTerm moduleAterm =table.getModuleDefinition(qualifiedModuleId) ;
-		IStrategoTerm moduleAnnotatedAterm  = table.getAnalyzedModuleDefinition(qualifiedModuleId);
-		
-		return new ModuleDefinition( decl , (IStrategoAppl)moduleAterm, (IStrategoAppl)moduleAnnotatedAterm).toTerm(this);
-	}
-	
-	/**
-	 * Returns {@link LanguageDescriptor} for Spoofaxlang package with {@link packageTypedQName}}
-	 *  
-	 * @param packageTypedQName
-	 * @return {@link IStrategoTerm} representation of {@link IStrategoTerm}
-	 * @throws IllegalArgumentException if the package id is not found in the symbol table 
-	 * @throws Exception  If package Id is valid but does not have any language descriptor registered
-	 */
-	public IStrategoTerm getLanguageDescriptor ( IStrategoAppl packageTypedQName) throws IllegalArgumentException, Exception{
-		IStrategoList  packageQName = PackageDeclaration.getPackageId(this, packageTypedQName);
-
-		SpxPackageLookupTable table = getPersistenceManager().spxPackageTable();
-		table.verifyPackageIDExists(packageQName) ;
-		
-		LanguageDescriptor desc = table.getLangaugeDescriptor(packageQName);
-		if ( desc == null){	
-			throw new SpxSymbolTableException("Not Found LanguageDescriptor for " + packageQName.toString()); 
-		}
-		return desc.toTerm(this);
-	}
-	
-	/**
-	 * Removes PackageDeclaration mapped with the {@code spxCompilationUnitPath}
-	 * 
-	 * @param spxCompilationUnitPath
-	 * @param packageId
-	 */
-	public void removePackageDeclaration(
-			IStrategoString spxCompilationUnitPath , 
-			IStrategoList packageId){
-		SpxPackageLookupTable table = _persistenceManager.spxPackageTable();
-		
-		spxCompilationUnitPath  = (IStrategoString)toCompactPositionInfo((IStrategoTerm)spxCompilationUnitPath);
-		packageId = (IStrategoList)toCompactPositionInfo((IStrategoTerm)packageId);
-		
-		table.verifyPackageIDExists(packageId) ;
-		
-		table.removePackageDeclarationLocation(
-				packageId, 
-				asJavaString(spxCompilationUnitPath));
-	}
-
 	/**
 	 * Indexes {@code moduleDefinition}
 	 * 
@@ -545,8 +200,499 @@ public class SpxSemanticIndexFacade {
 		analyzedAst = (IStrategoAppl)analyzedAst;
 		spxCompilationUnitPath = (IStrategoString) spxCompilationUnitPath;
 
+		ModuleDeclaration mDecl = new ModuleDeclaration(toAbsulatePath(spxCompilationUnitPath), moduleId, packageId);
+		// updating/adding module to index 
+		table.define(mDecl , ast, analyzedAst);
 		
-		table.define(new ModuleDeclaration(toAbsulatePath(spxCompilationUnitPath), moduleId, packageId), ast, analyzedAst);
+		//Defining ModuleNamespace for Symbol-Table
+		defineNamespace(mDecl);
+	}
+
+	/**
+	 * Stores PackageDeclaration in Symbol Table 
+	 * 
+	 * @param packageDeclaration
+	 */
+	public void indexPackageDeclaration(IStrategoAppl packageDeclaration){
+		verifyConstructor( packageDeclaration.getConstructor(), getPackageDeclCon(), "Illegal PackageDeclaration");
+	
+		indexPackageDeclaration(
+				(IStrategoAppl)  packageDeclaration.getSubterm(PackageDeclaration.PACKAGE_ID_INDEX), // package id
+				(IStrategoString)packageDeclaration.getSubterm(PackageDeclaration.SPX_COMPILATION_UNIT_PATH)  // package location absolute path  
+		);
+	}
+	
+	
+	/**
+	 * Indexes {@link PackageDeclaration}
+	 * 
+	 * @param packageIdAppl 
+	 * @param spxCompilationUnitPath
+	 */
+	public void indexPackageDeclaration(IStrategoAppl packageIdAppl, IStrategoString spxCompilationUnitPath){
+		
+		SpxPackageLookupTable table = _persistenceManager.spxPackageTable();
+		SpxCompilationUnitTable spxTable = _persistenceManager.spxCompilcationUnitTable();
+		
+		IStrategoList packageId = PackageDeclaration.getPackageId(this, packageIdAppl);
+		
+		//verify valid package URI. Checking whether compilation unit exist with this URI
+		// in compilation unit table.
+		spxCompilationUnitPath  = (IStrategoString)toCompactPositionInfo((IStrategoTerm)spxCompilationUnitPath);
+		String absFilePath = toAbsulatePath(spxCompilationUnitPath);
+		spxTable.verifyUriExists(absFilePath);
+
+		packageId = (IStrategoList)toCompactPositionInfo((IStrategoTerm)packageId);
+		
+		
+		if(table.containsPackage(packageId)){
+			// Package is already there in the index. Hence,just adding the Uri where 
+			// this package declaration is found.
+			table.addPackageDeclarationLocation(packageId,absFilePath);
+ 			
+		}else{	
+			// Defining PackageDeclaration in the Index
+			PackageDeclaration pDecl = new PackageDeclaration(absFilePath,packageId);
+			table.definePackageDeclaration(pDecl);
+			
+			defineNamespace(pDecl); 
+		}
+	}
+	
+	
+	// SymbolDef : namespace * type * id * value -> Def  
+	public void indexSymbol(IStrategoAppl symbolDefinition) throws SpxSymbolTableException, IOException{	
+		final int NAMESPACE_ID_INDEX  = 0;
+		verifyConstructor(symbolDefinition.getConstructor(), getSymbolTableEntryDefCon(), "Illegal SymbolDefinition argument");
+		IStrategoConstructor typeCtor = verifyKnownContructorExists((IStrategoAppl)symbolDefinition.getSubterm(SpxSymbolTableEntry.SYMBOL_ID_INDEX));
+
+		// Constructing Spx Symbol-Table Entry from the provided symbolDefinition argument.  
+		// Note: TermAttachment or Annotation are stripped from the ID Term since, in symbol-table, term attachments 
+		// is not require and will make the equals operation a bit complicated. 
+		SpxSymbolTableEntry entry = 
+			SpxSymbolTableEntry.newEntry()
+						  .with(
+								  strip(symbolDefinition.getSubterm(SpxSymbolTableEntry.SYMBOL_ID_INDEX))
+						   )
+						  .instanceOf(typeCtor)	
+					      .uses(this._termAttachmentSerializer)
+					      .data(symbolDefinition.getSubterm(SpxSymbolTableEntry.DATA_INDEX))
+					      .build();
+					   		
+		
+		SpxPrimarySymbolTable  symbolTable = persistenceManager().spxSymbolTable();
+		symbolTable.defineSymbol(this, getNamespaceId((IStrategoAppl)symbolDefinition.getSubterm(NAMESPACE_ID_INDEX)), entry);
+	}
+	
+	
+	// (namespace * idTolookupFor * type constructor)
+	public Iterable<IStrategoTerm> resolveSymbols(IStrategoTuple symbolLookupTerm) throws SpxSymbolTableException{
+		if (symbolLookupTerm.getSubtermCount() != 3)
+			throw new IllegalArgumentException(" Illegal symbolLookupTerm Argument ; expected 3 subterms. Found : " + symbolLookupTerm.getSubtermCount());
+		
+		IStrategoConstructor typeCtor = verifyKnownContructorExists((IStrategoAppl)symbolLookupTerm.getSubterm(2));
+		return resolveSymbols( 
+				(IStrategoAppl)symbolLookupTerm.get(0),
+				symbolLookupTerm.get(1),
+				typeCtor
+		); 
+			 
+	}
+
+	/**
+	 * @param symbolLookupTerm
+	 * @return
+	 * @throws IllegalArgumentException
+	 */
+	private IStrategoConstructor verifyKnownContructorExists(IStrategoAppl symbolType) throws IllegalArgumentException {
+		IStrategoConstructor typeCtor = getConstructor( symbolType.getConstructor().getName(), symbolType.getConstructor().getArity()) ;
+		if(typeCtor == null) {
+			throw new IllegalArgumentException("Illegal Argument . Unknown Symbol Type. Found " + symbolType.getConstructor());
+		}
+		return typeCtor;
+	}
+
+	
+	public Iterable<IStrategoTerm> resolveSymbols(IStrategoAppl namespaceToStartSearchWith , IStrategoTerm symbolId , IStrategoConstructor symbolType ) throws SpxSymbolTableException{	
+		return SpxSymbol.toTerms(this, lookupSpxSymbols(namespaceToStartSearchWith, symbolId, symbolType));
+	}
+
+	/**
+	 * @param namespaceToStartSearchWith
+	 * @param symbolId
+	 * @param symbolType
+	 * @return
+	 * @throws SpxSymbolTableException
+	 */
+	private Iterable<SpxSymbol> lookupSpxSymbols(IStrategoAppl namespaceToStartSearchWith, IStrategoTerm symbolId, IStrategoConstructor  symbolType)
+			throws SpxSymbolTableException {
+		IStrategoList namespaceID = this.getNamespaceId(namespaceToStartSearchWith);
+
+		SpxPrimarySymbolTable  symbolTable = persistenceManager().spxSymbolTable();
+		
+		Iterable<SpxSymbol> resolvedSymbols = symbolTable.resolveSymbols(this, namespaceID, strip(symbolId), symbolType);
+		return resolvedSymbols;
+	}
+	
+	
+	/**
+	 * @param namespaceTypedQname
+	 * @return
+	 * @throws SpxSymbolTableException
+	 */
+	private IStrategoList getNamespaceId(IStrategoAppl namespaceTypedQname) throws SpxSymbolTableException {
+		IStrategoList namespaceId;
+		
+		
+		if (namespaceTypedQname.getConstructor() == getModuleQNameCon() || namespaceTypedQname.getConstructor() == getPackageQNameCon()) {
+			namespaceId = IdentifiableConstruct.getID(this, (IStrategoAppl) namespaceTypedQname.getSubterm(0));
+		} else if (namespaceTypedQname.getConstructor() == getGlobalNamespaceTypeCon()) {
+			namespaceId = GlobalNamespace.getGlobalNamespaceId(this);
+		} else
+			throw new SpxSymbolTableException("Unknown namespace uri : " + namespaceTypedQname);
+		return namespaceId;
+	}	
+	
+	/**
+	 * Indexes LanguageDescriptor for a particular Package specified in {@code langaugeDescriptor}
+	 * 
+	 * @param languageDescriptor
+	 */
+	public void indexLanguageDescriptor (IStrategoAppl languageDescriptor)
+	{
+		verifyConstructor(languageDescriptor.getConstructor(), getLanguageDescriptorCon(), "Invalid LanguageDescriptor argument : "+ languageDescriptor.toString());
+
+		IStrategoList qualifiedPackageId = PackageDeclaration.getPackageId(this, (IStrategoAppl)languageDescriptor.getSubterm(0)) ;
+		SpxPackageLookupTable table = _persistenceManager.spxPackageTable();
+
+		table.verifyPackageIDExists(qualifiedPackageId) ;
+
+		//FIXME : move the following logic to extract information and 
+		//construct instance in respective classes . e.g. in LanguageDesrciptor class
+		qualifiedPackageId = (IStrategoList)toCompactPositionInfo((IStrategoTerm)qualifiedPackageId);
+
+		IStrategoList lNames = (IStrategoList) this.strip(languageDescriptor.getSubterm(LanguageDescriptor.LanguageNamesIndex));
+		IStrategoList lIds = (IStrategoList) this.strip(languageDescriptor.getSubterm(LanguageDescriptor.LanguageIdsIndex));
+		IStrategoList lEsvStartSymbols = (IStrategoList) this.strip(languageDescriptor.getSubterm(LanguageDescriptor.EsvStartSymbolsIndex));
+		IStrategoList lSdfStartSymbols = (IStrategoList) this.strip(languageDescriptor.getSubterm(LanguageDescriptor.SdfStartSymbolsIndex));
+
+		LanguageDescriptor current = table.getLangaugeDescriptor(qualifiedPackageId);
+		if( current != null){	
+			current.addEsvDeclaredStartSymbols(this.getTermFactory(), lEsvStartSymbols);
+			current.addSDFDeclaredStartSymbols(this.getTermFactory(), lSdfStartSymbols );
+			current.addLanguageIDs(this.getTermFactory(), lIds);
+			current.addLanguageNames(this.getTermFactory(), lNames);
+		}
+		else
+			current = LanguageDescriptor.newInstance(this.getTermFactory() , qualifiedPackageId , lIds, lNames,lSdfStartSymbols , lEsvStartSymbols);
+
+		table.defineLanguageDescriptor(qualifiedPackageId, current);
+
+	}
+
+	
+	/**
+	 * @param importReferences
+	 */
+	public void indexImportReferences(IStrategoAppl importReferences) throws SpxSymbolTableException{
+		
+		IStrategoAppl namespaceId = (IStrategoAppl) importReferences.getSubterm(0);
+		IStrategoList imports = (IStrategoList) importReferences.getSubterm(1);
+		IStrategoList packageId; 
+		
+		
+		if (namespaceId.getConstructor() == getModuleQNameCon()) {
+			packageId = persistenceManager()
+					.spxModuleTable()
+					.packageId(ModuleDeclaration.getModuleId(this, namespaceId));
+			
+			
+		} else if (namespaceId.getConstructor() == getPackageQNameCon()) {
+			packageId = PackageDeclaration.getPackageId(this, namespaceId);
+		} else
+			throw new IllegalArgumentException("Unknown Namespace "	+ namespaceId.toString());
+
+		PackageDeclaration packageDeclaration= this.lookupPackageDecl(packageId);
+		
+		packageDeclaration.addImportRefernces(this, imports);
+		persistenceManager().spxPackageTable().definePackageDeclaration(packageDeclaration);
+	}
+	
+	/**
+	 * @param mDecl
+	 */
+	private void defineNamespace(INamespaceFactory nsFactory) {
+		SpxPrimarySymbolTable symTable =  this.persistenceManager().spxSymbolTable();
+		
+		for( INamespace ns : nsFactory.newNamespaces(this) ) {  symTable.defineNamespace(ns) ; }
+	}
+	
+
+	/**
+	 * Returning all the import reference of the current package / module construct. Package/ Module  
+	 * are the scoped symbol for the current implementation of the spoofaxlang. Whenever 
+	 * looking for a import reference of a module, it returns the import refernece of it enclosing 
+	 * namespace , i.e. package. 
+	 * 
+	 * Currently this lookup is hard-coded . Later , plan is to move to more generic and dynamic 
+	 * lookup environment. 
+	 * 
+	 * @param namespaceId
+	 * @return {@link IStrategoTerm}
+	 * @throws SpxSymbolTableException 
+	 */
+	public IStrategoTerm getImportReferences(IStrategoAppl namespaceId) throws SpxSymbolTableException {
+		IdentifiableConstruct ns; 
+
+		if (namespaceId.getConstructor() == getModuleQNameCon()) {
+			IStrategoList packageId = persistenceManager()
+					.spxModuleTable()
+					.packageId(ModuleDeclaration.getModuleId(this, namespaceId));
+			ns = lookupPackageDecl(packageId);
+		} else if (namespaceId.getConstructor() == getPackageQNameCon()) {
+			ns = this.lookupPackageDecl(namespaceId);
+		} else
+			throw new IllegalArgumentException("Unknown Namespace "	+ namespaceId.toString());
+		
+		return ns.getImports(this);
+	}
+	
+	
+	
+	
+	/**
+	 * Returns the package declaration indexed with {@code packageIdAppl} typed qualified name.
+	 * 
+	 * @param packageTypedQName
+	 * @return
+	 * @throws Exception 
+	 */
+	public IStrategoTerm getPackageDeclaration(IStrategoAppl packageTypedQName) throws SpxSymbolTableException
+	{
+		PackageDeclaration decl = lookupPackageDecl(packageTypedQName);
+		
+		return decl.toTerm(this);
+	}
+
+	
+	/**
+	 * @param packageTypedQName
+	 * @return
+	 * @throws IllegalArgumentException
+	 */
+	public PackageDeclaration lookupPackageDecl(IStrategoAppl packageTypedQName) throws SpxSymbolTableException {
+		
+		IStrategoList packageId = PackageDeclaration.getPackageId(this, packageTypedQName);
+		
+		return lookupPackageDecl(packageId);
+	}
+	
+	
+
+	public IStrategoList getPackageDeclarations(IStrategoString filePath) {
+
+		logMessage("getPackageDeclarationsByUri | Arguments : " + filePath);
+
+		SpxPackageLookupTable table = persistenceManager().spxPackageTable();
+		String filepathString = asJavaString(filePath);
+		
+		Iterable<PackageDeclaration> decls; 
+		if(All == filepathString) {
+			decls = table.getPackageDeclarations();  //returning all the package declarations found in the current project
+		}else{
+
+			String absFilePath = toAbsulatePath(filePath);
+			table.verifyUriExists(absFilePath); // verifying file path exists 
+			decls = table.packageDeclarationsByUri(absFilePath);
+		}
+		
+		IStrategoList result =  PackageDeclaration.toTerm(this, decls);
+		logMessage("getPackageDeclarationsByUri | Returning IStrategoList : " + result );
+
+		return result;
+	}
+
+	/**
+	 * Returns {@link ModuleDeclaration} indexed with Module Id - {@code moduleTypeQName}  
+	 * 
+	 * @param moduleTypeQName
+	 * @return
+	 * @throws IllegalArgumentException If {@link ModuleDeclaration} with {@code moduleTypeQName} is not found 
+	 * @throws SpxSymbolTableException 
+	 */
+	public IStrategoTerm getModuleDeclaration(IStrategoAppl moduleTypeQName) throws IllegalArgumentException, SpxSymbolTableException
+	{
+		ModuleDeclaration decl = lookupModuleDecl(moduleTypeQName);
+
+		return decl.toTerm(this);
+	}
+
+	/**
+	 * @param moduleTypeQName
+	 * @return
+	 * @throws SpxSymbolTableException 
+	 */
+	public ModuleDeclaration lookupModuleDecl(IStrategoAppl moduleTypeQName) throws SpxSymbolTableException {
+		
+		SpxModuleLookupTable table = persistenceManager().spxModuleTable();
+		
+		IStrategoList moduleId = ModuleDeclaration.getModuleId(this, moduleTypeQName);
+		
+		ModuleDeclaration decl = table.getModuleDeclaration(moduleId);
+		
+		if (decl == null)
+			throw new SpxSymbolTableException( "Unknown Module Id "+ moduleTypeQName.toString());
+		
+		
+		return decl;
+	}
+	
+	/**
+	 * @param res
+	 * @return
+	 * @throws SpxSymbolTableException 
+	 */
+	public IStrategoTerm getModuleDeclarationsOf(IStrategoTerm res) throws SpxSymbolTableException {
+		IStrategoTerm retValue ;
+		
+		if(Tools.isTermAppl(res))
+			retValue  = this.getModuleDeclarations((IStrategoAppl)res);
+		else if(Tools.isTermString(res))
+			retValue = this.getModuleDeclarations((IStrategoString)res);
+		else
+			throw new IllegalArgumentException("Unknown argument in getModuleDeclarationOf: " + res);
+		
+		return retValue;
+	}
+
+	public IStrategoList getModuleDeclarations (IStrategoString filePath){
+		logMessage("getModuleDeclarations | Arguments : " + filePath);
+		
+		SpxModuleLookupTable table = persistenceManager().spxModuleTable();
+		String filepathString = asJavaString(filePath);
+		
+		Iterable<ModuleDeclaration> decls; 
+		if(All == filepathString) {
+			decls = table.getModuleDeclarations();  //returning all the package declarations found in the current project
+		}else{	
+			String absFilePath = toAbsulatePath(filePath);
+			table.verifyUriExists(absFilePath);
+			decls = table.getModuleDeclarationsByUri(absFilePath);
+		}
+		
+		IStrategoList result =  ModuleDeclaration.toTerm(this, decls);
+		logMessage("getModuleDeclarations | Returning IStrategoList : " + result );
+		return result;
+	}
+
+	/**
+	 * Returns IStrategoList of {@link ModuleDeclaration} enclosed in a Package.
+	 * 
+	 * @param packageQName Qualified Name of Package
+	 * @return {@link IStrategoList}
+	 * @throws SpxSymbolTableException 
+	 */
+	public IStrategoList getModuleDeclarations(IStrategoAppl packageQName) throws SpxSymbolTableException {
+		logMessage("getModuleDeclarations | Arguments : " + packageQName);
+		
+		IStrategoList packageID = PackageDeclaration.getPackageId(this, packageQName);
+		
+		Iterable<ModuleDeclaration> decls = getModuleDeclarations(packageID);
+		logMessage("getModuleDeclarations | Found following result from SymbolTable : " + decls);
+		
+		IStrategoList result =  ModuleDeclaration.toTerm(this, decls);
+		logMessage("getModuleDeclarations | Returning IStrategoList : " + result );
+		
+		return result;
+	}	
+	
+	public Iterable<ModuleDeclaration> getModuleDeclarations(IStrategoList pacakgeID) throws SpxSymbolTableException
+	{
+		SpxModuleLookupTable table = persistenceManager().spxModuleTable();
+		_persistenceManager.spxPackageTable().verifyPackageIDExists(pacakgeID) ;
+		
+		return table.getModuleDeclarationsByPackageId(pacakgeID);
+	}
+	/** 
+	 * Returns ModuleDefinition for the Module with ID :  {@code moduleTypedQName}
+	 * 
+	 * @param moduleTypedQName
+	 * @return
+	 * @throws IllegalArgumentException
+	 * @throws SpxSymbolTableException 
+	 */
+	public IStrategoTerm getModuleDefinition(IStrategoAppl moduleTypedQName) throws IllegalArgumentException, SpxSymbolTableException
+	{
+		ModuleDeclaration decl = lookupModuleDecl(moduleTypedQName);
+
+		SpxModuleLookupTable table = persistenceManager().spxModuleTable();
+		
+		IStrategoList qualifiedModuleId = ModuleDeclaration.getModuleId(this, moduleTypedQName);
+		IStrategoTerm moduleAterm =table.getModuleDefinition(qualifiedModuleId) ;
+		IStrategoTerm moduleAnnotatedAterm  = table.getAnalyzedModuleDefinition(qualifiedModuleId);
+		
+		return new ModuleDefinition( decl , (IStrategoAppl)moduleAterm, (IStrategoAppl)moduleAnnotatedAterm).toTerm(this);
+	}
+	
+	/**
+	 * Returns {@link LanguageDescriptor} for Spoofaxlang package with {@link packageTypedQName}}
+	 *  
+	 * @param packageTypedQName
+	 * @return {@link IStrategoTerm} representation of {@link IStrategoTerm}
+	 * @throws IllegalArgumentException if the package id is not found in the symbol table 
+	 * @throws Exception  If package Id is valid but does not have any language descriptor registered
+	 */
+	public IStrategoTerm getLanguageDescriptor ( IStrategoAppl packageTypedQName) throws IllegalArgumentException, Exception{
+		IStrategoList  packageQName = PackageDeclaration.getPackageId(this, packageTypedQName);
+
+		SpxPackageLookupTable table = persistenceManager().spxPackageTable();
+		table.verifyPackageIDExists(packageQName) ;
+		
+		LanguageDescriptor desc = table.getLangaugeDescriptor(packageQName);
+		if ( desc == null){	
+			throw new SpxSymbolTableException("Not Found LanguageDescriptor for " + packageQName.toString()); 
+		}
+		return desc.toTerm(this);
+	}
+	
+	/**
+	 * Removes PackageDeclaration mapped with the {@code spxCompilationUnitPath}
+	 * 
+	 * @param spxCompilationUnitPath
+	 * @param packageId
+	 */
+	public void removePackageDeclaration(
+			IStrategoString spxCompilationUnitPath , 
+			IStrategoAppl namespaceID){
+		SpxPackageLookupTable table = _persistenceManager.spxPackageTable();
+		
+		spxCompilationUnitPath  = (IStrategoString)toCompactPositionInfo((IStrategoTerm)spxCompilationUnitPath);
+		IStrategoList packageId = (IStrategoList)toCompactPositionInfo(PackageDeclaration.getPackageId(this, namespaceID));
+		
+		table.verifyPackageIDExists(packageId) ;
+		
+		table.removePackageDeclarationLocation(
+				packageId, 
+				toAbsulatePath(spxCompilationUnitPath));
+	}
+
+	
+	/**
+	 * looks up for a package declaration given its ID. 
+	 * 
+	 * @param packageId
+	 * @return
+	 * @throws SpxSymbolTableException
+	 */
+	PackageDeclaration lookupPackageDecl(IStrategoList packageId) throws SpxSymbolTableException {
+		
+		SpxPackageLookupTable table = persistenceManager().spxPackageTable();
+		PackageDeclaration decl = table.getPackageDeclaration(packageId);
+		
+		if (decl == null)
+			throw new SpxSymbolTableException( "Unknown Package Id : "+ packageId.toString());
+		
+		return decl;
 	}
 	
 	/**
@@ -577,8 +723,13 @@ public class SpxSemanticIndexFacade {
 	 * @throws IOException
 	 */
 	public void reinitSymbolTable() throws IOException {	
+		
 		if (! isPersistenceManagerClosed())
-			_persistenceManager.clearAll();
+			persistenceManager().clearAll();
+		
+		persistenceManager().commit();
+		
+		persistenceManager().initializeSymbolTables(this.getProjectNameString(), this);
 	}
 
 	
@@ -653,45 +804,111 @@ public class SpxSemanticIndexFacade {
 		_persistenceManager.logMessage("SpxSemanticIndexFacade", message);
 	}
 	
-	public IStrategoConstructor getPackageDeclCon() { return _knownCons.get(ConstructorDef.newInstance("PackageDecl",2)); }
 	
-	public IStrategoConstructor getModuleDeclCon() { return _knownCons.get(ConstructorDef.newInstance("ModuleDecl", 3));  }
+	String fromFileURI(URI uri) {
+		File file = new File(uri);
+		return file.toString();
+	}
 
-	public IStrategoConstructor getModuleDefCon() {	return _knownCons.get(ConstructorDef.newInstance("ModuleDef" , 5)); }
-
-	public IStrategoConstructor getLanguageDescriptorCon() { return _knownCons.get(ConstructorDef.newInstance("LanguageDescriptor" , 5));}
-
-	public IStrategoConstructor getModuleQNameCon() {return _knownCons.get(ConstructorDef.newInstance("Module" , 1));}
-
-	public IStrategoConstructor getPackageQNameCon() {return _knownCons.get(ConstructorDef.newInstance("Package" , 1));}
+	IOAgent getIOAgent() {
+		return _agent;
+	}
 	
-	public IStrategoConstructor getQNameCon() {return _knownCons.get(ConstructorDef.newInstance("QName" , 1));}
+	/**
+	 * Prints error message
+	 * @param errMessage
+	 */
+	void printError(String errMessage){
+		_agent.printError(errMessage);
+	}
 	
-	public IStrategoConstructor getImportDeclCon() {return _knownCons.get(ConstructorDef.newInstance("ImportDecl",2));}
+	/**
+	 * Force an imploder attachment for a term.
+	 * This ensures that there is always some form of position info,
+	 * and makes sure that origin info is not added to the term.
+	 * (The latter would be bad since we cache in {@link #term}.)
+	 */
+	public static IStrategoAppl forceImploderAttachment(IStrategoAppl term , URI file) {
+		return forceImploderAttachment(term, term, file);
+	}
 	
+	public static IStrategoAppl forceImploderAttachment(IStrategoTerm id, IStrategoAppl term , URI file) {
+		
+		ImploderAttachment attach = ImploderAttachment.get(id);
+		if (attach != null) {
+			ImploderAttachment.putImploderAttachment(term, false, attach.getSort(), attach.getLeftToken(), attach.getRightToken());
+		} else {
+			String fn = file == null ? null : file.toString();
+			term.putAttachment(ImploderAttachment.createCompactPositionAttachment(
+					fn, 0, 0, 0, -1));
+		}
+		return term;
+	}
+
+	//TODO : better handling of the known constructors
+	
+	public IStrategoConstructor getPackageDeclCon() { return getConstructor("PackageDecl",2);}
+	
+	public IStrategoConstructor getModuleDeclCon() { return getConstructor("ModuleDecl", 3); }
+
+	public IStrategoConstructor getModuleDefCon() {	return getConstructor("ModuleDef" , 5);}
+
+	public IStrategoConstructor getLanguageDescriptorCon() { return getConstructor("LanguageDescriptor" , 5);}
+
+	public IStrategoConstructor getModuleQNameCon() {return getConstructor("Module" , 1); }
+
+	public IStrategoConstructor getPackageQNameCon() { return getConstructor("Package" , 1);}
+	
+	public IStrategoConstructor getQNameCon() { return getConstructor("QName" , 1); }
+	
+	public IStrategoConstructor getImportDeclCon() {return getConstructor("ImportDecl",2);}
+	
+	public IStrategoConstructor getGlobalNamespaceTypeCon() {return getConstructor("Global",0);}
+	
+	public IStrategoConstructor getPackageNamespaceTypeCon() {return getConstructor("Package",0);}
+	
+	public IStrategoConstructor getModuleNamespaceTypeCon() {return getConstructor("Module",0);}
+	
+	public IStrategoConstructor getSymbolTableEntryDefCon() {return getConstructor("SymbolDef",4);}
+	
+	
+	public IStrategoConstructor getConstructor(String symbolTypeCons, int arity) {
+		return _knownCons.get(ConstructorDef.newInstance(symbolTypeCons ,arity));
+	}
 	
 	private void initKnownConstructors() {
-		ConstructorDef.newInstance("ModuleDef" , 5).index(_knownCons, _termFactory);
-		ConstructorDef.newInstance("ModuleDecl", 3).index(_knownCons, _termFactory);
+		ConstructorDef.newInstance("ModuleDef"  ,5).index(_knownCons, _termFactory);
+		ConstructorDef.newInstance("ModuleDecl" ,3).index(_knownCons, _termFactory);
+		ConstructorDef.newInstance("SymbolDef"  ,4).index(_knownCons, _termFactory);
+
 		ConstructorDef.newInstance("PackageDecl",2).index(_knownCons, _termFactory);
-		ConstructorDef.newInstance("ImportDecl",2).index(_knownCons, _termFactory);	
+		ConstructorDef.newInstance("ImportDecl" ,2).index(_knownCons, _termFactory);
+		
 		ConstructorDef.newInstance("LanguageDescriptor", 5).index(_knownCons, _termFactory);
+		
 		ConstructorDef.newInstance("Module", 1).index(_knownCons, _termFactory);
-		ConstructorDef.newInstance("Package", 1).index(_knownCons, _termFactory);
-		ConstructorDef.newInstance("QName", 1).index(_knownCons, _termFactory);
+		ConstructorDef.newInstance("Package",1).index(_knownCons, _termFactory);
+		ConstructorDef.newInstance("QName",  1).index(_knownCons, _termFactory);
+				
+		ConstructorDef.newInstance("Global", 0).index(_knownCons, _termFactory);
+		ConstructorDef.newInstance("Package",0).index(_knownCons, _termFactory);
+		ConstructorDef.newInstance("Module", 0).index(_knownCons, _termFactory);
 	}
+	
+	private final HashMap<ConstructorDef , IStrategoConstructor> _knownCons;
 	
 	private static class ConstructorDef
 	{
 		private String _name ;
 		private int _arity;
+		
 		ConstructorDef( String name , int arity) {  _name =  name ; _arity = arity; }
 		
 		static ConstructorDef newInstance( String name , int arity) {  return new ConstructorDef(name, arity); }
 		
 		private IStrategoConstructor toStrategoConstructor(ITermFactory fac) {  return fac.makeConstructor(_name, _arity);}
 		
-		void index( HashMap<ConstructorDef , IStrategoConstructor> cons , ITermFactory fac)
+		void index(HashMap<ConstructorDef , IStrategoConstructor> cons , ITermFactory fac)
 		{
 			cons.put(this, this.toStrategoConstructor(fac)) ;
 		}

@@ -75,8 +75,6 @@ public final class RecordManagerFactory {
 	@SuppressWarnings("unchecked")
 	public static RecordManager createRecordManager(String name,
 			Properties options) throws IOException {
-
-
 		String relPath = options.getProperty( RecordManagerOptions.INDEX_RELATIVE_PATH_OPTION, RecordManagerOptions.INDEX_DIRECTORY_RELATIVE_PATH);
 		
 		RecordManager recman = new BaseRecordManager( name , relPath);

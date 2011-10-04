@@ -1,10 +1,14 @@
-package org.spoofax.interpreter.library.language.tests;
+package org.spoofax.interpreter.library.language.spxlang.tests;
+
+import java.io.IOException;
 
 import org.spoofax.interpreter.core.Interpreter;
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.library.language.LanguageLibrary;
 import org.spoofax.interpreter.library.language.spxlang.ModuleDeclaration;
+import org.spoofax.interpreter.library.language.spxlang.PackageDeclaration;
 import org.spoofax.interpreter.library.language.spxlang.SpxSemanticIndexFacade;
+import org.spoofax.interpreter.library.language.spxlang.SpxSymbolTableException;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
@@ -14,7 +18,7 @@ import org.spoofax.interpreter.test.AbstractInterpreterTest;
 
 public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 	
-	private final String _projectName = "test";
+	private final String _projectName = "test-sybol-table";
 	
 	private IStrategoString projectNameTerm; 
 	private SpxSemanticIndexFacade _facade;
@@ -28,7 +32,6 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 	
 	private ITermFactory termFactory() { return factory; 	}
 	
-	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp("C:/work/projects/spoofax/spx-imp/source-codes/trunk/org.strategoxt.imp.editors.spoofax/include");
@@ -39,14 +42,11 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 	
 		_facade = new SpxSemanticIndexFacade(projectNameTerm , termFactory() , ioAgent());
 		_facade.reinitSymbolTable();
+		indexCompilationUnit();
 	}
-	
 	
 	@Override 
-	protected void tearDown() throws Exception {
-		_facade.close();
-	}
-	
+	protected void tearDown() throws Exception { _facade.close(); }
 	
 	public void testGetModuleDeclarationsByFileUri()
 	{
@@ -73,9 +73,13 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		//following invocation should return 1  ModuleDeclarations
 		actuals = _facade.getModuleDeclarations( termFactory().makeString(absPathString2));
 		assertEquals(1, actuals.getSubtermCount());
+		
+		
+		//Test Namespaces 
+		_facade.persistenceManager().spxSymbolTable().getAllNamespaces();
 	}
 	
-	public void testGetModuleDeclarationsByPackageId()
+	public void testGetModuleDeclarationsByPackageId() throws SpxSymbolTableException
 	{
 		String packageName1 =  	"\"languages\", \"entitylang\"" ;
 		
@@ -100,10 +104,9 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		assertEquals(1, actuals.getSubtermCount());
 	}
 
-	public void testGetModuleDeclarationsWithUnknownPackageID()
+	public void testGetModuleDeclarationsWithUnknownPackageID() throws SpxSymbolTableException
 	{
 		String packageName1 =  	"\"languages\", \"entitylang\"" ;
-		
 		indexTestPackageDecl(packageName1, absPathString1);
 		indexTestModuleDefs ( "m1" , packageName1 , absPathString1);
 		indexTestModuleDefs ( "m2" , packageName1 , absPathString1);
@@ -126,7 +129,7 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		}
 		
 	}
-	
+
 	public void testGetPackageDeclarationsByUri()
 	{
 		String packageName1 =  	"\"languages\", \"entitylang\"" ;
@@ -139,19 +142,18 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		String packageName3 =  	"\"languages\", \"entitylang2\"" ;
 		indexTestPackageDecl(packageName3, absPathString2);
 		
-		
 		IStrategoList actuals = null;
-
 		
 		actuals = _facade.getPackageDeclarations(termFactory().makeString(absPathString2));
 		assertEquals(1, actuals.getSubtermCount());
-		
 
 		actuals = _facade.getPackageDeclarations(termFactory().makeString(absPathString1));
 		assertEquals(2, actuals.getSubtermCount());
+		
+		
 	}
 	
-	public void testIndexingImportReferences()
+	public void testIndexingImportReferences() throws SpxSymbolTableException
 	{
 
 		String packageName1 =  	"\"languages\", \"entitylang1\"" ;
@@ -179,7 +181,7 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		
 
 		actuals = (IStrategoList) _facade.getImportReferences( mQnameAppl2 );
-		assertEquals(1, actuals.size());
+		assertEquals(2, actuals.size());
 		
 		//following invocation should return both the import reference of itself and enclosing
 		//modules' import references. 
@@ -187,10 +189,13 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		actuals = (IStrategoList) _facade.getImportReferences( pQnameAppl3 );
 		
 		assertEquals(2, actuals.size());
+
+		PackageDeclaration decl =  _facade.lookupPackageDecl(pQnameAppl1);
+		
+		assertEquals(1, decl.getImortedToPackageReferences().size());
 	}
 	
-	
-	public void testIndexModuleDeclaration() 
+	public void testIndexModuleDeclaration() throws IllegalArgumentException, SpxSymbolTableException 
 	{
 		ITermFactory f = termFactory() ;
 
@@ -210,7 +215,7 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		_facade.verifyConstructor(moduleDeclaration.getConstructor(), _facade.getModuleDeclCon(), "Wrong Module Declaration Constructs");
 	}	
 	
-	public void testIndexPackageDeclaration() 
+	public void testIndexPackageDeclaration() throws SpxSymbolTableException 
 	{
 		ITermFactory f = termFactory() ;
 
@@ -227,10 +232,9 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		_facade.verifyConstructor(packageDeclaration.getConstructor(), _facade.getPackageDeclCon(), "Wrong Package Declaration"); 
 	}
 	
-	public void testIndexPackageDeclarationInMultipleFiles() 
-	{
+	public void testIndexPackageDeclarationInMultipleFiles() throws SpxSymbolTableException {
 		ITermFactory f = termFactory() ;
-
+		
 		String moduleName =  "m1" ;
 		IStrategoAppl pQnameAppl = (IStrategoAppl)f.parseFromString("Package(QName([\"languages\", \"entitylang\"]))"); 
 		IStrategoAppl mQnameAppl = (IStrategoAppl)f.parseFromString("Module(QName([\"languages\", \"entitylang\" , \""+ moduleName  +"\"]))");
@@ -243,13 +247,87 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		IStrategoAppl packageDeclaration = (IStrategoAppl)_facade.getPackageDeclaration(pQnameAppl);
 		
 		_facade.verifyConstructor(packageDeclaration.getConstructor(), _facade.getPackageDeclCon(), "Wrong Package Declaration");
-		
+	
 		assertEquals(2, ((IStrategoList)packageDeclaration.getSubterm(1)).getAllSubterms().length);
 	}
 	
-	public void testListenerRemovingRecordsFromChildSymbolTables()
+	public void testIndexremovePackageDeclaredinMultipleFiles() throws SpxSymbolTableException 
 	{
+		ITermFactory f = termFactory() ;
 		
+		String moduleName =  "m1" ;
+		IStrategoAppl pQnameAppl = (IStrategoAppl)f.parseFromString("Package(QName([\"languages\", \"entitylang\"]))");
+		
+		IStrategoAppl mQnameAppl = (IStrategoAppl)f.parseFromString("Module(QName([\"languages\", \"entitylang\" , \""+ moduleName  +"\"]))");
+		IStrategoAppl ast = (IStrategoAppl)SpxLookupTableUnitTests.getModuleDefinition(f, moduleName);
+		IStrategoAppl analyzed_ast = (IStrategoAppl)SpxLookupTableUnitTests.getAnalyzedModuleDefinition(f, moduleName);
+		
+		//setting up index
+		_facade.indexPackageDeclaration(pQnameAppl, f.makeString(absPathString1));
+		_facade.indexPackageDeclaration(pQnameAppl, f.makeString(absPathString2));
+		_facade.indexModuleDefinition(mQnameAppl, f.makeString(absPathString2), pQnameAppl, ast, analyzed_ast);
+		
+		
+		//getting package declaration
+		IStrategoAppl packageDeclaration = (IStrategoAppl)_facade.getPackageDeclaration(pQnameAppl);
+		
+		_facade.verifyConstructor(packageDeclaration.getConstructor(), _facade.getPackageDeclCon(), "Wrong Package Declaration");
+		
+		assertEquals(2, ((IStrategoList)packageDeclaration.getSubterm(1)).getAllSubterms().length);
+		
+		//removing uri from the declaration
+		_facade.removePackageDeclaration( f.makeString(absPathString1), pQnameAppl);
+		packageDeclaration = (IStrategoAppl)_facade.getPackageDeclaration(pQnameAppl);
+		assertEquals(1, ((IStrategoList)packageDeclaration.getSubterm(1)).getAllSubterms().length);
+		
+		// removing uri from the declaration . This time there will not be any uri left. Hence
+		// the package will be deleted as well as it all enlosed modules.
+		_facade.removePackageDeclaration( f.makeString(absPathString2), pQnameAppl);
+		
+		try {
+			_facade.getPackageDeclaration(pQnameAppl);
+		} catch (SpxSymbolTableException ex) { // hence , not found in the
+												// symbol table
+
+		}
+
+		try {
+			_facade.getModuleDeclaration(mQnameAppl);
+		} catch (SpxSymbolTableException ex) { // hence , not found in the
+												// symbol table
+		}
+
+	}
+	
+	public void indexCompilationUnit() throws IOException
+	{	
+		ITermFactory f = termFactory() ;
+		
+		_facade.indexCompilationUnit(f.makeString(absPathString1),
+				(IStrategoAppl) getCompilationUnit(f));
+		
+		_facade.indexCompilationUnit(f.makeString(absPathString2),
+				(IStrategoAppl) getCompilationUnit(f));
+	}
+	
+	static IStrategoTerm getCompilationUnit( ITermFactory f)
+	{
+		String text = "CompilationUnit("
+			+"[]" 
+			+", [ Package("
+			+"      QName([\"languages\", \"entitylang\"])"
+			+"    , [ Module("
+			+"          None() "
+			+"        , SPXModuleName(\"Entitylang-Descriptor\")"
+			+"        , [" 
+			+"          ]"
+			+"        )"
+			+"      ]"
+			+"    )"
+			+"  ]"
+			+")" ;
+		
+		return f.parseFromString(text);
 	}
 	
 	public void testUnknownPackageNameThrowsIllegalArgumentException() 
@@ -291,8 +369,4 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		_facade.indexPackageDeclaration(pQnameAppl, termFactory().makeString(fileName));
 		return pQnameAppl;
 	}
-	
-	
-	
-
 }

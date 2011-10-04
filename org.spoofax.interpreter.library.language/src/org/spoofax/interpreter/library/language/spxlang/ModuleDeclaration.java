@@ -1,5 +1,8 @@
 package org.spoofax.interpreter.library.language.spxlang;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -7,7 +10,7 @@ import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
-public class ModuleDeclaration extends IdentifiableConstruct 
+public class ModuleDeclaration extends IdentifiableConstruct implements INamespaceFactory  
 {
 	private static final long serialVersionUID = -6249406731326662111L;
 
@@ -18,6 +21,9 @@ public class ModuleDeclaration extends IdentifiableConstruct
 	static final int AnalyzedAstIndex = 4;
 	
 	final String resourceAbsPath; 
+
+	final IStrategoList enclosingPackageID;
+	
 	
 	/* (non-Javadoc)
 	 * @see org.spoofax.interpreter.library.language.spxlang.IdentifiableConstruct#getFileLocation()
@@ -27,8 +33,6 @@ public class ModuleDeclaration extends IdentifiableConstruct
 		return resourceAbsPath;
 	}
 
-	final IStrategoList enclosingPackageID;
-	
 	public ModuleDeclaration(String resourceAbsPath, IStrategoList id , IStrategoList packageID) {
 		super(id);
 		
@@ -88,7 +92,6 @@ public class ModuleDeclaration extends IdentifiableConstruct
 		return true;
 	}
 	
-	
 	public static IStrategoList getModuleId(SpxSemanticIndexFacade facade, IStrategoAppl moduleQName )
 	{
 		IStrategoConstructor moduleCon  = facade.getModuleQNameCon();
@@ -98,7 +101,6 @@ public class ModuleDeclaration extends IdentifiableConstruct
 		
 		throw new IllegalArgumentException("Invalid module qname : "+ moduleQName.toString());
 	}
-	
 	
 	public static IStrategoAppl toModuleIdTerm(SpxSemanticIndexFacade facade , ModuleDeclaration decl)
 	{
@@ -125,6 +127,25 @@ public class ModuleDeclaration extends IdentifiableConstruct
 		IStrategoTerm retTerm = termFactory.makeAppl(moduleDeclCons,moduleQNameAppl,resAbsPathTerm,packageQNameAppl);
 		
 		return this.forceImploderAttachment(retTerm);
+	}
+
+	public Iterable<INamespace> newNamespaces(SpxSemanticIndexFacade idxFacade) {
+		
+		List<INamespace> namespaces = new ArrayList<INamespace>();
+		
+		SpxPrimarySymbolTable  table =  idxFacade.persistenceManager().spxSymbolTable() ;
+		
+		NamespaceUri namespaceUri = table.toNamespaceUri(id) ;
+		NamespaceUri packageUri = table.toNamespaceUri(enclosingPackageID) ;
+		
+		namespaces.add(ModuleNamespace.createInstance(namespaceUri, packageUri,idxFacade));
+		
+		return namespaces; 
+	}
+	
+	NamespaceUri getNamespaceUri(SpxSemanticIndexFacade idxFacade)
+	{
+		return idxFacade.persistenceManager().spxSymbolTable().toNamespaceUri(id) ;
 	}
 }
 

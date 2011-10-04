@@ -28,7 +28,7 @@ public class SPX_index_import_references extends AbstractPrimitive {
 	private final static int PROJECT_NAME_INDEX    = 0;
 	private final static int IMPORT_REFERENCES_INDEX = 1;
 	
-	private final static int NO_ARGS = 3;
+	private final static int NO_ARGS = 2;
 	
 	private final SpxSemanticIndex index;
 	
@@ -46,12 +46,10 @@ public class SPX_index_import_references extends AbstractPrimitive {
 			IStrategoString projectName = (IStrategoString)tvars[PROJECT_NAME_INDEX];
 			IStrategoAppl importReferences   = (IStrategoAppl) tvars[IMPORT_REFERENCES_INDEX];
 			
-			try
-			{
+			try{
 				successStatement = index.indexImportReferences(projectName, importReferences);
 			}
-			catch(Exception ex)
-			{ 
+			catch(Exception ex){ 
 				SSLLibrary.instance(env).getIOAgent().printError("["+NAME+"]  Invocation failed . "+ ex.getClass().getSimpleName() +" | error message: " + ex.getMessage());
 			}
 		}

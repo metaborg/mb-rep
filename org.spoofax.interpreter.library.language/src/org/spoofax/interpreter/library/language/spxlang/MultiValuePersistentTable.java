@@ -1,9 +1,15 @@
 package org.spoofax.interpreter.library.language.spxlang;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
+import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
+import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import jdbm.PrimaryMap;
@@ -17,23 +23,21 @@ import jdbm.RecordManager;
  * @author Md. Adil Akhter
  * Created On : Aug 22, 2011
  */
-class MultiValuePersistentTable {
+class MultiValuePersistentTable implements Serializable{
 
-	final PrimaryMap<IStrategoTerm,ArrayList<SpxSymbol>> symbols;
+	private static final long serialVersionUID = -473055635199728599L;
+	private final HashMap<SpxSymbolKey, List<SpxSymbol>> symbols;
 	
-	public MultiValuePersistentTable(String name, ISpxPersistenceManager manager){
-		
-		symbols = manager.loadHashMap(name);
+	public MultiValuePersistentTable(String name){
+		symbols = new HashMap<SpxSymbolKey , List<SpxSymbol>>();
 	}
 	
 	/**
-	 * removes all the entries from current map
+	 * Removes all the entries from this symbol-table
 	 * 
 	 * @throws IOException 
 	 */
-	public void clear() throws IOException{
-		symbols.clear();
-	}
+	public void clear() throws IOException{ symbols.clear(); }
 
 	
 	/**
@@ -44,14 +48,14 @@ class MultiValuePersistentTable {
 	 * @param key - The key that the symbol will be mapped to .
 	 * @param symbol - The symbol to store. 
 	 */
-	public void define(SpxSymbol symbol){
-		IStrategoTerm key = symbol.Id();
+	public void define(SpxSymbolTableEntry entry){
+		SpxSymbolKey key = entry.key;
 		
 		if ( symbols.containsKey(key)){
-			symbols.get(key).add(symbol);
+			symbols.get(key).add(entry.value);
 		}else{
-			ArrayList<SpxSymbol> values = new ArrayList<SpxSymbol>(); 
-			values.add(symbol);
+			List<SpxSymbol> values = new ArrayList<SpxSymbol>(); 
+			values.add(entry.value);
 			symbols.put( key , values );
 		}
 	}

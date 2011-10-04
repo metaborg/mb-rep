@@ -21,6 +21,8 @@ public interface ISpxPersistenceManager  extends ILogger{
 	
 	public SpxModuleLookupTable spxModuleTable();
 	
+	public SpxPrimarySymbolTable spxSymbolTable();
+	
 	public void commit() throws IOException;
 	
 	public boolean IsClosed();
@@ -28,6 +30,8 @@ public interface ISpxPersistenceManager  extends ILogger{
 	public void clearAll() throws IOException;
 	
 	public String getProjectName();
+	
+	public void initializeSymbolTables(String projectName , SpxSemanticIndexFacade facade);
 }
 
 interface ILogger{ 

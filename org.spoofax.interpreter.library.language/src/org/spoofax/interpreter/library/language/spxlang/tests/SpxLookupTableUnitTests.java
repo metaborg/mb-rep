@@ -1,4 +1,4 @@
-package org.spoofax.interpreter.library.language.tests;
+package org.spoofax.interpreter.library.language.spxlang.tests;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,6 +15,8 @@ import org.spoofax.interpreter.library.language.spxlang.PackageDeclaration;
 import org.spoofax.interpreter.library.language.spxlang.SpxModuleLookupTable;
 import org.spoofax.interpreter.library.language.spxlang.SpxPackageLookupTable;
 import org.spoofax.interpreter.library.language.spxlang.SpxPersistenceManager;
+import org.spoofax.interpreter.library.language.spxlang.SpxSemanticIndexFacade;
+import org.spoofax.interpreter.library.language.spxlang.SpxSymbolTableException;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -24,6 +26,9 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.interpreter.test.AbstractInterpreterTest;
 
 public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
+	
+	private final String _projectName = "test";
+	private IStrategoString projectNameTerm;
 	
 	private ISpxPersistenceManager manager ;
 	private SpxPackageLookupTable symtable;
@@ -51,7 +56,10 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		super.setUp("C:/work/projects/spoofax/spx-imp/source-codes/trunk/org.strategoxt.imp.editors.spoofax/include");
 		interpreter().addOperatorRegistry(new LanguageLibrary());
 		
-		manager = new SpxPersistenceManager( "test" , "c:/temp" , ioAgent());
+		projectNameTerm = termFactory().makeString(_projectName);
+		SpxSemanticIndexFacade facade = new SpxSemanticIndexFacade(projectNameTerm , termFactory() , ioAgent());
+		manager = new SpxPersistenceManager(facade);
+		
 		symtable = new SpxPackageLookupTable(manager);
 		mSymTable = new SpxModuleLookupTable(manager);
 		
@@ -65,7 +73,7 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		manager.commitAndClose();
 	}
 	
-	public void testShouldReturngPackageDeclarationbyUri() 
+	public void testShouldReturngPackageDeclarationbyUri() throws IOException 
 	{
 		symtable.clear();
 		
@@ -125,8 +133,7 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		assertEquals(expected, actual);
 	}
 	
-	public void testUpdatingFileUrisShouldPersists()
-	{
+	public void testUpdatingFileUrisShouldPersists() throws IOException {
 		symtable.clear();
 		
 		//package declaration 
@@ -155,12 +162,12 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		//getting actual test run result and comparing with expected 
 		Set<PackageDeclaration> decls= (Set<PackageDeclaration>)symtable.packageDeclarationsByUri(absPathString1);
 		
-		PackageDeclaration test = symtable.getPackageDeclaration(idp1) ;
+		symtable.getPackageDeclaration(idp1) ;
 		
 		assertEquals(expectedPackageDecls , decls.size());
 	}
 	
-	public void testRemovePackageDeclarationsByFileUri()
+	public void testRemovePackageDeclarationsByFileUri() throws IOException
 	{
 		symtable.clear();
 			
@@ -183,7 +190,7 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		assertEquals(symtable.size(), 1);
 	}
 		
-	public void testNoFileUriShouldRemovePackageDeclaration()
+	public void testNoFileUriShouldRemovePackageDeclaration() throws IOException
 	{
 		symtable.clear();
 		
@@ -212,7 +219,7 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		
 	}
 
-	public void testLanguageDescriptorIsPersisted()
+	public void testLanguageDescriptorIsPersisted() throws IOException
 	{
 		symtable.clear();
 		
@@ -242,7 +249,7 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		assertEquals(idp1, actual.get(0));
 	}	
 	
-	public void testUpdatingLanguageDescriptorIsPersisted()
+	public void testUpdatingLanguageDescriptorIsPersisted() throws IOException
 	{
 		symtable.clear();
 		
@@ -277,7 +284,7 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		assertEquals(idp1, actual.get(0));
 	}	
 	
-	public void testShouldThrowIllegalArgumentExceptionIfUnknownPackageId()
+	public void testShouldThrowIllegalArgumentExceptionIfUnknownPackageId() throws IOException
 	{
 		symtable.clear();
 		
@@ -392,7 +399,7 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		
 	}
 	
-	public void testShouldReturnModuleByPackageId() throws IOException
+	public void testShouldReturnModuleByPackageId() throws IOException, SpxSymbolTableException
 	{
 		ITermFactory f = this.termFactory();
 		SpxModuleLookupTable lookupTable = mSymTable;
@@ -537,13 +544,11 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		
 		assertEquals(1, lookupTable.size());
 	}
-	static IStrategoTerm getModuleDefinition( ITermFactory f, String moduleName )
-	{
-		
-		String text = "Module(" + 
-		"None()"+
-		", SPXModuleName(\""+moduleName+"\")"+
-		", [])" ;
+
+	static IStrategoTerm getModuleDefinition(ITermFactory f, String moduleName) {
+
+		String text = "Module(" + "None()" + ", SPXModuleName(\"" + moduleName
+				+ "\")" + ", [])";
 
 		return f.parseFromString(text);
 	}

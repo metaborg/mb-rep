@@ -59,7 +59,7 @@ public class RecordManagerOptions
 
     /**
      * Option to disable free space reclaim. New records are always
-     * inserted to end of file. Usefull mainly on batch imports.
+     * inserted to end of file. Useful mainly on batch imports.
      * You will need to defrag() store after you are done
      *
      * <br>Possible values: <u>false</u>|true.
@@ -75,7 +75,6 @@ public class RecordManagerOptions
      * 
      */
     public static final String CACHE_TYPE = "jdbm.cache.type";
-
     
     /**
      * Size of the MRU cache. This affects cache type "mru" and cache type "soft".
@@ -91,12 +90,8 @@ public class RecordManagerOptions
      */
 	public static final String COMPRESS = "jdbm.compress";
 
-	
-
-	
 	public static final String INDEX_RELATIVE_PATH_OPTION = "jdbm.index.relativepath" ;
 	
-	
-	// TODO : make this similar to the above implementation.
+	// FIXME : make this similar to the above implementation.
 	public static String INDEX_DIRECTORY_RELATIVE_PATH = ".index";
 }

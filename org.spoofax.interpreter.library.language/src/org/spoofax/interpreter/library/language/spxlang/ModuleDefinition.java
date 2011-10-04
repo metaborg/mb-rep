@@ -8,10 +8,10 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.interpreter.terms.TermConverter;
 
 /**
+ * Class represents ModuleDefinition 
  * @author Md. Adil Akhter
  * Created On : Sep 7, 2011
  */
-
 class ModuleDefinition  extends ModuleDeclaration 
 {
 	private static final long serialVersionUID = -5355795992567198473L;
@@ -47,8 +47,9 @@ class ModuleDefinition  extends ModuleDeclaration
 	public IStrategoTerm toTerm(SpxSemanticIndexFacade idxFacade) {
 
 		ITermFactory termFactory = idxFacade.getTermFactory();
-		TermConverter termConverter = idxFacade.getTermConverter();
 		
+		TermConverter termConverter = idxFacade.getTermConverter();
+		 
 		IStrategoTerm moduleDeclarationTerm = super.toTerm(idxFacade);
 		IStrategoConstructor moduleDefCons = idxFacade.getModuleDefCon();
 		

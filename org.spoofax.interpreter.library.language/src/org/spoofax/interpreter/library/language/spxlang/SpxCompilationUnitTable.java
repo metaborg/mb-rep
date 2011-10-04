@@ -12,11 +12,13 @@ import static org.spoofax.interpreter.library.language.spxlang.SpxCompilationUni
 import jdbm.PrimaryHashMap;
 import jdbm.PrimaryStoreMap;
 import jdbm.RecordListener;
+import jdbm.SecondaryHashMap;
+import jdbm.SecondaryKeyExtractor;
 
 public class SpxCompilationUnitTable {
 	
-	private PrimaryHashMap<String , SpxCompilationUnitInfo> _infoMap;
-	private PrimaryStoreMap<Long,IStrategoTerm> _spxUnitStoreMap;
+	private final PrimaryHashMap<String , SpxCompilationUnitInfo> _infoMap;
+	private final PrimaryStoreMap<Long,IStrategoTerm> _spxUnitStoreMap;
 	
     /**
      * Listeners which are notified about changes in records
@@ -150,7 +152,8 @@ public class SpxCompilationUnitTable {
 	void remove(String absPathString) throws IOException{
 		SpxCompilationUnitInfo removedValue = _infoMap.remove(absPathString);
 		
-		if ( removedValue != null)
+		if ((removedValue != null)
+				&& _spxUnitStoreMap.containsKey(removedValue.getRecId()))
 			_spxUnitStoreMap.remove(removedValue.getRecId());
 		
 		if(!recordListeners.isEmpty())
@@ -178,8 +181,10 @@ public class SpxCompilationUnitTable {
 	
 	public void clear() throws IOException{
 		Iterator<String> keyIter = _infoMap.keySet().iterator();
-		while (keyIter.hasNext())
-			remove(keyIter.next());
+		if( keyIter != null){
+			while (keyIter.hasNext())
+				remove(keyIter.next());
+		}
 	}
 	
 	/**
@@ -197,4 +202,13 @@ public class SpxCompilationUnitTable {
 	private void removeRecordListener(RecordListener<String, SpxCompilationUnitInfo> listener) {	
 		recordListeners.remove(listener);
 	}
+	
 }
+
+interface ICompilationUnitRecordListener
+{
+	public RecordListener<String, SpxCompilationUnitInfo> getCompilationUnitRecordListener();
+}
+
+
+

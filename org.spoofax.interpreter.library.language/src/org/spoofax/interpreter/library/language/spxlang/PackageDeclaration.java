@@ -1,6 +1,8 @@
 package org.spoofax.interpreter.library.language.spxlang;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -10,14 +12,15 @@ import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
-public class PackageDeclaration extends IdentifiableConstruct
+public class PackageDeclaration extends IdentifiableConstruct implements INamespaceFactory
 {
 	private static final long serialVersionUID = -9081890582103567413L;
 	
 	static final int PACKAGE_ID_INDEX = 0;
 	static final int SPX_COMPILATION_UNIT_PATH = 1;
 	
-	final Set<String> resourceAbsPaths = new HashSet<String>();
+	private final Set<String> resourceAbsPaths = new HashSet<String>();
+	private final Set<IStrategoList> importedToReferences = new HashSet<IStrategoList>();
 	
 	public PackageDeclaration(String resourceAbsPath, IStrategoList id) {
 		super(id);
@@ -34,16 +37,25 @@ public class PackageDeclaration extends IdentifiableConstruct
 		super(id);
 	}
 	
-	public void addFileUri(String resAbsolutePath)
-	{
+	public Set<IStrategoList> getImortedToPackageReferences(){return importedToReferences;}
+	
+	public void removeImportedToPackageReference(PackageDeclaration decl) {
+		this.importedToReferences.remove(decl.getId());
+	}
+	
+	public void addFileUri(String resAbsolutePath){
 		resourceAbsPaths.add(resAbsolutePath);
+	}
+	
+	public void addImportedTo(IStrategoList packageId){
+		importedToReferences.add(packageId);
 	}
 	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(Object obj){
 		if (this == obj)
 			return true;
 		if (!super.equals(obj))
@@ -59,9 +71,7 @@ public class PackageDeclaration extends IdentifiableConstruct
 		return true;
 	}
 	
-	
-	public Set<String> getAllFilePaths()
-	{
+	public Set<String> getAllFilePaths(){
 		return resourceAbsPaths;
 	}
 	
@@ -69,7 +79,7 @@ public class PackageDeclaration extends IdentifiableConstruct
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
-	public int hashCode() {
+	public int hashCode(){
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime
@@ -78,8 +88,7 @@ public class PackageDeclaration extends IdentifiableConstruct
 		return result;
 	}
 	
-	public boolean isNotExistedInAnyFile()
-	{
+	public boolean isNotExistedInAnyFile(){
 		return (resourceAbsPaths == null) || (resourceAbsPaths.size() == 0) ; 
 	}
 	
@@ -97,14 +106,13 @@ public class PackageDeclaration extends IdentifiableConstruct
 	 * @see org.spoofax.interpreter.library.language.spxlang.BaseConstructDeclaration#toTerm(org.spoofax.interpreter.library.language.spxlang.SpxSemanticIndexFacade)
 	 */
 	@Override
-	public IStrategoTerm toTerm(SpxSemanticIndexFacade idxFacade) {
+	public IStrategoTerm toTerm(SpxSemanticIndexFacade idxFacade){
 		ITermFactory termFactory = idxFacade.getTermFactory();
 		
 		IStrategoConstructor packageDeclCons = idxFacade.getPackageDeclCon();
 		IStrategoList absPathList = termFactory.makeList();
 		
-		for(String resourceAbsPath : resourceAbsPaths)
-		{
+		for(String resourceAbsPath : resourceAbsPaths){
 			IStrategoString absPathTerm = termFactory.makeString(resourceAbsPath);
 			absPathList  = termFactory.makeListCons(absPathTerm, absPathList);
 		}	
@@ -117,36 +125,18 @@ public class PackageDeclaration extends IdentifiableConstruct
 		
 		return this.forceImploderAttachment(retTerm);
 	}
-	
-
-	@Override
-	protected Set<IStrategoTerm> getEnclosedImportReferences(SpxSemanticIndexFacade idxFacade) {
-
-		Set<IStrategoTerm> retImportDecls = super.getEnclosedImportReferences(idxFacade);
-
-		Iterable<ModuleDeclaration> moduldeDecls = idxFacade
-				.getPersistenceManager().spxModuleTable()
-				.getModuleDeclarationsByPackageId(this.getId());
-
-		for (ModuleDeclaration m : moduldeDecls) {
-			retImportDecls.addAll(m.getImportReferneces());
-		}
-
-		return retImportDecls;
-	}
-	
+		
 	/**
 	 * Gets PackageID from Typed Package QName
 	 * 
 	 * @param fac
 	 * @param packageQName
-	 * @return
+	 * @return {@link IStrategoList}
 	 */
 	public static IStrategoList getPackageId(SpxSemanticIndexFacade facade,IStrategoAppl packageQName){
 		final IStrategoConstructor packageQNameCon = facade.getPackageQNameCon();
 		
-		if(packageQNameCon == packageQName.getConstructor())
-		{
+		if(packageQNameCon == packageQName.getConstructor()){
 			return getID( facade, (IStrategoAppl)packageQName.getSubterm(0));	
 		}
 		
@@ -172,8 +162,7 @@ public class PackageDeclaration extends IdentifiableConstruct
 		return newDecl;
 	}
 
-	public static IStrategoAppl toPackageIdTerm (SpxSemanticIndexFacade facade, IStrategoList id)
-	{
+	public static IStrategoAppl toPackageIdTerm (SpxSemanticIndexFacade facade, IStrategoList id){
 		return toIdTerm(facade ,  facade.getPackageQNameCon(), id);
 	}
 
@@ -184,8 +173,15 @@ public class PackageDeclaration extends IdentifiableConstruct
 	 * @param decl
 	 * @return
 	 */
-	public static IStrategoAppl toPackageIdTerm (SpxSemanticIndexFacade facade, PackageDeclaration decl)
-	{
+	public static IStrategoAppl toPackageIdTerm (SpxSemanticIndexFacade facade, PackageDeclaration decl){
 		return toPackageIdTerm (facade, decl.getId());
+	}
+
+	/* (non-Javadoc)
+	 * @see org.spoofax.interpreter.library.language.spxlang.INamespaceFactory#newInstances(org.spoofax.interpreter.library.language.spxlang.SpxSemanticIndexFacade)
+	 */
+	public Iterable<INamespace> newNamespaces(SpxSemanticIndexFacade idxFacade) {
+	
+		return PackageNamespace.createInstances(id , idxFacade);
 	}
 }
