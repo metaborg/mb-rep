@@ -295,7 +295,7 @@ public class SpxSemanticIndexFacade {
 	
 	
 	// (namespace * idTolookupFor * type constructor)
-	public Iterable<IStrategoTerm> resolveSymbols(IStrategoTuple symbolLookupTerm) throws SpxSymbolTableException{
+	public IStrategoTerm resolveSymbols(IStrategoTuple symbolLookupTerm) throws SpxSymbolTableException{
 		if (symbolLookupTerm.getSubtermCount() != 3)
 			throw new IllegalArgumentException(" Illegal symbolLookupTerm Argument ; expected 3 subterms. Found : " + symbolLookupTerm.getSubtermCount());
 		
@@ -309,14 +309,17 @@ public class SpxSemanticIndexFacade {
 	}
 	
 	/**
-	 * @param namespaceToStartSearchWith
-	 * @param symbolId
-	 * @param symbolType
-	 * @return
+	 * Resolves symbols from {@link SpxPrimarySymbolTable}.
+	 * 
+	 * @param namespaceToStartSearchWith Starts search from this namespace. 
+	 * @param symbolId symbol Id to resolve
+	 * @param symbolType Type of Symbols to look for
+	 * 
+	 * @return {@link IStrategoList} representation of resolved {@code symbols} 
+	 * 
 	 * @throws SpxSymbolTableException
 	 */
-	public Iterable<SpxSymbol> resolveSymbols(IStrategoAppl namespaceToStartSearchWith, IStrategoTerm symbolId, IStrategoConstructor  symbolType)
-			throws SpxSymbolTableException {
+	public Iterable<SpxSymbol> resolveSymbols(IStrategoAppl namespaceToStartSearchWith, IStrategoTerm symbolId, IStrategoConstructor  symbolType) throws SpxSymbolTableException {
 		IStrategoList namespaceID = this.getNamespaceId(namespaceToStartSearchWith);
 
 		SpxPrimarySymbolTable  symbolTable = persistenceManager().spxSymbolTable();
@@ -339,9 +342,6 @@ public class SpxSemanticIndexFacade {
 		return typeCtor;
 	}
 
-	
-	
-	
 	/**
 	 * @param namespaceTypedQname
 	 * @return
@@ -394,7 +394,6 @@ public class SpxSemanticIndexFacade {
 		table.defineLanguageDescriptor(qualifiedPackageId, current);
 
 	}
-
 	
 	/**
 	 * @param importReferences
@@ -462,9 +461,6 @@ public class SpxSemanticIndexFacade {
 		return ns.getImports(this);
 	}
 	
-	
-	
-	
 	/**
 	 * Returns the package declaration indexed with {@code packageIdAppl} typed qualified name.
 	 * 
@@ -511,7 +507,7 @@ public class SpxSemanticIndexFacade {
 			decls = table.packageDeclarationsByUri(absFilePath);
 		}
 		
-		IStrategoList result =  PackageDeclaration.toTerm(this, decls);
+		IStrategoList result =  Utils.toTerm(this, decls);
 		logMessage("getPackageDeclarationsByUri | Returning IStrategoList : " + result );
 
 		return result;
@@ -585,7 +581,7 @@ public class SpxSemanticIndexFacade {
 			decls = table.getModuleDeclarationsByUri(absFilePath);
 		}
 		
-		IStrategoList result =  ModuleDeclaration.toTerm(this, decls);
+		IStrategoList result =  Utils.toTerm(this, decls);
 		logMessage("getModuleDeclarations | Returning IStrategoList : " + result );
 		return result;
 	}
@@ -605,7 +601,7 @@ public class SpxSemanticIndexFacade {
 		Iterable<ModuleDeclaration> decls = getModuleDeclarations(packageID);
 		logMessage("getModuleDeclarations | Found following result from SymbolTable : " + decls);
 		
-		IStrategoList result =  ModuleDeclaration.toTerm(this, decls);
+		IStrategoList result =  Utils.toTerm(this, decls);
 		logMessage("getModuleDeclarations | Returning IStrategoList : " + result );
 		
 		return result;

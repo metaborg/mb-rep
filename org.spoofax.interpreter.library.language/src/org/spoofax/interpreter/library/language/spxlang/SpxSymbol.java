@@ -211,13 +211,15 @@ public class SpxSymbol extends BaseSymbol implements Serializable{
 				deserializedDataToTerm )	;
 	}
 	
-	static Iterable<IStrategoTerm> toTerms(SpxSemanticIndexFacade facade , Iterable<SpxSymbol> symbols){
-		List<IStrategoTerm> terms  = new ArrayList<IStrategoTerm>();
-		
+	static IStrategoTerm toTerms(SpxSemanticIndexFacade facade , Iterable<SpxSymbol> symbols){
+		IStrategoList result = facade.getTermFactory().makeList();
 		
 		if( symbols != null)
-			for( SpxSymbol s : symbols) { terms.add( s.toTerm(facade));}
-		return terms;
+			for( SpxSymbol s : symbols) { 
+				result = facade.getTermFactory().makeListCons(  s.toTerm(facade) , result);
+			}
+		
+		return result;
 	} 
 	
 	/* (non-Javadoc)

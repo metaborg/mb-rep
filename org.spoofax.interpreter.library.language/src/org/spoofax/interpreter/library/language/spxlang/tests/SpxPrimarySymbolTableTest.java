@@ -203,18 +203,47 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		_facade.indexSymbol(symbolDef);
 	
 		
-		// Resolving Symbol 
-		Iterable<IStrategoTerm> resolvedSymbols = 
-			_facade.resolveSymbols( 
-				termFactory().makeTuple( 
-					ModuleDeclaration.toModuleQNameAppl(_facade, moduleDeclarationP1M1),
-					symbolId,
-					typeAppl 
-				));
 		
-		int actualCount = 0 ;
-		for( IStrategoTerm t : resolvedSymbols ) { actualCount += 1; }
-		assertEquals( 1 , actualCount);
+		// Resolving Symbol 
+		List<SpxSymbol> resolvedSymbols = (List<SpxSymbol>)_facade.resolveSymbols(
+				ModuleDeclaration.toModuleQNameAppl(_facade, moduleDeclarationP1M1),
+				symbolId,
+				namespaceAppl.getConstructor()
+				);
+		
+		assertEquals( 1 , resolvedSymbols.size());
+	}
+	
+	public void testUnknownConstructorInResolveSymbolShouldThrowException() throws IOException, SpxSymbolTableException {
+		
+		setupScopeTree();
+
+		// defining a composite key 
+		IStrategoAppl namespaceAppl = termFactory().makeAppl(_facade.getGlobalNamespaceTypeCon());
+		// defining following composite ID :  (Global() , "TestId")
+		IStrategoTerm symbolId = termFactory().makeTuple( namespaceAppl , termFactory().makeString("TestId")); 
+		// defining Data 
+		IStrategoTerm data = (IStrategoAppl)moduleDeclarationP1M1.toTerm(_facade);
+		// setting Type to Global() 
+		IStrategoAppl typeAppl = namespaceAppl ; 
+		
+		
+		// Defining Symbol-Table entry 
+		IStrategoAppl symbolDef = createEntry(namespaceAppl , symbolId , typeAppl  , data);
+		
+		// Indexing Symbol
+		_facade.indexSymbol(symbolDef);
+		try{
+		// Resolving Symbol 
+		_facade.resolveSymbols(
+				termFactory().makeTuple(
+						ModuleDeclaration.toModuleQNameAppl(_facade, moduleDeclarationP1M1),
+						symbolId,
+						termFactory().makeAppl(termFactory().makeConstructor("SDFDef", 0))
+				)
+		);
+		}catch(IllegalArgumentException ex){}
+	
 	}
 	
 	public void testDefiningGlobalSymbols() throws IOException, SpxSymbolTableException {
