@@ -13,11 +13,10 @@ public final class SpxSymbolTableEntry
 	public SpxSymbolKey key;
 	public SpxSymbol value;
 	
-	static final int NAMESPACE_ID_INDEX  = 0;
-	static final int TYPE_INDEX = 1;
+	static final int SYMBOL_ID_INDEX = 1;
+	static final int TYPE_INDEX = 2;
 	static final int DATA_INDEX = 3;
-	static final int SYMBOL_ID_INDEX = 2;
-
+	
     public SpxSymbolTableEntry(SpxSymbolKey paramK, SpxSymbol paramV) {
       this.key = paramK;
       this.value = paramV;

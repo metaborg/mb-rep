@@ -13,7 +13,9 @@ import org.spoofax.interpreter.terms.ITermFactory;
 
 
 /**
- * Implementation of a PackageNamesapce. 
+ * Implementation of a PackageNamesapce.  Every PackageDeclaration is associated with a PackageNamespace 
+ * which has 0 or more ModuleNamepsaces enclosed. 
+ * 
  * @author Md. Adil Akhter
  */
 public class PackageNamespace  extends BaseNamespace {
@@ -33,7 +35,11 @@ public class PackageNamespace  extends BaseNamespace {
 		if( enclosedNamespaceUris == null){
 			enclosedNamespaceUris = new HashSet<NamespaceUri>();
 			
+			//add internal ModuleDeclaration 
+			//enclosedNamespaceUris.add()	
+			
 			Iterable<ModuleDeclaration> mDecls = facade.getModuleDeclarations( this.namespaceUri().id());
+	
 			if(mDecls !=null){
 				for(ModuleDeclaration m : mDecls){
 					enclosedNamespaceUris.add(m.getNamespaceUri(facade));
@@ -92,12 +98,15 @@ public class PackageNamespace  extends BaseNamespace {
 		
 		retResult.addAll((Set<SpxSymbol>)super.resolveAll(key, this, facade));
 		
+		//searching in the enclosed namespace. For PackageNamespace, all the enclosed ModuleNamespace is searched. 
 		ensureEnclosedNamespaceUrisLoaded(facade);
 		retResult.addAll((Set<SpxSymbol>)resolveAllSymbolsInNamespaces(this.enclosedNamespaceUris, key, originNamespace, facade)) ;
 		
+		//searching in the imported namespaces. 
 		ensureImportedNamespaceUrisLoaded(facade);
 		retResult.addAll((Set<SpxSymbol>)resolveAllSymbolsInNamespaces(this.importedNamespaceUris, key, originNamespace, facade)) ;
 		
+		//returning the result 
 		return retResult;
 	}
 	
@@ -173,7 +182,7 @@ public class PackageNamespace  extends BaseNamespace {
 				// hence, ignoring it.
 				continue;
 			}
-			retSymbol.addAll((Set<SpxSymbol>)thisNamespace.resolveAll(key, searchOrigin, facade));
+			retSymbol.addAll((Set<SpxSymbol>)thisNamespace.resolveAll(key, this, facade));
 		}
 		
 		return retSymbol;

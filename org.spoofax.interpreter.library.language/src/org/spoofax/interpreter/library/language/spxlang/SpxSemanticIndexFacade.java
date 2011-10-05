@@ -264,8 +264,17 @@ public class SpxSemanticIndexFacade {
 	public void indexSymbol(IStrategoAppl symbolDefinition) throws SpxSymbolTableException, IOException{	
 		final int NAMESPACE_ID_INDEX  = 0;
 		verifyConstructor(symbolDefinition.getConstructor(), getSymbolTableEntryDefCon(), "Illegal SymbolDefinition argument");
-		IStrategoConstructor typeCtor = verifyKnownContructorExists((IStrategoAppl)symbolDefinition.getSubterm(SpxSymbolTableEntry.SYMBOL_ID_INDEX));
-
+		IStrategoConstructor typeCtor = null;
+		
+		try{
+			typeCtor = verifyKnownContructorExists((IStrategoAppl)symbolDefinition.getSubterm(SpxSymbolTableEntry.TYPE_INDEX));
+		}catch(IllegalArgumentException ex){
+			// It seems like the constructor does not exist in local type declarations. 
+			// Hence, defining it to be used further.
+			IStrategoConstructor ctor = ((IStrategoAppl)symbolDefinition.getSubterm(SpxSymbolTableEntry.SYMBOL_ID_INDEX)).getConstructor();
+			ConstructorDef.newInstance(ctor.getName() , ctor.getArity()).index(_knownCons, ctor);
+		}
+		
 		// Constructing Spx Symbol-Table Entry from the provided symbolDefinition argument.  
 		// Note: TermAttachment or Annotation are stripped from the ID Term since, in symbol-table, term attachments 
 		// is not require and will make the equals operation a bit complicated. 
@@ -289,14 +298,12 @@ public class SpxSemanticIndexFacade {
 	public Iterable<IStrategoTerm> resolveSymbols(IStrategoTuple symbolLookupTerm) throws SpxSymbolTableException{
 		if (symbolLookupTerm.getSubtermCount() != 3)
 			throw new IllegalArgumentException(" Illegal symbolLookupTerm Argument ; expected 3 subterms. Found : " + symbolLookupTerm.getSubtermCount());
-		
 		IStrategoConstructor typeCtor = verifyKnownContructorExists((IStrategoAppl)symbolLookupTerm.getSubterm(2));
 		return resolveSymbols( 
 				(IStrategoAppl)symbolLookupTerm.get(0),
 				symbolLookupTerm.get(1),
 				typeCtor
 		); 
-			 
 	}
 
 	/**
@@ -342,8 +349,6 @@ public class SpxSemanticIndexFacade {
 	 */
 	private IStrategoList getNamespaceId(IStrategoAppl namespaceTypedQname) throws SpxSymbolTableException {
 		IStrategoList namespaceId;
-		
-		
 		if (namespaceTypedQname.getConstructor() == getModuleQNameCon() || namespaceTypedQname.getConstructor() == getPackageQNameCon()) {
 			namespaceId = IdentifiableConstruct.getID(this, (IStrategoAppl) namespaceTypedQname.getSubterm(0));
 		} else if (namespaceTypedQname.getConstructor() == getGlobalNamespaceTypeCon()) {
@@ -910,9 +915,14 @@ public class SpxSemanticIndexFacade {
 		
 		void index(HashMap<ConstructorDef , IStrategoConstructor> cons , ITermFactory fac)
 		{
-			cons.put(this, this.toStrategoConstructor(fac)) ;
+			
+			this.index(cons, this.toStrategoConstructor(fac));
 		}
-
+		
+		void index(HashMap<ConstructorDef , IStrategoConstructor> cons , IStrategoConstructor ctor)
+		{
+			cons.put(this, ctor) ;
+		}
 	
 		@Override
 		public String toString() {

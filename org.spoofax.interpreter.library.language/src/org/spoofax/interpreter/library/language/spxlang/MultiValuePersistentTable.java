@@ -27,8 +27,8 @@ class MultiValuePersistentTable implements Serializable{
 
 	private static final long serialVersionUID = -473055635199728599L;
 	private final HashMap<SpxSymbolKey, List<SpxSymbol>> symbols;
-	
-	public MultiValuePersistentTable(String name){
+
+	public MultiValuePersistentTable(){
 		symbols = new HashMap<SpxSymbolKey , List<SpxSymbol>>();
 	}
 	
@@ -60,5 +60,11 @@ class MultiValuePersistentTable implements Serializable{
 		}
 	}
 	
-	public List<SpxSymbol> get(IStrategoTerm id){ return symbols.get(id); }
+	public List<SpxSymbol> resolve(IStrategoTerm id){
+		
+		SpxSymbolKey key = new SpxSymbolKey(id);
+		List<SpxSymbol> resolvedSymbols = symbols.get(key);
+		
+		return (resolvedSymbols == null) ? new ArrayList<SpxSymbol>() : resolvedSymbols ; 
+	}
 }

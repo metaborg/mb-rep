@@ -92,8 +92,7 @@ public class ModuleDeclaration extends IdentifiableConstruct implements INamespa
 		return true;
 	}
 	
-	public static IStrategoList getModuleId(SpxSemanticIndexFacade facade, IStrategoAppl moduleQName )
-	{
+	public static IStrategoList getModuleId(SpxSemanticIndexFacade facade, IStrategoAppl moduleQName ){
 		IStrategoConstructor moduleCon  = facade.getModuleQNameCon();
 		
 		if(moduleCon   == moduleQName.getConstructor())

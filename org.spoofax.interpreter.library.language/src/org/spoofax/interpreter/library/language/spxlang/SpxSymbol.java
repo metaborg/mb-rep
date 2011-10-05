@@ -14,17 +14,26 @@ import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.attachments.TermAttachmentSerializer;
 
-
-
 class BaseSymbol implements Serializable{
 
 	private static final long serialVersionUID = 3160588874266553126L;
 	
-	protected IStrategoTerm _id;
+	protected transient IStrategoTerm _id;
+	//protected  IStrategoTerm _id;
+	protected String _idString;
 	
-	public BaseSymbol(IStrategoTerm id){_id = id ; }
+	public BaseSymbol(IStrategoTerm id){
+		_id = id ;
+		_idString = id.toString(Integer.MAX_VALUE);
 	
-	IStrategoTerm Id(){return _id;}
+	}
+	
+	IStrategoTerm Id(ITermFactory _fac ){
+		if (_id == null){
+			_id = _fac.parseFromString(_idString);
+		}
+		return _id;
+	}
 	
 	void setId(IStrategoTerm id){_id = id;}
 	
@@ -67,13 +76,7 @@ class BaseSymbol implements Serializable{
 		return retValue;
 	}
 
-	/**
-	 * @param retValue
-	 * @param currentTerms
-	 * @param otherTerms
-	 * @return
-	 */
-	private static boolean verifyEquals( IStrategoTerm[] currentTerms, IStrategoTerm[] otherTerms) {
+	protected static boolean verifyEquals( IStrategoTerm[] currentTerms, IStrategoTerm[] otherTerms) {
 		boolean retValue = false;
 		
 		if( currentTerms.length == otherTerms.length){
@@ -87,6 +90,45 @@ class BaseSymbol implements Serializable{
 		}
 		return retValue;
 	}		
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((_idString == null) ? 0 : _idString.hashCode());
+		//result = prime * result + ((_idString == null) ? 0 : _id.hashCode());
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		BaseSymbol other = (BaseSymbol) obj;
+//		if (_id == null) {
+//			if (other._id != null)
+//				return false;
+//		}else if(!verifyEquals(this._id, other._id)){ 
+//			return false;
+//		}
+		if (_idString == null) {
+			if (other._idString != null)
+				return false;
+		}else if( !this._idString.equals(other._idString ) ){
+			return false;
+		}
+		return true;
+	}
 }
 
 public class SpxSymbol extends BaseSymbol implements Serializable{
@@ -160,7 +202,7 @@ public class SpxSymbol extends BaseSymbol implements Serializable{
 		IStrategoAppl nsQNameAppl = termFactory.makeAppl(qnameCons, namespaceUri().id());
 		
 		//ID/Key 
-		IStrategoTerm id = this.Id(); //TODO : It might require term conversion.
+		IStrategoTerm id = this.Id(termFactory); //TODO : It might require term conversion.
 
 		return (IStrategoTerm)termFactory.makeAppl( facade.getSymbolTableEntryDefCon(),
 				nsQNameAppl,  //ns qname 
@@ -234,40 +276,9 @@ class SpxSymbolKey extends BaseSymbol implements Serializable{
 	private static final long serialVersionUID = 7804281029276443583L;
 	
 	public SpxSymbolKey(IStrategoTerm id){ super(id); }
-	
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((_id == null) ? 0 : _id.hashCode());
-		return result;
-	}
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		
-		SpxSymbolKey other = (SpxSymbolKey) obj;
-		if (_id == null) {
-			if (other._id != null)
-				return false;
-		}else if(!verifyEquals(this._id, other._id)){ 
-			return false;
-		}
-		
-		return true;
-	}
 
 	@Override
 	public String toString() {
-		return "SpxIndexKey [_id=" + _id +"]";
+		return "SpxIndexKey {_id=" + _id +"}";
 	}
 }

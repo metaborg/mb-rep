@@ -15,6 +15,7 @@ import org.spoofax.interpreter.library.language.spxlang.SpxPrimarySymbolTable;
 import org.spoofax.interpreter.library.language.spxlang.SpxSemanticIndexFacade;
 import org.spoofax.interpreter.library.language.spxlang.SpxSymbolTableException;
 import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -91,20 +92,10 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		moduleDeclarationP1M2 = indexTestModuleDefs ( "p1m2" , packageName1 , absPathString1);
 		moduleDeclarationP2M1 = indexTestModuleDefs ( "p2m1" , packageName2 , absPathString2);
 	}
-	/**
-	 * @return
-	 */
-	private int noOfGlobalNamespaceInSymbolTable() {
-		int noOfGlobalNamespace = 0 ;
-		
-		Iterable<NamespaceUri> uris = symbol_table.getAllNamespaces();
-		for( NamespaceUri uri : uris){
-			if ( uri.equalSpoofaxId(GlobalNamespace.getGlobalNamespaceId(_facade)))
-				noOfGlobalNamespace = noOfGlobalNamespace  +1 ;
-		}
-		return noOfGlobalNamespace;
-	}
 
+	/**
+	 * Validates that Global Namespace is defined only once 
+	 */
 	public void testOnlyOneGlobalNamespaceExists() {
 		
 		assertEquals(1, noOfGlobalNamespaceInSymbolTable());
@@ -119,6 +110,12 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 	}
 	
 	
+	/**
+	 * Tests resolving Namespace from Symbol-Table 
+	 * 
+	 * @throws IOException
+	 * @throws SpxSymbolTableException
+	 */
 	public void testResolveNamespace() throws IOException, SpxSymbolTableException
 	{
 		setupScopeTree();
@@ -157,8 +154,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 
 	}
 	
-	public void testNoOfNamespaceDefined() throws IOException, SpxSymbolTableException 
-	{
+	public void testNoOfNamespaceDefined() throws IOException, SpxSymbolTableException {
 		setupScopeTree();
 		
 		// Expected #namespace = 1 global namespace + 2 namespaces for Package p1 
@@ -166,6 +162,40 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		assertEquals( 1 + 2 + 2 + 2 + 1 ,symbol_table.size());
 	}
 	
+	public void testDefiningGlobalSymbol() throws IOException, SpxSymbolTableException {
+		
+		setupScopeTree();
+
+		// defining a composite key 
+		IStrategoAppl namespaceAppl = termFactory().makeAppl(_facade.getGlobalNamespaceTypeCon());
+		// defining following composite ID :  (Global() , "TestId")
+		IStrategoTerm symbolId = termFactory().makeTuple( namespaceAppl , termFactory().makeString("TestId")); 
+		// defining Data 
+		IStrategoTerm data = (IStrategoAppl)moduleDeclarationP1M1.toTerm(_facade);
+		// setting Type to Global() 
+		IStrategoAppl typeAppl = namespaceAppl ; 
+		
+		// Defining Symbol-Table entry 
+		IStrategoAppl symbolDef = createEntry(namespaceAppl , symbolId , typeAppl  , data);
+		
+		// Indexing Symbol
+		_facade.indexSymbol(symbolDef);
+		
+		// Resolving Symbol 
+		_facade.resolveSymbols( 
+				termFactory().makeTuple( 
+					ModuleDeclaration.toModuleIdTerm(_facade, moduleDeclarationP1M1),
+					symbolId,
+					typeAppl 
+				));
+	}
+	
+	private IStrategoAppl createEntry(IStrategoAppl namespaceAppl , IStrategoTerm id , IStrategoAppl typeAppl, IStrategoTerm data){
+		
+		IStrategoConstructor ctor = _facade.getSymbolTableEntryDefCon();
+		IStrategoAppl symbolEntryAppl = (IStrategoAppl)termFactory().makeAppl(ctor, namespaceAppl , id , typeAppl,data);
+		return symbolEntryAppl;
+	}
 	
 	static IStrategoTerm getCompilationUnit( ITermFactory f)
 	{
@@ -186,6 +216,8 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		
 		return f.parseFromString(text);
 	}
+	
+	private IStrategoTerm getId(String idString) { return termFactory().parseFromString(idString);}
 	
 	private ModuleDeclaration indexTestModuleDefs( String moduleName , String packageQName , String filePath) throws SpxSymbolTableException
 	{
@@ -208,5 +240,16 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		
 		
 		return _facade.lookupPackageDecl(pQnameAppl);
+	}
+	
+	private int noOfGlobalNamespaceInSymbolTable() {
+		int noOfGlobalNamespace = 0 ;
+		
+		Iterable<NamespaceUri> uris = symbol_table.getAllNamespaces();
+		for( NamespaceUri uri : uris){
+			if ( uri.equalSpoofaxId(GlobalNamespace.getGlobalNamespaceId(_facade)))
+				noOfGlobalNamespace = noOfGlobalNamespace  +1 ;
+		}
+		return noOfGlobalNamespace;
 	}
 }
