@@ -180,15 +180,23 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		
 		// Indexing Symbol
 		_facade.indexSymbol(symbolDef);
+	
 		
 		// Resolving Symbol 
-		_facade.resolveSymbols( 
+		Iterable<IStrategoTerm> resolvedSymbols = 
+			_facade.resolveSymbols( 
 				termFactory().makeTuple( 
 					ModuleDeclaration.toModuleIdTerm(_facade, moduleDeclarationP1M1),
 					symbolId,
 					typeAppl 
 				));
+		
+		int actualCount = 0 ;
+		for( IStrategoTerm t : resolvedSymbols ) { actualCount += 1; }
+		assertEquals( 1 , actualCount);
 	}
+	
+	
 	
 	private IStrategoAppl createEntry(IStrategoAppl namespaceAppl , IStrategoTerm id , IStrategoAppl typeAppl, IStrategoTerm data){
 		

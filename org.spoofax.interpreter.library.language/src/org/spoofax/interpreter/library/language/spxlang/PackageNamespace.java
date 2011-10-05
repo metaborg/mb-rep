@@ -26,26 +26,58 @@ public class PackageNamespace  extends BaseNamespace {
 	// Not serializing it to disk since we already have this information in SpxSemanticIndex
 	private transient Set<NamespaceUri> importedNamespaceUris;
 	private transient Set<NamespaceUri> enclosedNamespaceUris;
+	private transient PackageDeclaration assiciatedPackageDeclaration;
 	
+	/**
+	 * @param currentNamespace
+	 * @param type
+	 * @param enclosingNamespace
+	 * @param manager
+	 */
 	private PackageNamespace(NamespaceUri currentNamespace, IStrategoConstructor type, NamespaceUri enclosingNamespace, ISpxPersistenceManager manager) {
 		super(currentNamespace, type, manager, enclosingNamespace);
 	}
 	
+	/**
+	 * 
+	 * @param facade
+	 * @throws SpxSymbolTableException
+	 */
 	private void ensureEnclosedNamespaceUrisLoaded(SpxSemanticIndexFacade facade) throws SpxSymbolTableException{
 		if( enclosedNamespaceUris == null){
 			enclosedNamespaceUris = new HashSet<NamespaceUri>();
 			
-			//add internal ModuleDeclaration 
-			//enclosedNamespaceUris.add()	
+			//add internal Module's namespace uri  
+			packageInternalNamespace(this.namespaceUri() , facade);
 			
 			Iterable<ModuleDeclaration> mDecls = facade.getModuleDeclarations( this.namespaceUri().id());
-	
 			if(mDecls !=null){
 				for(ModuleDeclaration m : mDecls){
 					enclosedNamespaceUris.add(m.getNamespaceUri(facade));
 				}	
 			}
 		}
+	}
+	
+
+	/**
+	 * Restricts transitive imports. If {@code searchOrigin}  {@link INamespace} imports 
+	 * current {@link INamespace}, then in order to avoid transitive lookup , resolving in 
+	 * the imported {@link INamespace}s is avoided.     
+	 * 
+	 * @param facade
+	 * @param searchOrigin
+	 * @return
+	 * @throws SpxSymbolTableException
+	 */
+	boolean isTransitiveImportLookup(SpxSemanticIndexFacade facade , INamespace searchOrigin) throws SpxSymbolTableException{
+		
+		if(assiciatedPackageDeclaration == null)
+			assiciatedPackageDeclaration = facade.lookupPackageDecl(this.namespaceUri().id());
+		
+		Set<IStrategoList> importedToPackages = assiciatedPackageDeclaration.getImortedToPackageReferences();
+		
+		return importedToPackages.contains(searchOrigin);
 	}
 	
 	private void ensureImportedNamespaceUrisLoaded(SpxSemanticIndexFacade facade) throws SpxSymbolTableException{
@@ -56,8 +88,10 @@ public class PackageNamespace  extends BaseNamespace {
 			SpxPrimarySymbolTable symTable =  facade.persistenceManager().spxSymbolTable();
 			
 			//getting the package declaration and retrieving it imported references 
-			PackageDeclaration decl = facade.lookupPackageDecl(this.namespaceUri().id());
-			Iterable<IStrategoList> importedIds = decl.getImportReferneces();
+			if(assiciatedPackageDeclaration == null)
+				assiciatedPackageDeclaration = facade.lookupPackageDecl(this.namespaceUri().id());
+			
+			Iterable<IStrategoList> importedIds = assiciatedPackageDeclaration.getImportReferneces();
 			
 			for(IStrategoList l : importedIds){
 				importedNamespaceUris.add(symTable.toNamespaceUri(l));; 
@@ -83,10 +117,11 @@ public class PackageNamespace  extends BaseNamespace {
 			retSymbol = super.resolve(id, type, this, facade);
 
 			if (retSymbol == null) {
-				// try to resolve in the imported namespaces
-				ensureImportedNamespaceUrisLoaded(facade);
-				retSymbol = resolveSymbolinNamespaces(this.importedNamespaceUris, id, type, searchedBy, facade);
-
+				if ( !isTransitiveImportLookup(facade , searchedBy)) {
+					// try to resolve in the imported namespaces
+					ensureImportedNamespaceUrisLoaded(facade);
+					retSymbol = resolveSymbolinNamespaces(this.importedNamespaceUris, id, type, searchedBy, facade);
+				}
 			}
 		}
 		return retSymbol;
@@ -102,14 +137,15 @@ public class PackageNamespace  extends BaseNamespace {
 		ensureEnclosedNamespaceUrisLoaded(facade);
 		retResult.addAll((Set<SpxSymbol>)resolveAllSymbolsInNamespaces(this.enclosedNamespaceUris, key, originNamespace, facade)) ;
 		
-		//searching in the imported namespaces. 
-		ensureImportedNamespaceUrisLoaded(facade);
-		retResult.addAll((Set<SpxSymbol>)resolveAllSymbolsInNamespaces(this.importedNamespaceUris, key, originNamespace, facade)) ;
 		
+		if ( !isTransitiveImportLookup(facade , originNamespace)) {
+			//searching in the imported namespaces. 
+			ensureImportedNamespaceUrisLoaded(facade);
+			retResult.addAll((Set<SpxSymbol>)resolveAllSymbolsInNamespaces(this.importedNamespaceUris, key, originNamespace, facade)) ;
+		}
 		//returning the result 
 		return retResult;
 	}
-	
 	
 	/**
 	 * Creates an instance of PackageScope. Also creates internal symbol scopes
@@ -188,8 +224,8 @@ public class PackageNamespace  extends BaseNamespace {
 		return retSymbol;
 	}
 	
-	private boolean disallowLookupIn( INamespace namespace , INamespace originNamespace)
-	{
+	private boolean disallowLookupIn( INamespace namespace , INamespace originNamespace){
+		
 		boolean resolveInCurrentNamespaceIsNotAllowed = namespace.isInternalNamespace() && !shouldSearchInInternalNamespace(originNamespace) ;
 		boolean currentNamespaceIsSearchedOrigin = namespace.namespaceUri() == originNamespace.namespaceUri();  // disallowing repeatative resolve of the namespace from where search originated.
 		

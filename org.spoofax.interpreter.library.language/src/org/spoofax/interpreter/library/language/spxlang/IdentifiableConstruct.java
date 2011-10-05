@@ -56,9 +56,7 @@ public abstract class IdentifiableConstruct implements Serializable
 	 * @throws IllegalArgumentException
 	 * @throws NotImplementedException
 	 */
-	private void addManagedImport(SpxSemanticIndexFacade idxFacade,
-			IStrategoTerm i) throws SpxSymbolTableException,
-			NotImplementedException {
+	private void addManagedImport(SpxSemanticIndexFacade idxFacade,	IStrategoTerm i) throws SpxSymbolTableException {
 		IStrategoAppl packageRef = (IStrategoAppl)i;
 		if( packageRef.getConstructor() ==  idxFacade.getPackageQNameCon()){
 			IStrategoList id = PackageDeclaration.getPackageId(idxFacade, packageRef);
