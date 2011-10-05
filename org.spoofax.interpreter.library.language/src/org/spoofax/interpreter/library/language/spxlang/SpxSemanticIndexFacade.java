@@ -298,13 +298,33 @@ public class SpxSemanticIndexFacade {
 	public Iterable<IStrategoTerm> resolveSymbols(IStrategoTuple symbolLookupTerm) throws SpxSymbolTableException{
 		if (symbolLookupTerm.getSubtermCount() != 3)
 			throw new IllegalArgumentException(" Illegal symbolLookupTerm Argument ; expected 3 subterms. Found : " + symbolLookupTerm.getSubtermCount());
+		
 		IStrategoConstructor typeCtor = verifyKnownContructorExists((IStrategoAppl)symbolLookupTerm.getSubterm(2));
-		return resolveSymbols( 
-				(IStrategoAppl)symbolLookupTerm.get(0),
-				symbolLookupTerm.get(1),
-				typeCtor
-		); 
+		return SpxSymbol.toTerms( this,
+				resolveSymbols( 
+						(IStrategoAppl)symbolLookupTerm.get(0),
+						symbolLookupTerm.get(1),
+						typeCtor)
+				); 
 	}
+	
+	/**
+	 * @param namespaceToStartSearchWith
+	 * @param symbolId
+	 * @param symbolType
+	 * @return
+	 * @throws SpxSymbolTableException
+	 */
+	public Iterable<SpxSymbol> resolveSymbols(IStrategoAppl namespaceToStartSearchWith, IStrategoTerm symbolId, IStrategoConstructor  symbolType)
+			throws SpxSymbolTableException {
+		IStrategoList namespaceID = this.getNamespaceId(namespaceToStartSearchWith);
+
+		SpxPrimarySymbolTable  symbolTable = persistenceManager().spxSymbolTable();
+		
+		Iterable<SpxSymbol> resolvedSymbols = symbolTable.resolveSymbols(this, namespaceID, strip(symbolId), symbolType);
+		return resolvedSymbols;
+	}
+
 
 	/**
 	 * @param symbolLookupTerm
@@ -320,26 +340,6 @@ public class SpxSemanticIndexFacade {
 	}
 
 	
-	public Iterable<IStrategoTerm> resolveSymbols(IStrategoAppl namespaceToStartSearchWith , IStrategoTerm symbolId , IStrategoConstructor symbolType ) throws SpxSymbolTableException{	
-		return SpxSymbol.toTerms(this, lookupSpxSymbols(namespaceToStartSearchWith, symbolId, symbolType));
-	}
-
-	/**
-	 * @param namespaceToStartSearchWith
-	 * @param symbolId
-	 * @param symbolType
-	 * @return
-	 * @throws SpxSymbolTableException
-	 */
-	private Iterable<SpxSymbol> lookupSpxSymbols(IStrategoAppl namespaceToStartSearchWith, IStrategoTerm symbolId, IStrategoConstructor  symbolType)
-			throws SpxSymbolTableException {
-		IStrategoList namespaceID = this.getNamespaceId(namespaceToStartSearchWith);
-
-		SpxPrimarySymbolTable  symbolTable = persistenceManager().spxSymbolTable();
-		
-		Iterable<SpxSymbol> resolvedSymbols = symbolTable.resolveSymbols(this, namespaceID, strip(symbolId), symbolType);
-		return resolvedSymbols;
-	}
 	
 	
 	/**

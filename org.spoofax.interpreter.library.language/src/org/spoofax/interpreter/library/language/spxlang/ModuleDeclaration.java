@@ -101,7 +101,7 @@ public class ModuleDeclaration extends IdentifiableConstruct implements INamespa
 		throw new IllegalArgumentException("Invalid module qname : "+ moduleQName.toString());
 	}
 	
-	public static IStrategoAppl toModuleIdTerm(SpxSemanticIndexFacade facade , ModuleDeclaration decl)
+	public static IStrategoAppl toModuleQNameAppl(SpxSemanticIndexFacade facade , ModuleDeclaration decl)
 	{
 		return toIdTerm(facade, facade.getModuleQNameCon() , decl.getId());
 	}
@@ -119,7 +119,7 @@ public class ModuleDeclaration extends IdentifiableConstruct implements INamespa
 
 		IStrategoConstructor moduleDeclCons = idxFacade.getModuleDeclCon();
 		
-		IStrategoAppl moduleQNameAppl =toModuleIdTerm( idxFacade,  this);
+		IStrategoAppl moduleQNameAppl =toModuleQNameAppl( idxFacade,  this);
 		IStrategoString resAbsPathTerm = termFactory.makeString(resourceAbsPath) ;
 		IStrategoAppl packageQNameAppl = PackageDeclaration.toPackageIdTerm(idxFacade, this.enclosingPackageID);
 		

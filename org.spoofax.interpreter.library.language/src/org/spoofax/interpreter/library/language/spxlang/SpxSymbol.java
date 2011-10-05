@@ -28,7 +28,7 @@ class BaseSymbol implements Serializable{
 	
 	}
 	
-	IStrategoTerm Id(ITermFactory _fac ){
+	public IStrategoTerm Id(ITermFactory _fac ){
 		if (_id == null){
 			_id = _fac.parseFromString(_idString);
 		}
@@ -37,14 +37,14 @@ class BaseSymbol implements Serializable{
 	
 	void setId(IStrategoTerm id){_id = id;}
 	
-	protected static boolean verifyEquals(IStrategoConstructor ctor1 , IStrategoConstructor ctor2){
+	public static boolean verifyEquals(IStrategoConstructor ctor1 , IStrategoConstructor ctor2){
 		if( (ctor1.getArity() == ctor2.getArity()) && (ctor1.getName().equals(ctor2.getName()))){
 			return true;
 		}
 		return false;
 	}
 	
-	protected static boolean verifyEquals(IStrategoTerm current, IStrategoTerm other){
+	public static boolean verifyEquals(IStrategoTerm current, IStrategoTerm other){
 		boolean retValue = false;
 		if ( current instanceof IStrategoAppl){
 			if(other instanceof IStrategoAppl) {
@@ -76,7 +76,7 @@ class BaseSymbol implements Serializable{
 		return retValue;
 	}
 
-	protected static boolean verifyEquals( IStrategoTerm[] currentTerms, IStrategoTerm[] otherTerms) {
+	public static boolean verifyEquals( IStrategoTerm[] currentTerms, IStrategoTerm[] otherTerms) {
 		boolean retValue = false;
 		
 		if( currentTerms.length == otherTerms.length){
