@@ -102,21 +102,28 @@ public class SpxPrimarySymbolTable implements INamespaceResolver{
 	
 	public Set<NamespaceUri> getAllNamespaces() { return namespaces.keySet() ; }
 
-	public void defineSymbol(SpxSemanticIndexFacade facade, IStrategoList namespaceId ,  SpxSymbolTableEntry symTableEntry) {
+	public void defineSymbol(SpxSemanticIndexFacade facade, IStrategoList namespaceId ,  SpxSymbolTableEntry symTableEntry) throws SpxSymbolTableException {
 		
 		ensureActiveNamespaceLoaded(namespaceId);
 	
 		_activeNamespace.define(symTableEntry, facade.persistenceManager()); 
 	}
 	
-	private void ensureActiveNamespaceLoaded(IStrategoList namespaceId){
-		if(_activeNamespace== null ||!_activeNamespace.namespaceUri().equalSpoofaxId(namespaceId))
+	private void ensureActiveNamespaceLoaded(IStrategoList namespaceId) throws SpxSymbolTableException{
+		if(_activeNamespace== null ||!_activeNamespace.namespaceUri().equalSpoofaxId(namespaceId)){
 			//Keeping a transient reference to the current/active Namespace
 			//More likely that there are other symbols to be defined in the
 			//current and active namespace. In that case, it will imporve 
 			//performance as namespace resolving avoided by means of extra 
 			//caching
 			_activeNamespace = this.resolveNamespace(namespaceId);
+			if(_activeNamespace ==null){
+				throw new SpxSymbolTableException("Unknown namespaceId: "+ namespaceId+". Namespace can not be resolved from symbol-table") ;
+			}
+				
+		}
+		
+		
 	}
 	
 

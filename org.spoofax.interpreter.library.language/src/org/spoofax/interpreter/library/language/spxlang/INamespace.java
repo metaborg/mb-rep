@@ -11,9 +11,9 @@ import org.spoofax.interpreter.terms.ITermFactory;
 
 public interface INamespace extends Serializable {
     
-	INamespace getEnclosingNamespace(INamespaceResolver resolver);
+	INamespace getEnclosingNamespace(INamespaceResolver resolver) throws SpxSymbolTableException;
 
-	INamespace getCurrentNamespace(INamespaceResolver resolver);
+	INamespace getCurrentNamespace(INamespaceResolver resolver) throws SpxSymbolTableException;
 	
 	void define(SpxSymbolTableEntry entry, ILogger logger) ;
     

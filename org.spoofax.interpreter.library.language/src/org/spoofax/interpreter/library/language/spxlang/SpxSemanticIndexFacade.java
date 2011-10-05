@@ -271,8 +271,8 @@ public class SpxSemanticIndexFacade {
 		}catch(IllegalArgumentException ex){
 			// It seems like the constructor does not exist in local type declarations. 
 			// Hence, defining it to be used further.
-			IStrategoConstructor ctor = ((IStrategoAppl)symbolDefinition.getSubterm(SpxSymbolTableEntry.SYMBOL_ID_INDEX)).getConstructor();
-			ConstructorDef.newInstance(ctor.getName() , ctor.getArity()).index(_knownCons, ctor);
+			IStrategoConstructor ctor = ((IStrategoAppl)symbolDefinition.getSubterm(SpxSymbolTableEntry.TYPE_INDEX)).getConstructor();
+			typeCtor = ConstructorDef.newInstance(ctor.getName() , ctor.getArity()).index(_knownCons, ctor);
 		}
 		
 		// Constructing Spx Symbol-Table Entry from the provided symbolDefinition argument.  
@@ -913,15 +913,16 @@ public class SpxSemanticIndexFacade {
 		
 		private IStrategoConstructor toStrategoConstructor(ITermFactory fac) {  return fac.makeConstructor(_name, _arity);}
 		
-		void index(HashMap<ConstructorDef , IStrategoConstructor> cons , ITermFactory fac)
+		IStrategoConstructor index(HashMap<ConstructorDef , IStrategoConstructor> cons , ITermFactory fac)
 		{
 			
-			this.index(cons, this.toStrategoConstructor(fac));
+			return this.index(cons, this.toStrategoConstructor(fac));
 		}
 		
-		void index(HashMap<ConstructorDef , IStrategoConstructor> cons , IStrategoConstructor ctor)
+		IStrategoConstructor index(HashMap<ConstructorDef , IStrategoConstructor> cons , IStrategoConstructor ctor)
 		{
 			cons.put(this, ctor) ;
+			return ctor;
 		}
 	
 		@Override

@@ -162,6 +162,24 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		assertEquals( 1 + 2 + 2 + 2 + 1 ,symbol_table.size());
 	}
 	
+	public void testUnknownNamespaceShouldThrowSpxSymbolTableException() throws IOException{
+			
+		// defining following composite ID :  (Global() , "TestId")
+		IStrategoAppl namespaceAppl = termFactory().makeAppl(_facade.getGlobalNamespaceTypeCon());
+		IStrategoTerm symbolId = termFactory().makeTuple( namespaceAppl , termFactory().makeString("TestId")); 
+		IStrategoAppl typeAppl = namespaceAppl ; 
+		IStrategoAppl pQnameUnknown = (IStrategoAppl)termFactory().parseFromString("Package(QName(["+"\"lang\", \"unknown\"" +"]))");
+		try{
+			setupScopeTree();
+			_facade.resolveSymbols( 
+					termFactory().makeTuple( 
+						pQnameUnknown,
+						symbolId,
+						typeAppl 
+					));
+			
+		}catch(SpxSymbolTableException ex) {}
+	}
 	public void testDefiningGlobalSymbol() throws IOException, SpxSymbolTableException {
 		
 		setupScopeTree();
@@ -196,7 +214,48 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		assertEquals( 1 , actualCount);
 	}
 	
+	public void testDefiningGlobalSymbols() throws IOException, SpxSymbolTableException {
+		setupScopeTree();
 	
+		IStrategoAppl namespaceAppl = termFactory().makeAppl(_facade.getGlobalNamespaceTypeCon());
+		
+		IStrategoTerm symbolId1 = termFactory().makeTuple( namespaceAppl , termFactory().makeString("1")); // defining following composite ID :  (Global() , "TestId") 
+	 	IStrategoTerm data1 = (IStrategoAppl)moduleDeclarationP1M1.toTerm(_facade);	// defining Data
+		IStrategoAppl typeAppl1 = termFactory().makeAppl(termFactory().makeConstructor("SDFDef", 0)); // setting Type  
+		
+		IStrategoTerm symbolId2 = symbolId1 ; 
+	 	IStrategoTerm data2 = (IStrategoAppl)moduleDeclarationP1M1.toTerm(_facade);	// defining Data
+		IStrategoAppl typeAppl2 = termFactory().makeAppl(termFactory().makeConstructor("STRDef", 0)); // setting Type  
+		
+		IStrategoTerm symbolId3 = symbolId1 ; 
+	 	IStrategoTerm data3 = (IStrategoAppl)moduleDeclarationP1M1.toTerm(_facade);	// defining Data
+		IStrategoAppl typeAppl3 = typeAppl1;  
+		
+		
+		// Defining Symbol-Table entries  
+		IStrategoAppl symbolDef1 = createEntry(namespaceAppl , symbolId1 , typeAppl1  , data1);
+		IStrategoAppl symbolDef2 = createEntry(namespaceAppl , symbolId2 , typeAppl2  , data2);
+		IStrategoAppl symbolDef3 = createEntry(namespaceAppl , symbolId3 , typeAppl3  , data3);
+		
+		_facade.indexSymbol(symbolDef1);
+		_facade.indexSymbol(symbolDef2);
+		_facade.indexSymbol(symbolDef3);
+		
+		// Resolving Symbol 
+		Iterable<IStrategoTerm> resolvedSymbols =  _facade.resolveSymbols( 
+				termFactory().makeTuple( 
+				ModuleDeclaration.toModuleIdTerm(_facade, moduleDeclarationP1M1),
+				symbolId1,
+				typeAppl3 
+			));
+		
+		int actualCount = 0 ;
+		for(IStrategoTerm t : resolvedSymbols) { 
+			actualCount += 1; 
+		}
+		
+		assertEquals( 2 , actualCount);
+	}
 	
 	private IStrategoAppl createEntry(IStrategoAppl namespaceAppl , IStrategoTerm id , IStrategoAppl typeAppl, IStrategoTerm data){
 		

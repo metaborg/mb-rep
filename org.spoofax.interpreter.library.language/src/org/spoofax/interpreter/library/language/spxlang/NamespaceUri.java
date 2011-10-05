@@ -23,8 +23,13 @@ public final class NamespaceUri implements Serializable
 	
 	public String uniqueID(){ return _uId.toString();};
 	
-	public INamespace resolve(INamespaceResolver sTable) {
-		return sTable.resolveNamespace((NamespaceUri)this);
+	public INamespace resolve(INamespaceResolver sTable) throws SpxSymbolTableException {
+		INamespace retNamespace = sTable.resolveNamespace((NamespaceUri)this);
+		
+		if(retNamespace == null) {
+			throw new SpxSymbolTableException("Unknown Namespace Uri. Namespace can not be resolved from symbol-table") ;
+		}
+		return retNamespace;
 	}
 	
 	public boolean equalSpoofaxId(IStrategoList spoofaxUri){

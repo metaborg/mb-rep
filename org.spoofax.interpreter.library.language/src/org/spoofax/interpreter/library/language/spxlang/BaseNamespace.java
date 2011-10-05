@@ -59,9 +59,9 @@ public abstract class BaseNamespace implements INamespace {
 	/* 
 	 * Returns the enclosing scope of the current scope.
 	 * */
-	public INamespace getEnclosingNamespace(INamespaceResolver rs) { return (_enclosingNamespaceId != null) ? _enclosingNamespaceId.resolve(rs) : null; }
+	public INamespace getEnclosingNamespace(INamespaceResolver rs) throws SpxSymbolTableException { return (_enclosingNamespaceId != null) ? _enclosingNamespaceId.resolve(rs) : null; }
 	
-	public INamespace getCurrentNamespace(INamespaceResolver rs){ return _enclosingNamespaceId.resolve(rs); }
+	public INamespace getCurrentNamespace(INamespaceResolver rs) throws SpxSymbolTableException{ return _currentNamespaceId.resolve(rs); }
 	
 	public SpxSymbol resolve(IStrategoTerm id, IStrategoTerm type, INamespace searchedBy, SpxSemanticIndexFacade  facade) throws SpxSymbolTableException{
 		
