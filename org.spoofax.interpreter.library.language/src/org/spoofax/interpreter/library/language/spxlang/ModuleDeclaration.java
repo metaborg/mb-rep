@@ -105,6 +105,11 @@ public class ModuleDeclaration extends IdentifiableConstruct implements INamespa
 	{
 		return toIdTerm(facade, facade.getModuleQNameCon() , decl.getId());
 	}
+	
+	public static IStrategoAppl toModuleQNameAppl(SpxSemanticIndexFacade facade , IStrategoList id)
+	{
+		return toIdTerm(facade, facade.getModuleQNameCon() , id);
+	}
 
 	/* Transforms {@link ModuleDeclaration} to following term : 
 	 * 		ModuleDecl :  Module * String * Package -> Def
@@ -121,7 +126,7 @@ public class ModuleDeclaration extends IdentifiableConstruct implements INamespa
 		
 		IStrategoAppl moduleQNameAppl =toModuleQNameAppl( idxFacade,  this);
 		IStrategoString resAbsPathTerm = termFactory.makeString(resourceAbsPath) ;
-		IStrategoAppl packageQNameAppl = PackageDeclaration.toPackageIdTerm(idxFacade, this.enclosingPackageID);
+		IStrategoAppl packageQNameAppl = PackageDeclaration.toPackageQNameAppl(idxFacade, this.enclosingPackageID);
 		
 		IStrategoTerm retTerm = termFactory.makeAppl(moduleDeclCons,moduleQNameAppl,resAbsPathTerm,packageQNameAppl);
 		

@@ -182,6 +182,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 			
 		}catch(SpxSymbolTableException ex) { }
 	}
+	
 	public void testDefiningGlobalSymbol() throws IOException, SpxSymbolTableException {
 		
 		setupScopeTree();
@@ -318,6 +319,57 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 				);
 		
 		assertEquals(0, resolvedSymbols.size());
+	}
+	
+	public void testShouldNotResolveModuleInternalSymbolsFromPackage() throws IOException, SpxSymbolTableException{
+		setupScopeTree();
+		
+		IStrategoAppl internalModuleAppl = ModuleDeclaration.toModuleQNameAppl( _facade, 
+				PackageNamespace.packageInternalModuleId(
+						this.packageDeclaration2.getId(), 
+						_facade)
+				);
+		IStrategoTerm symbolId1 = termFactory().makeTuple(internalModuleAppl , termFactory().makeString("1")); // defining following composite ID :  (Global() , "1") 
+	 	IStrategoTerm data1 = (IStrategoAppl)moduleDeclarationP1M1.toTerm(_facade);	// defining Data
+		IStrategoAppl typeAppl1 = termFactory().makeAppl(termFactory().makeConstructor("SDFDef", 0)); // setting Type  
+		
+		_facade.indexSymbol(createEntry(internalModuleAppl , symbolId1 , typeAppl1  , data1));
+		
+		List<SpxSymbol> resolvedSymbols = (List<SpxSymbol>)_facade.resolveSymbols(
+				PackageDeclaration.toPackageQNameAppl(_facade, this.packageDeclaration2.getId()),
+				symbolId1,
+				_facade.getConstructor("SDFDef", 0) 
+				);
+		
+		assertEquals(0, resolvedSymbols.size());
+	}
+	
+	public void testShouldResolveModuleInternalSymbolsFromModule() throws IOException, SpxSymbolTableException{
+		setupScopeTree();
+		
+		IStrategoAppl internalModuleAppl = ModuleDeclaration.toModuleQNameAppl( _facade, 
+				PackageNamespace.packageInternalModuleId(
+						this.packageDeclaration2.getId(), 
+						_facade)
+				);
+		IStrategoTerm symbolId1 = termFactory().makeTuple(internalModuleAppl , termFactory().makeString("1")); // defining following composite ID :  (Global() , "1") 
+	 	IStrategoTerm data1 = (IStrategoAppl)moduleDeclarationP1M1.toTerm(_facade);	// defining Data
+		IStrategoAppl typeAppl1 = termFactory().makeAppl(termFactory().makeConstructor("SDFDef", 0)); // setting Type  
+		
+		_facade.indexSymbol(createEntry(internalModuleAppl , symbolId1 , typeAppl1  , data1));
+		
+		List<SpxSymbol> resolvedSymbols = (List<SpxSymbol>)_facade.resolveSymbols(
+				internalModuleAppl,
+				symbolId1,
+				_facade.getConstructor("SDFDef", 0) 
+				);
+		
+		assertEquals(1, resolvedSymbols.size());
+		
+		SpxSymbol actual = resolvedSymbols.get(0);
+		assertEquals("SDFDef", actual.type());
+		assertTrue(SpxSymbol.verifyEquals(symbolId1, actual.Id(_facade.getTermFactory())));
+		assertTrue( SpxSymbol.verifyEquals( internalModuleAppl.getSubterm(0).getSubterm(0) , actual.namespaceUri().id()) );
 	}
 	
 	private IStrategoAppl createEntry(IStrategoAppl namespaceAppl , IStrategoTerm id , IStrategoAppl typeAppl, IStrategoTerm data){

@@ -260,18 +260,24 @@ public class PackageNamespace  extends BaseNamespace {
 	public static NamespaceUri packageInternalNamespace(
 			NamespaceUri enclosingNamespaceId, SpxSemanticIndexFacade idxFacade) {
 		
-		ITermFactory termFactory =  idxFacade.getTermFactory();
 		SpxPrimarySymbolTable  table =  idxFacade.persistenceManager().spxSymbolTable() ;
+		
+		IStrategoList internalModuleID  = packageInternalModuleId(enclosingNamespaceId.id() , idxFacade);
+		NamespaceUri internalModuleUri  = table.toNamespaceUri(internalModuleID);
+		return internalModuleUri;
+	}
+	
+	public static IStrategoList packageInternalModuleId(IStrategoList id, SpxSemanticIndexFacade idxFacade) {
+		ITermFactory termFactory =  idxFacade.getTermFactory();
 		
 		List<IStrategoTerm> subTerms = new ArrayList<IStrategoTerm>();
 		
-		IStrategoList spoofaxNamespaceId = enclosingNamespaceId.id() ;
+		IStrategoList spoofaxNamespaceId = id;
 		
 		subTerms.addAll(Arrays.asList(spoofaxNamespaceId.getAllSubterms()));
 		subTerms.add(termFactory.makeString(INTERNAL_NAMESPACENAME));
 		
-		IStrategoList internalModuleID  = termFactory.makeList(subTerms);
-		NamespaceUri internalModuleUri  = table.toNamespaceUri(internalModuleID);
-		return internalModuleUri;
+		return termFactory.makeList(subTerms);
+		
 	}
 }

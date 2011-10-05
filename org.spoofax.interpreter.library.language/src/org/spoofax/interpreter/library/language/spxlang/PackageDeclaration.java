@@ -162,10 +162,12 @@ public class PackageDeclaration extends IdentifiableConstruct implements INamesp
 		return newDecl;
 	}
 
-	public static IStrategoAppl toPackageIdTerm (SpxSemanticIndexFacade facade, IStrategoList id){
+	public static IStrategoAppl toPackageQNameAppl (SpxSemanticIndexFacade facade, IStrategoList id){
 		return toIdTerm(facade ,  facade.getPackageQNameCon(), id);
 	}
 
+	
+	
 	/**
 	 * Converts to typed Package Qualified Name
 	 *  
@@ -174,7 +176,7 @@ public class PackageDeclaration extends IdentifiableConstruct implements INamesp
 	 * @return
 	 */
 	public static IStrategoAppl toPackageIdTerm (SpxSemanticIndexFacade facade, PackageDeclaration decl){
-		return toPackageIdTerm (facade, decl.getId());
+		return toPackageQNameAppl (facade, decl.getId());
 	}
 
 	/* (non-Javadoc)

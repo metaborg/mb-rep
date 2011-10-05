@@ -97,10 +97,12 @@ public abstract class BaseNamespace implements INamespace {
 		retResult.addAll(lookupResult);
 		
 		INamespace namespace = getEnclosingNamespace(facade.persistenceManager().spxSymbolTable());
-		
-		if( namespace  != null){
+		//checking whether resolved namespace is Null. In that case, all the scopes are covered.
+		//also checking that the resolved namespace is not equal to the current namespace 
+		//that we already have searched - to avoid any cycle in the hierarchy.
+		if( namespace  != null && !namespace.equals(this)){
 			//checks whether searching to the enclosing scope is allowed.
-			if( shouldSearchInEnclosingNamespace( searchedBy)){	
+			if( shouldSearchInEnclosingNamespace(searchedBy)){	
 				Set<SpxSymbol> parentResults  = (Set<SpxSymbol>)namespace.resolveAll(id, this ,facade);
 				retResult.addAll(parentResults);
 			}
