@@ -146,7 +146,11 @@ public class SpxSymbol extends BaseSymbol implements Serializable{
 		_type = type;
 	}
 	
-	public String type() {return _type; }
+	public String type() {
+		assert _type != null : "Non-Null _type is expected. ";
+		
+		return _type; 
+	}
 
 	public String getDataString () {return _data;}
 	
@@ -176,13 +180,23 @@ public class SpxSymbol extends BaseSymbol implements Serializable{
 	
 	void setNamespace(NamespaceUri id){ _namespace = id;}
 	
-	boolean equalType (IStrategoConstructor term) { return _type.equals(term.getName()); }
+	boolean equalType (IStrategoConstructor term) { 
+		return _type.equals(term.getName()); 
+	}
 	
+	/**
+	 * Return symbols that has type equals expectedType. In case of expectedType equals null,
+	 * it returns all the symbols.
+	 * 
+	 * @param expectedType
+	 * @param symbols
+	 * @return {@link List} of {@link SpxSymbol}
+	 */
 	static List<SpxSymbol> filterByType(IStrategoConstructor expectedType , Iterable<SpxSymbol> symbols){
 		List<SpxSymbol> retSymbols = new ArrayList<SpxSymbol>();
 		if( symbols != null){
 			for(SpxSymbol s : symbols){
-				if( s.equalType(expectedType) ){ retSymbols.add(s) ;}
+				if( (expectedType==null) ||  s.equalType(expectedType) ){ retSymbols.add(s) ;}
 			}
 		}
 		return retSymbols;

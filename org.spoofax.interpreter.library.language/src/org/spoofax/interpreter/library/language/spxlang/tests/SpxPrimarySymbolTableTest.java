@@ -110,8 +110,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		//Still expecting there will be just one Global Namespace for the project 
 		assertEquals(1, noOfGlobalNamespaceInSymbolTable());
 	}
-	
-	
+
 	/**
 	 * Tests resolving Namespace from Symbol-Table 
 	 * 
@@ -376,6 +375,8 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 	public void testShouldResolveModuleInternalSymbolsFromModule() throws IOException, SpxSymbolTableException{
 		setupScopeTree();
 		
+		
+		
 		IStrategoAppl internalModuleAppl = ModuleDeclaration.toModuleQNameAppl( _facade, 
 				PackageNamespace.packageInternalModuleId(
 						this.packageDeclaration2.getId(), 
@@ -400,6 +401,55 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		assertTrue(SpxSymbol.verifyEquals(symbolId1, actual.Id(_facade.getTermFactory())));
 		assertTrue( SpxSymbol.verifyEquals( internalModuleAppl.getSubterm(0).getSubterm(0) , actual.namespaceUri().id()) );
 	}
+	
+	public void testShouldNotResolveSymbolFromImportedNamespaceInCyclicReference() throws IOException, SpxSymbolTableException{
+		setupScopeTree();
+		
+		this.packageDeclaration1.addImportRefernces(_facade, termFactory().makeList(PackageDeclaration.toPackageQNameAppl(_facade,this.packageDeclaration1.getId())));
+		
+		IStrategoAppl packageQNameAppl = PackageDeclaration.toPackageQNameAppl(_facade,this.packageDeclaration2.getId());
+		
+		IStrategoTerm symbolId1 = packageQNameAppl; // defining following packageID
+	 	IStrategoTerm data1 = (IStrategoAppl)moduleDeclarationP1M1.toTerm(_facade);	// defining Data
+		IStrategoAppl typeAppl1 = termFactory().makeAppl(termFactory().makeConstructor("ModuleDef", 0)); // setting Type  
+		
+		_facade.indexSymbol(createEntry(packageQNameAppl , symbolId1 , typeAppl1  , data1));
+		
+		
+		
+		List<SpxSymbol> resolvedSymbols = (List<SpxSymbol>)_facade.resolveSymbols(
+				PackageDeclaration.toPackageQNameAppl(_facade,this.packageDeclaration1.getId()),
+				symbolId1,
+				_facade.getConstructor("SDFDef", 0) 
+				);
+		
+		assertEquals(0, resolvedSymbols.size());
+	}
+	
+	public void testShouldResolveSymbolFromImportedNamespace() throws IOException, SpxSymbolTableException{
+		setupScopeTree();
+		
+		this.packageDeclaration1.addImportRefernces(_facade, termFactory().makeList(PackageDeclaration.toPackageQNameAppl(_facade,this.packageDeclaration2.getId())));
+		
+		IStrategoAppl packageQNameAppl = PackageDeclaration.toPackageQNameAppl(_facade,this.packageDeclaration2.getId());
+		
+		IStrategoTerm symbolId1 = packageQNameAppl; // defining following packageID
+	 	IStrategoTerm data1 = (IStrategoAppl)moduleDeclarationP1M1.toTerm(_facade);	// defining Data
+		IStrategoAppl typeAppl1 = termFactory().makeAppl(termFactory().makeConstructor("ModuleDef", 0)); // setting Type  
+		
+		_facade.indexSymbol(createEntry(packageQNameAppl , symbolId1 , typeAppl1  , data1));
+		
+		
+		
+		List<SpxSymbol> resolvedSymbols = (List<SpxSymbol>)_facade.resolveSymbols(
+				PackageDeclaration.toPackageQNameAppl(_facade,this.packageDeclaration1.getId()),
+				symbolId1,
+				_facade.getConstructor("ModuleDef", 0) 
+				);
+		
+		assertEquals(1, resolvedSymbols.size());
+	}
+	
 	
 	private IStrategoAppl createEntry(IStrategoAppl namespaceAppl , IStrategoTerm id , IStrategoAppl typeAppl, IStrategoTerm data){
 		

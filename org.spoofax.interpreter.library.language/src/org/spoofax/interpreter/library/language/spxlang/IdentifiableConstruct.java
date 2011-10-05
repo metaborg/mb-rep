@@ -34,7 +34,6 @@ public abstract class IdentifiableConstruct implements Serializable
 	public abstract IStrategoTerm toTerm(SpxSemanticIndexFacade idxFacade);
 	
 	public void addImportRefernces (SpxSemanticIndexFacade idxFacade, IStrategoList  imports) throws NotImplementedException, SpxSymbolTableException {
-	
 		for (IStrategoTerm i: StrategoListIterator.iterable(imports)) {
 			if(i instanceof IStrategoAppl)
 				addManagedImport(idxFacade, i); 

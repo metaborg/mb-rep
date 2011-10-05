@@ -26,7 +26,6 @@ public class PackageNamespace  extends BaseNamespace {
 	// Not serializing it to disk since we already have this information in SpxSemanticIndex
 	private transient Set<NamespaceUri> importedNamespaceUris;
 	private transient Set<NamespaceUri> enclosedNamespaceUris;
-	private transient PackageDeclaration assiciatedPackageDeclaration;
 	
 	/**
 	 * @param currentNamespace
@@ -63,7 +62,7 @@ public class PackageNamespace  extends BaseNamespace {
 	/**
 	 * Restricts transitive imports. If {@code searchOrigin}  {@link INamespace} imports 
 	 * current {@link INamespace}, then in order to avoid transitive lookup , resolving in 
-	 * the imported {@link INamespace}s is avoided.     
+	 * the imported {@link INamespace}s is avoided.  It also detects cyclic import references.    
 	 * 
 	 * @param facade
 	 * @param searchOrigin
@@ -72,12 +71,11 @@ public class PackageNamespace  extends BaseNamespace {
 	 */
 	boolean isTransitiveImportLookup(SpxSemanticIndexFacade facade , INamespace searchOrigin) throws SpxSymbolTableException{
 		
-		if(assiciatedPackageDeclaration == null)
-			assiciatedPackageDeclaration = facade.lookupPackageDecl(this.namespaceUri().id());
+		PackageDeclaration	assiciatedPackageDeclaration = facade.lookupPackageDecl(this.namespaceUri().id());
 		
 		Set<IStrategoList> importedToPackages = assiciatedPackageDeclaration.getImortedToPackageReferences();
 		
-		return importedToPackages.contains(searchOrigin);
+		return importedToPackages.contains(searchOrigin.namespaceUri().id());
 	}
 	
 	private void ensureImportedNamespaceUrisLoaded(SpxSemanticIndexFacade facade) throws SpxSymbolTableException{
@@ -88,8 +86,7 @@ public class PackageNamespace  extends BaseNamespace {
 			SpxPrimarySymbolTable symTable =  facade.persistenceManager().spxSymbolTable();
 			
 			//getting the package declaration and retrieving it imported references 
-			if(assiciatedPackageDeclaration == null)
-				assiciatedPackageDeclaration = facade.lookupPackageDecl(this.namespaceUri().id());
+			PackageDeclaration assiciatedPackageDeclaration = facade.lookupPackageDecl(this.namespaceUri().id());
 			
 			Iterable<IStrategoList> importedIds = assiciatedPackageDeclaration.getImportReferneces();
 			
