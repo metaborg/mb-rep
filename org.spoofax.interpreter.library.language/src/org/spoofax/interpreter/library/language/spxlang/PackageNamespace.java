@@ -18,8 +18,10 @@ import org.spoofax.interpreter.terms.ITermFactory;
  * 
  * @author Md. Adil Akhter
  */
-public class PackageNamespace  extends BaseNamespace {
+public final class PackageNamespace  extends BaseNamespace {
 
+	//TODO improvement : Implement a Query Pattern for symbol resolving . 
+	
 	private static final long serialVersionUID = 7324156752002137217L;
 	private static final String INTERNAL_NAMESPACENAME = "__internal";
 	
@@ -124,24 +126,56 @@ public class PackageNamespace  extends BaseNamespace {
 		return retSymbol;
 	}
 
+	/* Resolves all the symbol with the {@code key} as ID in the current Scope-Tree 
+	 * based  implementation of the Symbol Table.
+	 * 
+	 * @see org.spoofax.interpreter.library.language.spxlang.BaseNamespace#resolveAll(org.spoofax.interpreter.terms.IStrategoTerm, org.spoofax.interpreter.library.language.spxlang.INamespace, org.spoofax.interpreter.library.language.spxlang.SpxSemanticIndexFacade)
+	 */
 	@Override
 	public Iterable<SpxSymbol> resolveAll(IStrategoTerm key,INamespace originNamespace, SpxSemanticIndexFacade facade) throws SpxSymbolTableException{
-		Set<SpxSymbol> retResult = new HashSet<SpxSymbol>();
+		facade.persistenceManager().logMessage(this.src, "Resolving Symbol in " + this.namespaceUri().id() +  " . Key :  " + key + " origin Namespace: " + originNamespace.namespaceUri().id() );
 		
-		retResult.addAll((Set<SpxSymbol>)super.resolveAll(key, this, facade));
+		Set<SpxSymbol> retResult = new HashSet<SpxSymbol>();
 		
 		//searching in the enclosed namespace. For PackageNamespace, all the enclosed ModuleNamespace is searched. 
 		ensureEnclosedNamespaceUrisLoaded(facade);
 		retResult.addAll((Set<SpxSymbol>)resolveAllSymbolsInNamespaces(this.enclosedNamespaceUris, key, originNamespace, facade)) ;
 		
+		// searching in current namespace and enclosing namespaces
+		List<SpxSymbol> lookupResult = getMembers().resolve(key);
+		retResult.addAll(lookupResult);
 		
+		
+		// searching in the enclosing Namespace. checks whether searching to the enclosing scope is allowed.
+		// In case of imported package's resolving global lookup is avoided 
+		// since it is take care of the namespace when search started. 
+		if( allowSearchingGlobalScope(originNamespace)){
+			INamespace namespace = getEnclosingNamespace(facade.persistenceManager().spxSymbolTable());
+			Set<SpxSymbol> parentResults  = (Set<SpxSymbol>)namespace.resolveAll(key, this ,facade);
+			retResult.addAll(parentResults);
+		}	 
+		
+		//searching in the imported namespaces. Also  detect transitive and cyclic import references.  
 		if ( !isTransitiveImportLookup(facade , originNamespace)) {
-			//searching in the imported namespaces. 
 			ensureImportedNamespaceUrisLoaded(facade);
 			retResult.addAll((Set<SpxSymbol>)resolveAllSymbolsInNamespaces(this.importedNamespaceUris, key, originNamespace, facade)) ;
 		}
 		//returning the result 
 		return retResult;
+	}
+
+	
+	private boolean allowSearchingGlobalScope(INamespace searchedBy) {
+		boolean retValue =  super.shouldSearchInEnclosingNamespace(searchedBy);
+		if(retValue) {
+			// Primary goal of this extra check is to prune search tree. 
+			// Only allowing Searching in the global namespace if search started in one of the 
+			// enclosing modules of this Package or it is indeed a package namespace.
+			// By this way, global namespace ( which could contain considerable amount of symbol) 
+			// lookup will be performed only once. 
+			retValue =  (this == searchedBy)  ||  enclosedNamespaceUris.contains(searchedBy.namespaceUri());
+		}
+		return retValue;	
 	}
 	
 	/**
@@ -167,13 +201,14 @@ public class PackageNamespace  extends BaseNamespace {
 	}
 	
 	
-	/**
+	/** 
+	 * Resolving a Symbol in the Namespaces specified in {@code resolvableUris} 
+	 * @param resolvableUris 
 	 * @param key
 	 * @param type
 	 * @param searchedOrigin
 	 * @param facade
-	 * @param retSymbol
-	 * @param namespaceResolver
+	 * @return a {@link SpxSymbol} matched with the search criteria mentioned 
 	 * @throws SpxSymbolTableException 
 	 */
 	private SpxSymbol resolveSymbolinNamespaces(Iterable<NamespaceUri> resolvableUris  ,IStrategoTerm key, IStrategoTerm type, INamespace searchedOrigin, SpxSemanticIndexFacade facade) throws SpxSymbolTableException {
@@ -229,6 +264,7 @@ public class PackageNamespace  extends BaseNamespace {
 		return resolveInCurrentNamespaceIsNotAllowed || currentNamespaceIsSearchedOrigin;
 	
 	}
+	
 	
 	/**
 	 * Creates a new Internal namespace for the current package namespace.

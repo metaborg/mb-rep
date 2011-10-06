@@ -1,6 +1,7 @@
 package org.spoofax.interpreter.library.language.spxlang;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import jdbm.PrimaryMap;
@@ -12,7 +13,7 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 public class SpxPrimarySymbolTable implements INamespaceResolver{
-	
+	private final String SRC = this.getClass().getSimpleName();
 	private final ISpxPersistenceManager _manager; // Persistence Manager
 	private final PrimaryMap <NamespaceUri,INamespace> namespaces;
 	private final SecondaryHashMap <IStrategoList,NamespaceUri,INamespace> namespaceByStrategoId;
@@ -122,16 +123,16 @@ public class SpxPrimarySymbolTable implements INamespaceResolver{
 			}
 				
 		}
-		
-		
 	}
 	
-
-
 	public Iterable<SpxSymbol> resolveSymbols(SpxSemanticIndexFacade spxSemanticIndexFacade, IStrategoList namespaceId, IStrategoTerm symbolId , IStrategoConstructor symbolType) throws SpxSymbolTableException {
-		ensureActiveNamespaceLoaded(namespaceId);
+		_manager.logMessage(SRC, "Resolving symbol with the following criteria :  search origin " + namespaceId +  " with Key : "+ symbolId + "of Type : "+ symbolType.getName());
 		
-		return _activeNamespace.resolveAll(symbolId, symbolType ,spxSemanticIndexFacade);
+		ensureActiveNamespaceLoaded(namespaceId);
+		List<SpxSymbol> resolvedSymbols = (List<SpxSymbol>)_activeNamespace.resolveAll(symbolId, symbolType ,spxSemanticIndexFacade);
+		
+		_manager.logMessage(SRC, "Resolved Symbols : " + resolvedSymbols);
+		return resolvedSymbols;
 	} 
 }
 

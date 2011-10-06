@@ -42,7 +42,7 @@ public abstract class BaseNamespace implements INamespace {
 		
 		this.type = type;
 		
-		src = (_enclosingNamespaceId!= null) ? type.toString() + _currentNamespaceId.uniqueID()+".idx" :  type.toString()  + "___globalsymbols.idx" ; 
+		src = (_enclosingNamespaceId!= null) ? type.getName() + _currentNamespaceId.id() :  type.getName()   ; 
 			
 		_symbols = new MultiValuePersistentTable();
 	}
@@ -90,6 +90,8 @@ public abstract class BaseNamespace implements INamespace {
 	}
 	
 	public Iterable<SpxSymbol> resolveAll(IStrategoTerm id, INamespace searchedBy, SpxSemanticIndexFacade  facade) throws SpxSymbolTableException {
+		
+		facade.persistenceManager().logMessage(this.src, "Resolving Symbol in " + this.namespaceUri().id() +  " . Key :  " + id + " origin Namespace: " + searchedBy.namespaceUri().id() );
 		
 		Set<SpxSymbol> retResult = new HashSet<SpxSymbol>();
 		
@@ -140,6 +142,13 @@ public abstract class BaseNamespace implements INamespace {
 		return searchedBy.namespaceUri().equals(this.enclosingNamespaceUri()) || searchedBy.namespaceUri().equals(this.namespaceUri());  
 	}
 	
+	/**
+	 * Base Condition of the lookup : 
+	 * Allow search enclosing Namesapce only if searchedBy is not enclosing Namespace. 
+	 *  
+	 * @param searchedBy
+	 * @return True if enclosing Namespace != searachedBy  ; otherwise false.
+	 */
 	protected boolean shouldSearchInEnclosingNamespace(INamespace searchedBy) {
 		// search enclosing Namesapce only if searchedBy is not enclosing Namespace
 		return !(searchedBy.namespaceUri().equals(this.enclosingNamespaceUri())); 

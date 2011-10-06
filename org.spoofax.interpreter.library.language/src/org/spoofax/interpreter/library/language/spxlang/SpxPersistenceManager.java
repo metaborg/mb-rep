@@ -197,7 +197,7 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 		
 	}
 
-	/* Logs Message 
+	/* Logs Message if {@code DEBUG} is turned on.
 	 * 
 	 * @see org.spoofax.interpreter.library.language.spxlang.ISpxPersistenceManager#logMessage(java.lang.String, java.lang.String)
 	 */

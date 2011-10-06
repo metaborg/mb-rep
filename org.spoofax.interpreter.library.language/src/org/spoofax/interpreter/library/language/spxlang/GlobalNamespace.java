@@ -13,6 +13,7 @@ public class GlobalNamespace extends BaseNamespace {
 		super(id ,type, manager, null);
 	}
 	
+	
 	/**
 	 * Creates an instance of GlobalScope. 
 	 * 
@@ -35,6 +36,7 @@ public class GlobalNamespace extends BaseNamespace {
 		);
 
 	}
+	
 	public static IStrategoList getGlobalNamespaceId(SpxSemanticIndexFacade facade){
 		ITermFactory termFactory = facade.getTermFactory();
 		

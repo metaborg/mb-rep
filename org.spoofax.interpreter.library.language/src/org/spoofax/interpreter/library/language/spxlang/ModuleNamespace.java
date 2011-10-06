@@ -12,11 +12,16 @@ import org.spoofax.interpreter.terms.ITermFactory;
  *  
  * NOTE: Internal ModuleNamespaces does not have any physical ModuleDeclaration associated.    
  */
-public class ModuleNamespace extends BaseNamespace
+public final class ModuleNamespace extends BaseNamespace
 {
 	private static final long serialVersionUID = 5255913747644738988L;
-	
-	boolean isInternalNamespace = false;
+	/**
+	 * A Flag to refer to the Internal Namespace of the enclosing Namespace. 
+	 * When it is set to true, only way to access the enclosed symbol is through 
+	 * this Namespace or the Enclosing PackageNamespace. Other 
+	 * ModuleNamespace cannot resolve any symbols of this internal  Namespace.
+	 */
+	boolean isInternalNamespace = false;   
 	
 	public ModuleNamespace(NamespaceUri currentNamespaceUri, IStrategoConstructor namespaceType ,NamespaceUri enclosingNamespaceUri,  ISpxPersistenceManager manager) {
 		super(currentNamespaceUri, namespaceType, manager, enclosingNamespaceUri);
