@@ -64,6 +64,6 @@ public final class NamespaceUri implements Serializable
 
 	@Override
 	public String toString() {
-		return "NamespaceId (_id=" + _id + ", _uId=" + _uId + ")";
+		return "NamespaceId [ID =" + _id + "]";
 	}
 }

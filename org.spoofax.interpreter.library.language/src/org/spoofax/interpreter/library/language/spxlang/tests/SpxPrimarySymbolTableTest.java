@@ -490,9 +490,89 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		SpxSymbol actual = resolvedSymbols.get(0);
 		assertEquals("ModuleDef", actual.type());
 		assertTrue(SpxSymbol.verifyEquals(symbolId1, actual.Id(_facade.getTermFactory())));
-		assertTrue( SpxSymbol.verifyEquals( this.moduleDeclarationP3M1.getId() , actual.namespaceUri().id()) );
+		assertTrue(SpxSymbol.verifyEquals( this.moduleDeclarationP3M1.getId() , actual.namespaceUri().id()) );
 	}
 	
+	
+	public void testShouldNotFailIncaseOfCyclicImports() throws IOException, SpxSymbolTableException{
+		setupScopeTree();
+		
+		String packageName3 =  	"\"lang\", \"p3\"" ;
+		
+		packageDeclaration3   = indexTestPackageDecl(packageName3, absPathString2);
+		moduleDeclarationP3M1 = indexTestModuleDefs ( "p3m1" , packageName3 , absPathString2);
+		
+		//Setting up following import hierarchy : P1 -> P2 -> P3 -> p1
+		this.packageDeclaration1.addImportRefernces(_facade, termFactory().makeList(PackageDeclaration.toPackageQNameAppl(_facade,this.packageDeclaration2.getId())));
+		this.packageDeclaration2.addImportRefernces(_facade, termFactory().makeList(PackageDeclaration.toPackageQNameAppl(_facade,this.packageDeclaration3.getId())));
+		this.packageDeclaration3.addImportRefernces(_facade, termFactory().makeList(PackageDeclaration.toPackageQNameAppl(_facade,this.packageDeclaration1.getId())));
+		
+		IStrategoAppl moduleQnameAppl1 = ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP1M1.getId());
+		IStrategoAppl moduleQnameAppl3 = ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP3M1.getId());
+		
+		// Defining Symbol1 in P1
+		IStrategoTerm symbolId1 = moduleQnameAppl1; 
+	 	IStrategoTerm data1 = (IStrategoAppl)moduleDeclarationP1M1.toTerm(_facade);	// defining Data
+		IStrategoAppl typeAppl1 = termFactory().makeAppl(termFactory().makeConstructor("ModuleDef", 0)); // setting Type  
+		
+		_facade.indexSymbol(createEntry(moduleQnameAppl1 , symbolId1 , typeAppl1  , data1));
+		
+		// Defining Symbol3 in P3
+		IStrategoTerm symbolId3 = moduleQnameAppl1; 
+	 	IStrategoTerm data3 = (IStrategoAppl)moduleDeclarationP1M1.toTerm(_facade);	// defining Data
+		IStrategoAppl typeAppl3 = termFactory().makeAppl(termFactory().makeConstructor("ModuleDef", 0)); // setting Type  
+		
+		_facade.indexSymbol(createEntry(moduleQnameAppl3 , symbolId3 , typeAppl3 , data3));
+		
+		
+		
+		
+		//Resolving Symbol in Package 1
+		List<SpxSymbol> resolvedSymbols = (List<SpxSymbol>)_facade.resolveSymbols(
+				ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP1M1.getId()), // search origin
+				symbolId3,	//looking for 
+				_facade.getConstructor("ModuleDef", 0) // with type 
+				);
+		
+		
+		assertEquals(1, resolvedSymbols.size());
+		
+		SpxSymbol actual = resolvedSymbols.get(0); // resolved from the current namespace - Module 1 of Package 1 
+		assertEquals("ModuleDef", actual.type());
+		assertTrue(SpxSymbol.verifyEquals(symbolId3, actual.Id(_facade.getTermFactory())));
+		assertTrue(SpxSymbol.verifyEquals( this.moduleDeclarationP1M1.getId() , actual.namespaceUri().id()) );
+		
+		//Resolving Symbol in Package 2
+		resolvedSymbols = (List<SpxSymbol>)_facade.resolveSymbols(
+				ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP2M1.getId()), // search origin
+				symbolId3, // loooking for 
+				_facade.getConstructor("ModuleDef", 0) // with type 
+				);
+		
+		assertEquals(1, resolvedSymbols.size());
+		actual = resolvedSymbols.get(0); // Resolved from the imported namespace - Module 1 of Package 3
+		assertEquals("ModuleDef", actual.type());
+		assertTrue(SpxSymbol.verifyEquals(symbolId3, actual.Id(_facade.getTermFactory())));
+		assertTrue(SpxSymbol.verifyEquals( this.moduleDeclarationP3M1.getId() , actual.namespaceUri().id()) );
+		
+		
+		//Resolving Symbol in Package 3
+		resolvedSymbols = (List<SpxSymbol>)_facade.resolveSymbols(
+				ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP3M1.getId()), // search origin
+				symbolId3, // loooking for 
+				_facade.getConstructor("ModuleDef", 0) // with type 
+				);
+		
+		// current import chain is as following : p1-> p2 ->p3->p1
+		// symbol 1 is defined in P1 
+		// symbol 3 is defined in P3
+		// Symbol 1 Id and Type = Symbol 3 ID and Type
+		// Hence, while resolving for symbol1/symbol3 in Package3 , it will return following :
+		// Symbol3  -> due to the fact that it is enclosed symbol of the current namespace
+		// Symbol1  -> due to the import reference from P3 -> P 1
+		assertEquals(2, resolvedSymbols.size());
+		
+	}
 	
 	private IStrategoAppl createEntry(IStrategoAppl namespaceAppl , IStrategoTerm id , IStrategoAppl typeAppl, IStrategoTerm data){
 		

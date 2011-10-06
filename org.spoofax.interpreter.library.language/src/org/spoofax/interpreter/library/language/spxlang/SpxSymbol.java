@@ -242,8 +242,10 @@ public class SpxSymbol extends BaseSymbol implements Serializable{
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
+		int result = super.hashCode();
 		result = prime * result + ((_data == null) ? 0 : _data.hashCode());
+		result = prime * result
+				+ ((_namespace == null) ? 0 : _namespace.hashCode());
 		result = prime * result + ((_type == null) ? 0 : _type.hashCode());
 		return result;
 	}
@@ -255,30 +257,35 @@ public class SpxSymbol extends BaseSymbol implements Serializable{
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
+		if (!super.equals(obj))
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-	
 		SpxSymbol other = (SpxSymbol) obj;
-		if (_id == null) {
-			if (other._id != null)
-				return false;
-		}else if (! verifyEquals(this._id, other._id)){ 
-			return false;
-		}
 		if (_data == null) {
 			if (other._data != null)
 				return false;
 		} else if (!_data.equals(other._data))
 			return false;
-		
+		if (_namespace == null) {
+			if (other._namespace != null)
+				return false;
+		} else if (!_namespace.equals(other._namespace))
+			return false;
 		if (_type == null) {
 			if (other._type != null)
 				return false;
 		} else if (!_type.equals(other._type))
 			return false;
 		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "SpxSymbol [ Id : " + this._idString + " Type= " + _type + ", Namespace=" + _namespace + "]";
 	}
 }
 
