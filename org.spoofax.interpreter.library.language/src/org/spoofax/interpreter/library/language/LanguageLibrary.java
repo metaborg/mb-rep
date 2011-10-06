@@ -41,6 +41,7 @@ public class LanguageLibrary extends AbstractStrategoOperatorRegistry {
 		add(new SPX_index_package_declaration(spxIndex));
 		add(new SPX_index_language_descriptor(spxIndex));
 		add(new SPX_index_module_definition(spxIndex));
+		add(new SPX_index_symbol_definition(spxIndex));
 		
 		add(new SPX_index_get_language_descriptor(spxIndex));
 		add(new SPX_index_get_package_declaration(spxIndex));

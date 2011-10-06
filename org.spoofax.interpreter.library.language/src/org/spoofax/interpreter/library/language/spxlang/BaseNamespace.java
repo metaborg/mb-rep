@@ -64,6 +64,7 @@ public abstract class BaseNamespace implements INamespace {
 	public INamespace getCurrentNamespace(INamespaceResolver rs) throws SpxSymbolTableException{ return _currentNamespaceId.resolve(rs); }
 	
 	public SpxSymbol resolve(IStrategoTerm id, IStrategoTerm type, INamespace searchedBy, SpxSemanticIndexFacade  facade) throws SpxSymbolTableException{
+		facade.persistenceManager().logMessage(this.src, "resolve | Resolving Symbol in " + this.namespaceUri().id() +  " . Key :  " + id + " origin Namespace: " + searchedBy.namespaceUri().id() );
 		
 		assert type instanceof IStrategoConstructor : "Type is expected to be IStrategoConstructor" ;
 			
@@ -83,7 +84,7 @@ public abstract class BaseNamespace implements INamespace {
 		if( namespace  != null) {
 			//checks whether searching to the enclosing scope is allowed.
 			if( shouldSearchInEnclosingNamespace( searchedBy))
-				return namespace.resolve(id, type, searchedBy, facade);
+				return namespace.resolve(id, type, this, facade);
 		}	 
 		
 		return null; // symbol is not found
@@ -91,7 +92,7 @@ public abstract class BaseNamespace implements INamespace {
 	
 	public Iterable<SpxSymbol> resolveAll(IStrategoTerm id, INamespace searchedBy, SpxSemanticIndexFacade  facade) throws SpxSymbolTableException {
 		
-		facade.persistenceManager().logMessage(this.src, "Resolving Symbol in " + this.namespaceUri().id() +  " . Key :  " + id + " origin Namespace: " + searchedBy.namespaceUri().id() );
+		facade.persistenceManager().logMessage(this.src, "resolveAll(Base) | Resolving Symbol in " + this.namespaceUri().id() +  " . Key :  " + id + " origin Namespace: " + searchedBy.namespaceUri().id() );
 		
 		Set<SpxSymbol> retResult = new HashSet<SpxSymbol>();
 		

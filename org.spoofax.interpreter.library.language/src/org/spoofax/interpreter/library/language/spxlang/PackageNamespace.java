@@ -106,6 +106,7 @@ public final class PackageNamespace  extends BaseNamespace {
 	 */
 	@Override
 	public SpxSymbol resolve(IStrategoTerm id, IStrategoTerm type, INamespace searchedBy, SpxSemanticIndexFacade facade) throws SpxSymbolTableException {
+		facade.persistenceManager().logMessage(this.src, "resolve | Resolving Symbol in " + this.namespaceUri().id() +  " . Key :  " + id + " origin Namespace: " + searchedBy.namespaceUri().id() );
 		
 		ensureEnclosedNamespaceUrisLoaded(facade);
 		SpxSymbol retSymbol = resolveSymbolinNamespaces(this.enclosedNamespaceUris, id, type, searchedBy, facade);
@@ -113,7 +114,7 @@ public final class PackageNamespace  extends BaseNamespace {
 		if (retSymbol == null) {
 			// Searching in package's local symbols. If not found, search
 			// in the enclosing namespaces i.e. in Global Namespace
-			retSymbol = super.resolve(id, type, this, facade);
+			retSymbol = super.resolve(id, type, searchedBy, facade);
 
 			if (retSymbol == null) {
 				if ( !isTransitiveImportLookup(facade , searchedBy)) {
@@ -133,7 +134,7 @@ public final class PackageNamespace  extends BaseNamespace {
 	 */
 	@Override
 	public Iterable<SpxSymbol> resolveAll(IStrategoTerm key,INamespace originNamespace, SpxSemanticIndexFacade facade) throws SpxSymbolTableException{
-		facade.persistenceManager().logMessage(this.src, "Resolving Symbol in " + this.namespaceUri().id() +  " . Key :  " + key + " origin Namespace: " + originNamespace.namespaceUri().id() );
+		facade.persistenceManager().logMessage(this.src, "resolveAll | Resolving Symbol in " + this.namespaceUri().id() +  " . Key :  " + key + " origin Namespace: " + originNamespace.namespaceUri().id() );
 		
 		Set<SpxSymbol> retResult = new HashSet<SpxSymbol>();
 		
@@ -141,19 +142,9 @@ public final class PackageNamespace  extends BaseNamespace {
 		ensureEnclosedNamespaceUrisLoaded(facade);
 		retResult.addAll((Set<SpxSymbol>)resolveAllSymbolsInNamespaces(this.enclosedNamespaceUris, key, originNamespace, facade)) ;
 		
-		// searching in current namespace and enclosing namespaces
-		List<SpxSymbol> lookupResult = getMembers().resolve(key);
-		retResult.addAll(lookupResult);
+		//searching in the current scope and its enclosing scope
+		retResult.addAll((Set<SpxSymbol>)super.resolveAll(key, originNamespace, facade));
 		
-		
-		// searching in the enclosing Namespace. checks whether searching to the enclosing scope is allowed.
-		// In case of imported package's resolving global lookup is avoided 
-		// since it is take care of the namespace when search started. 
-		if( allowSearchingGlobalScope(originNamespace)){
-			INamespace namespace = getEnclosingNamespace(facade.persistenceManager().spxSymbolTable());
-			Set<SpxSymbol> parentResults  = (Set<SpxSymbol>)namespace.resolveAll(key, this ,facade);
-			retResult.addAll(parentResults);
-		}	 
 		
 		//searching in the imported namespaces. Also  detect transitive and cyclic import references.  
 		if ( !isTransitiveImportLookup(facade , originNamespace)) {
@@ -164,8 +155,8 @@ public final class PackageNamespace  extends BaseNamespace {
 		return retResult;
 	}
 
-	
-	private boolean allowSearchingGlobalScope(INamespace searchedBy) {
+	@Override
+	protected boolean shouldSearchInEnclosingNamespace(INamespace searchedBy) {
 		boolean retValue =  super.shouldSearchInEnclosingNamespace(searchedBy);
 		if(retValue) {
 			// Primary goal of this extra check is to prune search tree. 
@@ -173,7 +164,7 @@ public final class PackageNamespace  extends BaseNamespace {
 			// enclosing modules of this Package or it is indeed a package namespace.
 			// By this way, global namespace ( which could contain considerable amount of symbol) 
 			// lookup will be performed only once. 
-			retValue =  (this == searchedBy)  ||  enclosedNamespaceUris.contains(searchedBy.namespaceUri());
+			retValue =  enclosedNamespaceUris.contains(searchedBy.namespaceUri());
 		}
 		return retValue;	
 	}

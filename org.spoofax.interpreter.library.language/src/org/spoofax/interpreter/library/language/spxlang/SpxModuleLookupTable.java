@@ -44,13 +44,12 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 	 */
 	public SpxModuleLookupTable(ISpxPersistenceManager manager)
 	{
-		assert manager != null;
-		
 		String tableName = SRC+ "_"+ manager.getProjectName();
-		
+
+		assert manager != null;
 		_manager = manager;
 		_moduleLookupMap = manager.loadHashMap(tableName+ "._lookupModuleMap.idx");
-		
+
 		// read-only secondary view of the the lookup table . 
 		_moduleByFileAbsPath = _moduleLookupMap.secondaryHashMap(tableName+ "._moduleByFileAbsPath.idx", 
 				new SecondaryKeyExtractor<String, IStrategoList, ModuleDeclaration>() {
@@ -67,8 +66,7 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 			}
 		}
 		);
-		
-		
+
 		_moduleByPackageId = _moduleLookupMap.secondaryHashMap(tableName+ "._moduleByPackageId.idx", 
 				new SecondaryKeyExtractor<IStrategoList, IStrategoList, ModuleDeclaration>() {
 
@@ -84,10 +82,10 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 			}
 		}
 		);
-		
+
 		this._moduleDefinition = manager.loadHashMap(tableName+ "._moduleDefinition.idx");
 		this._moduleAnalyzedDefinition = manager.loadHashMap(tableName+ "._moduleAnalyzedDefinition.idx");
-	
+
 		initRecordListener();
 	}
 	
@@ -121,13 +119,10 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 								rl.recordRemoved(key, value);
 							}
 						}
-
 					}
-				
 				}
 		);
 	}
-	
 	/** Size of the Symbol Table 
 	 * 
 	 * @return

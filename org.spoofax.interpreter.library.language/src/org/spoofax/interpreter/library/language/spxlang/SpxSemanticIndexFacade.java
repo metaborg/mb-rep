@@ -5,7 +5,9 @@ import static org.spoofax.interpreter.core.Tools.asJavaString;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.library.IOAgent;
@@ -222,7 +224,6 @@ public class SpxSemanticIndexFacade {
 		);
 	}
 	
-	
 	/**
 	 * Indexes {@link PackageDeclaration}
 	 * 
@@ -295,17 +296,33 @@ public class SpxSemanticIndexFacade {
 	
 	
 	// (namespace * idTolookupFor * type constructor)
-	public IStrategoTerm resolveSymbols(IStrategoTuple symbolLookupTerm) throws SpxSymbolTableException{
-		if (symbolLookupTerm.getSubtermCount() != 3)
-			throw new IllegalArgumentException(" Illegal symbolLookupTerm Argument ; expected 3 subterms. Found : " + symbolLookupTerm.getSubtermCount());
+	public IStrategoTerm resolveSymbols(IStrategoTuple searchCriteria) throws SpxSymbolTableException{
 		
-		IStrategoConstructor typeCtor = verifyKnownContructorExists((IStrategoAppl)symbolLookupTerm.getSubterm(2));
+		if (searchCriteria.getSubtermCount() != 3)
+			throw new IllegalArgumentException(" Illegal symbolLookupTerm Argument ; expected 3 subterms. Found : " + searchCriteria.getSubtermCount());
+		
+		IStrategoConstructor typeCtor = verifyKnownContructorExists((IStrategoAppl)searchCriteria.getSubterm(2));
 		return SpxSymbol.toTerms( this,
 				resolveSymbols( 
-						(IStrategoAppl)symbolLookupTerm.get(0),
-						symbolLookupTerm.get(1),
+						(IStrategoAppl)searchCriteria.get(0),
+						searchCriteria.get(1),
 						typeCtor)
 				); 
+	}
+	
+	public IStrategoTerm resolveSymbol(IStrategoTuple searchCriteria) throws SpxSymbolTableException {
+	
+		if (searchCriteria.getSubtermCount() != 3)
+			throw new IllegalArgumentException(" Illegal symbolLookupTerm Argument ; expected 3 subterms. Found : " + searchCriteria.getSubtermCount());
+		
+		IStrategoConstructor typeCtor = verifyKnownContructorExists((IStrategoAppl)searchCriteria.getSubterm(2));
+		
+		return SpxSymbol.toTerms( this,
+				resolveSymbols( 
+						(IStrategoAppl)searchCriteria.get(0),
+						searchCriteria.get(1),
+						typeCtor)
+				);
 	}
 	
 	/**
@@ -325,6 +342,19 @@ public class SpxSemanticIndexFacade {
 		SpxPrimarySymbolTable  symbolTable = persistenceManager().spxSymbolTable();
 		
 		Iterable<SpxSymbol> resolvedSymbols = symbolTable.resolveSymbols(this, namespaceID, strip(symbolId), symbolType);
+		return resolvedSymbols;
+	}
+	
+	public Iterable<SpxSymbol> resolveSymbol(IStrategoAppl namespaceToStartSearchWith, IStrategoTerm symbolId, IStrategoConstructor  symbolType) throws SpxSymbolTableException {
+		List<SpxSymbol> resolvedSymbols= new ArrayList<SpxSymbol>();
+		
+		IStrategoList namespaceID = this.getNamespaceId(namespaceToStartSearchWith);
+		SpxPrimarySymbolTable  symbolTable = persistenceManager().spxSymbolTable();
+		
+		SpxSymbol sym = symbolTable.resolveSymbol(this, namespaceID, strip(symbolId), symbolType);
+		if(sym != null)
+			resolvedSymbols.add(sym) ;
+		
 		return resolvedSymbols;
 	}
 
@@ -961,4 +991,6 @@ public class SpxSemanticIndexFacade {
 		}
 		
 	}
+
+	
 }

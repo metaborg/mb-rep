@@ -136,15 +136,28 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 	}
 	
 	public Iterable<SpxSymbol> resolveSymbols(SpxSemanticIndexFacade spxSemanticIndexFacade, IStrategoList namespaceId, IStrategoTerm symbolId , IStrategoConstructor symbolType) throws SpxSymbolTableException {
-		_manager.logMessage(SRC, "Resolving symbol with the following criteria :  search origin " + namespaceId +  " with Key : "+ symbolId + "of Type : "+ symbolType.getName());
+		_manager.logMessage(SRC, "resolveSymbols | Resolving symbols with the following criteria :  search origin " + namespaceId +  " with Key : "+ symbolId + "of Type : "+ symbolType.getName());
 		
 		ensureActiveNamespaceLoaded(namespaceId);
 		List<SpxSymbol> resolvedSymbols = (List<SpxSymbol>)_activeNamespace.resolveAll(symbolId, symbolType ,spxSemanticIndexFacade);
 		
-		_manager.logMessage(SRC, "Resolved Symbols : " + resolvedSymbols);
+		_manager.logMessage(SRC, "resolveSymbols | Resolved Symbols : " + resolvedSymbols);
 		return resolvedSymbols;
 	}
 	
+	
+
+	public SpxSymbol resolveSymbol(SpxSemanticIndexFacade spxSemanticIndexFacade, IStrategoList namespaceId, IStrategoTerm symbolId , IStrategoConstructor symbolType) throws SpxSymbolTableException {
+		_manager.logMessage(SRC, "resolveSymbol | Resolving symbol with the following criteria :  search origin " + namespaceId +  " with Key : "+ symbolId + "of Type : "+ symbolType.getName());
+		
+		ensureActiveNamespaceLoaded(namespaceId);
+		
+		SpxSymbol  resolvedSymbol = _activeNamespace.resolve(symbolId, symbolType ,_activeNamespace ,spxSemanticIndexFacade);
+		
+		_manager.logMessage(SRC, "resolveSymbol | Resolved Symbol : " + resolvedSymbol );
+		
+		return resolvedSymbol;
+	}
 	
 
 	public RecordListener<IStrategoList, PackageDeclaration> getPackageDeclarationRecordListener() {
@@ -190,7 +203,9 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 			}
 			
 		};
-	} 
+	}
+
+	
 }
 
 

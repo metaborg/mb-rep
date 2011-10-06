@@ -10,6 +10,7 @@ import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 
 
@@ -122,6 +123,18 @@ public class SpxSemanticIndex {
 		};
 		
 		return idx.executeIndexer(projectName, importReferences);
+	}
+	
+	public boolean indexSymbolDefinition(IStrategoString projectName, final IStrategoAppl symbolDef)  throws Exception{
+		
+		SpxIndexer idx = new SpxIndexer() {
+			public void index(IStrategoString projectName, IStrategoAppl appl) throws Exception {
+				SpxSemanticIndexFacade idxFacade = getFacade(projectName);
+				idxFacade.indexSymbol(symbolDef);
+			}
+		};
+		
+		return idx.executeIndexer(projectName, symbolDef);
 	}
 	
 	// Index module definition . 
@@ -440,4 +453,29 @@ public class SpxSemanticIndex {
 	{
 		public abstract void executeCommnad(IStrategoTerm projectName , Object... objects) throws Exception;
 	}
+
+	public IStrategoTerm resolveSymbols(IStrategoString projectName, final IStrategoTuple searchCriteria)  throws Exception{
+		ISymbolResolver<IStrategoTerm> resolver = new ISymbolResolver<IStrategoTerm>() {
+			public IStrategoTerm get(IStrategoString projectName,IStrategoTerm qname) throws Exception  {
+				SpxSemanticIndexFacade idxFacade = getFacade(projectName);
+				return idxFacade.resolveSymbols(searchCriteria);
+			}
+		};
+		
+		return resolve(projectName, searchCriteria, resolver);
+	}
+
+
+	public IStrategoTerm resolveSymbol(IStrategoString projectName, final IStrategoTuple searchCriteria) throws Exception {
+		ISymbolResolver<IStrategoTerm> resolver = new ISymbolResolver<IStrategoTerm>() {
+			public IStrategoTerm get(IStrategoString projectName,IStrategoTerm qname) throws Exception  {
+				SpxSemanticIndexFacade idxFacade = getFacade(projectName);
+				return idxFacade.resolveSymbol(searchCriteria);
+			}
+		};
+		
+		return resolve(projectName, searchCriteria, resolver);
+	}	
+
+	
 }
