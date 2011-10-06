@@ -74,10 +74,12 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 	
 	private PackageDeclaration packageDeclaration1;
 	private PackageDeclaration packageDeclaration2;
+	private PackageDeclaration packageDeclaration3;
 	
 	private ModuleDeclaration moduleDeclarationP1M1;
 	private ModuleDeclaration moduleDeclarationP1M2;
 	private ModuleDeclaration moduleDeclarationP2M1;
+	private ModuleDeclaration moduleDeclarationP3M1;
 	
 	private void setupScopeTree() throws IOException, SpxSymbolTableException 
 	{
@@ -90,9 +92,11 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		packageDeclaration1 = indexTestPackageDecl(packageName1, absPathString1);
 		packageDeclaration2 = indexTestPackageDecl(packageName2, absPathString2);
 		
+		
 		moduleDeclarationP1M1 = indexTestModuleDefs ( "p1m1" , packageName1 , absPathString1);
 		moduleDeclarationP1M2 = indexTestModuleDefs ( "p1m2" , packageName1 , absPathString1);
 		moduleDeclarationP2M1 = indexTestModuleDefs ( "p2m1" , packageName2 , absPathString2);
+	
 	}
 
 	/**
@@ -374,9 +378,6 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 	
 	public void testShouldResolveModuleInternalSymbolsFromModule() throws IOException, SpxSymbolTableException{
 		setupScopeTree();
-		
-		
-		
 		IStrategoAppl internalModuleAppl = ModuleDeclaration.toModuleQNameAppl( _facade, 
 				PackageNamespace.packageInternalModuleId(
 						this.packageDeclaration2.getId(), 
@@ -448,6 +449,48 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 				);
 		
 		assertEquals(1, resolvedSymbols.size());
+	}
+	
+	
+	public void testShouldNotAllowTransitiveImports() throws IOException, SpxSymbolTableException{
+		setupScopeTree();
+		
+		String packageName3 =  	"\"lang\", \"p3\"" ;
+		
+		packageDeclaration3   = indexTestPackageDecl(packageName3, absPathString2);
+		moduleDeclarationP3M1 = indexTestModuleDefs ( "p3m1" , packageName3 , absPathString2);
+		
+		this.packageDeclaration1.addImportRefernces(_facade, termFactory().makeList(PackageDeclaration.toPackageQNameAppl(_facade,this.packageDeclaration2.getId())));
+		this.packageDeclaration2.addImportRefernces(_facade, termFactory().makeList(PackageDeclaration.toPackageQNameAppl(_facade,this.packageDeclaration3.getId())));
+		
+		IStrategoAppl moduleQnameAppl = ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP3M1.getId());
+		
+		IStrategoTerm symbolId1 = moduleQnameAppl; // defining following packageID
+	 	IStrategoTerm data1 = (IStrategoAppl)moduleDeclarationP1M1.toTerm(_facade);	// defining Data
+		IStrategoAppl typeAppl1 = termFactory().makeAppl(termFactory().makeConstructor("ModuleDef", 0)); // setting Type  
+		
+		_facade.indexSymbol(createEntry(moduleQnameAppl , symbolId1 , typeAppl1  , data1));
+		
+		List<SpxSymbol> resolvedSymbols = (List<SpxSymbol>)_facade.resolveSymbols(
+				ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP1M1.getId()),
+				symbolId1,
+				_facade.getConstructor("ModuleDef", 0) 
+				);
+		
+		assertEquals(0, resolvedSymbols.size());
+		
+		resolvedSymbols = (List<SpxSymbol>)_facade.resolveSymbols(
+				ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP2M1.getId()),
+				symbolId1,
+				_facade.getConstructor("ModuleDef", 0) 
+				);
+		
+		assertEquals(1, resolvedSymbols.size());
+		
+		SpxSymbol actual = resolvedSymbols.get(0);
+		assertEquals("ModuleDef", actual.type());
+		assertTrue(SpxSymbol.verifyEquals(symbolId1, actual.Id(_facade.getTermFactory())));
+		assertTrue( SpxSymbol.verifyEquals( this.moduleDeclarationP3M1.getId() , actual.namespaceUri().id()) );
 	}
 	
 	
