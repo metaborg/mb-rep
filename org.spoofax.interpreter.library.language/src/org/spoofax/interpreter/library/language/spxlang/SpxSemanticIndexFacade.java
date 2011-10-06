@@ -763,8 +763,7 @@ public class SpxSemanticIndexFacade {
 	 * @param uri URI of the Resource. 
 	 * @return Absolute Path represented by the URI  
 	 */
-	private String toAbsulatePath( IStrategoString uri)
-	{
+	public String toAbsulatePath( IStrategoString uri){
 		URI resUri = toFileURI(uri);
 		
 		return new File(resUri).getAbsolutePath().trim();

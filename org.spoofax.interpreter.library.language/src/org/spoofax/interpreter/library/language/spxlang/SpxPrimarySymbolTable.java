@@ -1,10 +1,12 @@
 package org.spoofax.interpreter.library.language.spxlang;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import jdbm.PrimaryMap;
+import jdbm.RecordListener;
 import jdbm.SecondaryHashMap;
 import jdbm.SecondaryKeyExtractor;
 
@@ -12,7 +14,7 @@ import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-public class SpxPrimarySymbolTable implements INamespaceResolver{
+public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDeclarationRecordListener,IModuleDeclarationRecordListener {
 	private final String SRC = this.getClass().getSimpleName();
 	private final ISpxPersistenceManager _manager; // Persistence Manager
 	private final PrimaryMap <NamespaceUri,INamespace> namespaces;
@@ -67,6 +69,14 @@ public class SpxPrimarySymbolTable implements INamespaceResolver{
 			return resolvedNamespaces.next();
 		else
 			return null;
+	}
+	
+	public void removeNamespace(IStrategoList id){
+		INamespace resolveNamespace  = resolveNamespace(id) ;
+		
+		if(resolveNamespace != null){
+			this.namespaces.remove(resolveNamespace.namespaceUri());
+		}
 	}
 	
 	public INamespace resolveNamespace(NamespaceUri id) {
@@ -133,6 +143,53 @@ public class SpxPrimarySymbolTable implements INamespaceResolver{
 		
 		_manager.logMessage(SRC, "Resolved Symbols : " + resolvedSymbols);
 		return resolvedSymbols;
+	}
+	
+	
+
+	public RecordListener<IStrategoList, PackageDeclaration> getPackageDeclarationRecordListener() {
+		return new RecordListener<IStrategoList, PackageDeclaration>(){
+
+			public void recordInserted(IStrategoList packageID,
+					PackageDeclaration value) throws IOException {
+				// do nothing
+				
+			}
+
+			public void recordUpdated(IStrategoList packageID,
+					PackageDeclaration oldValue, PackageDeclaration newValue)
+					throws IOException {
+				// do nothing 
+			}
+
+			public void recordRemoved(IStrategoList packageID,
+					PackageDeclaration value) throws IOException {
+				
+				removeNamespace(packageID) ;
+			}};
+	}
+
+	public RecordListener<IStrategoList, ModuleDeclaration> getModuleDeclarationRecordListener() {
+		return new RecordListener<IStrategoList, ModuleDeclaration>() {
+
+			public void recordInserted(IStrategoList key, ModuleDeclaration value) throws IOException {
+				// do nothing 
+				
+			}
+
+			public void recordUpdated(IStrategoList key,  ModuleDeclaration oldValue, ModuleDeclaration newValue)
+					throws IOException {
+				// do nothing 
+				
+			}
+
+			public void recordRemoved(IStrategoList moduleId, ModuleDeclaration value)
+					throws IOException {
+				removeNamespace(moduleId) ;
+				
+			}
+			
+		};
 	} 
 }
 

@@ -17,6 +17,12 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 	
 	private final PrimaryHashMap<IStrategoList, ModuleDeclaration> _moduleLookupMap; 
 	
+	 /**
+     * Listeners which are notified about changes in records
+     */
+    protected List<RecordListener<IStrategoList, ModuleDeclaration>> recordListeners = new ArrayList<RecordListener<IStrategoList, ModuleDeclaration>>();
+
+    
 	/* FIXME : Using separate HashMap due to the consideration of converting them store map
 	 * to load module AST lazily. 
 	 */
@@ -109,6 +115,13 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 						// cleanup other table to make it consistent 
 						_moduleDefinition.remove(key);
 						_moduleAnalyzedDefinition.remove(key);
+						
+						if(!recordListeners.isEmpty()){	
+							for( RecordListener<IStrategoList, ModuleDeclaration> rl: recordListeners){
+								rl.recordRemoved(key, value);
+							}
+						}
+
 					}
 				
 				}
@@ -403,4 +416,17 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 				removeModuleDeclarationByPackageId(packageID) ;
 			}};
 	}
+	
+	public void addRecordListener( final IModuleDeclarationRecordListener rl){
+		this.recordListeners.add(rl.getModuleDeclarationRecordListener());
+	}
+
+	public void removeRecordListener( final IModuleDeclarationRecordListener rl){
+		this.recordListeners.remove(rl.getModuleDeclarationRecordListener());
+	}
+}
+
+interface IModuleDeclarationRecordListener{
+	
+	public RecordListener<IStrategoList, ModuleDeclaration> getModuleDeclarationRecordListener();
 }

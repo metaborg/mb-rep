@@ -1,6 +1,9 @@
 package org.spoofax.interpreter.library.language.spxlang.tests;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import org.spoofax.interpreter.core.Interpreter;
@@ -18,7 +21,6 @@ import org.spoofax.interpreter.library.language.spxlang.SpxSymbol;
 import org.spoofax.interpreter.library.language.spxlang.SpxSymbolTableException;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
-import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
@@ -81,8 +83,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 	private ModuleDeclaration moduleDeclarationP2M1;
 	private ModuleDeclaration moduleDeclarationP3M1;
 	
-	private void setupScopeTree() throws IOException, SpxSymbolTableException 
-	{
+	private void setupScopeTree() throws IOException, SpxSymbolTableException {
 		String packageName1 =  	"\"lang\", \"p1\"" ;
 		String packageName2 =  	"\"lang\", \"p2\"" ;
 		
@@ -96,9 +97,39 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		moduleDeclarationP1M1 = indexTestModuleDefs ( "p1m1" , packageName1 , absPathString1);
 		moduleDeclarationP1M2 = indexTestModuleDefs ( "p1m2" , packageName1 , absPathString1);
 		moduleDeclarationP2M1 = indexTestModuleDefs ( "p2m1" , packageName2 , absPathString2);
-	
 	}
+	
+	
+	public void testRemovingPackageDeclarationShouldAlsoRemoveNamespace() throws IOException, SpxSymbolTableException, URISyntaxException{
+		
+		setupScopeTree();
+		
+		INamespace ns = _facade.persistenceManager().spxSymbolTable().resolveNamespace(packageDeclaration1.getId());
+		assertNotNull(ns);
+		
+		IStrategoString uriTerm = termFactory().makeString(absPathString1) ;
+		_facade.persistenceManager().spxPackageTable().removePackageDeclarationLocation(
+				packageDeclaration1.getId(), 
+				_facade.toAbsulatePath(uriTerm) 
+			);
 
+		ns = _facade.persistenceManager().spxSymbolTable().resolveNamespace(packageDeclaration1.getId());
+		assertNull(ns);
+	}
+	
+	public void testRemovingModuleDeclarationShouldAlsoRemoveNamespace() throws IOException, SpxSymbolTableException, URISyntaxException{
+		
+		setupScopeTree();
+		
+		INamespace ns = _facade.persistenceManager().spxSymbolTable().resolveNamespace(moduleDeclarationP1M1.getId());
+		assertNotNull(ns);
+		
+		_facade.persistenceManager().spxModuleTable().remove(moduleDeclarationP1M1.getId());
+
+		ns = _facade.persistenceManager().spxSymbolTable().resolveNamespace(moduleDeclarationP1M1.getId());
+		assertNull(ns);
+	}
+	
 	/**
 	 * Validates that Global Namespace is defined only once 
 	 */

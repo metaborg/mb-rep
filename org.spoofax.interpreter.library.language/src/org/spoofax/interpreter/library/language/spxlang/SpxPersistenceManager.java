@@ -115,6 +115,10 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 		// Hence, adding following record listener to do that automatically rather invoking
 		// it explicitly.
 		_spxPackageTable.addRecordListener((IPackageDeclarationRecordListener)_spxModuleTable);
+		
+		//removing respective package or module namespace associated with the construct declaration  
+		_spxPackageTable.addRecordListener((IPackageDeclarationRecordListener)_spxSymbolTable);
+		_spxModuleTable.addRecordListener((IModuleDeclarationRecordListener) _spxSymbolTable);
 	}
 	
 	/**
