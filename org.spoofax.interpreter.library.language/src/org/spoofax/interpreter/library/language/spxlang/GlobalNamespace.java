@@ -5,7 +5,7 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
-public class GlobalNamespace extends BaseNamespace {
+public final class GlobalNamespace extends BaseNamespace {
 	
 	private static final long serialVersionUID = -9194490383911401603L;
 	
