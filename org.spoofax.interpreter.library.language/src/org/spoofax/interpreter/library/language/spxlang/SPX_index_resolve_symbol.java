@@ -12,7 +12,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 
 public class SPX_index_resolve_symbol extends AbstractPrimitive {
-	private static String NAME = "SPX_index_resolve_symbols";
+	private static String NAME = "SPX_index_resolve_symbol";
 	private static int PROJECT_NAME_INDEX = 0;
 	private static int SEARCH_CRITERIA_INDEX = 1;
 

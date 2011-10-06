@@ -35,7 +35,7 @@ public class SPX_index_resolve_symbols extends AbstractPrimitive {
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars){
 		boolean successStatement = false;
 	
-		if ( (tvars.length == NO_ARGS)  && Tools.isTermString(tvars[PROJECT_NAME_INDEX]) && Tools.isTermAppl(tvars[SEARCH_CRITERIA_INDEX])) 
+		if ( (tvars.length == NO_ARGS)  && Tools.isTermString(tvars[PROJECT_NAME_INDEX]) && Tools.isTermTuple(tvars[SEARCH_CRITERIA_INDEX])) 
 		{
 			IStrategoString projectName    = (IStrategoString)tvars[PROJECT_NAME_INDEX];
 			IStrategoTuple searchCriteria = (IStrategoTuple)tvars[SEARCH_CRITERIA_INDEX];

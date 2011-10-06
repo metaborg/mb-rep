@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -304,4 +305,11 @@ public final class PackageNamespace  extends BaseNamespace {
 		return termFactory.makeList(subTerms);
 		
 	}
+
+	@Override
+	public IStrategoAppl toTypedQualifiedName(SpxSemanticIndexFacade facade) {
+	
+		return PackageDeclaration.toPackageQNameAppl(facade, this.namespaceUri().id());
+	}
+	
 }

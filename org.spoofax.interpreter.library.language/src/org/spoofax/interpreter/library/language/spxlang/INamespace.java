@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.net.URI;
 import java.util.UUID;
 
+import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -32,6 +33,8 @@ public interface INamespace extends Serializable {
 	NamespaceUri namespaceUri();
 	
 	boolean isInternalNamespace() ;
+	
+	public IStrategoAppl toTypedQualifiedName(SpxSemanticIndexFacade facade);
 }
 
 

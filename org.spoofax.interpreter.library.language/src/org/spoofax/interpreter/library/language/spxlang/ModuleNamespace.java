@@ -2,6 +2,7 @@ package org.spoofax.interpreter.library.language.spxlang;
 
 import java.net.URI;
 
+import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -40,6 +41,12 @@ public final class ModuleNamespace extends BaseNamespace
 	public static INamespace createInstance(NamespaceUri id, NamespaceUri enclosingNamespaceId, SpxSemanticIndexFacade facade) {
 	
 		return new ModuleNamespace(id, facade.getModuleNamespaceTypeCon(), enclosingNamespaceId, facade.persistenceManager());
+	}
+
+	@Override
+	public IStrategoAppl toTypedQualifiedName(SpxSemanticIndexFacade facade) {
+	
+		return ModuleDeclaration.toModuleQNameAppl(facade, this.namespaceUri().id());
 	}
 	
 	

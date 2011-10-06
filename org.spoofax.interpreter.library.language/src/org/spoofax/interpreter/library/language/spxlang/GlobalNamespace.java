@@ -1,5 +1,6 @@
 package org.spoofax.interpreter.library.language.spxlang;
 
+import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -13,6 +14,9 @@ public final class GlobalNamespace extends BaseNamespace {
 		super(id ,type, manager, null);
 	}
 	
+	public IStrategoAppl toTypedQualifiedName(SpxSemanticIndexFacade facade){
+		return facade.getTermFactory().makeAppl(facade.getGlobalNamespaceTypeCon());
+	} 
 	
 	/**
 	 * Creates an instance of GlobalScope. 

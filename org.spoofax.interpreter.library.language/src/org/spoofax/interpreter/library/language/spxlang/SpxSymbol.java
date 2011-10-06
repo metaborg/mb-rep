@@ -202,30 +202,31 @@ public class SpxSymbol extends BaseSymbol implements Serializable{
 		return retSymbols;
 	}
 	
-	public IStrategoTerm toTerm (SpxSemanticIndexFacade facade){
+	public IStrategoTerm toTerm (SpxSemanticIndexFacade facade) throws SpxSymbolTableException{
 		final ITermFactory termFactory = facade.getTermFactory();
 		
 		//Type 
 		IStrategoConstructor spxTypeCtor = this.typeCons(facade);
+		IStrategoAppl spxTypeCtorAppl = termFactory.makeAppl(spxTypeCtor); 
 		
 		//Data
 		IStrategoTerm deserializedDataToTerm = this.deserializedDataToTerm(termFactory, facade.getTermAttachmentSerializer());
 		
 		//Enclosing Namespace 
 		IStrategoConstructor qnameCons = facade.getQNameCon();
-		IStrategoAppl nsQNameAppl = termFactory.makeAppl(qnameCons, namespaceUri().id());
+		IStrategoAppl nsQNameAppl = this.namespaceUri().resolve(facade.persistenceManager().spxSymbolTable()).toTypedQualifiedName(facade);
 		
 		//ID/Key 
 		IStrategoTerm id = this.Id(termFactory); //TODO : It might require term conversion.
 
 		return (IStrategoTerm)termFactory.makeAppl( facade.getSymbolTableEntryDefCon(),
 				nsQNameAppl,  //ns qname 
-				spxTypeCtor,  // type
+				spxTypeCtorAppl,  // type
 				id,			  //id	
 				deserializedDataToTerm )	;
 	}
 	
-	static IStrategoTerm toTerms(SpxSemanticIndexFacade facade , Iterable<SpxSymbol> symbols){
+	static IStrategoTerm toTerms(SpxSemanticIndexFacade facade , Iterable<SpxSymbol> symbols) throws SpxSymbolTableException{
 		IStrategoList result = facade.getTermFactory().makeList();
 		
 		if( symbols != null)

@@ -261,7 +261,7 @@ public class SpxSemanticIndexFacade {
 	}
 	
 	
-	// SymbolDef : namespace * type * id * value -> Def  
+	// SymbolDef : namespace * id * type *  value -> Def  
 	public void indexSymbol(IStrategoAppl symbolDefinition) throws SpxSymbolTableException, IOException{	
 		final int NAMESPACE_ID_INDEX  = 0;
 		verifyConstructor(symbolDefinition.getConstructor(), getSymbolTableEntryDefCon(), "Illegal SymbolDefinition argument");
@@ -893,7 +893,7 @@ public class SpxSemanticIndexFacade {
 	
 	public IStrategoConstructor getImportDeclCon() {return getConstructor("ImportDecl",2);}
 	
-	public IStrategoConstructor getGlobalNamespaceTypeCon() {return getConstructor("Global",0);}
+	public IStrategoConstructor getGlobalNamespaceTypeCon() {return getConstructor("Globals",0);}
 	
 	public IStrategoConstructor getPackageNamespaceTypeCon() {return getConstructor("Package",0);}
 	
@@ -920,7 +920,7 @@ public class SpxSemanticIndexFacade {
 		ConstructorDef.newInstance("Package",1).index(_knownCons, _termFactory);
 		ConstructorDef.newInstance("QName",  1).index(_knownCons, _termFactory);
 				
-		ConstructorDef.newInstance("Global", 0).index(_knownCons, _termFactory);
+		ConstructorDef.newInstance("Globals", 0).index(_knownCons, _termFactory);
 		ConstructorDef.newInstance("Package",0).index(_knownCons, _termFactory);
 		ConstructorDef.newInstance("Module", 0).index(_knownCons, _termFactory);
 	}

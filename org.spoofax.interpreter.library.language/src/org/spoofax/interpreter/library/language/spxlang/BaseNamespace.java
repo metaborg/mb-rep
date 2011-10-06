@@ -8,6 +8,7 @@ import java.util.Set;
 
 import jdbm.PrimaryMap;
 
+import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
@@ -32,6 +33,9 @@ public abstract class BaseNamespace implements INamespace {
 	public NamespaceUri namespaceUri() {return _currentNamespaceId;}
 	
 	protected NamespaceUri enclosingNamespaceUri() { return _enclosingNamespaceId ; } 
+	
+	public abstract IStrategoAppl toTypedQualifiedName(SpxSemanticIndexFacade facade);
+		
 	
 	public BaseNamespace(NamespaceUri currentNamespace , IStrategoConstructor type, ISpxPersistenceManager manager, NamespaceUri enclosingNamespace) {
 		assert currentNamespace!= null : "Current Namespace Identifier is null";
