@@ -542,9 +542,9 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		assertTrue(SpxSymbol.verifyEquals( this.moduleDeclarationP3M1.getId() , actual.namespaceUri().id()) );
 	}
 	
-	
-	public void testShouldNotFailIncaseOfCyclicImports() throws IOException, SpxSymbolTableException{
+	public void testShouldNotRetrunTransitiveImportSymbols() throws IOException, SpxSymbolTableException{
 		createExtendedScopeTree();
+		
 		IStrategoAppl moduleQnameAppl1 = ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP1M1.getId());
 		IStrategoAppl moduleQnameAppl3 = ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP3M1.getId());
 		
@@ -563,7 +563,8 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		_facade.indexSymbol(createEntry(moduleQnameAppl3 , symbolId3 , typeAppl3 , data3));
 		
 		
-		//Resolving Symbol in Package 1
+		//Resolving Symbol in Package 1. It will not find any symbol defined in Package2. Hence, 
+		//it will return just the symbol from the Package1 .
 		List<SpxSymbol> resolvedSymbols = (List<SpxSymbol>)_facade.resolveSymbols(
 				ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP1M1.getId()), // search origin
 				symbolId3,	//looking for 
@@ -577,23 +578,67 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		assertEquals("ModuleDef", actual.type());
 		assertTrue(SpxSymbol.verifyEquals(symbolId3, actual.Id(_facade.getTermFactory())));
 		assertTrue(SpxSymbol.verifyEquals( this.moduleDeclarationP1M1.getId() , actual.namespaceUri().id()) );
+	}
+	
+	public void testShouldRetrunSymbolsFromImportedScope() throws IOException, SpxSymbolTableException{
+		createExtendedScopeTree();
 		
-		//Resolving Symbol in Package 2
-		resolvedSymbols = (List<SpxSymbol>)_facade.resolveSymbols(
+		IStrategoAppl moduleQnameAppl1 = ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP1M1.getId());
+		IStrategoAppl moduleQnameAppl3 = ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP3M1.getId());
+		
+		// Defining Symbol1 in P1
+		IStrategoTerm symbolId1 = moduleQnameAppl1; 
+	 	IStrategoTerm data1 = (IStrategoAppl)moduleDeclarationP1M1.toTerm(_facade);	// defining Data
+		IStrategoAppl typeAppl1 = termFactory().makeAppl(termFactory().makeConstructor("ModuleDef", 0)); // setting Type  
+		
+		_facade.indexSymbol(createEntry(moduleQnameAppl1 , symbolId1 , typeAppl1  , data1));
+		
+		// Defining Symbol3 in P3
+		IStrategoTerm symbolId3 = moduleQnameAppl1; 
+	 	IStrategoTerm data3 = (IStrategoAppl)moduleDeclarationP1M1.toTerm(_facade);	// defining Data
+		IStrategoAppl typeAppl3 = termFactory().makeAppl(termFactory().makeConstructor("ModuleDef", 0)); // setting Type  
+		
+		_facade.indexSymbol(createEntry(moduleQnameAppl3 , symbolId3 , typeAppl3 , data3));
+		
+		
+		//Resolving Symbol in Package 2 . It should return symbol from imported package3
+		List<SpxSymbol> resolvedSymbols = (List<SpxSymbol>)_facade.resolveSymbols(
 				ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP2M1.getId()), // search origin
 				symbolId3, // loooking for 
 				_facade.getConstructor("ModuleDef", 0) // with type 
 				);
 		
 		assertEquals(1, resolvedSymbols.size());
-		actual = resolvedSymbols.get(0); // Resolved from the imported namespace - Module 1 of Package 3
+		SpxSymbol actual  = resolvedSymbols.get(0); // Resolved from the imported namespace - Module 1 of Package 3
 		assertEquals("ModuleDef", actual.type());
 		assertTrue(SpxSymbol.verifyEquals(symbolId3, actual.Id(_facade.getTermFactory())));
 		assertTrue(SpxSymbol.verifyEquals( this.moduleDeclarationP3M1.getId() , actual.namespaceUri().id()) );
+	}
+	
+	
+	public void testShouldNotFailIncaseOfCyclicImports() throws IOException, SpxSymbolTableException{
+		createExtendedScopeTree();
+		
+		IStrategoAppl moduleQnameAppl1 = ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP1M1.getId());
+		IStrategoAppl moduleQnameAppl3 = ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP3M1.getId());
+		
+		// Defining Symbol1 in P1
+		IStrategoTerm symbolId1 = moduleQnameAppl1; 
+	 	IStrategoTerm data1 = (IStrategoAppl)moduleDeclarationP1M1.toTerm(_facade);	// defining Data
+		IStrategoAppl typeAppl1 = termFactory().makeAppl(termFactory().makeConstructor("ModuleDef", 0)); // setting Type  
+		
+		_facade.indexSymbol(createEntry(moduleQnameAppl1 , symbolId1 , typeAppl1  , data1));
+		
+		// Defining Symbol3 in P3
+		IStrategoTerm symbolId3 = moduleQnameAppl1; 
+	 	IStrategoTerm data3 = (IStrategoAppl)moduleDeclarationP1M1.toTerm(_facade);	// defining Data
+		IStrategoAppl typeAppl3 = termFactory().makeAppl(termFactory().makeConstructor("ModuleDef", 0)); // setting Type  
+		
+		_facade.indexSymbol(createEntry(moduleQnameAppl3 , symbolId3 , typeAppl3 , data3));
 		
 		
 		//Resolving Symbol in Package 3
-		resolvedSymbols = (List<SpxSymbol>)_facade.resolveSymbols(
+		List<SpxSymbol> resolvedSymbols = (List<SpxSymbol>)_facade.resolveSymbols(
 				ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP3M1.getId()), // search origin
 				symbolId3, // loooking for 
 				_facade.getConstructor("ModuleDef", 0) // with type 
@@ -616,7 +661,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 				);
 		
 		assertEquals(1, resolvedSymbols.size());
-		actual = resolvedSymbols.get(0); // Resolved from the imported namespace - Module 1 of Package 3
+		SpxSymbol actual = resolvedSymbols.get(0); // Resolved from the imported namespace - Module 1 of Package 3
 		assertTrue(SpxSymbol.verifyEquals( this.moduleDeclarationP3M1.getId() , actual.namespaceUri().id()) );
 	}
 	
