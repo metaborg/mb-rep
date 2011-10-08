@@ -317,7 +317,7 @@ public class SpxSemanticIndexFacade {
 		if (searchCriteria.getSubtermCount() != 4)
 			throw new IllegalArgumentException(" Illegal symbolLookupTerm Argument ; expected 3 subterms. Found : " + searchCriteria.getSubtermCount());
 		
-		String searchMode = asJavaString(searchCriteria.get(4)).trim();
+		String searchMode = asJavaString(searchCriteria.get(3)).trim();
 		IStrategoConstructor typeCtor = verifyKnownContructorExists((IStrategoAppl)searchCriteria.getSubterm(2));
 		Iterable<SpxSymbol> spxSymbols = null; 
 		if(searchMode.equalsIgnoreCase(All))
