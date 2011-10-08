@@ -11,8 +11,8 @@ import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 
-public class SPX_index_resolve_symbol extends AbstractPrimitive {
-	private static String NAME = "SPX_index_resolve_symbol";
+public class SPX_symtab_resolve_symbol extends AbstractPrimitive {
+	private static String NAME = "SPX_symtab_resolve_symbol";
 	private static int PROJECT_NAME_INDEX = 0;
 	private static int SEARCH_CRITERIA_INDEX = 1;
 
@@ -20,7 +20,7 @@ public class SPX_index_resolve_symbol extends AbstractPrimitive {
 
 	private final SpxSemanticIndex index;
 
-	public SPX_index_resolve_symbol(SpxSemanticIndex index) {
+	public SPX_symtab_resolve_symbol(SpxSemanticIndex index) {
 		super(NAME, 0, NO_ARGS);
 		this.index = index;
 	}
@@ -35,7 +35,7 @@ public class SPX_index_resolve_symbol extends AbstractPrimitive {
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars){
 		boolean successStatement = false;
 	
-		if ( (tvars.length == NO_ARGS)  && Tools.isTermString(tvars[PROJECT_NAME_INDEX]) && Tools.isTermAppl(tvars[SEARCH_CRITERIA_INDEX])) 
+		if ( (tvars.length == NO_ARGS)  && Tools.isTermString(tvars[PROJECT_NAME_INDEX]) && Tools.isTermTuple(tvars[SEARCH_CRITERIA_INDEX])) 
 		{
 			IStrategoString projectName    = (IStrategoString)tvars[PROJECT_NAME_INDEX];
 			IStrategoTuple searchCriteria = (IStrategoTuple)tvars[SEARCH_CRITERIA_INDEX];

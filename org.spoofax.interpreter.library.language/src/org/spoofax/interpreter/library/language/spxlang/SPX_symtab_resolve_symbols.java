@@ -11,8 +11,8 @@ import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 
-public class SPX_index_resolve_symbols extends AbstractPrimitive {
-	private static String NAME = "SPX_index_resolve_symbols";
+public class SPX_symtab_resolve_symbols extends AbstractPrimitive {
+	private static String NAME = "SPX_symtab_resolve_symbols";
 	private static int PROJECT_NAME_INDEX = 0;
 	private static int SEARCH_CRITERIA_INDEX = 1;
 
@@ -20,7 +20,7 @@ public class SPX_index_resolve_symbols extends AbstractPrimitive {
 
 	private final SpxSemanticIndex index;
 
-	public SPX_index_resolve_symbols(SpxSemanticIndex index) {
+	public SPX_symtab_resolve_symbols(SpxSemanticIndex index) {
 		super(NAME, 0, NO_ARGS);
 		this.index = index;
 	}

@@ -10,7 +10,7 @@ public final class GlobalNamespace extends BaseNamespace {
 	
 	private static final long serialVersionUID = -9194490383911401603L;
 	
-	public GlobalNamespace(NamespaceUri id , IStrategoConstructor type, ISpxPersistenceManager manager){
+	private GlobalNamespace(NamespaceUri id , IStrategoConstructor type, ISpxPersistenceManager manager){
 		super(id ,type, manager, null);
 	}
 	

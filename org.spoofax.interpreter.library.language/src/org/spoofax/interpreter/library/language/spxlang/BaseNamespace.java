@@ -37,7 +37,7 @@ public abstract class BaseNamespace implements INamespace {
 	public abstract IStrategoAppl toTypedQualifiedName(SpxSemanticIndexFacade facade);
 		
 	
-	public BaseNamespace(NamespaceUri currentNamespace , IStrategoConstructor type, ISpxPersistenceManager manager, NamespaceUri enclosingNamespace) {
+	protected BaseNamespace(NamespaceUri currentNamespace , IStrategoConstructor type, ISpxPersistenceManager manager, NamespaceUri enclosingNamespace) {
 		assert currentNamespace!= null : "Current Namespace Identifier is null";
 		assert type!= null      : "Non-null Type is expected";
 		

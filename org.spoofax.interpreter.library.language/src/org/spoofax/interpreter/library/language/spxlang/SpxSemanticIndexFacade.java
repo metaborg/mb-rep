@@ -24,8 +24,7 @@ import org.spoofax.terms.attachments.TermAttachmentSerializer;
 import org.spoofax.terms.attachments.TermAttachmentStripper;
 
 public class SpxSemanticIndexFacade {
-	
-	//TODO :  refactor this class  to multiple adapters one for package, one for modules 
+	//TODO :  refactor this class  to multiple facades one for package, one for modules 
 	//TODO FIXME : combine symbol table and index
 	
 	private final ISpxPersistenceManager _persistenceManager;
@@ -47,8 +46,7 @@ public class SpxSemanticIndexFacade {
 	 * @param agent {@link IOAgent}
 	 * @throws IOException throws {@link IOException} from underlying {@link SpxPersistenceManager}
 	 */
-	public SpxSemanticIndexFacade(IStrategoTerm projectName , ITermFactory termFactory , IOAgent agent) throws IOException
-	{
+	public SpxSemanticIndexFacade(IStrategoTerm projectName , ITermFactory termFactory , IOAgent agent) throws IOException {
 		_projectName = asJavaString(projectName);
 		
 		_termFactory = termFactory;
@@ -101,8 +99,7 @@ public class SpxSemanticIndexFacade {
 	 * @param spxCompilationUnitPath Location to the CompilationUnit
 	 * @return {@link IStrategoTerm} 
 	 */
-	public IStrategoTerm getCompilationUnit(IStrategoString spxCompilationUnitPath)
-	{
+	public IStrategoTerm getCompilationUnit(IStrategoString spxCompilationUnitPath){
 		IStrategoAppl retTerm = null; 
 		URI resUri = toFileURI(spxCompilationUnitPath);
 		
@@ -126,8 +123,7 @@ public class SpxSemanticIndexFacade {
 	 * @param spxCompilationUnitPath file path
 	 * @throws IOException
 	 */
-	public void removeCompilationUnit( IStrategoString spxCompilationUnitPath ) throws IOException
-	{
+	public void removeCompilationUnit( IStrategoString spxCompilationUnitPath ) throws IOException{
 		URI resUri = toFileURI(spxCompilationUnitPath);
 		
 		SpxCompilationUnitTable table = _persistenceManager.spxCompilcationUnitTable();
@@ -260,6 +256,27 @@ public class SpxSemanticIndexFacade {
 		}
 	}
 	
+
+	public IStrategoTerm insertNewScope(IStrategoAppl namespaceAppl) throws SpxSymbolTableException {
+		
+		IStrategoList parentId = getNamespaceId(namespaceAppl);
+		
+		SpxPrimarySymbolTable  symbolTable = persistenceManager().spxSymbolTable();
+		INamespace ns = symbolTable.newAnonymousNamespace(this, parentId);
+		
+		return this.getTermFactory().makeAppl(getLocalNamespaceTypeCon(), ns.namespaceUri().id());
+	}
+	
+	public IStrategoTerm destroyScope(IStrategoAppl namespaceAppl) throws SpxSymbolTableException {
+		
+		IStrategoList id = getNamespaceId(namespaceAppl);
+		
+		SpxPrimarySymbolTable  symbolTable = persistenceManager().spxSymbolTable();
+		INamespace ns = symbolTable.destroyNamespace(this, id);
+		
+		return this.getTermFactory().makeAppl(getLocalNamespaceTypeCon(), ns.namespaceUri().id());
+	}
+
 	
 	// SymbolDef : namespace * id * type *  value -> Def  
 	public void indexSymbol(IStrategoAppl symbolDefinition) throws SpxSymbolTableException, IOException{	
@@ -318,7 +335,7 @@ public class SpxSemanticIndexFacade {
 		IStrategoConstructor typeCtor = verifyKnownContructorExists((IStrategoAppl)searchCriteria.getSubterm(2));
 		
 		return SpxSymbol.toTerms( this,
-				resolveSymbols( 
+				resolveSymbol( 
 						(IStrategoAppl)searchCriteria.get(0),
 						searchCriteria.get(1),
 						typeCtor)
@@ -380,11 +397,20 @@ public class SpxSemanticIndexFacade {
 	private IStrategoList getNamespaceId(IStrategoAppl namespaceTypedQname) throws SpxSymbolTableException {
 		IStrategoList namespaceId;
 		if (namespaceTypedQname.getConstructor() == getModuleQNameCon() || namespaceTypedQname.getConstructor() == getPackageQNameCon()) {
+			
 			namespaceId = IdentifiableConstruct.getID(this, (IStrategoAppl) namespaceTypedQname.getSubterm(0));
+			
 		} else if (namespaceTypedQname.getConstructor() == getGlobalNamespaceTypeCon()) {
+			
 			namespaceId = GlobalNamespace.getGlobalNamespaceId(this);
-		} else
+			
+		} else if ( namespaceTypedQname.getConstructor() == getLocalNamespaceTypeCon()){
+			
+			namespaceId = LocalNamespace.getLocalNamespaceId(namespaceTypedQname.getSubterm(0));
+		} 
+		else
 			throw new SpxSymbolTableException("Unknown namespace uri : " + namespaceTypedQname);
+		
 		return namespaceId;
 	}	
 	
@@ -579,8 +605,11 @@ public class SpxSemanticIndexFacade {
 	}
 	
 	/**
+	 * Returns the {@link IStrategoTerm} representation of the list of {@link ModuleDeclaration}
+	 * of the specified File Uri or from the enclosed Package.
+	 *  
 	 * @param res
-	 * @return
+	 * @return {@link IStrategoTerm} 
 	 * @throws SpxSymbolTableException 
 	 */
 	public IStrategoTerm getModuleDeclarationsOf(IStrategoTerm res) throws SpxSymbolTableException {
@@ -901,12 +930,13 @@ public class SpxSemanticIndexFacade {
 	
 	public IStrategoConstructor getSymbolTableEntryDefCon() {return getConstructor("SymbolDef",4);}
 	
+	public IStrategoConstructor getLocalNamespaceTypeCon() { return getConstructor("Locals",1);  }
 	
 	public IStrategoConstructor getConstructor(String symbolTypeCons, int arity) {
 		return _knownCons.get(ConstructorDef.newInstance(symbolTypeCons ,arity));
 	}
-	
-	private void initKnownConstructors() {
+
+	private void initKnownConstructors(){
 		ConstructorDef.newInstance("ModuleDef"  ,5).index(_knownCons, _termFactory);
 		ConstructorDef.newInstance("ModuleDecl" ,3).index(_knownCons, _termFactory);
 		ConstructorDef.newInstance("SymbolDef"  ,4).index(_knownCons, _termFactory);
@@ -916,17 +946,17 @@ public class SpxSemanticIndexFacade {
 		
 		ConstructorDef.newInstance("LanguageDescriptor", 5).index(_knownCons, _termFactory);
 		
-		ConstructorDef.newInstance("Module", 1).index(_knownCons, _termFactory);
-		ConstructorDef.newInstance("Package",1).index(_knownCons, _termFactory);
-		ConstructorDef.newInstance("QName",  1).index(_knownCons, _termFactory);
-				
+		ConstructorDef.newInstance("Module" ,  1).index(_knownCons, _termFactory);
+		ConstructorDef.newInstance("Package",  1).index(_knownCons, _termFactory);
+		ConstructorDef.newInstance("QName"  ,  1).index(_knownCons, _termFactory);
+		ConstructorDef.newInstance("Locals" ,  1).index(_knownCons, _termFactory);
+		
 		ConstructorDef.newInstance("Globals", 0).index(_knownCons, _termFactory);
-		ConstructorDef.newInstance("Package",0).index(_knownCons, _termFactory);
-		ConstructorDef.newInstance("Module", 0).index(_knownCons, _termFactory);
+		ConstructorDef.newInstance("Package", 0).index(_knownCons, _termFactory);
+		ConstructorDef.newInstance("Module" , 0).index(_knownCons, _termFactory);
 	}
 	
 	private final HashMap<ConstructorDef , IStrategoConstructor> _knownCons;
-	
 	private static class ConstructorDef
 	{
 		private String _name ;
@@ -938,14 +968,11 @@ public class SpxSemanticIndexFacade {
 		
 		private IStrategoConstructor toStrategoConstructor(ITermFactory fac) {  return fac.makeConstructor(_name, _arity);}
 		
-		IStrategoConstructor index(HashMap<ConstructorDef , IStrategoConstructor> cons , ITermFactory fac)
-		{
-			
+		IStrategoConstructor index(HashMap<ConstructorDef , IStrategoConstructor> cons , ITermFactory fac){
 			return this.index(cons, this.toStrategoConstructor(fac));
 		}
 		
-		IStrategoConstructor index(HashMap<ConstructorDef , IStrategoConstructor> cons , IStrategoConstructor ctor)
-		{
+		IStrategoConstructor index(HashMap<ConstructorDef , IStrategoConstructor> cons , IStrategoConstructor ctor){
 			cons.put(this, ctor) ;
 			return ctor;
 		}
@@ -991,6 +1018,7 @@ public class SpxSemanticIndexFacade {
 		}
 		
 	}
+
 
 	
 }

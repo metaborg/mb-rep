@@ -12,17 +12,17 @@ import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-public class SPX_index_symbol_definition extends AbstractPrimitive {
-	private static String NAME = "SPX_index_symbol_definition";
+public class SPX_symtab_new_scope extends AbstractPrimitive {
+	private static String NAME = "SPX_symtab_new_scope";
 	
 	private final static int PROJECT_NAME_INDEX = 0;
-	private final static int SYMBOL_DEF_INDEX = 1;
+	private final static int ENCLOSING_NAMESPACE_ID = 1;
 	
 	private final static int NO_ARGS = 2;
 	
 	private final SpxSemanticIndex index;
 	
-	public SPX_index_symbol_definition(SpxSemanticIndex index) {
+	public SPX_symtab_new_scope(SpxSemanticIndex index) {
 		super(NAME, 0, NO_ARGS);
 		this.index = index;
 	}
@@ -31,14 +31,16 @@ public class SPX_index_symbol_definition extends AbstractPrimitive {
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
 		boolean successStatement = false;
 		
-		if ((NO_ARGS == tvars.length) && isTermString(tvars[PROJECT_NAME_INDEX]) && isTermAppl(tvars[SYMBOL_DEF_INDEX])) {
+		if ((NO_ARGS == tvars.length) && isTermString(tvars[PROJECT_NAME_INDEX]) && isTermAppl(tvars[ENCLOSING_NAMESPACE_ID])) {
 			
 			IStrategoString projectName = (IStrategoString)tvars[PROJECT_NAME_INDEX];
-			IStrategoAppl symbolDef   = (IStrategoAppl) tvars[SYMBOL_DEF_INDEX];
+			IStrategoAppl namespaceAppl   = (IStrategoAppl) tvars[ENCLOSING_NAMESPACE_ID];
 			
 			try
 			{
-				successStatement = index.indexSymbolDefinition(projectName, symbolDef);
+				IStrategoTerm term = index.insertNewScope(projectName, namespaceAppl);
+				successStatement = true;
+				env.setCurrent(term);
 			}
 			catch(Exception ex)
 			{ 

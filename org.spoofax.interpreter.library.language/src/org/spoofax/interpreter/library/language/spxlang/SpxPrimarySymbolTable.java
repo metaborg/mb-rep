@@ -71,12 +71,14 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 			return null;
 	}
 	
-	public void removeNamespace(IStrategoList id){
+	public INamespace removeNamespace(IStrategoList id){
 		INamespace resolveNamespace  = resolveNamespace(id) ;
 		
 		if(resolveNamespace != null){
 			this.namespaces.remove(resolveNamespace.namespaceUri());
 		}
+		
+		return resolveNamespace;
 	}
 	
 	public INamespace resolveNamespace(NamespaceUri id) {
@@ -107,9 +109,7 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
-	public String toString() {
-		return "SpxPrimarySymbolTable ( defined namespaces : " + namespaces.keySet() + ")";
-	}
+	public String toString() { return "SpxPrimarySymbolTable ( defined namespaces : " + namespaces.keySet() + ")"; 	}
 	
 	public Set<NamespaceUri> getAllNamespaces() { return namespaces.keySet() ; }
 
@@ -120,6 +120,12 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 		_activeNamespace.define(symTableEntry, facade.persistenceManager()); 
 	}
 	
+	private void ensureActiveNamespaceUnloaded(IStrategoList namespaceId){
+	
+		if(_activeNamespace.namespaceUri().equalSpoofaxId(namespaceId)){
+			_activeNamespace = null;
+		}
+	}
 	private void ensureActiveNamespaceLoaded(IStrategoList namespaceId) throws SpxSymbolTableException{
 		if(_activeNamespace== null ||!_activeNamespace.namespaceUri().equalSpoofaxId(namespaceId)){
 			//Keeping a transient reference to the current/active Namespace
@@ -131,10 +137,9 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 			if(_activeNamespace ==null){
 				throw new SpxSymbolTableException("Unknown namespaceId: "+ namespaceId+". Namespace can not be resolved from symbol-table") ;
 			}
-				
 		}
 	}
-	
+
 	public Iterable<SpxSymbol> resolveSymbols(SpxSemanticIndexFacade spxSemanticIndexFacade, IStrategoList namespaceId, IStrategoTerm symbolId , IStrategoConstructor symbolType) throws SpxSymbolTableException {
 		_manager.logMessage(SRC, "resolveSymbols | Resolving symbols with the following criteria :  search origin " + namespaceId +  " with Key : "+ symbolId + "of Type : "+ symbolType.getName());
 		
@@ -159,7 +164,39 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 		return resolvedSymbol;
 	}
 	
-
+	
+	public INamespace newAnonymousNamespace(SpxSemanticIndexFacade spxSemanticIndexFacade, IStrategoList enclosingNamespaceId) throws SpxSymbolTableException{
+		_manager.logMessage(SRC, "newAnonymousNamespace | Inserting a Anonymous Namespace in following enclosing namespace : "  + enclosingNamespaceId);
+		ensureActiveNamespaceLoaded(enclosingNamespaceId);
+		
+		INamespace localNamespace = LocalNamespace.createInstance(spxSemanticIndexFacade, _activeNamespace); 
+		
+		_manager.logMessage(SRC, "newAnonymousNamespace | Folloiwng namesapce is created : "  + localNamespace);
+		
+		_activeNamespace = localNamespace;
+		
+		return _activeNamespace ;
+	}
+	
+	
+	/**
+	 * Destroying Namespace with following namespaceId
+	 * 
+	 * @param spxSemanticIndexFacade
+	 * @param enclosingNamespaceId
+	 * @return
+	 * @throws SpxSymbolTableException
+	 */
+	public INamespace destroyNamespace(SpxSemanticIndexFacade spxSemanticIndexFacade, IStrategoList namespaceId) throws SpxSymbolTableException{
+		_manager.logMessage(SRC, "destroyNamespace | Removing the following namespace : "  + namespaceId);
+		
+		INamespace ns = this.removeNamespace(namespaceId);
+		
+		ensureActiveNamespaceUnloaded(namespaceId);
+		_manager.logMessage(SRC, "newAnonymousNamespace | Folloiwng namesapce is removed : "  + ns);
+		return ns;
+	} 
+	
 	public RecordListener<IStrategoList, PackageDeclaration> getPackageDeclarationRecordListener() {
 		return new RecordListener<IStrategoList, PackageDeclaration>(){
 
@@ -204,33 +241,4 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 			
 		};
 	}
-
-	
 }
-
-
-
-/*
- * Seperate chaning 
- * 
- * Indexed using ID . If multiple symbol is there will return first one 
- * matching type. 
- * 
- * */
-
-
-/*
- 
-
-- symbol FindSymbol( Scope, ID , CTOR )
-{
-    scope = symbolTable.getActiveScope( scope) 
-    //stop search as soon as found atleast one symbol 
-}
- 
-- symbols FindAllSymbols(Scope , ID , CTor) 
-{
-    scope = symbolTable.getActiveScope( scope) 
-    // search symbol in all the visible scope
-}
- */

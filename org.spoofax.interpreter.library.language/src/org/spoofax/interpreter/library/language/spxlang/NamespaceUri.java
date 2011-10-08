@@ -17,9 +17,18 @@ public final class NamespaceUri implements Serializable
 	private final IStrategoList _id;
 	private final UUID _uId ;
 
-	public NamespaceUri(IStrategoList id){_id = id ; _uId = UUID.randomUUID();}
+	NamespaceUri(IStrategoList id, UUID uId){_id = id ; _uId = uId; }
 	
-	public IStrategoList id(){ return _id ; }
+	public NamespaceUri(IStrategoList id){ 
+		this(id, UUID.randomUUID()); 
+	}
+	
+	public IStrategoList id(){ 
+		if( _id == null) {
+			
+		}
+		return _id ; 
+	}
 	
 	public String uniqueID(){ return _uId.toString();};
 	

@@ -544,18 +544,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 	
 	
 	public void testShouldNotFailIncaseOfCyclicImports() throws IOException, SpxSymbolTableException{
-		setupScopeTree();
-		
-		String packageName3 =  	"\"lang\", \"p3\"" ;
-		
-		packageDeclaration3   = indexTestPackageDecl(packageName3, absPathString2);
-		moduleDeclarationP3M1 = indexTestModuleDefs ( "p3m1" , packageName3 , absPathString2);
-		
-		//Setting up following import hierarchy : P1 -> P2 -> P3 -> p1
-		this.packageDeclaration1.addImportRefernces(_facade, termFactory().makeList(PackageDeclaration.toPackageQNameAppl(_facade,this.packageDeclaration2.getId())));
-		this.packageDeclaration2.addImportRefernces(_facade, termFactory().makeList(PackageDeclaration.toPackageQNameAppl(_facade,this.packageDeclaration3.getId())));
-		this.packageDeclaration3.addImportRefernces(_facade, termFactory().makeList(PackageDeclaration.toPackageQNameAppl(_facade,this.packageDeclaration1.getId())));
-		
+		createExtendedScopeTree();
 		IStrategoAppl moduleQnameAppl1 = ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP1M1.getId());
 		IStrategoAppl moduleQnameAppl3 = ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP3M1.getId());
 		
@@ -629,6 +618,36 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		assertEquals(1, resolvedSymbols.size());
 		actual = resolvedSymbols.get(0); // Resolved from the imported namespace - Module 1 of Package 3
 		assertTrue(SpxSymbol.verifyEquals( this.moduleDeclarationP3M1.getId() , actual.namespaceUri().id()) );
+	}
+	
+	
+	public void createExtendedScopeTree() throws IOException, SpxSymbolTableException{
+		// Setting up a big Scope-Tree
+		setupScopeTree();
+		
+		String packageName3 =  	"\"lang\", \"p3\"" ;
+		
+		packageDeclaration3   = indexTestPackageDecl(packageName3, absPathString2);
+		moduleDeclarationP3M1 = indexTestModuleDefs ( "p3m1" , packageName3 , absPathString2);
+		
+		//Setting up following import hierarchy : P1 -> P2 -> P3 -> p1
+		this.packageDeclaration1.addImportRefernces(_facade, termFactory().makeList(PackageDeclaration.toPackageQNameAppl(_facade,this.packageDeclaration2.getId())));
+		this.packageDeclaration2.addImportRefernces(_facade, termFactory().makeList(PackageDeclaration.toPackageQNameAppl(_facade,this.packageDeclaration3.getId())));
+		this.packageDeclaration3.addImportRefernces(_facade, termFactory().makeList(PackageDeclaration.toPackageQNameAppl(_facade,this.packageDeclaration1.getId())));
+				
+		// ------ScopeTree setup is done :  P1 imports P2 import P3 imports P1--------
+		// 
+		//                         Global 
+		//                           |
+		//							 | 
+		//         p1--------->------p2------------>-------------P3
+		//          |                |                            |     
+		//  -----------------       --------------            -----------  
+		//   |      |       |       |            |            |         |  
+		//  p1M1   p1M2 _internal   _internal    p2M1       _internal   P3M1
+		//
+		//-----------------------------------------------------------------------------
+		
 	}
 	
 	private IStrategoAppl createEntry(IStrategoAppl namespaceAppl , IStrategoTerm id , IStrategoAppl typeAppl, IStrategoTerm data){

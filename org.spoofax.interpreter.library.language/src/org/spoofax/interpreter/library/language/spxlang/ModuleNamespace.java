@@ -24,7 +24,7 @@ public final class ModuleNamespace extends BaseNamespace
 	 */
 	boolean isInternalNamespace = false;   
 	
-	public ModuleNamespace(NamespaceUri currentNamespaceUri, IStrategoConstructor namespaceType ,NamespaceUri enclosingNamespaceUri,  ISpxPersistenceManager manager) {
+	private ModuleNamespace(NamespaceUri currentNamespaceUri, IStrategoConstructor namespaceType ,NamespaceUri enclosingNamespaceUri,  ISpxPersistenceManager manager) {
 		super(currentNamespaceUri, namespaceType, manager, enclosingNamespaceUri);
 	}
 
@@ -39,13 +39,11 @@ public final class ModuleNamespace extends BaseNamespace
 	 * @return
 	 */
 	public static INamespace createInstance(NamespaceUri id, NamespaceUri enclosingNamespaceId, SpxSemanticIndexFacade facade) {
-	
 		return new ModuleNamespace(id, facade.getModuleNamespaceTypeCon(), enclosingNamespaceId, facade.persistenceManager());
 	}
 
 	@Override
 	public IStrategoAppl toTypedQualifiedName(SpxSemanticIndexFacade facade) {
-	
 		return ModuleDeclaration.toModuleQNameAppl(facade, this.namespaceUri().id());
 	}
 	

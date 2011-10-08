@@ -20,9 +20,7 @@ import org.spoofax.interpreter.terms.ITermFactory;
  * @author Md. Adil Akhter
  */
 public final class PackageNamespace  extends BaseNamespace {
-
 	//TODO improvement : Implement a Query Pattern for symbol resolving . 
-	
 	private static final long serialVersionUID = 7324156752002137217L;
 	private static final String INTERNAL_NAMESPACENAME = "__internal";
 	
@@ -192,7 +190,6 @@ public final class PackageNamespace  extends BaseNamespace {
 		return namespaces;
 	}
 	
-	
 	/** 
 	 * Resolving a Symbol in the Namespaces specified in {@code resolvableUris} 
 	 * @param resolvableUris 
@@ -257,7 +254,6 @@ public final class PackageNamespace  extends BaseNamespace {
 	
 	}
 	
-	
 	/**
 	 * Creates a new Internal namespace for the current package namespace.
 	 * @param enclosingNamespaceId
@@ -275,7 +271,6 @@ public final class PackageNamespace  extends BaseNamespace {
 		
 		return internalNamespace;
 	}
-
 
 	/**
 	 * @param enclosingNamespaceId
@@ -311,5 +306,4 @@ public final class PackageNamespace  extends BaseNamespace {
 	
 		return PackageDeclaration.toPackageQNameAppl(facade, this.namespaceUri().id());
 	}
-	
 }
