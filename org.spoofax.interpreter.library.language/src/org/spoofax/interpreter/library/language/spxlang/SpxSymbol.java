@@ -79,13 +79,17 @@ class BaseSymbol implements Serializable{
 	public static boolean verifyEquals( IStrategoTerm[] currentTerms, IStrategoTerm[] otherTerms) {
 		boolean retValue = false;
 		
-		if( currentTerms.length == otherTerms.length){
-			for ( int i = 0 ; i< currentTerms.length ; i++){
-				if( !verifyEquals(currentTerms[i], otherTerms[i])){
-					retValue = false;
-					break;
+		if(currentTerms == null && otherTerms == null) {retValue = true;} 
+		else if( currentTerms.length == otherTerms.length){
+			if(currentTerms.length ==0) {retValue = true;}
+			else {  
+				for ( int i = 0 ; i< currentTerms.length ; i++){
+					if( !verifyEquals(currentTerms[i], otherTerms[i])){
+						retValue = false;
+						break;
+					}
+					else { retValue = true;}
 				}
-				else { retValue = true;}
 			}
 		}
 		return retValue;

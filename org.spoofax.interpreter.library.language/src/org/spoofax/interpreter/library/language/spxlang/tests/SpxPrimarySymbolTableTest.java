@@ -681,7 +681,87 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		
 	}
 	
-	public void createExtendedScopeTree() throws IOException, SpxSymbolTableException{
+	public void testDestroyAnonymousScope() throws IOException, SpxSymbolTableException {
+		createExtendedScopeTree();
+		
+		IStrategoAppl moduleQnameAppl1 = ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP1M1.getId());
+	
+		IStrategoAppl nsAppl = (IStrategoAppl)_facade.insertNewScope(moduleQnameAppl1);
+		
+		assertEquals(_facade.getLocalNamespaceTypeCon(), nsAppl.getConstructor());
+		
+		INamespace ns = _facade.persistenceManager().spxSymbolTable().resolveNamespace((IStrategoList) nsAppl.getSubterm(0));
+		assertNotNull(ns);
+		
+		nsAppl = (IStrategoAppl)_facade.destroyScope(moduleQnameAppl1);
+		assertNotNull(ns);
+		
+		ns = _facade.persistenceManager().spxSymbolTable().resolveNamespace((IStrategoList) nsAppl.getSubterm(0));
+		assertNull(ns);
+	}
+	
+	public void testResolveInAnonymousScopeShouldReturnEnclosingSymbols() throws IOException, SpxSymbolTableException {
+		createExtendedScopeTree();
+		
+		//adding a symbol in moduleDeclarationP1M1
+		IStrategoAppl moduleQnameAppl1 = ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP1M1.getId());
+		IStrategoTerm symbolId1 = moduleQnameAppl1; 
+	 	IStrategoTerm data1 = (IStrategoAppl)moduleDeclarationP1M1.toTerm(_facade);	// defining Data
+		IStrategoAppl typeAppl1 = termFactory().makeAppl(termFactory().makeConstructor("ModuleDef", 0)); // setting Type  
+		
+		_facade.indexSymbol(createEntry(moduleQnameAppl1 , symbolId1 , typeAppl1  , data1));
+		
+		//Creating anonymous scope
+		IStrategoAppl nsAppl = (IStrategoAppl)_facade.insertNewScope(moduleQnameAppl1);
+		assertEquals(_facade.getLocalNamespaceTypeCon(), nsAppl.getConstructor());
+		INamespace ns = _facade.persistenceManager().spxSymbolTable().resolveNamespace((IStrategoList) nsAppl.getSubterm(0));
+		assertNotNull(ns);
+		
+		//Resolving Symbol from ModuleP1M1. It will not find any symbol defined in localScope. Hence, 
+		//it will return just the symbol from the ModuleP1M1 .
+		List<SpxSymbol> resolvedSymbols = (List<SpxSymbol>)_facade.resolveSymbols(
+				nsAppl, // search origin
+				symbolId1,	//looking for 
+				_facade.getConstructor("ModuleDef", 0) // with type 
+				);
+		
+		
+		assertEquals(1, resolvedSymbols.size());
+		
+		SpxSymbol actual = resolvedSymbols.get(0); // resolved from the current namespace - Module 1 of Package 1 
+		assertEquals("ModuleDef", actual.type());
+		assertTrue(SpxSymbol.verifyEquals(symbolId1, actual.Id(_facade.getTermFactory())));
+		assertTrue(SpxSymbol.verifyEquals( this.moduleDeclarationP1M1.getId() , actual.namespaceUri().id()) );
+	
+		//Resolve symbol defined in GlobalScope 
+		IStrategoAppl globalNamespaceAppl = termFactory().makeAppl(_facade.getGlobalNamespaceTypeCon());
+		
+		IStrategoTerm symbolId2 = termFactory().makeTuple( globalNamespaceAppl , termFactory().makeString("1")); // defining following composite ID :  (Global() , "TestId") 
+	 	IStrategoTerm data2 = (IStrategoAppl)moduleDeclarationP1M2.toTerm(_facade);	// defining Data
+		IStrategoAppl typeAppl2 = termFactory().makeAppl(termFactory().makeConstructor("SDFDef", 0)); // setting Type  
+		
+		_facade.indexSymbol(createEntry(globalNamespaceAppl , symbolId2 , typeAppl2  , data2));
+		
+		//Resolving Symbol defined in Global Namespace. 		
+		resolvedSymbols = (List<SpxSymbol>)_facade.resolveSymbols(
+				nsAppl, // search origin
+				symbolId2,	//looking for 
+				_facade.getConstructor("SDFDef", 0) // with type 
+				);
+		
+		
+		assertEquals(1, resolvedSymbols.size());
+		
+		actual = resolvedSymbols.get(0); // resolved from the current namespace - Module 1 of Package 1 
+		assertEquals("SDFDef", actual.type());
+		assertTrue(SpxSymbol.verifyEquals(symbolId2, actual.Id(_facade.getTermFactory())));
+		assertTrue(SpxSymbol.verifyEquals( GlobalNamespace.getGlobalNamespaceId(_facade) , actual.namespaceUri().id()) );
+	
+	}
+	
+	
+	
+	private void createExtendedScopeTree() throws IOException, SpxSymbolTableException{
 		// Setting up a big Scope-Tree
 		setupScopeTree();
 		
