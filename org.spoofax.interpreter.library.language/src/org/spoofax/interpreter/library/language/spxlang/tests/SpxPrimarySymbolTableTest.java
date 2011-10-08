@@ -21,6 +21,7 @@ import org.spoofax.interpreter.library.language.spxlang.SpxSymbol;
 import org.spoofax.interpreter.library.language.spxlang.SpxSymbolTableException;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
+import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
@@ -665,6 +666,20 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		assertTrue(SpxSymbol.verifyEquals( this.moduleDeclarationP3M1.getId() , actual.namespaceUri().id()) );
 	}
 	
+	public void testAnonymousScopeCreation() throws IOException, SpxSymbolTableException {
+		createExtendedScopeTree();
+		
+		IStrategoAppl moduleQnameAppl1 = ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP1M1.getId());
+	
+		IStrategoAppl nsAppl = (IStrategoAppl)_facade.insertNewScope(moduleQnameAppl1);
+		
+		assertEquals(_facade.getLocalNamespaceTypeCon(), nsAppl.getConstructor());
+		
+		INamespace ns = _facade.persistenceManager().spxSymbolTable().resolveNamespace((IStrategoList) nsAppl.getSubterm(0));
+		
+		assertNotNull(ns);
+		
+	}
 	
 	public void createExtendedScopeTree() throws IOException, SpxSymbolTableException{
 		// Setting up a big Scope-Tree

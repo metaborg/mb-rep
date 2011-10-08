@@ -170,7 +170,8 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 		ensureActiveNamespaceLoaded(enclosingNamespaceId);
 		
 		INamespace localNamespace = LocalNamespace.createInstance(spxSemanticIndexFacade, _activeNamespace); 
-		
+		this.defineNamespace(localNamespace);
+	
 		_manager.logMessage(SRC, "newAnonymousNamespace | Folloiwng namesapce is created : "  + localNamespace);
 		
 		_activeNamespace = localNamespace;
