@@ -56,7 +56,6 @@ public class LanguageLibrary extends AbstractStrategoOperatorRegistry {
 		add(new SPX_symtab_new_scope(spxIndex));
 		add(new SPX_symtab_destroy_scope(spxIndex));
 		add(new SPX_symtab_define_symbol(spxIndex));
-		add(new SPX_symtab_resolve_symbol(spxIndex));
 		add(new SPX_symtab_resolve_symbols(spxIndex));
 		
 	}

@@ -314,32 +314,29 @@ public class SpxSemanticIndexFacade {
 	
 	// (namespace * idTolookupFor * type constructor)
 	public IStrategoTerm resolveSymbols(IStrategoTuple searchCriteria) throws SpxSymbolTableException{
-		
-		if (searchCriteria.getSubtermCount() != 3)
+		if (searchCriteria.getSubtermCount() != 4)
 			throw new IllegalArgumentException(" Illegal symbolLookupTerm Argument ; expected 3 subterms. Found : " + searchCriteria.getSubtermCount());
 		
+		String searchMode = asJavaString(searchCriteria.get(4)).trim();
 		IStrategoConstructor typeCtor = verifyKnownContructorExists((IStrategoAppl)searchCriteria.getSubterm(2));
-		return SpxSymbol.toTerms( this,
-				resolveSymbols( 
+		Iterable<SpxSymbol> spxSymbols = null; 
+		if(searchMode.equalsIgnoreCase(All))
+		{
+			spxSymbols = resolveSymbols( 
 						(IStrategoAppl)searchCriteria.get(0),
 						searchCriteria.get(1),
-						typeCtor)
-				); 
-	}
-	
-	public IStrategoTerm resolveSymbol(IStrategoTuple searchCriteria) throws SpxSymbolTableException {
-	
-		if (searchCriteria.getSubtermCount() != 3)
-			throw new IllegalArgumentException(" Illegal symbolLookupTerm Argument ; expected 3 subterms. Found : " + searchCriteria.getSubtermCount());
+						typeCtor);
+		}else if(searchMode.equalsIgnoreCase(CURRENT)){
+			spxSymbols = resolveSymbol( 
+							(IStrategoAppl)searchCriteria.get(0),
+							searchCriteria.get(1),
+							typeCtor);
+		}
+		else{
+			throw new IllegalArgumentException(" Illegal symbolLookupTerm searchMode Argument ; expected * or . . Found : " + searchMode);
+		}
 		
-		IStrategoConstructor typeCtor = verifyKnownContructorExists((IStrategoAppl)searchCriteria.getSubterm(2));
-		
-		return SpxSymbol.toTerms( this,
-				resolveSymbol( 
-						(IStrategoAppl)searchCriteria.get(0),
-						searchCriteria.get(1),
-						typeCtor)
-				);
+		return SpxSymbol.toTerms(this, spxSymbols);
 	}
 	
 	/**

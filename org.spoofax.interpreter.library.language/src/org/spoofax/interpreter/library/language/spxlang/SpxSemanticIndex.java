@@ -318,16 +318,6 @@ public class SpxSemanticIndex {
 		}.executeWith(projectName, searchCriteria);
 	}
 
-	public IStrategoTerm resolveSymbol(IStrategoString projectName, final IStrategoTuple searchCriteria) throws Exception {
-		return new SpxResolver() {
-			@Override
-			public IStrategoTerm resolve(IStrategoString projectName, IStrategoTerm qname) throws Exception {	
-				SpxSemanticIndexFacade idxFacade = getFacade(projectName);
-				return idxFacade.resolveSymbol((IStrategoTuple)qname);
-			}
-		}.executeWith(projectName, searchCriteria);
-	}
-	
 	public boolean removeCompilationUnit(IStrategoString projectName,IStrategoString spxCompilationUnitPath) throws IllegalStateException, IOException, SpxSymbolTableException{
 		
 		boolean successStatement = false;
