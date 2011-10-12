@@ -22,8 +22,6 @@ import org.spoofax.interpreter.library.IOAgent;
  * Created On : Aug 22, 2011
  */
 public class SpxPersistenceManager implements ISpxPersistenceManager {
-
-	private static final boolean DEBUG = true;
 	private static final String SRC =   "SpxPersistenceManager" ;
 	
 	
@@ -32,9 +30,12 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	private final IOAgent _agent;
 	private final String _projectName ;
 	
+	// Keeps a reference to the SpxCompilation Units 
 	private SpxCompilationUnitTable _spxUnitsTable;  
+	// Indexing Package and Module Definitions
 	private SpxPackageLookupTable _spxPackageTable;
 	private SpxModuleLookupTable _spxModuleTable;
+	// Symbol Table for storing program symbols 
 	private SpxPrimarySymbolTable _spxSymbolTable;
 
 
@@ -47,8 +48,6 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	 */
 	public SpxPersistenceManager(SpxSemanticIndexFacade spxSemanticIndexFacade) throws IOException{
 		this(spxSemanticIndexFacade, null);
-	
-		//TODO FIXME: dont like this coupling. rethink and refactor. 
 	}
 	
 	
@@ -72,7 +71,7 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 		//setting properties of RecordManager
 		options.put(RecordManagerOptions.INDEX_RELATIVE_PATH_OPTION, _indexDirectory + "/" + _projectName + ".idx");
 		options.put(RecordManagerOptions.CACHE_TYPE, "auto");
-		//options.put(RecordManagerOptions.DISABLE_TRANSACTIONS, "true");
+		options.put(RecordManagerOptions.DISABLE_TRANSACTIONS, "false");
 
 		_recordManager = RecordManagerFactory.createRecordManager(_projectName , options);
 		
@@ -85,13 +84,14 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	 * 
 	 * @param projectName name of the Project 
 	 */
-	public void initializeSymbolTables(String projectName , SpxSemanticIndexFacade facade) {
+	public void initializeSymbolTables(String projectName , SpxSemanticIndexFacade facade) throws Exception {
 		
 		_spxUnitsTable   = new SpxCompilationUnitTable(this);
 		_spxPackageTable = new SpxPackageLookupTable(this);
 		_spxModuleTable  = new SpxModuleLookupTable(this);
 		_spxSymbolTable = new SpxPrimarySymbolTable(facade);
-		
+		_spxSymbolTable.addGlobalNamespace(facade);
+
 		initListeners();
 	}
 	
@@ -129,8 +129,7 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	 * @param mapName
 	 * @return
 	 */
-	public <K,V> PrimaryHashMap<K,V> loadHashMap ( String mapName)
-	{
+	public <K,V> PrimaryHashMap<K,V> loadHashMap ( String mapName){
 		return _recordManager.hashMap(mapName) ;
 		
 	}
@@ -142,18 +141,14 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	 * @param storeMapName
 	 * @return
 	 */
-	public <V> PrimaryStoreMap <Long, V> loadStoreMap( String storeMapName)
-	{
-		return _recordManager.storeMap(storeMapName);
-	}
+	public <V> PrimaryStoreMap <Long, V> loadStoreMap( String storeMapName) { return _recordManager.storeMap(storeMapName); }
 	
 	/**
 	 * Commits any unsaved changes to the disk 
 	 * @throws IOException
 	 */
-	public void commit() throws IOException
-	{
-		_recordManager.commit();
+	public void commit() throws IOException {
+		_recordManager.commit(); 
 	}
 	
 	/**
@@ -161,19 +156,12 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	 * 
 	 * @throws IOException
 	 */
-	void close() throws IOException
-	{
-		_recordManager.close();	
-	}
+	void close() throws IOException { _recordManager.close(); }
 	
 	/* (non-Javadoc)
 	 * @see org.spoofax.interpreter.library.language.spxlang.ISpxPersistenceManager#commitAndClose()
 	 */
-	public void commitAndClose() throws IOException
-	{	
-		this.commit();
-		this.close();
-	}
+	public void commitAndClose() throws IOException { this.commit(); this.close(); }
 
 	public SpxCompilationUnitTable spxCompilcationUnitTable() { return _spxUnitsTable; }
 
@@ -206,7 +194,7 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	 * @see org.spoofax.interpreter.library.language.spxlang.ISpxPersistenceManager#logMessage(java.lang.String, java.lang.String)
 	 */
 	public void logMessage(String origin, String message) {
-		if(DEBUG){		
+		if(Utils.DEBUG){		
 			try {
 				_agent.getWriter(IOAgent.CONST_STDOUT).write(
 						"[" + this._projectName + "." + origin + "]   " + message

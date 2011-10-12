@@ -2,8 +2,10 @@ package org.spoofax.interpreter.library.language.spxlang;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import jdbm.PrimaryMap;
@@ -16,26 +18,23 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
  * BaseScope  is an abstract base class that implements Scope Interface
  * 
  * @author Md. Adil Akhter
- * Created On : Aug 27, 2011
  */
 public abstract class BaseNamespace implements INamespace {
 	
 	private static final long serialVersionUID = 2052337390283813190L;
 	
-	protected final IStrategoConstructor type;
 	protected final String  src;
-
-	private  final NamespaceUri _currentNamespaceId; 
-	private final NamespaceUri _enclosingNamespaceId;
 	
-	protected final MultiValuePersistentTable _symbols;
+	private final NamespaceUri _currentNamespaceId; 
+	private final NamespaceUri _enclosingNamespaceId;
+	protected final IStrategoConstructor type;
+	protected HashMap<SpxSymbolKey, List<SpxSymbol>> symbols;
 
 	public NamespaceUri namespaceUri() {return _currentNamespaceId;}
 	
 	protected NamespaceUri enclosingNamespaceUri() { return _enclosingNamespaceId ; } 
 	
 	public abstract IStrategoAppl toTypedQualifiedName(SpxSemanticIndexFacade facade);
-		
 	
 	protected BaseNamespace(NamespaceUri currentNamespace , IStrategoConstructor type, ISpxPersistenceManager manager, NamespaceUri enclosingNamespace) {
 		assert currentNamespace!= null : "Current Namespace Identifier is null";
@@ -48,7 +47,7 @@ public abstract class BaseNamespace implements INamespace {
 		
 		src = (_enclosingNamespaceId!= null) ? type.getName() + _currentNamespaceId.id() :  type.getName()   ; 
 			
-		_symbols = new MultiValuePersistentTable();
+		symbols = new HashMap<SpxSymbolKey, List<SpxSymbol>>();
 	}
 
 	public void define(SpxSymbolTableEntry entry, ILogger logger){
@@ -57,28 +56,57 @@ public abstract class BaseNamespace implements INamespace {
 		
 		logger.logMessage(src, "define | Defining Symbol "+ entry.value + " in "+ _currentNamespaceId);
 		
-		_symbols.define(entry);
+		defineSymbol(entry);
 	}
-
-	/* 
-	 * Returns the enclosing scope of the current scope.
-	 * */
-	public INamespace getEnclosingNamespace(INamespaceResolver rs) throws SpxSymbolTableException { return (_enclosingNamespaceId != null) ? _enclosingNamespaceId.resolve(rs) : null; }
 	
-	public INamespace getCurrentNamespace(INamespaceResolver rs) throws SpxSymbolTableException{ return _currentNamespaceId.resolve(rs); }
+	/**
+	 * Defines symbol in this namespace. Define does not replace  
+	 * old symbol mapped using the key with the new one. It just adds the 
+	 * new symbol at the end of the multivaluelist. 
+	 * 
+	 * @param key - The key that the symbol will be mapped to .
+	 * @param symbol - The symbol to store. 
+	 */
+	private void defineSymbol(SpxSymbolTableEntry entry){
+		SpxSymbolKey key = entry.key;
+		
+		if ( symbols.containsKey(key)){
+			symbols.get(key).add(entry.value);
+		}else{
+			List<SpxSymbol> values = new ArrayList<SpxSymbol>(); 
+			values.add(entry.value);
+			symbols.put( key , values );
+		}
+	}
+	
+	protected static List<SpxSymbol> lookupSymbols(Map<SpxSymbolKey, List<SpxSymbol>> members, IStrategoTerm id){
+		
+		SpxSymbolKey key = new SpxSymbolKey(id);
+		List<SpxSymbol> resolvedSymbols = members.get(key);
+		
+		return (resolvedSymbols == null) ? new ArrayList<SpxSymbol>() : resolvedSymbols ; 
+	}
+	
+	protected  static SpxSymbol lookupSymbol(Map<SpxSymbolKey, List<SpxSymbol>> members,  IStrategoTerm id , IStrategoTerm type){
+		SpxSymbolKey key = new SpxSymbolKey(id);
+		List<SpxSymbol> resolvedSymbols = members.get(key);
+		
+		if(resolvedSymbols != null && resolvedSymbols.size() > 0 ){
+			List<SpxSymbol> expectedTypedSymbol  = SpxSymbol.filterByType((IStrategoConstructor)type, resolvedSymbols);
+			if(expectedTypedSymbol.size() >0 )
+				return expectedTypedSymbol.get(expectedTypedSymbol.size()-1);
+		}
+		return null;
+	}
 	
 	public SpxSymbol resolve(IStrategoTerm id, IStrategoTerm type, INamespace searchedBy, SpxSemanticIndexFacade  facade) throws SpxSymbolTableException{
 		facade.persistenceManager().logMessage(this.src, "resolve | Resolving Symbol in " + this.namespaceUri().id() +  " . Key :  " + id + " origin Namespace: " + searchedBy.namespaceUri().id() );
 		
 		assert type instanceof IStrategoConstructor : "Type is expected to be IStrategoConstructor" ;
 			
-		List<SpxSymbol> lookupResult = getMembers().resolve(id);
-		if( lookupResult!=null){
-			List<SpxSymbol> expectedTypedSymbol = SpxSymbol.filterByType((IStrategoConstructor)type, lookupResult);
-		
-			if(expectedTypedSymbol.size() >0 )
-				return lookupResult.get(0) ;
-		}
+		SpxSymbol result = lookupSymbol(getMembers(), id , type);
+		if(result!=null)
+			return result;
 	
 		// Symbols could not be found in the current scope
 		// Hence, searching any enclosing(parent) scope if it is not 
@@ -100,7 +128,7 @@ public abstract class BaseNamespace implements INamespace {
 		
 		Set<SpxSymbol> retResult = new HashSet<SpxSymbol>();
 		
-		List<SpxSymbol> lookupResult = getMembers().resolve(id);
+		List<SpxSymbol> lookupResult = lookupSymbols(getMembers() , id);
 		retResult.addAll(lookupResult);
 		
 		INamespace namespace = getEnclosingNamespace(facade.persistenceManager().spxSymbolTable());
@@ -132,15 +160,24 @@ public abstract class BaseNamespace implements INamespace {
 		return resolveAll(searchingFor, type,  this, spxFacade);
 	}
 	
+	public IStrategoConstructor type() { return type; }
+
+	public Map<SpxSymbolKey, List<SpxSymbol>> getMembers(){return this.symbols;}
+
+	public void clear() { if(this.symbols != null) this.symbols.clear();}
+
+	/* 
+	 * Returns the enclosing scope of the current scope.
+	 * */
+	public INamespace getEnclosingNamespace(INamespaceResolver rs) throws SpxSymbolTableException { return (_enclosingNamespaceId != null) ? _enclosingNamespaceId.resolve(rs) : null; }
 	
-	public IStrategoConstructor type() {
-		return type;
-	}
-
-	public MultiValuePersistentTable getMembers(){return _symbols;}
-
+	public INamespace getCurrentNamespace(INamespaceResolver rs) throws SpxSymbolTableException{ return _currentNamespaceId.resolve(rs); }
+	
+	
+	
 	public boolean isInternalNamespace() { return false;  }
 
+	
 	protected boolean shouldSearchInInternalNamespace( INamespace searchedBy) {
 		// If searchedBy Namespace is enclosingNamespace of CurrentNamespace 
 		// Search for internal symbol scopes as well
@@ -164,6 +201,6 @@ public abstract class BaseNamespace implements INamespace {
 	 */
 	@Override
 	public String toString() {
-		return "BaseNamespace [type=" + type + ", _currentNamespaceId=" + _currentNamespaceId.id() + "]";
+		return "namespace : "+ src + "";
 	}
 }

@@ -8,7 +8,8 @@ public final class Utils {
 		
 	}
 	
-
+	static final boolean DEBUG = true;
+	
 	/**
 	 * Constructs {@link IStrategoList} from {@code decls}  
 	 * 

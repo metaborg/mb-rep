@@ -1,11 +1,14 @@
 package org.spoofax.interpreter.library.language.spxlang;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
@@ -23,7 +26,7 @@ import jdbm.RecordManager;
  * @author Md. Adil Akhter
  * Created On : Aug 22, 2011
  */
-class MultiValuePersistentTable implements Serializable{
+public class MultiValuePersistentTable implements Serializable{
 
 	private static final long serialVersionUID = -473055635199728599L;
 	private final HashMap<SpxSymbolKey, List<SpxSymbol>> symbols;
@@ -37,7 +40,7 @@ class MultiValuePersistentTable implements Serializable{
 	 * 
 	 * @throws IOException 
 	 */
-	public void clear() throws IOException{ symbols.clear(); }
+	public void clear(){ symbols.clear(); }
 
 	
 	/**
@@ -66,5 +69,16 @@ class MultiValuePersistentTable implements Serializable{
 		List<SpxSymbol> resolvedSymbols = symbols.get(key);
 		
 		return (resolvedSymbols == null) ? new ArrayList<SpxSymbol>() : resolvedSymbols ; 
+	}
+	
+	public void logEntries(BufferedWriter logger) throws IOException{
+		for( SpxSymbolKey k : symbols.keySet()) {
+			logger.write("\t"+k.toString()  + " :  \n");
+			
+			for( SpxSymbol s : symbols.get(k) ){
+				logger.write( "\t\t"+ s.toString() + "\n");
+			}
+		}
+		logger.write("\n");
 	}
 }

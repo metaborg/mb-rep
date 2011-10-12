@@ -27,7 +27,7 @@ public class SpxSemanticIndexFacade {
 	//TODO :  refactor this class  to multiple facades one for package, one for modules 
 	//TODO FIXME : combine symbol table and index
 	
-	private final ISpxPersistenceManager _persistenceManager;
+	private ISpxPersistenceManager _persistenceManager;
 	private final String _projectName ; 
 	private final ITermFactory _termFactory;
 	private final IOAgent _agent;
@@ -44,9 +44,9 @@ public class SpxSemanticIndexFacade {
 	 * @param projectName name of the project 
 	 * @param termFactory {@link ITermFactory}
 	 * @param agent {@link IOAgent}
-	 * @throws IOException throws {@link IOException} from underlying {@link SpxPersistenceManager}
+	 * @throws Exception 
 	 */
-	public SpxSemanticIndexFacade(IStrategoTerm projectName , ITermFactory termFactory , IOAgent agent) throws IOException {
+	public SpxSemanticIndexFacade(IStrategoTerm projectName , ITermFactory termFactory , IOAgent agent){
 		_projectName = asJavaString(projectName);
 		
 		_termFactory = termFactory;
@@ -60,11 +60,12 @@ public class SpxSemanticIndexFacade {
 		
 		_knownCons = new HashMap<ConstructorDef ,IStrategoConstructor>();
 		initKnownConstructors();
-		
+	}
+	
+	public void initializePersistenceManager() throws Exception {
 		_persistenceManager = new SpxPersistenceManager(this);
 		_persistenceManager.initializeSymbolTables(this._projectName, this);
 	}
-	
 		
 	/**
 	 * Returns the TermFactory 
@@ -315,7 +316,7 @@ public class SpxSemanticIndexFacade {
 	// (namespace * idTolookupFor * type constructor)
 	public IStrategoTerm resolveSymbols(IStrategoTuple searchCriteria) throws SpxSymbolTableException{
 		if (searchCriteria.getSubtermCount() != 4)
-			throw new IllegalArgumentException(" Illegal symbolLookupTerm Argument ; expected 3 subterms. Found : " + searchCriteria.getSubtermCount());
+			throw new IllegalArgumentException(" Illegal symbolLookupTerm Argument ; expected 4 subterms. Found : " + searchCriteria.getSubtermCount());
 		
 		String searchMode = asJavaString(searchCriteria.get(3)).trim();
 		IStrategoAppl typeAppl =  (IStrategoAppl)searchCriteria.getSubterm(2);
@@ -780,10 +781,9 @@ public class SpxSemanticIndexFacade {
 	/**
 	 * Re-initialize Symbol Tables . It clears all the existing entries from  
 	 * symbol tables.
-	 * 
-	 * @throws IOException
+	 * @throws Exception 
 	 */
-	public void reinitSymbolTable() throws IOException {	
+	public void reinitSymbolTable() throws Exception {	
 		
 		if (! isPersistenceManagerClosed())
 			persistenceManager().clearAll();

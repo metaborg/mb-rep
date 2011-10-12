@@ -2,6 +2,8 @@ package org.spoofax.interpreter.library.language.spxlang;
 
 import java.io.Serializable;
 import java.net.URI;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -28,13 +30,15 @@ public interface INamespace extends Serializable {
 	
 	IStrategoConstructor type();
 	
-	MultiValuePersistentTable getMembers();
+	Map<SpxSymbolKey, List<SpxSymbol>> getMembers();
 	
 	NamespaceUri namespaceUri();
 	
 	boolean isInternalNamespace() ;
 	
 	public IStrategoAppl toTypedQualifiedName(SpxSemanticIndexFacade facade);
+
+	void clear();	
 }
 
 

@@ -6,6 +6,7 @@ import jdbm.PrimaryHashMap;
 import jdbm.RecordManager;
 import jdbm.RecordManagerFactory;
 
+import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoString;
@@ -405,7 +406,7 @@ public class SpxSemanticIndex {
 	public boolean close(IStrategoTerm projectName) throws Exception {
 		new SpxIndexManageCommand(){
 			public void executeCommnad(IStrategoTerm projectName, Object... objects) throws Exception{
-				_facadeRegistry.removeFacade(projectName);
+				_facadeRegistry.closePersistenceManager(projectName);
 
 			}
 		}.executeCommnad(projectName);
@@ -428,9 +429,8 @@ public class SpxSemanticIndex {
 	 */
 	private void tryCleanupResources( IStrategoTerm projectName) throws IOException{
 		
-		if ( _facadeRegistry.containsFacade(projectName))
-		{
-			SpxSemanticIndexFacade facade = _facadeRegistry.removeFacade(projectName);
+		if ( _facadeRegistry.containsFacade(projectName)) {
+			SpxSemanticIndexFacade facade = _facadeRegistry.closePersistenceManager(projectName);
 			try {
 				facade.close();
 			} catch (IOException e) {

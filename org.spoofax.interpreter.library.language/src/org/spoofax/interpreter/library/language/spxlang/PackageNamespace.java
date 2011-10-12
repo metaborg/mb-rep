@@ -20,15 +20,18 @@ import org.spoofax.interpreter.terms.ITermFactory;
  * @author Md. Adil Akhter
  */
 public final class PackageNamespace  extends BaseNamespace {
+	
 	//TODO improvement : Implement a Query Pattern for symbol resolving . 
+	
 	private static final long serialVersionUID = 7324156752002137217L;
 	private static final String INTERNAL_NAMESPACENAME = "__internal";
-	
-	// Not serializing it to disk since we already have this information in SpxSemanticIndex
+
 	private transient Set<NamespaceUri> importedNamespaceUris;
 	private transient Set<NamespaceUri> enclosedNamespaceUris;
 	
 	/**
+	 * Instantiates a new instance of {@link PackageNamespace}
+	 * 
 	 * @param currentNamespace
 	 * @param type
 	 * @param enclosingNamespace
@@ -39,6 +42,8 @@ public final class PackageNamespace  extends BaseNamespace {
 	}
 	
 	/**
+	 * Ensures that the enclosed Namespaces of this {@link} PackageNamespace is already loaded. If not, then they  
+	 * are loaded. 
 	 * 
 	 * @param facade
 	 * @throws SpxSymbolTableException
@@ -59,6 +64,29 @@ public final class PackageNamespace  extends BaseNamespace {
 		}
 	}
 	
+	/**
+	 * Ensures imported Namespaces are loaded of this {@link PackageNamespace} 
+	 * 
+	 * @param facade
+	 * @throws SpxSymbolTableException
+	 */
+	private void ensureImportedNamespaceUrisLoaded(SpxSemanticIndexFacade facade) throws SpxSymbolTableException{
+		if( importedNamespaceUris == null){
+			
+			importedNamespaceUris= new HashSet<NamespaceUri>();
+			
+			SpxPrimarySymbolTable symTable =  facade.persistenceManager().spxSymbolTable();
+			
+			//getting the package declaration and retrieving it imported references 
+			PackageDeclaration assiciatedPackageDeclaration = facade.lookupPackageDecl(this.namespaceUri().id());
+			
+			Iterable<IStrategoList> importedIds = assiciatedPackageDeclaration.getImportReferneces();
+			
+			for(IStrategoList l : importedIds){
+				importedNamespaceUris.add(symTable.toNamespaceUri(l));; 
+			}	
+		}
+	}
 
 	/**
 	 * Restricts transitive imports. If {@code searchOrigin}  {@link INamespace} imports 
@@ -79,23 +107,7 @@ public final class PackageNamespace  extends BaseNamespace {
 		return importedToPackages.contains(searchOrigin.namespaceUri().id());
 	}
 	
-	private void ensureImportedNamespaceUrisLoaded(SpxSemanticIndexFacade facade) throws SpxSymbolTableException{
-		if( importedNamespaceUris == null){
-			
-			importedNamespaceUris= new HashSet<NamespaceUri>();
-			
-			SpxPrimarySymbolTable symTable =  facade.persistenceManager().spxSymbolTable();
-			
-			//getting the package declaration and retrieving it imported references 
-			PackageDeclaration assiciatedPackageDeclaration = facade.lookupPackageDecl(this.namespaceUri().id());
-			
-			Iterable<IStrategoList> importedIds = assiciatedPackageDeclaration.getImportReferneces();
-			
-			for(IStrategoList l : importedIds){
-				importedNamespaceUris.add(symTable.toNamespaceUri(l));; 
-			}	
-		}
-	}
+	
 	/* Resolving symbol in PackageNamespace following few   
 	 * basic rules. First it try to resolve symbol in its enclosed namespace , then it try to resolve 
 	 * the symbol in its enclosing namespace and at last, it looks for the symbol in the imported 
@@ -168,28 +180,6 @@ public final class PackageNamespace  extends BaseNamespace {
 		return retValue;	
 	}
 	
-	/**
-	 * Creates an instance of PackageScope. Also creates internal symbol scopes
-	 * 
-	 * @param facade
-	 * @return
-	 */
-	public static Iterable<INamespace> createInstances(IStrategoList id, SpxSemanticIndexFacade facade){
-		
-		SpxPrimarySymbolTable  table =  facade.persistenceManager().spxSymbolTable() ;
-		
-		NamespaceUri globalNsUri =  table.toNamespaceUri(GlobalNamespace.getGlobalNamespaceId(facade));
-		NamespaceUri currentPackageUri = table.toNamespaceUri(id);
-	
-		List<INamespace> namespaces = new ArrayList<INamespace>();
-		PackageNamespace ns = new PackageNamespace(currentPackageUri, facade.getPackageNamespaceTypeCon(), globalNsUri,facade.persistenceManager());
-		
-		namespaces.add(ns);
-		namespaces.add(createInternalNamespace(currentPackageUri , facade));
-		
-		return namespaces;
-	}
-	
 	/** 
 	 * Resolving a Symbol in the Namespaces specified in {@code resolvableUris} 
 	 * @param resolvableUris 
@@ -253,6 +243,30 @@ public final class PackageNamespace  extends BaseNamespace {
 		return resolveInCurrentNamespaceIsNotAllowed || currentNamespaceIsSearchedOrigin;
 	
 	}
+	/**
+	 * Creates an instance of PackageScope. Also creates internal symbol scopes
+	 * 
+	 * @param facade
+	 * @return
+	 */
+	public static Iterable<INamespace> createInstances(IStrategoList id, SpxSemanticIndexFacade facade){
+		
+		SpxPrimarySymbolTable  table =  facade.persistenceManager().spxSymbolTable() ;
+		List<INamespace> namespaces = new ArrayList<INamespace>();
+		INamespace ns = table.resolveNamespace(id); 
+		if(ns == null)
+		{				
+			NamespaceUri globalNsUri =  table.toNamespaceUri(GlobalNamespace.getGlobalNamespaceId(facade));
+			NamespaceUri currentPackageUri = table.toNamespaceUri(id);
+	
+			ns = new PackageNamespace(currentPackageUri, facade.getPackageNamespaceTypeCon(), globalNsUri,facade.persistenceManager());
+		}
+		
+		namespaces.add(ns);
+		namespaces.add(createInternalNamespace(ns.namespaceUri() , facade));
+		
+		return namespaces;
+	}
 	
 	/**
 	 * Creates a new Internal namespace for the current package namespace.
@@ -260,16 +274,18 @@ public final class PackageNamespace  extends BaseNamespace {
 	 * @param idxFacade
 	 * @return
 	 */
-	private static INamespace createInternalNamespace( NamespaceUri enclosingNamespaceId , SpxSemanticIndexFacade idxFacade)
+	private static INamespace createInternalNamespace( NamespaceUri enclosingNamespaceId , SpxSemanticIndexFacade facade)
 	{
-		NamespaceUri internalNamespaceUri = packageInternalNamespace(
-				enclosingNamespaceId, idxFacade);
+		SpxPrimarySymbolTable  table =  facade.persistenceManager().spxSymbolTable() ;
 		
-		//termFactory.makeList(spoofaxNamespaceId.getAllSubterms() , "");
-		ModuleNamespace internalNamespace = (ModuleNamespace)ModuleNamespace.createInstance(internalNamespaceUri, enclosingNamespaceId, idxFacade);
-		internalNamespace.isInternalNamespace = true;
+		NamespaceUri internalNamespaceUri = packageInternalNamespace(enclosingNamespaceId, facade);
+		INamespace ns = table.resolveNamespace(internalNamespaceUri) ;
 		
-		return internalNamespace;
+		if(ns == null) {	
+			ns = (ModuleNamespace)ModuleNamespace.createInstance(internalNamespaceUri, enclosingNamespaceId, facade);
+			((ModuleNamespace)ns).isInternalNamespace = true;
+		}
+		return ns;
 	}
 
 	/**
@@ -303,7 +319,6 @@ public final class PackageNamespace  extends BaseNamespace {
 
 	@Override
 	public IStrategoAppl toTypedQualifiedName(SpxSemanticIndexFacade facade) {
-	
 		return PackageDeclaration.toPackageQNameAppl(facade, this.namespaceUri().id());
 	}
 }

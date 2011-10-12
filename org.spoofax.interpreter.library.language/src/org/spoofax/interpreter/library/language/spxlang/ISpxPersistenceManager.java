@@ -31,7 +31,7 @@ public interface ISpxPersistenceManager  extends ILogger{
 	
 	public String getProjectName();
 	
-	public void initializeSymbolTables(String projectName , SpxSemanticIndexFacade facade);
+	public void initializeSymbolTables(String projectName , SpxSemanticIndexFacade facade) throws Exception;
 }
 
 interface ILogger{ 

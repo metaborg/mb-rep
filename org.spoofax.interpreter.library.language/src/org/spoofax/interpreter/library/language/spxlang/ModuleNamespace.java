@@ -39,7 +39,12 @@ public final class ModuleNamespace extends BaseNamespace
 	 * @return
 	 */
 	public static INamespace createInstance(NamespaceUri id, NamespaceUri enclosingNamespaceId, SpxSemanticIndexFacade facade) {
-		return new ModuleNamespace(id, facade.getModuleNamespaceTypeCon(), enclosingNamespaceId, facade.persistenceManager());
+		SpxPrimarySymbolTable  symbol_table = facade.persistenceManager().spxSymbolTable();
+		INamespace ns = symbol_table.resolveNamespace(id); 
+		if(ns != null)
+			return ns;
+		else
+			return new ModuleNamespace(id, facade.getModuleNamespaceTypeCon(), enclosingNamespaceId, facade.persistenceManager());
 	}
 
 	@Override

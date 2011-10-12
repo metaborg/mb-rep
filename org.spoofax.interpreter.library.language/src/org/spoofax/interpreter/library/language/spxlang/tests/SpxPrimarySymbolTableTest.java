@@ -17,6 +17,7 @@ import org.spoofax.interpreter.library.language.spxlang.PackageDeclaration;
 import org.spoofax.interpreter.library.language.spxlang.PackageNamespace;
 import org.spoofax.interpreter.library.language.spxlang.SpxPrimarySymbolTable;
 import org.spoofax.interpreter.library.language.spxlang.SpxSemanticIndexFacade;
+import org.spoofax.interpreter.library.language.spxlang.SpxSemanticIndexFacadeRegistry;
 import org.spoofax.interpreter.library.language.spxlang.SpxSymbol;
 import org.spoofax.interpreter.library.language.spxlang.SpxSymbolTableException;
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -29,12 +30,12 @@ import org.spoofax.interpreter.test.AbstractInterpreterTest;
 
 public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 	
-	private final String _projectName = "_test-symbol-table";
+	private final String _projectName = "_test-symbol-table_1";
 	
 	private IStrategoString projectNameTerm; 
 	private SpxSemanticIndexFacade _facade;
 	private SpxPrimarySymbolTable symbol_table;
-	
+	private SpxSemanticIndexFacadeRegistry _registry;
 	final String absPathString1 = "c:/temp/file1.spx" ;
 	final String absPathString2 = "c:/temp/file2.spx" ;
 
@@ -49,9 +50,12 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		super.setUp("C:/work/projects/spoofax/spx-imp/source-codes/trunk/org.strategoxt.imp.editors.spoofax/include");
 		interpreter().addOperatorRegistry(new LanguageLibrary());
 		
+		_registry = new SpxSemanticIndexFacadeRegistry();
+		
 		projectNameTerm = termFactory().makeString(_projectName);
 	
-		_facade = new SpxSemanticIndexFacade(projectNameTerm , termFactory() , ioAgent());
+		_registry.add(projectNameTerm, termFactory(), ioAgent()); 
+		_facade = _registry.getFacade(projectNameTerm);
 		_facade.reinitSymbolTable();
 		
 		
@@ -212,7 +216,8 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 					termFactory().makeTuple( 
 						pQnameUnknown,
 						symbolId,
-						typeAppl 
+						typeAppl,
+						termFactory().makeString("*")
 					));
 			
 		}catch(SpxSymbolTableException ex) { }
@@ -617,7 +622,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 	}
 	
 	
-	public void testShouldNotFailIncaseOfCyclicImports() throws IOException, SpxSymbolTableException{
+	public void testShouldNotFailIncaseOfCyclicImports() throws Exception{
 		createExtendedScopeTree();
 		
 		IStrategoAppl moduleQnameAppl1 = ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP1M1.getId());
@@ -638,11 +643,16 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		_facade.indexSymbol(createEntry(moduleQnameAppl3 , symbolId3 , typeAppl3 , data3));
 		
 		
+		_registry.closePersistenceManager(this.projectNameTerm);
+		
+		_registry.add(projectNameTerm, termFactory(), ioAgent());
+		SpxSemanticIndexFacade tfacade = _registry.getFacade(this.projectNameTerm);
+		
 		//Resolving Symbol in Package 3
-		List<SpxSymbol> resolvedSymbols = (List<SpxSymbol>)_facade.resolveSymbols(
+		List<SpxSymbol> resolvedSymbols = (List<SpxSymbol>)tfacade.resolveSymbols(
 				ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP3M1.getId()), // search origin
 				symbolId3, // loooking for 
-				_facade.getConstructor("ModuleDef", 0) // with type 
+				tfacade.getConstructor("ModuleDef", 0) // with type 
 				);
 		
 		// current import chain is as following : p1-> p2 ->p3->p1
@@ -655,10 +665,10 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		assertEquals(2, resolvedSymbols.size());
 		
 		//Resolving Symbol in Package 3. It will just resolve one symbol and exit search
-		resolvedSymbols = (List<SpxSymbol>)_facade.resolveSymbol(
-				ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP3M1.getId()), // search origin
+		resolvedSymbols = (List<SpxSymbol>)tfacade.resolveSymbol(
+				ModuleDeclaration.toModuleQNameAppl(tfacade,this.moduleDeclarationP3M1.getId()), // search origin
 				symbolId3, // loooking for 
-				_facade.getConstructor("ModuleDef", 0) // with type 
+				tfacade.getConstructor("ModuleDef", 0) // with type 
 				);
 		
 		assertEquals(1, resolvedSymbols.size());

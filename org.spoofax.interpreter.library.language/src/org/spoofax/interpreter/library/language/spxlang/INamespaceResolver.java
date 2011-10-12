@@ -1,5 +1,7 @@
 package org.spoofax.interpreter.library.language.spxlang;
 
+import java.util.Set;
+
 import org.spoofax.interpreter.terms.IStrategoList;
 
 public interface INamespaceResolver {
@@ -9,4 +11,6 @@ public interface INamespaceResolver {
 	public INamespace resolveNamespace(NamespaceUri nsId);
 	
 	public boolean containsNamespace(IStrategoList id) ;
+	
+	public Set<NamespaceUri> getAllNamespaces(); 
 }

@@ -4,7 +4,6 @@ package org.spoofax.interpreter.library.language.spxlang;
  * Custom Exception thrown to indicate symbol table lookup has been failed.  
  * 
  * @author Md. Adil Akhter
- * Created On : Sep 11, 2011
  */
 public class SpxSymbolTableException extends Exception {
 

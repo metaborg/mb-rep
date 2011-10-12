@@ -27,17 +27,15 @@ public final class GlobalNamespace extends BaseNamespace {
 	public static INamespace createInstance(SpxSemanticIndexFacade facade){
 		SpxPrimarySymbolTable  symbol_table = facade.persistenceManager().spxSymbolTable();
 		IStrategoList spoofaxNamespaceUri = getGlobalNamespaceId(facade);
-		
-		NamespaceUri uri; 
-		if ( symbol_table == null )
-			uri  = new NamespaceUri(spoofaxNamespaceUri);
-		else
-			uri =  symbol_table.toNamespaceUri(spoofaxNamespaceUri); 
-
-		return new GlobalNamespace(uri, 
-				facade.getGlobalNamespaceTypeCon(), 
-				facade.persistenceManager()
-		);
+		INamespace gns = symbol_table.resolveNamespace(spoofaxNamespaceUri); 
+		if(gns != null)
+			return gns;
+		else{
+			return new GlobalNamespace(symbol_table.toNamespaceUri(spoofaxNamespaceUri), 
+					facade.getGlobalNamespaceTypeCon(), 
+					facade.persistenceManager()
+			);
+		}
 
 	}
 	
