@@ -45,7 +45,7 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 				});
 
 		if(Utils.DEBUG){
-			printSymbols();
+			printSymbols("init");
 		}	
 	}
 	
@@ -54,10 +54,10 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 	 * 
 	 * @throws IOException
 	 */
-	public void printSymbols() throws IOException{
+	public void printSymbols(String state) throws IOException{
 		FileWriter fstream = new FileWriter("c:/temp/log/symbols"+ now("yyyy-MM-dd")+".txt" , true);
 		BufferedWriter out = new BufferedWriter(fstream);
-		out.write("Logging state of Symbol-Table at :" + now("yyyy-MM-dd HH.mm.ss"));
+		out.write("---Logging [" +state+ "] state of Symbol-Table at :" + now("yyyy-MM-dd HH.mm.ss")+":----\n");
 		try
 		{	
 			if(namespaces != null){
@@ -151,10 +151,6 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 	public boolean containsNamespace(INamespace namespace) { return this.containsNamespace(namespace.namespaceUri());}
 
 	public void clear(){  
-		for( INamespace ns  : namespaces.values()){
-			ns.clear();
-		}
-			
 		namespaces.clear();  
 	}
 	
@@ -173,7 +169,7 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 		_manager.logMessage(SRC, "defineSymbol | defining symbols with the following criteria :  search origin " + namespaceId +  " with Key : "+ symTableEntry.key + " Value : "+ symTableEntry.value);	
 		ensureActiveNamespaceLoaded(namespaceId);
 	
-		_activeNamespace.define(symTableEntry, facade.persistenceManager()); 
+		_activeNamespace = _activeNamespace.define(symTableEntry, facade.persistenceManager()); 
 	}
 	
 	private void ensureActiveNamespaceUnloaded(IStrategoList namespaceId){
@@ -182,8 +178,16 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 			_activeNamespace = null;
 		}
 	}
+	
+	public void commit() {
+		if(_activeNamespace != null) {
+			this.namespaces.put(_activeNamespace.namespaceUri(), _activeNamespace);
+		}
+	}
 	private void ensureActiveNamespaceLoaded(IStrategoList namespaceId) throws SpxSymbolTableException{
-		if(_activeNamespace== null ||!_activeNamespace.namespaceUri().equalSpoofaxId(namespaceId)){
+		if(_activeNamespace == null ||!_activeNamespace.namespaceUri().equalSpoofaxId(namespaceId)){
+			commit(); 
+			
 			//Keeping a transient reference to the current/active Namespace
 			//More likely that there are other symbols to be defined in the
 			//current and active namespace. In that case, it will imporve 
@@ -194,6 +198,7 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 				throw new SpxSymbolTableException("Unknown namespaceId: "+ namespaceId+". Namespace can not be resolved from symbol-table") ;
 			}
 		}
+		
 	}
 
 	public Iterable<SpxSymbol> resolveSymbols(SpxSemanticIndexFacade spxSemanticIndexFacade, IStrategoList namespaceId, IStrategoTerm symbolId , IStrategoConstructor symbolType) throws SpxSymbolTableException {

@@ -54,7 +54,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		
 		projectNameTerm = termFactory().makeString(_projectName);
 	
-		_registry.add(projectNameTerm, termFactory(), ioAgent()); 
+		_registry.initFacade(projectNameTerm, termFactory(), ioAgent()); 
 		_facade = _registry.getFacade(projectNameTerm);
 		_facade.reinitSymbolTable();
 		
@@ -645,7 +645,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		
 		_registry.closePersistenceManager(this.projectNameTerm);
 		
-		_registry.add(projectNameTerm, termFactory(), ioAgent());
+		_registry.initFacade(projectNameTerm, termFactory(), ioAgent());
 		SpxSemanticIndexFacade tfacade = _registry.getFacade(this.projectNameTerm);
 		
 		//Resolving Symbol in Package 3

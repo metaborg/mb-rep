@@ -148,7 +148,12 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	 * @throws IOException
 	 */
 	public void commit() throws IOException {
-		_recordManager.commit(); 
+		
+		if( Utils.DEBUG) { this.spxSymbolTable().printSymbols("commit");} 
+		if(!this.IsClosed()){
+			this.spxSymbolTable().commit();
+			_recordManager.commit();
+		}	
 	}
 	
 	/**
@@ -156,7 +161,7 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	 * 
 	 * @throws IOException
 	 */
-	void close() throws IOException { _recordManager.close(); }
+	void close() throws IOException { if(!this.IsClosed()) _recordManager.close(); }
 	
 	/* (non-Javadoc)
 	 * @see org.spoofax.interpreter.library.language.spxlang.ISpxPersistenceManager#commitAndClose()

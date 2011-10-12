@@ -28,7 +28,7 @@ public class SpxSemanticIndexFacadeRegistry
 	 * @param termFactory
 	 * @throws Exception 
 	 */
-	public void add(IStrategoTerm projectName , ITermFactory termFactory , IOAgent agent) throws Exception
+	public void initFacade(IStrategoTerm projectName , ITermFactory termFactory , IOAgent agent) throws Exception
 	{	
 		SpxSemanticIndexFacade fac = null;
 		String projectNameString  = asJavaString(projectName);

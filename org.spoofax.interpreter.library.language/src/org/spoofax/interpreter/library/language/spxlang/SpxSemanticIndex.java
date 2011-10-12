@@ -54,7 +54,7 @@ public class SpxSemanticIndex {
 				public void executeCommnad(IStrategoTerm projectName, Object... objects) throws Exception{
 					// Adding a new entry of the facade for the project 
 					// in the registry. 
-					_facadeRegistry.add(projectName, (ITermFactory)objects[0], (IOAgent)objects[1]) ;
+					_facadeRegistry.initFacade(projectName, (ITermFactory)objects[0], (IOAgent)objects[1]) ;
 					
 				}
 			}.executeCommnad(projectName, termFactory , agent);

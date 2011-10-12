@@ -50,13 +50,14 @@ public abstract class BaseNamespace implements INamespace {
 		symbols = new HashMap<SpxSymbolKey, List<SpxSymbol>>();
 	}
 
-	public void define(SpxSymbolTableEntry entry, ILogger logger){
+	public INamespace define(SpxSymbolTableEntry entry, ILogger logger){
 		
 		entry.value.setNamespace(_currentNamespaceId);
 		
 		logger.logMessage(src, "define | Defining Symbol "+ entry.value + " in "+ _currentNamespaceId);
 		
-		defineSymbol(entry);
+		defineSymbol(entry); 
+		return this;
 	}
 	
 	/**

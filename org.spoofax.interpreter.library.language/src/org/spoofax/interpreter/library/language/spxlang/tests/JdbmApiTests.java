@@ -71,11 +71,39 @@ class MultiValuePersistentTable1 implements Serializable{
 		System.out.println();
 	}
 }
+interface IPerson{
+	public String getName();
+	public MultiValuePersistentTable1 getMembers() ;
+	public void setAddresses() ;
+}
 
-class PersonBase  implements Serializable
+class Employee extends PersonBase implements Serializable, IPerson{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2742987981816165179L;
+	public Employee(String name, Address adress,String fatherName) {
+		super(name, adress, fatherName);
+	}
+	@Override
+	public void setAddresses() 
+	{
+		addAddress(new Address("First street1"+ctr++, "Athlone","Ireland"));
+	}
+	
+	private void addAddress( Address address){
+		this.getMembers().define("address", address);
+		
+	}
+	
+}
+
+class PersonBase  implements Serializable, IPerson
 {
 	private static final long serialVersionUID = 8846122082882116001L;
-
+	
+	public static int ctr = 0 ;
 	/** field used for person identification (primary key)**/
 	public String name;
 	
@@ -85,10 +113,32 @@ class PersonBase  implements Serializable
 		this.fatherName = fatherName;
 	}
 	
-	 MultiValuePersistentTable1 members = new MultiValuePersistentTable1();
+	MultiValuePersistentTable1 members = new MultiValuePersistentTable1();
 	
+
 	public MultiValuePersistentTable1 getMembers() { return members;}
+
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
+	}
+	
+	public void setAddresses() 
+	{
+		addAddress(new Address("First street1"+ctr++, "Athlone","Ireland"));
+		addAddress(new Address("First street2"+ctr++, "Athlone","Ireland"));
+		addAddress(new Address("First street3"+ctr++, "Athlone","Ireland"));
+		
+	}
+	
+	private void addAddress( Address address){
+		this.getMembers().define("address", address);
+		
+	}
 }
+
 
 class Person extends PersonBase implements Serializable{
 	
@@ -115,7 +165,6 @@ class Person extends PersonBase implements Serializable{
 		return name == null? 0 : name.hashCode();
 	}
 
-
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -130,18 +179,6 @@ class Person extends PersonBase implements Serializable{
 		return true;
 	}
 	
-	public void setAddresses() 
-	{
-		addAddress(new Address("First street1", "Athlone","Ireland"));
-		addAddress(new Address("First street2", "Athlone","Ireland"));
-		addAddress(new Address("First street3", "Athlone","Ireland"));
-		
-	}
-	
-	private void addAddress( Address address){
-		this.getMembers().define("address", address);
-		
-	}
 }
 
 class Address implements Serializable{
@@ -168,11 +205,11 @@ class Address implements Serializable{
 
 public class JdbmApiTests {
 	public static void main(String[] args) throws IOException {
-		String recDbName  = "personDBxx1234665";
+		String recDbName  = "personDBxx12346657";
 		//init Record Manager and dao
 		RecordManager recman = RecordManagerFactory.createRecordManager(recDbName);
 		
-		PrimaryHashMap<String,Person> personsByName = recman.hashMap("personsByName");
+		PrimaryHashMap<String,IPerson> personsByName = recman.hashMap("personsByName1");
 		if(personsByName.size() > 0)
 			personsByName.clear();
 		
@@ -182,30 +219,42 @@ public class JdbmApiTests {
 				null);
 		patrick.setAddresses(); 
 		personsByName.put(patrick.name, patrick);
-		
+		recman.commit();
 		patrick = new Person("Patrick Moore2", 
 				new Address("First street", "Athlone","Ireland"),
 				null);
-		patrick.setAddresses(); 
-		personsByName.put(patrick.name, patrick);
+		patrick.setAddresses();
 		recman.commit();
 		
-		personsByName.get("Patrick Moore").getMembers().logEntries();
+		Employee emp = new Employee("Patrick EMP", 
+				new Address("First street", "Athlone","NL"),
+				null);
+		emp.setAddresses();
+		emp.setAddresses();
+		personsByName.put(emp.getName(), emp);
+		
+		personsByName.get("Patrick EMP").setAddresses();
+		emp.setAddresses();
+		
+		//personsByName.put(emp.getName(), emp);
+		recman.commit();
+		
+		//personsByName.get("Patrick Moore").getMembers().logEntries();
 		recman.close();
 		recman = null;
 		
 		RecordManager recman2= RecordManagerFactory.createRecordManager(recDbName);
-		PrimaryHashMap<String,Person> personsByName2 = recman2.hashMap("personsByName");
+		PrimaryHashMap<String,IPerson> personsByName2 = recman2.hashMap("personsByName1");
 		
 		System.out.println("Number of persons: "+personsByName2.size());
 		
 		
 		
-		System.out.println("Persons with name Patrick Moore: "+personsByName2.get("Patrick Moore"));
+		System.out.println("Persons with name Patrick EMP: "+personsByName2.get("Patrick EMP"));
 		
-		Person p = personsByName2.get("Patrick Moore");
+		IPerson p = personsByName2.get("Patrick EMP");
 		
-		System.out.println("Found : " +p.name); 
+		System.out.println("Found : " +p.getName()); 
 		p.getMembers().logEntries();
 		
 		recman2.close();

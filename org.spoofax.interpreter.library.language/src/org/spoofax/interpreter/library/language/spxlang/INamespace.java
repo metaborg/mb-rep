@@ -18,7 +18,7 @@ public interface INamespace extends Serializable {
 
 	INamespace getCurrentNamespace(INamespaceResolver resolver) throws SpxSymbolTableException;
 	
-	void define(SpxSymbolTableEntry entry, ILogger logger) ;
+	INamespace define(SpxSymbolTableEntry entry, ILogger logger) ;
     
 	SpxSymbol resolve(IStrategoTerm id, IStrategoTerm type, INamespace searchedBy , SpxSemanticIndexFacade spxFacade) throws SpxSymbolTableException;
     
