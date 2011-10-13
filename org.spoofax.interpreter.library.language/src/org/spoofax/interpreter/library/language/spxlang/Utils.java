@@ -7,6 +7,8 @@ public final class Utils {
 	private Utils() {
 		
 	}
+	static final String All     = "*";
+	static final String CURRENT = ".";
 	
 	static final boolean DEBUG = true;
 	

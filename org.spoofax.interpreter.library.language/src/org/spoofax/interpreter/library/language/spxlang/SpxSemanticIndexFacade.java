@@ -34,8 +34,6 @@ public class SpxSemanticIndexFacade {
 	private final TermAttachmentStripper _stripper;
 	private final TermAttachmentSerializer _termAttachmentSerializer;
 	private final TermConverter _converter;
-	private static final String All     = "*";
-	private static final String CURRENT = ".";
 	
 	public TermAttachmentSerializer getTermAttachmentSerializer() {return _termAttachmentSerializer;}
 
@@ -325,13 +323,13 @@ public class SpxSemanticIndexFacade {
 		Iterable<SpxSymbol> spxSymbols = new ArrayList<SpxSymbol>();
 		
 		if (typeCtor != null) {
-			if(searchMode.equalsIgnoreCase(All))
+			if(searchMode.equalsIgnoreCase(Utils.All))
 			{
 				spxSymbols = resolveSymbols( 
 							(IStrategoAppl)searchCriteria.get(0),
 							searchCriteria.get(1),
 							typeCtor);
-			}else if(searchMode.equalsIgnoreCase(CURRENT)){
+			}else if(searchMode.equalsIgnoreCase(Utils.CURRENT)){
 				spxSymbols = resolveSymbol( 
 								(IStrategoAppl)searchCriteria.get(0),
 								searchCriteria.get(1),
@@ -556,7 +554,7 @@ public class SpxSemanticIndexFacade {
 		String filepathString = asJavaString(filePath);
 		
 		Iterable<PackageDeclaration> decls; 
-		if(All == filepathString) {
+		if(Utils.All == filepathString) {
 			decls = table.getPackageDeclarations();  //returning all the package declarations found in the current project
 		}else{
 
@@ -634,7 +632,7 @@ public class SpxSemanticIndexFacade {
 		String filepathString = asJavaString(filePath);
 		
 		Iterable<ModuleDeclaration> decls; 
-		if(All == filepathString) {
+		if(Utils.All == filepathString) {
 			decls = table.getModuleDeclarations();  //returning all the package declarations found in the current project
 		}else{	
 			String absFilePath = toAbsulatePath(filePath);

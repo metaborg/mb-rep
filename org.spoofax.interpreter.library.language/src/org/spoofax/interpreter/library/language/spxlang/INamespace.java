@@ -20,7 +20,7 @@ public interface INamespace extends Serializable {
 	
 	INamespace define(SpxSymbolTableEntry entry, ILogger logger) ;
     
-	SpxSymbol resolve(IStrategoTerm id, IStrategoTerm type, INamespace searchedBy , SpxSemanticIndexFacade spxFacade) throws SpxSymbolTableException;
+	SpxSymbol resolve(IStrategoTerm searchingFor, IStrategoTerm type, INamespace searchedBy , SpxSemanticIndexFacade spxFacade) throws SpxSymbolTableException;
     
 	Iterable<SpxSymbol> resolveAll(IStrategoTerm searchingFor, IStrategoTerm type, INamespace searchedBy , SpxSemanticIndexFacade spxFacade) throws SpxSymbolTableException;
 	
