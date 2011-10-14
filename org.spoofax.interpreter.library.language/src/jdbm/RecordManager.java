@@ -348,9 +348,5 @@ public interface  RecordManager
      * @return map
      */
 	public <V> PrimaryStoreMap<Long, V> storeMap(String name);
-
-
-	
-
 }
 

@@ -2,6 +2,7 @@ package org.spoofax.interpreter.library.language;
 
 import org.spoofax.interpreter.library.AbstractStrategoOperatorRegistry;
 import org.spoofax.interpreter.library.language.spxlang.*;
+import org.spoofax.interpreter.library.language.spxlang.index.SpxSemanticIndex;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>

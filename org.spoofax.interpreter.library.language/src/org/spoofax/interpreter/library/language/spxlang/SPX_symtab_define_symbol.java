@@ -1,6 +1,7 @@
 package org.spoofax.interpreter.library.language.spxlang;
 
 import org.spoofax.interpreter.core.IContext;
+import org.spoofax.interpreter.library.language.spxlang.index.SpxSemanticIndex;
 import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
