@@ -73,7 +73,7 @@ public abstract class BaseNamespace implements INamespace {
 	private void defineSymbol(SpxSymbolTableEntry entry){
 		SpxSymbolKey key = entry.key;
 		
-		if ( symbols.containsKey(key)){
+		if (symbols.containsKey(key)){
 			symbols.get(key).add(entry.value);
 		}else{
 			List<SpxSymbol> values = new ArrayList<SpxSymbol>(); 
@@ -105,7 +105,7 @@ public abstract class BaseNamespace implements INamespace {
 		SpxSymbolKey key = new SpxSymbolKey(id);
 		List<SpxSymbol> resolvedSymbols  = new ArrayList<SpxSymbol>();
 		
-		if(key.getId().equalsIgnoreCase(Utils.All)){
+		if(key.getId().equalsIgnoreCase(Utils.All_SYMBOLS)){
 			// Found * in the ID. 
 			// Hence returning ALL symbols of  a particular type specified in the argument.
 			for (Entry<SpxSymbolKey, List<SpxSymbol>> entry : members.entrySet()) {

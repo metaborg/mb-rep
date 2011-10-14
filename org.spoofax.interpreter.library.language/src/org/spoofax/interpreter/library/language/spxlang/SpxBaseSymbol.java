@@ -2,11 +2,9 @@ package org.spoofax.interpreter.library.language.spxlang;
 
 import java.io.Serializable;
 
-import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
@@ -17,18 +15,23 @@ abstract class SpxBaseSymbol implements Serializable{
 	
 	private transient IStrategoTerm _id;
 	
-	//@serial
+	/**
+	 *  @serial
+	 */
 	private String _idString;
 	
+	/**
+	 * Returns String representation of ID
+	 * 
+	 * @return {@code String} representation of ID 
+	 */
 	public String getId(){  return _idString ; }
 	
 	public SpxBaseSymbol(IStrategoTerm id){
 		_id = id ;
-		if( _id instanceof IStrategoString)
-			_idString = Tools.asJavaString(_id);
-		else	
-			_idString = id.toString(Integer.MAX_VALUE);
+		_idString = id.toString(Integer.MAX_VALUE);
 	}
+	
 	
 	public IStrategoTerm Id(ITermFactory _fac ){
 		if (_id == null){

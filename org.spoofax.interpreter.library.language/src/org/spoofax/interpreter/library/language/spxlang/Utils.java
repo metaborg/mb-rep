@@ -2,6 +2,8 @@ package org.spoofax.interpreter.library.language.spxlang;
 
 import java.io.File;
 import java.net.URI;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -11,8 +13,9 @@ public final class Utils {
 	private Utils() {
 		
 	}
-	public static final String All     = "*";
-	public  static final String CURRENT = ".";
+	public static final String All = "*";
+	public static final String All_SYMBOLS = "\"*\"";
+	public static final String CURRENT = ".";
 	
 	static final boolean DEBUG = true;
 	
@@ -53,4 +56,9 @@ public final class Utils {
 		return new File(path).getAbsolutePath();
 	}
 	
+	static String now(String dateFormat) {
+	    Calendar cal = Calendar.getInstance();
+	    SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+	    return sdf.format(cal.getTime());
+	}
 }

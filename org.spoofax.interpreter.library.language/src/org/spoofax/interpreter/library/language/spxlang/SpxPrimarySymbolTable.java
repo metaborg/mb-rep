@@ -49,45 +49,7 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 		}	
 	}
 	
-	/**
-	 * Printing all the symbols current hashmap 
-	 * 
-	 * @throws IOException
-	 */
-	public void printSymbols(String state) throws IOException{
-		FileWriter fstream = new FileWriter("c:/temp/log/symbols"+ now("yyyy-MM-dd")+".txt" , true);
-		BufferedWriter out = new BufferedWriter(fstream);
-		out.write("---Logging [" +state+ "] state of Symbol-Table at :" + now("yyyy-MM-dd HH.mm.ss")+":----\n");
-		try
-		{	
-			if(namespaces != null){
-				for(INamespace ns : namespaces.values()){
-					out.write("|" + ns +"|\n");
-					logEntries(ns,out) ;
-				}
-			}
-		}finally{out.close();}
-	}
 	
-	
-	private static  void logEntries( INamespace namespace , BufferedWriter logger) throws IOException{
-		Map<SpxSymbolKey , List<SpxSymbol>> members = namespace.getMembers();
-		for( SpxSymbolKey k : members.keySet()) {
-			logger.write("\t"+k.toString()  + " :  \n");
-			
-			for( SpxSymbol s : members.get(k) ){
-				logger.write( "\t\t"+ s.toString() + "\n");
-			}
-		}
-		logger.write("\n");
-	}
-	
-	private static String now(String dateFormat) {
-	    Calendar cal = Calendar.getInstance();
-	    SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
-	    return sdf.format(cal.getTime());
-
-	  }
 	/**
 	 * Adding Global Namespace in symbol-table by default.
 	 * @param facade
@@ -303,4 +265,49 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 			
 		};
 	}
+
+	public void clearGlobalNamespce(SpxSemanticIndexFacade spxSemanticIndexFacade) {
+		_manager.logMessage(SRC, "clearGlobalNamespce | Remove all the entries stored currently in GlobalNamespace" );
+		
+		IStrategoList gnsId = GlobalNamespace.getGlobalNamespaceId(spxSemanticIndexFacade);
+		INamespace gns = this.resolveNamespace(gnsId); 
+		if(gns != null)
+			gns.clear();
+		
+		_manager.logMessage(SRC, "clearGlobalNamespce | Successfully removed all the entries." );
+	}
+	
+	/**
+	 * Printing all the symbols current hashmap 
+	 * 
+	 * @throws IOException
+	 */
+	public void printSymbols(String state) throws IOException{
+		FileWriter fstream = new FileWriter("c:/temp/log/symbols"+ Utils.now("yyyy-MM-dd")+".txt" , true);
+		BufferedWriter out = new BufferedWriter(fstream);
+		out.write("---Logging [" +state+ "] state of Symbol-Table at :" + Utils.now("yyyy-MM-dd HH.mm.ss")+":----\n");
+		try
+		{	
+			if(namespaces != null){
+				for(INamespace ns : namespaces.values()){
+					out.write("|" + ns +"|\n");
+					logEntries(ns,out) ;
+				}
+			}
+		}finally{out.close();}
+	}
+	
+	
+	private static  void logEntries( INamespace namespace , BufferedWriter logger) throws IOException{
+		Map<SpxSymbolKey , List<SpxSymbol>> members = namespace.getMembers();
+		for( SpxSymbolKey k : members.keySet()) {
+			logger.write("\t"+k.toString()  + " :  \n");
+			
+			for( SpxSymbol s : members.get(k) ){
+				logger.write( "\t\t"+ s.toString() + "\n");
+			}
+		}
+		logger.write("\n");
+	}
+
 }

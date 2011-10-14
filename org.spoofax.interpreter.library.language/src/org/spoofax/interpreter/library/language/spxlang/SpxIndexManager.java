@@ -15,6 +15,7 @@ interface IIndexManageCommand {
 	static final String CLOSE_COMMAND_STRING = "CLOSE" ;
 	static final String SAVE_COMMAND_STRING = "SAVE" ;
 	static final String ROLLBACK_COMMAND_STRING = "ROLLBACK" ;
+	static final String INVALIDATE_GLOBAL_CACHE_COMMAND_STRING = "INVALIDATE_GLOBAL_CACHE" ;
 	
 	public void run() throws Exception;
 }
@@ -67,9 +68,13 @@ class SpxIndexManager implements IIndexManageCommand
 		
 		if(commandName.equalsIgnoreCase(ROLLBACK_COMMAND_STRING))
 			return rollbackCommandInstance(spxSemanticIndex , projectPath, objects);
+		if(commandName.equalsIgnoreCase(INVALIDATE_GLOBAL_CACHE_COMMAND_STRING))
+			return invalidateGlobalCacheCommandInstance(spxSemanticIndex , projectPath, objects);
 		
 		throw new IllegalArgumentException("Invalid Command Name : "+ commandName) ;
 	}
+	
+
 	private static IIndexManageCommand rollbackCommandInstance(
 			final SpxSemanticIndex index, IStrategoString projectPath,
 			Object[] objects) {
@@ -142,4 +147,15 @@ class SpxIndexManager implements IIndexManageCommand
 		};
 	}
 	
+	private static IIndexManageCommand invalidateGlobalCacheCommandInstance(
+			SpxSemanticIndex index, IStrategoString projectPath,
+			Object[] objects) {
+		
+		return new SpxIndexManager(index , projectPath, objects){
+			public void executeCommnad(SpxSemanticIndex idx, IStrategoTerm projectPath, Object... objects) throws Exception{
+				SpxSemanticIndexFacade idxFacade = idx.getFacade(projectPath);
+				idxFacade.invalidateGlobalNamespace();
+			}
+		};
+	}
 }

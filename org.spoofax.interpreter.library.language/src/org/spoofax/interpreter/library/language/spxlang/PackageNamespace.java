@@ -41,6 +41,14 @@ public final class PackageNamespace  extends BaseNamespace {
 		super(currentNamespace, type, manager, enclosingNamespace);
 	}
 	
+	@Override 
+	public void clear() { 
+		super.clear();
+		
+		importedNamespaceUris = null;
+		enclosedNamespaceUris = null;
+	};
+	
 	/**
 	 * Ensures that the enclosed Namespaces of this {@link} PackageNamespace is already loaded. If not, then they  
 	 * are loaded. 

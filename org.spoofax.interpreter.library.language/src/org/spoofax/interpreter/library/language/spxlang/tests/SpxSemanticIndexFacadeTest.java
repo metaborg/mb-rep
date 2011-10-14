@@ -8,6 +8,7 @@ import org.spoofax.interpreter.library.language.LanguageLibrary;
 import org.spoofax.interpreter.library.language.spxlang.ModuleDeclaration;
 import org.spoofax.interpreter.library.language.spxlang.PackageDeclaration;
 import org.spoofax.interpreter.library.language.spxlang.SpxSemanticIndexFacade;
+import org.spoofax.interpreter.library.language.spxlang.SpxSemanticIndexFacadeRegistry;
 import org.spoofax.interpreter.library.language.spxlang.SpxSymbolTableException;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -29,19 +30,21 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 	private Interpreter interpreter(){ return itp;	}
 
 	private IOAgent ioAgent() { return itp.getIOAgent(); }
-	
+	private SpxSemanticIndexFacadeRegistry _registry;
 	private ITermFactory termFactory() { return factory; 	}
 	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp("C:/work/projects/spoofax/spx-imp/source-codes/trunk/org.strategoxt.imp.editors.spoofax/include");
 		interpreter().addOperatorRegistry(new LanguageLibrary());
+		_registry = new SpxSemanticIndexFacadeRegistry();
 		
 		projectNameTerm = termFactory().makeString(_projectName);
-		
 	
-		_facade = new SpxSemanticIndexFacade(projectNameTerm , termFactory() , ioAgent());
+		_registry.initFacade(projectNameTerm, termFactory(), ioAgent()); 
+		_facade = _registry.getFacade(projectNameTerm);
 		_facade.reinitSymbolTable();
+	
 		indexCompilationUnit();
 	}
 	

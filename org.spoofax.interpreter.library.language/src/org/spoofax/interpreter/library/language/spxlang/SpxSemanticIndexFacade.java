@@ -341,6 +341,12 @@ public class SpxSemanticIndexFacade {
 		return SpxSymbol.toTerms(this, spxSymbols);
 	}
 	
+	public void invalidateGlobalNamespace() {
+		SpxPrimarySymbolTable  symbolTable = persistenceManager().spxSymbolTable();
+		
+		symbolTable.clearGlobalNamespce(this);
+	}
+	
 	/**
 	 * Resolves symbols from {@link SpxPrimarySymbolTable}.
 	 * 
@@ -1013,6 +1019,4 @@ public class SpxSemanticIndexFacade {
 		
 	}
 
-
-	
 }
