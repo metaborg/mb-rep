@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.library.IOAgent;
-import org.spoofax.interpreter.library.language.spxlang.index.data.IIndexManageCommand;
 import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbolTableException;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
