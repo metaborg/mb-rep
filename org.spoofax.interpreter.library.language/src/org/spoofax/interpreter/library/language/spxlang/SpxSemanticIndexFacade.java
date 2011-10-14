@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.library.IOAgent;
@@ -360,7 +362,7 @@ public class SpxSemanticIndexFacade {
 	}
 	
 	public Iterable<SpxSymbol> resolveSymbol(IStrategoAppl namespaceToStartSearchWith, IStrategoTerm symbolId, IStrategoConstructor  symbolType) throws SpxSymbolTableException {
-		List<SpxSymbol> resolvedSymbols= new ArrayList<SpxSymbol>();
+		Set<SpxSymbol> resolvedSymbols= new HashSet<SpxSymbol>();
 		
 		IStrategoList namespaceID = this.getNamespaceId(namespaceToStartSearchWith);
 		SpxPrimarySymbolTable  symbolTable = persistenceManager().spxSymbolTable();
@@ -768,6 +770,7 @@ public class SpxSemanticIndexFacade {
 		if (!isPersistenceManagerClosed()) {
 			logMessage("close | closing underlying persistence manager instance.");
 			_persistenceManager.close();
+			_persistenceManager = null;
 		}else {
 			logMessage("close | underlying persistence manager is already closed. ");
 		}	
@@ -800,7 +803,7 @@ public class SpxSemanticIndexFacade {
 	 * 
 	 * @return true if PersistenceManage is open. Otherwise returns false.
 	 */
-	boolean isPersistenceManagerClosed() { 	return _persistenceManager.isClosed(); }
+	boolean isPersistenceManagerClosed() { 	return (_persistenceManager == null) || _persistenceManager.isClosed(); }
 
 
 	/**

@@ -144,23 +144,23 @@ public final class PackageNamespace  extends BaseNamespace {
 	 * @see org.spoofax.interpreter.library.language.spxlang.BaseNamespace#resolveAll(org.spoofax.interpreter.terms.IStrategoTerm, org.spoofax.interpreter.library.language.spxlang.INamespace, org.spoofax.interpreter.library.language.spxlang.SpxSemanticIndexFacade)
 	 */
 	@Override
-	public Iterable<SpxSymbol> resolveAll(IStrategoTerm key,INamespace originNamespace, SpxSemanticIndexFacade facade) throws SpxSymbolTableException{
+	public Iterable<SpxSymbol> resolveAll(IStrategoTerm key,IStrategoTerm type, INamespace originNamespace, SpxSemanticIndexFacade facade) throws SpxSymbolTableException{
 		facade.persistenceManager().logMessage(this.src, "resolveAll | Resolving Symbol in " + this.namespaceUri().id() +  " . Key :  " + key + " origin Namespace: " + originNamespace.namespaceUri().id() );
 		
 		Set<SpxSymbol> retResult = new HashSet<SpxSymbol>();
 		
 		//searching in the enclosed namespace. For PackageNamespace, all the enclosed ModuleNamespace is searched. 
 		ensureEnclosedNamespaceUrisLoaded(facade);
-		retResult.addAll((Set<SpxSymbol>)resolveAllSymbolsInNamespaces(this.enclosedNamespaceUris, key, originNamespace, facade)) ;
+		retResult.addAll((Set<SpxSymbol>)resolveAllSymbolsInNamespaces(this.enclosedNamespaceUris, key, type, originNamespace, facade)) ;
 		
 		//searching in the current scope and its enclosing scope
-		retResult.addAll((Set<SpxSymbol>)super.resolveAll(key, originNamespace, facade));
+		retResult.addAll((Set<SpxSymbol>)super.resolveAll(key, type, originNamespace, facade));
 		
 		
 		//searching in the imported namespaces. Also  detect transitive and cyclic import references.  
 		if ( !isTransitiveImportLookup(facade , originNamespace)) {
 			ensureImportedNamespaceUrisLoaded(facade);
-			retResult.addAll((Set<SpxSymbol>)resolveAllSymbolsInNamespaces(this.importedNamespaceUris, key, originNamespace, facade)) ;
+			retResult.addAll((Set<SpxSymbol>)resolveAllSymbolsInNamespaces(this.importedNamespaceUris, key, type, originNamespace, facade)) ;
 		}
 		//returning the result 
 		return retResult;
@@ -214,7 +214,7 @@ public final class PackageNamespace  extends BaseNamespace {
 		return retSymbol;
 	}
 	
-	private Set<SpxSymbol> resolveAllSymbolsInNamespaces(Iterable<NamespaceUri> resolvableUris  ,IStrategoTerm key, INamespace searchOrigin, SpxSemanticIndexFacade facade) throws SpxSymbolTableException {
+	private Set<SpxSymbol> resolveAllSymbolsInNamespaces(Iterable<NamespaceUri> resolvableUris  ,IStrategoTerm key, IStrategoTerm ofType,  INamespace searchOrigin, SpxSemanticIndexFacade facade) throws SpxSymbolTableException {
 		
 		Set<SpxSymbol> retSymbol = new HashSet<SpxSymbol>();
 		INamespaceResolver namespaceResolver = facade.persistenceManager().spxSymbolTable();
@@ -229,7 +229,7 @@ public final class PackageNamespace  extends BaseNamespace {
 				// hence, ignoring it.
 				continue;
 			}
-			retSymbol.addAll((Set<SpxSymbol>)thisNamespace.resolveAll(key, this, facade));
+			retSymbol.addAll((Set<SpxSymbol>)thisNamespace.resolveAll(key, ofType, this, facade));
 		}
 		
 		return retSymbol;

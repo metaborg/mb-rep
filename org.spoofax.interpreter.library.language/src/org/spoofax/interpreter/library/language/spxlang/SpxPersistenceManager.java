@@ -144,10 +144,10 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	 * @throws IOException
 	 */
 	public void commit() throws IOException {
+		this.spxSymbolTable().commit();
 		
 		if( Utils.DEBUG) { this.spxSymbolTable().printSymbols("commit");} 
 		if(!this.isClosed()){
-			this.spxSymbolTable().commit();
 			_recordManager.commit();
 		}	
 	}
@@ -158,9 +158,15 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	 * @throws IOException
 	 */
 	public void close() throws IOException { 
+		spxSymbolTable().commit();
+		
 		if(!this.isClosed()){ 
 			_recordManager.close();
 		}	
+		this._spxModuleTable = null;
+		this._spxPackageTable = null;
+		this._spxUnitsTable = null;
+		this._spxSymbolTable = null;
 	}
 	
 	/* (non-Javadoc)

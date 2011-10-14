@@ -24,9 +24,7 @@ public interface INamespace extends Serializable {
     
 	Iterable<SpxSymbol> resolveAll(IStrategoTerm searchingFor, IStrategoTerm type, SpxSemanticIndexFacade spxFacade) throws SpxSymbolTableException;
 	
-	Iterable<SpxSymbol> resolveAll(IStrategoTerm searchingFor, INamespace searchedBy ,  SpxSemanticIndexFacade spxFacade) throws SpxSymbolTableException;
-	
-	Iterable<SpxSymbol> resolveAll(IStrategoTerm searchingFor, IStrategoTerm type, INamespace searchedBy , SpxSemanticIndexFacade spxFacade) throws SpxSymbolTableException;
+	Iterable<SpxSymbol> resolveAll(IStrategoTerm searchingFor, IStrategoTerm ofType, INamespace searchedByNamepsace , SpxSemanticIndexFacade spxFacade) throws SpxSymbolTableException;
 	
 	Map<SpxSymbolKey, List<SpxSymbol>> getMembers();
 	

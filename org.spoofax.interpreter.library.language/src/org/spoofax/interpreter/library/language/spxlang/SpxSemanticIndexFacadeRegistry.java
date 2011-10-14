@@ -87,6 +87,7 @@ public class SpxSemanticIndexFacadeRegistry
 		if((facade != null) &&  !facade.isPersistenceManagerClosed())
 			facade.close();
 		
+		
 		return facade;
 	}
 	

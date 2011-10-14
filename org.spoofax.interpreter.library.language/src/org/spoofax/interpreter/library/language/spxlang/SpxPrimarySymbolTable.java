@@ -205,7 +205,7 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 		_manager.logMessage(SRC, "resolveSymbols | Resolving symbols with the following criteria :  search origin " + namespaceId +  " with Key : "+ symbolId + " of Type : "+ symbolType.getName());
 		
 		ensureActiveNamespaceLoaded(namespaceId);
-		List<SpxSymbol> resolvedSymbols = (List<SpxSymbol>)_activeNamespace.resolveAll(symbolId, symbolType ,spxSemanticIndexFacade);
+		Set<SpxSymbol> resolvedSymbols = (Set<SpxSymbol>)_activeNamespace.resolveAll(symbolId, symbolType ,spxSemanticIndexFacade);
 		
 		_manager.logMessage(SRC, "resolveSymbols | Resolved Symbols : " + resolvedSymbols);
 		return resolvedSymbols;
