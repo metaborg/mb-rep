@@ -25,13 +25,7 @@ public class LanguageLibrary extends AbstractStrategoOperatorRegistry {
 		add(new LANG_get_all_projects_in_Workspace());
 		
 		SpxSemanticIndex spxIndex= new SpxSemanticIndex();
-		
-		//TODO : generalize and reduce/refactor primitives
-		//primitives for index initialization and management
-		//add(new SPX_index_init(spxIndex));
 		add(new SPX_exec_index_manage_command(spxIndex));
-		//add(new SPX_index_save(spxIndex));
-		//add(new SPX_index_clear(spxIndex));
 		
 		//primitives to index spoofaxlang compilation unit 
 		add(new SPX_index_compilation_unit(spxIndex));
