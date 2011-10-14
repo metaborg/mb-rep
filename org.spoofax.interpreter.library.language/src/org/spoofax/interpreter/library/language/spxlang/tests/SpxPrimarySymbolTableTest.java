@@ -21,6 +21,7 @@ import org.spoofax.interpreter.library.language.spxlang.SpxSemanticIndexFacade;
 import org.spoofax.interpreter.library.language.spxlang.SpxSemanticIndexFacadeRegistry;
 import org.spoofax.interpreter.library.language.spxlang.SpxSymbol;
 import org.spoofax.interpreter.library.language.spxlang.SpxSymbolTableException;
+import org.spoofax.interpreter.library.language.spxlang.Utils;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -125,7 +126,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 	
 	public void testRemovingModuleDeclarationShouldAlsoRemoveNamespace() throws IOException, SpxSymbolTableException, URISyntaxException{
 		
-		setupScopeTree();
+ 		setupScopeTree();
 		
 		INamespace ns = _facade.persistenceManager().spxSymbolTable().resolveNamespace(moduleDeclarationP1M1.getId());
 		assertNotNull(ns);
@@ -275,8 +276,8 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		// Indexing Symbol
 		_facade.indexSymbol(symbolDef);
 		try{
-		// Resolving Symbol 
-		_facade.resolveSymbols(
+			// Resolving Symbol 
+			_facade.resolveSymbols(
 				termFactory().makeTuple(
 						ModuleDeclaration.toModuleQNameAppl(_facade, moduleDeclarationP1M1),
 						symbolId,
@@ -507,7 +508,6 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		assertEquals(1, resolvedSymbols.size());
 	}
 	
-	
 	public void testShouldNotAllowTransitiveImports() throws IOException, SpxSymbolTableException{
 		setupScopeTree();
 		
@@ -621,7 +621,6 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		assertTrue(SpxSymbol.verifyEquals(symbolId3, actual.Id(_facade.getTermFactory())));
 		assertTrue(SpxSymbol.verifyEquals( this.moduleDeclarationP3M1.getId() , actual.namespaceUri().id()) );
 	}
-	
 	
 	public void testShouldNotFailIncaseOfCyclicImports() throws Exception{
 		createExtendedScopeTree();
@@ -770,7 +769,74 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 	
 	}
 	
-	
+	public void testResolveShouldReturnAllSymbolsOfaType() throws Exception{
+		createExtendedScopeTree();
+		
+		IStrategoAppl moduleQnameAppl1 = ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP1M1.getId());
+		IStrategoAppl moduleQnameAppl2 = ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP1M2.getId());
+		IStrategoAppl moduleQnameAppl3 = ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP2M1.getId());
+		
+		// Defining Symbol1 in P1.M1
+		IStrategoTerm symbolId1 = moduleQnameAppl1; 
+	 	IStrategoTerm data1 = (IStrategoAppl)moduleDeclarationP1M1.toTerm(_facade);	// defining Data
+		IStrategoAppl typeAppl1 = termFactory().makeAppl(termFactory().makeConstructor("ModuleDef", 0)); // setting Type  
+		
+		_facade.indexSymbol(createEntry(moduleQnameAppl1 , symbolId1 , typeAppl1  , data1));
+		
+		// Defining Symbol1 in P1.M2
+		IStrategoTerm symbolId2 = moduleQnameAppl1; 
+	 	IStrategoTerm data2 = (IStrategoAppl)moduleDeclarationP1M2.toTerm(_facade);	// defining Data
+		IStrategoAppl typeAppl2 = termFactory().makeAppl(termFactory().makeConstructor("ModuleDef__", 0)); // setting Type  
+		
+		_facade.indexSymbol(createEntry(moduleQnameAppl2 , symbolId2 , typeAppl2  , data2));
+		
+		// Defining Symbol3 in P2.M1
+		IStrategoTerm symbolId3 = moduleQnameAppl1; 
+	 	IStrategoTerm data3 = (IStrategoAppl)moduleDeclarationP2M1.toTerm(_facade);	// defining Data
+		IStrategoAppl typeAppl3 = typeAppl1;
+		
+		_facade.indexSymbol(createEntry(moduleQnameAppl3 , symbolId3 , typeAppl3 , data3));
+		
+		_facade.persistChanges();
+		
+		// closing persistence manager
+		_registry.closePersistenceManager(this.projectNameTerm);
+		_registry.initFacade(projectNameTerm, termFactory(), ioAgent());
+		
+		// loading tfacade again
+		SpxSemanticIndexFacade tfacade = _registry.getFacade(this.projectNameTerm);
+		
+
+		//-------------------------Resolving Symbol in Package 3--------------------------------------------
+		// It should only return 2 symbols defined in P1.M1         									   |
+		//--------------------------------------------------------------------------------------------------
+		Set<SpxSymbol> resolvedSymbols = (Set<SpxSymbol>)tfacade.resolveSymbols(
+				ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP3M1.getId()), // search origin
+				termFactory().makeString(Utils.All), // loooking for * symbols 
+				typeAppl1.getConstructor() // of Type 
+				);
+		
+		assertEquals(1, resolvedSymbols.size());
+		
+		for( SpxSymbol sym : resolvedSymbols) {
+			assertTrue(sym.equalType(typeAppl1.getConstructor())); 
+		}
+		
+		//-------------------------Resolving Symbol in Package 1--------------------------------------------
+		// It should only return 2 symbols defined in P1.M1 and P2.M1                                      |
+		//--------------------------------------------------------------------------------------------------
+		resolvedSymbols = (Set<SpxSymbol>)tfacade.resolveSymbols(
+				ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP1M1.getId()), // search origin
+				termFactory().makeString(Utils.All), // loooking for * symbols 
+				typeAppl1.getConstructor() // of Type 
+				);
+		
+		assertEquals(2, resolvedSymbols.size());
+		
+		for( SpxSymbol sym : resolvedSymbols) {
+			assertTrue(sym.equalType(typeAppl1.getConstructor())); 
+		}
+	}
 	
 	private void createExtendedScopeTree() throws IOException, SpxSymbolTableException{
 		// Setting up a big Scope-Tree

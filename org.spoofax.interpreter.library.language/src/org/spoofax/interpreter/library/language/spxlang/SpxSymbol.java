@@ -62,7 +62,7 @@ public class SpxSymbol extends SpxBaseSymbol implements Serializable{
 	
 	void setNamespace(NamespaceUri id){ _namespace = id;}
 	
-	boolean equalType (IStrategoConstructor term) { 
+	public boolean equalType (IStrategoConstructor term) { 
 		return _type.equals(term.getName()); 
 	}
 	
