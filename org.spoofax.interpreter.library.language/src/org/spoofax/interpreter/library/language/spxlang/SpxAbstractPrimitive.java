@@ -82,7 +82,9 @@ public abstract class SpxAbstractPrimitive extends AbstractPrimitive {
 			try {
 				facade = registry.getFacade(projectPath);
 				if(facade!=null){
+					facade.clearCache();
 					facade.rollbackChanges();
+					facade.clearCache();
 					facade.close();
 				}
 			} catch (Exception e) {
@@ -93,12 +95,10 @@ public abstract class SpxAbstractPrimitive extends AbstractPrimitive {
 		}
 	}
 	
-	
 	void logMessage(IOAgent agent , String message){ 
 		agent.printError("[" + this.getName() + "] " + message);
 	}
 		
-	
 	void logException(IOAgent agent , Throwable ex){
 		agent.printError("[" + this.getName() + "]  Invocation failed . "
 									+ ex.getClass().getSimpleName()

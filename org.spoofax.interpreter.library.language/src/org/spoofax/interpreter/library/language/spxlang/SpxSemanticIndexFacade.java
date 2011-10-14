@@ -1005,6 +1005,10 @@ public class SpxSemanticIndexFacade {
 		}
 		
 	}
+	public void clearCache() throws IOException{
+		this.persistenceManager().clearCache();
+		
+	}
 
 
 	

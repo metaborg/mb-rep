@@ -59,8 +59,7 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 		
 		this._agent = spxSemanticIndexFacade.getIOAgent();
 		this._projectName = spxSemanticIndexFacade.getProjectName() ;
-		//this._indexDirectory = spxSemanticIndexFacade.getProjectPath()+ "/.Index";
-		this._indexDirectory = "c:\\temp\\.Index";
+		this._indexDirectory = spxSemanticIndexFacade.getProjectPath()+ "/.Index";
 		
 		if( options  == null)
 			options = new Properties();// Creating empty properties collection if it is null
@@ -222,6 +221,12 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 
 	public void rollback() throws IOException{
 		_recordManager.rollback();
+		
+	}
+
+
+	public void clearCache() throws IOException {
+		_recordManager.clearCache();
 		
 	}
 	
