@@ -11,6 +11,8 @@ public interface ISpxPersistenceManager  extends ILogger{
 
 	public void commitAndClose()  throws IOException;
 	
+	public void close()  throws IOException;
+	
 	public <V> PrimaryStoreMap <Long, V> loadStoreMap( String storeMapName);
 	
 	public <K,V> PrimaryHashMap<K,V> loadHashMap ( String mapName);
@@ -25,9 +27,11 @@ public interface ISpxPersistenceManager  extends ILogger{
 	
 	public void commit() throws IOException;
 	
-	public boolean IsClosed();
+	public boolean isClosed();
 	
-	public void clearAll() throws IOException;
+	public void clear() throws IOException;
+	
+	public void rollback() throws IOException;
 	
 	public String getProjectName();
 	

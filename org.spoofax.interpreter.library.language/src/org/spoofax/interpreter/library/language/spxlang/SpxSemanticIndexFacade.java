@@ -28,7 +28,7 @@ public class SpxSemanticIndexFacade {
 	//TODO FIXME : combine symbol table and index
 	
 	private ISpxPersistenceManager _persistenceManager;
-	private final String _projectName ; 
+	private final String _projectPath ; 
 	private final ITermFactory _termFactory;
 	private final IOAgent _agent;
 	private final TermAttachmentStripper _stripper;
@@ -39,13 +39,13 @@ public class SpxSemanticIndexFacade {
 
 	/**
 	 * Initializes the SemanticIndexFactory
-	 * @param projectName name of the project 
+	 * @param projectPath name of the project 
 	 * @param termFactory {@link ITermFactory}
 	 * @param agent {@link IOAgent}
 	 * @throws Exception 
 	 */
-	public SpxSemanticIndexFacade(IStrategoTerm projectName , ITermFactory termFactory , IOAgent agent){
-		_projectName = asJavaString(projectName);
+	public SpxSemanticIndexFacade(IStrategoTerm projectPath , ITermFactory termFactory , IOAgent agent){
+		_projectPath = asJavaString(projectPath);
 		
 		_termFactory = termFactory;
 		_agent = agent;
@@ -62,7 +62,7 @@ public class SpxSemanticIndexFacade {
 	
 	public void initializePersistenceManager() throws Exception {
 		_persistenceManager = new SpxPersistenceManager(this);
-		_persistenceManager.initializeSymbolTables(this._projectName, this);
+		_persistenceManager.initializeSymbolTables(this._projectPath, this);
 	}
 		
 	/**
@@ -72,18 +72,15 @@ public class SpxSemanticIndexFacade {
 	public ITermFactory getTermFactory() { return _termFactory; }
 
 	public TermConverter getTermConverter() {return _converter ; }
+	
 	/**
 	 * Gets the project name as String
 	 * @return
 	 */
-	public String getProjectNameString(){ return _projectName; }
-
-	/**
-	 * Get ProjectName as IStrategoTerm
-	 * 
-	 * @return IStrategoTerm
-	 */
-	public IStrategoTerm getProjectName(){ return _termFactory.makeString(_projectName);}
+	public String getProjectPath(){ return Utils.toAbsPathString(_projectPath); }
+	
+	public String getProjectName(){ return new File(_projectPath).getName(); }
+	
 
 	/**
 	 * Returns an instance of the Persistence Manager active for the current Facade
@@ -235,7 +232,7 @@ public class SpxSemanticIndexFacade {
 		//verify valid package URI. Checking whether compilation unit exist with this URI
 		// in compilation unit table.
 		spxCompilationUnitPath  = (IStrategoString)toCompactPositionInfo((IStrategoTerm)spxCompilationUnitPath);
-		String absFilePath = toAbsulatePath(spxCompilationUnitPath);
+		String absFilePath = this.toAbsulatePath(spxCompilationUnitPath);
 		spxTable.verifyUriExists(absFilePath);
 
 		packageId = (IStrategoList)toCompactPositionInfo((IStrategoTerm)packageId);
@@ -770,7 +767,7 @@ public class SpxSemanticIndexFacade {
 	public void close() throws IOException {
 		if (!isPersistenceManagerClosed()) {
 			logMessage("close | closing underlying persistence manager instance.");
-			_persistenceManager.commitAndClose();
+			_persistenceManager.close();
 		}else {
 			logMessage("close | underlying persistence manager is already closed. ");
 		}	
@@ -784,11 +781,17 @@ public class SpxSemanticIndexFacade {
 	public void reinitSymbolTable() throws Exception {	
 		
 		if (! isPersistenceManagerClosed())
-			persistenceManager().clearAll();
+			persistenceManager().clear();
 		
 		persistenceManager().commit();
 		
-		persistenceManager().initializeSymbolTables(this.getProjectNameString(), this);
+		persistenceManager().initializeSymbolTables(this.getProjectName(), this);
+	}
+	
+	public void rollbackChanges() throws IOException{	
+		
+		if (! isPersistenceManagerClosed())
+			persistenceManager().rollback();
 	}
 
 	
@@ -797,7 +800,7 @@ public class SpxSemanticIndexFacade {
 	 * 
 	 * @return true if PersistenceManage is open. Otherwise returns false.
 	 */
-	boolean isPersistenceManagerClosed() { 	return _persistenceManager.IsClosed(); }
+	boolean isPersistenceManagerClosed() { 	return _persistenceManager.isClosed(); }
 
 
 	/**
@@ -821,25 +824,9 @@ public class SpxSemanticIndexFacade {
 	 * @param uri URI of the Resource. 
 	 * @return Absolute Path represented by the URI  
 	 */
-	public String toAbsulatePath( IStrategoString uri){
-		URI resUri = toFileURI(uri);
-		
-		return new File(resUri).getAbsolutePath().trim();
-	}
+	public String toAbsulatePath( IStrategoString uri){ return Utils.uriToAbsPathString(toFileURI(uri)); }
 
-	/**
-	 * Returns URI 
-	 * @param path
-	 * @return
-	 */
-	private URI toFileURI(String path)
-	{
-		File file = new File(path);
-		return	file.isAbsolute()? file.toURI()
-			  			 : new File(_agent.getWorkingDir(), path).toURI();
-	}
-
-	private URI toFileURI(IStrategoTerm filePath) {	return toFileURI(Tools.asJavaString(filePath)); }
+	private URI toFileURI(IStrategoTerm filePath) {	return Utils.getAbsolutePathUri(Tools.asJavaString(filePath) ,_agent); }
 
 	/**
 	 * Verify type of declaration . 
@@ -859,6 +846,7 @@ public class SpxSemanticIndexFacade {
 	 * @param message
 	 */
 	private void logMessage(String message) {
+		
 		_persistenceManager.logMessage("SpxSemanticIndexFacade", message);
 	}
 	

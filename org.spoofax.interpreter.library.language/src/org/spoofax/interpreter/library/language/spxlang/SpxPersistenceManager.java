@@ -23,21 +23,17 @@ import org.spoofax.interpreter.library.IOAgent;
  */
 public class SpxPersistenceManager implements ISpxPersistenceManager {
 	private static final String SRC =   "SpxPersistenceManager" ;
-	
-	
+
 	private final RecordManager _recordManager; 
 	private final String _indexDirectory;   
 	private final IOAgent _agent;
 	private final String _projectName ;
-	
-	// Keeps a reference to the SpxCompilation Units 
-	private SpxCompilationUnitTable _spxUnitsTable;  
-	// Indexing Package and Module Definitions
-	private SpxPackageLookupTable _spxPackageTable;
-	private SpxModuleLookupTable _spxModuleTable;
-	// Symbol Table for storing program symbols 
-	private SpxPrimarySymbolTable _spxSymbolTable;
 
+	private SpxCompilationUnitTable _spxUnitsTable; // Keeps a reference to the SpxCompilation Units  
+	private SpxPackageLookupTable _spxPackageTable; // Indexing Package and Module Definitions
+	private SpxModuleLookupTable _spxModuleTable;
+	
+	private SpxPrimarySymbolTable _spxSymbolTable;// Symbol Table for storing program symbols 
 
 	/**
 	 * Instantiates a new instance of SpxPersistenceManager. Main Responsibility of this class  
@@ -62,8 +58,9 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 		assert spxSemanticIndexFacade != null : "SpxSemanticIndexFacade is expected to be nonnull" ;
 		
 		this._agent = spxSemanticIndexFacade.getIOAgent();
-		this._projectName = spxSemanticIndexFacade.getProjectNameString() ;
-		this._indexDirectory = _agent.getWorkingDir()+ "/.Index";
+		this._projectName = spxSemanticIndexFacade.getProjectName() ;
+		//this._indexDirectory = spxSemanticIndexFacade.getProjectPath()+ "/.Index";
+		this._indexDirectory = "c:\\temp\\.Index";
 		
 		if( options  == null)
 			options = new Properties();// Creating empty properties collection if it is null
@@ -150,7 +147,7 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	public void commit() throws IOException {
 		
 		if( Utils.DEBUG) { this.spxSymbolTable().printSymbols("commit");} 
-		if(!this.IsClosed()){
+		if(!this.isClosed()){
 			this.spxSymbolTable().commit();
 			_recordManager.commit();
 		}	
@@ -161,7 +158,11 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	 * 
 	 * @throws IOException
 	 */
-	void close() throws IOException { if(!this.IsClosed()) _recordManager.close(); }
+	public void close() throws IOException { 
+		if(!this.isClosed()){ 
+			_recordManager.close();
+		}	
+	}
 	
 	/* (non-Javadoc)
 	 * @see org.spoofax.interpreter.library.language.spxlang.ISpxPersistenceManager#commitAndClose()
@@ -170,13 +171,13 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 
 	public SpxCompilationUnitTable spxCompilcationUnitTable() { return _spxUnitsTable; }
 
-	public boolean IsClosed() { return _recordManager.IsClosed(); }
+	public boolean isClosed() { return _recordManager == null? true : _recordManager.IsClosed(); }
 
 	public SpxPackageLookupTable spxPackageTable() { return _spxPackageTable; }
 
 	public SpxModuleLookupTable spxModuleTable() { return _spxModuleTable; }	
 
-	public void clearAll() throws IOException{
+	public void clear() throws IOException{
 		try
 		{
 			this._spxUnitsTable.clear();	
@@ -216,6 +217,12 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 
 	public SpxPrimarySymbolTable spxSymbolTable() {
 		return _spxSymbolTable;
+	}
+
+
+	public void rollback() throws IOException{
+		_recordManager.rollback();
+		
 	}
 	
 }

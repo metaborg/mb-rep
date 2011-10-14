@@ -6,6 +6,7 @@ import jdbm.PrimaryHashMap;
 import jdbm.RecordManager;
 import jdbm.RecordManagerFactory;
 
+import org.spoofax.NotImplementedException;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -26,422 +27,259 @@ public class SpxSemanticIndex {
 	//TODO : generalize and refactor common operations. Only expose few public operations and generalize others.  
 	
 	/**
-	 * Registry keeps the mapping of projectName to its own facade
+	 * Registry keeps the mapping of projectPath to its own facade
 	 * to create and perform various operations related to semantic index.
 	 */
 	private final SpxSemanticIndexFacadeRegistry _facadeRegistry;
-	
 		
-	public SpxSemanticIndex()
-	{
+	public SpxSemanticIndex(){
 		_facadeRegistry = new SpxSemanticIndexFacadeRegistry();
 	}
 	
-	
-	/**
-	 * Initializing Index for the project specified by the projectName
-	 * @param projectName Name of the project
-	 * @param termFactory Term Factory  
-	 * @param agent IOAgent responsible for providing IO operations.
-	 * @return true if the operation is successful ; false otherwise.
-	 * @throws IOException 
-	 */
-	public boolean initialize(IStrategoTerm projectName,  ITermFactory termFactory, IOAgent agent)  throws Exception
-	{
-		try
-		{	
-			new SpxIndexManageCommand(){
-				public void executeCommnad(IStrategoTerm projectName, Object... objects) throws Exception{
-					// Adding a new entry of the facade for the project 
-					// in the registry. 
-					_facadeRegistry.initFacade(projectName, (ITermFactory)objects[0], (IOAgent)objects[1]) ;
-					
-				}
-			}.executeCommnad(projectName, termFactory , agent);
-			
-			return true; 
-		}
-		catch(IllegalStateException e)
-		{
-			tryCleanupResources(projectName);
-			throw e;
-		}
-		catch(Error er)
-		{
-			tryCleanupResources(projectName);
-			throw er;
-		}	
+	public SpxSemanticIndexFacadeRegistry getFacadeRegistry() {
+		return _facadeRegistry;
 	}
 	
-	private boolean executeIndexer(IStrategoString projectName , IStrategoAppl appl , SpxIndexer indexer) throws Exception
+	public boolean initialize(IStrategoString projectPath,  ITermFactory termFactory, IOAgent agent)  throws Exception
 	{
-		boolean successStatement = false;
-		try {
-			indexer.index(projectName, appl);
-			successStatement  = true;
-		}
-		catch(IllegalStateException e)
-		{
-			tryCleanupResources(projectName);
-			throw e;
-		}
-		catch(Error er)
-		{
-			tryCleanupResources(projectName);
-			throw er;
-		}
+		IIndexManageCommand command = 
+			SpxIndexManager.getCommandInstance(this, IIndexManageCommand.INIT_COMMAND_STRING, projectPath, termFactory,agent);
+
+		command.run();
+		return true; 
+	}
+	
+	public boolean clearall(IStrategoString projectPath) throws Exception {
+		IIndexManageCommand command = 
+			SpxIndexManager.getCommandInstance(this, IIndexManageCommand.CLEAR_COMMAND_STRING, projectPath);
+
+		command.run();
+		return true;
+	}
+	
+	public boolean save(IStrategoString projectPath) throws Exception{
+		IIndexManageCommand command = 
+			SpxIndexManager.getCommandInstance(this, IIndexManageCommand.SAVE_COMMAND_STRING, projectPath);
+
+		command.run();
+		return true;
+	}
+	
+	public boolean close(IStrategoString projectPath) throws Exception {
+		IIndexManageCommand command = 
+			SpxIndexManager.getCommandInstance(this, IIndexManageCommand.CLOSE_COMMAND_STRING, projectPath);
+
+		command.run();
+		return true;
+	}
 		
-		return successStatement;
-	}
-	
-	
-	public boolean indexImportReferences(IStrategoString projectName,
+	public boolean indexImportReferences(IStrategoString projectPath,
 			final IStrategoAppl importReferences) throws Exception {
 	
 		SpxIndexer idx = new SpxIndexer() {
-			public void index(IStrategoString projectName, IStrategoAppl appl) throws Exception {
-				SpxSemanticIndexFacade idxFacade = getFacade(projectName);
+			public void index(IStrategoString projectPath, IStrategoAppl appl) throws Exception {
+				SpxSemanticIndexFacade idxFacade = getFacade(projectPath);
 				idxFacade.indexImportReferences(importReferences);
 			}
 		};
 		
-		return idx.executeIndexer(projectName, importReferences);
+		return idx.executeIndexer(projectPath, importReferences);
 	}
 	
-	public boolean indexSymbolDefinition(IStrategoString projectName, final IStrategoAppl symbolDef)  throws Exception{
+	public boolean indexSymbolDefinition(IStrategoString projectPath, final IStrategoAppl symbolDef)  throws Exception{
 		
 		SpxIndexer idx = new SpxIndexer() {
-			public void index(IStrategoString projectName, IStrategoAppl appl) throws Exception {
-				SpxSemanticIndexFacade idxFacade = getFacade(projectName);
+			public void index(IStrategoString projectPath, IStrategoAppl appl) throws Exception {
+				SpxSemanticIndexFacade idxFacade = getFacade(projectPath);
 				idxFacade.indexSymbol(symbolDef);
 			}
 		};
-		
-		return idx.executeIndexer(projectName, symbolDef);
+		return idx.executeIndexer(projectPath, symbolDef);
 	}
 	
 	// Index module definition . 
-	public boolean indexModuleDefinition(IStrategoString projectName, final IStrategoAppl moduleDefinition) throws Exception
+	public boolean indexModuleDefinition(IStrategoString projectPath, final IStrategoAppl moduleDefinition) throws Exception
 	{
 		SpxIndexer idx = new SpxIndexer() {
-			public void index(IStrategoString projectName, IStrategoAppl appl) throws Exception {
-				SpxSemanticIndexFacade idxFacade = getFacade(projectName);
+			public void index(IStrategoString projectPath, IStrategoAppl appl) throws Exception {
+				SpxSemanticIndexFacade idxFacade = getFacade(projectPath);
 				idxFacade.indexModuleDefinition(moduleDefinition);
 			}
 		};
-		return executeIndexer(projectName, moduleDefinition,  idx);
+		return idx.executeIndexer(projectPath, moduleDefinition);
 	}
 	
-	public boolean indexPackageDeclaration(IStrategoString projectName, final IStrategoAppl packageDecl) throws Exception {
+	public boolean indexPackageDeclaration(IStrategoString projectPath, final IStrategoAppl packageDecl) throws Exception {
 		SpxIndexer idx = new SpxIndexer() {
-			public void index(IStrategoString projectName, IStrategoAppl appl) throws Exception {
-				SpxSemanticIndexFacade idxFacade = getFacade(projectName);
+			public void index(IStrategoString projectPath, IStrategoAppl appl) throws Exception {
+				SpxSemanticIndexFacade idxFacade = getFacade(projectPath);
 				idxFacade.indexPackageDeclaration(packageDecl);
 				}
 		};
 
-		return executeIndexer(projectName, packageDecl,  idx);
+		return idx.executeIndexer(projectPath, packageDecl);
 	}
 
-	public boolean indexLanguageDescriptor(IStrategoString projectName,	final IStrategoAppl languageDescriptor) throws Exception {
+	public boolean indexLanguageDescriptor(IStrategoString projectPath,	final IStrategoAppl languageDescriptor) throws Exception {
 		return new SpxIndexer() {
-			public void index(IStrategoString projectName, IStrategoAppl appl)
+			public void index(IStrategoString projectPath, IStrategoAppl appl)
 					throws Exception {
-				SpxSemanticIndexFacade idxFacade = getFacade(projectName);
+				SpxSemanticIndexFacade idxFacade = getFacade(projectPath);
 				idxFacade.indexLanguageDescriptor(languageDescriptor);
 			}
-		}.executeIndexer(projectName, languageDescriptor);
-	}
-	
-	/**
-	 * Indexes spoofax lang Compilation Unit
-	 * 
-	 * @param projectName
-	 * @param spxCompilationUnitPath
-	 * @param spxCompilationUnitAST
-	 * @return true if the CompilationUnit is successfully indexed; otherwise  returns false. 
-	 * @throws IllegalStateException
-	 * @throws Exception
-	 */
-	public boolean indexCompilationUnit(IStrategoString projectName, IStrategoString spxCompilationUnitPath, IStrategoAppl spxCompilationUnitAST) throws IllegalStateException, Exception{
-
-		boolean successStatement = false;
-		
-		try {
-			SpxSemanticIndexFacade idxFacade = getFacade(projectName);
-			idxFacade.indexCompilationUnit( spxCompilationUnitPath, spxCompilationUnitAST);
-			successStatement =  true; // setting the flag to indicate the operation is successful
-		}
-		catch(IllegalStateException e)
-		{
-			tryCleanupResources(projectName);
-			throw e;
-		}
-		catch(Error er)
-		{
-			tryCleanupResources(projectName);
-			throw er;
-		}	
-		return successStatement;
-	}
-	
-	public IStrategoTerm getCompilationUnit(IStrategoString projectName, IStrategoString spxCompilationUnitPath) throws Exception{
-		return new SpxResolver() {
-			@Override
-			public IStrategoTerm resolve(IStrategoString projectName, IStrategoTerm term)
-					throws Exception {	
-					
-					SpxSemanticIndexFacade idxFacade = getFacade(projectName);
-					return idxFacade.getCompilationUnit((IStrategoString)term);
-			}
-		}.executeWith(projectName, spxCompilationUnitPath);
-	}
-	
-	public IStrategoTerm getPackageDeclaration(IStrategoString projectName, final IStrategoAppl packageTypedQname) throws Exception{
-		return new SpxResolver() {
-			@Override
-			public IStrategoTerm resolve(IStrategoString projectName, IStrategoTerm term)
-					throws Exception {	
-					
-					SpxSemanticIndexFacade idxFacade = getFacade(projectName);
-					return idxFacade.getPackageDeclaration((IStrategoAppl)term);
-			}
-		}.executeWith(projectName, packageTypedQname);
-		
+		}.executeIndexer(projectPath, languageDescriptor);
 	}
 
-	public IStrategoTerm getPackageDeclarationsByUri(IStrategoString projectName, IStrategoString compilationUnitUri)  throws Exception{
-		return new SpxResolver() {
-			@Override
-			public IStrategoTerm resolve(IStrategoString projectName, IStrategoTerm term)
-					throws Exception {	
-					
-					SpxSemanticIndexFacade idxFacade = getFacade(projectName);
-					return idxFacade.getPackageDeclarations((IStrategoString) term);
-			}
-		}.executeWith(projectName, compilationUnitUri);
-	}
+	public boolean indexCompilationUnit(IStrategoString projectPath, IStrategoString spxCompilationUnitPath, IStrategoAppl spxCompilationUnitAST) throws IllegalStateException, Exception{
 
-	public IStrategoTerm getModuleDeclaration(IStrategoString projectName, final IStrategoAppl moduleTypedQname) throws Exception{
-		return new SpxResolver() {
-			@Override
-			public IStrategoTerm resolve(IStrategoString projectName, IStrategoTerm qname)
-					throws Exception {	
-					
-					SpxSemanticIndexFacade idxFacade = getFacade(projectName);
-					return idxFacade.getModuleDeclaration((IStrategoAppl)qname);
-			}
-		}.executeWith(projectName, moduleTypedQname);
-	}
-	
-	public IStrategoTerm getImports(IStrategoString projectName, final IStrategoAppl namespaceID) throws Exception{
-		return new SpxResolver() {
-			@Override
-			public IStrategoTerm resolve(IStrategoString projectName, IStrategoTerm namespaceID)
-					throws Exception {	
-					
-					SpxSemanticIndexFacade idxFacade = getFacade(projectName);
-					return idxFacade.getImportReferences((IStrategoAppl)namespaceID);
-			}
-		}.executeWith(projectName, namespaceID);
-	}
-	
-	public IStrategoTerm getModuleDeclarations(IStrategoString projectName, IStrategoTerm retTerm) throws Exception {
-		return new SpxResolver() {
-			@Override
-			public IStrategoTerm resolve(IStrategoString projectName, IStrategoTerm res)
-					throws Exception {	
-					
-					SpxSemanticIndexFacade idxFacade = getFacade(projectName);
-					return idxFacade.getModuleDeclarationsOf(res);
-			}
-		}.executeWith(projectName, retTerm);
-	}
-	
-
-	public  IStrategoTerm insertNewScope(IStrategoString projectName, IStrategoAppl namespaceAppl) throws Exception{
-		return new SpxResolver() {
-			@Override
-			public IStrategoTerm resolve(IStrategoString projectName, IStrategoTerm ns)
-					throws Exception {	
-					
-					SpxSemanticIndexFacade idxFacade = getFacade(projectName);
-					return idxFacade.insertNewScope((IStrategoAppl)ns);
-			}
-		}.executeWith(projectName, namespaceAppl);
-	}	
-	
-	public IStrategoTerm destroyScope(IStrategoString projectName, IStrategoAppl namespaceAppl) throws Exception {
-		return new SpxResolver() {
-			@Override
-			public IStrategoTerm resolve(IStrategoString projectName, IStrategoTerm ns)
-					throws Exception {	
-					
-					SpxSemanticIndexFacade idxFacade = getFacade(projectName);
-					return idxFacade.destroyScope((IStrategoAppl)ns);
-			}
-		}.executeWith(projectName, namespaceAppl);
-	}
-
-	public IStrategoTerm getModuleDefinition(IStrategoString projectName, final IStrategoAppl moduleTypedQname) throws Exception {
-		return new SpxResolver() {
-			@Override
-			public IStrategoTerm resolve(IStrategoString projectName, IStrategoTerm qname)
-					throws Exception {	
-					
-					SpxSemanticIndexFacade idxFacade = getFacade(projectName);
-					return idxFacade.getModuleDefinition((IStrategoAppl)qname);
-			}
-		}.executeWith(projectName, moduleTypedQname);
-	}
-	
-	public IStrategoTerm getLanguageDescriptor(IStrategoString projectName, final IStrategoAppl packageTypedQname) throws Exception{
-		return new SpxResolver() {
-			@Override
-			public IStrategoTerm resolve(IStrategoString projectName, IStrategoTerm qname)
-					throws Exception {	
-					
-					SpxSemanticIndexFacade idxFacade = getFacade(projectName);
-					return idxFacade.getLanguageDescriptor((IStrategoAppl)qname);
-			}
-		}.executeWith(projectName, packageTypedQname);
-	}
-	
-	public IStrategoTerm resolveSymbols(IStrategoString projectName, final IStrategoTuple searchCriteria)  throws Exception{
-		return new SpxResolver() {
-			@Override
-			public IStrategoTerm resolve(IStrategoString projectName, IStrategoTerm qname)
-					throws Exception {	
-					
-					SpxSemanticIndexFacade idxFacade = getFacade(projectName);
-					return idxFacade.resolveSymbols((IStrategoTuple)qname);
-			}
-		}.executeWith(projectName, searchCriteria);
-	}
-
-	public boolean removeCompilationUnit(IStrategoString projectName,IStrategoString spxCompilationUnitPath) throws IllegalStateException, IOException, SpxSymbolTableException{
-		
-		boolean successStatement = false;
-		
-		try {
-			SpxSemanticIndexFacade idxFacade = getFacade(projectName);
-			idxFacade.removeCompilationUnit(spxCompilationUnitPath);
-			
-			successStatement = true; // setting the flag to indicate the operation is successful
-		}
-		catch(IllegalStateException exception)
-		{
-			tryCleanupResources(projectName);
-			throw exception;
-		}
-		catch(Error er)
-		{
-			tryCleanupResources(projectName);
-			throw er;
-		}
-		return successStatement;
-	}
-	
-	public boolean clearall(IStrategoString projectName) throws Exception {
-		boolean retValue = false; 
-		try
-		{
-			new SpxIndexManageCommand(){
-				public void executeCommnad(IStrategoTerm projectName, Object... objects) throws Exception{
-					SpxSemanticIndexFacade idxFacade = getFacade(projectName);
-					idxFacade.reinitSymbolTable();
-
-				}
-			}.executeCommnad(projectName);
-			
-			retValue = true;
-		}
-		catch(IllegalStateException e)
-		{
-			tryCleanupResources(projectName);
-			throw e;
-		}
-		catch(Error er)
-		{
-			tryCleanupResources(projectName);
-			throw er;
-		}
-		return retValue;
-	}
-	/**
-	 * Saves the indexes of the project specified by the projectName
-	 * 
-	 * @param projectName Term representation of the projectName 
-	 * @return true if the operation is successful ; otherwise false.
-	 * @throws IOException 
-	 * @throws SpxSymbolTableException 
-	 */
-	public boolean save(IStrategoTerm projectName) throws Exception
-	{
-		boolean retValue = false; 
-		try
-		{
-			new SpxIndexManageCommand(){
-				public void executeCommnad(IStrategoTerm projectName, Object... objects) throws Exception{
-					SpxSemanticIndexFacade idxFacade = getFacade(projectName);
-					idxFacade.persistChanges();
-
-				}
-			}.executeCommnad(projectName);
-			retValue = true;
-		}
-		catch(IllegalStateException e)
-		{
-			tryCleanupResources(projectName);
-			throw e;
-		}
-		catch(Error er)
-		{
-			tryCleanupResources(projectName);
-			throw er;
-		}
-		return retValue;
-	}
-	
-	public boolean close(IStrategoTerm projectName) throws Exception {
-		new SpxIndexManageCommand(){
-			public void executeCommnad(IStrategoTerm projectName, Object... objects) throws Exception{
-				_facadeRegistry.closePersistenceManager(projectName);
-
-			}
-		}.executeCommnad(projectName);
-
+		SpxSemanticIndexFacade idxFacade = getFacade(projectPath);
+		idxFacade.indexCompilationUnit( spxCompilationUnitPath, spxCompilationUnitAST);
 		return true;
 	}
 	
-	
-	public void executeCommand( IStrategoTerm commandName, IStrategoTerm projectName, Object...  objects )
-	{
-		// gets the command from the hashmap indexed by commandname 
-		// pass all the arguments 
-		// execute the commands 
-	}
-	/**
-	 * Closes any underlying open connection and clean up unmanaged resources. 
-	 * 
-	 * @param projectName
-	 * @throws IOException 
-	 */
-	private void tryCleanupResources( IStrategoTerm projectName) throws IOException{
-		
-		if ( _facadeRegistry.containsFacade(projectName)) {
-			SpxSemanticIndexFacade facade = _facadeRegistry.closePersistenceManager(projectName);
-			try {
-				facade.close();
-			} catch (IOException e) {
-				facade.printError( "[SPXSemanticIndex] . Cleanup Failed due to following Error : "+ e.getMessage()) ;	//logging exception.
+	public IStrategoTerm getCompilationUnit(IStrategoString projectPath, IStrategoString spxCompilationUnitPath) throws Exception{
+		return new SpxResolver() {
+			@Override
+			public IStrategoTerm resolve(IStrategoString projectPath, IStrategoTerm term)
+					throws Exception {	
+					
+					SpxSemanticIndexFacade idxFacade = getFacade(projectPath);
+					return idxFacade.getCompilationUnit((IStrategoString)term);
 			}
-		}	
+		}.executeWith(projectPath, spxCompilationUnitPath);
 	}
 	
-	private SpxSemanticIndexFacade getFacade(IStrategoTerm projectName) throws SpxSymbolTableException {
+	public IStrategoTerm getPackageDeclaration(IStrategoString projectPath, final IStrategoAppl packageTypedQname) throws Exception{
+		return new SpxResolver() {
+			@Override
+			public IStrategoTerm resolve(IStrategoString projectPath, IStrategoTerm term)
+					throws Exception {	
+					
+					SpxSemanticIndexFacade idxFacade = getFacade(projectPath);
+					return idxFacade.getPackageDeclaration((IStrategoAppl)term);
+			}
+		}.executeWith(projectPath, packageTypedQname);
+		
+	}
 
-		SpxSemanticIndexFacade facade = _facadeRegistry.getFacade(projectName);
+	public IStrategoTerm getPackageDeclarationsByUri(IStrategoString projectPath, IStrategoString compilationUnitUri)  throws Exception{
+		return new SpxResolver() {
+			@Override
+			public IStrategoTerm resolve(IStrategoString projectPath, IStrategoTerm term)
+					throws Exception {	
+					
+					SpxSemanticIndexFacade idxFacade = getFacade(projectPath);
+					return idxFacade.getPackageDeclarations((IStrategoString) term);
+			}
+		}.executeWith(projectPath, compilationUnitUri);
+	}
+
+	public IStrategoTerm getModuleDeclaration(IStrategoString projectPath, final IStrategoAppl moduleTypedQname) throws Exception{
+		return new SpxResolver() {
+			@Override
+			public IStrategoTerm resolve(IStrategoString projectPath, IStrategoTerm qname)
+					throws Exception {	
+					
+					SpxSemanticIndexFacade idxFacade = getFacade(projectPath);
+					return idxFacade.getModuleDeclaration((IStrategoAppl)qname);
+			}
+		}.executeWith(projectPath, moduleTypedQname);
+	}
+	
+	public IStrategoTerm getImports(IStrategoString projectPath, final IStrategoAppl namespaceID) throws Exception{
+		return new SpxResolver() {
+			@Override
+			public IStrategoTerm resolve(IStrategoString projectPath, IStrategoTerm namespaceID)
+					throws Exception {	
+					
+					SpxSemanticIndexFacade idxFacade = getFacade(projectPath);
+					return idxFacade.getImportReferences((IStrategoAppl)namespaceID);
+			}
+		}.executeWith(projectPath, namespaceID);
+	}
+	
+	public IStrategoTerm getModuleDeclarations(IStrategoString projectPath, IStrategoTerm retTerm) throws Exception {
+		return new SpxResolver() {
+			@Override
+			public IStrategoTerm resolve(IStrategoString projectPath, IStrategoTerm res)
+					throws Exception {	
+					
+					SpxSemanticIndexFacade idxFacade = getFacade(projectPath);
+					return idxFacade.getModuleDeclarationsOf(res);
+			}
+		}.executeWith(projectPath, retTerm);
+	}
+
+	public IStrategoTerm insertNewScope(IStrategoString projectPath, IStrategoAppl namespaceAppl) throws Exception{
+		return new SpxResolver() {
+			@Override
+			public IStrategoTerm resolve(IStrategoString projectPath, IStrategoTerm ns)
+					throws Exception {	
+					
+					SpxSemanticIndexFacade idxFacade = getFacade(projectPath);
+					return idxFacade.insertNewScope((IStrategoAppl)ns);
+			}
+		}.executeWith(projectPath, namespaceAppl);
+	}	
+	
+	public IStrategoTerm destroyScope(IStrategoString projectPath, IStrategoAppl namespaceAppl) throws Exception {
+		return new SpxResolver() {
+			@Override
+			public IStrategoTerm resolve(IStrategoString projectPath, IStrategoTerm ns)
+					throws Exception {	
+					
+					SpxSemanticIndexFacade idxFacade = getFacade(projectPath);
+					return idxFacade.destroyScope((IStrategoAppl)ns);
+			}
+		}.executeWith(projectPath, namespaceAppl);
+	}
+
+	public IStrategoTerm getModuleDefinition(IStrategoString projectPath, final IStrategoAppl moduleTypedQname) throws Exception {
+		return new SpxResolver() {
+			@Override
+			public IStrategoTerm resolve(IStrategoString projectPath, IStrategoTerm qname)
+					throws Exception {	
+					
+					SpxSemanticIndexFacade idxFacade = getFacade(projectPath);
+					return idxFacade.getModuleDefinition((IStrategoAppl)qname);
+			}
+		}.executeWith(projectPath, moduleTypedQname);
+	}
+	
+	public IStrategoTerm getLanguageDescriptor(IStrategoString projectPath, final IStrategoAppl packageTypedQname) throws Exception{
+		return new SpxResolver() {
+			@Override
+			public IStrategoTerm resolve(IStrategoString projectPath, IStrategoTerm qname) throws Exception {	
+					
+					SpxSemanticIndexFacade idxFacade = getFacade(projectPath);
+					return idxFacade.getLanguageDescriptor((IStrategoAppl)qname);
+			}
+		}.executeWith(projectPath, packageTypedQname);
+	}
+	
+	public IStrategoTerm resolveSymbols(IStrategoString projectPath, final IStrategoTuple searchCriteria)  throws Exception{
+		return new SpxResolver() {
+			@Override
+			public IStrategoTerm resolve(IStrategoString projectPath, IStrategoTerm qname) throws Exception {	
+					
+					SpxSemanticIndexFacade idxFacade = getFacade(projectPath);
+					return idxFacade.resolveSymbols((IStrategoTuple)qname);
+			}
+		}.executeWith(projectPath, searchCriteria);
+	}
+
+	public boolean removeCompilationUnit(IStrategoString projectPath,IStrategoString spxCompilationUnitPath) throws Exception{
+	
+			SpxSemanticIndexFacade idxFacade = getFacade(projectPath);
+			idxFacade.removeCompilationUnit(spxCompilationUnitPath);
+			
+			return true;
+	}
+	
+	
+	SpxSemanticIndexFacade getFacade(IStrategoTerm projectPath) throws Exception {
+
+		SpxSemanticIndexFacade facade = _facadeRegistry.getFacade(projectPath);
 		ensureInitialized(facade);
 		return facade;
 	}
@@ -453,52 +291,21 @@ public class SpxSemanticIndex {
 
 	private abstract class SpxIndexer 
 	{	
-		public boolean executeIndexer(IStrategoString projectName , IStrategoAppl appl) throws Exception{
-			boolean successStatement = false;
-			try {
-				index(projectName, appl);
-				successStatement  = true;
-			}
-			catch(IllegalStateException e)
-			{
-				tryCleanupResources(projectName);
-				throw e;
-			}
-			catch(Error er)
-			{
-				tryCleanupResources(projectName);
-				throw er;
-			}
-			return successStatement;
+		public boolean executeIndexer(IStrategoString projectPath , IStrategoAppl appl) throws Exception{
+			index(projectPath, appl);
+			return true;
 		}
 		
-		public abstract void index(IStrategoString projectName , IStrategoAppl appl) throws Exception ;
+		public abstract void index(IStrategoString projectPath , IStrategoAppl appl) throws Exception ;
 	}
 	
 	private abstract class SpxResolver 
 	{	
-		public IStrategoTerm executeWith(IStrategoString projectName , IStrategoTerm term) throws Exception{
-			try {
-				return resolve(projectName, term);
-			}
-			catch(IllegalStateException e) {
-				tryCleanupResources(projectName);
-				throw e;
-			}
-			catch(Exception ex) { throw ex ;}
-			catch(Error er){
-				tryCleanupResources(projectName);
-				throw er;
-			}
+		public IStrategoTerm executeWith(IStrategoString projectPath , IStrategoTerm term) throws Exception{
+			return resolve(projectPath, term);
 		}
 	
-		public abstract IStrategoTerm resolve(IStrategoString projectName , IStrategoTerm term) throws Exception ;
-	}
-	
-
-	private static abstract class SpxIndexManageCommand 
-	{
-		public abstract void executeCommnad(IStrategoTerm projectName , Object... objects) throws Exception;
+		public abstract IStrategoTerm resolve(IStrategoString projectPath , IStrategoTerm term) throws Exception ;
 	}
 
 }

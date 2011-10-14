@@ -25,7 +25,11 @@ public abstract class BaseNamespace implements INamespace {
 	
 	private final NamespaceUri _currentNamespaceId; 
 	private final NamespaceUri _enclosingNamespaceId;
-	protected final IStrategoConstructor type;
+	
+	/**
+	 * Stores all the symbols from the current namespace. 
+	 * @serialField
+	 */
 	protected HashMap<SpxSymbolKey, List<SpxSymbol>> symbols;
 
 	public NamespaceUri namespaceUri() {return _currentNamespaceId;}
@@ -40,8 +44,6 @@ public abstract class BaseNamespace implements INamespace {
 		
 		_currentNamespaceId = currentNamespace;
 		_enclosingNamespaceId = enclosingNamespace; 
-		
-		this.type = type;
 		
 		src = (_enclosingNamespaceId!= null) ? type.getName() + _currentNamespaceId.id() :  type.getName()   ; 
 			
@@ -168,9 +170,11 @@ public abstract class BaseNamespace implements INamespace {
 		return resolveAll(searchingFor, type,  this, spxFacade);
 	}
 	
-	public IStrategoConstructor type() { return type; }
-
-	public Map<SpxSymbolKey, List<SpxSymbol>> getMembers(){return this.symbols;}
+	public Map<SpxSymbolKey, List<SpxSymbol>> getMembers(){
+		if(symbols == null)
+			symbols = new HashMap<SpxSymbolKey, List<SpxSymbol>>();
+		
+		return this.symbols;}
 
 	public void clear() { if(this.symbols != null) this.symbols.clear();}
 
@@ -181,10 +185,7 @@ public abstract class BaseNamespace implements INamespace {
 	
 	public INamespace getCurrentNamespace(INamespaceResolver rs) throws SpxSymbolTableException{ return _currentNamespaceId.resolve(rs); }
 	
-	
-	
 	public boolean isInternalNamespace() { return false;  }
-
 	
 	protected boolean shouldSearchInInternalNamespace( INamespace searchedBy) {
 		// If searchedBy Namespace is enclosingNamespace of CurrentNamespace 

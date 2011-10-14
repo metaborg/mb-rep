@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import static org.spoofax.interpreter.library.language.spxlang.SpxCompilationUnitInfo.toAbsulatePath;
 import jdbm.PrimaryHashMap;
 import jdbm.PrimaryStoreMap;
 import jdbm.RecordListener;
@@ -70,7 +69,7 @@ public class SpxCompilationUnitTable {
 	 */
 	public void define(URI absPath , IStrategoTerm compilationUnitRTree) throws IOException
 	{	
-		String abspathString = toAbsulatePath(absPath);
+		String abspathString = Utils.uriToAbsPathString(absPath);
 		
 		if ( _infoMap.containsKey(abspathString))
 			this.update(absPath, compilationUnitRTree); //URI is already there in the symbol table . Hence updating the table
@@ -118,7 +117,7 @@ public class SpxCompilationUnitTable {
 	 */
 	private void update(URI absPath , IStrategoTerm compilationUnitAterm) throws IOException {	
 		
-		SpxCompilationUnitInfo oldValue = _infoMap.get(toAbsulatePath(absPath));
+		SpxCompilationUnitInfo oldValue = _infoMap.get(Utils.uriToAbsPathString(absPath));
 		SpxCompilationUnitInfo newValue = SpxCompilationUnitInfo.newInstance(oldValue);
 		newValue.IncrementVersionNo();
 		
@@ -126,7 +125,7 @@ public class SpxCompilationUnitTable {
 	
 		if(!recordListeners.isEmpty()){	
 			for(RecordListener<String, SpxCompilationUnitInfo> r:recordListeners){
-				r.recordUpdated(toAbsulatePath(absPath), oldValue , newValue);
+				r.recordUpdated(Utils.uriToAbsPathString(absPath), oldValue , newValue);
 			}
 		}
 	}
@@ -137,8 +136,8 @@ public class SpxCompilationUnitTable {
 	 * @param absPath URI for the SPXCompilationUnit to remove
 	 * @throws IOException 
 	 */
-	public void remove(URI absPath) throws IOException{
-		String key = toAbsulatePath(absPath);
+	public void remove(URI absPathUri) throws IOException{
+		String key =  Utils.uriToAbsPathString(absPathUri); 
 		
 		remove(key);
 	}
@@ -172,7 +171,7 @@ public class SpxCompilationUnitTable {
 	 * @return
 	 */
 	public IStrategoTerm get(URI absPath){
-		String key = toAbsulatePath(absPath);
+		String key = Utils.uriToAbsPathString(absPath);
 		
 		SpxCompilationUnitInfo retUnitData= _infoMap.get(key);
 		

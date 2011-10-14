@@ -17,24 +17,24 @@ import org.spoofax.interpreter.terms.ITermFactory;
 //using only one SemanticIndexFactory and require initialization. 
 public class SpxSemanticIndexFacadeRegistry
 {
-	
 	final HashMap<String, SpxSemanticIndexFacade> _registry = new HashMap<String, SpxSemanticIndexFacade>();
 	
 	/**
 	 * Initializes the SemanticIndexFactory if the registry does not contain any mapping of existing Facade, or it 
 	 * has facade object in the registry , but the underlying persistence manager is closed.
 	 * 
-	 * @param projectName
+	 * @param projectPath
 	 * @param termFactory
 	 * @throws Exception 
 	 */
-	public void initFacade(IStrategoTerm projectName , ITermFactory termFactory , IOAgent agent) throws Exception
+	public void initFacade(IStrategoTerm projectPath , ITermFactory termFactory , IOAgent agent) throws Exception
 	{	
 		SpxSemanticIndexFacade fac = null;
-		String projectNameString  = asJavaString(projectName);
-		if ( !containsFacade(projectName)) {
+		String projectNameString  =  Utils.toAbsPathString(asJavaString(projectPath));
+		
+		if ( !containsFacade(projectPath)) {
 			
-			fac = new SpxSemanticIndexFacade(projectName, termFactory, agent);
+			fac = new SpxSemanticIndexFacade(projectPath, termFactory, agent);
 			fac.initializePersistenceManager();
 		}	
 		else {
@@ -44,42 +44,45 @@ public class SpxSemanticIndexFacadeRegistry
 			if( (fac != null) && fac.isPersistenceManagerClosed()){
 				fac.initializePersistenceManager();
 			}else if ( fac == null){
-				fac = new SpxSemanticIndexFacade(projectName, termFactory, agent);
+				fac = new SpxSemanticIndexFacade(projectPath, termFactory, agent);
 				fac.initializePersistenceManager();
 			}	
 		}
 		
 		if(fac != null)
-			_registry.put(fac.getProjectNameString(), fac);
+			_registry.put(fac.getProjectPath(), fac);
+
 	}
 
 	/**
 	 * Gets the porject's Semantic Index factory . If it is initialized and somehow is not closed 
 	 * then it returns the instance of the factory to perform further operation. 
 	 * 
-	 * @param projectName  ProjectName Term
+	 * @param projectPath  ProjectName Term
 	 * 
 	 * @return SpxSemanticIndexFactory mapped with the projectName. If no mapping is found, it is returning null. 
-	 * @throws SpxSymbolTableException 
+	 * @throws Exception 
 	 */
-	public SpxSemanticIndexFacade getFacade( IStrategoTerm projectName) throws SpxSymbolTableException{
-		String key = asJavaString(projectName);		
+	public SpxSemanticIndexFacade getFacade( IStrategoTerm projectPath) throws Exception{
+		String key = Utils.toAbsPathString(asJavaString(projectPath));		
 		SpxSemanticIndexFacade facade =  _registry.get(key);
 		
-		if(facade == null || facade.isPersistenceManagerClosed()) {
-			throw new SpxSymbolTableException("Symbol Table is not initialized for project : " + projectName + " . Invoke SPX_index_init. ");
+		if(facade == null) {
+			throw new SpxSymbolTableException("Symbol Table is not initialized for project : " + projectPath + " . Invoke SPX_index_init. ");
 		}	
-		
+		else if( (facade != null) && facade.isPersistenceManagerClosed()){
+			facade.initializePersistenceManager();
+		}	
 		return facade;
 	}
 
 	public void clearAll() throws IOException{
 		for(String fname : _registry.keySet())
-			removeFacade(fname);
+			removeFacade(Utils.toAbsPathString(fname));
 	}
 	
-	private SpxSemanticIndexFacade closePersistenceManager(String projectName) throws IOException{
-		SpxSemanticIndexFacade facade = _registry.get(projectName);
+	private SpxSemanticIndexFacade closePersistenceManager(String projectPath) throws IOException{
+		SpxSemanticIndexFacade facade = _registry.get(projectPath);
 		
 		if((facade != null) &&  !facade.isPersistenceManagerClosed())
 			facade.close();
@@ -87,21 +90,18 @@ public class SpxSemanticIndexFacadeRegistry
 		return facade;
 	}
 	
-	
-	
-	public SpxSemanticIndexFacade closePersistenceManager(IStrategoTerm projectNameTerm) throws IOException {
-		return closePersistenceManager(asJavaString(projectNameTerm));
+	public SpxSemanticIndexFacade closePersistenceManager(IStrategoTerm projectPathTerm) throws IOException {
+		return closePersistenceManager(Utils.toAbsPathString(asJavaString(projectPathTerm)));
 	}
 
-	private SpxSemanticIndexFacade removeFacade(String projectName) throws IOException {
-		
-		closePersistenceManager(projectName);
-		return _registry.remove(projectName);
+	private SpxSemanticIndexFacade removeFacade(String projectPath) throws IOException {
+		closePersistenceManager(projectPath);
+		return _registry.remove(projectPath);
 	}
 	
 	
-	public boolean containsFacade(IStrategoTerm projectName){
-		String key = asJavaString(projectName);
+	public boolean containsFacade(IStrategoTerm projectPath){
+		String key = Utils.toAbsPathString(asJavaString(projectPath));
 		
 		return _registry.containsKey(key);
 	}	

@@ -11,37 +11,29 @@ import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-/**
- * Primitive to retrieve ModuleDeclaration from {@link SpxSemanticIndex}
- * 
- * @author Md. Adil Akhter
- * Created On : Sep 11, 2011
- */
-public class SPX_index_get_imports extends SpxAbstractPrimitive {
-
-	private static String NAME = "SPX_index_get_imports";
-	private static int NAMESPACE_ID_INDEX = 1;
+public class SPX_exec_index_manage_command extends SpxAbstractPrimitive {
+	private static String NAME = "SPX_exec_index_manage_command";
 	private final static int NO_ARGS = 2;
+	private static int COMMAND_STRING_INDEX = 1;
 	
-	public SPX_index_get_imports(SpxSemanticIndex index) {
+	public SPX_exec_index_manage_command(SpxSemanticIndex index) {
 		super(index, NAME, 0, NO_ARGS);
 	}
 	
 	@Override
 	protected SpxPrimitiveValidator validateArguments(IContext env, Strategy[] svars, IStrategoTerm[] tvars){
 		return super.validateArguments(env, svars, tvars)
-					.validateApplTermAt(NAMESPACE_ID_INDEX);
+					.validateStringTermAt(COMMAND_STRING_INDEX);
 	}
-
-    /** 
-     * Retrieve Spoofaxlang {@code ImportDeclaratons} in a specific namespace.
-     * 
-     */
+	
 	@Override
 	protected boolean executePrimitive(IContext env, Strategy[] svars, IStrategoTerm[] tvars) throws Exception {
-		IStrategoAppl namespaceID = (IStrategoAppl)tvars[NAMESPACE_ID_INDEX];
-		IStrategoTerm t = index.getImports(getProjectPath(tvars), namespaceID);
-		env.setCurrent(t);
+		IStrategoString commandString = (IStrategoString)tvars[COMMAND_STRING_INDEX];
+		
+		IIndexManageCommand command = 
+			SpxIndexManager.getCommandInstance(index, commandString, getProjectPath(tvars),env.getFactory(), SSLLibrary.instance(env).getIOAgent());
+
+		command.run();
 		return true;
 	}
 }

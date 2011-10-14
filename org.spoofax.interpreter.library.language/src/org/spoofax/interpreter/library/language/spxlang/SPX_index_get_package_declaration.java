@@ -4,6 +4,7 @@ import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.core.InterpreterException;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.library.AbstractPrimitive;
+import org.spoofax.interpreter.library.language.spxlang.SpxAbstractPrimitive.SpxPrimitiveValidator;
 import org.spoofax.interpreter.library.ssl.SSLLibrary;
 import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -14,48 +15,30 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
  * @author Md. Adil Akhter
  * Created On : Sep 11, 2011
  */
-public class SPX_index_get_package_declaration extends AbstractPrimitive {
-
+public class SPX_index_get_package_declaration extends SpxAbstractPrimitive {
 	private static String NAME = "SPX_index_get_package_declaration";
-	private static int PROJECT_NAME_INDEX = 0;
 	private static int PACKAGE_ID_INDEX = 1;
 	private final static int NO_ARGS = 2;
 	
-	private final SpxSemanticIndex index;
-
 	public SPX_index_get_package_declaration(SpxSemanticIndex index) {
-		super(NAME, 0, NO_ARGS);
-		this.index = index;
+		super(index, NAME, 0, NO_ARGS);
 	}
 	
-	/* Retrieve Spoofaxlang ModuleDeclaration with Module ID 
-	 * specified in {@code tvars}.    
-	 * 
-	 * {@code tvars} contains name of the project and typed qualified ModuleID  
-	 * @see org.spoofax.interpreter.library.AbstractPrimitive#call(org.spoofax.interpreter.core.IContext, org.spoofax.interpreter.stratego.Strategy[], org.spoofax.interpreter.terms.IStrategoTerm[])
-	 */
 	@Override
-	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars){
-		boolean successStatement = false;
-		
-		if ( (tvars.length == NO_ARGS) && Tools.isTermString(tvars[PROJECT_NAME_INDEX]) && Tools.isTermAppl(tvars[PACKAGE_ID_INDEX])) 
-		{
-			IStrategoString projectName    = (IStrategoString)tvars[PROJECT_NAME_INDEX];
-			IStrategoAppl typedPackageIdQName = (IStrategoAppl)tvars[PACKAGE_ID_INDEX];
-			try {
-				IStrategoTerm t = index.getPackageDeclaration(projectName, typedPackageIdQName);
-				env.setCurrent(t);
-				
-				successStatement = true;
-			} 
-			catch(Exception ex){
-				SSLLibrary.instance(env).getIOAgent().printError("["+NAME+"]  Invocation failed . "+ ex.getClass().getSimpleName() +" | error message: " + ex.getMessage());
-			}
-		}
-		else
-			SSLLibrary.instance(env).getIOAgent().printError("["+NAME+"]  Invocation failed . Error :  Mismatch in provided arguments. Variables provided : "+ tvars);
-		
-		return successStatement;
+	protected SpxPrimitiveValidator validateArguments(IContext env, Strategy[] svars, IStrategoTerm[] tvars){
+		return super.validateArguments(env, svars, tvars)
+					.validateApplTermAt(PACKAGE_ID_INDEX);
 	}
 
+	/* Gets a PackageDeclaration indexed by a package ID.
+	 *  
+	 * @see org.spoofax.interpreter.library.language.spxlang.SpxAbstractPrimitive#executePrimitive(org.spoofax.interpreter.core.IContext, org.spoofax.interpreter.stratego.Strategy[], org.spoofax.interpreter.terms.IStrategoTerm[])
+	 */
+	@Override
+	protected boolean executePrimitive(IContext env, Strategy[] svars, IStrategoTerm[] tvars) throws Exception {
+		IStrategoAppl typedPackageIdQName = (IStrategoAppl)tvars[PACKAGE_ID_INDEX];
+		IStrategoTerm t = index.getPackageDeclaration(getProjectPath(tvars), typedPackageIdQName);
+		env.setCurrent(t);
+		return true;
+	}
 }

@@ -52,16 +52,6 @@ class SpxCompilationUnitInfo implements Serializable
 	 */
 	public void IncrementVersionNo() { _version = _version + 1; }
 
-	/**
-	 * Returns the Absolute Path of the given URI 
-	 * 
-	 * @param uri URI of the Resource. 
-	 * @return Absolute Path represented by the URI  
-	 */
-	public static String toAbsulatePath( URI uri)
-	{
-		return new File( uri).getAbsolutePath();
-	}
 	
 	public String toString() {
 		return "SpxComplicationUnitResourceInfo [ResourceId=" + _recId
