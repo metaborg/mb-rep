@@ -14,6 +14,7 @@ public class SpxIndexManager implements IIndexManageCommand
 	private final SpxSemanticIndex spxSemanticIndex;
 	private final IStrategoTerm projectName; 
 	private final Object[] arguments;
+	
 	/**
 	 * @param spxSemanticIndex
 	 */
@@ -23,6 +24,11 @@ public class SpxIndexManager implements IIndexManageCommand
 		this.projectName = projectPath;
 	}
 	
+	static void ensureFacadeInitialized(SpxSemanticIndexFacade f) throws SpxSymbolTableException {
+		if(f== null) {
+			throw new SpxSymbolTableException("Symbol Table is not initialized for project . Invoke SPX_index_init. ");
+		}	
+	}
 	protected void executeCommnad(SpxSemanticIndex idx, IStrategoTerm projectName , Object... objects) throws Exception{} ;
 	
 	public void run() throws Exception{
@@ -30,7 +36,6 @@ public class SpxIndexManager implements IIndexManageCommand
 		
 	}
 	
-
 	public static IIndexManageCommand getCommandInstance(final SpxSemanticIndex spxSemanticIndex , IStrategoString commandName, 
 			IStrategoString projectName, Object... objects){
 		
@@ -71,8 +76,9 @@ public class SpxIndexManager implements IIndexManageCommand
 		
 		return new SpxIndexManager(index , projectPath, objects){
 			public void executeCommnad(SpxSemanticIndex idx, IStrategoTerm projectPath, Object... objects) throws Exception{
-				SpxSemanticIndexFacade idxFacade = idx.getFacade(projectPath);
-				idxFacade.rollbackChanges();
+				SpxSemanticIndexFacade f = idx.getFacadeRegistry().getFacade(projectPath);
+				if(f != null)
+					f.rollbackChanges();
 			}
 		};
 	}
@@ -83,7 +89,10 @@ public class SpxIndexManager implements IIndexManageCommand
 
 		return new SpxIndexManager(index , projectPath, objects){
 			public void executeCommnad(SpxSemanticIndex idx, IStrategoTerm projectPath, Object... objects) throws Exception{
-				SpxSemanticIndexFacade idxFacade = idx.getFacade(projectPath);
+				SpxSemanticIndexFacade idxFacade = idx.getFacadeRegistry().getFacade(projectPath);
+				if(idxFacade == null)
+					idxFacade = idx.getFacadeRegistry().initFacade(projectPath, (ITermFactory)objects[0], (IOAgent)objects[1]) ;
+				
 				idxFacade.reinitSymbolTable();
 			}
 		};
@@ -96,9 +105,11 @@ public class SpxIndexManager implements IIndexManageCommand
 
 		return new SpxIndexManager(index , projectPath, objects){
 			public void executeCommnad(SpxSemanticIndex idx, IStrategoTerm projectPath, Object... objects) throws Exception{
-				SpxSemanticIndexFacade idxFacade =  idx.getFacade(projectPath);
-				idxFacade.persistChanges();
-				idxFacade.close();
+				SpxSemanticIndexFacade idxFacade = idx.getFacadeRegistry().getFacade(projectPath);
+				if(idxFacade!= null){
+					idxFacade.persistChanges();
+					idxFacade.close();
+				} 	
 			}
 		};
 	}
@@ -131,8 +142,10 @@ public class SpxIndexManager implements IIndexManageCommand
 
 		return new SpxIndexManager(index , projectPath, objects){
 			public void executeCommnad(SpxSemanticIndex idx, IStrategoTerm projectPath, Object... objects) throws Exception{
-				SpxSemanticIndexFacade idxFacade = idx.getFacade(projectPath);
-				idxFacade.persistChanges();
+				SpxSemanticIndexFacade idxFacade = idx.getFacadeRegistry().getFacade(projectPath);
+				if(idxFacade!= null){
+					idxFacade.persistChanges();
+				}	
 			}
 		};
 	}

@@ -5,10 +5,8 @@ import static org.spoofax.interpreter.core.Tools.asJavaString;
 import java.io.IOException;
 import java.util.HashMap;
 
-import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbolTableException;
-import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
@@ -28,7 +26,7 @@ public class SpxSemanticIndexFacadeRegistry
 	 * @param termFactory
 	 * @throws Exception 
 	 */
-	public void initFacade(IStrategoTerm projectPath , ITermFactory termFactory , IOAgent agent) throws Exception
+	public SpxSemanticIndexFacade initFacade(IStrategoTerm projectPath , ITermFactory termFactory , IOAgent agent) throws Exception
 	{	
 		SpxSemanticIndexFacade fac = null;
 		String projectNameString  =  Utils.toAbsPathString(asJavaString(projectPath));
@@ -52,7 +50,7 @@ public class SpxSemanticIndexFacadeRegistry
 		
 		if(fac != null)
 			_registry.put(fac.getProjectPath(), fac);
-
+		return fac;
 	}
 
 	/**

@@ -1,19 +1,9 @@
 package org.spoofax.interpreter.library.language.spxlang.index;
 
-import java.io.IOException;
-
-import jdbm.PrimaryHashMap;
-import jdbm.RecordManager;
-import jdbm.RecordManagerFactory;
-
-import org.spoofax.NotImplementedException;
-import org.spoofax.interpreter.core.Tools;
-import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
-import org.spoofax.interpreter.terms.ITermFactory;
 
 
 /**
@@ -245,17 +235,12 @@ public class SpxSemanticIndex {
 	
 	
 	SpxSemanticIndexFacade getFacade(IStrategoTerm projectPath) throws Exception {
-
-		SpxSemanticIndexFacade facade = _facadeRegistry.getFacade(projectPath);
-		ensureInitialized(facade);
-		return facade;
+		SpxSemanticIndexFacade f = _facadeRegistry.getFacade(projectPath);
+		SpxIndexManager.ensureFacadeInitialized(f);
+		return f;
 	}
 	
-	private void ensureInitialized(SpxSemanticIndexFacade idxFactory) throws IllegalStateException {
-		if (idxFactory == null)
-			throw new IllegalStateException("Spoofaxlang Semantic index not initialized");
-	}
-
+	
 	private abstract class SpxIndexer 
 	{	
 		public boolean executeIndexer(IStrategoString projectPath , IStrategoAppl appl) throws Exception{

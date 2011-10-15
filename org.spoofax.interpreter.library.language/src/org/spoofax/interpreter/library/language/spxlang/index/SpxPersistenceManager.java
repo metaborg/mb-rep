@@ -96,7 +96,7 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 					logMessage(SRC + ".tryInitRecordManager" , "RecordManager creation is failed. Reason : "+ ex);
 					throw ex;
 				}else{
-					_indexId  = _indexId+ UUID.randomUUID().toString();
+					_indexId  = _indexId+ "[" + UUID.randomUUID().toString() +"]";
 					spxSemanticIndexFacade.invalidateSpxCacheDirectory();
 				}
 			}
@@ -184,11 +184,15 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	 * @throws IOException
 	 */
 	public void close() throws IOException { 
+		// Since, spxSymbolTable uses internal caching
+		// checking in the changes before closing the connection 
 		spxSymbolTable().commit();
 		
 		if(!this.isClosed()){ 
+			// closing recordmanager 
 			_recordManager.close();
 		}	
+		// setting all the symboltable to null
 		this._spxModuleTable = null;
 		this._spxPackageTable = null;
 		this._spxUnitsTable = null;

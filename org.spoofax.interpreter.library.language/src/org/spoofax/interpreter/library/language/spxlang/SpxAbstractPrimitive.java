@@ -76,7 +76,6 @@ public abstract class SpxAbstractPrimitive extends AbstractPrimitive{
 			try {
 				facade = registry.getFacade(projectPath);
 				if(facade!=null){
-					facade.clearCache();
 					facade.rollbackChanges();
 					facade.clearCache();
 					facade.close();
