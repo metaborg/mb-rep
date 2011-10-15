@@ -4,15 +4,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import jdbm.PrimaryMap;
 import jdbm.RecordListener;
@@ -32,6 +27,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 
 public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDeclarationRecordListener,IModuleDeclarationRecordListener {
 	private final String SRC = this.getClass().getSimpleName();
+	
 	private final ISpxPersistenceManager _manager; // Persistence Manager
 	private final PrimaryMap <NamespaceUri,INamespace> namespaces;
 	private final SecondaryHashMap <IStrategoList,NamespaceUri,INamespace> namespaceByStrategoId;
@@ -51,19 +47,13 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 						return k.id(); 
 					}
 				});
-
-		if(Utils.DEBUG){
-			printSymbols("init" , facade.getProjectPath());
-		}	
 	}
-	
 	
 	/**
 	 * Adding Global Namespace in symbol-table by default.
 	 * @param facade
 	 */
 	public void addGlobalNamespace(SpxSemanticIndexFacade facade){
-		
 		this.defineNamespace(GlobalNamespace.createInstance(facade));
 	}
 	
@@ -126,7 +116,6 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 	
 	public int size() { return namespaces.size();}
 	 
-	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
@@ -143,7 +132,6 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 	}
 	
 	private void ensureActiveNamespaceUnloaded(IStrategoList namespaceId){
-	
 		if(_activeNamespace.namespaceUri().equalSpoofaxId(namespaceId)){
 			_activeNamespace = null;
 		}
@@ -154,6 +142,7 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 			this.namespaces.put(_activeNamespace.namespaceUri(), _activeNamespace);
 		}
 	}
+	
 	private void ensureActiveNamespaceLoaded(IStrategoList namespaceId) throws SpxSymbolTableException{
 		if(_activeNamespace == null ||!_activeNamespace.namespaceUri().equalSpoofaxId(namespaceId)){
 			commit(); 
@@ -180,8 +169,6 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 		_manager.logMessage(SRC, "resolveSymbols | Resolved Symbols : " + resolvedSymbols);
 		return resolvedSymbols;
 	}
-	
-	
 
 	public SpxSymbol resolveSymbol(SpxSemanticIndexFacade spxSemanticIndexFacade, IStrategoList namespaceId, IStrategoTerm symbolId , IStrategoConstructor symbolType) throws SpxSymbolTableException {
 		_manager.logMessage(SRC, "resolveSymbol | Resolving symbol with the following criteria :  search origin " + namespaceId +  " with Key : "+ symbolId + "of Type : "+ symbolType.getName());
@@ -194,7 +181,6 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 		
 		return resolvedSymbol;
 	}
-	
 	
 	public INamespace newAnonymousNamespace(SpxSemanticIndexFacade spxSemanticIndexFacade, IStrategoList enclosingNamespaceId) throws SpxSymbolTableException{
 		_manager.logMessage(SRC, "newAnonymousNamespace | Inserting a Anonymous Namespace in following enclosing namespace : "  + enclosingNamespaceId);
@@ -209,8 +195,7 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 		
 		return _activeNamespace ;
 	}
-	
-	
+
 	/**
 	 * Destroying Namespace with following namespaceId
 	 * 
@@ -292,7 +277,7 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 	 */
 	public void printSymbols(String state , String projectPath) throws IOException{
 		new File(projectPath + "/.log").mkdirs();
-		FileWriter fstream = new FileWriter(projectPath + "/.log/symbols"+Utils.now("yyyy-MM-dd")+".txt" , true);
+		FileWriter fstream = new FileWriter(projectPath + "/.log/symbols"+Utils.now("yyyy-MM-dd HH.mm")+".txt" , true);
 		BufferedWriter out = new BufferedWriter(fstream);
 		out.write("---Logging [" +state+ "] state of Symbol-Table at :" + Utils.now("yyyy-MM-dd HH.mm.ss")+":----\n");
 		try
@@ -303,20 +288,22 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 					logEntries(ns,out) ;
 				}
 			}
-		}finally{out.close();}
+		}catch(IOException ex){ //ignore 
+			
+		}
+		finally{out.close();}
 	}
-	
-	
+
 	private static  void logEntries( INamespace namespace , BufferedWriter logger) throws IOException{
 		Map<SpxSymbolKey , List<SpxSymbol>> members = namespace.getMembers();
 		for( SpxSymbolKey k : members.keySet()) {
-			logger.write("\t"+k.toString()  + " :  \n");
+			logger.write("\t"+k.toString()  + "  ----> \t");
 			
 			for( SpxSymbol s : members.get(k) ){
-				logger.write( "\t\t"+ s.toString() + "\n");
+				logger.write( "\t"+ s.toString() + " || \t");
 			}
+			logger.write("\n");
 		}
 		logger.write("\n");
 	}
-
 }

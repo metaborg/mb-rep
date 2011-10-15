@@ -14,7 +14,7 @@ public final class Utils {
 	private Utils() {
 		
 	}
-	public static final int NO_OF_ATTEMPT_TO_INIT_RECORDMANAGER = 5;
+	public static final int NO_OF_ATTEMPT_TO_INIT_RECORDMANAGER = 1;
 	
 	public static final String All = "*";
 	public static final String All_SYMBOLS = "\"*\"";

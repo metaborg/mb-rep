@@ -60,7 +60,7 @@ public class SpxSemanticIndexFacade {
 	 */
 	public SpxSemanticIndexFacade(IStrategoTerm projectPath , ITermFactory termFactory , IOAgent agent){
 		_projectPath = asJavaString(projectPath);
-		_indexId = getProjectName();
+		_indexId = getProjectName()+".1" ;
 		_termFactory = termFactory;
 		_agent = agent;
 		
@@ -159,8 +159,7 @@ public class SpxSemanticIndexFacade {
 		SpxCompilationUnitTable table = _persistenceManager.spxCompilcationUnitTable();
 	
 		logMessage("Storing following compilation unit. Path : [" 
-					+  spxCompilationUnitPath +"]"
-					+ " AST: "+ spxCompilationUnitAST );
+					+  spxCompilationUnitPath +"]");
 		
 		table.define(resUri, astTerm);
 	}
@@ -1051,6 +1050,7 @@ public class SpxSemanticIndexFacade {
 		}
 		
 	}
+	
 	public void clearCache() throws IOException{
 		this.persistenceManager().clearCache();
 		

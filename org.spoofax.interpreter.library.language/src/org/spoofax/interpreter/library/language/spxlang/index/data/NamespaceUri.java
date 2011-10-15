@@ -6,16 +6,14 @@ import java.util.UUID;
 import org.spoofax.interpreter.library.language.spxlang.index.INamespace;
 import org.spoofax.interpreter.library.language.spxlang.index.INamespaceResolver;
 import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.ITermFactory;
 
 /**
  * @author Md. Adil Akhter
  * 
  */
-public final class NamespaceUri implements Serializable
+public class NamespaceUri implements Serializable
 {
-	private static final long serialVersionUID = -7525948560476092228L;
+	private static final long serialVersionUID = 7219193145612008432L;
 	private final IStrategoList _id;
 	private final UUID _uId ;
 

@@ -10,6 +10,7 @@ import jdbm.PrimaryStoreMap;
 import jdbm.RecordManager;
 import jdbm.RecordManagerFactory;
 import jdbm.RecordManagerOptions;
+import jdbm.recman.CacheRecordManager;
 
 import org.spoofax.interpreter.library.IOAgent;
 
@@ -68,7 +69,7 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 		
 		//setting properties of RecordManager
 		options.put(RecordManagerOptions.INDEX_RELATIVE_PATH_OPTION, indexDirectory + "/" + _indexId + ".idx");
-		options.put(RecordManagerOptions.CACHE_TYPE, "auto");
+		options.put(RecordManagerOptions.CACHE_TYPE, "none");
 		options.put(RecordManagerOptions.DISABLE_TRANSACTIONS, "false");
 		
 		tryInitRecordManager(spxSemanticIndexFacade,options);
@@ -97,7 +98,9 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 					throw ex;
 				}else{
 					_indexId  = _indexId+ "[" + UUID.randomUUID().toString() +"]";
+					this.clearCache();
 					spxSemanticIndexFacade.invalidateSpxCacheDirectory();
+					noOfTries--;
 				}
 			}
 		}
@@ -117,6 +120,10 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 		_spxSymbolTable.addGlobalNamespace(facade);
 
 		initListeners();
+		
+		if(Utils.DEBUG){
+			_spxSymbolTable.printSymbols("init" , facade.getProjectPath());
+		}	
 	}
 	
 	
@@ -258,6 +265,7 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	}
 
 	public void clearCache() throws IOException {
-		_recordManager.clearCache();
+		if( _recordManager instanceof CacheRecordManager)
+			_recordManager.clearCache();
 	}
 }

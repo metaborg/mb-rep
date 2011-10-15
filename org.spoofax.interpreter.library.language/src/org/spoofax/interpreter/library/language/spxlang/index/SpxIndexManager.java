@@ -68,7 +68,6 @@ public class SpxIndexManager implements IIndexManageCommand
 		
 		throw new IllegalArgumentException("Invalid Command Name : "+ commandName) ;
 	}
-	
 
 	private static IIndexManageCommand rollbackCommandInstance(
 			final SpxSemanticIndex index, IStrategoString projectPath,
@@ -108,6 +107,7 @@ public class SpxIndexManager implements IIndexManageCommand
 				SpxSemanticIndexFacade idxFacade = idx.getFacadeRegistry().getFacade(projectPath);
 				if(idxFacade!= null){
 					idxFacade.persistChanges();
+					idxFacade.clearCache();
 					idxFacade.close();
 				} 	
 			}
@@ -149,7 +149,6 @@ public class SpxIndexManager implements IIndexManageCommand
 			}
 		};
 	}
-	
 	private static IIndexManageCommand invalidateGlobalCacheCommandInstance(
 			SpxSemanticIndex index, IStrategoString projectPath,
 			Object[] objects) {

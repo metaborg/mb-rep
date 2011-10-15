@@ -1,10 +1,8 @@
 package org.spoofax.interpreter.library.language.spxlang.index;
 
 import java.io.Serializable;
-import java.net.URI;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.spoofax.interpreter.library.language.spxlang.index.data.NamespaceUri;
 import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbol;
@@ -12,10 +10,7 @@ import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbolKey;
 import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbolTableEntry;
 import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbolTableException;
 import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoConstructor;
-import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.ITermFactory;
 
 public interface INamespace extends Serializable {
     
