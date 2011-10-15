@@ -145,8 +145,6 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	 */
 	public void commit() throws IOException {
 		this.spxSymbolTable().commit();
-		
-		if( Utils.DEBUG) { this.spxSymbolTable().printSymbols("commit");} 
 		if(!this.isClosed()){
 			_recordManager.commit();
 		}	

@@ -1,6 +1,7 @@
 package org.spoofax.interpreter.library.language.spxlang.index;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -52,7 +53,7 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 				});
 
 		if(Utils.DEBUG){
-			printSymbols("init");
+			printSymbols("init" , facade.getProjectPath());
 		}	
 	}
 	
@@ -289,8 +290,9 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 	 * 
 	 * @throws IOException
 	 */
-	public void printSymbols(String state) throws IOException{
-		FileWriter fstream = new FileWriter("c:/temp/log/symbols_"+ Utils.now("yyyy-MM-dd")+".txt" , true);
+	public void printSymbols(String state , String projectPath) throws IOException{
+		new File(projectPath + "/.log").mkdirs();
+		FileWriter fstream = new FileWriter(projectPath + "/.log/symbols"+Utils.now("yyyy-MM-dd")+".txt" , true);
 		BufferedWriter out = new BufferedWriter(fstream);
 		out.write("---Logging [" +state+ "] state of Symbol-Table at :" + Utils.now("yyyy-MM-dd HH.mm.ss")+":----\n");
 		try

@@ -773,7 +773,11 @@ public class SpxSemanticIndexFacade {
 	 *  
 	 * @throws IOException
 	 */
-	public void persistChanges() throws IOException {  _persistenceManager.commit(); }
+	public void persistChanges() throws IOException {  
+		_persistenceManager.commit(); 
+
+		if( Utils.DEBUG) { _persistenceManager.spxSymbolTable().printSymbols("commit" , this.getProjectPath());} 
+	}
 	
 	/**
 	 * Closes any underlying open connection. 

@@ -54,7 +54,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		
 		_registry = new SpxSemanticIndexFacadeRegistry();
 		
-		projectNameTerm = termFactory().makeString(_projectName);
+		projectNameTerm = termFactory().makeString(System.getProperty("user.dir")+ "/"+_projectName);
 	
 		_registry.initFacade(projectNameTerm, termFactory(), ioAgent()); 
 		_facade = _registry.getFacade(projectNameTerm);
@@ -254,6 +254,53 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 				);
 		
 		assertEquals( 1 , resolvedSymbols.size());
+		
+		
+	}
+	
+	public void testInvalidateGlobalCacheRemovesAllEntries() throws IOException, SpxSymbolTableException {
+		
+		setupScopeTree();
+
+		// defining a composite key 
+		IStrategoAppl namespaceAppl = termFactory().makeAppl(_facade.getGlobalNamespaceTypeCon());
+		// defining following composite ID :  (Global() , "TestId")
+		IStrategoTerm symbolId = termFactory().makeTuple( namespaceAppl , termFactory().makeString("TestId")); 
+		// defining Data 
+		IStrategoTerm data = (IStrategoAppl)moduleDeclarationP1M1.toTerm(_facade);
+		// setting Type to Global() 
+		IStrategoAppl typeAppl = namespaceAppl ; 
+		
+		// Defining Symbol-Table entry 
+		IStrategoAppl symbolDef = createEntry(namespaceAppl , symbolId , typeAppl  , data);
+		
+		// Indexing Symbol
+		_facade.indexSymbol(symbolDef);
+	
+		
+		
+		// Resolving Symbol 
+		Set<SpxSymbol> resolvedSymbols = (Set<SpxSymbol>)_facade.resolveSymbols(
+				ModuleDeclaration.toModuleQNameAppl(_facade, moduleDeclarationP1M1),
+				symbolId,
+				namespaceAppl.getConstructor()
+				);
+		
+		assertEquals( 1 , resolvedSymbols.size());
+		
+		_facade.invalidateGlobalNamespace();
+		
+		
+		resolvedSymbols = (Set<SpxSymbol>)_facade.resolveSymbols(
+				ModuleDeclaration.toModuleQNameAppl(_facade, moduleDeclarationP1M1),
+				symbolId,
+				namespaceAppl.getConstructor()
+				);
+		
+		assertEquals( 0 , resolvedSymbols.size());
+		
+		
+		
 	}
 	
 	public void testUnknownConstructorInResolveSymbolShouldThrowException() throws IOException, SpxSymbolTableException {

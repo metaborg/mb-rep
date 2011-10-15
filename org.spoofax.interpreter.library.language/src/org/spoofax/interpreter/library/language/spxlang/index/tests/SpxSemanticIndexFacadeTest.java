@@ -39,7 +39,7 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		interpreter().addOperatorRegistry(new LanguageLibrary());
 		_registry = new SpxSemanticIndexFacadeRegistry();
 		
-		projectNameTerm = termFactory().makeString(_projectName);
+		projectNameTerm = termFactory().makeString(System.getProperty("user.dir")+ "/"+_projectName);
 	
 		_registry.initFacade(projectNameTerm, termFactory(), ioAgent()); 
 		_facade = _registry.getFacade(projectNameTerm);
