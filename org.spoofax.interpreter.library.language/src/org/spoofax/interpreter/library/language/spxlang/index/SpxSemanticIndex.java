@@ -39,40 +39,7 @@ public class SpxSemanticIndex {
 	public SpxSemanticIndexFacadeRegistry getFacadeRegistry() {
 		return _facadeRegistry;
 	}
-	
-	public boolean initialize(IStrategoString projectPath,  ITermFactory termFactory, IOAgent agent)  throws Exception
-	{
-		IIndexManageCommand command = 
-			SpxIndexManager.getCommandInstance(this, IIndexManageCommand.INIT_COMMAND_STRING, projectPath, termFactory,agent);
-
-		command.run();
-		return true; 
-	}
-	
-	public boolean clearall(IStrategoString projectPath) throws Exception {
-		IIndexManageCommand command = 
-			SpxIndexManager.getCommandInstance(this, IIndexManageCommand.CLEAR_COMMAND_STRING, projectPath);
-
-		command.run();
-		return true;
-	}
-	
-	public boolean save(IStrategoString projectPath) throws Exception{
-		IIndexManageCommand command = 
-			SpxIndexManager.getCommandInstance(this, IIndexManageCommand.SAVE_COMMAND_STRING, projectPath);
-
-		command.run();
-		return true;
-	}
-	
-	public boolean close(IStrategoString projectPath) throws Exception {
-		IIndexManageCommand command = 
-			SpxIndexManager.getCommandInstance(this, IIndexManageCommand.CLOSE_COMMAND_STRING, projectPath);
-
-		command.run();
-		return true;
-	}
-		
+			
 	public boolean indexImportReferences(IStrategoString projectPath,
 			final IStrategoAppl importReferences) throws Exception {
 	

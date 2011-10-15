@@ -57,6 +57,7 @@ public class SpxIndexManager implements IIndexManageCommand
 		
 		if(commandName.equalsIgnoreCase(ROLLBACK_COMMAND_STRING))
 			return rollbackCommandInstance(spxSemanticIndex , projectPath, objects);
+	
 		if(commandName.equalsIgnoreCase(INVALIDATE_GLOBAL_CACHE_COMMAND_STRING))
 			return invalidateGlobalCacheCommandInstance(spxSemanticIndex , projectPath, objects);
 		

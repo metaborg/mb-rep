@@ -15,29 +15,20 @@ import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-/**
- * @author Md. Adil Akhter
- */
-public abstract class SpxAbstractPrimitive extends AbstractPrimitive {
+public abstract class SpxAbstractPrimitive extends AbstractPrimitive{
 	
 	private final static int PROJECT_PATH_INDEX = 0;
+
 	protected final SpxSemanticIndex index;
 	
-	/**
-	 * @param name
-	 * @param svars
-	 * @param tvars
-	 */
 	public SpxAbstractPrimitive(SpxSemanticIndex index, String name, int svars, int tvars ) {
 		super(name, svars, tvars);
 		
 		this.index = index;
 	}
 	
-	
 	protected IStrategoString getProjectPath( IStrategoTerm[] tvars){
 		//TODO : get project path from EditorIOAgent instead of passing as an argument
-		
 		return (IStrategoString)tvars[PROJECT_PATH_INDEX]; 
 	}
 	
