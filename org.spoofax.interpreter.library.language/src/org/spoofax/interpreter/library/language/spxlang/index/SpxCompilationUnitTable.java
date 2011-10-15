@@ -37,7 +37,7 @@ public class SpxCompilationUnitTable {
 	 */
 	public SpxCompilationUnitTable(ISpxPersistenceManager manager)
 	{
-		String tableName = SRC+ "_"+ manager.getProjectName();
+		String tableName = SRC+ "_"+ manager.getIndexId();
 		
 		_infoMap = manager.loadHashMap(tableName  + "._infomap.idx");
 		_spxUnitStoreMap = manager.loadStoreMap(tableName + "._spxUnitStorageMap.idx");

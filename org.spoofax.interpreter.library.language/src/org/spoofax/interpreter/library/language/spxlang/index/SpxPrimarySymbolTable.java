@@ -42,7 +42,7 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 		assert facade != null  : "SpxSemanticIndexFacade  is expected to non-null" ;
 		_manager = facade.persistenceManager();
 
-		String tableName = _manager.getProjectName() + "primary_symbol_table.idx";
+		String tableName = _manager.getIndexId() + "primary_symbol_table.idx";
 		
 		namespaces  = _manager.loadHashMap(tableName + "namespaces.idx");
 		namespaceByStrategoId = namespaces.secondaryHashMap(tableName+ ".namespaceByStrategoId.idx", 

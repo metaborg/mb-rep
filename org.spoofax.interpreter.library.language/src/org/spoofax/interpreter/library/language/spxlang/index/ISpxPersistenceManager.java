@@ -33,7 +33,7 @@ public interface ISpxPersistenceManager  extends ILogger{
 	
 	public void rollback() throws IOException;
 	
-	public String getProjectName();
+	public String getIndexId();
 	
 	public void initializeSymbolTables(String projectName , SpxSemanticIndexFacade facade) throws Exception;
 

@@ -1,7 +1,9 @@
 package org.spoofax.interpreter.library.language.spxlang.index;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.UUID;
 
 import jdbm.PrimaryHashMap;
 import jdbm.PrimaryStoreMap;
@@ -24,10 +26,9 @@ import org.spoofax.interpreter.library.IOAgent;
 public class SpxPersistenceManager implements ISpxPersistenceManager {
 	private static final String SRC =   "SpxPersistenceManager" ;
 
-	private final RecordManager _recordManager; 
-	private final String _indexDirectory;   
+	private RecordManager _recordManager; 
 	private final IOAgent _agent;
-	private final String _projectName ;
+	private String _indexId ;
 
 	private SpxCompilationUnitTable _spxUnitsTable; // Keeps a reference to the SpxCompilation Units  
 	private SpxPackageLookupTable _spxPackageTable; // Indexing Package and Module Definitions
@@ -56,25 +57,52 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	 */
 	private SpxPersistenceManager (SpxSemanticIndexFacade spxSemanticIndexFacade,Properties options) throws IOException {
 		assert spxSemanticIndexFacade != null : "SpxSemanticIndexFacade is expected to be nonnull" ;
-		
+
 		this._agent = spxSemanticIndexFacade.getIOAgent();
-		this._projectName = spxSemanticIndexFacade.getProjectName() ;
-		this._indexDirectory = spxSemanticIndexFacade.getProjectPath()+ "/.Index";
+		this._indexId = spxSemanticIndexFacade.indexId() ;
 		
+		String indexDirectory = spxSemanticIndexFacade.getProjectPath()+ "/" + Utils.SPX_INDEX_DIRECTORY;
+
 		if( options  == null)
 			options = new Properties();// Creating empty properties collection if it is null
 		
 		//setting properties of RecordManager
-		options.put(RecordManagerOptions.INDEX_RELATIVE_PATH_OPTION, _indexDirectory + "/" + _projectName + ".idx");
+		options.put(RecordManagerOptions.INDEX_RELATIVE_PATH_OPTION, indexDirectory + "/" + _indexId + ".idx");
 		options.put(RecordManagerOptions.CACHE_TYPE, "auto");
 		options.put(RecordManagerOptions.DISABLE_TRANSACTIONS, "false");
-
-		_recordManager = RecordManagerFactory.createRecordManager(_projectName , options);
 		
-		logMessage(SRC + ".ctor" , "Instantiation of PersistenceManager is done. Index Directory : "+ _indexDirectory );
+		tryInitRecordManager(spxSemanticIndexFacade,options);
+		
+		logMessage(SRC + ".ctor" , "Instantiation of PersistenceManager is done. Index Directory : ["+ indexDirectory  + "] indexid : "+ getIndexId());
 	}
 
 
+	/**
+	 * Tries to initialise record manager
+	 * 
+	 * @param options
+	 * @throws IOException
+	 */
+	private void tryInitRecordManager(SpxSemanticIndexFacade spxSemanticIndexFacade, Properties options) throws IOException {
+		int noOfTries = Utils.NO_OF_ATTEMPT_TO_INIT_RECORDMANAGER;
+		
+		while(true){
+			try {
+				_recordManager = RecordManagerFactory.createRecordManager(_indexId , options);
+				break;
+			}catch(IOException ex) {
+				logMessage(SRC + ".tryInitRecordManager" , "Failed to create recordmanager with arg : " + _indexId +". exception : "+ ex);
+				if(noOfTries == 0){ 
+					logMessage(SRC + ".tryInitRecordManager" , "RecordManager creation is failed. Reason : "+ ex);
+					throw ex;
+				}else{
+					_indexId  = _indexId+ UUID.randomUUID().toString();
+					spxSemanticIndexFacade.invalidateSpxCacheDirectory();
+				}
+			}
+		}
+	}
+	
 	/**
 	 * Initializes Symbol Tables for {@code projectName} Project
 	 * 
@@ -206,32 +234,26 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 		if(Utils.DEBUG){		
 			try {
 				_agent.getWriter(IOAgent.CONST_STDOUT).write(
-						"[" + this._projectName + "." + origin + "]   " + message
+						"[" + this._indexId + "." + origin + "]   " + message
 								+ "\n");
 			} 
 			catch (IOException e) {}
 		}
 	}
 
-	public String getProjectName() {
-		return _projectName;
+	public String getIndexId() {
+		return _indexId;
 	}
-
 
 	public SpxPrimarySymbolTable spxSymbolTable() {
 		return _spxSymbolTable;
 	}
 
-
 	public void rollback() throws IOException{
 		_recordManager.rollback();
-		
 	}
-
 
 	public void clearCache() throws IOException {
 		_recordManager.clearCache();
-		
 	}
-	
 }

@@ -33,19 +33,23 @@ import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.terms.attachments.TermAttachmentSerializer;
 import org.spoofax.terms.attachments.TermAttachmentStripper;
 
+//TODO :  refactor this class  to multiple facades one for package, one for modules 
+//TODO FIXME : combine symbol table and index
 public class SpxSemanticIndexFacade {
-	//TODO :  refactor this class  to multiple facades one for package, one for modules 
-	//TODO FIXME : combine symbol table and index
 	
 	private ISpxPersistenceManager _persistenceManager;
-	private final String _projectPath ; 
+	
+	private final String _projectPath ;
+	private String _indexId;
 	private final ITermFactory _termFactory;
 	private final IOAgent _agent;
 	private final TermAttachmentStripper _stripper;
 	private final TermAttachmentSerializer _termAttachmentSerializer;
 	private final TermConverter _converter;
-	
-	public TermAttachmentSerializer getTermAttachmentSerializer() {return _termAttachmentSerializer;}
+
+	public TermAttachmentSerializer getTermAttachmentSerializer() {
+		return _termAttachmentSerializer;
+	}
 
 	/**
 	 * Initializes the SemanticIndexFactory
@@ -56,7 +60,7 @@ public class SpxSemanticIndexFacade {
 	 */
 	public SpxSemanticIndexFacade(IStrategoTerm projectPath , ITermFactory termFactory , IOAgent agent){
 		_projectPath = asJavaString(projectPath);
-		
+		_indexId = getProjectName();
 		_termFactory = termFactory;
 		_agent = agent;
 		
@@ -73,8 +77,10 @@ public class SpxSemanticIndexFacade {
 	public void initializePersistenceManager() throws Exception {
 		_persistenceManager = new SpxPersistenceManager(this);
 		_persistenceManager.initializeSymbolTables(this._projectPath, this);
+		_indexId = _persistenceManager.getIndexId();
 	}
-		
+	
+	public String indexId() {return _indexId; }
 	/**
 	 * Returns the TermFactory 
 	 * @return
@@ -801,12 +807,31 @@ public class SpxSemanticIndexFacade {
 	 */
 	public void reinitSymbolTable() throws Exception {	
 		
-		if (! isPersistenceManagerClosed())
+		if (! isPersistenceManagerClosed()){
+			// cleaning persistence manager.
 			persistenceManager().clear();
-		
-		persistenceManager().commit();
-		
+			//cleaning the SpxCache as well.
+			invalidateSpxCacheDirectory();
+			tryCleanupIndexDirectory();
+			
+		}
 		persistenceManager().initializeSymbolTables(this.getProjectName(), this);
+	}
+
+	/**
+	 * Deletes the Spx Cache directory configured in Utils. By this way, the Spx cache will 
+	 * be invalidated and all the symbols will be indexed again. 
+	 */
+	void invalidateSpxCacheDirectory() {
+		Utils.deleteSpxCacheDir( new File(  _projectPath +"/" + Utils.SPX_CACHE_DIRECTORY));
+	}
+	
+	private void tryCleanupIndexDirectory(){
+		try{
+			Utils.tryDeleteSpxIndexDir( new File( _projectPath + "/" + Utils.SPX_INDEX_DIRECTORY));
+		}catch(Exception ex){
+			// In case of SecurityException , Do nothing
+		}
 	}
 	
 	public void rollbackChanges() throws IOException{	

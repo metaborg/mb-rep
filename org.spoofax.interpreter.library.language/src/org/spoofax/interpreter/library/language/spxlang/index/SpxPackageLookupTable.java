@@ -56,10 +56,10 @@ public class SpxPackageLookupTable implements ICompilationUnitRecordListener{
 	public SpxPackageLookupTable(ISpxPersistenceManager manager) {
 		assert manager != null;
 
-		String tableName = SRC + "_" + manager.getProjectName();
+		String tableName = SRC + "_" + manager.getIndexId();
 
 		_manager = manager;
-		_packageLookupTable = manager.loadHashMap(manager.getProjectName()
+		_packageLookupTable = manager.loadHashMap(manager.getIndexId()
 				+ "._lookupPackageMap.idx");
 
 		// readonly secondary view of the the lookup table .

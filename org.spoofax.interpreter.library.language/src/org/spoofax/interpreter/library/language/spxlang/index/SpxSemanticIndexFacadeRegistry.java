@@ -64,7 +64,7 @@ public class SpxSemanticIndexFacadeRegistry
 	 * @return SpxSemanticIndexFactory mapped with the projectName. If no mapping is found, it is returning null. 
 	 * @throws Exception 
 	 */
-	public SpxSemanticIndexFacade getFacade( IStrategoTerm projectPath) throws Exception{
+	public SpxSemanticIndexFacade getFacade(IStrategoTerm projectPath) throws Exception{
 		String key = Utils.toAbsPathString(asJavaString(projectPath));		
 		SpxSemanticIndexFacade facade =  _registry.get(key);
 		

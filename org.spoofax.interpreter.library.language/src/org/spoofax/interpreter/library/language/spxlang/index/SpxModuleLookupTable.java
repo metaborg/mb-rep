@@ -49,7 +49,7 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 	 */
 	public SpxModuleLookupTable(ISpxPersistenceManager manager)
 	{
-		String tableName = SRC+ "_"+ manager.getProjectName();
+		String tableName = SRC+ "_"+ manager.getIndexId();
 
 		assert manager != null;
 		_manager = manager;

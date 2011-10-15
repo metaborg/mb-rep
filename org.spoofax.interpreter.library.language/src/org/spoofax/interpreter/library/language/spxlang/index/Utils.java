@@ -14,10 +14,13 @@ public final class Utils {
 	private Utils() {
 		
 	}
+	public static final int NO_OF_ATTEMPT_TO_INIT_RECORDMANAGER = 5;
 	
 	public static final String All = "*";
 	public static final String All_SYMBOLS = "\"*\"";
 	public static final String CURRENT = ".";
+	public static final String SPX_CACHE_DIRECTORY = ".spxcache";
+	public static final String SPX_INDEX_DIRECTORY = ".spxindex";
 	
 	static final boolean DEBUG = true;
 	
@@ -62,5 +65,35 @@ public final class Utils {
 	    Calendar cal = Calendar.getInstance();
 	    SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
 	    return sdf.format(cal.getTime());
+	}
+	
+	// Deletes all the file and directories exists inside 
+	// SPX Index directory. If it can't delete the files 
+	// then just ignore it. 
+	static  void  tryDeleteSpxIndexDir(File cacheDir){
+	    if ( cacheDir.exists() &&  cacheDir.isDirectory()) {
+	        String[] children = cacheDir.list();
+	        for (int i=0; i<children.length; i++) {
+	           deleteSpxCacheDir(new File(cacheDir, children[i]));
+	        }
+	    }
+	    cacheDir.delete();
+	}
+	
+	// Deletes all the files and directories inside 
+	// the cache directory denoted using cacheDir. 
+	// If it fails to delete any Files or Directories
+	// , it returns false. Otherwise, it returns true.
+	static  boolean deleteSpxCacheDir(File cacheDir){
+	    if ( cacheDir.exists() &&  cacheDir.isDirectory()) {
+	        String[] children = cacheDir.list();
+	        for (int i=0; i<children.length; i++) {
+	            boolean success = deleteSpxCacheDir(new File(cacheDir, children[i]));
+	            if (!success) {
+	                return false;
+	            }
+	        }
+	    }
+	    return cacheDir.delete();
 	}
 }
