@@ -60,7 +60,7 @@ public class SpxSemanticIndexFacade {
 	 */
 	public SpxSemanticIndexFacade(IStrategoTerm projectPath , ITermFactory termFactory , IOAgent agent){
 		_projectPath = asJavaString(projectPath);
-		_indexId = getProjectName()+".1" ;
+		_indexId = getProjectName() + "";
 		_termFactory = termFactory;
 		_agent = agent;
 		
@@ -326,17 +326,15 @@ public class SpxSemanticIndexFacade {
 	// (namespace * idTolookupFor * type constructor)
 	public IStrategoTerm resolveSymbols(IStrategoTuple searchCriteria) throws SpxSymbolTableException{
 		if (searchCriteria.getSubtermCount() != 4)
-			throw new IllegalArgumentException(" Illegal symbolLookupTerm Argument ; expected 4 subterms. Found : " + searchCriteria.getSubtermCount());
-		
+			throw new IllegalArgumentException(" resolveSymbols | Illegal symbolLookupTerm Argument ; expected 4 subterms. Found : " + searchCriteria.getSubtermCount());
 		String searchMode = asJavaString(searchCriteria.get(3)).trim();
 		IStrategoAppl typeAppl =  (IStrategoAppl)searchCriteria.getSubterm(2);
 		IStrategoConstructor typeCtor = getConstructor( typeAppl.getConstructor().getName(), typeAppl.getConstructor().getArity()) ;
 		
-		Iterable<SpxSymbol> spxSymbols = new ArrayList<SpxSymbol>();
+		Set<SpxSymbol> spxSymbols = null;
 		
 		if (typeCtor != null) {
-			if(searchMode.equalsIgnoreCase(Utils.All))
-			{
+			if(searchMode.equalsIgnoreCase(Utils.All)){
 				spxSymbols = resolveSymbols( 
 							(IStrategoAppl)searchCriteria.get(0),
 							searchCriteria.get(1),
@@ -354,10 +352,33 @@ public class SpxSemanticIndexFacade {
 		return SpxSymbol.toTerms(this, spxSymbols);
 	}
 	
+	public IStrategoTerm undefineSymbols (IStrategoTuple searchCriteria) throws SpxSymbolTableException{
+	    if (searchCriteria.getSubtermCount() != 3)
+	        throw new IllegalArgumentException(" undefineSymbols| Illegal symbolLookupTerm Argument ; expected 3 subterms. Found : " + searchCriteria.getSubtermCount());
+	    
+	    
+	    IStrategoList namespaceID = this.getNamespaceId(Tools.applAt(searchCriteria, 0));
+	    IStrategoTerm symbolID = Tools.termAt(searchCriteria, 1);
+	    IStrategoAppl typeAppl =  Tools.applAt(searchCriteria, 2);
+	    IStrategoConstructor typeCtor = getConstructor( typeAppl.getConstructor().getName(), typeAppl.getConstructor().getArity()) ;
+	    
+	    Set<SpxSymbol> spxSymbols = this.persistenceManager().spxSymbolTable()
+	    					.undefineSymbols(
+	    							this,
+	    							namespaceID, 
+	    							symbolID,
+	    							typeCtor
+    							);
+	                        
+	    return SpxSymbol.toTerms(this, spxSymbols);
+	}  
+	
 	public void invalidateGlobalNamespace() {
 		SpxPrimarySymbolTable  symbolTable = persistenceManager().spxSymbolTable();
 		
 		symbolTable.clearGlobalNamespce(this);
+		
+		
 	}
 	
 	/**
@@ -371,16 +392,16 @@ public class SpxSemanticIndexFacade {
 	 * 
 	 * @throws SpxSymbolTableException
 	 */
-	public Iterable<SpxSymbol> resolveSymbols(IStrategoAppl namespaceToStartSearchWith, IStrategoTerm symbolId, IStrategoConstructor  symbolType) throws SpxSymbolTableException {
+	public Set<SpxSymbol> resolveSymbols(IStrategoAppl namespaceToStartSearchWith, IStrategoTerm symbolId, IStrategoConstructor  symbolType) throws SpxSymbolTableException {
 		IStrategoList namespaceID = this.getNamespaceId(namespaceToStartSearchWith);
 
 		SpxPrimarySymbolTable  symbolTable = persistenceManager().spxSymbolTable();
 		
-		Iterable<SpxSymbol> resolvedSymbols = symbolTable.resolveSymbols(this, namespaceID, strip(symbolId), symbolType);
+		Set<SpxSymbol> resolvedSymbols = symbolTable.resolveSymbols(this, namespaceID, strip(symbolId), symbolType);
 		return resolvedSymbols;
 	}
 	
-	public Iterable<SpxSymbol> resolveSymbol(IStrategoAppl namespaceToStartSearchWith, IStrategoTerm symbolId, IStrategoConstructor  symbolType) throws SpxSymbolTableException {
+	public Set<SpxSymbol> resolveSymbol(IStrategoAppl namespaceToStartSearchWith, IStrategoTerm symbolId, IStrategoConstructor  symbolType) throws SpxSymbolTableException {
 		Set<SpxSymbol> resolvedSymbols= new HashSet<SpxSymbol>();
 		
 		IStrategoList namespaceID = this.getNamespaceId(namespaceToStartSearchWith);
@@ -393,6 +414,7 @@ public class SpxSemanticIndexFacade {
 		return resolvedSymbols;
 	}
 
+	
 
 	/**
 	 * @param symbolLookupTerm
@@ -473,11 +495,11 @@ public class SpxSemanticIndexFacade {
 	 * @param importReferences
 	 */
 	public void indexImportReferences(IStrategoAppl importReferences) throws SpxSymbolTableException{
+		verifyConstructor(importReferences.getConstructor(), this.getImportDeclCon(), "Illegal ImportDeclaration Constructor encountered.");
 		
 		IStrategoAppl namespaceId = (IStrategoAppl) importReferences.getSubterm(0);
 		IStrategoList imports = (IStrategoList) importReferences.getSubterm(1);
 		IStrategoList packageId; 
-		
 		
 		if (namespaceId.getConstructor() == getModuleQNameCon()) {
 			packageId = persistenceManager()
@@ -778,10 +800,12 @@ public class SpxSemanticIndexFacade {
 	 *  
 	 * @throws IOException
 	 */
-	public void persistChanges() throws IOException {  
-		_persistenceManager.commit(); 
+	public void persistChanges() throws IOException {
+		_persistenceManager.commit();
 
-		if( Utils.DEBUG) { _persistenceManager.spxSymbolTable().printSymbols("commit" , this.getProjectPath());} 
+		_persistenceManager.spxSymbolTable().printSymbols("commit",
+				this.getProjectPath(), this.indexId());
+
 	}
 	
 	/**

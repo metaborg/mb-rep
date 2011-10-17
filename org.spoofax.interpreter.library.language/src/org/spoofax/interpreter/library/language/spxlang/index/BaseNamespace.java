@@ -57,15 +57,40 @@ public abstract class BaseNamespace implements INamespace {
 		symbols = new HashMap<SpxSymbolKey, List<SpxSymbol>>();
 	}
 
-	public INamespace define(SpxSymbolTableEntry entry, ILogger logger){
-		 
+	public INamespace define(SpxSymbolTableEntry entry, SpxSemanticIndexFacade f){
 		entry.value.setNamespace(_currentNamespaceId);
 		
-		logger.logMessage(src, "define | Defining Symbol "+ entry.value + " in "+ _currentNamespaceId);
+		defineSymbol(entry);
 		
-		defineSymbol(entry); 
+		//f.persistenceManager().spxSymbolTable().commit();
 		return this;
 	}
+	
+	public Set<SpxSymbol> undefineSymbols(IStrategoTerm searchingFor, IStrategoTerm type , SpxSemanticIndexFacade  facade){
+		SpxSymbolKey key = new SpxSymbolKey(searchingFor);
+		Set<SpxSymbol> undefinedSymbols = new HashSet<SpxSymbol>();
+		
+		if(this.symbols.containsKey(key)){
+			// Found following symbols indexed by key 
+			List<SpxSymbol> foundSymbols  = getMembers().get(key);
+			
+			// filtering symbols by type to retrieve the list of symbols to undefine
+			List<SpxSymbol> symbolsToDelete  = SpxSymbol.filterByType((IStrategoConstructor)type, foundSymbols);
+			
+			// deleting the symbols to be undefined
+			for ( SpxSymbol s : symbolsToDelete){
+				if(foundSymbols.remove(s)){
+					// adding to the list of removed symbols to return
+					undefinedSymbols.add(s);	
+				} 
+			}
+			this.symbols.put(key, foundSymbols);
+		}
+		
+		//facade.persistenceManager().spxSymbolTable().commit();
+		return undefinedSymbols;
+	}
+
 	
 	/**
 	 * Defines symbol in this Namespace. Define does not replace  
@@ -86,6 +111,7 @@ public abstract class BaseNamespace implements INamespace {
 			symbols.put( key , values );
 		}
 	}
+	
 	
 	private static List<SpxSymbol> appendSymbols( List<SpxSymbol> origin , List<SpxSymbol> symbols){
 		if(symbols != null){
@@ -154,7 +180,7 @@ public abstract class BaseNamespace implements INamespace {
 		return null; // symbol is not found
 	}
 	
-	public Iterable<SpxSymbol> resolveAll(IStrategoTerm searchingFor, IStrategoTerm ofType, INamespace searchedBy, SpxSemanticIndexFacade  facade) throws SpxSymbolTableException {
+	public Set<SpxSymbol> resolveAll(IStrategoTerm searchingFor, IStrategoTerm ofType, INamespace searchedBy, SpxSemanticIndexFacade  facade) throws SpxSymbolTableException {
 		
 		facade.persistenceManager().logMessage(this.src, "resolveAll(Base) | Resolving Symbol in " + this.namespaceUri().id() +  " . Key :  " + searchingFor + " origin Namespace: " + searchedBy.namespaceUri().id() );
 		
@@ -185,7 +211,7 @@ public abstract class BaseNamespace implements INamespace {
 	 * (non-Javadoc)
 	 * @see org.spoofax.interpreter.library.language.spxlang.INamespace#resolveAll(org.spoofax.interpreter.terms.IStrategoTerm, org.spoofax.interpreter.terms.IStrategoTerm, org.spoofax.interpreter.library.language.spxlang.SpxSemanticIndexFacade)
 	 */
-	public Iterable<SpxSymbol> resolveAll(IStrategoTerm searchingFor, IStrategoTerm ofType, SpxSemanticIndexFacade spxFacade) throws SpxSymbolTableException{
+	public Set<SpxSymbol> resolveAll(IStrategoTerm searchingFor, IStrategoTerm ofType, SpxSemanticIndexFacade spxFacade) throws SpxSymbolTableException{
 		return resolveAll(searchingFor, ofType,  this, spxFacade);
 	}
 	

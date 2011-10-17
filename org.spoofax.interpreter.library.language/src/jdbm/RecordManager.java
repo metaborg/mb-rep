@@ -41,9 +41,6 @@ import java.util.Comparator;
  */
 public interface  RecordManager
 {
-
-	public static final String DEFAULT_RELATIVE_PATH_INDEX = ".index" ;
-	
     /**
      * Recid indicating no record (e.g. null)
      */

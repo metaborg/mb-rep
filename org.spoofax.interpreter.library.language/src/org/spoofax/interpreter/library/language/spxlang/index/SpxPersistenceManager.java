@@ -10,6 +10,7 @@ import jdbm.PrimaryStoreMap;
 import jdbm.RecordManager;
 import jdbm.RecordManagerFactory;
 import jdbm.RecordManagerOptions;
+import jdbm.recman.BaseRecordManager;
 import jdbm.recman.CacheRecordManager;
 
 import org.spoofax.interpreter.library.IOAgent;
@@ -62,19 +63,19 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 		this._agent = spxSemanticIndexFacade.getIOAgent();
 		this._indexId = spxSemanticIndexFacade.indexId() ;
 		
-		String indexDirectory = spxSemanticIndexFacade.getProjectPath()+ "/" + Utils.SPX_INDEX_DIRECTORY;
+		BaseRecordManager.DEFAULT_RELATIVE_PATH_INDEX = spxSemanticIndexFacade.getProjectPath()+ "/" + Utils.SPX_INDEX_DIRECTORY+ "/" + _indexId + ".idx";
 
 		if( options  == null)
 			options = new Properties();// Creating empty properties collection if it is null
 		
 		//setting properties of RecordManager
-		options.put(RecordManagerOptions.INDEX_RELATIVE_PATH_OPTION, indexDirectory + "/" + _indexId + ".idx");
+		options.put(RecordManagerOptions.INDEX_RELATIVE_PATH_OPTION, BaseRecordManager.DEFAULT_RELATIVE_PATH_INDEX);
 		options.put(RecordManagerOptions.CACHE_TYPE, "none");
 		options.put(RecordManagerOptions.DISABLE_TRANSACTIONS, "false");
 		
 		tryInitRecordManager(spxSemanticIndexFacade,options);
 		
-		logMessage(SRC + ".ctor" , "Instantiation of PersistenceManager is done. Index Directory : ["+ indexDirectory  + "] indexid : "+ getIndexId());
+		logMessage(SRC + ".ctor" , "Instantiation of PersistenceManager is done. Index Directory : ["+ BaseRecordManager.DEFAULT_RELATIVE_PATH_INDEX  + "] indexid : "+ getIndexId());
 	}
 
 
@@ -122,7 +123,7 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 		initListeners();
 		
 		if(Utils.DEBUG){
-			_spxSymbolTable.printSymbols("init" , facade.getProjectPath());
+			_spxSymbolTable.printSymbols("init" , facade.getProjectPath() , facade.indexId());
 		}	
 	}
 	

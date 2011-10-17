@@ -225,6 +225,16 @@ public class SpxSemanticIndex {
 		}.executeWith(projectPath, searchCriteria);
 	}
 
+	public IStrategoTerm undefineSymbols(IStrategoString projectPath,IStrategoTuple searchCriteria) throws Exception {
+		return new SpxResolver() {
+			@Override
+			public IStrategoTerm resolve(IStrategoString projectPath, IStrategoTerm searchCriteria) throws Exception {	
+				SpxSemanticIndexFacade f = getFacade(projectPath);
+				return f.undefineSymbols((IStrategoTuple)searchCriteria);
+			}
+		}.executeWith(projectPath, searchCriteria);
+	}
+	
 	public boolean removeCompilationUnit(IStrategoString projectPath,IStrategoString spxCompilationUnitPath) throws Exception{
 	
 			SpxSemanticIndexFacade idxFacade = getFacade(projectPath);
@@ -259,5 +269,7 @@ public class SpxSemanticIndex {
 	
 		public abstract IStrategoTerm resolve(IStrategoString projectPath , IStrategoTerm term) throws Exception ;
 	}
+
+	
 
 }

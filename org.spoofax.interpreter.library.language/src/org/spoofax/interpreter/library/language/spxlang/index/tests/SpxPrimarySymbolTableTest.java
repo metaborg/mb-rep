@@ -21,6 +21,7 @@ import org.spoofax.interpreter.library.language.spxlang.index.data.ModuleDeclara
 import org.spoofax.interpreter.library.language.spxlang.index.data.NamespaceUri;
 import org.spoofax.interpreter.library.language.spxlang.index.data.PackageDeclaration;
 import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbol;
+import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbolKey;
 import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbolTableException;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
@@ -262,14 +263,10 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		
 		setupScopeTree();
 
-		// defining a composite key 
-		IStrategoAppl namespaceAppl = termFactory().makeAppl(_facade.getGlobalNamespaceTypeCon());
-		// defining following composite ID :  (Global() , "TestId")
-		IStrategoTerm symbolId = termFactory().makeTuple( namespaceAppl , termFactory().makeString("TestId")); 
-		// defining Data 
-		IStrategoTerm data = (IStrategoAppl)moduleDeclarationP1M1.toTerm(_facade);
-		// setting Type to Global() 
-		IStrategoAppl typeAppl = namespaceAppl ; 
+		IStrategoAppl namespaceAppl = termFactory().makeAppl(_facade.getGlobalNamespaceTypeCon());// defining a composite key 
+		IStrategoTerm symbolId = termFactory().makeTuple( namespaceAppl , termFactory().makeString("TestId"));// defining following composite ID :  (Global() , "TestId")
+	 	IStrategoTerm data = (IStrategoAppl)moduleDeclarationP1M1.toTerm(_facade); // defining Data
+		IStrategoAppl typeAppl = namespaceAppl ;// setting Type to Global() 
 		
 		// Defining Symbol-Table entry 
 		IStrategoAppl symbolDef = createEntry(namespaceAppl , symbolId , typeAppl  , data);
@@ -277,9 +274,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		// Indexing Symbol
 		_facade.indexSymbol(symbolDef);
 	
-		
-		
-		// Resolving Symbol 
+	// Resolving Symbol 
 		Set<SpxSymbol> resolvedSymbols = (Set<SpxSymbol>)_facade.resolveSymbols(
 				ModuleDeclaration.toModuleQNameAppl(_facade, moduleDeclarationP1M1),
 				symbolId,
@@ -298,9 +293,6 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 				);
 		
 		assertEquals( 0 , resolvedSymbols.size());
-		
-		
-		
 	}
 	
 	public void testUnknownConstructorInResolveSymbolShouldThrowException() throws IOException, SpxSymbolTableException {
@@ -510,7 +502,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 	public void testShouldNotResolveSymbolFromImportedNamespaceInCyclicReference() throws IOException, SpxSymbolTableException{
 		setupScopeTree();
 		
-		this.packageDeclaration1.addImportRefernces(_facade, termFactory().makeList(PackageDeclaration.toPackageQNameAppl(_facade,this.packageDeclaration1.getId())));
+		indexImportRef(packageDeclaration1, packageDeclaration1);
 		
 		IStrategoAppl packageQNameAppl = PackageDeclaration.toPackageQNameAppl(_facade,this.packageDeclaration2.getId());
 		
@@ -532,19 +524,14 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 	}
 	
 	public void testShouldResolveSymbolFromImportedNamespace() throws IOException, SpxSymbolTableException{
-		setupScopeTree();
-		
-		this.packageDeclaration1.addImportRefernces(_facade, termFactory().makeList(PackageDeclaration.toPackageQNameAppl(_facade,this.packageDeclaration2.getId())));
+		createExtendedScopeTree();
 		
 		IStrategoAppl packageQNameAppl = PackageDeclaration.toPackageQNameAppl(_facade,this.packageDeclaration2.getId());
-		
 		IStrategoTerm symbolId1 = packageQNameAppl; // defining following packageID
 	 	IStrategoTerm data1 = (IStrategoAppl)moduleDeclarationP1M1.toTerm(_facade);	// defining Data
 		IStrategoAppl typeAppl1 = termFactory().makeAppl(termFactory().makeConstructor("ModuleDef", 0)); // setting Type  
 		
 		_facade.indexSymbol(createEntry(packageQNameAppl , symbolId1 , typeAppl1  , data1));
-		
-		
 		
 		Set<SpxSymbol> resolvedSymbols = (Set<SpxSymbol>)_facade.resolveSymbols(
 				PackageDeclaration.toPackageQNameAppl(_facade,this.packageDeclaration1.getId()),
@@ -556,15 +543,13 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 	}
 	
 	public void testShouldNotAllowTransitiveImports() throws IOException, SpxSymbolTableException{
-		setupScopeTree();
+		createExtendedScopeTree();
 		
 		String packageName3 =  	"\"lang\", \"p3\"" ;
 		
 		packageDeclaration3   = indexTestPackageDecl(packageName3, absPathString2);
 		moduleDeclarationP3M1 = indexTestModuleDefs ( "p3m1" , packageName3 , absPathString2);
 		
-		this.packageDeclaration1.addImportRefernces(_facade, termFactory().makeList(PackageDeclaration.toPackageQNameAppl(_facade,this.packageDeclaration2.getId())));
-		this.packageDeclaration2.addImportRefernces(_facade, termFactory().makeList(PackageDeclaration.toPackageQNameAppl(_facade,this.packageDeclaration3.getId())));
 		
 		IStrategoAppl moduleQnameAppl = ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP3M1.getId());
 		
@@ -684,12 +669,12 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		
 		// Defining Symbol3 in P3
 		IStrategoTerm symbolId3 = moduleQnameAppl1; 
-	 	IStrategoTerm data3 = (IStrategoAppl)moduleDeclarationP1M1.toTerm(_facade);	// defining Data
+	 	IStrategoTerm data3 = (IStrategoAppl)moduleDeclarationP3M1.toTerm(_facade);	// defining Data
 		IStrategoAppl typeAppl3 = termFactory().makeAppl(termFactory().makeConstructor("ModuleDef", 0)); // setting Type  
 		
 		_facade.indexSymbol(createEntry(moduleQnameAppl3 , symbolId3 , typeAppl3 , data3));
 		
-		
+		_facade.persistChanges();
 		_registry.closePersistenceManager(this.projectNameTerm);
 		
 		_registry.initFacade(projectNameTerm, termFactory(), ioAgent());
@@ -815,6 +800,65 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		assertTrue(SpxSymbol.verifyEquals( GlobalNamespace.getGlobalNamespaceId(_facade) , actual.namespaceUri().id()) );
 	
 	}
+	public void testUndefineSymbols() throws Exception{
+		createExtendedScopeTree();
+	
+		IStrategoAppl moduleQnameAppl1 = ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP1M1.getId());
+		
+		// Defining Symbol1 in P1.M1
+		IStrategoTerm symbolId1 = moduleQnameAppl1; 
+	 	IStrategoTerm data1 = (IStrategoAppl)moduleDeclarationP1M1.toTerm(_facade);	// defining Data
+		IStrategoAppl typeAppl1 = termFactory().makeAppl(termFactory().makeConstructor("ModuleDef", 0)); // setting Type  
+		
+		_facade.indexSymbol(createEntry(moduleQnameAppl1 , symbolId1 , typeAppl1  , data1));
+		
+		// Defining Symbol1 in P1.M2
+		IStrategoTerm symbolId2 = moduleQnameAppl1; 
+	 	IStrategoTerm data2 = (IStrategoAppl)moduleDeclarationP1M2.toTerm(_facade);	// defining Data
+		IStrategoAppl typeAppl2 = termFactory().makeAppl(termFactory().makeConstructor("ModuleDef__", 0)); // setting Type  
+		
+		_facade.indexSymbol(createEntry(moduleQnameAppl1, symbolId2 , typeAppl2  , data2));
+		
+		// Defining Symbol3 in P2.M1
+		IStrategoTerm symbolId3 = moduleQnameAppl1; 
+	 	IStrategoTerm data3 = (IStrategoAppl)moduleDeclarationP2M1.toTerm(_facade);	// defining Data
+		IStrategoAppl typeAppl3 = typeAppl1;
+		
+		_facade.indexSymbol(createEntry(moduleQnameAppl1 , symbolId3 , typeAppl3 , data3));
+		
+		
+		_facade.persistChanges();
+		
+		// closing persistence manager
+		_registry.closePersistenceManager(this.projectNameTerm);
+		_registry.initFacade(projectNameTerm, termFactory(), ioAgent());
+		
+		// loading tfacade again
+		SpxSemanticIndexFacade tfacade = _registry.getFacade(this.projectNameTerm);
+		
+		Set<SpxSymbol> resolvedSymbols = tfacade
+				.persistenceManager()
+				.spxSymbolTable()
+				.undefineSymbols(tfacade, this.moduleDeclarationP1M1.getId(),
+						symbolId1, typeAppl1.getConstructor());
+		
+		assertEquals(2, resolvedSymbols.size());
+		
+		for( SpxSymbol sym : resolvedSymbols) {
+			assertTrue(sym.equalType(typeAppl1.getConstructor())); 
+		}
+		
+		List<SpxSymbol> resolvedSymbols1 = tfacade.persistenceManager().spxSymbolTable()
+				.resolveNamespace(this.moduleDeclarationP1M1.getId())
+				.getMembers()
+				.get(new SpxSymbolKey(symbolId1));
+		
+		assertEquals(1, resolvedSymbols1.size());
+		
+		for( SpxSymbol sym : resolvedSymbols1) {
+			assertTrue(sym.equalType(typeAppl2.getConstructor())); 
+		}
+	}
 	
 	public void testResolveShouldReturnAllSymbolsOfaType() throws Exception{
 		createExtendedScopeTree();
@@ -885,6 +929,18 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		}
 	}
 	
+	private void indexImportRef ( PackageDeclaration decl ,  PackageDeclaration importPackageDecl) throws SpxSymbolTableException{
+		IStrategoConstructor importCtor  = _facade.getImportDeclCon();
+		IStrategoAppl importDecl = this.termFactory().makeAppl(importCtor,  
+				PackageDeclaration.toPackageQNameAppl(_facade,decl.getId()),
+				termFactory().makeList(
+						PackageDeclaration.toPackageQNameAppl(_facade,importPackageDecl.getId())
+				)
+		);
+		
+		_facade.indexImportReferences(importDecl);
+		
+	}
 	private void createExtendedScopeTree() throws IOException, SpxSymbolTableException{
 		// Setting up a big Scope-Tree
 		setupScopeTree();
@@ -895,10 +951,10 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		moduleDeclarationP3M1 = indexTestModuleDefs ( "p3m1" , packageName3 , absPathString2);
 		
 		//Setting up following import hierarchy : P1 -> P2 -> P3 -> p1
-		this.packageDeclaration1.addImportRefernces(_facade, termFactory().makeList(PackageDeclaration.toPackageQNameAppl(_facade,this.packageDeclaration2.getId())));
-		this.packageDeclaration2.addImportRefernces(_facade, termFactory().makeList(PackageDeclaration.toPackageQNameAppl(_facade,this.packageDeclaration3.getId())));
-		this.packageDeclaration3.addImportRefernces(_facade, termFactory().makeList(PackageDeclaration.toPackageQNameAppl(_facade,this.packageDeclaration1.getId())));
-				
+		indexImportRef( packageDeclaration1 , packageDeclaration2);
+		indexImportRef( packageDeclaration2 , packageDeclaration3);
+		indexImportRef( packageDeclaration3 , packageDeclaration1);
+		
 		// ------ScopeTree setup is done :  P1 imports P2 import P3 imports P1--------
 		// 
 		//                         Global 

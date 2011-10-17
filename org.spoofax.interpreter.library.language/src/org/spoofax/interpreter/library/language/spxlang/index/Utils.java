@@ -22,7 +22,7 @@ public final class Utils {
 	public static final String SPX_CACHE_DIRECTORY = ".spxcache";
 	public static final String SPX_INDEX_DIRECTORY = ".spxindex";
 	
-	static final boolean DEBUG = true;
+	static final boolean DEBUG = false;
 	
 	/**
 	 * Constructs {@link IStrategoList} from {@code decls}  

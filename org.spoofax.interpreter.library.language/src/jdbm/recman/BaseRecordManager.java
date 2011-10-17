@@ -70,7 +70,9 @@ import jdbm.helper.RecordManagerImpl;
 public final class BaseRecordManager
     extends RecordManagerImpl
 {
-
+	
+	public static String DEFAULT_RELATIVE_PATH_INDEX = ".index" ;
+		
 	private static final String IDR = ".idr";
 	private static final String IDF = ".idf";
 	private static final String DBR = ".dbr";
@@ -236,7 +238,7 @@ public final class BaseRecordManager
     	// created in the currently working directory.
     	
     	// currently it is set to .index folder
-    	this( filename , RecordManager.DEFAULT_RELATIVE_PATH_INDEX );
+    	this( filename , DEFAULT_RELATIVE_PATH_INDEX );
     }
     
     

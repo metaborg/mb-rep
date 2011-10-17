@@ -47,19 +47,13 @@ public abstract class SpxAbstractPrimitive extends AbstractPrimitive{
 		IOAgent agent = SSLLibrary.instance(env).getIOAgent();
 		try {
 			validateArguments(env, svars, tvars);
-			
 			successStatement = executePrimitive(env, svars, tvars) ;
-		
-		}catch (IOException ex) {
-			logException(agent , ex);
-			tryCleanupResources( index.getFacadeRegistry() ,  getProjectPath(tvars) , agent);
-		}
-		catch (IllegalStateException ex) {
-			logException(agent , ex);
-			tryCleanupResources( index.getFacadeRegistry() ,  getProjectPath(tvars) , agent);
 		}
 		catch (Exception ex) {
 			logException(agent , ex);
+			if( ex instanceof IOException ||  ex instanceof IllegalStateException){
+				tryCleanupResources( index.getFacadeRegistry() ,  getProjectPath(tvars) , agent);
+			}
 		}
 		catch (Error e) {
 			logException(agent , e);

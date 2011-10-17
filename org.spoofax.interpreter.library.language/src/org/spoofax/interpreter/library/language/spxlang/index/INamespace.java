@@ -3,6 +3,7 @@ package org.spoofax.interpreter.library.language.spxlang.index;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.spoofax.interpreter.library.language.spxlang.index.data.NamespaceUri;
 import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbol;
@@ -18,13 +19,15 @@ public interface INamespace extends Serializable {
 
 	INamespace getCurrentNamespace(INamespaceResolver resolver) throws SpxSymbolTableException;
 	
-	INamespace define(SpxSymbolTableEntry entry, ILogger logger) ;
+	public INamespace define(SpxSymbolTableEntry entry, SpxSemanticIndexFacade f);
+	
+	Set<SpxSymbol> undefineSymbols(IStrategoTerm searchingFor, IStrategoTerm type , SpxSemanticIndexFacade  facade) ;
     
 	SpxSymbol resolve(IStrategoTerm searchingFor, IStrategoTerm type, INamespace searchedBy , SpxSemanticIndexFacade spxFacade) throws SpxSymbolTableException;
     
-	Iterable<SpxSymbol> resolveAll(IStrategoTerm searchingFor, IStrategoTerm type, SpxSemanticIndexFacade spxFacade) throws SpxSymbolTableException;
+	Set<SpxSymbol> resolveAll(IStrategoTerm searchingFor, IStrategoTerm type, SpxSemanticIndexFacade spxFacade) throws SpxSymbolTableException;
 	
-	Iterable<SpxSymbol> resolveAll(IStrategoTerm searchingFor, IStrategoTerm ofType, INamespace searchedByNamepsace , SpxSemanticIndexFacade spxFacade) throws SpxSymbolTableException;
+	Set<SpxSymbol> resolveAll(IStrategoTerm searchingFor, IStrategoTerm ofType, INamespace searchedByNamepsace , SpxSemanticIndexFacade spxFacade) throws SpxSymbolTableException;
 	
 	Map<SpxSymbolKey, List<SpxSymbol>> getMembers();
 	
@@ -36,6 +39,3 @@ public interface INamespace extends Serializable {
 
 	void clear();	
 }
-
-
-

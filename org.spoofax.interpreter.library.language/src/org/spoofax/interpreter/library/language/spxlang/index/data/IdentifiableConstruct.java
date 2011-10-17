@@ -11,6 +11,7 @@ import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.interpreter.terms.TermConverter;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.terms.StrategoListIterator;
 
@@ -64,6 +65,7 @@ public abstract class IdentifiableConstruct implements Serializable
 			if(decl != null ){	
 				this.importReferences.add(id);
 				decl.addImportedTo(this.getId());
+				idxFacade.persistenceManager().spxPackageTable().definePackageDeclaration(decl);
 			}
 		}
 		else 
@@ -85,6 +87,7 @@ public abstract class IdentifiableConstruct implements Serializable
 	
 	public  IStrategoList getImports(SpxSemanticIndexFacade idxFacade) {	
 		ITermFactory termFactory = idxFacade.getTermFactory();
+		TermConverter termConverter = idxFacade.getTermConverter();
 		
 		HashSet<IStrategoTerm> allImportRefs = new HashSet<IStrategoTerm>();
 		allImportRefs.addAll(this.importReferences);
@@ -94,7 +97,7 @@ public abstract class IdentifiableConstruct implements Serializable
 		for (IStrategoTerm t: allImportRefs)
 			result = idxFacade.getTermFactory().makeListCons(tranformToSpxImport(idxFacade,t), result);
 	
-		return result;
+		return termConverter.convert(result);
 	}
 	
 	protected IStrategoTerm forceImploderAttachment(IStrategoTerm term) {

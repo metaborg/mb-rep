@@ -107,7 +107,7 @@ final class RecordFile {
      *          RandomAccessFile throws it.
      */
     RecordFile(String fileName, int blockSize)  throws IOException{
-    	this (fileName , blockSize, RecordManager.DEFAULT_RELATIVE_PATH_INDEX); // default relative directory is set to .index
+    	this (fileName , blockSize, BaseRecordManager.DEFAULT_RELATIVE_PATH_INDEX); // default relative directory is set to .index
     }
 
     RecordFile(String fileName, int blockSize, String relativePathStr) throws IOException 

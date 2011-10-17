@@ -93,7 +93,7 @@ public final class PackageNamespace  extends BaseNamespace {
 			//getting the package declaration and retrieving it imported references 
 			PackageDeclaration assiciatedPackageDeclaration = facade.lookupPackageDecl(this.namespaceUri().id());
 			
-			Iterable<IStrategoList> importedIds = assiciatedPackageDeclaration.getImportReferneces();
+			Set<IStrategoList> importedIds = assiciatedPackageDeclaration.getImportReferneces();
 			
 			for(IStrategoList l : importedIds){
 				importedNamespaceUris.add(symTable.toNamespaceUri(l));; 
@@ -157,7 +157,7 @@ public final class PackageNamespace  extends BaseNamespace {
 	 * @see org.spoofax.interpreter.library.language.spxlang.BaseNamespace#resolveAll(org.spoofax.interpreter.terms.IStrategoTerm, org.spoofax.interpreter.library.language.spxlang.INamespace, org.spoofax.interpreter.library.language.spxlang.SpxSemanticIndexFacade)
 	 */
 	@Override
-	public Iterable<SpxSymbol> resolveAll(IStrategoTerm key,IStrategoTerm type, INamespace originNamespace, SpxSemanticIndexFacade facade) throws SpxSymbolTableException{
+	public Set<SpxSymbol> resolveAll(IStrategoTerm key,IStrategoTerm type, INamespace originNamespace, SpxSemanticIndexFacade facade) throws SpxSymbolTableException{
 		facade.persistenceManager().logMessage(this.src, "resolveAll | Resolving Symbol in " + this.namespaceUri().id() +  " . Key :  " + key + " origin Namespace: " + originNamespace.namespaceUri().id() );
 		
 		Set<SpxSymbol> retResult = new HashSet<SpxSymbol>();

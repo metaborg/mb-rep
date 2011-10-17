@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.spoofax.interpreter.library.language.spxlang.index.SpxSemanticIndexFacade;
@@ -109,14 +110,15 @@ public class SpxSymbol extends SpxBaseSymbol implements Serializable{
 				deserializedDataToTerm )	;
 	}
 	
-	public static IStrategoTerm toTerms(SpxSemanticIndexFacade facade , Iterable<SpxSymbol> symbols) throws SpxSymbolTableException{
+	public static IStrategoTerm toTerms(SpxSemanticIndexFacade facade , Set<SpxSymbol> symbols) throws SpxSymbolTableException{
 		IStrategoList result = facade.getTermFactory().makeList();
+		Object[] arrSymbols = symbols.toArray() ;
 		
 		if( symbols != null)
-			for( SpxSymbol s : symbols) { 
-				result = facade.getTermFactory().makeListCons(  s.toTerm(facade) , result);
+			for( int i = arrSymbols.length-1 ; i>= 0  ; i--) { 
+				result = facade.getTermFactory().makeListCons(
+						((SpxSymbol) arrSymbols[i]).toTerm(facade), result);
 			}
-		
 		return result;
 	} 
 	
@@ -171,4 +173,9 @@ public class SpxSymbol extends SpxBaseSymbol implements Serializable{
 	public String toString() {
 		return "SpxSymbol [ Id : " + this.getId() + " Type= " + _type + ", Namespace=" + _namespace + "]";
 	}
+	
+	public String printSymbol(){
+		return "\t\tId =  " + this.getId() + "| Type = " + _type + "| Namespace = "+ _namespace+"\n";
+	}
+	
 }
