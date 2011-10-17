@@ -112,13 +112,14 @@ public class SpxSymbol extends SpxBaseSymbol implements Serializable{
 	
 	public static IStrategoTerm toTerms(SpxSemanticIndexFacade facade , Set<SpxSymbol> symbols) throws SpxSymbolTableException{
 		IStrategoList result = facade.getTermFactory().makeList();
-		Object[] arrSymbols = symbols.toArray() ;
 		
-		if( symbols != null)
+		if( symbols != null){
+			Object[] arrSymbols = symbols.toArray() ;
 			for( int i = arrSymbols.length-1 ; i>= 0  ; i--) { 
 				result = facade.getTermFactory().makeListCons(
 						((SpxSymbol) arrSymbols[i]).toTerm(facade), result);
 			}
+		}	
 		return result;
 	} 
 	
