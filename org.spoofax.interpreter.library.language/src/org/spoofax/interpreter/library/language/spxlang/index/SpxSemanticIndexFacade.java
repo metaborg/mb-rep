@@ -266,7 +266,6 @@ public class SpxSemanticIndexFacade {
 			defineNamespace(pDecl); 
 		}
 	}
-	
 
 	public IStrategoTerm insertNewScope(IStrategoAppl namespaceAppl) throws SpxSymbolTableException {
 		
@@ -287,7 +286,6 @@ public class SpxSemanticIndexFacade {
 		
 		return this.getTermFactory().makeAppl(getLocalNamespaceTypeCon(), ns.namespaceUri().id());
 	}
-
 	
 	// SymbolDef : namespace * id * type *  value -> Def  
 	public void indexSymbol(IStrategoAppl symbolDefinition) throws SpxSymbolTableException, IOException{	

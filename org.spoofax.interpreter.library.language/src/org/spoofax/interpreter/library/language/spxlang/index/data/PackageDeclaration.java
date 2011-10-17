@@ -170,8 +170,6 @@ public class PackageDeclaration extends IdentifiableConstruct implements INamesp
 		return toIdTerm(facade ,  facade.getPackageQNameCon(), id);
 	}
 
-	
-	
 	/**
 	 * Converts to typed Package Qualified Name
 	 *  

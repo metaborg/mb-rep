@@ -75,8 +75,7 @@ public abstract class IdentifiableConstruct implements Serializable
 	private IStrategoTerm tranformToSpxImport(SpxSemanticIndexFacade idxFacade, IStrategoTerm i){
 		IStrategoTerm retTerm = i ; 
 		if( i instanceof IStrategoList)
-			retTerm = idxFacade.getTermFactory().makeAppl(
-					idxFacade.getPackageQNameCon(), i);
+			retTerm = PackageDeclaration.toPackageQNameAppl(idxFacade, (IStrategoList)i);
 
 		return retTerm;	
 	}
