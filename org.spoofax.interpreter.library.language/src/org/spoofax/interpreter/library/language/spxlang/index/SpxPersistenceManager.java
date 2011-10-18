@@ -23,7 +23,6 @@ import org.spoofax.interpreter.library.IOAgent;
  * and changes are persisted when following operation is performed : {@link SpxPersistenceManager}.commit.
  * 
  * @author Md. Adil Akhter
- * Created On : Aug 22, 2011
  */
 public class SpxPersistenceManager implements ISpxPersistenceManager {
 	private static final String SRC =   "SpxPersistenceManager" ;
@@ -134,7 +133,7 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	 */
 	private void initListeners()
 	{
-		// If compilation unit is removed, automatically remove packages.
+		// If compilation unit is removed, automatically remove all the enclosed packages.
 		_spxUnitsTable.addRecordListener((ICompilationUnitRecordListener)_spxPackageTable);
 		
 		// also automatically remove the modules that is located 
@@ -197,7 +196,6 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 		spxSymbolTable().commit();
 		
 		if(!this.isClosed()){ 
-			// closing recordmanager 
 			_recordManager.close();
 		}	
 		// setting all the symboltable to null
@@ -221,21 +219,17 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	public SpxModuleLookupTable spxModuleTable() { return _spxModuleTable; }	
 
 	public void clear() throws IOException{
-		try
-		{
-			this._spxUnitsTable.clear();	
+		try {
+			this._spxUnitsTable.clear();
 			this._spxPackageTable.clear();
 			this._spxModuleTable.clear();
 			this._spxSymbolTable.clear();
-			
+
 			logMessage(SRC + ".clearAll", "SymbolTable is cleaned successfully. ");
-		}catch(IOException ex)
-		{
-			logMessage(SRC + ".clearAll", "Exception occured . "+ ex);
+		} catch (IOException ex) {
+			logMessage(SRC + ".clearAll", "Exception occured . " + ex);
 			throw ex;
 		}
-		
-		
 	}
 
 	/* Logs Message if {@code DEBUG} is turned on.

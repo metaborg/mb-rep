@@ -1,6 +1,7 @@
 package org.spoofax.interpreter.library.language.spxlang.index;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -8,7 +9,9 @@ import java.util.Calendar;
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.library.language.spxlang.index.data.IdentifiableConstruct;
 import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.terms.attachments.TermAttachmentSerializer;
 
 public final class Utils {
 	private Utils() {
@@ -95,5 +98,21 @@ public final class Utils {
 	        }
 	    }
 	    return cacheDir.delete();
+	}
+	
+	public static String serializeToString(TermAttachmentSerializer serializer , IStrategoTerm t) throws IOException{
+		IStrategoTerm annotatedTerm = serializer.toAnnotations(t);
+		
+		StringBuilder sb = new StringBuilder();
+		annotatedTerm.writeAsString(sb ,Integer.MAX_VALUE);
+		
+		return sb.toString();
+	}
+	
+	public static IStrategoTerm deserializeToTerm(ITermFactory fac , TermAttachmentSerializer serializer, String termString){
+		IStrategoTerm deserializedAtermWithAnnotation = fac.parseFromString(termString);
+		IStrategoTerm deserializedAterm  = serializer.fromAnnotations(deserializedAtermWithAnnotation, true);
+		
+		return deserializedAterm;
 	}
 }

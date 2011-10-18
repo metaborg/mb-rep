@@ -18,13 +18,11 @@ public class SpxCompilationUnitInfo implements Serializable
 	private int _version;
 	private final URI _absPath;
 	
-	public SpxCompilationUnitInfo(URI absPath,long recourceId)
-	{
+	public SpxCompilationUnitInfo(URI absPath,long recourceId){
 		this (0 , absPath , recourceId);
 	}
 
-	public SpxCompilationUnitInfo( int versionNo, URI absPath,long recourceId)
-	{
+	public SpxCompilationUnitInfo( int versionNo, URI absPath,long recourceId){
 		_recId = recourceId;
 		_version = versionNo;
 		_absPath = absPath;

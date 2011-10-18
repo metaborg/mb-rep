@@ -431,8 +431,3 @@ public class SpxPackageLookupTable implements ICompilationUnitRecordListener{
 	}
 }
 
-
-interface IPackageDeclarationRecordListener
-{
-	public RecordListener<IStrategoList, PackageDeclaration> getPackageDeclarationRecordListener();
-}

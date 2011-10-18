@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.spoofax.interpreter.library.language.spxlang.index.SpxSemanticIndexFacade;
+import org.spoofax.interpreter.library.language.spxlang.index.Utils;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -26,13 +27,11 @@ public class SpxSymbol extends SpxBaseSymbol implements Serializable{
 	
 	public SpxSymbol (IStrategoTerm id , String type){ 
 		this(id) ;
-
 		_type = type;
 	}
 	
 	public String type() {
 		assert _type != null : "Non-Null _type is expected. ";
-		
 		return _type; 
 	}
 
@@ -42,21 +41,13 @@ public class SpxSymbol extends SpxBaseSymbol implements Serializable{
 	
 	void setType(String type) {	_type = type; }
 
-	IStrategoTerm deserializedDataToTerm(ITermFactory fac , TermAttachmentSerializer serializer) { 
-		IStrategoTerm deserializedAtermWithAnnotation = fac.parseFromString(_data);
-		IStrategoTerm deserializedAterm  = serializer.fromAnnotations(deserializedAtermWithAnnotation, true);
-		
-		return deserializedAterm;
+	IStrategoTerm deserializedDataToTerm(ITermFactory fac , TermAttachmentSerializer serializer){ 
+		return Utils.deserializeToTerm(fac, serializer, _data);
 	}
 	
 	void serializerDataString(TermAttachmentSerializer serializer, IStrategoTerm data) throws IOException { 
-		IStrategoTerm annotatedTerm = serializer.toAnnotations(data);
-		
-		StringBuilder sb = new StringBuilder();
-		annotatedTerm.writeAsString(sb ,Integer.MAX_VALUE);
-		
-		_data = sb.toString(); 
-	}
+		_data  = Utils.serializeToString(serializer , data);
+}
 	
 	public IStrategoConstructor typeCons(SpxSemanticIndexFacade facade){
 		return facade.getConstructor( type() , 0);

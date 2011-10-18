@@ -119,7 +119,7 @@ public class SpxSemanticIndexFacade {
 		
 		SpxCompilationUnitTable table = _persistenceManager.spxCompilcationUnitTable();
 		
-		IStrategoAppl term = (IStrategoAppl)table.get(resUri);
+		IStrategoAppl term = (IStrategoAppl)table.get(this, resUri);
 		
 		if ( term != null)
 			retTerm = forceImploderAttachment(term, resUri);
@@ -158,10 +158,9 @@ public class SpxSemanticIndexFacade {
 
 		SpxCompilationUnitTable table = _persistenceManager.spxCompilcationUnitTable();
 	
-		logMessage("Storing following compilation unit. Path : [" 
-					+  spxCompilationUnitPath +"]");
+		logMessage("Storing following compilation unit. Path : ["+  spxCompilationUnitPath +"]");
 		
-		table.define(resUri, astTerm);
+		table.define(this, resUri, astTerm);
 	}
 
 	

@@ -426,7 +426,3 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 	}
 }
 
-interface IModuleDeclarationRecordListener{
-	
-	public RecordListener<IStrategoList, ModuleDeclaration> getModuleDeclarationRecordListener();
-}
