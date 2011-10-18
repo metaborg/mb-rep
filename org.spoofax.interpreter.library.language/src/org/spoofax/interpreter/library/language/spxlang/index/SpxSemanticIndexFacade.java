@@ -276,7 +276,7 @@ public class SpxSemanticIndexFacade {
 		IStrategoList parentId = getNamespaceId(namespaceAppl);
 		
 		SpxPrimarySymbolTable  symbolTable = persistenceManager().spxSymbolTable();
-		INamespace ns = symbolTable.newAnonymousNamespace(this, parentId);
+		INamespace ns = symbolTable.newAnonymousNamespace(parentId);
 		
 		return this.getTermFactory().makeAppl(getLocalNamespaceTypeCon(), ns.namespaceUri().id());
 	}
@@ -286,7 +286,7 @@ public class SpxSemanticIndexFacade {
 		IStrategoList id = getNamespaceId(namespaceAppl);
 		
 		SpxPrimarySymbolTable  symbolTable = persistenceManager().spxSymbolTable();
-		INamespace ns = symbolTable.destroyNamespace(this, id);
+		INamespace ns = symbolTable.destroyNamespace(id);
 		
 		return this.getTermFactory().makeAppl(getLocalNamespaceTypeCon(), ns.namespaceUri().id());
 	}
@@ -321,7 +321,7 @@ public class SpxSemanticIndexFacade {
 					   		
 		
 		SpxPrimarySymbolTable  symbolTable = persistenceManager().spxSymbolTable();
-		symbolTable.defineSymbol(this, getNamespaceId((IStrategoAppl)symbolDefinition.getSubterm(NAMESPACE_ID_INDEX)), entry);
+		symbolTable.defineSymbol(getNamespaceId((IStrategoAppl)symbolDefinition.getSubterm(NAMESPACE_ID_INDEX)), entry);
 	}
 	
 	
@@ -365,12 +365,9 @@ public class SpxSemanticIndexFacade {
 	    IStrategoConstructor typeCtor = getConstructor( typeAppl.getConstructor().getName(), typeAppl.getConstructor().getArity()) ;
 	    
 	    Set<SpxSymbol> spxSymbols = this.persistenceManager().spxSymbolTable()
-	    					.undefineSymbols(
-	    							this,
-	    							namespaceID, 
-	    							symbolID,
-	    							typeCtor
-    							);
+	    					.undefineSymbols(namespaceID, 
+	    									 symbolID,
+    										 typeCtor);
 	                        
 	    return SpxSymbol.toTerms(this, spxSymbols);
 	}  
@@ -399,7 +396,7 @@ public class SpxSemanticIndexFacade {
 
 		SpxPrimarySymbolTable  symbolTable = persistenceManager().spxSymbolTable();
 		
-		Set<SpxSymbol> resolvedSymbols = symbolTable.resolveSymbols(this, namespaceID, strip(symbolId), symbolType);
+		Set<SpxSymbol> resolvedSymbols = symbolTable.resolveSymbols(namespaceID, strip(symbolId), symbolType);
 		return resolvedSymbols;
 	}
 	
@@ -409,7 +406,7 @@ public class SpxSemanticIndexFacade {
 		IStrategoList namespaceID = this.getNamespaceId(namespaceToStartSearchWith);
 		SpxPrimarySymbolTable  symbolTable = persistenceManager().spxSymbolTable();
 		
-		SpxSymbol sym = symbolTable.resolveSymbol(this, namespaceID, strip(symbolId), symbolType);
+		SpxSymbol sym = symbolTable.resolveSymbol(namespaceID, strip(symbolId), symbolType);
 		if(sym != null)
 			resolvedSymbols.add(sym) ;
 		

@@ -839,8 +839,8 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		Set<SpxSymbol> resolvedSymbols = tfacade
 				.persistenceManager()
 				.spxSymbolTable()
-				.undefineSymbols(tfacade, this.moduleDeclarationP1M1.getId(),
-						symbolId1, typeAppl1.getConstructor());
+				.undefineSymbols(this.moduleDeclarationP1M1.getId(), symbolId1,
+						typeAppl1.getConstructor());
 		
 		assertEquals(2, resolvedSymbols.size());
 		
