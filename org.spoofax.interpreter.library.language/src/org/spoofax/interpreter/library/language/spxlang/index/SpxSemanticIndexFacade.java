@@ -1,6 +1,8 @@
 package org.spoofax.interpreter.library.language.spxlang.index;
 
 import static org.spoofax.interpreter.core.Tools.asJavaString;
+import static org.spoofax.interpreter.core.Tools.applAt;
+import static org.spoofax.interpreter.core.Tools.stringAt;
 
 import java.io.File;
 import java.io.IOException;
@@ -169,17 +171,18 @@ public class SpxSemanticIndexFacade {
 	 * 
 	 * @param moduleDefinition
 	 * @throws IllegalArgumentException
+	 * @throws IOException 
 	 */
-	public void indexModuleDefinition(IStrategoAppl moduleDefinition) throws IllegalArgumentException
+	public void indexModuleDefinition(IStrategoAppl moduleDefinition) throws IllegalArgumentException, IOException
 	{
 		verifyConstructor(moduleDefinition.getConstructor() , getModuleDefCon() , "Illegal Module Definition" );
 		
-		indexModuleDefinition(
-				(IStrategoAppl) moduleDefinition.getSubterm(ModuleDeclaration.ModuleTypedQNameIndex),
-				(IStrategoString) moduleDefinition.getSubterm(ModuleDeclaration.ModulePathIndex),
-				(IStrategoAppl) moduleDefinition.getSubterm(ModuleDeclaration.PackageTypedQNameIndex),
-				(IStrategoAppl) moduleDefinition.getSubterm(ModuleDeclaration.AstIndex),
-				(IStrategoAppl) moduleDefinition.getSubterm(ModuleDeclaration.AnalyzedAstIndex));
+		indexModuleDefinition( 
+				applAt(moduleDefinition ,  ModuleDeclaration.ModuleTypedQNameIndex),
+				stringAt(moduleDefinition, ModuleDeclaration.ModulePathIndex),
+				applAt(moduleDefinition ,  ModuleDeclaration.PackageTypedQNameIndex),
+				applAt(moduleDefinition ,  ModuleDeclaration.AstIndex),
+				applAt(moduleDefinition ,  ModuleDeclaration.AnalyzedAstIndex));
 	}
 
 	/**
@@ -190,10 +193,13 @@ public class SpxSemanticIndexFacade {
 	 * @param packageQName
 	 * @param ast
 	 * @param analyzedAst
+	 * @throws IOException 
 	 */
 	public void indexModuleDefinition(IStrategoAppl moduleQName,
-			IStrategoString spxCompilationUnitPath, IStrategoAppl packageQName,
-			IStrategoAppl ast, IStrategoAppl analyzedAst) {
+			IStrategoString spxCompilationUnitPath, 
+			IStrategoAppl packageQName,
+			IStrategoAppl ast, 
+			IStrategoAppl analyzedAst) throws IOException {
 
 		SpxModuleLookupTable table = _persistenceManager.spxModuleTable();
 
@@ -202,15 +208,14 @@ public class SpxSemanticIndexFacade {
 		
 		_persistenceManager.spxPackageTable().verifyPackageIDExists(packageId) ;
 		
-		moduleId = (IStrategoList) toCompactPositionInfo(moduleId);
-		packageId = (IStrategoList) toCompactPositionInfo(packageId);
+		moduleId = (IStrategoList) strip(moduleId);
+		packageId = (IStrategoList) strip(packageId);
 		ast = (IStrategoAppl) ast;
 		analyzedAst = (IStrategoAppl)analyzedAst;
 		spxCompilationUnitPath = (IStrategoString) spxCompilationUnitPath;
 
 		ModuleDeclaration mDecl = new ModuleDeclaration(toAbsulatePath(spxCompilationUnitPath), moduleId, packageId);
-		// updating/adding module to index 
-		table.define(mDecl , ast, analyzedAst);
+		table.define(this , mDecl, ast, analyzedAst);// updating/adding module to index 
 		
 		//Defining ModuleNamespace for Symbol-Table
 		defineNamespace(mDecl);
@@ -725,8 +730,8 @@ public class SpxSemanticIndexFacade {
 		SpxModuleLookupTable table = persistenceManager().spxModuleTable();
 		
 		IStrategoList qualifiedModuleId = ModuleDeclaration.getModuleId(this, moduleTypedQName);
-		IStrategoTerm moduleAterm =table.getModuleDefinition(qualifiedModuleId) ;
-		IStrategoTerm moduleAnnotatedAterm  = table.getAnalyzedModuleDefinition(qualifiedModuleId);
+		IStrategoTerm moduleAterm =table.getModuleDefinition(this, qualifiedModuleId) ;
+		IStrategoTerm moduleAnnotatedAterm  = table.getAnalyzedModuleDefinition(this, qualifiedModuleId);
 		
 		return new ModuleDefinition( decl , (IStrategoAppl)moduleAterm, (IStrategoAppl)moduleAnnotatedAterm).toTerm(this);
 	}

@@ -999,7 +999,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 	
 	private IStrategoTerm getId(String idString) { return termFactory().parseFromString(idString);}
 	
-	private ModuleDeclaration indexTestModuleDefs( String moduleName , String packageQName , String filePath) throws SpxSymbolTableException
+	private ModuleDeclaration indexTestModuleDefs( String moduleName , String packageQName , String filePath) throws SpxSymbolTableException, IOException
 	{
 		String moduleQName = packageQName  + ", \""+ moduleName  +"\"" ;
 		IStrategoAppl pQnameAppl = (IStrategoAppl)termFactory().parseFromString("Package(QName(["+packageQName+"]))");

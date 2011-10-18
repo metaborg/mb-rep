@@ -33,6 +33,7 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 	private ISpxPersistenceManager manager ;
 	private SpxPackageLookupTable symtable;
 	private SpxModuleLookupTable mSymTable;
+	private SpxSemanticIndexFacade facade; 
 	
 	final String absPathString1 = "c:/temp/test.spx" ;
 	final String absPathString2 = "c:/temp/test2.spx" ;
@@ -57,7 +58,7 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		interpreter().addOperatorRegistry(new LanguageLibrary());
 		
 		projectNameTerm = termFactory().makeString(_projectName);
-		SpxSemanticIndexFacade facade = new SpxSemanticIndexFacade(projectNameTerm , termFactory() , ioAgent());
+		facade = new SpxSemanticIndexFacade(projectNameTerm , termFactory() , ioAgent());
 		manager = new SpxPersistenceManager(facade);
 		
 		symtable = new SpxPackageLookupTable(manager);
@@ -363,18 +364,18 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		
 		
 		lookupTable.define(
+					facade , 
 					m1 , 
-					(IStrategoAppl)getModuleDefinition(f, "m1") , 
-					(IStrategoAppl)getAnalyzedModuleDefinition(f, "m1")
+					(IStrategoAppl)getModuleDefinition(f, "m1"), (IStrategoAppl)getAnalyzedModuleDefinition(f, "m1")
 				);
 		
 		IStrategoList idm2 = f.makeList(f.makeString("test") , f.makeString("m2"));
 		ModuleDeclaration m2 = new ModuleDeclaration(absPathString1, idm2,pId2 );
 		
 		lookupTable.define(
+				facade , 
 				m2 , 
-				(IStrategoAppl)getModuleDefinition(f, "m2") , 
-				(IStrategoAppl)getAnalyzedModuleDefinition(f, "m2")
+				(IStrategoAppl)getModuleDefinition(f, "m2"), (IStrategoAppl)getAnalyzedModuleDefinition(f, "m2")
 			);
 	
 		
@@ -382,9 +383,9 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		ModuleDeclaration m3 = new ModuleDeclaration(absPathString2, idm3,pId );
 
 		lookupTable.define(
+				facade , 
 				m3 , 
-				(IStrategoAppl)getModuleDefinition(f, "m3") , 
-				(IStrategoAppl)getAnalyzedModuleDefinition(f, "m3")
+				(IStrategoAppl)getModuleDefinition(f, "m3"), (IStrategoAppl)getAnalyzedModuleDefinition(f, "m3")
 			);
 	
 		assertEquals(3, lookupTable.size());
@@ -413,18 +414,18 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		
 		
 		lookupTable.define(
+					facade , 
 					m1 , 
-					(IStrategoAppl)getModuleDefinition(f, "m1") , 
-					(IStrategoAppl)getAnalyzedModuleDefinition(f, "m1")
+					(IStrategoAppl)getModuleDefinition(f, "m1"), (IStrategoAppl)getAnalyzedModuleDefinition(f, "m1")
 				);
 		
 		IStrategoList idm2 = f.makeList(f.makeString("test") , f.makeString("m2"));
 		ModuleDeclaration m2 = new ModuleDeclaration(absPathString1, idm2,pId2 );
 		
 		lookupTable.define(
+				facade , 
 				m2 , 
-				(IStrategoAppl)getModuleDefinition(f, "m2") , 
-				(IStrategoAppl)getAnalyzedModuleDefinition(f, "m2")
+				(IStrategoAppl)getModuleDefinition(f, "m2"), (IStrategoAppl)getAnalyzedModuleDefinition(f, "m2")
 			);
 	
 		
@@ -432,9 +433,9 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		ModuleDeclaration m3 = new ModuleDeclaration(absPathString2, idm3,pId );
 
 		lookupTable.define(
+				facade , 
 				m3 , 
-				(IStrategoAppl)getModuleDefinition(f, "m3") , 
-				(IStrategoAppl)getAnalyzedModuleDefinition(f, "m3")
+				(IStrategoAppl)getModuleDefinition(f, "m3"), (IStrategoAppl)getAnalyzedModuleDefinition(f, "m3")
 			);
 	
 		assertEquals(3, lookupTable.size());
@@ -462,18 +463,18 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		
 		
 		lookupTable.define(
+					facade, 
 					m1 , 
-					(IStrategoAppl)getModuleDefinition(f, "m1") , 
-					(IStrategoAppl)getAnalyzedModuleDefinition(f, "m1")
+					(IStrategoAppl)getModuleDefinition(f, "m1"), (IStrategoAppl)getAnalyzedModuleDefinition(f, "m1")
 				);
 		
 		IStrategoList idm2 = f.makeList(f.makeString("test") , f.makeString("m2"));
 		ModuleDeclaration m2 = new ModuleDeclaration(absPathString2, idm2,pId2 );
 		
 		lookupTable.define(
+				facade , 
 				m2 , 
-				(IStrategoAppl)getModuleDefinition(f, "m2") , 
-				(IStrategoAppl)getAnalyzedModuleDefinition(f, "m2")
+				(IStrategoAppl)getModuleDefinition(f, "m2"), (IStrategoAppl)getAnalyzedModuleDefinition(f, "m2")
 			);
 	
 		
@@ -481,9 +482,9 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		ModuleDeclaration m3 = new ModuleDeclaration(absPathString2, idm3,pId );
 
 		lookupTable.define(
+				facade , 
 				m3 , 
-				(IStrategoAppl)getModuleDefinition(f, "m3") , 
-				(IStrategoAppl)getAnalyzedModuleDefinition(f, "m3")
+				(IStrategoAppl)getModuleDefinition(f, "m3"), (IStrategoAppl)getAnalyzedModuleDefinition(f, "m3")
 			);
 	
 		assertEquals(3, lookupTable.size());
@@ -512,18 +513,18 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		
 		
 		lookupTable.define(
+					facade , 
 					m1 , 
-					(IStrategoAppl)getModuleDefinition(f, "m1") , 
-					(IStrategoAppl)getAnalyzedModuleDefinition(f, "m1")
+					(IStrategoAppl)getModuleDefinition(f, "m1"), (IStrategoAppl)getAnalyzedModuleDefinition(f, "m1")
 				);
 		
 		IStrategoList idm2 = f.makeList(f.makeString("test") , f.makeString("m2"));
 		ModuleDeclaration m2 = new ModuleDeclaration(absPathString2, idm2,pId2 );
 		
 		lookupTable.define(
+				facade , 
 				m2 , 
-				(IStrategoAppl)getModuleDefinition(f, "m2") , 
-				(IStrategoAppl)getAnalyzedModuleDefinition(f, "m2")
+				(IStrategoAppl)getModuleDefinition(f, "m2"), (IStrategoAppl)getAnalyzedModuleDefinition(f, "m2")
 			);
 	
 		
@@ -531,9 +532,9 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		ModuleDeclaration m3 = new ModuleDeclaration(absPathString2, idm3,pId );
 
 		lookupTable.define(
+				facade , 
 				m3 , 
-				(IStrategoAppl)getModuleDefinition(f, "m3") , 
-				(IStrategoAppl)getAnalyzedModuleDefinition(f , "m3")
+				(IStrategoAppl)getModuleDefinition(f, "m3"), (IStrategoAppl)getAnalyzedModuleDefinition(f , "m3")
 			);
 	
 		assertEquals(3, lookupTable.size());

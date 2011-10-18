@@ -1,8 +1,6 @@
 package org.spoofax.interpreter.library.language.spxlang.index.data;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.spoofax.interpreter.library.language.spxlang.index.INamespace;
@@ -185,7 +183,6 @@ public class PackageDeclaration extends IdentifiableConstruct implements INamesp
 	 * @see org.spoofax.interpreter.library.language.spxlang.INamespaceFactory#newInstances(org.spoofax.interpreter.library.language.spxlang.SpxSemanticIndexFacade)
 	 */
 	public Iterable<INamespace> newNamespaces(SpxSemanticIndexFacade idxFacade) {
-	
 		return PackageNamespace.createInstances(id , idxFacade);
 	}
 }

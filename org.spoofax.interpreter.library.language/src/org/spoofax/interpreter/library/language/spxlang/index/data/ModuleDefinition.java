@@ -1,5 +1,6 @@
 package org.spoofax.interpreter.library.language.spxlang.index.data;
 
+import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxSemanticIndexFacade;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
@@ -27,7 +28,7 @@ public class ModuleDefinition  extends ModuleDeclaration
 	 * @param ast
 	 * @param analyzedAst
 	 */
-	public ModuleDefinition(String resourceAbsPath, IStrategoList id, IStrategoList packageID , IStrategoAppl ast , IStrategoAppl analyzedAst) {
+	private ModuleDefinition(String resourceAbsPath, IStrategoList id, IStrategoList packageID , IStrategoAppl ast , IStrategoAppl analyzedAst) {
 		super(resourceAbsPath, id, packageID);
 		
 		this.ast = ast;
@@ -46,25 +47,20 @@ public class ModuleDefinition  extends ModuleDeclaration
 	 */
 	@Override
 	public IStrategoTerm toTerm(SpxSemanticIndexFacade idxFacade) {
-
 		ITermFactory termFactory = idxFacade.getTermFactory();
-		
-		TermConverter termConverter = idxFacade.getTermConverter();
-		 
 		IStrategoTerm moduleDeclarationTerm = super.toTerm(idxFacade);
 		IStrategoConstructor moduleDefCons = idxFacade.getModuleDefCon();
-		
 		
 		IStrategoTerm retTerm = termFactory.makeAppl(
 				moduleDefCons,
 				moduleDeclarationTerm.getSubterm(0),
 				moduleDeclarationTerm.getSubterm(1),
 				moduleDeclarationTerm.getSubterm(2),
-				termConverter.convert( ast),
-				termConverter.convert( analyzedAst ) 
+				ast,
+				analyzedAst 
 				);
 		
-		return this.forceImploderAttachment(retTerm);
+		return retTerm;
 	}
 	
 }

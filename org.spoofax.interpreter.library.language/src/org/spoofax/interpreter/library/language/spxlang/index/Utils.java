@@ -101,6 +101,7 @@ public final class Utils {
 	}
 	
 	public static String serializeToString(TermAttachmentSerializer serializer , IStrategoTerm t) throws IOException{
+		if(t == null) return null;
 		IStrategoTerm annotatedTerm = serializer.toAnnotations(t);
 		
 		StringBuilder sb = new StringBuilder();
@@ -110,6 +111,8 @@ public final class Utils {
 	}
 	
 	public static IStrategoTerm deserializeToTerm(ITermFactory fac , TermAttachmentSerializer serializer, String termString){
+		if(termString == null) return null;
+		
 		IStrategoTerm deserializedAtermWithAnnotation = fac.parseFromString(termString);
 		IStrategoTerm deserializedAterm  = serializer.fromAnnotations(deserializedAtermWithAnnotation, true);
 		

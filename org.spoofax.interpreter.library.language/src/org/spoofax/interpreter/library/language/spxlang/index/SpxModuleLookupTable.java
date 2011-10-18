@@ -17,6 +17,7 @@ import org.spoofax.interpreter.library.language.spxlang.index.data.SpxCompilatio
 import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbolTableException;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 
 public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPackageDeclarationRecordListener{
 	
@@ -31,8 +32,8 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 	/* FIXME : Using separate HashMap due to the consideration of converting them store map
 	 * to load module AST lazily. 
 	 */
-	private final PrimaryHashMap<IStrategoList, IStrategoAppl> _moduleDefinition; 
-	private final PrimaryHashMap<IStrategoList, IStrategoAppl> _moduleAnalyzedDefinition;
+	private final PrimaryHashMap<IStrategoList, String> _moduleDefinition; 
+	private final PrimaryHashMap<IStrategoList, String> _moduleAnalyzedDefinition;
 	
 	private final SecondaryHashMap <String , IStrategoList , ModuleDeclaration> _moduleByFileAbsPath;
 	private final SecondaryHashMap<IStrategoList, IStrategoList,ModuleDeclaration> _moduleByPackageId;
@@ -56,37 +57,45 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 		_moduleLookupMap = manager.loadHashMap(tableName+ "._lookupModuleMap.idx");
 
 		// read-only secondary view of the the lookup table . 
-		_moduleByFileAbsPath = _moduleLookupMap.secondaryHashMap(tableName+ "._moduleByFileAbsPath.idx", 
-				new SecondaryKeyExtractor<String, IStrategoList, ModuleDeclaration>() {
+		_moduleByFileAbsPath = _moduleLookupMap
+				.secondaryHashMap(
+						tableName + "._moduleByFileAbsPath.idx",
+						new SecondaryKeyExtractor<String, IStrategoList, ModuleDeclaration>() {
 
-			/**
-			 * Returns the Secondary key of the lookup table. 
-			 *   
-			 * @param key current primary key 
-			 * @param value value to be mapped using primary key
-			 * @return secondary key to map the value with . 
-			 */
-			public String extractSecondaryKey(IStrategoList key, ModuleDeclaration value) {
-				return value.resourceAbsPath;
-			}
-		}
-		);
+							/**
+							 * Returns the Secondary key of the lookup table.
+							 * 
+							 * @param key
+							 *            current primary key
+							 * @param value
+							 *            value to be mapped using primary key
+							 * @return secondary key to map the value with .
+							 */
+							public String extractSecondaryKey(
+									IStrategoList key, ModuleDeclaration value) {
+								return value.resourceAbsPath;
+							}
+						});
 
-		_moduleByPackageId = _moduleLookupMap.secondaryHashMap(tableName+ "._moduleByPackageId.idx", 
-				new SecondaryKeyExtractor<IStrategoList, IStrategoList, ModuleDeclaration>() {
+		_moduleByPackageId = _moduleLookupMap
+				.secondaryHashMap(
+						tableName + "._moduleByPackageId.idx",
+						new SecondaryKeyExtractor<IStrategoList, IStrategoList, ModuleDeclaration>() {
 
-			/**
-			 * Returns the Secondary key of the lookup table. 
-			 *   
-			 * @param key current primary key 
-			 * @param value value to be mapped using primary key
-			 * @return secondary key to map the value with . 
-			 */
-			public IStrategoList extractSecondaryKey(IStrategoList key, ModuleDeclaration value) {
-				return value.enclosingPackageID;
-			}
-		}
-		);
+							/**
+							 * Returns the Secondary key of the lookup table.
+							 * 
+							 * @param key
+							 *            current primary key
+							 * @param value
+							 *            value to be mapped using primary key
+							 * @return secondary key to map the value with .
+							 */
+							public IStrategoList extractSecondaryKey(
+									IStrategoList key, ModuleDeclaration value) {
+								return value.enclosingPackageID;
+							}
+						});
 
 		this._moduleDefinition = manager.loadHashMap(tableName+ "._moduleDefinition.idx");
 		this._moduleAnalyzedDefinition = manager.loadHashMap(tableName+ "._moduleAnalyzedDefinition.idx");
@@ -139,6 +148,33 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 		
 		return _moduleLookupMap.size();
 	}
+
+	
+	/**
+	 * Defines Module Definition in the SymbolTable
+	 * 
+	 * @param f
+	 *            an instance of {@link SpxSemanticIndexFacade}
+	 * @param decl
+	 * @param originalModuleDefinition
+	 * @param analyzedModuleDefinition
+	 * @throws IOException
+	 */
+	public void define(SpxSemanticIndexFacade f, ModuleDeclaration decl,
+			IStrategoAppl originalModuleDefinition,
+			IStrategoAppl analyzedModuleDefinition) throws IOException {
+		
+		if(!this._moduleLookupMap.containsKey(decl.getId())){	
+			define(decl)
+				.addModuleDefinition(f, decl.getId(), originalModuleDefinition)
+				.addAnalyzedModuleDefinition(f, decl.getId(), analyzedModuleDefinition);
+		}else {
+			// module declaration is already in the map . Hence, 
+			// this operation will only updates analyzedModuleDefinition.
+			addAnalyzedModuleDefinition(f, decl.getId(), analyzedModuleDefinition);
+		}
+	}
+	
 	/**
 	 * Defines a new entry in this symbol table 
 	 * 
@@ -151,29 +187,13 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 		return this;
 	}
 	
-	/**
-	 * Defines Module Definition in the Symbole Table
-	 * @param decl
-	 * @param originalModuleDefinition
-	 * @param analyzedModuleDefinition
-	 */
-	public void define(ModuleDeclaration decl, IStrategoAppl originalModuleDefinition , IStrategoAppl analyzedModuleDefinition)
-	{
-		this.define(decl)
-			.addModuleDefinition(decl.getId(), originalModuleDefinition)
-			.addAnalyzedModuleDefinition(decl.getId(), analyzedModuleDefinition);
-	}
-	
-	private SpxModuleLookupTable addModuleDefinition(IStrategoList id, IStrategoAppl moduleDefinition)
-	{
-		_moduleDefinition.put(id, moduleDefinition);
-		
+	private SpxModuleLookupTable addModuleDefinition(SpxSemanticIndexFacade f, IStrategoList id, IStrategoAppl moduleDefinition) throws IOException{	
+		_moduleDefinition.put(id, Utils.serializeToString(f.getTermAttachmentSerializer(), moduleDefinition));
 		return this;
 	}
 	
-	private SpxModuleLookupTable addAnalyzedModuleDefinition(IStrategoList id, IStrategoAppl moduleDefinition)
-	{
-		_moduleAnalyzedDefinition.put(id, moduleDefinition);
+	private SpxModuleLookupTable addAnalyzedModuleDefinition(SpxSemanticIndexFacade f, IStrategoList id, IStrategoAppl moduleDefinition) throws IOException{
+		_moduleAnalyzedDefinition.put(id, Utils.serializeToString(f.getTermAttachmentSerializer(), moduleDefinition));
 		
 		return this;
 	}
@@ -215,24 +235,31 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 	
 	/**
 	 * Gets a module definition 
-	 * 
+	 * @param facade an instance of  {@links SpxSemanticIndexFacade}
 	 * @param id
+	 * 
 	 * @return
 	 */
-	public IStrategoAppl getModuleDefinition(IStrategoList id)
-	{
-		return this._moduleDefinition.get(id);
+	public IStrategoAppl getModuleDefinition(SpxSemanticIndexFacade facade, IStrategoList id){
+		IStrategoTerm deserializedTerm = Utils.deserializeToTerm(facade.getTermFactory(), facade.getTermAttachmentSerializer(), this._moduleDefinition.get(id));
+		assert deserializedTerm instanceof IStrategoAppl : "Expected IStrategoAppl" ;  
+		
+		return (IStrategoAppl)deserializedTerm;
 	}
 	
 	/**
 	 * Gets module definition (analyzed) 
-	 * 
+	 * @param f an instance of  {@links SpxSemanticIndexFacade}
 	 * @param id
+	 * 
 	 * @return
 	 */
-	public IStrategoAppl getAnalyzedModuleDefinition(IStrategoList id)
+	public IStrategoAppl getAnalyzedModuleDefinition(SpxSemanticIndexFacade f, IStrategoList id)
 	{
-		return this._moduleAnalyzedDefinition.get(id);
+		IStrategoTerm deserializedTerm = Utils.deserializeToTerm(f.getTermFactory(), f.getTermAttachmentSerializer(), this._moduleAnalyzedDefinition.get(id));
+		assert deserializedTerm instanceof IStrategoAppl : "Expected IStrategoAppl" ;  
+		
+		return (IStrategoAppl)deserializedTerm;
 	}
 	
 	/**
@@ -300,6 +327,13 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 		_manager.logMessage(SRC + ".removeModuleDeclarationByPackageId", "operation successful");
 	}
 	
+	/**
+	 * Returns the enclosing PackageID of the ModuleDeclaration 
+	 * with {@code moduleId} 
+	 * 
+	 * @param moduleId
+	 * @return {@link IStrategoList} 
+	 */
 	public IStrategoList packageId(IStrategoList moduleId)
 	{
 		if( containsModuleDeclaration(moduleId))
@@ -308,8 +342,7 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 		}	
 		return null;
 	}
-	
-	
+
 	/**
 	 * Removes all the module {@link ModuleDeclaration} located in the 
 	 * following URI : {@code absUri}
@@ -328,24 +361,20 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 			// the symbol table. 
 			for ( IStrategoList l: _moduleByFileAbsPath.get(absUri))
 				delList.add(l);
-
 		}
-
 		_manager.logMessage(SRC + ".removeModuleDeclarationsByUri", " Found  "+ delList + " to remove from the table.");
 		
 		// removing the package declaration from the lookup table.
 		for(Object o : delList.toArray())
 			remove((IStrategoList)o);
-		
+
 		_manager.logMessage(SRC + ".removeModuleDeclarationsByUri", " removed "+ delList + " to remove from the table.");
 	}
-	
 	
 	/**
 	 * Clears ModuleLookup Table
 	 */
-	public synchronized void clear()
-	{
+	public synchronized void clear() {
 		_manager.logMessage(SRC + ".clear", "Removing "+ this.size()+" entries ");
 		
 		Iterator<IStrategoList> keyIter = _moduleLookupMap.keySet().iterator();
@@ -354,7 +383,6 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 				remove(keyIter.next());
 		}
 	}
-	
 	
 	public RecordListener<String, SpxCompilationUnitInfo> getCompilationUnitRecordListener() {
 		return new RecordListener<String, SpxCompilationUnitInfo>() {
@@ -393,7 +421,6 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 	public Iterable<ModuleDeclaration> getModuleDeclarations() {
 		return this._moduleLookupMap.values();
 	}
-
 	
 	public RecordListener<IStrategoList, PackageDeclaration> getPackageDeclarationRecordListener() {
 		return new RecordListener<IStrategoList, PackageDeclaration>(){
