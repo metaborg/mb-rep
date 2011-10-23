@@ -32,6 +32,7 @@ import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.interpreter.terms.TermConverter;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
+import org.spoofax.terms.StrategoListIterator;
 import org.spoofax.terms.attachments.TermAttachmentSerializer;
 import org.spoofax.terms.attachments.TermAttachmentStripper;
 
@@ -583,10 +584,33 @@ public class SpxSemanticIndexFacade {
 		return lookupPackageDecl(packageId);
 	}
 	
-	
+
+	public IStrategoTerm getRelatedFilesOfPackages(IStrategoList packageList) {
+		logMessage("getRelatedFilesOfPackages | Arguments : " + packageList);
+		
+		HashSet<String> resourcePaths = new HashSet<String>();
+		
+		SpxPackageLookupTable table = persistenceManager().spxPackageTable();
+		for (IStrategoTerm packageName: StrategoListIterator.iterable(packageList)) {
+			IStrategoAppl packageTypedQName = (IStrategoAppl)packageName;
+			IStrategoList packageId = PackageDeclaration.getPackageId(this, packageTypedQName);
+			
+			PackageDeclaration decl = table.getPackageDeclaration(packageId);
+			if(decl!=null){
+				resourcePaths.addAll(decl.getAllFilePaths());
+			}
+		}
+		
+		logMessage("getRelatedFilesOfPackages | Found : " + resourcePaths);
+		IStrategoList result = this.getTermFactory().makeList();
+		for (String s : resourcePaths){
+			result = getTermFactory().makeListCons(getTermFactory().makeString(s), result);
+		}
+		
+		return result;
+	}
 
 	public IStrategoList getPackageDeclarations(IStrategoString filePath) {
-
 		logMessage("getPackageDeclarationsByUri | Arguments : " + filePath);
 
 		SpxPackageLookupTable table = persistenceManager().spxPackageTable();
@@ -801,9 +825,11 @@ public class SpxSemanticIndexFacade {
 	 */
 	public void persistChanges() throws IOException {
 		_persistenceManager.commit();
-
-		_persistenceManager.spxSymbolTable().printSymbols("commit",
-				this.getProjectPath(), this.indexId());
+		
+		if(Utils.DEBUG){
+			_persistenceManager.spxSymbolTable().printSymbols("commit",
+					this.getProjectPath(), this.indexId());
+		}
 
 	}
 	
@@ -1078,5 +1104,6 @@ public class SpxSemanticIndexFacade {
 		this.persistenceManager().clearCache();
 		
 	}
+
 
 }

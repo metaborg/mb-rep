@@ -28,11 +28,11 @@ public class LanguageLibrary extends AbstractStrategoOperatorRegistry {
 		SpxSemanticIndex spxIndex= new SpxSemanticIndex();
 		add(new SPX_exec_index_manage_command(spxIndex));
 		
-		//primitives to index spoofaxlang compilation unit 
+		// primitives to index spoofaxlang compilation unit 
 		add(new SPX_index_compilation_unit(spxIndex));
 		add(new SPX_index_get_compilation_unit(spxIndex));
 		
-		//primitives to index packages, language descriptions  and modules 
+		// primitives to index packages, language descriptions  and modules 
 		add(new SPX_index_package_declaration(spxIndex));
 		add(new SPX_index_language_descriptor(spxIndex));
 		add(new SPX_index_module_definition(spxIndex));
@@ -44,20 +44,18 @@ public class LanguageLibrary extends AbstractStrategoOperatorRegistry {
 		add(new SPX_index_get_module_definition(spxIndex));
 		add(new SPX_index_get_module_declarations_of(spxIndex));
 		add(new SPX_index_get_package_declarations_of(spxIndex));
-		
 		add(new SPX_index_get_imports(spxIndex));
+		add(new SPX_index_get_related_files_of_packages(spxIndex));
 		
-		//Primitives related to symbol-table - i.e. symbol definition and resolving
+		// Primitives related to symbol-table - i.e. symbol definition and resolving
 		add(new SPX_symtab_new_scope(spxIndex));
 		add(new SPX_symtab_destroy_scope(spxIndex));
 		add(new SPX_symtab_define_symbol(spxIndex));
 		add(new SPX_symtab_resolve_symbols(spxIndex));
 		add(new SPX_symtab_undefine_symbols(spxIndex));
-		
 	}
 
 	public String getOperatorRegistryName() {
 		return REGISTRY_NAME;
 	}
-
 }

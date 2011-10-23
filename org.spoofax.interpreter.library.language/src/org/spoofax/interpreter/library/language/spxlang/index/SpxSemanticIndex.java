@@ -1,6 +1,7 @@
 package org.spoofax.interpreter.library.language.spxlang.index;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
@@ -118,7 +119,19 @@ public class SpxSemanticIndex {
 		}.executeWith(projectPath, packageTypedQname);
 		
 	}
-
+	
+	public IStrategoTerm getRelatedFilesOfPackages(IStrategoString projectPath, IStrategoList packageList)   throws Exception{
+		return new SpxResolver() {
+			@Override
+			public IStrategoTerm resolve(IStrategoString projectPath, IStrategoTerm term)
+					throws Exception {	
+					
+					SpxSemanticIndexFacade idxFacade = getFacade(projectPath);
+					return idxFacade.getRelatedFilesOfPackages((IStrategoList)term);
+			}
+		}.executeWith(projectPath, packageList);
+	}
+	
 	public IStrategoTerm getPackageDeclarationsByUri(IStrategoString projectPath, IStrategoString compilationUnitUri)  throws Exception{
 		return new SpxResolver() {
 			@Override
@@ -269,6 +282,8 @@ public class SpxSemanticIndex {
 	
 		public abstract IStrategoTerm resolve(IStrategoString projectPath , IStrategoTerm term) throws Exception ;
 	}
+
+	
 
 	
 

@@ -132,6 +132,16 @@ public abstract class SpxAbstractPrimitive extends AbstractPrimitive{
 			return this;
 		}
 
+		SpxPrimitiveValidator validateListTermAt(int ordinal){
+			if(!Tools.isTermList(tvars[ordinal])){
+				throwException( "Illegal Arugments. Expected "
+						+" [TermList] "
+						+"at ordinal : "+ ordinal
+						+"actual : " +  tvars[ordinal]);
+			}
+			return this;
+		}
+		
 		SpxPrimitiveValidator validateApplTermAt(int ordinal){
 			if(!Tools.isTermAppl(tvars[ordinal])){
 				throwException( "Illegal Arugments. Expected "
