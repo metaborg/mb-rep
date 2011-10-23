@@ -30,6 +30,7 @@ public abstract class TermAttachmentType<T extends ITermAttachment> {
 			? null
 			: new TermFactory().makeConstructor(constructorName, constructorArity);
 		// assert isNotOverlapping(type) : "Term attachments do not support inheritance, failed on: " + type.getName();
+		asyncTypes.add(this);
 	}
 	
 	public static TermAttachmentType<?>[] getKnownTypes() {

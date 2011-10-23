@@ -10,6 +10,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
  */
 public class StrategoSubList extends StrategoWrapped implements IStrategoList {
 
+
 	private final IStrategoList completeList;
 
 	private int indexStart;

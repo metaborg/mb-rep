@@ -38,6 +38,7 @@ public class TermAttachmentSerializer {
 				ITermAttachment attachment = term.getAttachment(null);
 				while (attachment != null) {
 					if (attachment.getAttachmentType().isSerializationSupported()) {
+						
 						IStrategoTerm result = attachment.getAttachmentType().toTerm(factory, attachment);
 						if (results == null) results = term.getAnnotations();
 						results = factory.makeListCons(result, results);
@@ -81,6 +82,7 @@ public class TermAttachmentSerializer {
 							target.putAttachment(type.fromTerm(appl));
 						}
 					}
+					annotations = annotations.tail();
 				}
 				return target;
 			}
@@ -112,6 +114,7 @@ public class TermAttachmentSerializer {
 						if (newAnnos == null) newAnnos = new ArrayList<IStrategoTerm>(annotations.size());
 						newAnnos.add(annotations);
 					}
+					annotations = annotations.tail();
 				}
 				if (newAnnos == null)
 					return Collections.emptyList();
