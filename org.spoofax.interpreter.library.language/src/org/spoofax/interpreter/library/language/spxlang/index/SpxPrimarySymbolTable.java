@@ -232,8 +232,9 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 		persistenceManager().logMessage(SRC, "destroyNamespace | Removing the following namespace : "  + namespaceId);
 		
 		INamespace ns = this.removeNamespace(namespaceId);
-		
+		ensureActiveNamespaceUnloaded(namespaceId);
 		persistenceManager().logMessage(SRC, "destroyNamespace | Folloiwng namesapce is removed : "  + ns);
+		
 		
 		return ns;
 	} 

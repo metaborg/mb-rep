@@ -735,7 +735,12 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		INamespace ns = _facade.persistenceManager().spxSymbolTable().resolveNamespace((IStrategoList) nsAppl.getSubterm(0));
 		assertNotNull(ns);
 		
-		nsAppl = (IStrategoAppl)_facade.destroyScope(moduleQnameAppl1);
+		try{
+			nsAppl = (IStrategoAppl)_facade.destroyScope(moduleQnameAppl1);
+		}
+		catch(IllegalArgumentException ex){}
+		
+		nsAppl = (IStrategoAppl)_facade.destroyScope(nsAppl);
 		assertNotNull(ns);
 		
 		ns = _facade.persistenceManager().spxSymbolTable().resolveNamespace((IStrategoList) nsAppl.getSubterm(0));
@@ -800,6 +805,49 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		assertTrue(SpxSymbol.verifyEquals( GlobalNamespace.getGlobalNamespaceId(_facade) , actual.namespaceUri().id()) );
 	
 	}
+	
+	
+
+	public void testResolveInAnonymousScope() throws IOException, SpxSymbolTableException {
+		createExtendedScopeTree();
+		
+		IStrategoAppl globalNsAppl = termFactory().makeAppl(_facade.getGlobalNamespaceTypeCon());
+		
+		//adding a symbol in moduleDeclarationP1M1
+		IStrategoAppl moduleQnameAppl1 = ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP1M1.getId());
+		IStrategoTerm symbolId1 = moduleQnameAppl1; 
+	 	IStrategoTerm data1 = (IStrategoAppl)moduleDeclarationP1M1.toTerm(_facade);	// defining Data
+		IStrategoAppl typeAppl1 = termFactory().makeAppl(termFactory().makeConstructor("ModuleDef", 0)); // setting Type  
+		
+		//Creating anonymous scope
+		IStrategoAppl nsAppl = (IStrategoAppl)_facade.insertNewScope(globalNsAppl);
+		assertEquals(_facade.getLocalNamespaceTypeCon(), nsAppl.getConstructor());
+		INamespace ns = _facade.persistenceManager().spxSymbolTable().resolveNamespace((IStrategoList) nsAppl.getSubterm(0));
+		assertNotNull(ns);
+		
+		_facade.indexSymbol(createEntry(nsAppl , symbolId1 , typeAppl1  , data1));
+		
+		//Resolving Symbol from ModuleP1M1. It will not find any symbol defined in localScope. Hence, 
+		//it will return just the symbol from the ModuleP1M1 .
+		Set<SpxSymbol> resolvedSymbols = (Set<SpxSymbol>)_facade.resolveSymbols(
+				nsAppl, // search origin
+				symbolId1,	//looking for 
+				_facade.getConstructor("ModuleDef", 0) // with type 
+				);
+		
+		
+		assertEquals(1, resolvedSymbols.size());
+		
+		SpxSymbol actual = (SpxSymbol)resolvedSymbols.toArray()[0];// resolved from the current local namespace
+		assertEquals("ModuleDef", actual.type());
+		assertTrue(SpxSymbol.verifyEquals(symbolId1, actual.Id(_facade.getTermFactory())));
+		assertTrue(SpxSymbol.verifyEquals( (IStrategoList)nsAppl.getSubterm(0) , actual.namespaceUri().id()) );
+		
+		_facade.destroyScope(nsAppl);
+		ns = _facade.persistenceManager().spxSymbolTable().resolveNamespace((IStrategoList) nsAppl.getSubterm(0));
+		assertNull(ns);
+	}
+	
 	public void testUndefineSymbols() throws Exception{
 		createExtendedScopeTree();
 	

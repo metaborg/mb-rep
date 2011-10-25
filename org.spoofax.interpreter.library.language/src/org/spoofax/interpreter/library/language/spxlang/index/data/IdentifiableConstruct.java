@@ -120,8 +120,16 @@ public abstract class IdentifiableConstruct implements Serializable
 	protected String getFileLocation() { return null; }
 	
 
-	static IStrategoAppl toIdTerm ( SpxSemanticIndexFacade facade , IStrategoConstructor namespaceCon, IStrategoList id)
-	{
+	/**
+	 * Converts {@code id} to qualified name . If the given id is [id],
+	 * it converts it to QName([id]) 
+	 * 
+	 * @param facade
+	 * @param namespaceCon
+	 * @param id
+	 * @return
+	 */
+	static IStrategoAppl toIdTerm ( SpxSemanticIndexFacade facade , IStrategoConstructor namespaceCon, IStrategoList id){
 		ITermFactory factory = facade.getTermFactory();
 		
 		IStrategoConstructor qnameCons = facade.getQNameCon();

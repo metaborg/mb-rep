@@ -14,9 +14,6 @@ import jdbm.RecordManagerFactory;
 /**
  * Demonstrates more advanced usage of JDBM:
  * Secondary maps, 1:N relations.
- * 
- * @author Jan Kotek
- *
  */
 class MultiValuePersistentTable1 implements Serializable{
 	private static final long serialVersionUID = -5921814375219835440L;

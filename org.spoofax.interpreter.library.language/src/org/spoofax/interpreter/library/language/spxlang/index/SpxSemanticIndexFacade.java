@@ -283,13 +283,14 @@ public class SpxSemanticIndexFacade {
 	}
 	
 	public IStrategoTerm destroyScope(IStrategoAppl namespaceAppl) throws SpxSymbolTableException {
+		verifyConstructor( namespaceAppl.getConstructor(), this.getLocalNamespaceTypeCon(), "Expected LocalNamespace. This operation has not been implementated for other type of Namespace.");
 		
 		IStrategoList id = getNamespaceId(namespaceAppl);
 		
 		SpxPrimarySymbolTable  symbolTable = persistenceManager().spxSymbolTable();
-		INamespace ns = symbolTable.destroyNamespace(id);
+		INamespace deletedLocalNs = symbolTable.destroyNamespace(id);
 		
-		return this.getTermFactory().makeAppl(getLocalNamespaceTypeCon(), ns.namespaceUri().id());
+		return _termFactory.makeAppl(getLocalNamespaceTypeCon(), deletedLocalNs.namespaceUri().id());
 	}
 	
 	// SymbolDef : namespace * id * type *  value -> Def  

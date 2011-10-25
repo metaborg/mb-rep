@@ -56,7 +56,6 @@ public abstract class BaseNamespace implements INamespace {
 			
 		symbols = new HashMap<SpxSymbolKey, List<SpxSymbol>>();
 	}
-
 	public INamespace define(SpxSymbolTableEntry entry, SpxSemanticIndexFacade f){
 		entry.value.setNamespace(_currentNamespaceId);
 		
@@ -65,7 +64,6 @@ public abstract class BaseNamespace implements INamespace {
 		//f.persistenceManager().spxSymbolTable().commit();
 		return this;
 	}
-	
 	public Set<SpxSymbol> undefineSymbols(IStrategoTerm searchingFor, IStrategoTerm type , SpxSemanticIndexFacade  facade){
 		SpxSymbolKey key = new SpxSymbolKey(searchingFor);
 		Set<SpxSymbol> undefinedSymbols = new HashSet<SpxSymbol>();
@@ -90,8 +88,6 @@ public abstract class BaseNamespace implements INamespace {
 		//facade.persistenceManager().spxSymbolTable().commit();
 		return undefinedSymbols;
 	}
-
-	
 	/**
 	 * Defines symbol in this Namespace. Define does not replace  
 	 * old symbol mapped using the key with the new one. It just adds the 
@@ -111,8 +107,6 @@ public abstract class BaseNamespace implements INamespace {
 			symbols.put( key , values );
 		}
 	}
-	
-	
 	private static List<SpxSymbol> appendSymbols( List<SpxSymbol> origin , List<SpxSymbol> symbols){
 		if(symbols != null){
 			origin.addAll(symbols);
