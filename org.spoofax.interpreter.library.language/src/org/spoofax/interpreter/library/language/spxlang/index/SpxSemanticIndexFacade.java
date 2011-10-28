@@ -20,6 +20,7 @@ import org.spoofax.interpreter.library.language.spxlang.index.data.LanguageDescr
 import org.spoofax.interpreter.library.language.spxlang.index.data.ModuleDeclaration;
 import org.spoofax.interpreter.library.language.spxlang.index.data.ModuleDefinition;
 import org.spoofax.interpreter.library.language.spxlang.index.data.PackageDeclaration;
+import org.spoofax.interpreter.library.language.spxlang.index.data.SpxCompilationUnitInfo;
 import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbol;
 import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbolTableEntry;
 import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbolTableException;
@@ -50,6 +51,7 @@ public class SpxSemanticIndexFacade {
 	private final TermAttachmentSerializer _termAttachmentSerializer;
 	private final TermConverter _converter;
 
+	private long _initializedOn;
 	public TermAttachmentSerializer getTermAttachmentSerializer() {
 		return _termAttachmentSerializer;
 	}
@@ -77,10 +79,11 @@ public class SpxSemanticIndexFacade {
 		initKnownConstructors();
 	}
 	
-	public void initializePersistenceManager() throws Exception {
+	public synchronized void initializePersistenceManager() throws Exception {
 		_persistenceManager = new SpxPersistenceManager(this);
 		_persistenceManager.initializeSymbolTables(this._projectPath, this);
 		_indexId = _persistenceManager.getIndexId();
+		_initializedOn  = System.currentTimeMillis();
 	}
 	
 	public String indexId() {return _indexId; }
@@ -131,6 +134,15 @@ public class SpxSemanticIndexFacade {
 		
 		return retTerm;
 	}
+	
+	
+	public SpxCompilationUnitInfo getCompilationUnitInfo(String absUriPath){
+		URI resUri = Utils.getAbsolutePathUri(absUriPath ,_agent);
+		
+		SpxCompilationUnitTable table = _persistenceManager.spxCompilcationUnitTable();
+		return table.getInfo(this, resUri);
+	}
+	
 
 	/**
 	 * Removes CompilationUnit located in {@code spxCompilationUnitPath} file path.  
@@ -215,7 +227,13 @@ public class SpxSemanticIndexFacade {
 		analyzedAst = (IStrategoAppl)analyzedAst;
 		spxCompilationUnitPath = (IStrategoString) spxCompilationUnitPath;
 
-		ModuleDeclaration mDecl = new ModuleDeclaration(toAbsulatePath(spxCompilationUnitPath), moduleId, packageId);
+		SpxCompilationUnitInfo info =  getCompilationUnitInfo(toAbsulatePath(spxCompilationUnitPath));
+		
+		if(info ==null){ throw new IllegalStateException("Related compilation unit is no longer exists in symbols table ");}
+		
+		ModuleDeclaration mDecl = new ModuleDeclaration(info.getAbsPathString(), moduleId, packageId);
+		mDecl.setLastModifiedOn(info.getLastModifiedOn()) ;
+		
 		table.define(this , mDecl, ast, analyzedAst);// updating/adding module to index 
 		
 		//Defining ModuleNamespace for Symbol-Table
@@ -621,7 +639,6 @@ public class SpxSemanticIndexFacade {
 		if(Utils.All == filepathString) {
 			decls = table.getPackageDeclarations();  //returning all the package declarations found in the current project
 		}else{
-
 			String absFilePath = toAbsulatePath(filePath);
 			table.verifyUriExists(absFilePath); // verifying file path exists 
 			decls = table.packageDeclarationsByUri(absFilePath);
@@ -676,11 +693,22 @@ public class SpxSemanticIndexFacade {
 	 * @return {@link IStrategoTerm} 
 	 * @throws SpxSymbolTableException 
 	 */
-	public IStrategoTerm getModuleDeclarationsOf(IStrategoTerm res) throws SpxSymbolTableException {
+	public IStrategoTerm getModuleDeclarationsOf(IStrategoTuple searchQueryTuple) throws SpxSymbolTableException {
+		
+		IStrategoTerm res = searchQueryTuple.getSubterm(0);
+		IStrategoString queryType = (IStrategoString)searchQueryTuple.getSubterm(1);
+		
 		IStrategoTerm retValue ;
 		
 		if(Tools.isTermAppl(res))
-			retValue  = this.getModuleDeclarations((IStrategoAppl)res);
+		{	
+			if( Utils.DIRTY  == asJavaString(queryType)) {
+				retValue  = this.getDirtyModuleDeclarations((IStrategoAppl)res);
+			}else if (Utils.All == asJavaString(queryType)){
+				retValue  = this.getModuleDeclarations((IStrategoAppl)res);
+			}else
+				throw new IllegalArgumentException("Unknown queryType argument in getModuleDeclarationOf: " + queryType);
+		}	
 		else if(Tools.isTermString(res))
 			retValue = this.getModuleDeclarations((IStrategoString)res);
 		else
@@ -730,6 +758,27 @@ public class SpxSemanticIndexFacade {
 		return result;
 	}	
 	
+	
+	public IStrategoList getDirtyModuleDeclarations(IStrategoAppl packageQName) throws SpxSymbolTableException {
+		logMessage("getDirtyModuleDeclarations| Arguments : " + packageQName);
+		List<ModuleDeclaration> dirtyModuleDeclarations  = new ArrayList<ModuleDeclaration>();
+		
+		IStrategoList packageID = PackageDeclaration.getPackageId(this, packageQName);
+		
+		Iterable<ModuleDeclaration> decls = getModuleDeclarations(packageID);
+		logMessage("getDirtyModuleDeclarations | Found following result from SymbolTable : " + decls);
+		
+		for(ModuleDeclaration decl : decls ){
+			if( decl.getLastModifiedOn() >= this._initializedOn){ 
+				dirtyModuleDeclarations.add(decl);
+			}
+		}
+		IStrategoList result =  Utils.toTerm(this, dirtyModuleDeclarations);
+		logMessage("getDirtyModuleDeclarations | Returning IStrategoList : " + result );
+		
+		return result;
+	}	
+	
 	public Iterable<ModuleDeclaration> getModuleDeclarations(IStrategoList pacakgeID) throws SpxSymbolTableException
 	{
 		SpxModuleLookupTable table = persistenceManager().spxModuleTable();
@@ -767,14 +816,16 @@ public class SpxSemanticIndexFacade {
 	 * @throws Exception  If package Id is valid but does not have any language descriptor registered
 	 */
 	public IStrategoTerm getLanguageDescriptor ( IStrategoAppl packageTypedQName) throws IllegalArgumentException, Exception{
-		IStrategoList  packageQName = PackageDeclaration.getPackageId(this, packageTypedQName);
-
-		SpxPackageLookupTable table = persistenceManager().spxPackageTable();
-		table.verifyPackageIDExists(packageQName) ;
+		IStrategoList  packageId = PackageDeclaration.getPackageId(this, packageTypedQName);
+		IStrategoList emptyList= getTermFactory().makeList() ;
 		
-		LanguageDescriptor desc = table.getLangaugeDescriptor(packageQName);
+		SpxPackageLookupTable table = persistenceManager().spxPackageTable();
+		table.verifyPackageIDExists(packageId) ;
+		
+		LanguageDescriptor desc = table.getLangaugeDescriptor(packageId);
 		if ( desc == null){	
-			throw new SpxSymbolTableException("Not Found LanguageDescriptor for " + packageQName.toString()); 
+			// creating a empty language descriptor 
+			desc = LanguageDescriptor.newInstance(getTermFactory(), packageId , emptyList,emptyList,emptyList,emptyList ); 
 		}
 		return desc.toTerm(this);
 	}
@@ -987,7 +1038,6 @@ public class SpxSemanticIndexFacade {
 	}
 
 	//TODO : better handling of the known constructors
-	
 	public IStrategoConstructor getPackageDeclCon() { return getConstructor("PackageDecl",2);}
 	
 	public IStrategoConstructor getModuleDeclCon() { return getConstructor("ModuleDecl", 3); }

@@ -168,16 +168,16 @@ public class SpxSemanticIndex {
 		}.executeWith(projectPath, namespaceID);
 	}
 	
-	public IStrategoTerm getModuleDeclarations(IStrategoString projectPath, IStrategoTerm retTerm) throws Exception {
+	public IStrategoTerm getModuleDeclarations(IStrategoString projectPath, IStrategoTerm searchQuery) throws Exception {
 		return new SpxResolver() {
 			@Override
 			public IStrategoTerm resolve(IStrategoString projectPath, IStrategoTerm res)
 					throws Exception {	
 					
 					SpxSemanticIndexFacade idxFacade = getFacade(projectPath);
-					return idxFacade.getModuleDeclarationsOf(res);
+					return idxFacade.getModuleDeclarationsOf((IStrategoTuple)res);
 			}
-		}.executeWith(projectPath, retTerm);
+		}.executeWith(projectPath, searchQuery);
 	}
 
 	public IStrategoTerm insertNewScope(IStrategoString projectPath, IStrategoAppl namespaceAppl) throws Exception{

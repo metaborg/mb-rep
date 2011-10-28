@@ -48,8 +48,9 @@ public class SpxSemanticIndexFacadeRegistry
 			}	
 		}
 		
-		if(fac != null)
+		if(fac != null){
 			_registry.put(fac.getProjectPath(), fac);
+		}	
 		return fac;
 	}
 

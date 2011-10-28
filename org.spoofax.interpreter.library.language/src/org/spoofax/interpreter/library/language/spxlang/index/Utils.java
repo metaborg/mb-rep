@@ -20,8 +20,11 @@ public final class Utils {
 	public static final int NO_OF_ATTEMPT_TO_INIT_RECORDMANAGER = 1;
 	
 	public static final String All = "*";
-	public static final String All_SYMBOLS = "\"*\"";
+	public static final String DIRTY = "-";
 	public static final String CURRENT = ".";
+	
+	public static final String All_SYMBOLS = "\"*\"";
+	
 	public static final String SPX_CACHE_DIRECTORY = ".spxcache";
 	public static final String SPX_INDEX_DIRECTORY = ".spxindex";
 	
@@ -50,6 +53,10 @@ public final class Utils {
 		return new File(uri).getAbsolutePath();
 	}
 	
+	public static String toAbsPathString(String path) {
+		return new File(path).getAbsolutePath();
+	}
+	
 	public static URI getAbsolutePathUri(String path, IOAgent agent){
 		File file = new File(path);
 		
@@ -58,10 +65,6 @@ public final class Utils {
 	
 	public static String getAbsolutePathString(String path , IOAgent agent){
 		return uriToAbsPathString(getAbsolutePathUri(path , agent));
-	}
-
-	public static String toAbsPathString(String path) {
-		return new File(path).getAbsolutePath();
 	}
 	
 	static String now(String dateFormat) {
@@ -118,4 +121,6 @@ public final class Utils {
 		
 		return deserializedAterm;
 	}
+	
+	
 }

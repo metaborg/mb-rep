@@ -3,6 +3,7 @@ package org.spoofax.interpreter.library.language.spxlang.index.data;
 import java.io.File;
 import java.io.Serializable;
 import java.net.URI;
+import java.security.acl.LastOwnerException;
 
 /**
  * Contains information regarding Spoofaxlang CompilationUnit. 
@@ -12,11 +13,12 @@ import java.net.URI;
  */
 public class SpxCompilationUnitInfo implements Serializable
 {
-	private static final long serialVersionUID = 4874917828420267542L;
+	private static final long serialVersionUID = 4366484691839493105L;
 
 	private final long _recId;
 	private int _version;
 	private final URI _absPath;
+	private long _lastModifiedOn ;
 	
 	public SpxCompilationUnitInfo(URI absPath,long recourceId){
 		this (0 , absPath , recourceId);
@@ -26,6 +28,7 @@ public class SpxCompilationUnitInfo implements Serializable
 		_recId = recourceId;
 		_version = versionNo;
 		_absPath = absPath;
+		_lastModifiedOn = System.currentTimeMillis();
 	}
 
 	public  long getRecId() {
@@ -36,6 +39,7 @@ public class SpxCompilationUnitInfo implements Serializable
 		return _version;
 	}
 	
+	public long getLastModifiedOn(){return _lastModifiedOn;}
 	URI getAbsPath() {
 		return _absPath;
 	}
@@ -48,12 +52,14 @@ public class SpxCompilationUnitInfo implements Serializable
 	/**
 	 * Increment version no
 	 */
-	public void IncrementVersionNo() { _version = _version + 1; }
-
+	public synchronized void incrVersion() {
+		_lastModifiedOn = System.currentTimeMillis();
+		_version = _version + 1;  
+	}
 	
 	public String toString() {
 		return "SpxComplicationUnitResourceInfo [ResourceId=" + _recId
-				+ ", VersionNo=" + _version + ", AbsPath=" + _absPath + "]";
+				+ ", VersionNo=" + _version + ", AbsPath=" + _absPath + ", LastModifiedOn=" + this.getLastModifiedOn()+ "]";
 	}
 
 	@Override

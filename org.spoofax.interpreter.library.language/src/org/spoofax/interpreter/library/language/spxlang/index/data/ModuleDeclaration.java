@@ -17,7 +17,7 @@ import org.spoofax.interpreter.terms.ITermFactory;
 
 public class ModuleDeclaration extends IdentifiableConstruct implements INamespaceFactory  
 {
-	private static final long serialVersionUID = -6249406731326662111L;
+	private static final long serialVersionUID = 1989975037160433882L;
 
 	public static final int ModuleTypedQNameIndex = 0;
 	public static final int ModulePathIndex = 1;
@@ -28,16 +28,9 @@ public class ModuleDeclaration extends IdentifiableConstruct implements INamespa
 	public final String resourceAbsPath; 
 
 	public final IStrategoList enclosingPackageID;
+	private long  lastModifiedOn;
 	
 	
-	/* (non-Javadoc)
-	 * @see org.spoofax.interpreter.library.language.spxlang.IdentifiableConstruct#getFileLocation()
-	 */
-	@Override 
-	protected String getFileLocation() {
-		return resourceAbsPath;
-	}
-
 	public ModuleDeclaration(String resourceAbsPath, IStrategoList id , IStrategoList packageID) {
 		super(id);
 		
@@ -46,56 +39,15 @@ public class ModuleDeclaration extends IdentifiableConstruct implements INamespa
 	}
 
 	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
+	 * @see org.spoofax.interpreter.library.language.spxlang.IdentifiableConstruct#getFileLocation()
 	 */
-	@Override
-	public String toString() {
-		return "ModuleDeclaration [ id= " + id 
-				+ ", packageId ="+ enclosingPackageID 
-				+ ", resourceAbsPath= " + resourceAbsPath+ "]";
+	@Override 
+	protected String getFileLocation() {
+		return resourceAbsPath;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result
-				+ ((resourceAbsPath == null) ? 0 : resourceAbsPath.hashCode());
-		
-		result = prime * result + ((enclosingPackageID == null) ? 0 : enclosingPackageID.hashCode());
-		
-		return result;
-	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ModuleDeclaration other = (ModuleDeclaration) obj;
-		if (resourceAbsPath == null) {
-			if (other.resourceAbsPath != null)
-				return false;
-		} else if (!resourceAbsPath.equals(other.resourceAbsPath))
-			return false;
-		
-		if (enclosingPackageID == null) {
-			if (other.enclosingPackageID!= null)
-				return false;
-		} else if (!enclosingPackageID.match(other.enclosingPackageID))
-			return false;
-		
-		return true;
-	}
+	
 	
 	public static IStrategoList getModuleId(SpxSemanticIndexFacade facade, IStrategoAppl moduleQName ){
 		IStrategoConstructor moduleCon  = facade.getModuleQNameCon();
@@ -155,6 +107,74 @@ public class ModuleDeclaration extends IdentifiableConstruct implements INamespa
 	public  NamespaceUri getNamespaceUri(SpxSemanticIndexFacade idxFacade)
 	{
 		return idxFacade.persistenceManager().spxSymbolTable().toNamespaceUri(id) ;
+	}
+
+	/**
+	 * @return the lastModifiedOn
+	 */
+	public long getLastModifiedOn() {
+		return lastModifiedOn;
+	}
+
+	/**
+	 * @param lastModifiedOn the lastModifiedOn to set
+	 */
+	public void setLastModifiedOn(long lastModifiedOn) {
+		this.lastModifiedOn = lastModifiedOn;
+	}
+	
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "ModuleDeclaration [ id= " + id 
+				+ ", packageId ="+ enclosingPackageID 
+				+ ", resourceAbsPath= " + resourceAbsPath+ "]"
+				+ "{ lastModifiedOn= " + lastModifiedOn+ "}";
+	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ModuleDeclaration other = (ModuleDeclaration) obj;
+		if (resourceAbsPath == null) {
+			if (other.resourceAbsPath != null)
+				return false;
+		} else if (!resourceAbsPath.equals(other.resourceAbsPath))
+			return false;
+		
+		if (enclosingPackageID == null) {
+			if (other.enclosingPackageID!= null)
+				return false;
+		} else if (!enclosingPackageID.match(other.enclosingPackageID))
+			return false;
+		
+		return true;
+	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result
+				+ ((resourceAbsPath == null) ? 0 : resourceAbsPath.hashCode());
+		
+		result = prime * result + ((enclosingPackageID == null) ? 0 : enclosingPackageID.hashCode());
+		
+		return result;
 	}
 }
 

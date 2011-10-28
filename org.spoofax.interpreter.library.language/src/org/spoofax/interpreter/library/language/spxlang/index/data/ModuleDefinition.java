@@ -1,13 +1,11 @@
 package org.spoofax.interpreter.library.language.spxlang.index.data;
 
-import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxSemanticIndexFacade;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
-import org.spoofax.interpreter.terms.TermConverter;
 
 /**
  * Represents ModuleDefinition 

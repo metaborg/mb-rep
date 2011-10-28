@@ -5,20 +5,19 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
+
+import jdbm.PrimaryHashMap;
+import jdbm.PrimaryStoreMap;
+import jdbm.RecordListener;
 
 import org.spoofax.interpreter.library.language.spxlang.index.data.ModuleDeclaration;
 import org.spoofax.interpreter.library.language.spxlang.index.data.PackageDeclaration;
 import org.spoofax.interpreter.library.language.spxlang.index.data.SpxCompilationUnitInfo;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import jdbm.PrimaryHashMap;
-import jdbm.PrimaryStoreMap;
-import jdbm.RecordListener;
-import jdbm.SecondaryHashMap;
-import jdbm.SecondaryKeyExtractor;
 
 public class SpxCompilationUnitTable {
 	
+	private final String SRC  = this.getClass().getSimpleName();
 	private final PrimaryHashMap<String , SpxCompilationUnitInfo> _infoMap;
 	private final PrimaryStoreMap<Long,String> _spxUnitStoreMap;
 	
@@ -26,8 +25,6 @@ public class SpxCompilationUnitTable {
      * Listeners which are notified about changes in records
      */
     protected List<RecordListener<String,SpxCompilationUnitInfo>> recordListeners = new ArrayList<RecordListener<String,SpxCompilationUnitInfo>>();
-    
-    private final String SRC  = this.getClass().getSimpleName();
     
 	/**
 	 * Creates a new instance of SymbolTable or loads existing SymbolTable with name specified  
@@ -42,25 +39,6 @@ public class SpxCompilationUnitTable {
 		
 		_infoMap = manager.loadHashMap(tableName  + "._infomap.idx");
 		_spxUnitStoreMap = manager.loadStoreMap(tableName + "._spxUnitStorageMap.idx");
-	}
-	
-	/**
-	 * Adds {@link ICompilationUnitRecordListener} in recordlistener collection 
-	 * @param rl
-	 */
-	public void addRecordListener( final ICompilationUnitRecordListener rl)
-	{
-		this.addRecordListener(rl.getCompilationUnitRecordListener());
-	}
-	
-	/**
-	 * Removes {@link ICompilationUnitRecordListener} in recordlistener collection
-	 * 
-	 * @param rl
-	 */
-	public void removeRecordListener( final ICompilationUnitRecordListener rl)
-	{
-		this.removeRecordListener(rl.getCompilationUnitRecordListener());
 	}
 	
 	/**
@@ -82,11 +60,13 @@ public class SpxCompilationUnitTable {
 			this.add(facade, absPath, compilationUnitRTree);  
 	}
 	
+	
 	/**
-	 * Adds the new CompilationUnit.
+	 * Adds the new SPX CompilationUnit in the symbol-table 
 	 * 
-	 * @param absPath
-	 * @param compilationUnitAST
+	 * @param facade current instance of {@link SpxSemanticIndexFacade} 
+	 * @param absPath {@link URI} representing absolute path  
+	 * @param compilationUnitAST  {@link IStrategoTerm} representation AST
 	 * @throws IOException 
 	 */
 	private void add(SpxSemanticIndexFacade facade , URI absPath , IStrategoTerm compilationUnitAST) throws IOException {
@@ -126,7 +106,9 @@ public class SpxCompilationUnitTable {
 		
 		SpxCompilationUnitInfo oldValue = _infoMap.get(Utils.uriToAbsPathString(absPath));
 		SpxCompilationUnitInfo newValue = SpxCompilationUnitInfo.newInstance(oldValue);
-		newValue.IncrementVersionNo();
+		newValue.incrVersion();
+		
+		_infoMap.put(newValue.getAbsPathString(), newValue);
 		
 		String serializedTerm = Utils.serializeToString(facade.getTermAttachmentSerializer(), compilationUnitAterm);
 		
@@ -151,12 +133,23 @@ public class SpxCompilationUnitTable {
 		remove(key);
 	}
 	
+	/**
+	 * Verify whether the {@code uri} exists in the symbol-table
+	 * 
+	 * @param uri {@link String} representation of absolute path   
+	 */
 	public void verifyUriExists(String uri)	{
 		if(!_infoMap.containsKey(uri)){
-			throw new IllegalArgumentException(" Unknown CompilationUnit Uri: "+ uri);
+			throw new IllegalArgumentException("Unknown CompilationUnit Uri: "+ uri);
 		}	
 	}
 	
+	/**
+	 * Removes CompilationUnit indexed in {@code absPathString} absolute path 
+	 * 
+	 * @param absPathString Absolute Path to the CompilationUnit to be removed
+	 * @throws IOException
+	 */
 	void remove(String absPathString) throws IOException{
 		SpxCompilationUnitInfo removedValue = _infoMap.remove(absPathString);
 		
@@ -173,15 +166,14 @@ public class SpxCompilationUnitTable {
 	
 	/**
 	 * Returns SPXCompilationUnit mapped by the specified absPath argument.
-	 * @param f TODO
-	 * @param absPath
 	 * 
-	 * @return
+	 * @param f {@link SpxSemanticIndexFacade}
+	 * @param absPath {@link URI}
+	 * 
+	 * @return SpxCompilationUnit indexed in the {@code absPath} 
 	 */
 	public IStrategoTerm get(SpxSemanticIndexFacade f, URI absPath){
-		String key = Utils.uriToAbsPathString(absPath);
-		
-		SpxCompilationUnitInfo retUnitData= _infoMap.get(key);
+		SpxCompilationUnitInfo retUnitData= getInfo(f, absPath);
 		
 		String serializedString = _spxUnitStoreMap.get(retUnitData.getRecId());
 		IStrategoTerm deserializedTerm = Utils.deserializeToTerm(f.getTermFactory(), f.getTermAttachmentSerializer(), serializedString);
@@ -189,6 +181,18 @@ public class SpxCompilationUnitTable {
 		return deserializedTerm ;
 	}
 	
+	
+	public SpxCompilationUnitInfo getInfo(SpxSemanticIndexFacade f, URI absPath){
+		String key = Utils.uriToAbsPathString(absPath);
+		
+		return  _infoMap.get(key);
+		
+	}
+	/**
+	 * Removes all the CompilationUnit from the symbol-table  
+	 *  
+	 * @throws IOException 
+	 */
 	public void clear() throws IOException{
 		Iterator<String> keyIter = _infoMap.keySet().iterator();
 		if (keyIter != null) {
@@ -198,8 +202,9 @@ public class SpxCompilationUnitTable {
 	}
 	
 	/**
-	 * Adds a {@code listener} in the collection of record listener 
-	 * @param listener
+	 * Adds a {@code listener} in the collection of record listener
+	 *  
+	 * @param listener listener to add 
 	 */
 	private void addRecordListener(final RecordListener<String, SpxCompilationUnitInfo> listener) {
 		recordListeners.add((RecordListener<String, SpxCompilationUnitInfo>) listener);
@@ -207,9 +212,29 @@ public class SpxCompilationUnitTable {
 	
 	/**
 	 * Removes {@code listener} from the collection of record listeners
-	 * @param listener
+	 * 
+	 * @param listener listener to remove 
 	 */
 	private void removeRecordListener(RecordListener<String, SpxCompilationUnitInfo> listener) {	
 		recordListeners.remove(listener);
+	}
+
+	/**
+	 * Adds {@link ICompilationUnitRecordListener} in recordlistener collection 
+	 * @param rl
+	 */
+	public void addRecordListener( final ICompilationUnitRecordListener rl)
+	{
+		this.addRecordListener(rl.getCompilationUnitRecordListener());
+	}
+	
+	/**
+	 * Removes {@link ICompilationUnitRecordListener} in recordlistener collection
+	 * 
+	 * @param rl
+	 */
+	public void removeRecordListener( final ICompilationUnitRecordListener rl)
+	{
+		this.removeRecordListener(rl.getCompilationUnitRecordListener());
 	}
 }

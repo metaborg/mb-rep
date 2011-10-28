@@ -29,10 +29,11 @@ public class SPX_index_get_module_declarations_of extends SpxAbstractPrimitive {
     
     @Override
 	protected SpxPrimitiveValidator validateArguments(IContext env, Strategy[] svars, IStrategoTerm[] tvars){
-		return super.validateArguments(env, svars, tvars);
+		return super.validateArguments(env, svars, tvars)
+					.validateTupleTermAt(RES_INDEX);
 					
 	}
-
+    
     /* Retrieve Spoofaxlang ModuleDeclarations enclosed 
      * in the following a Package or a Compilation Unit specified in 
      * {@code tvars}.  
