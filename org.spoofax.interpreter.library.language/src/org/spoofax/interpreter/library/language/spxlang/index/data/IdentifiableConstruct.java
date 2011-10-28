@@ -62,7 +62,7 @@ public abstract class IdentifiableConstruct implements Serializable
 		if( packageRef.getConstructor() ==  idxFacade.getPackageQNameCon()){
 			IStrategoList id = PackageDeclaration.getPackageId(idxFacade, packageRef);
 			PackageDeclaration decl = idxFacade.lookupPackageDecl(id);
-			if(decl != null ){	
+			if((decl != null) && (!SpxSymbol.verifyEquals(this.id, id))){	
 				this.importReferences.add(id);
 				decl.addImportedTo(this.getId());
 				idxFacade.persistenceManager().spxPackageTable().definePackageDeclaration(decl);
@@ -92,10 +92,11 @@ public abstract class IdentifiableConstruct implements Serializable
 		allImportRefs.addAll(this.importReferences);
 		allImportRefs.addAll(this.legacyImportReferences);
 		
+		
 		IStrategoList result = termFactory.makeList();
-		for (IStrategoTerm t: allImportRefs)
+		for (IStrategoTerm t: allImportRefs){
 			result = idxFacade.getTermFactory().makeListCons(tranformToSpxImport(idxFacade,t), result);
-	
+		}	
 		return termConverter.convert(result);
 	}
 	
