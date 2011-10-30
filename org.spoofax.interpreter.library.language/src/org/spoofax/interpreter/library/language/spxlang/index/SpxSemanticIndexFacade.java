@@ -631,11 +631,11 @@ public class SpxSemanticIndexFacade {
 
 	public IStrategoList getPackageDeclarations(IStrategoString filePath) {
 		logMessage("getPackageDeclarationsByUri | Arguments : " + filePath);
-
+		
 		SpxPackageLookupTable table = persistenceManager().spxPackageTable();
 		String filepathString = asJavaString(filePath);
 		
-		Iterable<PackageDeclaration> decls; 
+		Set<PackageDeclaration> decls; 
 		if(Utils.All == filepathString) {
 			decls = table.getPackageDeclarations();  //returning all the package declarations found in the current project
 		}else{

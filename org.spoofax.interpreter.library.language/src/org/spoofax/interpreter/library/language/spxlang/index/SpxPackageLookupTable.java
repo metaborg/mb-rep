@@ -261,8 +261,11 @@ public class SpxPackageLookupTable implements ICompilationUnitRecordListener{
 		return _packageLookupTable.get(id);
 	}
 
-	public Iterable<PackageDeclaration> getPackageDeclarations() {
-		return _packageLookupTable.values();
+	public Set<PackageDeclaration> getPackageDeclarations() {
+		Set<PackageDeclaration> declsToReturn = new HashSet<PackageDeclaration>();
+		
+		declsToReturn.addAll(_packageLookupTable.values());
+		return declsToReturn;
 	}
 
 	/**
@@ -302,7 +305,7 @@ public class SpxPackageLookupTable implements ICompilationUnitRecordListener{
 	 * @param absUri
 	 * @return {@link Iterable}
 	 */
-	public Iterable<PackageDeclaration> packageDeclarationsByUri(String absUri) {
+	public Set<PackageDeclaration> packageDeclarationsByUri(String absUri) {
 		Set<PackageDeclaration> ret = new HashSet<PackageDeclaration>();
 		Iterable<IStrategoList> retList = _uriMap.get(absUri);
 		if (retList != null) {
