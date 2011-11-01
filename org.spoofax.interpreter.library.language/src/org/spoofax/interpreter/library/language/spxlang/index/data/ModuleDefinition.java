@@ -47,7 +47,7 @@ public class ModuleDefinition  extends ModuleDeclaration
 	public IStrategoTerm toTerm(SpxSemanticIndexFacade idxFacade) {
 		ITermFactory termFactory = idxFacade.getTermFactory();
 		IStrategoTerm moduleDeclarationTerm = super.toTerm(idxFacade);
-		IStrategoConstructor moduleDefCons = idxFacade.getModuleDefCon();
+		IStrategoConstructor moduleDefCons = idxFacade.getCons().getModuleDefCon();
 		
 		IStrategoTerm retTerm = termFactory.makeAppl(
 				moduleDefCons,

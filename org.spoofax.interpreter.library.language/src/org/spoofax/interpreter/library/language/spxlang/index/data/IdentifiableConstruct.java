@@ -59,7 +59,7 @@ public abstract class IdentifiableConstruct implements Serializable
 	 */
 	private void addManagedImport(SpxSemanticIndexFacade idxFacade,	IStrategoTerm i) throws SpxSymbolTableException {
 		IStrategoAppl packageRef = (IStrategoAppl)i;
-		if( packageRef.getConstructor() ==  idxFacade.getPackageQNameCon()){
+		if( packageRef.getConstructor() ==  idxFacade.getCons().getPackageQNameCon()){
 			IStrategoList id = PackageDeclaration.getPackageId(idxFacade, packageRef);
 			PackageDeclaration decl = idxFacade.lookupPackageDecl(id);
 			if((decl != null) && (!SpxSymbol.verifyEquals(this.id, id))){	
@@ -133,7 +133,7 @@ public abstract class IdentifiableConstruct implements Serializable
 	static IStrategoAppl toIdTerm ( SpxSemanticIndexFacade facade , IStrategoConstructor namespaceCon, IStrategoList id){
 		ITermFactory factory = facade.getTermFactory();
 		
-		IStrategoConstructor qnameCons = facade.getQNameCon();
+		IStrategoConstructor qnameCons = facade.getCons().getQNameCon();
 		IStrategoAppl qnameAppl = factory.makeAppl(qnameCons, id);
 		return factory.makeAppl(namespaceCon, qnameAppl);
 	}
@@ -148,7 +148,7 @@ public abstract class IdentifiableConstruct implements Serializable
 	 */
 	public static IStrategoList getID(SpxSemanticIndexFacade facade, IStrategoAppl qName) {
 		
-		if(qName.getConstructor() == facade.getQNameCon())
+		if(qName.getConstructor() == facade.getCons().getQNameCon())
 			return (IStrategoList)qName.getSubterm(0);
 		
 		throw new IllegalArgumentException("Invalid QName : " + qName);

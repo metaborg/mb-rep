@@ -50,7 +50,7 @@ public class SpxSymbol extends SpxBaseSymbol implements Serializable{
 }
 	
 	public IStrategoConstructor typeCons(SpxSemanticIndexFacade facade){
-		return facade.getConstructor( type() , 0);
+		return facade.getCons().getConstructor( type() , 0);
 	}
 	
 	public void setNamespace(NamespaceUri id){ _namespace = id;}
@@ -88,13 +88,13 @@ public class SpxSymbol extends SpxBaseSymbol implements Serializable{
 		IStrategoTerm deserializedDataToTerm = this.deserializedDataToTerm(termFactory, facade.getTermAttachmentSerializer());
 		
 		//Enclosing Namespace 
-		IStrategoConstructor qnameCons = facade.getQNameCon();
+		IStrategoConstructor qnameCons = facade.getCons().getQNameCon();
 		IStrategoAppl nsQNameAppl = this.namespaceUri().resolve(facade.persistenceManager().spxSymbolTable()).toTypedQualifiedName(facade);
 		
 		//ID/Key 
 		IStrategoTerm id = this.Id(termFactory); //TODO : It might require term conversion.
 
-		return (IStrategoTerm)termFactory.makeAppl( facade.getSymbolTableEntryDefCon(),
+		return (IStrategoTerm)termFactory.makeAppl( facade.getCons().getSymbolTableEntryDefCon(),
 				nsQNameAppl,  //ns qname 
 				spxTypeCtorAppl,  // type
 				id,			  //id	

@@ -169,10 +169,10 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		IStrategoAppl pQnameAppl3 = indexTestPackageDecl(packageName3, absPathString1);
 		IStrategoAppl mQnameAppl2  = indexTestModuleDefs ( "m2" , packageName3 , absPathString1);
 		
-		IStrategoAppl importDecl1 = this.termFactory().makeAppl(_facade.getImportDeclCon(), pQnameAppl3,  this.termFactory().makeList(pQnameAppl1) );
+		IStrategoAppl importDecl1 = this.termFactory().makeAppl(_facade.getCons().getImportDeclCon(), pQnameAppl3,  this.termFactory().makeList(pQnameAppl1) );
 		this._facade.indexImportReferences(importDecl1);
 		
-		IStrategoAppl importDecl2 = this.termFactory().makeAppl(_facade.getImportDeclCon(), mQnameAppl2,  this.termFactory().makeList(pQnameAppl2) );
+		IStrategoAppl importDecl2 = this.termFactory().makeAppl(_facade.getCons().getImportDeclCon(), mQnameAppl2,  this.termFactory().makeList(pQnameAppl2) );
 		this._facade.indexImportReferences(importDecl2);
 		
 		
@@ -215,7 +215,7 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		
 		IStrategoAppl moduleDeclaration = (IStrategoAppl)_facade.getModuleDeclaration( mQnameAppl );
 		
-		_facade.verifyConstructor(moduleDeclaration.getConstructor(), _facade.getModuleDeclCon(), "Wrong Module Declaration Constructs");
+		_facade.verifyConstructor(moduleDeclaration.getConstructor(), _facade.getCons().getModuleDeclCon(), "Wrong Module Declaration Constructs");
 	}	
 	
 	public void testIndexPackageDeclaration() throws SpxSymbolTableException 
@@ -232,7 +232,7 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		
 		IStrategoAppl packageDeclaration = (IStrategoAppl)_facade.getPackageDeclaration(pQnameAppl);
 		
-		_facade.verifyConstructor(packageDeclaration.getConstructor(), _facade.getPackageDeclCon(), "Wrong Package Declaration"); 
+		_facade.verifyConstructor(packageDeclaration.getConstructor(), _facade.getCons().getPackageDeclCon(), "Wrong Package Declaration"); 
 	}
 	
 	public void testIndexPackageDeclarationInMultipleFiles() throws SpxSymbolTableException {
@@ -249,7 +249,7 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		
 		IStrategoAppl packageDeclaration = (IStrategoAppl)_facade.getPackageDeclaration(pQnameAppl);
 		
-		_facade.verifyConstructor(packageDeclaration.getConstructor(), _facade.getPackageDeclCon(), "Wrong Package Declaration");
+		_facade.verifyConstructor(packageDeclaration.getConstructor(), _facade.getCons().getPackageDeclCon(), "Wrong Package Declaration");
 	
 		assertEquals(2, ((IStrategoList)packageDeclaration.getSubterm(1)).getAllSubterms().length);
 	}
@@ -274,7 +274,7 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		//getting package declaration
 		IStrategoAppl packageDeclaration = (IStrategoAppl)_facade.getPackageDeclaration(pQnameAppl);
 		
-		_facade.verifyConstructor(packageDeclaration.getConstructor(), _facade.getPackageDeclCon(), "Wrong Package Declaration");
+		_facade.verifyConstructor(packageDeclaration.getConstructor(), _facade.getCons().getPackageDeclCon(), "Wrong Package Declaration");
 		
 		assertEquals(2, ((IStrategoList)packageDeclaration.getSubterm(1)).getAllSubterms().length);
 		

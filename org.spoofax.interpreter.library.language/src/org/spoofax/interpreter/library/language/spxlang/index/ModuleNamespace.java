@@ -46,7 +46,7 @@ public final class ModuleNamespace extends BaseNamespace
 		if(ns != null)
 			return ns;
 		else
-			return new ModuleNamespace(id, facade.getModuleNamespaceTypeCon(), enclosingNamespaceId, facade.persistenceManager());
+			return new ModuleNamespace(id, facade.getCons().getModuleNamespaceTypeCon(), enclosingNamespaceId, facade.persistenceManager());
 	}
 
 	@Override

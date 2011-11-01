@@ -16,7 +16,7 @@ public final class GlobalNamespace extends BaseNamespace {
 	}
 	
 	public IStrategoAppl toTypedQualifiedName(SpxSemanticIndexFacade facade){
-		return facade.getTermFactory().makeAppl(facade.getGlobalNamespaceTypeCon());
+		return facade.getTermFactory().makeAppl(facade.getCons().getGlobalNamespaceTypeCon());
 	} 
 	
 	/**
@@ -33,7 +33,7 @@ public final class GlobalNamespace extends BaseNamespace {
 			return gns;
 		else{
 			return new GlobalNamespace(symbol_table.toNamespaceUri(spoofaxNamespaceUri), 
-					facade.getGlobalNamespaceTypeCon(), 
+					facade.getCons().getGlobalNamespaceTypeCon(), 
 					facade.persistenceManager()
 			);
 		}
@@ -43,6 +43,6 @@ public final class GlobalNamespace extends BaseNamespace {
 	public static IStrategoList getGlobalNamespaceId(SpxSemanticIndexFacade facade){
 		ITermFactory termFactory = facade.getTermFactory();
 		
-		return termFactory.makeList(facade.getGlobalNamespaceTypeCon());
+		return termFactory.makeList(facade.getCons().getGlobalNamespaceTypeCon());
 	}
 }

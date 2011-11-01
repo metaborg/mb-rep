@@ -22,7 +22,7 @@ public final class LocalNamespace extends BaseNamespace{
 	
 	@Override
 	public IStrategoAppl toTypedQualifiedName(SpxSemanticIndexFacade facade) {
-		return facade.getTermFactory().makeAppl(facade.getLocalNamespaceTypeCon());
+		return facade.getTermFactory().makeAppl(facade.getCons().getLocalNamespaceTypeCon());
 	}
 	
 	/**
@@ -39,7 +39,7 @@ public final class LocalNamespace extends BaseNamespace{
 		UUID uniqueId= UUID.randomUUID();
 		NamespaceUri localNamespaceUri = new NamespaceUri(termFactory.makeList(termFactory.makeString("anonymous_"+uniqueId.toString())) , uniqueId);
 
-		return new LocalNamespace(localNamespaceUri , facade.getLocalNamespaceTypeCon(), facade.persistenceManager(), enclosingNamespace.namespaceUri());
+		return new LocalNamespace(localNamespaceUri , facade.getCons().getLocalNamespaceTypeCon(), facade.persistenceManager(), enclosingNamespace.namespaceUri());
 	}
 
 

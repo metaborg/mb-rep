@@ -272,7 +272,7 @@ public final class PackageNamespace  extends BaseNamespace {
 			NamespaceUri globalNsUri =  table.toNamespaceUri(GlobalNamespace.getGlobalNamespaceId(facade));
 			NamespaceUri currentPackageUri = table.toNamespaceUri(id);
 	
-			ns = new PackageNamespace(currentPackageUri, facade.getPackageNamespaceTypeCon(), globalNsUri,facade.persistenceManager());
+			ns = new PackageNamespace(currentPackageUri, facade.getCons().getPackageNamespaceTypeCon(), globalNsUri,facade.persistenceManager());
 		}
 		
 		namespaces.add(ns);

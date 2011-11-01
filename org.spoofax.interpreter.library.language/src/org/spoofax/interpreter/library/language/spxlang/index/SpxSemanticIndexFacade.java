@@ -50,14 +50,17 @@ public class SpxSemanticIndexFacade {
 	private final TermAttachmentStripper _stripper;
 	private final TermAttachmentSerializer _termAttachmentSerializer;
 	private final TermConverter _converter;
-
+	private final SpxConstructors _spxConstructors;
+	
 	private long _initializedOn;
-	public TermAttachmentSerializer getTermAttachmentSerializer() {
-		return _termAttachmentSerializer;
-	}
+	
+	private long _previousSuccessfulCodeGenerationDoneOn;
+	private long _currentCodeGenerationStratedOn;
 
+	
 	/**
-	 * Initializes the SemanticIndexFactory
+	 * Initialises the factory for the semantic index
+	 * 
 	 * @param projectPath name of the project 
 	 * @param termFactory {@link ITermFactory}
 	 * @param agent {@link IOAgent}
@@ -75,15 +78,21 @@ public class SpxSemanticIndexFacade {
 		
 		_termAttachmentSerializer = new TermAttachmentSerializer(_termFactory);
 		
-		_knownCons = new HashMap<ConstructorDef ,IStrategoConstructor>();
-		initKnownConstructors();
+		_spxConstructors = new SpxConstructors(_termFactory);
 	}
 	
 	public synchronized void initializePersistenceManager() throws Exception {
 		_persistenceManager = new SpxPersistenceManager(this);
 		_persistenceManager.initializeSymbolTables(this._projectPath, this);
 		_indexId = _persistenceManager.getIndexId();
+		
+		//Setting IntializedOn Flag for incremental Compilation	
 		_initializedOn  = System.currentTimeMillis();
+	}
+	public SpxConstructors getCons(){ return _spxConstructors;}
+	
+	public TermAttachmentSerializer getTermAttachmentSerializer() {
+		return _termAttachmentSerializer;
 	}
 	
 	public String indexId() {return _indexId; }
@@ -102,7 +111,6 @@ public class SpxSemanticIndexFacade {
 	public String getProjectPath(){ return Utils.toAbsPathString(_projectPath); }
 	
 	public String getProjectName(){ return new File(_projectPath).getName(); }
-	
 
 	/**
 	 * Returns an instance of the Persistence Manager active for the current Facade
@@ -110,6 +118,9 @@ public class SpxSemanticIndexFacade {
 	 */
 	public ISpxPersistenceManager persistenceManager(){	return _persistenceManager; }
 
+	public void onInitCodeGeneration(){ this._currentCodeGenerationStratedOn = System.currentTimeMillis(); }
+	
+	public void onCompleteCodeGeneration() { this._previousSuccessfulCodeGenerationDoneOn = this._currentCodeGenerationStratedOn;}
 	
 	/**
 	 * Returns CompilationUnit located in {@code spxCompilationUnitPath} as {@link IStrategoTerm}
@@ -135,14 +146,12 @@ public class SpxSemanticIndexFacade {
 		return retTerm;
 	}
 	
-	
 	public SpxCompilationUnitInfo getCompilationUnitInfo(String absUriPath){
 		URI resUri = Utils.getAbsolutePathUri(absUriPath ,_agent);
 		
 		SpxCompilationUnitTable table = _persistenceManager.spxCompilcationUnitTable();
 		return table.getInfo(this, resUri);
 	}
-	
 
 	/**
 	 * Removes CompilationUnit located in {@code spxCompilationUnitPath} file path.  
@@ -177,7 +186,6 @@ public class SpxSemanticIndexFacade {
 		
 		table.define(this, resUri, astTerm);
 	}
-
 	
 	/**
 	 * Indexes {@code moduleDefinition}
@@ -188,7 +196,7 @@ public class SpxSemanticIndexFacade {
 	 */
 	public void indexModuleDefinition(IStrategoAppl moduleDefinition) throws IllegalArgumentException, IOException
 	{
-		verifyConstructor(moduleDefinition.getConstructor() , getModuleDefCon() , "Illegal Module Definition" );
+		verifyConstructor(moduleDefinition.getConstructor() , getCons().getModuleDefCon() , "Illegal Module Definition" );
 		
 		indexModuleDefinition( 
 				applAt(moduleDefinition ,  ModuleDeclaration.ModuleTypedQNameIndex),
@@ -246,7 +254,7 @@ public class SpxSemanticIndexFacade {
 	 * @param packageDeclaration
 	 */
 	public void indexPackageDeclaration(IStrategoAppl packageDeclaration){
-		verifyConstructor( packageDeclaration.getConstructor(), getPackageDeclCon(), "Illegal PackageDeclaration");
+		verifyConstructor( packageDeclaration.getConstructor(), getCons().getPackageDeclCon(), "Illegal PackageDeclaration");
 	
 		indexPackageDeclaration(
 				(IStrategoAppl)  packageDeclaration.getSubterm(PackageDeclaration.PACKAGE_ID_INDEX), // package id
@@ -297,24 +305,24 @@ public class SpxSemanticIndexFacade {
 		SpxPrimarySymbolTable  symbolTable = persistenceManager().spxSymbolTable();
 		INamespace ns = symbolTable.newAnonymousNamespace(parentId);
 		
-		return this.getTermFactory().makeAppl(getLocalNamespaceTypeCon(), ns.namespaceUri().id());
+		return this.getTermFactory().makeAppl(getCons().getLocalNamespaceTypeCon(), ns.namespaceUri().id());
 	}
 	
 	public IStrategoTerm destroyScope(IStrategoAppl namespaceAppl) throws SpxSymbolTableException {
-		verifyConstructor( namespaceAppl.getConstructor(), this.getLocalNamespaceTypeCon(), "Expected LocalNamespace. This operation has not been implementated for other type of Namespace.");
+		verifyConstructor( namespaceAppl.getConstructor(), this.getCons().getLocalNamespaceTypeCon(), "Expected LocalNamespace. This operation has not been implementated for other type of Namespace.");
 		
 		IStrategoList id = getNamespaceId(namespaceAppl);
 		
 		SpxPrimarySymbolTable  symbolTable = persistenceManager().spxSymbolTable();
 		INamespace deletedLocalNs = symbolTable.destroyNamespace(id);
 		
-		return _termFactory.makeAppl(getLocalNamespaceTypeCon(), deletedLocalNs.namespaceUri().id());
+		return _termFactory.makeAppl(getCons().getLocalNamespaceTypeCon(), deletedLocalNs.namespaceUri().id());
 	}
 	
 	// SymbolDef : namespace * id * type *  value -> Def  
 	public void indexSymbol(IStrategoAppl symbolDefinition) throws SpxSymbolTableException, IOException{	
 		final int NAMESPACE_ID_INDEX  = 0;
-		verifyConstructor(symbolDefinition.getConstructor(), getSymbolTableEntryDefCon(), "Illegal SymbolDefinition argument");
+		verifyConstructor(symbolDefinition.getConstructor(), getCons().getSymbolTableEntryDefCon(), "Illegal SymbolDefinition argument");
 		IStrategoConstructor typeCtor = null;
 		
 		try{
@@ -323,7 +331,7 @@ public class SpxSemanticIndexFacade {
 			// It seems like the constructor does not exist in local type declarations. 
 			// Hence, defining it to be used further.
 			IStrategoConstructor ctor = ((IStrategoAppl)symbolDefinition.getSubterm(SpxSymbolTableEntry.TYPE_INDEX)).getConstructor();
-			typeCtor = ConstructorDef.newInstance(ctor.getName() , ctor.getArity()).index(_knownCons, ctor);
+			typeCtor = _spxConstructors.indexConstructor(ctor);
 		}
 		
 		// Constructing Spx Symbol-Table Entry from the provided symbolDefinition argument.  
@@ -351,7 +359,7 @@ public class SpxSemanticIndexFacade {
 			throw new IllegalArgumentException(" resolveSymbols | Illegal symbolLookupTerm Argument ; expected 4 subterms. Found : " + searchCriteria.getSubtermCount());
 		String searchMode = asJavaString(searchCriteria.get(3)).trim();
 		IStrategoAppl typeAppl =  (IStrategoAppl)searchCriteria.getSubterm(2);
-		IStrategoConstructor typeCtor = getConstructor( typeAppl.getConstructor().getName(), typeAppl.getConstructor().getArity()) ;
+		IStrategoConstructor typeCtor = getCons().getConstructor( typeAppl.getConstructor().getName(), typeAppl.getConstructor().getArity()) ;
 		
 		Set<SpxSymbol> spxSymbols = null;
 		
@@ -382,7 +390,7 @@ public class SpxSemanticIndexFacade {
 	    IStrategoList namespaceID = this.getNamespaceId(Tools.applAt(searchCriteria, 0));
 	    IStrategoTerm symbolID = Tools.termAt(searchCriteria, 1);
 	    IStrategoAppl typeAppl =  Tools.applAt(searchCriteria, 2);
-	    IStrategoConstructor typeCtor = getConstructor( typeAppl.getConstructor().getName(), typeAppl.getConstructor().getArity()) ;
+	    IStrategoConstructor typeCtor = getCons().getConstructor( typeAppl.getConstructor().getName(), typeAppl.getConstructor().getArity()) ;
 	    
 	    Set<SpxSymbol> spxSymbols = this.persistenceManager().spxSymbolTable()
 	    					.undefineSymbols(namespaceID, 
@@ -433,15 +441,13 @@ public class SpxSemanticIndexFacade {
 		return resolvedSymbols;
 	}
 
-	
-
 	/**
 	 * @param symbolLookupTerm
 	 * @return
 	 * @throws IllegalArgumentException
 	 */
 	private IStrategoConstructor verifyKnownContructorExists(IStrategoAppl symbolType) throws IllegalArgumentException {
-		IStrategoConstructor typeCtor = getConstructor( symbolType.getConstructor().getName(), symbolType.getConstructor().getArity()) ;
+		IStrategoConstructor typeCtor = getCons().getConstructor( symbolType.getConstructor().getName(), symbolType.getConstructor().getArity()) ;
 		if(typeCtor == null) {
 			throw new IllegalArgumentException("Illegal Argument . Unknown Symbol Type. Found " + symbolType.getConstructor());
 		}
@@ -455,15 +461,15 @@ public class SpxSemanticIndexFacade {
 	 */
 	private IStrategoList getNamespaceId(IStrategoAppl namespaceTypedQname) throws SpxSymbolTableException {
 		IStrategoList namespaceId;
-		if (namespaceTypedQname.getConstructor() == getModuleQNameCon() || namespaceTypedQname.getConstructor() == getPackageQNameCon()) {
+		if (namespaceTypedQname.getConstructor() == getCons().getModuleQNameCon() || namespaceTypedQname.getConstructor() == getCons().getPackageQNameCon()) {
 			
 			namespaceId = IdentifiableConstruct.getID(this, (IStrategoAppl) namespaceTypedQname.getSubterm(0));
 			
-		} else if (namespaceTypedQname.getConstructor() == getGlobalNamespaceTypeCon()) {
+		} else if (namespaceTypedQname.getConstructor() == getCons().getGlobalNamespaceTypeCon()) {
 			
 			namespaceId = GlobalNamespace.getGlobalNamespaceId(this);
 			
-		} else if ( namespaceTypedQname.getConstructor() == getLocalNamespaceTypeCon()){
+		} else if ( namespaceTypedQname.getConstructor() == getCons().getLocalNamespaceTypeCon()){
 			
 			namespaceId = LocalNamespace.getLocalNamespaceId(namespaceTypedQname.getSubterm(0));
 		} 
@@ -480,7 +486,7 @@ public class SpxSemanticIndexFacade {
 	 */
 	public void indexLanguageDescriptor (IStrategoAppl languageDescriptor)
 	{
-		verifyConstructor(languageDescriptor.getConstructor(), getLanguageDescriptorCon(), "Invalid LanguageDescriptor argument : "+ languageDescriptor.toString());
+		verifyConstructor(languageDescriptor.getConstructor(), getCons().getLanguageDescriptorCon(), "Invalid LanguageDescriptor argument : "+ languageDescriptor.toString());
 
 		IStrategoList qualifiedPackageId = PackageDeclaration.getPackageId(this, (IStrategoAppl)languageDescriptor.getSubterm(0)) ;
 		SpxPackageLookupTable table = _persistenceManager.spxPackageTable();
@@ -514,19 +520,19 @@ public class SpxSemanticIndexFacade {
 	 * @param importReferences
 	 */
 	public void indexImportReferences(IStrategoAppl importReferences) throws SpxSymbolTableException{
-		verifyConstructor(importReferences.getConstructor(), this.getImportDeclCon(), "Illegal ImportDeclaration Constructor encountered.");
+		verifyConstructor(importReferences.getConstructor(), getCons().getImportDeclCon(), "Illegal ImportDeclaration Constructor encountered.");
 		
 		IStrategoAppl namespaceId = (IStrategoAppl) importReferences.getSubterm(0);
 		IStrategoList imports = (IStrategoList) importReferences.getSubterm(1);
 		IStrategoList packageId; 
 		
-		if (namespaceId.getConstructor() == getModuleQNameCon()) {
+		if (namespaceId.getConstructor() == getCons().getModuleQNameCon()) {
 			packageId = persistenceManager()
 					.spxModuleTable()
 					.packageId(ModuleDeclaration.getModuleId(this, namespaceId));
 			
 			
-		} else if (namespaceId.getConstructor() == getPackageQNameCon()) {
+		} else if (namespaceId.getConstructor() == getCons().getPackageQNameCon()) {
 			packageId = PackageDeclaration.getPackageId(this, namespaceId);
 		} else
 			throw new IllegalArgumentException("Unknown Namespace "	+ namespaceId.toString());
@@ -563,12 +569,12 @@ public class SpxSemanticIndexFacade {
 	public IStrategoTerm getImportReferences(IStrategoAppl namespaceId) throws SpxSymbolTableException {
 		IdentifiableConstruct ns; 
 
-		if (namespaceId.getConstructor() == getModuleQNameCon()) {
+		if (namespaceId.getConstructor() == getCons().getModuleQNameCon()) {
 			IStrategoList packageId = persistenceManager()
 					.spxModuleTable()
 					.packageId(ModuleDeclaration.getModuleId(this, namespaceId));
 			ns = lookupPackageDecl(packageId);
-		} else if (namespaceId.getConstructor() == getPackageQNameCon()) {
+		} else if (namespaceId.getConstructor() == getCons().getPackageQNameCon()) {
 			ns = this.lookupPackageDecl(namespaceId);
 		} else
 			throw new IllegalArgumentException("Unknown Namespace "	+ namespaceId.toString());
@@ -703,7 +709,7 @@ public class SpxSemanticIndexFacade {
 		if(Tools.isTermAppl(res))
 		{	
 			if( Utils.DIRTY  == asJavaString(queryType)) {
-				retValue  = this.getDirtyModuleDeclarations((IStrategoAppl)res);
+				retValue  = this.getDirtyModuleDeclarations((IStrategoAppl)res , (IStrategoAppl)searchQueryTuple.getSubterm(2)) ;
 			}else if (Utils.All == asJavaString(queryType)){
 				retValue  = this.getModuleDeclarations((IStrategoAppl)res);
 			}else
@@ -759,17 +765,28 @@ public class SpxSemanticIndexFacade {
 	}	
 	
 	
-	public IStrategoList getDirtyModuleDeclarations(IStrategoAppl packageQName) throws SpxSymbolTableException {
+	public IStrategoList getDirtyModuleDeclarations(IStrategoAppl packageQName , IStrategoAppl qualifiedFor) throws SpxSymbolTableException {
 		logMessage("getDirtyModuleDeclarations| Arguments : " + packageQName);
-		List<ModuleDeclaration> dirtyModuleDeclarations  = new ArrayList<ModuleDeclaration>();
 		
+		List<ModuleDeclaration> dirtyModuleDeclarations  = new ArrayList<ModuleDeclaration>();
 		IStrategoList packageID = PackageDeclaration.getPackageId(this, packageQName);
 		
 		Iterable<ModuleDeclaration> decls = getModuleDeclarations(packageID);
 		logMessage("getDirtyModuleDeclarations | Found following result from SymbolTable : " + decls);
 		
+		long ts = 0;
+		if( getCons().hasEqualConstructor( qualifiedFor , getCons().getToCompileCon())){
+			ts = this._initializedOn;
+		}
+		else if ( getCons().hasEqualConstructor( qualifiedFor , getCons().getToCodeGenerateCon())){
+			ts = this._previousSuccessfulCodeGenerationDoneOn;
+		}
+		else
+			throw new SpxSymbolTableException("Illegal qualifiedFor constructor at getDirtyModuleDeclarations");
+		
+		
 		for(ModuleDeclaration decl : decls ){
-			if( decl.getLastModifiedOn() >= this._initializedOn){ 
+			if( decl.getLastModifiedOn() >= ts){ 
 				dirtyModuleDeclarations.add(decl);
 			}
 		}
@@ -988,10 +1005,7 @@ public class SpxSemanticIndexFacade {
 	 * 
 	 * @param message
 	 */
-	private void logMessage(String message) {
-		
-		_persistenceManager.logMessage("SpxSemanticIndexFacade", message);
-	}
+	private void logMessage(String message) { _persistenceManager.logMessage("SpxSemanticIndexFacade", message); }
 	
 	
 	String fromFileURI(URI uri) {
@@ -999,17 +1013,13 @@ public class SpxSemanticIndexFacade {
 		return file.toString();
 	}
 
-	IOAgent getIOAgent() {
-		return _agent;
-	}
+	IOAgent getIOAgent() { return _agent; }
 	
 	/**
 	 * Prints error message
 	 * @param errMessage
 	 */
-	void printError(String errMessage){
-		_agent.printError(errMessage);
-	}
+	void printError(String errMessage){ _agent.printError(errMessage); }
 	
 	/**
 	 * Force an imploder attachment for a term.
@@ -1034,124 +1044,5 @@ public class SpxSemanticIndexFacade {
 		return term;
 	}
 
-	//TODO : better handling of the known constructors
-	public IStrategoConstructor getPackageDeclCon() { return getConstructor("PackageDecl",2);}
-	
-	public IStrategoConstructor getModuleDeclCon() { return getConstructor("ModuleDecl", 3); }
-
-	public IStrategoConstructor getModuleDefCon() {	return getConstructor("ModuleDef" , 5);}
-
-	public IStrategoConstructor getLanguageDescriptorCon() { return getConstructor("LanguageDescriptor" , 5);}
-
-	public IStrategoConstructor getModuleQNameCon() {return getConstructor("Module" , 1); }
-
-	public IStrategoConstructor getPackageQNameCon() { return getConstructor("Package" , 1);}
-	
-	public IStrategoConstructor getQNameCon() { return getConstructor("QName" , 1); }
-	
-	public IStrategoConstructor getImportDeclCon() {return getConstructor("ImportDecl",2);}
-	
-	public IStrategoConstructor getGlobalNamespaceTypeCon() {return getConstructor("Globals",0);}
-	
-	public IStrategoConstructor getPackageNamespaceTypeCon() {return getConstructor("Package",0);}
-	
-	public IStrategoConstructor getModuleNamespaceTypeCon() {return getConstructor("Module",0);}
-	
-	public IStrategoConstructor getSymbolTableEntryDefCon() {return getConstructor("SymbolDef",4);}
-	
-	public IStrategoConstructor getLocalNamespaceTypeCon() { return getConstructor("Locals",1);  }
-	
-	public IStrategoConstructor getConstructor(String symbolTypeCons, int arity) {
-		return _knownCons.get(ConstructorDef.newInstance(symbolTypeCons ,arity));
-	}
-
-	private void initKnownConstructors(){
-		ConstructorDef.newInstance("ModuleDef"  ,5).index(_knownCons, _termFactory);
-		ConstructorDef.newInstance("ModuleDecl" ,3).index(_knownCons, _termFactory);
-		ConstructorDef.newInstance("SymbolDef"  ,4).index(_knownCons, _termFactory);
-
-		ConstructorDef.newInstance("PackageDecl",2).index(_knownCons, _termFactory);
-		ConstructorDef.newInstance("ImportDecl" ,2).index(_knownCons, _termFactory);
-		
-		ConstructorDef.newInstance("LanguageDescriptor", 5).index(_knownCons, _termFactory);
-		
-		ConstructorDef.newInstance("Module" ,  1).index(_knownCons, _termFactory);
-		ConstructorDef.newInstance("Package",  1).index(_knownCons, _termFactory);
-		ConstructorDef.newInstance("QName"  ,  1).index(_knownCons, _termFactory);
-		ConstructorDef.newInstance("Locals" ,  1).index(_knownCons, _termFactory);
-		
-		ConstructorDef.newInstance("Globals", 0).index(_knownCons, _termFactory);
-		ConstructorDef.newInstance("Package", 0).index(_knownCons, _termFactory);
-		ConstructorDef.newInstance("Module" , 0).index(_knownCons, _termFactory);
-	}
-	
-	private final HashMap<ConstructorDef , IStrategoConstructor> _knownCons;
-	private static class ConstructorDef
-	{
-		private String _name ;
-		private int _arity;
-		
-		ConstructorDef( String name , int arity) {  _name =  name ; _arity = arity; }
-		
-		static ConstructorDef newInstance( String name , int arity) {  return new ConstructorDef(name, arity); }
-		
-		private IStrategoConstructor toStrategoConstructor(ITermFactory fac) {  return fac.makeConstructor(_name, _arity);}
-		
-		IStrategoConstructor index(HashMap<ConstructorDef , IStrategoConstructor> cons , ITermFactory fac){
-			return this.index(cons, this.toStrategoConstructor(fac));
-		}
-		
-		IStrategoConstructor index(HashMap<ConstructorDef , IStrategoConstructor> cons , IStrategoConstructor ctor){
-			cons.put(this, ctor) ;
-			return ctor;
-		}
-	
-		@Override
-		public String toString() {
-			return "ConstructorDef [_name=" + _name + ", _arity=" + _arity
-					+ "]";
-		}
-
-		/* (non-Javadoc)
-		 * @see java.lang.Object#hashCode()
-		 */
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + _arity;
-			result = prime * result + ((_name == null) ? 0 : _name.hashCode());
-			return result;
-		}
-
-		/* (non-Javadoc)
-		 * @see java.lang.Object#equals(java.lang.Object)
-		 */
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			ConstructorDef other = (ConstructorDef) obj;
-			if (_arity != other._arity)
-				return false;
-			if (_name == null) {
-				if (other._name != null)
-					return false;
-			} else if (!_name.equals(other._name))
-				return false;
-			return true;
-		}
-		
-	}
-	
-	public void clearCache() throws IOException{
-		this.persistenceManager().clearCache();
-		
-	}
-
-
+	public void clearCache() throws IOException{ persistenceManager().clearCache();	}
 }

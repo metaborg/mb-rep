@@ -49,15 +49,15 @@ public class SpxSymbolTableEntryTests extends AbstractInterpreterTest{
 		SpxSymbolTableEntry entry = 
 			SpxSymbolTableEntry.newEntry()
 						  .with(id)
-						  .instanceOf(_facade.getGlobalNamespaceTypeCon())	
+						  .instanceOf(_facade.getCons().getGlobalNamespaceTypeCon())	
 					      .uses(_facade.getTermAttachmentSerializer())
 					      .data(data)
 					      .build();
 		
 		assertTrue(entry.value != null);
 		assertTrue(entry.value.namespaceUri() == null);
-		assertEquals(_facade.getGlobalNamespaceTypeCon().getName() , entry.value.type());
-		assertEquals(_facade.getGlobalNamespaceTypeCon(), entry.value.typeCons(_facade));
+		assertEquals(_facade.getCons().getGlobalNamespaceTypeCon().getName() , entry.value.type());
+		assertEquals(_facade.getCons().getGlobalNamespaceTypeCon(), entry.value.typeCons(_facade));
 		assertTrue(entry.key != null);
 	}
 	

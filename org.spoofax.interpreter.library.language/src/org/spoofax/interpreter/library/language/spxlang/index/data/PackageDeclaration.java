@@ -111,7 +111,7 @@ public class PackageDeclaration extends IdentifiableConstruct implements INamesp
 	public IStrategoTerm toTerm(SpxSemanticIndexFacade idxFacade){
 		ITermFactory termFactory = idxFacade.getTermFactory();
 		
-		IStrategoConstructor packageDeclCons = idxFacade.getPackageDeclCon();
+		IStrategoConstructor packageDeclCons = idxFacade.getCons().getPackageDeclCon();
 		IStrategoList absPathList = termFactory.makeList();
 		
 		for(String resourceAbsPath : resourceAbsPaths){
@@ -136,7 +136,7 @@ public class PackageDeclaration extends IdentifiableConstruct implements INamesp
 	 * @return {@link IStrategoList}
 	 */
 	public static IStrategoList getPackageId(SpxSemanticIndexFacade facade,IStrategoAppl packageQName){
-		final IStrategoConstructor packageQNameCon = facade.getPackageQNameCon();
+		final IStrategoConstructor packageQNameCon = facade.getCons().getPackageQNameCon();
 		
 		if(packageQNameCon == packageQName.getConstructor()){
 			return getID( facade, (IStrategoAppl)packageQName.getSubterm(0));	
@@ -165,7 +165,7 @@ public class PackageDeclaration extends IdentifiableConstruct implements INamesp
 	}
 
 	public static IStrategoAppl toPackageQNameAppl (SpxSemanticIndexFacade facade, IStrategoList id){
-		return toIdTerm(facade ,  facade.getPackageQNameCon(), id);
+		return toIdTerm(facade ,  facade.getCons().getPackageQNameCon(), id);
 	}
 
 	/**

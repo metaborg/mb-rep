@@ -208,7 +208,7 @@ public class LanguageDescriptor extends IdentifiableConstruct {
 		
 		ITermFactory termFactory = idxFacade.getTermFactory();
 		
-		IStrategoConstructor ctr = idxFacade.getLanguageDescriptorCon();
+		IStrategoConstructor ctr = idxFacade.getCons().getLanguageDescriptorCon();
 		IStrategoAppl packageQNameAppl = PackageDeclaration.toPackageQNameAppl(idxFacade, this.getId());
 		
 		IStrategoTerm retTerm = termFactory.makeAppl(ctr, packageQNameAppl , this.languageNames , this.languageIDs , this.esvDeclaredStartSymbols , this.sdfDeclaredStartSymbols);

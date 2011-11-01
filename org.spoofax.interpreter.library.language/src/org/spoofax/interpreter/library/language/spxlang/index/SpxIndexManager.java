@@ -66,9 +66,42 @@ public class SpxIndexManager implements IIndexManageCommand
 		if(commandName.equalsIgnoreCase(INVALIDATE_GLOBAL_CACHE_COMMAND_STRING))
 			return invalidateGlobalCacheCommandInstance(spxSemanticIndex , projectPath, objects);
 		
-		throw new IllegalArgumentException("Invalid Command Name : "+ commandName) ;
+		if(commandName.equalsIgnoreCase(ON_INIT_CODEGEN_COMMAND_STRING))
+			return onInitCodeGenrationCommandInstance(spxSemanticIndex , projectPath, objects);
+		
+		if(commandName.equalsIgnoreCase(ON_COMPLETE_CODEGEN_COMMAND_STRING))
+			return onCompleteCodeGenrationCommandInstance(spxSemanticIndex , projectPath, objects);
+		
+		
+		throw new IllegalArgumentException("Invalid command name :"+ commandName) ;
 	}
 
+	private static IIndexManageCommand onInitCodeGenrationCommandInstance(
+			final SpxSemanticIndex index, IStrategoString projectPath,
+			Object[] objects) {
+		
+		return new SpxIndexManager(index , projectPath, objects){
+			public void executeCommnad(SpxSemanticIndex idx, IStrategoTerm projectPath, Object... objects) throws Exception{
+				SpxSemanticIndexFacade f = idx.getFacadeRegistry().getFacade(projectPath);
+				if(f != null)
+					f.onInitCodeGeneration();
+			}
+		};
+	}
+
+	private static IIndexManageCommand onCompleteCodeGenrationCommandInstance(
+			final SpxSemanticIndex index, IStrategoString projectPath,
+			Object[] objects) {
+		
+		return new SpxIndexManager(index , projectPath, objects){
+			public void executeCommnad(SpxSemanticIndex idx, IStrategoTerm projectPath, Object... objects) throws Exception{
+				SpxSemanticIndexFacade f = idx.getFacadeRegistry().getFacade(projectPath);
+				if(f != null)
+					f.onCompleteCodeGeneration();
+			}
+		};
+	}
+	
 	private static IIndexManageCommand rollbackCommandInstance(
 			final SpxSemanticIndex index, IStrategoString projectPath,
 			Object[] objects) {
@@ -81,6 +114,7 @@ public class SpxIndexManager implements IIndexManageCommand
 			}
 		};
 	}
+	
 	private static  SpxIndexManager clearCommandInstance(
 			SpxSemanticIndex index, 
 			IStrategoString projectPath,
