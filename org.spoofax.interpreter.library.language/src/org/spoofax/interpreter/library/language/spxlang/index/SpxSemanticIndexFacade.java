@@ -906,16 +906,13 @@ public class SpxSemanticIndexFacade {
 	 * @throws Exception 
 	 */
 	public void reinitSymbolTable() throws Exception {	
-		
-		if (! isPersistenceManagerClosed()){
-			// cleaning persistence manager.
-			persistenceManager().clear();
-			//cleaning the SpxCache as well.
-			invalidateSpxCacheDirectory();
+		if (!isPersistenceManagerClosed()){
+			persistenceManager().clear(); // cleaning persistence manager.
+			persistenceManager().commitAndClose();
 			tryCleanupIndexDirectory();
-			
+			invalidateSpxCacheDirectory(); //cleaning the SpxCache as well.
 		}
-		persistenceManager().initializeSymbolTables(this.getProjectName(), this);
+		initializePersistenceManager();
 	}
 
 	/**

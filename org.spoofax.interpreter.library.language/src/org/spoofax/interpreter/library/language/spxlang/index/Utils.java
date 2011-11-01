@@ -80,7 +80,7 @@ public final class Utils {
 	    if ( cacheDir.exists() &&  cacheDir.isDirectory()) {
 	        String[] children = cacheDir.list();
 	        for (int i=0; i<children.length; i++) {
-	           deleteSpxCacheDir(new File(cacheDir, children[i]));
+	        	tryDeleteSpxIndexDir(new File(cacheDir, children[i]));
 	        }
 	    }
 	    cacheDir.delete();

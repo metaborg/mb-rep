@@ -1,6 +1,5 @@
 package org.spoofax.interpreter.library.language.spxlang.index;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.UUID;
@@ -69,7 +68,7 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 		
 		//setting properties of RecordManager
 		options.put(RecordManagerOptions.INDEX_RELATIVE_PATH_OPTION, BaseRecordManager.DEFAULT_RELATIVE_PATH_INDEX);
-		options.put(RecordManagerOptions.CACHE_TYPE, "none");
+		options.put(RecordManagerOptions.CACHE_TYPE, "soft");
 		options.put(RecordManagerOptions.DISABLE_TRANSACTIONS, "false");
 		
 		tryInitRecordManager(spxSemanticIndexFacade,options);
