@@ -357,15 +357,24 @@ public class SpxSemanticIndexFacade {
 	public IStrategoTerm resolveSymbols(IStrategoTuple searchCriteria) throws SpxSymbolTableException{
 		if (searchCriteria.getSubtermCount() != 4)
 			throw new IllegalArgumentException(" resolveSymbols | Illegal symbolLookupTerm Argument ; expected 4 subterms. Found : " + searchCriteria.getSubtermCount());
+		
 		String searchMode = asJavaString(searchCriteria.get(3)).trim();
+		
 		IStrategoAppl typeAppl =  (IStrategoAppl)searchCriteria.getSubterm(2);
-		IStrategoConstructor typeCtor = getCons().getConstructor( typeAppl.getConstructor().getName(), typeAppl.getConstructor().getArity()) ;
+		IStrategoConstructor typeCtor = null; 
+		try{
+			typeCtor = verifyKnownContructorExists(typeAppl);
+		}catch(IllegalArgumentException ex){
+			// It seems like the constructor does not exist in local type declarations. 
+			// Hence, defining it to be used further.
+			IStrategoConstructor ctor = (IStrategoConstructor)typeAppl.getConstructor();
+			typeCtor = _spxConstructors.indexConstructor(ctor);
+		}
 		
 		Set<SpxSymbol> spxSymbols = null;
-		
 		if (typeCtor != null) {
 			if(searchMode.equalsIgnoreCase(Utils.All)){
-				spxSymbols = resolveSymbols( 
+				spxSymbols = resolveSymbols(
 							(IStrategoAppl)searchCriteria.get(0),
 							searchCriteria.get(1),
 							typeCtor);
@@ -378,7 +387,9 @@ public class SpxSemanticIndexFacade {
 			else{
 				throw new IllegalArgumentException(" Illegal symbolLookupTerm searchMode Argument ; expected * or . . Found : " + searchMode);
 			}
-		}
+		}else
+			this.logMessage("resolve symbols. Unknown Type Contructor "+typeAppl.getConstructor().getName() );
+		
 		return SpxSymbol.toTerms(this, spxSymbols);
 	}
 	
@@ -439,6 +450,7 @@ public class SpxSemanticIndexFacade {
 			resolvedSymbols.add(sym) ;
 		
 		return resolvedSymbols;
+		
 	}
 
 	/**
@@ -894,14 +906,14 @@ public class SpxSemanticIndexFacade {
 	 */
 	public void persistChanges() throws IOException {
 		_persistenceManager.commit();
-		
-		if(Utils.DEBUG){
-			_persistenceManager.spxSymbolTable().printSymbols("commit",
-					this.getProjectPath(), this.indexId());
-		}
 
-	}
-	
+		if (Utils.DEBUG)
+			try {
+				_persistenceManager.spxSymbolTable().printSymbols(this,
+						"commit", this.getProjectPath(), this.indexId());
+			} catch (SpxSymbolTableException e) {
+			}
+	}	
 	/**
 	 * Closes any underlying open connection. 
 	 *  

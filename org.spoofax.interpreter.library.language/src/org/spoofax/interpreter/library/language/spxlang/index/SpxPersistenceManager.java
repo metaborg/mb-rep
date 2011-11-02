@@ -120,9 +120,11 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 
 		initListeners();
 		
+		/*
 		if(Utils.DEBUG){
-			_spxSymbolTable.printSymbols("init" , facade.getProjectPath() , facade.indexId());
-		}	
+			_spxSymbolTable.printSymbols(facade, "init" , facade.getProjectPath() , facade.indexId());
+		}
+		*/	
 	}
 	
 	

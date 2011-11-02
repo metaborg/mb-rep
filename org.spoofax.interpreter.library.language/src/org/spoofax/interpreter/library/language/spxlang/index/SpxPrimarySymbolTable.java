@@ -296,12 +296,15 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 		persistenceManager().logMessage(SRC, "clearGlobalNamespce | Successfully removed all the entries." );
 	}
 	
+	
+	
 	/**
 	 * Printing all the symbols current hashmap 
 	 * 
 	 * @throws IOException
+	 * @throws SpxSymbolTableException 
 	 */
-	public void printSymbols(String state , String projectPath , String indexId) throws IOException{
+	public void printSymbols(SpxSemanticIndexFacade f, String state , String projectPath , String indexId) throws IOException, SpxSymbolTableException{
 		new File(projectPath + "/.log").mkdirs();
 		FileWriter fstream = new FileWriter(projectPath + "/.log/"+indexId+"_symbols_"+Utils.now("yyyy-MM-dd HH.mm")+".txt" , true);
 		BufferedWriter out = new BufferedWriter(fstream);
@@ -311,7 +314,7 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 			if(namespaces != null){
 				for(INamespace ns : namespaces.values()){
 					out.write("[" + ns +"]\n\n");
-					logEntries(ns,out) ;
+					logEntries(f, ns,out) ;
 				}
 			}
 		}catch(IOException ex){ //ignore 
@@ -320,10 +323,33 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 		finally{out.close();}
 	}
 
-	private static  void logEntries( INamespace namespace , BufferedWriter logger) throws IOException{
+	private static  void logEntries(SpxSemanticIndexFacade f,  INamespace namespace , BufferedWriter logger) throws IOException, SpxSymbolTableException{
 		Map<SpxSymbolKey , List<SpxSymbol>> members = namespace.getMembers();
+		if( namespace instanceof PackageNamespace){
+			PackageNamespace ns = (PackageNamespace)namespace;
+			ns.ensureEnclosedNamespaceUrisLoaded(f);
+			ns.ensureImportedNamespaceUrisLoaded(f);
+			
+			logger.write("\t" + "Enclosed Namespace Uris"+"\n");
+			for(NamespaceUri uri : ns.enclosedNamespaceUris ){
+				logger.write( "\t\t"+uri +"\n");
+			}
+			logger.write("\n");
+			
+
+			logger.write("\tImported Namespace Uris"+"\n");
+			for(NamespaceUri uri : ns.importedNamespaceUris ){
+				logger.write("\t\t"+uri +"\n");
+			}
+			logger.write("\n");
+		}
+		
+		if( namespace instanceof ModuleNamespace){
+			logger.write("\t\tParent Namespace :"+ ((ModuleNamespace) namespace).enclosingNamespaceUri()+"\n" );
+		}
+		
 		for( SpxSymbolKey k : members.keySet()) {
-			logger.write("\t"+k.toString()  + "  ----> \n");
+			logger.write("\t\t"+k.toString()  + "  ----> \n");
 			for( SpxSymbol s : members.get(k) ){
 				logger.write( s.printSymbol());
 			}

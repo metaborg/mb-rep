@@ -143,7 +143,6 @@ public class SpxConstructors {
 	public IStrategoConstructor getConstructor(String symbolTypeCons, int arity) {
 		return _knownCons.get(ConstructorDef.newInstance(symbolTypeCons ,arity));
 	}
-	
 
 	public boolean hasEqualConstructor ( IStrategoAppl actual , IStrategoConstructor expected){
 		

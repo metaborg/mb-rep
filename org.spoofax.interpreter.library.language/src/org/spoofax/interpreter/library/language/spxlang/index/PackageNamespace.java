@@ -31,8 +31,8 @@ public final class PackageNamespace  extends BaseNamespace {
 	private static final long serialVersionUID = 7324156752002137217L;
 	private static final String INTERNAL_NAMESPACENAME = "__internal";
 
-	private transient Set<NamespaceUri> importedNamespaceUris;
-	private transient Set<NamespaceUri> enclosedNamespaceUris;
+	transient Set<NamespaceUri> importedNamespaceUris;
+	transient Set<NamespaceUri> enclosedNamespaceUris;
 	
 	/**
 	 * Instantiates a new instance of {@link PackageNamespace}
@@ -61,7 +61,7 @@ public final class PackageNamespace  extends BaseNamespace {
 	 * @param facade
 	 * @throws SpxSymbolTableException
 	 */
-	private void ensureEnclosedNamespaceUrisLoaded(SpxSemanticIndexFacade facade) throws SpxSymbolTableException{
+	void ensureEnclosedNamespaceUrisLoaded(SpxSemanticIndexFacade facade) throws SpxSymbolTableException{
 		if( enclosedNamespaceUris == null){
 			enclosedNamespaceUris = new HashSet<NamespaceUri>();
 			
@@ -83,7 +83,7 @@ public final class PackageNamespace  extends BaseNamespace {
 	 * @param facade
 	 * @throws SpxSymbolTableException
 	 */
-	private void ensureImportedNamespaceUrisLoaded(SpxSemanticIndexFacade facade) throws SpxSymbolTableException{
+	void ensureImportedNamespaceUrisLoaded(SpxSemanticIndexFacade facade) throws SpxSymbolTableException{
 		if( importedNamespaceUris == null){
 			
 			importedNamespaceUris= new HashSet<NamespaceUri>();
