@@ -31,13 +31,8 @@ public class SpxPackageLookupTable implements ICompilationUnitRecordListener{
 	private final PrimaryHashMap<IStrategoList, PackageDeclaration> _packageLookupTable;
 	private final SecondaryHashMap<String, IStrategoList, PackageDeclaration> _uriMap;
 
-	// Symbol table for language descriptor
-	private final PrimaryHashMap<IStrategoList, LanguageDescriptor> _languageDescriptors;
-	private final SecondaryHashMap<String, IStrategoList, LanguageDescriptor> _packagesByLangaugeName;
-
 	private final String SRC = this.getClass().getSimpleName();
 	private final ISpxPersistenceManager _manager;
-	
 
     /**
      * Listeners which are notified about changes in records
@@ -83,29 +78,7 @@ public class SpxPackageLookupTable implements ICompilationUnitRecordListener{
 							}
 						});
 
-		initListeners();
-
-		// initializing language Descriptor for the package
-		_languageDescriptors = manager.loadHashMap(tableName+ "._languageDescriptors.idx");
-
-		_packagesByLangaugeName = _languageDescriptors
-				.secondaryHashMapManyToOne( tableName + "._packagesByLangaugeName.idx",
-						new SecondaryKeyExtractor<Iterable<String>, IStrategoList, LanguageDescriptor>() {
-							/**
-							 * Returns the Secondary keys as Language Name
-							 * Strings
-							 * 
-							 * @param key
-							 *            current primary key
-							 * @param value
-							 *            value to be mapped using primary key
-							 * @return secondary key to map the value with .
-							 */
-							public Iterable<String> extractSecondaryKey(
-									IStrategoList key, LanguageDescriptor value) {
-								return value.asLanguageNameStrings();
-							}
-						});
+		initListeners();		
 	}
 
 	/**
@@ -130,7 +103,6 @@ public class SpxPackageLookupTable implements ICompilationUnitRecordListener{
 							// since there is no URI left for the Package
 							// removing it from the table.
 							remove(key);
-							_languageDescriptors.remove(key);
 						}
 						else{
 							if(!recordListeners.isEmpty()){	
@@ -143,9 +115,6 @@ public class SpxPackageLookupTable implements ICompilationUnitRecordListener{
 
 					public void recordRemoved(IStrategoList key,
 							PackageDeclaration value) throws IOException {
-
-						// removing language descriptors
-						_languageDescriptors.remove(key);
 
 						_manager.logMessage(SRC + ".recordUpdated", "Removing Package " + key + ".");
 
@@ -186,24 +155,7 @@ public class SpxPackageLookupTable implements ICompilationUnitRecordListener{
 		_manager.logMessage(SRC + ".definePackageDeclaration", "Indexed/Reindexed package declaration : " + packageDeclaration);
 	}
 
-	/**
-	 * Defines {@link LanguageDescriptor} for the Spx Package with
-	 * {@code packageId}
-	 * 
-	 * @param packageId
-	 *            Qualified ID of the package
-	 * @param newDesc
-	 *            {@link LanguageDescriptor} of package with ID -
-	 *            {@code newDesc}
-	 */
-	public void defineLanguageDescriptor(IStrategoList packageId, LanguageDescriptor newDesc) {
-		if (containsPackage(packageId)) {
-			this._languageDescriptors.put(packageId, newDesc);
-		} else
-			throw new IllegalArgumentException("Unknown Package ID : "
-					+ packageId.toString());
-	}
-
+	
 	/**
 	 * Adds a SPX Package Declaration location
 	 * 
@@ -254,12 +206,9 @@ public class SpxPackageLookupTable implements ICompilationUnitRecordListener{
 				packageDecl.removeImportedToPackageReference(decl);
 			}
 		}
-
 	}
 
-	public PackageDeclaration getPackageDeclaration(IStrategoList id) {
-		return _packageLookupTable.get(id);
-	}
+	public PackageDeclaration getPackageDeclaration(IStrategoList id) { return _packageLookupTable.get(id); }
 
 	public Set<PackageDeclaration> getPackageDeclarations() {
 		Set<PackageDeclaration> declsToReturn = new HashSet<PackageDeclaration>();
@@ -268,17 +217,7 @@ public class SpxPackageLookupTable implements ICompilationUnitRecordListener{
 		return declsToReturn;
 	}
 
-	/**
-	 * Returns language descriptor associated with id
-	 * 
-	 * @param id
-	 *            package id whose language descriptor is to be returned
-	 * @return {@link LanguageDescriptor}
-	 */
-	public LanguageDescriptor getLangaugeDescriptor(IStrategoList id) {
-		return _languageDescriptors.get(id);
-	}
-
+	
 	/**
 	 * Removes a PackageDeclaration from the table
 	 * 
@@ -381,22 +320,7 @@ public class SpxPackageLookupTable implements ICompilationUnitRecordListener{
 		return _packageLookupTable.containsKey(packageId);
 	}
 
-	/**
-	 * Returns the packages indexed using languageName
-	 * 
-	 * @param langaugeName
-	 * @return
-	 */
-	public Iterable<IStrategoList> getPackageIdsByLangaugeName(
-			String langaugeName) {
-		return _packagesByLangaugeName.get(langaugeName);
-	}
-
-	public Iterable<IStrategoList> getPackageIdsByLangaugeName(
-			IStrategoString langaugeName) {
-		return getPackageIdsByLangaugeName(Tools.asJavaString(langaugeName));
-	}
-
+	
 	public RecordListener<String, SpxCompilationUnitInfo> getCompilationUnitRecordListener() {
 		return new RecordListener<String, SpxCompilationUnitInfo>() {
 			public void recordUpdated(String key,

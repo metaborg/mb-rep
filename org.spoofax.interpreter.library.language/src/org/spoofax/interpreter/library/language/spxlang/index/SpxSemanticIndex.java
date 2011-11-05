@@ -1,5 +1,6 @@
 package org.spoofax.interpreter.library.language.spxlang.index;
 
+import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbol;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
@@ -143,6 +144,19 @@ public class SpxSemanticIndex {
 			}
 		}.executeWith(projectPath, compilationUnitUri);
 	}
+	
+	public IStrategoTerm getPackageDeclarationsByLanguageName(IStrategoString projectPath, IStrategoString compilationUnitUri)  throws Exception{
+		return new SpxResolver() {
+			@Override
+			public IStrategoTerm resolve(IStrategoString projectPath, IStrategoTerm term)
+					throws Exception {	
+					
+					SpxSemanticIndexFacade idxFacade = getFacade(projectPath);
+					return idxFacade.getPackageDeclarationsByLanguageName((IStrategoString) term);
+			}
+		}.executeWith(projectPath, compilationUnitUri);
+	}
+	
 
 	public IStrategoTerm getModuleDeclaration(IStrategoString projectPath, final IStrategoAppl moduleTypedQname) throws Exception{
 		return new SpxResolver() {
@@ -237,7 +251,19 @@ public class SpxSemanticIndex {
 			}
 		}.executeWith(projectPath, searchCriteria);
 	}
-
+	
+	public SpxSymbol verifySymbolExists(IStrategoString projectPath, final IStrategoTuple searchCriteria)  throws Exception{
+		return new SpxResolver() {
+			@SuppressWarnings("unchecked")
+			@Override
+			public SpxSymbol resolve(IStrategoString projectPath, IStrategoTerm qnamesearchCriteria) throws Exception {	
+					
+					SpxSemanticIndexFacade idxFacade = getFacade(projectPath);
+					return idxFacade.verifySymbolExists((IStrategoTuple)searchCriteria);
+			}
+		}.executeWith(projectPath, searchCriteria);
+	}
+	
 	public IStrategoTerm undefineSymbols(IStrategoString projectPath,IStrategoTuple searchCriteria) throws Exception {
 		return new SpxResolver() {
 			@Override
@@ -247,6 +273,7 @@ public class SpxSemanticIndex {
 			}
 		}.executeWith(projectPath, searchCriteria);
 	}
+	
 	
 	public boolean removeCompilationUnit(IStrategoString projectPath,IStrategoString spxCompilationUnitPath) throws Exception{
 	
@@ -276,12 +303,14 @@ public class SpxSemanticIndex {
 	
 	private abstract class SpxResolver 
 	{	
-		public IStrategoTerm executeWith(IStrategoString projectPath , IStrategoTerm term) throws Exception{
+		public <U> U executeWith(IStrategoString projectPath , IStrategoTerm term) throws Exception{
 			return resolve(projectPath, term);
 		}
 	
-		public abstract IStrategoTerm resolve(IStrategoString projectPath , IStrategoTerm term) throws Exception ;
+		public abstract <U> U resolve(IStrategoString projectPath , IStrategoTerm term) throws Exception ;
 	}
+
+
 
 	
 

@@ -10,13 +10,16 @@ import jdbm.RecordListener;
 import jdbm.SecondaryHashMap;
 import jdbm.SecondaryKeyExtractor;
 
+import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.library.language.spxlang.index.data.IdentifiableConstruct;
+import org.spoofax.interpreter.library.language.spxlang.index.data.LanguageDescriptor;
 import org.spoofax.interpreter.library.language.spxlang.index.data.ModuleDeclaration;
 import org.spoofax.interpreter.library.language.spxlang.index.data.PackageDeclaration;
 import org.spoofax.interpreter.library.language.spxlang.index.data.SpxCompilationUnitInfo;
 import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbolTableException;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPackageDeclarationRecordListener{
@@ -38,8 +41,11 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 	private final SecondaryHashMap <String , IStrategoList , ModuleDeclaration> _moduleByFileAbsPath;
 	private final SecondaryHashMap<IStrategoList, IStrategoList,ModuleDeclaration> _moduleByPackageId;
 	
+	// Symbol table for language descriptor
+	private final PrimaryHashMap<IStrategoList, LanguageDescriptor> _languageDescriptors;
+	private final SecondaryHashMap<String, IStrategoList, LanguageDescriptor> _modulesByLangaugeName;
+
 	private final ISpxPersistenceManager _manager;
-	
 	private final String SRC  = this.getClass().getSimpleName();
 	
 	/**
@@ -48,8 +54,7 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 	 * @param tableName name of the table 
 	 * @param manager an instance of {@link ISpxPersistenceManager}
 	 */
-	public SpxModuleLookupTable(ISpxPersistenceManager manager)
-	{
+	public SpxModuleLookupTable(ISpxPersistenceManager manager){
 		String tableName = SRC+ "_"+ manager.getIndexId();
 
 		assert manager != null;
@@ -100,6 +105,23 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 		this._moduleDefinition = manager.loadHashMap(tableName+ "._moduleDefinition.idx");
 		this._moduleAnalyzedDefinition = manager.loadHashMap(tableName+ "._moduleAnalyzedDefinition.idx");
 
+		_languageDescriptors = manager.loadHashMap(tableName+ "._languageDescriptors.idx"); 		// initialising language Descriptor for the package
+		_modulesByLangaugeName = _languageDescriptors
+				.secondaryHashMapManyToOne( tableName + "._modulesByLangaugeName.idx",
+						new SecondaryKeyExtractor<Iterable<String>, IStrategoList, LanguageDescriptor>() {
+							/**
+							 * Returns the Secondary keys as Language Name Strings
+							 * 
+							 * @param key
+							 *            current primary key
+							 * @param value
+							 *            value to be mapped using primary key
+							 * @return secondary key to map the value with .
+							 */
+							public Iterable<String> extractSecondaryKey(IStrategoList key, LanguageDescriptor value) {
+								return value.asLanguageNameStrings();
+							}
+						});
 		initRecordListener();
 	}
 	
@@ -108,26 +130,22 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 		_moduleLookupMap.addRecordListener(
 				new RecordListener<IStrategoList, ModuleDeclaration>() {
 
-					public void recordInserted(IStrategoList key,
-							ModuleDeclaration value) throws IOException {
+					public void recordInserted(IStrategoList key,ModuleDeclaration value) throws IOException {
 						//do nothing 
-						
 					}
 
-					public void recordUpdated(IStrategoList key,
-							ModuleDeclaration oldValue,
-							ModuleDeclaration newValue) throws IOException {
+					public void recordUpdated(IStrategoList key,ModuleDeclaration oldValue,ModuleDeclaration newValue) throws IOException {
 						//do nothing 
-						
 					}
 
-					public void recordRemoved(IStrategoList key,
-							ModuleDeclaration value) throws IOException {
-					
+					public void recordRemoved(IStrategoList key, ModuleDeclaration value) throws IOException {
+
 						// cleanup other table to make it consistent 
 						_moduleDefinition.remove(key);
 						_moduleAnalyzedDefinition.remove(key);
-						
+
+						_languageDescriptors.remove(key);
+
 						if(!recordListeners.isEmpty()){	
 							for( RecordListener<IStrategoList, ModuleDeclaration> rl: recordListeners){
 								rl.recordRemoved(key, value);
@@ -137,18 +155,24 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 				}
 		);
 	}
-	/** Size of the Symbol Table 
+	
+	void verifyModuleIDExists(IStrategoList moduleId) {
+		if (!containsModuleDeclaration(moduleId)) {
+			throw new IllegalArgumentException("Unknown Module ID : "+ moduleId);
+		}
+	}
+	
+	/** 
+	 * size of the symbol-table 
 	 * 
 	 * @return
 	 */
-	public int size() 
-	{
+	public int size() {
 		assert _moduleLookupMap.size() == _moduleDefinition.size();
 		assert _moduleLookupMap.size() == _moduleAnalyzedDefinition.size();
 		
 		return _moduleLookupMap.size();
 	}
-
 	
 	/**
 	 * Defines Module Definition in the SymbolTable
@@ -199,17 +223,51 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 	}
 	
 	/**
+	 * Defines {@link LanguageDescriptor} for the SpxModule with
+	 * {@code moduleId}
+	 * 
+	 * @param moduleId
+	 *            Qualified ID of the Module
+	 * @param newDesc
+	 *            {@link LanguageDescriptor} of module with ID -  {@code newDesc}
+	 */
+	public void defineLanguageDescriptor(IStrategoList moduleId, LanguageDescriptor newDesc) {
+		if (containsModuleDeclaration(moduleId)) {
+			this._languageDescriptors.put(moduleId, newDesc);
+		} else
+			throw new IllegalArgumentException("Unknown Module ID : "+ moduleId.toString());
+	}
+	
+	/**
+	 * Returns language descriptor associated with id
+	 * 
+	 * @param id
+	 *            module id whose language descriptor is to be returned
+	 * @return {@link LanguageDescriptor}
+	 */
+	public LanguageDescriptor getLangaugeDescriptor(IStrategoList id) {
+		return _languageDescriptors.get(id);
+	}
+
+	
+	/**
 	 * Removes {@link IdentifiableConstruct} from the lookup table mapped by the {@code id}
 	 * 
 	 * @param id {@link IStrategoList} representing qualified ID of the Construct
 	 * @return {@link IdentifiableConstruct} mapped by {@code id}
 	 */
-	public ModuleDeclaration remove(IStrategoList id)
-	{	
+	public ModuleDeclaration remove(IStrategoList id){	
 		_manager.logMessage(SRC+".remove", "Removing following Module : "+ id);
 		//removing module declaration from the table 
 		//and returning it.
-		return _moduleLookupMap.remove(id);
+		ModuleDeclaration ret = _moduleLookupMap.remove(id);
+		
+		if(ret != null)	{
+			_manager.logMessage(SRC+".remove", "Removed : "+ ret);
+		}else
+			_manager.logMessage(SRC+".remove", "Could not find : "+ ret);
+		
+		return ret; 
 	}
 	
 	/**
@@ -228,13 +286,13 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 	 * @param id
 	 * @return
 	 */
-	public boolean containsModuleDeclaration(IStrategoList id)
-	{
+	public boolean containsModuleDeclaration(IStrategoList id){
 		return _moduleLookupMap.containsKey(id);
 	}
 	
 	/**
 	 * Gets a module definition 
+	 * 
 	 * @param facade an instance of  {@links SpxSemanticIndexFacade}
 	 * @param id
 	 * 
@@ -248,7 +306,7 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 	}
 	
 	/**
-	 * Gets module definition (analyzed) 
+	 * Gets module definition (analysed) 
 	 * @param f an instance of  {@links SpxSemanticIndexFacade}
 	 * @param id
 	 * 
@@ -259,11 +317,11 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 		IStrategoTerm deserializedTerm = Utils.deserializeToTerm(f.getTermFactory(), f.getTermAttachmentSerializer(), this._moduleAnalyzedDefinition.get(id));
 		assert deserializedTerm instanceof IStrategoAppl : "Expected IStrategoAppl" ;  
 		
-		return (IStrategoAppl)deserializedTerm;
+		return (IStrategoAppl)deserializedTerm; 
 	}
 	
 	/**
-	 * Returns ModuleDeclarations mapped by a filepath. It actually returns 
+	 * Returns ModuleDeclarations mapped by a file path. It actually returns 
 	 * all the module declaration exists in a file . 
 	 * 
 	 * @param absUri
@@ -450,6 +508,20 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 
 	public void removeRecordListener( final IModuleDeclarationRecordListener rl){
 		this.recordListeners.remove(rl.getModuleDeclarationRecordListener());
+	}
+
+	/**
+	 * Returns the packages indexed using languageName
+	 * 
+	 * @param langaugeName
+	 * @return
+	 */
+	public Iterable<IStrategoList> getModuleIdsByLangaugeName(String langaugeName) {
+		return this._modulesByLangaugeName.get(langaugeName);
+	}
+	
+	public Iterable<IStrategoList> getModuleIdsByLangaugeName(IStrategoString langaugeName) {
+		return getModuleIdsByLangaugeName(Tools.asJavaString(langaugeName));
 	}
 }
 

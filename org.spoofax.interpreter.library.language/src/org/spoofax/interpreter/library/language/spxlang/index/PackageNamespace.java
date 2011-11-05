@@ -2,6 +2,7 @@ package org.spoofax.interpreter.library.language.spxlang.index;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -157,23 +158,28 @@ public final class PackageNamespace  extends BaseNamespace {
 	 * @see org.spoofax.interpreter.library.language.spxlang.BaseNamespace#resolveAll(org.spoofax.interpreter.terms.IStrategoTerm, org.spoofax.interpreter.library.language.spxlang.INamespace, org.spoofax.interpreter.library.language.spxlang.SpxSemanticIndexFacade)
 	 */
 	@Override
-	public Set<SpxSymbol> resolveAll(IStrategoTerm key,IStrategoTerm type, INamespace originNamespace, SpxSemanticIndexFacade facade) throws SpxSymbolTableException{
+	public Collection<SpxSymbol> resolveAll(SpxSemanticIndexFacade facade,IStrategoTerm key, IStrategoTerm type, INamespace originNamespace, boolean returnDuplicate) throws SpxSymbolTableException{
 		facade.persistenceManager().logMessage(this.src, "resolveAll | Resolving Symbol in " + this.namespaceUri().id() +  " . Key :  " + key + " origin Namespace: " + originNamespace.namespaceUri().id() );
 		
-		Set<SpxSymbol> retResult = new HashSet<SpxSymbol>();
+		Collection<SpxSymbol> retResult = null;
+		
+		if (returnDuplicate)
+			retResult =	new ArrayList<SpxSymbol>();
+		else
+			retResult =	new HashSet<SpxSymbol>();
 		
 		//searching in the enclosed namespace. For PackageNamespace, all the enclosed ModuleNamespace is searched. 
 		ensureEnclosedNamespaceUrisLoaded(facade);
-		retResult.addAll((Set<SpxSymbol>)resolveAllSymbolsInNamespaces(this.enclosedNamespaceUris, key, type, originNamespace, facade)) ;
+		retResult.addAll(resolveAllSymbolsInNamespaces(this.enclosedNamespaceUris, key, type, originNamespace, facade , returnDuplicate)) ;
 		
 		//searching in the current scope and its enclosing scope
-		retResult.addAll((Set<SpxSymbol>)super.resolveAll(key, type, originNamespace, facade));
+		retResult.addAll(super.resolveAll(facade, key, type, originNamespace, returnDuplicate));
 		
 		
 		//searching in the imported namespaces. Also  detect transitive and cyclic import references.  
 		if ( !isTransitiveImportLookup(facade , originNamespace)) {
 			ensureImportedNamespaceUrisLoaded(facade);
-			retResult.addAll((Set<SpxSymbol>)resolveAllSymbolsInNamespaces(this.importedNamespaceUris, key, type, originNamespace, facade)) ;
+			retResult.addAll(resolveAllSymbolsInNamespaces(this.importedNamespaceUris, key, type, originNamespace, facade, returnDuplicate)) ;
 		}
 		//returning the result 
 		return retResult;
@@ -227,9 +233,15 @@ public final class PackageNamespace  extends BaseNamespace {
 		return retSymbol;
 	}
 	
-	private Set<SpxSymbol> resolveAllSymbolsInNamespaces(Iterable<NamespaceUri> resolvableUris  ,IStrategoTerm key, IStrategoTerm ofType,  INamespace searchOrigin, SpxSemanticIndexFacade facade) throws SpxSymbolTableException {
+	private Collection<SpxSymbol> resolveAllSymbolsInNamespaces(Iterable<NamespaceUri> resolvableUris  ,IStrategoTerm key, IStrategoTerm ofType,  INamespace searchOrigin, SpxSemanticIndexFacade facade, boolean returnDuplicates) throws SpxSymbolTableException {
 		
-		Set<SpxSymbol> retSymbol = new HashSet<SpxSymbol>();
+		Collection<SpxSymbol> retSymbol = null;
+		
+		if (returnDuplicates)
+			retSymbol =	new ArrayList<SpxSymbol>();
+		else
+			retSymbol =	new HashSet<SpxSymbol>();
+		
 		INamespaceResolver namespaceResolver = facade.persistenceManager().spxSymbolTable();
 		 
 		for( NamespaceUri uri : resolvableUris){
@@ -242,7 +254,7 @@ public final class PackageNamespace  extends BaseNamespace {
 				// hence, ignoring it.
 				continue;
 			}
-			retSymbol.addAll((Set<SpxSymbol>)thisNamespace.resolveAll(key, ofType, this, facade));
+			retSymbol.addAll((Set<SpxSymbol>)thisNamespace.resolveAll(facade, key, ofType, this, false));
 		}
 		
 		return retSymbol;

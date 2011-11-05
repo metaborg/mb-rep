@@ -69,18 +69,20 @@ public class LanguageDescriptor extends IdentifiableConstruct {
 	}
 
 	public void addLanguageIDs(ITermFactory fac, IStrategoList langIds) {
+		if (languageIDs == null)
+			this.languageIDs = fac.makeList();
+
+		
 		languageIDs = prepend(fac, languageIDs, langIds);
 	}
 	
-	public void addEsvDeclaredStartSymbols(ITermFactory fac,
-			IStrategoList startSymbols) {
-		this.esvDeclaredStartSymbols = prepend(fac,
-				this.esvDeclaredStartSymbols, startSymbols);
+	public void addEsvDeclaredStartSymbols(ITermFactory fac, IStrategoList startSymbols) {
+		this.esvDeclaredStartSymbols = prepend(fac, this.esvDeclaredStartSymbols, startSymbols);
 	}
 
 	public void addSDFDeclaredStartSymbols( ITermFactory fac , IStrategoList startSymbols)
 	{
-		this.sdfDeclaredStartSymbols =  prepend(fac, this.esvDeclaredStartSymbols  , startSymbols);
+		this.sdfDeclaredStartSymbols =  prepend(fac, this.sdfDeclaredStartSymbols  , startSymbols);
 	}
 	
 	public Iterable<String> asLanguageNameStrings()
@@ -91,6 +93,21 @@ public class LanguageDescriptor extends IdentifiableConstruct {
 		}
 		return langNames;
 	}
+
+	public static LanguageDescriptor appendLanguageDescriptors(ITermFactory f,  LanguageDescriptor desc , LanguageDescriptor toAppend ){
+		if( toAppend ==null) return desc;
+		
+		desc.addLanguageIDs(f, toAppend.getLanguageIDs());
+		desc.addLanguageNames( f, toAppend.getLanguageNames());
+		desc.addSDFDeclaredStartSymbols(f, toAppend.getSdfDeclaredStartSymbols());
+		desc.addEsvDeclaredStartSymbols(f, toAppend.getEsvDeclaredStartSymbols());
+
+		return desc;
+	} 
+	
+	public static LanguageDescriptor newInstance( ITermFactory f,  IStrategoList id ){
+		return newInstance(f, id , f.makeList() , f.makeList() , f.makeList()  , f.makeList()) ;
+	}
 	
 	/**
 	 * Creates a new instance of {@link LanguageDescriptor}
@@ -98,20 +115,18 @@ public class LanguageDescriptor extends IdentifiableConstruct {
 	 * @param decl
 	 * @return
 	 */
-	public static LanguageDescriptor newInstance(ITermFactory fac, LanguageDescriptor decl)
-	{
+	public static LanguageDescriptor newInstance(ITermFactory fac, LanguageDescriptor decl){
 		return newInstance(fac, 
 				decl.getId(), 
 				decl.languageIDs, 
 				decl.languageNames, 
 				decl.sdfDeclaredStartSymbols, 
 				decl.esvDeclaredStartSymbols);
-		
 	}
 
-	public static LanguageDescriptor newInstance( ITermFactory f,  IStrategoList packageId , IStrategoList languageIds, IStrategoList languageNames,IStrategoList sdfStartSymbols,IStrategoList esvStartSymbols)
+	public static LanguageDescriptor newInstance( ITermFactory f,  IStrategoList id , IStrategoList languageIds, IStrategoList languageNames,IStrategoList sdfStartSymbols,IStrategoList esvStartSymbols)
 	{
-		LanguageDescriptor desc = new LanguageDescriptor(packageId);
+		LanguageDescriptor desc = new LanguageDescriptor(id);
 
 		desc.addLanguageIDs(f, languageIds);
 		desc.addLanguageNames( f, languageNames);
@@ -120,7 +135,7 @@ public class LanguageDescriptor extends IdentifiableConstruct {
 
 		return desc;
 	}
-	
+		
 	private static IStrategoList prepend(ITermFactory fac, IStrategoList srcList, IStrategoList toPrepend) {
 		if ( toPrepend == null)
 			return srcList;
@@ -211,8 +226,9 @@ public class LanguageDescriptor extends IdentifiableConstruct {
 		IStrategoConstructor ctr = idxFacade.getCons().getLanguageDescriptorCon();
 		IStrategoAppl packageQNameAppl = PackageDeclaration.toPackageQNameAppl(idxFacade, this.getId());
 		
+		
 		IStrategoTerm retTerm = termFactory.makeAppl(ctr, packageQNameAppl , this.languageNames , this.languageIDs , this.esvDeclaredStartSymbols , this.sdfDeclaredStartSymbols);
 		
-		return this.forceImploderAttachment(retTerm);
+		return idxFacade.getTermConverter().convert(retTerm);
 	} 
 }

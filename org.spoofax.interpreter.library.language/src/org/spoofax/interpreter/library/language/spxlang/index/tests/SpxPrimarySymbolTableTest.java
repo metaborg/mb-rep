@@ -1,9 +1,8 @@
 package org.spoofax.interpreter.library.language.spxlang.index.tests;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -33,7 +32,7 @@ import org.spoofax.interpreter.test.AbstractInterpreterTest;
 
 public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 	
-	private final String _projectName = "_test-symbol-table_2";
+	private final String _projectName = ".test-symbol-table_10";
 	
 	private IStrategoString projectNameTerm; 
 	private SpxSemanticIndexFacade _facade;
@@ -251,7 +250,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		Set<SpxSymbol> resolvedSymbols = (Set<SpxSymbol>)_facade.resolveSymbols(
 				ModuleDeclaration.toModuleQNameAppl(_facade, moduleDeclarationP1M1),
 				symbolId,
-				namespaceAppl.getConstructor()
+				namespaceAppl.getConstructor(), false
 				);
 		
 		assertEquals( 1 , resolvedSymbols.size());
@@ -278,7 +277,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		Set<SpxSymbol> resolvedSymbols = (Set<SpxSymbol>)_facade.resolveSymbols(
 				ModuleDeclaration.toModuleQNameAppl(_facade, moduleDeclarationP1M1),
 				symbolId,
-				namespaceAppl.getConstructor()
+				namespaceAppl.getConstructor(), false
 				);
 		
 		assertEquals( 1 , resolvedSymbols.size());
@@ -289,7 +288,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		resolvedSymbols = (Set<SpxSymbol>)_facade.resolveSymbols(
 				ModuleDeclaration.toModuleQNameAppl(_facade, moduleDeclarationP1M1),
 				symbolId,
-				namespaceAppl.getConstructor()
+				namespaceAppl.getConstructor(), false
 				);
 		
 		assertEquals( 0 , resolvedSymbols.size());
@@ -358,7 +357,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		Set<SpxSymbol> resolvedSymbols = (Set<SpxSymbol>)_facade.resolveSymbols( 
 				ModuleDeclaration.toModuleQNameAppl(_facade, moduleDeclarationP1M1),
 				symbolId1,
-				_facade.getCons().getConstructor("SDFDef", 0) 
+				_facade.getCons().getConstructor("SDFDef", 0), false 
 				);
 		
 		assertEquals(2 , resolvedSymbols.size());
@@ -375,7 +374,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		resolvedSymbols = (Set<SpxSymbol>)_facade.resolveSymbols( 
 				ModuleDeclaration.toModuleQNameAppl(_facade, moduleDeclarationP1M1),
 				symbolId1,
-				_facade.getCons().getConstructor("STRDef", 0) 
+				_facade.getCons().getConstructor("STRDef", 0), false 
 				);
 		
 		assertEquals( 1 , resolvedSymbols.size());
@@ -398,7 +397,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		Set<SpxSymbol> resolvedSymbols = (Set<SpxSymbol>)_facade.resolveSymbols(
 				ModuleDeclaration.toModuleQNameAppl(_facade, moduleDeclarationP1M1),
 				symbolUnknownId,
-				_facade.getCons().getConstructor("SDFDef", 0) 
+				_facade.getCons().getConstructor("SDFDef", 0), false 
 				);
 		
 		assertEquals(0, resolvedSymbols.size());
@@ -418,7 +417,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		Set<SpxSymbol> resolvedSymbols = (Set<SpxSymbol>)_facade.resolveSymbols(
 				ModuleDeclaration.toModuleQNameAppl(_facade, moduleDeclarationP1M1),
 				symbolId1,
-				_facade.getCons().getConstructor("SDFDef", 0) 
+				_facade.getCons().getConstructor("SDFDef", 0), false 
 				);
 		
 		assertEquals(1, resolvedSymbols.size());
@@ -443,7 +442,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		Set<SpxSymbol> resolvedSymbols = (Set<SpxSymbol>)_facade.resolveSymbols(
 				ModuleDeclaration.toModuleQNameAppl(_facade, this.moduleDeclarationP2M1),
 				symbolId1,
-				_facade.getCons().getConstructor("SDFDef", 0) 
+				_facade.getCons().getConstructor("SDFDef", 0), false 
 				);
 		
 		assertEquals(0, resolvedSymbols.size());
@@ -466,7 +465,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		Set<SpxSymbol> resolvedSymbols = (Set<SpxSymbol>)_facade.resolveSymbols(
 				PackageDeclaration.toPackageQNameAppl(_facade, this.packageDeclaration2.getId()),
 				symbolId1,
-				_facade.getCons().getConstructor("SDFDef", 0) 
+				_facade.getCons().getConstructor("SDFDef", 0), false 
 				);
 		
 		assertEquals(0, resolvedSymbols.size());
@@ -488,7 +487,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		Set<SpxSymbol> resolvedSymbols = (Set<SpxSymbol>)_facade.resolveSymbols(
 				internalModuleAppl,
 				symbolId1,
-				_facade.getCons().getConstructor("SDFDef", 0) 
+				_facade.getCons().getConstructor("SDFDef", 0), false 
 				);
 		
 		assertEquals(1, resolvedSymbols.size());
@@ -517,7 +516,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		Set<SpxSymbol> resolvedSymbols = (Set<SpxSymbol>)_facade.resolveSymbols(
 				PackageDeclaration.toPackageQNameAppl(_facade,this.packageDeclaration1.getId()),
 				symbolId1,
-				_facade.getCons().getConstructor("ModuleDef", 0) 
+				_facade.getCons().getConstructor("ModuleDef", 0), false 
 				);
 		
 		assertEquals(0, resolvedSymbols.size());
@@ -536,7 +535,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		Set<SpxSymbol> resolvedSymbols = (Set<SpxSymbol>)_facade.resolveSymbols(
 				PackageDeclaration.toPackageQNameAppl(_facade,this.packageDeclaration1.getId()),
 				symbolId1,
-				_facade.getCons().getConstructor("ModuleDef", 0) 
+				_facade.getCons().getConstructor("ModuleDef", 0), false 
 				);
 		
 		assertEquals(1, resolvedSymbols.size());
@@ -562,7 +561,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		Set<SpxSymbol> resolvedSymbols = (Set<SpxSymbol>)_facade.resolveSymbols(
 				ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP1M1.getId()),
 				symbolId1,
-				_facade.getCons().getConstructor("ModuleDef", 0) 
+				_facade.getCons().getConstructor("ModuleDef", 0), false 
 				);
 		
 		assertEquals(0, resolvedSymbols.size());
@@ -570,7 +569,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		resolvedSymbols = (Set<SpxSymbol>)_facade.resolveSymbols(
 				ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP2M1.getId()),
 				symbolId1,
-				_facade.getCons().getConstructor("ModuleDef", 0) 
+				_facade.getCons().getConstructor("ModuleDef", 0), false 
 				);
 		
 		assertEquals(1, resolvedSymbols.size());
@@ -608,6 +607,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 				ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP1M1.getId()), // search origin
 				symbolId3,	//looking for 
 				_facade.getCons().getConstructor("ModuleDef", 0) // with type 
+, false
 				);
 		
 		
@@ -645,6 +645,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 				ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP2M1.getId()), // search origin
 				symbolId3, // loooking for 
 				_facade.getCons().getConstructor("ModuleDef", 0) // with type 
+, false
 				);
 		
 		assertEquals(1, resolvedSymbols.size());
@@ -685,6 +686,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 				ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP3M1.getId()), // search origin
 				symbolId3, // loooking for 
 				tfacade.getCons().getConstructor("ModuleDef", 0) // with type 
+, false
 				);
 		
 		// current import chain is as following : p1-> p2 ->p3->p1
@@ -747,7 +749,36 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		assertNull(ns);
 	}
 	
+	public void testshouldReturnDuplicates()  throws IOException, SpxSymbolTableException{
+		createExtendedScopeTree();
+		
+		IStrategoAppl moduleQnameAppl2 = ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP1M2.getId());
+		
+		//adding a symbol in moduleDeclarationP1M1
+		IStrategoAppl moduleQnameAppl1 = ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP1M1.getId());
+		IStrategoTerm symbolId1 = moduleQnameAppl1; 
+	 	IStrategoTerm data1 = (IStrategoAppl)moduleDeclarationP1M1.toTerm(_facade);	// defining Data
+		IStrategoAppl typeAppl1 = termFactory().makeAppl(termFactory().makeConstructor("ModuleDef", 0)); // setting Type  
+		
+		_facade.indexSymbol(createEntry(moduleQnameAppl1 , symbolId1 , typeAppl1  , data1));
+		
+		_facade.indexSymbol(createEntry(moduleQnameAppl2 , symbolId1 , typeAppl1  , data1));
+		
+		IStrategoAppl nsAppl = PackageDeclaration.toPackageQNameAppl(_facade, this.packageDeclaration1.getId());
+		
+		Collection<SpxSymbol> resolvedSymbols = _facade.resolveSymbols(
+				nsAppl, // search origin
+				symbolId1,	//looking for 
+				_facade.getCons().getConstructor("ModuleDef", 0) // with type 
+				, true
+				);
+		
+		assertEquals(2, resolvedSymbols.size());
+	}
+	
+	
 	public void testResolveInAnonymousScopeShouldReturnEnclosingSymbols() throws IOException, SpxSymbolTableException {
+		
 		createExtendedScopeTree();
 		
 		//adding a symbol in moduleDeclarationP1M1
@@ -770,6 +801,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 				nsAppl, // search origin
 				symbolId1,	//looking for 
 				_facade.getCons().getConstructor("ModuleDef", 0) // with type 
+, false
 				);
 		
 		
@@ -794,6 +826,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 				nsAppl, // search origin
 				symbolId2,	//looking for 
 				_facade.getCons().getConstructor("SDFDef", 0) // with type 
+, false
 				);
 		
 		
@@ -833,6 +866,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 				nsAppl, // search origin
 				symbolId1,	//looking for 
 				_facade.getCons().getConstructor("ModuleDef", 0) // with type 
+, false
 				);
 		
 		
@@ -953,6 +987,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 				ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP3M1.getId()), // search origin
 				termFactory().makeString(Utils.All), // loooking for * symbols 
 				typeAppl1.getConstructor() // of Type 
+, false
 				);
 		
 		assertEquals(1, resolvedSymbols.size());
@@ -968,6 +1003,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 				ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP1M1.getId()), // search origin
 				termFactory().makeString(Utils.All), // loooking for * symbols 
 				typeAppl1.getConstructor() // of Type 
+, false
 				);
 		
 		assertEquals(2, resolvedSymbols.size());

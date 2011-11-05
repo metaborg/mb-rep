@@ -50,8 +50,8 @@ public abstract class SpxAbstractPrimitive extends AbstractPrimitive{
 			successStatement = executePrimitive(env, svars, tvars) ;
 		}
 		catch (Exception ex) {
-			logException(agent , ex);
 			if( ex instanceof IOException ||  ex instanceof IllegalStateException){
+				logException(agent , ex);
 				tryCleanupResources( index.getFacadeRegistry() ,  getProjectPath(tvars) , agent);
 			}
 		}

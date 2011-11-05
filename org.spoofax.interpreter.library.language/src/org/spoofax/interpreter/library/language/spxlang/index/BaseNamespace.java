@@ -3,6 +3,7 @@
 package org.spoofax.interpreter.library.language.spxlang.index;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -174,11 +175,17 @@ public abstract class BaseNamespace implements INamespace {
 		return null; // symbol is not found
 	}
 	
-	public Set<SpxSymbol> resolveAll(IStrategoTerm searchingFor, IStrategoTerm ofType, INamespace searchedBy, SpxSemanticIndexFacade  facade) throws SpxSymbolTableException {
+	public Collection<SpxSymbol> resolveAll(SpxSemanticIndexFacade  facade, IStrategoTerm searchingFor, IStrategoTerm ofType, INamespace searchedBy, boolean returnDuplicate) throws SpxSymbolTableException {
 		
 		facade.persistenceManager().logMessage(this.src, "resolveAll(Base) | Resolving Symbol in " + this.namespaceUri().id() +  " . Key :  " + searchingFor + " origin Namespace: " + searchedBy.namespaceUri().id() );
 		
-		Set<SpxSymbol> retResult = new HashSet<SpxSymbol>();
+		Collection<SpxSymbol> retResult = null;
+		
+		if (returnDuplicate)
+			retResult =	new ArrayList<SpxSymbol>();
+		else
+			retResult =	new HashSet<SpxSymbol>();
+		
 		
 		List<SpxSymbol> lookupResult = lookupSymbols(getMembers() , searchingFor , ofType);
 		retResult.addAll(lookupResult);
@@ -190,7 +197,7 @@ public abstract class BaseNamespace implements INamespace {
 		if( namespace  != null && !namespace.equals(this)){
 			//checks whether searching to the enclosing scope is allowed.
 			if( shouldSearchInEnclosingNamespace(searchedBy)){	
-				Set<SpxSymbol> parentResults  = (Set<SpxSymbol>)namespace.resolveAll(searchingFor, ofType, this ,facade);
+				Collection<SpxSymbol> parentResults  = namespace.resolveAll(facade, searchingFor, ofType ,this, false);
 				retResult.addAll(parentResults);
 			}
 		}	 
@@ -205,8 +212,8 @@ public abstract class BaseNamespace implements INamespace {
 	 * (non-Javadoc)
 	 * @see org.spoofax.interpreter.library.language.spxlang.INamespace#resolveAll(org.spoofax.interpreter.terms.IStrategoTerm, org.spoofax.interpreter.terms.IStrategoTerm, org.spoofax.interpreter.library.language.spxlang.SpxSemanticIndexFacade)
 	 */
-	public Set<SpxSymbol> resolveAll(IStrategoTerm searchingFor, IStrategoTerm ofType, SpxSemanticIndexFacade spxFacade) throws SpxSymbolTableException{
-		return resolveAll(searchingFor, ofType,  this, spxFacade);
+	public Collection<SpxSymbol> resolveAll(SpxSemanticIndexFacade spxFacade, IStrategoTerm searchingFor, IStrategoTerm ofType, boolean retrunDuplicate) throws SpxSymbolTableException{
+		return resolveAll(spxFacade, searchingFor,  ofType, this, retrunDuplicate);
 	}
 	
 	public Map<SpxSymbolKey, List<SpxSymbol>> getMembers(){

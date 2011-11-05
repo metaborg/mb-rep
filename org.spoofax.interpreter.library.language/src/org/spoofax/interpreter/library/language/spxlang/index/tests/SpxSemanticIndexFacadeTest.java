@@ -7,7 +7,6 @@ import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.library.language.LanguageLibrary;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxSemanticIndexFacade;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxSemanticIndexFacadeRegistry;
-import org.spoofax.interpreter.library.language.spxlang.index.data.ModuleDeclaration;
 import org.spoofax.interpreter.library.language.spxlang.index.data.PackageDeclaration;
 import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbolTableException;
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -23,6 +22,7 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 	
 	private IStrategoString projectNameTerm; 
 	private SpxSemanticIndexFacade _facade;
+	private SpxSemanticIndexFacadeRegistry _registry;
 	
 	final String absPathString1 = "c:/temp/test1.spx" ;
 	final String absPathString2 = "c:/temp/test2.spx" ;
@@ -30,7 +30,7 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 	private Interpreter interpreter(){ return itp;	}
 
 	private IOAgent ioAgent() { return itp.getIOAgent(); }
-	private SpxSemanticIndexFacadeRegistry _registry;
+	
 	private ITermFactory termFactory() { return factory; 	}
 	
 	@Override

@@ -3,6 +3,7 @@ package org.spoofax.interpreter.library.language.spxlang.index.data;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -101,7 +102,7 @@ public class SpxSymbol extends SpxBaseSymbol implements Serializable{
 				deserializedDataToTerm )	;
 	}
 	
-	public static IStrategoTerm toTerms(SpxSemanticIndexFacade facade , Set<SpxSymbol> symbols) throws SpxSymbolTableException{
+	public static IStrategoTerm toTerms(SpxSemanticIndexFacade facade , Collection<SpxSymbol> symbols) throws SpxSymbolTableException{
 		IStrategoList result = facade.getTermFactory().makeList();
 		
 		if( symbols != null){

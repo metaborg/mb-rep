@@ -54,8 +54,8 @@ public class ModuleDefinition  extends ModuleDeclaration
 				moduleDeclarationTerm.getSubterm(0),
 				moduleDeclarationTerm.getSubterm(1),
 				moduleDeclarationTerm.getSubterm(2),
-				ast,
-				analyzedAst 
+				forceImploderAttachment(ast) ,
+				forceImploderAttachment(analyzedAst)  
 				);
 		
 		return retTerm;

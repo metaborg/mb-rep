@@ -4,15 +4,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Set;
 
-import org.junit.Test;
 import org.spoofax.interpreter.core.Interpreter;
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.library.language.LanguageLibrary;
 import org.spoofax.interpreter.library.language.spxlang.index.ISpxPersistenceManager;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxModuleLookupTable;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxPackageLookupTable;
-import org.spoofax.interpreter.library.language.spxlang.index.SpxPersistenceManager;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxSemanticIndexFacade;
+import org.spoofax.interpreter.library.language.spxlang.index.SpxSemanticIndexFacadeRegistry;
 import org.spoofax.interpreter.library.language.spxlang.index.data.LanguageDescriptor;
 import org.spoofax.interpreter.library.language.spxlang.index.data.ModuleDeclaration;
 import org.spoofax.interpreter.library.language.spxlang.index.data.PackageDeclaration;
@@ -27,13 +26,16 @@ import org.spoofax.interpreter.test.AbstractInterpreterTest;
 
 public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 	
-	private final String _projectName = "test";
+	private final String _projectName = "test-sybol-table_2";
 	private IStrategoString projectNameTerm;
+	
+	private SpxSemanticIndexFacade _facade;
+	private SpxSemanticIndexFacadeRegistry _registry;
 	
 	private ISpxPersistenceManager manager ;
 	private SpxPackageLookupTable symtable;
 	private SpxModuleLookupTable mSymTable;
-	private SpxSemanticIndexFacade facade; 
+	
 	
 	final String absPathString1 = "c:/temp/test.spx" ;
 	final String absPathString2 = "c:/temp/test2.spx" ;
@@ -53,17 +55,25 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		return itp.getIOAgent(); 
 	}
 	
-	@Override protected void setUp() throws Exception {
+	@Override 
+	protected void setUp() throws Exception {
 		super.setUp("C:/work/projects/spoofax/spx-imp/source-codes/trunk/org.strategoxt.imp.editors.spoofax/include");
 		interpreter().addOperatorRegistry(new LanguageLibrary());
 		
-		projectNameTerm = termFactory().makeString(_projectName);
-		facade = new SpxSemanticIndexFacade(projectNameTerm , termFactory() , ioAgent());
-		manager = new SpxPersistenceManager(facade);
+		_registry = new SpxSemanticIndexFacadeRegistry();
 		
-		symtable = new SpxPackageLookupTable(manager);
-		mSymTable = new SpxModuleLookupTable(manager);
+		projectNameTerm = termFactory().makeString(System.getProperty("user.dir")+ "/"+_projectName);
+	
+		_registry.initFacade(projectNameTerm, termFactory(), ioAgent()); 
+		_facade = _registry.getFacade(projectNameTerm);
+		_facade.reinitSymbolTable();
 		
+		symtable = _facade.persistenceManager().spxPackageTable();
+		mSymTable= _facade.persistenceManager().spxModuleTable();
+		
+		manager = _facade.persistenceManager();
+		
+		mSymTable.clear();
 		symtable.clear();
 	}
 	
@@ -71,7 +81,7 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		symtable.clear();
 		mSymTable.clear();
 		
-		manager.commitAndClose();
+		_facade.persistChanges();
 	}
 	
 	public void testShouldReturngPackageDeclarationbyUri() throws IOException 
@@ -222,79 +232,95 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 
 	public void testLanguageDescriptorIsPersisted() throws IOException
 	{
-		symtable.clear();
+		mSymTable.clear();
 		
 		ITermFactory factory = termFactory();
 		
-		//Defining packagedecl in the symbol table. 
-		IStrategoList idp1 = factory.makeList(factory.makeString("test") , factory.makeString("p1"));
-		PackageDeclaration p1  = new PackageDeclaration(absPathString1, idp1);
+		IStrategoList pId2 = factory.makeList(factory.makeString("test2"));
+		IStrategoList idm2 = factory.makeList(factory.makeString("test") , factory.makeString("m2"));
+		ModuleDeclaration m2 = new ModuleDeclaration(absPathString1, idm2,pId2 );
+		
+		mSymTable.define(
+				this._facade , 
+				m2 , 
+				(IStrategoAppl)getModuleDefinition(factory, "m2"), (IStrategoAppl)getAnalyzedModuleDefinition(factory, "m2")
+			);
+		
+		PackageDeclaration p1  = new PackageDeclaration(absPathString1, idm2);
 		symtable.definePackageDeclaration(p1);
 		
 		//adding langauge descriptor
 		LanguageDescriptor langDescriptor = LanguageDescriptor.newInstance(
 				factory,
-				idp1, 
+				idm2, 
 				factory.makeList( factory.makeString("id1lang") ,factory.makeString("id2lang")),    
 				factory.makeList( factory.makeString("langname2") ,factory.makeString("langname2")),
 				asSDFStartSymbols( new String[]{"Start" , "Package"}) , 
 				asEsvStartSymbols( new String[]{"Start" , "Package"})
 				);
 		
-		symtable.defineLanguageDescriptor(idp1, langDescriptor);
 		
-		
-		ArrayList<IStrategoList> actual = (ArrayList<IStrategoList>)symtable.getPackageIdsByLangaugeName("langname2");
+		mSymTable.defineLanguageDescriptor(idm2, langDescriptor);
+				
+		ArrayList<IStrategoList> actual = (ArrayList<IStrategoList>)mSymTable.getModuleIdsByLangaugeName("langname2");
 	
 		assertEquals( actual.size() , 1) ;
-		assertEquals(idp1, actual.get(0));
+		assertEquals(idm2, actual.get(0));
 	}	
 	
-	public void testUpdatingLanguageDescriptorIsPersisted() throws IOException
-	{
+	public void testUpdatingLanguageDescriptorIsPersisted() throws IOException{
+		mSymTable.clear();
 		symtable.clear();
 		
 		ITermFactory factory = termFactory();
 		
-		//Defining packagedecl in the symbol table. 
-		IStrategoList idp1 = factory.makeList(factory.makeString("test") , factory.makeString("p1"));
-		PackageDeclaration p1  = new PackageDeclaration(absPathString1, idp1);
+		IStrategoList pId2 = factory.makeList(factory.makeString("test2"));
+		PackageDeclaration p1  = new PackageDeclaration(absPathString1, pId2);
 		symtable.definePackageDeclaration(p1);
+		
+		IStrategoList idm2 = factory.makeList(factory.makeString("test") , factory.makeString("m2"));
+		ModuleDeclaration m2 = new ModuleDeclaration(absPathString1, idm2,pId2 );
+		
+		mSymTable.define(
+				this._facade , 
+				m2 , 
+				(IStrategoAppl)getModuleDefinition(factory, "m2"), (IStrategoAppl)getAnalyzedModuleDefinition(factory, "m2")
+			);
 		
 		//adding langauge descriptor
 		LanguageDescriptor langDescriptor = LanguageDescriptor.newInstance(
 				factory,
-				idp1, 
+				idm2, 
 				factory.makeList( factory.makeString("id1lang") ,factory.makeString("id2lang")),    
 				factory.makeList( factory.makeString("langname2") ,factory.makeString("langname2")),
 				asSDFStartSymbols( new String[]{"Start" , "Package"}) , 
 				asEsvStartSymbols( new String[]{"Start" , "Package"})
 				);
 		
-		symtable.defineLanguageDescriptor(idp1, langDescriptor);
 		
-		LanguageDescriptor langDescriptor2 = symtable.getLangaugeDescriptor(idp1);
+		mSymTable.defineLanguageDescriptor(idm2, langDescriptor);
+		
+		LanguageDescriptor langDescriptor2 = mSymTable.getLangaugeDescriptor(idm2);
 		langDescriptor2 = LanguageDescriptor.newInstance(factory, langDescriptor2);
 		langDescriptor2.addLanguageNames(factory, factory.makeList( factory.makeString("langname3") ,factory.makeString("langname4")));
 		
-		symtable.defineLanguageDescriptor(idp1, langDescriptor2);
+		mSymTable.defineLanguageDescriptor(idm2, langDescriptor2);
 		
-		ArrayList<IStrategoList> actual = (ArrayList<IStrategoList>)symtable.getPackageIdsByLangaugeName("langname3");
+		ArrayList<IStrategoList> actual = (ArrayList<IStrategoList>)mSymTable.getModuleIdsByLangaugeName("langname3");
 	
 		assertEquals( actual.size() , 1) ;
-		assertEquals(idp1, actual.get(0));
+		assertEquals(idm2, actual.get(0));
 	}	
 	
-	public void testShouldThrowIllegalArgumentExceptionIfUnknownPackageId() throws IOException
+	public void testShouldThrowIllegalArgumentExceptionIfUnknownModuleId() throws IOException
 	{
-		symtable.clear();
+		this.mSymTable.clear();
 		
 		ITermFactory factory = termFactory();
 		
 		//Defining packagedecl in the symbol table. 
-		IStrategoList idp1 = factory.makeList(factory.makeString("test") , factory.makeString("p1"));
-		PackageDeclaration p1  = new PackageDeclaration(absPathString1, idp1);
-		
+		IStrategoList idM1 = factory.makeList(factory.makeString("test") , factory.makeString("p1"));
+	
 		//Not defining package declaration. Hence package p1 is unknown 
 		//is unknown in this current symbol table.
 		//symtable.definePackageDeclaration(p1);
@@ -302,7 +328,7 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		//adding langauge descriptor
 		LanguageDescriptor langDescriptor = LanguageDescriptor.newInstance(
 				factory,
-				idp1, 
+				idM1, 
 				factory.makeList( factory.makeString("id1lang") ,factory.makeString("id2lang")),    
 				factory.makeList( factory.makeString("langname2") ,factory.makeString("langname2")),
 				asSDFStartSymbols( new String[]{"Start" , "Package"}) , 
@@ -310,7 +336,7 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 				);
 		try
 		{
-			symtable.defineLanguageDescriptor(idp1, langDescriptor);
+			this.mSymTable.defineLanguageDescriptor(idM1, langDescriptor);
 		}catch (IllegalArgumentException ex)
 		{
 			// test is ok  since is it throwing corrent excpetion.  
@@ -356,7 +382,6 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		SpxModuleLookupTable lookupTable = mSymTable;
 		
 		IStrategoList pId = f.makeList(f.makeString("test"));
-		IStrategoList pId2 = f.makeList(f.makeString("test2"));
 		
 		//module declaration 
 		IStrategoList idm1 = f.makeList(f.makeString("test") , f.makeString("m1"));
@@ -364,16 +389,17 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		
 		
 		lookupTable.define(
-					facade , 
+				_facade , 
 					m1 , 
 					(IStrategoAppl)getModuleDefinition(f, "m1"), (IStrategoAppl)getAnalyzedModuleDefinition(f, "m1")
 				);
 		
+		IStrategoList pId2 = f.makeList(f.makeString("test2"));
 		IStrategoList idm2 = f.makeList(f.makeString("test") , f.makeString("m2"));
 		ModuleDeclaration m2 = new ModuleDeclaration(absPathString1, idm2,pId2 );
 		
 		lookupTable.define(
-				facade , 
+				_facade , 
 				m2 , 
 				(IStrategoAppl)getModuleDefinition(f, "m2"), (IStrategoAppl)getAnalyzedModuleDefinition(f, "m2")
 			);
@@ -383,7 +409,7 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		ModuleDeclaration m3 = new ModuleDeclaration(absPathString2, idm3,pId );
 
 		lookupTable.define(
-				facade , 
+				_facade , 
 				m3 , 
 				(IStrategoAppl)getModuleDefinition(f, "m3"), (IStrategoAppl)getAnalyzedModuleDefinition(f, "m3")
 			);
@@ -411,10 +437,8 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		//module declaration 
 		IStrategoList idm1 = f.makeList(f.makeString("test") , f.makeString("m1"));
 		ModuleDeclaration m1 = new ModuleDeclaration(absPathString1, idm1,pId );
-		
-		
 		lookupTable.define(
-					facade , 
+				_facade , 
 					m1 , 
 					(IStrategoAppl)getModuleDefinition(f, "m1"), (IStrategoAppl)getAnalyzedModuleDefinition(f, "m1")
 				);
@@ -423,7 +447,7 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		ModuleDeclaration m2 = new ModuleDeclaration(absPathString1, idm2,pId2 );
 		
 		lookupTable.define(
-				facade , 
+				_facade , 
 				m2 , 
 				(IStrategoAppl)getModuleDefinition(f, "m2"), (IStrategoAppl)getAnalyzedModuleDefinition(f, "m2")
 			);
@@ -433,7 +457,7 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		ModuleDeclaration m3 = new ModuleDeclaration(absPathString2, idm3,pId );
 
 		lookupTable.define(
-				facade , 
+				_facade , 
 				m3 , 
 				(IStrategoAppl)getModuleDefinition(f, "m3"), (IStrategoAppl)getAnalyzedModuleDefinition(f, "m3")
 			);
@@ -463,7 +487,7 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		
 		
 		lookupTable.define(
-					facade, 
+				_facade, 
 					m1 , 
 					(IStrategoAppl)getModuleDefinition(f, "m1"), (IStrategoAppl)getAnalyzedModuleDefinition(f, "m1")
 				);
@@ -472,7 +496,7 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		ModuleDeclaration m2 = new ModuleDeclaration(absPathString2, idm2,pId2 );
 		
 		lookupTable.define(
-				facade , 
+				_facade , 
 				m2 , 
 				(IStrategoAppl)getModuleDefinition(f, "m2"), (IStrategoAppl)getAnalyzedModuleDefinition(f, "m2")
 			);
@@ -482,7 +506,7 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		ModuleDeclaration m3 = new ModuleDeclaration(absPathString2, idm3,pId );
 
 		lookupTable.define(
-				facade , 
+				_facade , 
 				m3 , 
 				(IStrategoAppl)getModuleDefinition(f, "m3"), (IStrategoAppl)getAnalyzedModuleDefinition(f, "m3")
 			);
@@ -513,7 +537,7 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		
 		
 		lookupTable.define(
-					facade , 
+				_facade , 
 					m1 , 
 					(IStrategoAppl)getModuleDefinition(f, "m1"), (IStrategoAppl)getAnalyzedModuleDefinition(f, "m1")
 				);
@@ -522,7 +546,7 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		ModuleDeclaration m2 = new ModuleDeclaration(absPathString2, idm2,pId2 );
 		
 		lookupTable.define(
-				facade , 
+				_facade , 
 				m2 , 
 				(IStrategoAppl)getModuleDefinition(f, "m2"), (IStrategoAppl)getAnalyzedModuleDefinition(f, "m2")
 			);
@@ -532,7 +556,7 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		ModuleDeclaration m3 = new ModuleDeclaration(absPathString2, idm3,pId );
 
 		lookupTable.define(
-				facade , 
+				_facade , 
 				m3 , 
 				(IStrategoAppl)getModuleDefinition(f, "m3"), (IStrategoAppl)getAnalyzedModuleDefinition(f , "m3")
 			);

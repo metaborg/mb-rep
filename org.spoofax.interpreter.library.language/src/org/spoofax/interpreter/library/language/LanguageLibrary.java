@@ -44,6 +44,8 @@ public class LanguageLibrary extends AbstractStrategoOperatorRegistry {
 		add(new SPX_index_get_module_definition(spxIndex));
 		add(new SPX_index_get_module_declarations_of(spxIndex));
 		add(new SPX_index_get_package_declarations_of(spxIndex));
+		add(new SPX_index_get_package_declarations_by_LanguageName(spxIndex));
+		
 		add(new SPX_index_get_imports(spxIndex));
 		add(new SPX_index_get_related_files_of_packages(spxIndex));
 		add(new SPX_index_equal_resource_uri(spxIndex));
@@ -53,6 +55,7 @@ public class LanguageLibrary extends AbstractStrategoOperatorRegistry {
 		add(new SPX_symtab_destroy_scope(spxIndex));
 		add(new SPX_symtab_define_symbol(spxIndex));
 		add(new SPX_symtab_resolve_symbols(spxIndex));
+		add(new SPX_symtab_verify_symbol_exists(spxIndex));
 		add(new SPX_symtab_undefine_symbols(spxIndex));
 	}
 

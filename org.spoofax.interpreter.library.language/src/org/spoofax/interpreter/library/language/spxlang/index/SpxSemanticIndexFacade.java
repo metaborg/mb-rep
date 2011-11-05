@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -352,6 +353,26 @@ public class SpxSemanticIndexFacade {
 		symbolTable.defineSymbol(getNamespaceId((IStrategoAppl)symbolDefinition.getSubterm(NAMESPACE_ID_INDEX)), entry);
 	}
 	
+	public SpxSymbol verifySymbolExists(IStrategoTuple searchCriteria) throws SpxSymbolTableException {
+		if (searchCriteria.getSubtermCount() != 3)
+			throw new IllegalArgumentException(" verifySymbolExists | Illegal symbolLookupTerm Argument ; expected 4 subterms. Found : " + searchCriteria.getSubtermCount());
+		
+		IStrategoAppl typeAppl =  (IStrategoAppl)searchCriteria.getSubterm(2);
+		IStrategoConstructor typeCtor = null; 
+		try{
+			typeCtor = verifyKnownContructorExists(typeAppl);
+		}catch(IllegalArgumentException ex){
+			// It seems like the constructor does not exist in local type declarations. 
+			// Hence, defining it to be used further.
+			IStrategoConstructor ctor = (IStrategoConstructor)typeAppl.getConstructor();
+			typeCtor = _spxConstructors.indexConstructor(ctor);
+		}
+		
+		IStrategoList namespaceID = this.getNamespaceId((IStrategoAppl)searchCriteria.get(0));
+		SpxPrimarySymbolTable  symbolTable = persistenceManager().spxSymbolTable();
+		
+		return symbolTable.resolveSymbol(namespaceID, strip(searchCriteria.get(1)), typeCtor);
+	}
 	
 	// (namespace * idTolookupFor * type constructor)
 	public IStrategoTerm resolveSymbols(IStrategoTuple searchCriteria) throws SpxSymbolTableException{
@@ -371,18 +392,15 @@ public class SpxSemanticIndexFacade {
 			typeCtor = _spxConstructors.indexConstructor(ctor);
 		}
 		
-		Set<SpxSymbol> spxSymbols = null;
+		Collection<SpxSymbol> spxSymbols = null;
 		if (typeCtor != null) {
-			if(searchMode.equalsIgnoreCase(Utils.All)){
-				spxSymbols = resolveSymbols(
-							(IStrategoAppl)searchCriteria.get(0),
-							searchCriteria.get(1),
-							typeCtor);
-			}else if(searchMode.equalsIgnoreCase(Utils.CURRENT)){
-				spxSymbols = resolveSymbol( 
-								(IStrategoAppl)searchCriteria.get(0),
-								searchCriteria.get(1),
-								typeCtor);
+			if(searchMode.equalsIgnoreCase(Utils.AllWithDuplicates)){
+				spxSymbols = resolveSymbols( (IStrategoAppl)searchCriteria.get(0), searchCriteria.get(1),typeCtor, true);
+			}
+			else if(searchMode.equalsIgnoreCase(Utils.All)){
+				spxSymbols = resolveSymbols( (IStrategoAppl)searchCriteria.get(0), searchCriteria.get(1),typeCtor, false);
+			}else if(searchMode.equalsIgnoreCase(Utils.ONLY_ONE)){
+				spxSymbols = resolveSymbol( (IStrategoAppl)searchCriteria.get(0), searchCriteria.get(1),typeCtor);
 			}
 			else{
 				throw new IllegalArgumentException(" Illegal symbolLookupTerm searchMode Argument ; expected * or . . Found : " + searchMode);
@@ -425,17 +443,17 @@ public class SpxSemanticIndexFacade {
 	 * @param namespaceToStartSearchWith Starts search from this namespace. 
 	 * @param symbolId symbol Id to resolve
 	 * @param symbolType Type of Symbols to look for
-	 * 
+	 * @param returnDuplicates TODO
 	 * @return {@link IStrategoList} representation of resolved {@code symbols} 
 	 * 
 	 * @throws SpxSymbolTableException
 	 */
-	public Set<SpxSymbol> resolveSymbols(IStrategoAppl namespaceToStartSearchWith, IStrategoTerm symbolId, IStrategoConstructor  symbolType) throws SpxSymbolTableException {
+	public Collection<SpxSymbol> resolveSymbols(IStrategoAppl namespaceToStartSearchWith, IStrategoTerm symbolId, IStrategoConstructor  symbolType, boolean returnDuplicates) throws SpxSymbolTableException {
 		IStrategoList namespaceID = this.getNamespaceId(namespaceToStartSearchWith);
 
 		SpxPrimarySymbolTable  symbolTable = persistenceManager().spxSymbolTable();
 		
-		Set<SpxSymbol> resolvedSymbols = symbolTable.resolveSymbols(namespaceID, strip(symbolId), symbolType);
+		Collection<SpxSymbol> resolvedSymbols = symbolTable.resolveSymbols(namespaceID, strip(symbolId), symbolType, returnDuplicates);
 		return resolvedSymbols;
 	}
 	
@@ -500,32 +518,23 @@ public class SpxSemanticIndexFacade {
 	{
 		verifyConstructor(languageDescriptor.getConstructor(), getCons().getLanguageDescriptorCon(), "Invalid LanguageDescriptor argument : "+ languageDescriptor.toString());
 
-		IStrategoList qualifiedPackageId = PackageDeclaration.getPackageId(this, (IStrategoAppl)languageDescriptor.getSubterm(0)) ;
-		SpxPackageLookupTable table = _persistenceManager.spxPackageTable();
+		IStrategoList moduleId = ModuleDeclaration.getModuleId(this, (IStrategoAppl)languageDescriptor.getSubterm(0)) ;
+		SpxModuleLookupTable table = _persistenceManager.spxModuleTable();
 
-		table.verifyPackageIDExists(qualifiedPackageId) ;
+		table.verifyModuleIDExists(moduleId);
 
 		//FIXME : move the following logic to extract information and 
 		//construct instance in respective classes . e.g. in LanguageDesrciptor class
-		qualifiedPackageId = (IStrategoList)toCompactPositionInfo((IStrategoTerm)qualifiedPackageId);
+		moduleId = (IStrategoList)toCompactPositionInfo((IStrategoTerm)moduleId);
 
 		IStrategoList lNames = (IStrategoList) this.strip(languageDescriptor.getSubterm(LanguageDescriptor.LanguageNamesIndex));
 		IStrategoList lIds = (IStrategoList) this.strip(languageDescriptor.getSubterm(LanguageDescriptor.LanguageIdsIndex));
 		IStrategoList lEsvStartSymbols = (IStrategoList) this.strip(languageDescriptor.getSubterm(LanguageDescriptor.EsvStartSymbolsIndex));
 		IStrategoList lSdfStartSymbols = (IStrategoList) this.strip(languageDescriptor.getSubterm(LanguageDescriptor.SdfStartSymbolsIndex));
 
-		LanguageDescriptor current = table.getLangaugeDescriptor(qualifiedPackageId);
-		if( current != null){	
-			current.addEsvDeclaredStartSymbols(this.getTermFactory(), lEsvStartSymbols);
-			current.addSDFDeclaredStartSymbols(this.getTermFactory(), lSdfStartSymbols );
-			current.addLanguageIDs(this.getTermFactory(), lIds);
-			current.addLanguageNames(this.getTermFactory(), lNames);
-		}
-		else
-			current = LanguageDescriptor.newInstance(this.getTermFactory() , qualifiedPackageId , lIds, lNames,lSdfStartSymbols , lEsvStartSymbols);
-
-		table.defineLanguageDescriptor(qualifiedPackageId, current);
-
+		LanguageDescriptor current  = LanguageDescriptor.newInstance(this.getTermFactory() , moduleId , lIds, lNames,lSdfStartSymbols , lEsvStartSymbols);
+		
+		table.defineLanguageDescriptor(moduleId, current);
 	}
 	
 	/**
@@ -667,7 +676,31 @@ public class SpxSemanticIndexFacade {
 
 		return result;
 	}
+	
 
+	public IStrategoList getPackageDeclarationsByLanguageName(IStrategoString langName) {
+		logMessage("getPackageDeclarationsByLanguageName | Arguments : " + langName);
+		
+		SpxModuleLookupTable table = persistenceManager().spxModuleTable();
+		
+		Set<IStrategoList> decls  = new HashSet<IStrategoList>(); 
+		
+		Iterable<IStrategoList> mdecls = table.getModuleIdsByLangaugeName(langName);
+		
+		for ( IStrategoList mId: mdecls){
+			decls.add(table.getModuleDeclaration(mId).enclosingPackageID);
+		}
+		
+		IStrategoList result = getTermFactory().makeList();
+		for(IStrategoList  pId : decls){ 
+			result  = getTermFactory().makeListCons(PackageDeclaration.toPackageQNameAppl(this, pId), result);
+		}
+		
+		logMessage("getPackageDeclarationsByLanguageName | Returning IStrategoList : " + result );
+
+		return result;
+	}
+	
 	/**
 	 * Returns {@link ModuleDeclaration} indexed with Module Id - {@code moduleTypeQName}  
 	 * 
@@ -846,17 +879,38 @@ public class SpxSemanticIndexFacade {
 	 */
 	public IStrategoTerm getLanguageDescriptor ( IStrategoAppl packageTypedQName) throws IllegalArgumentException, Exception{
 		IStrategoList  packageId = PackageDeclaration.getPackageId(this, packageTypedQName);
-		IStrategoList emptyList= getTermFactory().makeList() ;
 		
-		SpxPackageLookupTable table = persistenceManager().spxPackageTable();
-		table.verifyPackageIDExists(packageId) ;
+		SpxPackageLookupTable packageTable = persistenceManager().spxPackageTable();
+		packageTable.verifyPackageIDExists(packageId) ;
 		
-		LanguageDescriptor desc = table.getLangaugeDescriptor(packageId);
-		if ( desc == null){	
-			// creating a empty language descriptor 
-			desc = LanguageDescriptor.newInstance(getTermFactory(), packageId , emptyList,emptyList,emptyList,emptyList ); 
-		}
+		LanguageDescriptor desc = getLangaugeDescriptorByPackageId(packageId);
+		
 		return desc.toTerm(this);
+	}
+
+	/**
+	 * Returns language descriptor associated with id
+	 * 
+	 * @param id
+	 *            module id whose language descriptor is to be returned
+	 * @return {@link LanguageDescriptor}
+	 * @throws SpxSymbolTableException 
+	 */
+	LanguageDescriptor getLangaugeDescriptorByPackageId(IStrategoList packageId) throws SpxSymbolTableException {
+		
+		SpxModuleLookupTable moduleLookupTable = persistenceManager().spxModuleTable();
+		
+		LanguageDescriptor ret = LanguageDescriptor.newInstance(getTermFactory(), packageId);
+		Iterable<ModuleDeclaration> moduleDeclarations = this.getModuleDeclarations(packageId);
+	
+		for( ModuleDeclaration m : moduleDeclarations){
+			
+			LanguageDescriptor moduleLangaugeDescriptor = moduleLookupTable.getLangaugeDescriptor(m.getId());
+			
+			ret = LanguageDescriptor.appendLanguageDescriptors(getTermFactory(),ret , moduleLangaugeDescriptor);
+		}
+		
+		return ret;
 	}
 	
 	/**
@@ -938,7 +992,7 @@ public class SpxSemanticIndexFacade {
 		if (!isPersistenceManagerClosed()){
 			persistenceManager().clear(); // cleaning persistence manager.
 			persistenceManager().commitAndClose();
-			tryCleanupIndexDirectory();
+			//tryCleanupIndexDirectory();
 			invalidateSpxCacheDirectory(); //cleaning the SpxCache as well.
 		}
 		initializePersistenceManager();
@@ -1057,4 +1111,6 @@ public class SpxSemanticIndexFacade {
 	}
 
 	public void clearCache() throws IOException{ persistenceManager().clearCache();	}
+
+	
 }

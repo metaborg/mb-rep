@@ -101,7 +101,7 @@ public abstract class IdentifiableConstruct implements Serializable
 	}
 	
 	protected IStrategoTerm forceImploderAttachment(IStrategoTerm term) {
-		ImploderAttachment attach = ImploderAttachment.get(id);
+		ImploderAttachment attach = ImploderAttachment.get(term);
 		if (attach != null) {
 			ImploderAttachment.putImploderAttachment(term, false, attach.getSort(), attach.getLeftToken(), attach.getRightToken());
 		} 
@@ -111,7 +111,7 @@ public abstract class IdentifiableConstruct implements Serializable
 					fn, 0, 0, 0, -1));
 		}
 		return term;
-	}
+	} 
 	
 	/**
 	 * Returns the location of the construct 

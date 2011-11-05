@@ -19,14 +19,18 @@ public final class Utils {
 	}
 	public static final int NO_OF_ATTEMPT_TO_INIT_RECORDMANAGER = 1;
 	
+	public static final String AllWithDuplicates = "**";
 	public static final String All = "*";
 	public static final String DIRTY = "-";
 	public static final String CURRENT = ".";
+	public static final String ONLY_ONE= ".";
 	
 	public static final String All_SYMBOLS = "\"*\"";
 	
+	
 	public static final String SPX_CACHE_DIRECTORY = ".spxcache";
 	public static final String SPX_INDEX_DIRECTORY = ".spxindex";
+	
 	
 	static boolean DEBUG = false;
 	

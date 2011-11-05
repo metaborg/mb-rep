@@ -1,6 +1,7 @@
 package org.spoofax.interpreter.library.language.spxlang.index;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,9 +26,9 @@ public interface INamespace extends Serializable {
     
 	SpxSymbol resolve(IStrategoTerm searchingFor, IStrategoTerm type, INamespace searchedBy , SpxSemanticIndexFacade spxFacade) throws SpxSymbolTableException;
     
-	Set<SpxSymbol> resolveAll(IStrategoTerm searchingFor, IStrategoTerm type, SpxSemanticIndexFacade spxFacade) throws SpxSymbolTableException;
+	Collection<SpxSymbol> resolveAll(SpxSemanticIndexFacade spxFacade, IStrategoTerm searchingFor, IStrategoTerm type, boolean retrunDuplicate) throws SpxSymbolTableException;
 	
-	Set<SpxSymbol> resolveAll(IStrategoTerm searchingFor, IStrategoTerm ofType, INamespace searchedByNamepsace , SpxSemanticIndexFacade spxFacade) throws SpxSymbolTableException;
+	Collection<SpxSymbol>  resolveAll(SpxSemanticIndexFacade spxFacade, IStrategoTerm searchingFor, IStrategoTerm ofType , INamespace searchedByNamepsace, boolean returnDuplicate) throws SpxSymbolTableException;
 	
 	Map<SpxSymbolKey, List<SpxSymbol>> getMembers();
 	
