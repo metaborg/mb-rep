@@ -142,7 +142,7 @@ public class SpxIndexManager implements IIndexManageCommand
 				if(idxFacade!= null){
 					idxFacade.persistChanges();
 					idxFacade.clearCache();
-					idxFacade.close();
+					idxFacade.close(false);
 				} 	
 			}
 		};

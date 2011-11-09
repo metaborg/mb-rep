@@ -90,6 +90,17 @@ public class SpxSemanticIndexFacade {
 		//Setting IntializedOn Flag for incremental Compilation	
 		_initializedOn  = System.currentTimeMillis();
 	}
+	
+	protected void finalize() throws Throwable {
+		try {
+			close(false);
+		} catch (Exception e) {
+		}
+		finally {
+			super.finalize();
+		}
+	}
+	
 	public SpxConstructors getCons(){ return _spxConstructors;}
 	
 	public TermAttachmentSerializer getTermAttachmentSerializer() {
@@ -656,7 +667,7 @@ public class SpxSemanticIndexFacade {
 		return result;
 	}
 
-	public IStrategoList getPackageDeclarations(IStrategoString filePath) {
+	public IStrategoList getPackageDeclarations(IStrategoString filePath){
 		logMessage("getPackageDeclarationsByUri | Arguments : " + filePath);
 		
 		SpxPackageLookupTable table = persistenceManager().spxPackageTable();
@@ -960,7 +971,6 @@ public class SpxSemanticIndexFacade {
 	 */
 	public void persistChanges() throws IOException {
 		_persistenceManager.commit();
-
 		if (Utils.DEBUG)
 			try {
 				_persistenceManager.spxSymbolTable().printSymbols(this,
@@ -968,12 +978,14 @@ public class SpxSemanticIndexFacade {
 			} catch (SpxSymbolTableException e) {
 			}
 	}	
+
 	/**
 	 * Closes any underlying open connection. 
+	 * @param shouldCommit TODO
 	 *  
 	 * @throws IOException
 	 */
-	public void close() throws IOException {
+	public void close(boolean shouldCommit) throws IOException {
 		if (!isPersistenceManagerClosed()) {
 			logMessage("close | closing underlying persistence manager instance.");
 			_persistenceManager.close();

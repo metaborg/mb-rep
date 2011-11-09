@@ -66,7 +66,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 
 	@Override 
 	protected void tearDown() throws Exception { 
-		_facade.close(); 
+		_facade.close(false); 
 	}
 	
 	private void indexCompilationUnit() throws IOException

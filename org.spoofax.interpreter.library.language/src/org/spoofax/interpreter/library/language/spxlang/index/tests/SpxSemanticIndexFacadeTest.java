@@ -49,7 +49,7 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 	}
 	
 	@Override 
-	protected void tearDown() throws Exception { _facade.close(); }
+	protected void tearDown() throws Exception { _facade.close(false); }
 	
 	public void testGetModuleDeclarationsByFileUri() throws IOException
 	{
@@ -133,7 +133,7 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		
 	}
 
-	public void testGetPackageDeclarationsByUri()
+	public void testGetPackageDeclarationsByUri() throws IOException
 	{
 		String packageName1 =  	"\"languages\", \"entitylang\"" ;
 

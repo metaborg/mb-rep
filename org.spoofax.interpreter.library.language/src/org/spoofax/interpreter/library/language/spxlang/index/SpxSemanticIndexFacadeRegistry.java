@@ -85,7 +85,7 @@ public class SpxSemanticIndexFacadeRegistry
 		SpxSemanticIndexFacade facade = _registry.get(projectPath);
 		
 		if((facade != null) &&  !facade.isPersistenceManagerClosed())
-			facade.close();
+			facade.close(false);
 		
 		
 		return facade;

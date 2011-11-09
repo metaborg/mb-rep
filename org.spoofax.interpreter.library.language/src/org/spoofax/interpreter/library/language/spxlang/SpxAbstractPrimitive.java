@@ -71,7 +71,7 @@ public abstract class SpxAbstractPrimitive extends AbstractPrimitive{
 				facade = registry.getFacade(projectPath);
 				if(facade!=null){
 					facade.clearCache();
-					facade.close();
+					facade.close(false);
 				}
 			} catch (Exception e) {
 				logMessage( agent, "Cleanup Failed due to error :"+ e.getMessage() );
