@@ -40,7 +40,7 @@ public class SpxConstructors {
 		ConstructorDef.newInstance("Module" , 0).index(_knownCons, _termFactory);
 		
 		ConstructorDef.newInstance("ToCompile"  , 0).index(_knownCons, _termFactory);
-		ConstructorDef.newInstance("ToGenerate" , 0).index(_knownCons, _termFactory);
+		ConstructorDef.newInstance("ToCodeGenerate" , 0).index(_knownCons, _termFactory);
 	}
 	
 	IStrategoConstructor indexConstructor(IStrategoConstructor ctor){

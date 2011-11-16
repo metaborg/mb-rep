@@ -13,6 +13,7 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.interpreter.terms.TermConverter;
 
 public class PackageDeclaration extends IdentifiableConstruct implements INamespaceFactory
 {
@@ -51,6 +52,24 @@ public class PackageDeclaration extends IdentifiableConstruct implements INamesp
 	
 	public void addImportedTo(IStrategoList packageId){
 		importedToReferences.add(packageId);
+	}
+	
+	
+
+	public IStrategoTerm getImportedToReferences(
+			SpxSemanticIndexFacade idxFacade) {
+		ITermFactory termFactory = idxFacade.getTermFactory();
+		TermConverter termConverter = idxFacade.getTermConverter();
+		
+		HashSet<IStrategoTerm> importedTo = new HashSet<IStrategoTerm>();
+		importedTo.addAll(this.importedToReferences);
+		
+		IStrategoList result = termFactory.makeList();
+		for (IStrategoTerm t: importedTo){
+			result = idxFacade.getTermFactory().makeListCons(tranformToSpxImport(idxFacade,t), result);
+		}	
+		return termConverter.convert(result);
+	
 	}
 	
 	/* (non-Javadoc)
@@ -158,9 +177,12 @@ public class PackageDeclaration extends IdentifiableConstruct implements INamesp
 		
 		PackageDeclaration newDecl = new PackageDeclaration(decl.getId());
 		for( String str : decl.getAllFilePaths())
-		{
 			newDecl.addFileUri(str); 
-		}
+		
+		newDecl.importedToReferences.addAll(decl.importedToReferences);
+		newDecl.importReferences.addAll(decl.importReferences);
+		newDecl.legacyImportReferences.addAll(decl.legacyImportReferences);
+		
 		return newDecl;
 	}
 

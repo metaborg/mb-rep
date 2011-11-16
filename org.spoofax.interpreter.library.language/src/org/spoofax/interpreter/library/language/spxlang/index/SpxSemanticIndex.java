@@ -45,6 +45,8 @@ public class SpxSemanticIndex {
 		return idx.executeIndexer(projectPath, importReferences);
 	}
 	
+	
+	
 	public boolean indexSymbolDefinition(IStrategoString projectPath, final IStrategoAppl symbolDef)  throws Exception{
 		
 		SpxIndexer idx = new SpxIndexer() {
@@ -178,6 +180,19 @@ public class SpxSemanticIndex {
 					
 					SpxSemanticIndexFacade idxFacade = getFacade(projectPath);
 					return idxFacade.getImportReferences((IStrategoAppl)namespaceID);
+			}
+		}.executeWith(projectPath, namespaceID);
+	}
+	
+	
+	public IStrategoTerm getImportedToReferences(IStrategoString projectPath, final IStrategoAppl namespaceID) throws Exception{
+		return new SpxResolver() {
+			@Override
+			public IStrategoTerm resolve(IStrategoString projectPath, IStrategoTerm namespaceID)
+					throws Exception {	
+					
+					SpxSemanticIndexFacade idxFacade = getFacade(projectPath);
+					return idxFacade.getImportedToReferences((IStrategoAppl)namespaceID);
 			}
 		}.executeWith(projectPath, namespaceID);
 	}

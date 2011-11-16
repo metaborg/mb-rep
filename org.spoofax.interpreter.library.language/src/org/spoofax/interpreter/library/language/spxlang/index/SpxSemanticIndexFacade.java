@@ -53,9 +53,6 @@ public class SpxSemanticIndexFacade {
 	private final TermConverter _converter;
 	private final SpxConstructors _spxConstructors;
 	
-	private long _initializedOn;
-	
-	private long _previousSuccessfulCodeGenerationDoneOn;
 	private long _currentCodeGenerationStratedOn;
 
 	
@@ -87,13 +84,12 @@ public class SpxSemanticIndexFacade {
 		_persistenceManager.initializeSymbolTables(this._projectPath, this);
 		_indexId = _persistenceManager.getIndexId();
 		
-		//Setting IntializedOn Flag for incremental Compilation	
-		_initializedOn  = System.currentTimeMillis();
+		
 	}
 	
 	protected void finalize() throws Throwable {
 		try {
-			close(false);
+			close(true);
 		} catch (Exception e) {
 		}
 		finally {
@@ -130,9 +126,13 @@ public class SpxSemanticIndexFacade {
 	 */
 	public ISpxPersistenceManager persistenceManager(){	return _persistenceManager; }
 
-	public void onInitCodeGeneration(){ this._currentCodeGenerationStratedOn = System.currentTimeMillis(); }
+	public void onInitCodeGeneration(){
+		this._currentCodeGenerationStratedOn = System.currentTimeMillis(); 
+	}
 	
-	public void onCompleteCodeGeneration() { this._previousSuccessfulCodeGenerationDoneOn = this._currentCodeGenerationStratedOn;}
+	public void onCompleteCodeGeneration() { 
+		this.persistenceManager().spxSymbolTable().setLastCodeGeneratedOn(this._currentCodeGenerationStratedOn);
+	}
 	
 	/**
 	 * Returns CompilationUnit located in {@code spxCompilationUnitPath} as {@link IStrategoTerm}
@@ -430,8 +430,16 @@ public class SpxSemanticIndexFacade {
 	    IStrategoList namespaceID = this.getNamespaceId(Tools.applAt(searchCriteria, 0));
 	    IStrategoTerm symbolID = Tools.termAt(searchCriteria, 1);
 	    IStrategoAppl typeAppl =  Tools.applAt(searchCriteria, 2);
-	    IStrategoConstructor typeCtor = getCons().getConstructor( typeAppl.getConstructor().getName(), typeAppl.getConstructor().getArity()) ;
-	    
+	    IStrategoConstructor typeCtor = null; 
+		try{
+			typeCtor = verifyKnownContructorExists(typeAppl);
+		}catch(IllegalArgumentException ex){
+			// It seems like the constructor does not exist in local type declarations. 
+			// Hence, defining it to be used further.
+			IStrategoConstructor ctor = (IStrategoConstructor)typeAppl.getConstructor();
+			typeCtor = _spxConstructors.indexConstructor(ctor);
+		}
+		
 	    Set<SpxSymbol> spxSymbols = this.persistenceManager().spxSymbolTable()
 	    					.undefineSymbols(namespaceID, 
 	    									 symbolID,
@@ -575,6 +583,7 @@ public class SpxSemanticIndexFacade {
 		persistenceManager().spxPackageTable().definePackageDeclaration(packageDeclaration);
 	}
 	
+	
 	/**
 	 * @param mDecl
 	 */
@@ -612,6 +621,37 @@ public class SpxSemanticIndexFacade {
 			throw new IllegalArgumentException("Unknown Namespace "	+ namespaceId.toString());
 		
 		return ns.getImports(this);
+	}
+	
+	
+
+	/**
+	 * Returning all the imported to reference of the current package / module construct. Package/ Module  
+	 * are the scoped symbol for the current implementation of the spoofaxlang. Whenever 
+	 * looking for a importto reference of a module, it returns the import refernece of it enclosing 
+	 * namespace , i.e. package. 
+	 * 
+	 * Currently this lookup is hard-coded . Later , plan is to move to more generic and dynamic 
+	 * lookup environment. 
+	 * 
+	 * @param namespaceId
+	 * @return {@link IStrategoTerm} 
+	 * @throws SpxSymbolTableException 
+	 */
+	public IStrategoTerm getImportedToReferences(IStrategoAppl namespaceId) throws SpxSymbolTableException {
+		PackageDeclaration ns; 
+
+		if (namespaceId.getConstructor() == getCons().getModuleQNameCon()) {
+			IStrategoList packageId = persistenceManager()
+					.spxModuleTable()
+					.packageId(ModuleDeclaration.getModuleId(this, namespaceId));
+			ns = lookupPackageDecl(packageId);
+		} else if (namespaceId.getConstructor() == getCons().getPackageQNameCon()) {
+			ns = this.lookupPackageDecl(namespaceId);
+		} else
+			throw new IllegalArgumentException("Unknown Namespace "	+ namespaceId.toString());
+		
+		return ns.getImportedToReferences(this);
 	}
 	
 	/**
@@ -831,12 +871,11 @@ public class SpxSemanticIndexFacade {
 		logMessage("getDirtyModuleDeclarations | Found following result from SymbolTable : " + decls);
 		
 		long ts = 0;
-		if( getCons().hasEqualConstructor( qualifiedFor , getCons().getToCompileCon())){
-			ts = this._initializedOn;
-		}
-		else if ( getCons().hasEqualConstructor( qualifiedFor , getCons().getToCodeGenerateCon())){
-			ts = this._previousSuccessfulCodeGenerationDoneOn;
-		}
+	
+		if( getCons().hasEqualConstructor( qualifiedFor , getCons().getToCompileCon()))
+			ts = _persistenceManager.spxSymbolTable().getIntializedOn();
+		else if ( getCons().hasEqualConstructor( qualifiedFor , getCons().getToCodeGenerateCon()))
+			ts = this.persistenceManager().spxSymbolTable().getLastCodeGeneratedOn();
 		else
 			throw new SpxSymbolTableException("Illegal qualifiedFor constructor at getDirtyModuleDeclarations");
 		
@@ -971,12 +1010,12 @@ public class SpxSemanticIndexFacade {
 	 */
 	public void persistChanges() throws IOException {
 		_persistenceManager.commit();
-		if (Utils.DEBUG)
+		if (Utils.DEBUG){
 			try {
-				_persistenceManager.spxSymbolTable().printSymbols(this,
-						"commit", this.getProjectPath(), this.indexId());
+				_persistenceManager.spxSymbolTable().printSymbols(this, "commit", this.getProjectPath(), this.indexId());
 			} catch (SpxSymbolTableException e) {
 			}
+		}
 	}	
 
 	/**
@@ -988,8 +1027,13 @@ public class SpxSemanticIndexFacade {
 	public void close(boolean shouldCommit) throws IOException {
 		if (!isPersistenceManagerClosed()) {
 			logMessage("close | closing underlying persistence manager instance.");
+			if(shouldCommit)
+				_persistenceManager.commit();
+			
+			_persistenceManager.spxSymbolTable().setCompileSessionEndedOn();
 			_persistenceManager.close();
 			_persistenceManager = null;
+			
 		}else {
 			logMessage("close | underlying persistence manager is already closed. ");
 		}	

@@ -31,6 +31,7 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 	
 	private final SpxSemanticIndexFacade _facade;
 	private final PrimaryMap <NamespaceUri,INamespace> namespaces;
+	private final PrimaryMap <String,Long> timestamps;
 	private final SecondaryHashMap <IStrategoList,NamespaceUri,INamespace> namespaceByStrategoId;
 	private transient INamespace _activeNamespace ;
 	
@@ -42,6 +43,8 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 
 		String tableName = facade.persistenceManager().getIndexId() + "primary_symbol_table.idx";
 		
+		timestamps = facade.persistenceManager().loadHashMap(tableName + "timestamps.idx");
+		
 		namespaces  = facade.persistenceManager().loadHashMap(tableName + "namespaces.idx");
 		namespaceByStrategoId = namespaces.secondaryHashMap(tableName+ ".namespaceByStrategoId.idx", 
 				new SecondaryKeyExtractor<IStrategoList,NamespaceUri,INamespace>(){
@@ -49,6 +52,38 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 						return k.id(); 
 					}
 				});
+	}
+	
+	
+	private final static String INITIALIZED_ON_KEY = "INITIALIZED_ON";
+	private final static String LAST_CODEGEN_ON_KEY = "LAST_CODEGEN_ON";
+	
+	long getIntializedOn(){ 
+		Long initializedOn = timestamps.get(INITIALIZED_ON_KEY);
+		
+		if(initializedOn ==null) return System.currentTimeMillis();
+		
+		return initializedOn;
+	}
+	
+	void setCompileSessionEndedOn(){ 
+		timestamps.put(INITIALIZED_ON_KEY, System.currentTimeMillis());
+				
+	}
+	
+	
+	long getLastCodeGeneratedOn(){ 
+		Long lastCodeGenOn = timestamps.get(LAST_CODEGEN_ON_KEY);
+		
+		if(lastCodeGenOn ==null) 
+			return 0;
+		
+		return lastCodeGenOn;
+	}
+	
+	void setLastCodeGeneratedOn(long timestap){ 
+		timestamps.put(LAST_CODEGEN_ON_KEY, timestap);
+				
 	}
 	
 	/**

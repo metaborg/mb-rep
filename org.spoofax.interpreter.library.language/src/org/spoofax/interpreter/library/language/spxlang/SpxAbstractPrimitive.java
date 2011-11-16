@@ -10,6 +10,7 @@ import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxSemanticIndex;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxSemanticIndexFacade;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxSemanticIndexFacadeRegistry;
+import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbolTableException;
 import org.spoofax.interpreter.library.ssl.SSLLibrary;
 import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoString;
@@ -50,8 +51,11 @@ public abstract class SpxAbstractPrimitive extends AbstractPrimitive{
 			successStatement = executePrimitive(env, svars, tvars) ;
 		}
 		catch (Exception ex) {
-			if( ex instanceof IOException ||  ex instanceof IllegalStateException){
+			
+			if (!( ex instanceof SpxSymbolTableException)) 
 				logException(agent , ex);
+			
+			if( ex instanceof IOException ||  ex instanceof IllegalStateException){
 				tryCleanupResources( index.getFacadeRegistry() ,  getProjectPath(tvars) , agent);
 			}
 		}

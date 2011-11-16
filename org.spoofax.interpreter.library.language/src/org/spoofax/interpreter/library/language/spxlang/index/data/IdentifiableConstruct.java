@@ -72,7 +72,7 @@ public abstract class IdentifiableConstruct implements Serializable
 			throw new NotImplementedException("Unknown Import Reference. Not implemented for : " + packageRef.toString());
 	}
 	
-	private IStrategoTerm tranformToSpxImport(SpxSemanticIndexFacade idxFacade, IStrategoTerm i){
+	protected IStrategoTerm tranformToSpxImport(SpxSemanticIndexFacade idxFacade, IStrategoTerm i){
 		IStrategoTerm retTerm = i ; 
 		if( i instanceof IStrategoList)
 			retTerm = PackageDeclaration.toPackageQNameAppl(idxFacade, (IStrategoList)i);
@@ -99,6 +99,8 @@ public abstract class IdentifiableConstruct implements Serializable
 		}	
 		return termConverter.convert(result);
 	}
+	
+
 	
 	protected IStrategoTerm forceImploderAttachment(IStrategoTerm term) {
 		ImploderAttachment attach = ImploderAttachment.get(term);
@@ -194,5 +196,6 @@ public abstract class IdentifiableConstruct implements Serializable
 			return false;
 		return true;
 	}
+
 
 }

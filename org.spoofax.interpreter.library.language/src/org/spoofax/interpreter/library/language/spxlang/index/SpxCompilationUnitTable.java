@@ -19,6 +19,7 @@ public class SpxCompilationUnitTable {
 	
 	private final String SRC  = this.getClass().getSimpleName();
 	private final PrimaryHashMap<String , SpxCompilationUnitInfo> _infoMap;
+	
 	private final PrimaryStoreMap<Long,String> _spxUnitStoreMap;
 	
     /**
