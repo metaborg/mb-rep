@@ -11,6 +11,8 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 public class StrategoSubList extends StrategoWrapped implements IStrategoList {
 
 
+	private static final long serialVersionUID = -2495148050199572355L;
+
 	private final IStrategoList completeList;
 
 	private int indexStart;
