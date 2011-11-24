@@ -1,6 +1,9 @@
 package org.spoofax.interpreter.library.language.spxlang;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.core.InterpreterException;
@@ -92,9 +95,21 @@ public abstract class SpxAbstractPrimitive extends AbstractPrimitive{
 	void logException(IOAgent agent , Throwable ex){
 		agent.printError("[" + this.getName() + "]  Invocation failed . "
 									+ ex.getClass().getSimpleName()
-									+ " | error message: " + ex.getMessage());
+									+ " | error message: " + ex.getMessage()
+									+ " | stack track : "+ getStackTrace(ex));
 	}
 	
+	
+	 public static String getStackTrace(Throwable aThrowable) {
+		    final Writer result = new StringWriter();
+		    final PrintWriter printWriter = new PrintWriter(result);
+		    if(aThrowable == null) 
+		    	return "";
+		    
+		    aThrowable.printStackTrace(printWriter);
+		    return result.toString();
+		  }
+
 	static class SpxPrimitiveValidator{
 		IContext env;
 		IStrategoTerm[] tvars;

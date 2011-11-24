@@ -94,7 +94,7 @@ public class ModuleDeclaration extends IdentifiableConstruct implements INamespa
 		
 		List<INamespace> namespaces = new ArrayList<INamespace>();
 		
-		SpxPrimarySymbolTable  table =  idxFacade.persistenceManager().spxSymbolTable() ;
+		SpxPrimarySymbolTable  table =  idxFacade.getPersistenceManager().spxSymbolTable() ;
 		
 		NamespaceUri namespaceUri = table.toNamespaceUri(id) ;
 		NamespaceUri packageUri = table.toNamespaceUri(enclosingPackageID) ;
@@ -106,7 +106,7 @@ public class ModuleDeclaration extends IdentifiableConstruct implements INamespa
 	
 	public  NamespaceUri getNamespaceUri(SpxSemanticIndexFacade idxFacade)
 	{
-		return idxFacade.persistenceManager().spxSymbolTable().toNamespaceUri(id) ;
+		return idxFacade.getPersistenceManager().spxSymbolTable().toNamespaceUri(id) ;
 	}
 
 	/**

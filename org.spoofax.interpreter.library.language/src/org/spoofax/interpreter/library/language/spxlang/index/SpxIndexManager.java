@@ -140,7 +140,7 @@ public class SpxIndexManager implements IIndexManageCommand
 			public void executeCommnad(SpxSemanticIndex idx, IStrategoTerm projectPath, Object... objects) throws Exception{
 				SpxSemanticIndexFacade idxFacade = idx.getFacadeRegistry().getFacade(projectPath);
 				if(idxFacade!= null){
-					idxFacade.persistChanges();
+					idxFacade.commit();
 					idxFacade.clearCache();
 					idxFacade.close(false);
 				} 	
@@ -178,7 +178,7 @@ public class SpxIndexManager implements IIndexManageCommand
 			public void executeCommnad(SpxSemanticIndex idx, IStrategoTerm projectPath, Object... objects) throws Exception{
 				SpxSemanticIndexFacade idxFacade = idx.getFacadeRegistry().getFacade(projectPath);
 				if(idxFacade!= null){
-					idxFacade.persistChanges();
+					idxFacade.commit();
 				}	
 			}
 		};

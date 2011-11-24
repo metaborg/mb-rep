@@ -1,7 +1,7 @@
 package org.spoofax.interpreter.library.language.spxlang.index;
 
-import static org.spoofax.interpreter.core.Tools.asJavaString;
 import static org.spoofax.interpreter.core.Tools.applAt;
+import static org.spoofax.interpreter.core.Tools.asJavaString;
 import static org.spoofax.interpreter.core.Tools.stringAt;
 
 import java.io.File;
@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -42,7 +41,7 @@ import org.spoofax.terms.attachments.TermAttachmentStripper;
 //TODO FIXME : combine symbol table and index
 public class SpxSemanticIndexFacade {
 	
-	private ISpxPersistenceManager _persistenceManager;
+	ISpxPersistenceManager persistenceManager;
 	
 	private final String _projectPath ;
 	private String _indexId;
@@ -79,12 +78,25 @@ public class SpxSemanticIndexFacade {
 		_spxConstructors = new SpxConstructors(_termFactory);
 	}
 	
-	public synchronized void initializePersistenceManager() throws Exception {
-		_persistenceManager = new SpxPersistenceManager(this);
-		_persistenceManager.initializeSymbolTables(this._projectPath, this);
-		_indexId = _persistenceManager.getIndexId();
-		
-		
+	private void initializePersistenceManager() throws Exception {
+		ISpxPersistenceManager persistenceManager = getPersistenceManager();
+		persistenceManager.initializeSymbolTables(this._projectPath, this);
+		_indexId = persistenceManager.getIndexId();
+	}
+	
+	public synchronized void tryReInitializePersistenceManager() throws Exception{
+		if( isPersistenceManagerClosed()){
+			initializePersistenceManager();
+			onInitCodeCompilation();
+		}
+	}
+	
+	public static SpxSemanticIndexFacade getInstance(IStrategoTerm projectPath , ITermFactory termFactory , IOAgent agent) throws Exception{
+		SpxSemanticIndexFacade fac  = new SpxSemanticIndexFacade(projectPath, termFactory, agent);
+		fac.persistenceManager = new SpxPersistenceManager(fac); // initializing persistence manager and reusing it throughout the session
+		fac.initializePersistenceManager();
+		fac.cleanIndex();
+		return fac;
 	}
 	
 	protected void finalize() throws Throwable {
@@ -124,14 +136,29 @@ public class SpxSemanticIndexFacade {
 	 * Returns an instance of the Persistence Manager active for the current Facade
 	 * @return
 	 */
-	public ISpxPersistenceManager persistenceManager(){	return _persistenceManager; }
+	public ISpxPersistenceManager getPersistenceManager(){
+		if(persistenceManager == null)
+			throw new IllegalArgumentException("Error : PersistenceManage is null");
+		
+		return persistenceManager; 
+	}
 
 	public void onInitCodeGeneration(){
 		this._currentCodeGenerationStratedOn = System.currentTimeMillis(); 
 	}
 	
 	public void onCompleteCodeGeneration() { 
-		this.persistenceManager().spxSymbolTable().setLastCodeGeneratedOn(this._currentCodeGenerationStratedOn);
+		ISpxPersistenceManager mangager= this.getPersistenceManager();
+		mangager.spxSymbolTable().setLastCodeGeneratedOn(this._currentCodeGenerationStratedOn);
+	}
+	
+	private long currentCodeCompilationStartedOn;
+	
+	public void onInitCodeCompilation(){ 	this.currentCodeCompilationStartedOn = System.currentTimeMillis(); }
+	
+	public void onCompleteCodeCompilation(){ 	
+		ISpxPersistenceManager mangager= this.getPersistenceManager();
+		mangager.spxSymbolTable().setCompileSessionEndedOn(currentCodeCompilationStartedOn) ;
 	}
 	
 	/**
@@ -146,7 +173,7 @@ public class SpxSemanticIndexFacade {
 		
 		logMessage("SpxSemanticIndexFacade.getCompilationUnit . Arguments : " + spxCompilationUnitPath);
 		
-		SpxCompilationUnitTable table = _persistenceManager.spxCompilcationUnitTable();
+		SpxCompilationUnitTable table = getPersistenceManager().spxCompilcationUnitTable();
 		
 		IStrategoAppl term = (IStrategoAppl)table.get(this, resUri);
 		
@@ -161,7 +188,7 @@ public class SpxSemanticIndexFacade {
 	public SpxCompilationUnitInfo getCompilationUnitInfo(String absUriPath){
 		URI resUri = Utils.getAbsolutePathUri(absUriPath ,_agent);
 		
-		SpxCompilationUnitTable table = _persistenceManager.spxCompilcationUnitTable();
+		SpxCompilationUnitTable table = getPersistenceManager().spxCompilcationUnitTable();
 		return table.getInfo(this, resUri);
 	}
 
@@ -174,7 +201,7 @@ public class SpxSemanticIndexFacade {
 	public void removeCompilationUnit( IStrategoString spxCompilationUnitPath ) throws IOException{
 		URI resUri = toFileURI(spxCompilationUnitPath);
 		
-		SpxCompilationUnitTable table = _persistenceManager.spxCompilcationUnitTable();
+		SpxCompilationUnitTable table = getPersistenceManager().spxCompilcationUnitTable();
 		
 		table.remove(resUri);
 	}
@@ -187,12 +214,12 @@ public class SpxSemanticIndexFacade {
 	 * @throws IOException 
 	 */
 	public void indexCompilationUnit( IStrategoString spxCompilationUnitPath, IStrategoAppl spxCompilationUnitAST) throws IOException {
-
+		
 		URI resUri = toFileURI(spxCompilationUnitPath); // Converting IStrategoString to File URI 
 		
 		IStrategoTerm astTerm = toCompactPositionInfo(spxCompilationUnitAST);
 
-		SpxCompilationUnitTable table = _persistenceManager.spxCompilcationUnitTable();
+		SpxCompilationUnitTable table = getPersistenceManager().spxCompilcationUnitTable();
 	
 		logMessage("Storing following compilation unit. Path : ["+  spxCompilationUnitPath +"]");
 		
@@ -234,12 +261,12 @@ public class SpxSemanticIndexFacade {
 			IStrategoAppl ast, 
 			IStrategoAppl analyzedAst) throws IOException {
 
-		SpxModuleLookupTable table = _persistenceManager.spxModuleTable();
+		SpxModuleLookupTable table = getPersistenceManager().spxModuleTable();
 
 		IStrategoList moduleId = ModuleDeclaration.getModuleId( this, moduleQName);
 		IStrategoList packageId = PackageDeclaration.getPackageId(this, packageQName);
 		
-		_persistenceManager.spxPackageTable().verifyPackageIDExists(packageId) ;
+		getPersistenceManager().spxPackageTable().verifyPackageIDExists(packageId) ;
 		
 		moduleId = (IStrategoList) strip(moduleId);
 		packageId = (IStrategoList) strip(packageId);
@@ -282,8 +309,10 @@ public class SpxSemanticIndexFacade {
 	 */
 	public void indexPackageDeclaration(IStrategoAppl packageIdAppl, IStrategoString spxCompilationUnitPath){
 		
-		SpxPackageLookupTable table = _persistenceManager.spxPackageTable();
-		SpxCompilationUnitTable spxTable = _persistenceManager.spxCompilcationUnitTable();
+		ISpxPersistenceManager persistenceManager = getPersistenceManager();
+		
+		SpxPackageLookupTable table = persistenceManager.spxPackageTable();
+		SpxCompilationUnitTable spxTable = persistenceManager.spxCompilcationUnitTable();
 		
 		IStrategoList packageId = PackageDeclaration.getPackageId(this, packageIdAppl);
 		
@@ -314,7 +343,7 @@ public class SpxSemanticIndexFacade {
 		
 		IStrategoList parentId = getNamespaceId(namespaceAppl);
 		
-		SpxPrimarySymbolTable  symbolTable = persistenceManager().spxSymbolTable();
+		SpxPrimarySymbolTable  symbolTable = getPersistenceManager().spxSymbolTable();
 		INamespace ns = symbolTable.newAnonymousNamespace(parentId);
 		
 		return this.getTermFactory().makeAppl(getCons().getLocalNamespaceTypeCon(), ns.namespaceUri().id());
@@ -325,7 +354,7 @@ public class SpxSemanticIndexFacade {
 		
 		IStrategoList id = getNamespaceId(namespaceAppl);
 		
-		SpxPrimarySymbolTable  symbolTable = persistenceManager().spxSymbolTable();
+		SpxPrimarySymbolTable  symbolTable = getPersistenceManager().spxSymbolTable();
 		INamespace deletedLocalNs = symbolTable.destroyNamespace(id);
 		
 		return _termFactory.makeAppl(getCons().getLocalNamespaceTypeCon(), deletedLocalNs.namespaceUri().id());
@@ -360,7 +389,7 @@ public class SpxSemanticIndexFacade {
 					      .build();
 					   		
 		
-		SpxPrimarySymbolTable  symbolTable = persistenceManager().spxSymbolTable();
+		SpxPrimarySymbolTable  symbolTable = getPersistenceManager().spxSymbolTable();
 		symbolTable.defineSymbol(getNamespaceId((IStrategoAppl)symbolDefinition.getSubterm(NAMESPACE_ID_INDEX)), entry);
 	}
 	
@@ -380,7 +409,7 @@ public class SpxSemanticIndexFacade {
 		}
 		
 		IStrategoList namespaceID = this.getNamespaceId((IStrategoAppl)searchCriteria.get(0));
-		SpxPrimarySymbolTable  symbolTable = persistenceManager().spxSymbolTable();
+		SpxPrimarySymbolTable  symbolTable = getPersistenceManager().spxSymbolTable();
 		
 		return symbolTable.resolveSymbol(namespaceID, strip(searchCriteria.get(1)), typeCtor);
 	}
@@ -440,7 +469,7 @@ public class SpxSemanticIndexFacade {
 			typeCtor = _spxConstructors.indexConstructor(ctor);
 		}
 		
-	    Set<SpxSymbol> spxSymbols = this.persistenceManager().spxSymbolTable()
+	    Set<SpxSymbol> spxSymbols = this.getPersistenceManager().spxSymbolTable()
 	    					.undefineSymbols(namespaceID, 
 	    									 symbolID,
     										 typeCtor);
@@ -449,7 +478,7 @@ public class SpxSemanticIndexFacade {
 	}  
 	
 	public void invalidateGlobalNamespace() {
-		SpxPrimarySymbolTable  symbolTable = persistenceManager().spxSymbolTable();
+		SpxPrimarySymbolTable  symbolTable = getPersistenceManager().spxSymbolTable();
 		
 		symbolTable.clearGlobalNamespce(this);
 		
@@ -470,7 +499,7 @@ public class SpxSemanticIndexFacade {
 	public Collection<SpxSymbol> resolveSymbols(IStrategoAppl namespaceToStartSearchWith, IStrategoTerm symbolId, IStrategoConstructor  symbolType, boolean returnDuplicates) throws SpxSymbolTableException {
 		IStrategoList namespaceID = this.getNamespaceId(namespaceToStartSearchWith);
 
-		SpxPrimarySymbolTable  symbolTable = persistenceManager().spxSymbolTable();
+		SpxPrimarySymbolTable  symbolTable = getPersistenceManager().spxSymbolTable();
 		
 		Collection<SpxSymbol> resolvedSymbols = symbolTable.resolveSymbols(namespaceID, strip(symbolId), symbolType, returnDuplicates);
 		return resolvedSymbols;
@@ -480,7 +509,7 @@ public class SpxSemanticIndexFacade {
 		Set<SpxSymbol> resolvedSymbols= new HashSet<SpxSymbol>();
 		
 		IStrategoList namespaceID = this.getNamespaceId(namespaceToStartSearchWith);
-		SpxPrimarySymbolTable  symbolTable = persistenceManager().spxSymbolTable();
+		SpxPrimarySymbolTable  symbolTable = getPersistenceManager().spxSymbolTable();
 		
 		SpxSymbol sym = symbolTable.resolveSymbol(namespaceID, strip(symbolId), symbolType);
 		if(sym != null)
@@ -538,7 +567,7 @@ public class SpxSemanticIndexFacade {
 		verifyConstructor(languageDescriptor.getConstructor(), getCons().getLanguageDescriptorCon(), "Invalid LanguageDescriptor argument : "+ languageDescriptor.toString());
 
 		IStrategoList moduleId = ModuleDeclaration.getModuleId(this, (IStrategoAppl)languageDescriptor.getSubterm(0)) ;
-		SpxModuleLookupTable table = _persistenceManager.spxModuleTable();
+		SpxModuleLookupTable table = getPersistenceManager().spxModuleTable();
 
 		table.verifyModuleIDExists(moduleId);
 
@@ -567,7 +596,7 @@ public class SpxSemanticIndexFacade {
 		IStrategoList packageId; 
 		
 		if (namespaceId.getConstructor() == getCons().getModuleQNameCon()) {
-			packageId = persistenceManager()
+			packageId = getPersistenceManager()
 					.spxModuleTable()
 					.packageId(ModuleDeclaration.getModuleId(this, namespaceId));
 			
@@ -580,7 +609,7 @@ public class SpxSemanticIndexFacade {
 		PackageDeclaration packageDeclaration= this.lookupPackageDecl(packageId);
 		
 		packageDeclaration.addImportRefernces(this, imports);
-		persistenceManager().spxPackageTable().definePackageDeclaration(packageDeclaration);
+		getPersistenceManager().spxPackageTable().definePackageDeclaration(packageDeclaration);
 	}
 	
 	
@@ -588,7 +617,7 @@ public class SpxSemanticIndexFacade {
 	 * @param mDecl
 	 */
 	private void defineNamespace(INamespaceFactory nsFactory) {
-		SpxPrimarySymbolTable symTable =  this.persistenceManager().spxSymbolTable();
+		SpxPrimarySymbolTable symTable =  this.getPersistenceManager().spxSymbolTable();
 		
 		for( INamespace ns : nsFactory.newNamespaces(this) ) {  symTable.defineNamespace(ns) ; }
 	}
@@ -611,7 +640,7 @@ public class SpxSemanticIndexFacade {
 		IdentifiableConstruct ns; 
 
 		if (namespaceId.getConstructor() == getCons().getModuleQNameCon()) {
-			IStrategoList packageId = persistenceManager()
+			IStrategoList packageId = getPersistenceManager()
 					.spxModuleTable()
 					.packageId(ModuleDeclaration.getModuleId(this, namespaceId));
 			ns = lookupPackageDecl(packageId);
@@ -642,7 +671,7 @@ public class SpxSemanticIndexFacade {
 		PackageDeclaration ns; 
 
 		if (namespaceId.getConstructor() == getCons().getModuleQNameCon()) {
-			IStrategoList packageId = persistenceManager()
+			IStrategoList packageId = getPersistenceManager()
 					.spxModuleTable()
 					.packageId(ModuleDeclaration.getModuleId(this, namespaceId));
 			ns = lookupPackageDecl(packageId);
@@ -687,7 +716,7 @@ public class SpxSemanticIndexFacade {
 		
 		HashSet<String> resourcePaths = new HashSet<String>();
 		
-		SpxPackageLookupTable table = persistenceManager().spxPackageTable();
+		SpxPackageLookupTable table = getPersistenceManager().spxPackageTable();
 		for (IStrategoTerm packageName: StrategoListIterator.iterable(packageList)) {
 			IStrategoAppl packageTypedQName = (IStrategoAppl)packageName;
 			IStrategoList packageId = PackageDeclaration.getPackageId(this, packageTypedQName);
@@ -710,7 +739,7 @@ public class SpxSemanticIndexFacade {
 	public IStrategoList getPackageDeclarations(IStrategoString filePath){
 		logMessage("getPackageDeclarationsByUri | Arguments : " + filePath);
 		
-		SpxPackageLookupTable table = persistenceManager().spxPackageTable();
+		SpxPackageLookupTable table = getPersistenceManager().spxPackageTable();
 		String filepathString = asJavaString(filePath);
 		
 		Set<PackageDeclaration> decls; 
@@ -732,14 +761,19 @@ public class SpxSemanticIndexFacade {
 	public IStrategoList getPackageDeclarationsByLanguageName(IStrategoString langName) {
 		logMessage("getPackageDeclarationsByLanguageName | Arguments : " + langName);
 		
-		SpxModuleLookupTable table = persistenceManager().spxModuleTable();
+		SpxModuleLookupTable table = getPersistenceManager().spxModuleTable();
 		
 		Set<IStrategoList> decls  = new HashSet<IStrategoList>(); 
 		
 		Iterable<IStrategoList> mdecls = table.getModuleIdsByLangaugeName(langName);
 		
-		for ( IStrategoList mId: mdecls){
-			decls.add(table.getModuleDeclaration(mId).enclosingPackageID);
+		//TODO : there is no way that mdecls can be null unless langName is invalid.
+		//Debug more to reproduce why mdecls is found null? 
+		if(mdecls!=null)
+		{
+			for ( IStrategoList mId: mdecls){
+				decls.add(table.getModuleDeclaration(mId).enclosingPackageID);
+			}
 		}
 		
 		IStrategoList result = getTermFactory().makeList();
@@ -774,7 +808,7 @@ public class SpxSemanticIndexFacade {
 	 */
 	public ModuleDeclaration lookupModuleDecl(IStrategoAppl moduleTypeQName) throws SpxSymbolTableException {
 		
-		SpxModuleLookupTable table = persistenceManager().spxModuleTable();
+		SpxModuleLookupTable table = getPersistenceManager().spxModuleTable();
 		
 		IStrategoList moduleId = ModuleDeclaration.getModuleId(this, moduleTypeQName);
 		
@@ -822,7 +856,7 @@ public class SpxSemanticIndexFacade {
 	public IStrategoList getModuleDeclarations (IStrategoString filePath){
 		logMessage("getModuleDeclarations | Arguments : " + filePath);
 		
-		SpxModuleLookupTable table = persistenceManager().spxModuleTable();
+		SpxModuleLookupTable table = getPersistenceManager().spxModuleTable();
 		String filepathString = asJavaString(filePath);
 		
 		Iterable<ModuleDeclaration> decls; 
@@ -873,9 +907,9 @@ public class SpxSemanticIndexFacade {
 		long ts = 0;
 	
 		if( getCons().hasEqualConstructor( qualifiedFor , getCons().getToCompileCon()))
-			ts = _persistenceManager.spxSymbolTable().getIntializedOn();
+			ts = getPersistenceManager().spxSymbolTable().getCodeCompilationFinishedOn();
 		else if ( getCons().hasEqualConstructor( qualifiedFor , getCons().getToCodeGenerateCon()))
-			ts = this.persistenceManager().spxSymbolTable().getLastCodeGeneratedOn();
+			ts = this.getPersistenceManager().spxSymbolTable().getLastCodeGeneratedOn();
 		else
 			throw new SpxSymbolTableException("Illegal qualifiedFor constructor at getDirtyModuleDeclarations");
 		
@@ -893,8 +927,8 @@ public class SpxSemanticIndexFacade {
 	
 	public Iterable<ModuleDeclaration> getModuleDeclarations(IStrategoList pacakgeID) throws SpxSymbolTableException
 	{
-		SpxModuleLookupTable table = persistenceManager().spxModuleTable();
-		_persistenceManager.spxPackageTable().verifyPackageIDExists(pacakgeID) ;
+		SpxModuleLookupTable table = getPersistenceManager().spxModuleTable();
+		getPersistenceManager().spxPackageTable().verifyPackageIDExists(pacakgeID) ;
 		
 		return table.getModuleDeclarationsByPackageId(pacakgeID);
 	}
@@ -910,7 +944,7 @@ public class SpxSemanticIndexFacade {
 	{
 		ModuleDeclaration decl = lookupModuleDecl(moduleTypedQName);
 
-		SpxModuleLookupTable table = persistenceManager().spxModuleTable();
+		SpxModuleLookupTable table = getPersistenceManager().spxModuleTable();
 		
 		IStrategoList qualifiedModuleId = ModuleDeclaration.getModuleId(this, moduleTypedQName);
 		IStrategoTerm moduleAterm =table.getModuleDefinition(this, qualifiedModuleId) ;
@@ -930,7 +964,7 @@ public class SpxSemanticIndexFacade {
 	public IStrategoTerm getLanguageDescriptor ( IStrategoAppl packageTypedQName) throws IllegalArgumentException, Exception{
 		IStrategoList  packageId = PackageDeclaration.getPackageId(this, packageTypedQName);
 		
-		SpxPackageLookupTable packageTable = persistenceManager().spxPackageTable();
+		SpxPackageLookupTable packageTable = getPersistenceManager().spxPackageTable();
 		packageTable.verifyPackageIDExists(packageId) ;
 		
 		LanguageDescriptor desc = getLangaugeDescriptorByPackageId(packageId);
@@ -948,7 +982,7 @@ public class SpxSemanticIndexFacade {
 	 */
 	LanguageDescriptor getLangaugeDescriptorByPackageId(IStrategoList packageId) throws SpxSymbolTableException {
 		
-		SpxModuleLookupTable moduleLookupTable = persistenceManager().spxModuleTable();
+		SpxModuleLookupTable moduleLookupTable = getPersistenceManager().spxModuleTable();
 		
 		LanguageDescriptor ret = LanguageDescriptor.newInstance(getTermFactory(), packageId);
 		Iterable<ModuleDeclaration> moduleDeclarations = this.getModuleDeclarations(packageId);
@@ -972,7 +1006,7 @@ public class SpxSemanticIndexFacade {
 	public void removePackageDeclaration(
 			IStrategoString spxCompilationUnitPath , 
 			IStrategoAppl namespaceID){
-		SpxPackageLookupTable table = _persistenceManager.spxPackageTable();
+		SpxPackageLookupTable table = getPersistenceManager().spxPackageTable();
 		
 		spxCompilationUnitPath  = (IStrategoString)toCompactPositionInfo((IStrategoTerm)spxCompilationUnitPath);
 		IStrategoList packageId = (IStrategoList)toCompactPositionInfo(PackageDeclaration.getPackageId(this, namespaceID));
@@ -994,7 +1028,7 @@ public class SpxSemanticIndexFacade {
 	 */
 	public PackageDeclaration lookupPackageDecl(IStrategoList packageId) throws SpxSymbolTableException {
 		
-		SpxPackageLookupTable table = persistenceManager().spxPackageTable();
+		SpxPackageLookupTable table = getPersistenceManager().spxPackageTable();
 		PackageDeclaration decl = table.getPackageDeclaration(packageId);
 		
 		if (decl == null)
@@ -1008,32 +1042,33 @@ public class SpxSemanticIndexFacade {
 	 *  
 	 * @throws IOException
 	 */
-	public void persistChanges() throws IOException {
-		_persistenceManager.commit();
-		if (Utils.DEBUG){
-			try {
-				_persistenceManager.spxSymbolTable().printSymbols(this, "commit", this.getProjectPath(), this.indexId());
-			} catch (SpxSymbolTableException e) {
+	public void commit() throws IOException {
+		if (!isPersistenceManagerClosed()) {
+			ISpxPersistenceManager persistenceManager = getPersistenceManager();
+			persistenceManager.commit();
+			if (Utils.DEBUG){
+				try {
+					persistenceManager.spxSymbolTable().printSymbols(this, "commit", this.getProjectPath(), this.indexId());
+				} catch (SpxSymbolTableException e) {
+				}
 			}
 		}
 	}	
 
 	/**
 	 * Closes any underlying open connection. 
-	 * @param shouldCommit TODO
-	 *  
+	 * @param shouldCommit Should commit triggers 
 	 * @throws IOException
 	 */
-	public void close(boolean shouldCommit) throws IOException {
+	public synchronized void close(boolean shouldCommit) throws IOException {
+		ISpxPersistenceManager persistenceManager = getPersistenceManager(); 
 		if (!isPersistenceManagerClosed()) {
 			logMessage("close | closing underlying persistence manager instance.");
 			if(shouldCommit)
-				_persistenceManager.commit();
+				commit();
 			
-			_persistenceManager.spxSymbolTable().setCompileSessionEndedOn();
-			_persistenceManager.close();
-			_persistenceManager = null;
-			
+			this.onCompleteCodeCompilation();
+			persistenceManager.close();
 		}else {
 			logMessage("close | underlying persistence manager is already closed. ");
 		}	
@@ -1044,36 +1079,27 @@ public class SpxSemanticIndexFacade {
 	 * symbol tables.
 	 * @throws Exception 
 	 */
-	public void reinitSymbolTable() throws Exception {	
+	public void reinitSymbolTable() throws Exception {
 		if (!isPersistenceManagerClosed()){
-			persistenceManager().clear(); // cleaning persistence manager.
-			persistenceManager().commitAndClose();
-			//tryCleanupIndexDirectory();
-			invalidateSpxCacheDirectory(); //cleaning the SpxCache as well.
+			cleanIndex();
+			
+			getPersistenceManager().clear(); // cleaning persistence manager.
+			getPersistenceManager().commitAndClose();
+			
 		}
 		initializePersistenceManager();
 	}
 
-	/**
-	 * Deletes the Spx Cache directory configured in Utils. By this way, the Spx cache will 
-	 * be invalidated and all the symbols will be indexed again. 
-	 */
-	void invalidateSpxCacheDirectory() {
+	private void cleanIndex(){
 		Utils.deleteSpxCacheDir( new File(  _projectPath +"/" + Utils.SPX_CACHE_DIRECTORY));
-	}
-	
-	private void tryCleanupIndexDirectory(){
-		try{
-			Utils.tryDeleteSpxIndexDir( new File( _projectPath + "/" + Utils.SPX_INDEX_DIRECTORY));
-		}catch(Exception ex){
-			// In case of SecurityException , Do nothing
-		}
-	}
+		Utils.deleteSpxCacheDir( new File(  _projectPath +"/" + Utils.SPX_SHADOWDIR_DIRECTORY));
+		
+		getPersistenceManager().spxSymbolTable().reinitFlags();
+	} 
 	
 	public void rollbackChanges() throws IOException{	
-		
 		if (! isPersistenceManagerClosed())
-			persistenceManager().rollback();
+			getPersistenceManager().rollback();
 	}
 
 	
@@ -1082,7 +1108,7 @@ public class SpxSemanticIndexFacade {
 	 * 
 	 * @return true if PersistenceManage is open. Otherwise returns false.
 	 */
-	boolean isPersistenceManagerClosed() { 	return (_persistenceManager == null) || _persistenceManager.isClosed(); }
+	boolean isPersistenceManagerClosed() { 	return getPersistenceManager().isClosed(); }
 
 
 	/**
@@ -1127,7 +1153,7 @@ public class SpxSemanticIndexFacade {
 	 * 
 	 * @param message
 	 */
-	private void logMessage(String message) { _persistenceManager.logMessage("SpxSemanticIndexFacade", message); }
+	private void logMessage(String message) { getPersistenceManager().logMessage("SpxSemanticIndexFacade", message); }
 	
 	
 	String fromFileURI(URI uri) {
@@ -1166,7 +1192,7 @@ public class SpxSemanticIndexFacade {
 		return term;
 	}
 
-	public void clearCache() throws IOException{ persistenceManager().clearCache();	}
+	public void clearCache() throws IOException{ getPersistenceManager().clearCache();	}
 
 	
 }

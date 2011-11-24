@@ -35,17 +35,24 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 	private final SecondaryHashMap <IStrategoList,NamespaceUri,INamespace> namespaceByStrategoId;
 	private transient INamespace _activeNamespace ;
 	
-	public ISpxPersistenceManager persistenceManager(){ return _facade.persistenceManager(); }
+
+	private final static String INITIALIZED_ON_KEY = "INITIALIZED_ON";
+	private final static String LAST_CODEGEN_ON_KEY = "LAST_CODEGEN_ON";
+	
+	
+	public ISpxPersistenceManager persistenceManager(){ return _facade.getPersistenceManager(); }
+
+	
 	public SpxPrimarySymbolTable (SpxSemanticIndexFacade facade) throws SecurityException, IOException{
 		assert facade != null  : "SpxSemanticIndexFacade  is expected to non-null" ;
 
 		_facade = facade;
 
-		String tableName = facade.persistenceManager().getIndexId() + "primary_symbol_table.idx";
+		String tableName = facade.getPersistenceManager().getIndexId() + "primary_symbol_table.idx";
 		
-		timestamps = facade.persistenceManager().loadHashMap(tableName + "timestamps.idx");
+		timestamps = facade.getPersistenceManager().loadHashMap(tableName + "timestamps.idx");
 		
-		namespaces  = facade.persistenceManager().loadHashMap(tableName + "namespaces.idx");
+		namespaces  = facade.getPersistenceManager().loadHashMap(tableName + "namespaces.idx");
 		namespaceByStrategoId = namespaces.secondaryHashMap(tableName+ ".namespaceByStrategoId.idx", 
 				new SecondaryKeyExtractor<IStrategoList,NamespaceUri,INamespace>(){
 					public IStrategoList extractSecondaryKey(NamespaceUri k,INamespace v) {
@@ -55,35 +62,34 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 	}
 	
 	
-	private final static String INITIALIZED_ON_KEY = "INITIALIZED_ON";
-	private final static String LAST_CODEGEN_ON_KEY = "LAST_CODEGEN_ON";
-	
-	long getIntializedOn(){ 
+	long getCodeCompilationFinishedOn(){ 
 		Long initializedOn = timestamps.get(INITIALIZED_ON_KEY);
 		
-		if(initializedOn ==null) return System.currentTimeMillis();
+		if(initializedOn ==null) 
+			return 0;
 		
 		return initializedOn;
 	}
 	
-	void setCompileSessionEndedOn(){ 
-		timestamps.put(INITIALIZED_ON_KEY, System.currentTimeMillis());
-				
+	void setCompileSessionEndedOn(long timestamp){ 
+		timestamps.put(INITIALIZED_ON_KEY, timestamp);
 	}
-	
 	
 	long getLastCodeGeneratedOn(){ 
 		Long lastCodeGenOn = timestamps.get(LAST_CODEGEN_ON_KEY);
-		
 		if(lastCodeGenOn ==null) 
 			return 0;
-		
 		return lastCodeGenOn;
 	}
 	
 	void setLastCodeGeneratedOn(long timestap){ 
 		timestamps.put(LAST_CODEGEN_ON_KEY, timestap);
-				
+	}
+	
+	void reinitFlags(){
+		setLastCodeGeneratedOn(0); 
+		setCompileSessionEndedOn(0);
+		
 	}
 	
 	/**

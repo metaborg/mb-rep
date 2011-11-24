@@ -52,7 +52,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		super.setUp("C:/work/projects/spoofax/spx-imp/source-codes/trunk/org.strategoxt.imp.editors.spoofax/include");
 		interpreter().addOperatorRegistry(new LanguageLibrary());
 		
-		_registry = new SpxSemanticIndexFacadeRegistry();
+		_registry = SpxSemanticIndexFacadeRegistry.instance;
 		
 		projectNameTerm = termFactory().makeString(System.getProperty("user.dir")+ "/"+_projectName);
 	
@@ -61,7 +61,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		_facade.reinitSymbolTable();
 		
 		
-		symbol_table = _facade.persistenceManager().spxSymbolTable();
+		symbol_table = _facade.getPersistenceManager().spxSymbolTable();
 	}
 
 	@Override 
@@ -111,16 +111,16 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		
 		setupScopeTree();
 		
-		INamespace ns = _facade.persistenceManager().spxSymbolTable().resolveNamespace(packageDeclaration1.getId());
+		INamespace ns = _facade.getPersistenceManager().spxSymbolTable().resolveNamespace(packageDeclaration1.getId());
 		assertNotNull(ns);
 		
 		IStrategoString uriTerm = termFactory().makeString(absPathString1) ;
-		_facade.persistenceManager().spxPackageTable().removePackageDeclarationLocation(
+		_facade.getPersistenceManager().spxPackageTable().removePackageDeclarationLocation(
 				packageDeclaration1.getId(), 
 				_facade.toAbsulatePath(uriTerm) 
 			);
 
-		ns = _facade.persistenceManager().spxSymbolTable().resolveNamespace(packageDeclaration1.getId());
+		ns = _facade.getPersistenceManager().spxSymbolTable().resolveNamespace(packageDeclaration1.getId());
 		assertNull(ns);
 	}
 	
@@ -128,12 +128,12 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		
  		setupScopeTree();
 		
-		INamespace ns = _facade.persistenceManager().spxSymbolTable().resolveNamespace(moduleDeclarationP1M1.getId());
+		INamespace ns = _facade.getPersistenceManager().spxSymbolTable().resolveNamespace(moduleDeclarationP1M1.getId());
 		assertNotNull(ns);
 		
-		_facade.persistenceManager().spxModuleTable().remove(moduleDeclarationP1M1.getId());
+		_facade.getPersistenceManager().spxModuleTable().remove(moduleDeclarationP1M1.getId());
 
-		ns = _facade.persistenceManager().spxSymbolTable().resolveNamespace(moduleDeclarationP1M1.getId());
+		ns = _facade.getPersistenceManager().spxSymbolTable().resolveNamespace(moduleDeclarationP1M1.getId());
 		assertNull(ns);
 	}
 	
@@ -675,7 +675,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		
 		_facade.indexSymbol(createEntry(moduleQnameAppl3 , symbolId3 , typeAppl3 , data3));
 		
-		_facade.persistChanges();
+		_facade.commit();
 		_registry.closePersistenceManager(this.projectNameTerm);
 		
 		_registry.initFacade(projectNameTerm, termFactory(), ioAgent());
@@ -719,7 +719,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		
 		assertEquals(_facade.getCons().getLocalNamespaceTypeCon(), nsAppl.getConstructor());
 		
-		INamespace ns = _facade.persistenceManager().spxSymbolTable().resolveNamespace((IStrategoList) nsAppl.getSubterm(0));
+		INamespace ns = _facade.getPersistenceManager().spxSymbolTable().resolveNamespace((IStrategoList) nsAppl.getSubterm(0));
 		
 		assertNotNull(ns);
 		
@@ -734,7 +734,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		
 		assertEquals(_facade.getCons().getLocalNamespaceTypeCon(), nsAppl.getConstructor());
 		
-		INamespace ns = _facade.persistenceManager().spxSymbolTable().resolveNamespace((IStrategoList) nsAppl.getSubterm(0));
+		INamespace ns = _facade.getPersistenceManager().spxSymbolTable().resolveNamespace((IStrategoList) nsAppl.getSubterm(0));
 		assertNotNull(ns);
 		
 		try{
@@ -745,7 +745,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		nsAppl = (IStrategoAppl)_facade.destroyScope(nsAppl);
 		assertNotNull(ns);
 		
-		ns = _facade.persistenceManager().spxSymbolTable().resolveNamespace((IStrategoList) nsAppl.getSubterm(0));
+		ns = _facade.getPersistenceManager().spxSymbolTable().resolveNamespace((IStrategoList) nsAppl.getSubterm(0));
 		assertNull(ns);
 	}
 	
@@ -792,7 +792,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		//Creating anonymous scope
 		IStrategoAppl nsAppl = (IStrategoAppl)_facade.insertNewScope(moduleQnameAppl1);
 		assertEquals(_facade.getCons().getLocalNamespaceTypeCon(), nsAppl.getConstructor());
-		INamespace ns = _facade.persistenceManager().spxSymbolTable().resolveNamespace((IStrategoList) nsAppl.getSubterm(0));
+		INamespace ns = _facade.getPersistenceManager().spxSymbolTable().resolveNamespace((IStrategoList) nsAppl.getSubterm(0));
 		assertNotNull(ns);
 		
 		//Resolving Symbol from ModuleP1M1. It will not find any symbol defined in localScope. Hence, 
@@ -855,7 +855,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		//Creating anonymous scope
 		IStrategoAppl nsAppl = (IStrategoAppl)_facade.insertNewScope(globalNsAppl);
 		assertEquals(_facade.getCons().getLocalNamespaceTypeCon(), nsAppl.getConstructor());
-		INamespace ns = _facade.persistenceManager().spxSymbolTable().resolveNamespace((IStrategoList) nsAppl.getSubterm(0));
+		INamespace ns = _facade.getPersistenceManager().spxSymbolTable().resolveNamespace((IStrategoList) nsAppl.getSubterm(0));
 		assertNotNull(ns);
 		
 		_facade.indexSymbol(createEntry(nsAppl , symbolId1 , typeAppl1  , data1));
@@ -878,7 +878,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		assertTrue(SpxSymbol.verifyEquals( (IStrategoList)nsAppl.getSubterm(0) , actual.namespaceUri().id()) );
 		
 		_facade.destroyScope(nsAppl);
-		ns = _facade.persistenceManager().spxSymbolTable().resolveNamespace((IStrategoList) nsAppl.getSubterm(0));
+		ns = _facade.getPersistenceManager().spxSymbolTable().resolveNamespace((IStrategoList) nsAppl.getSubterm(0));
 		assertNull(ns);
 	}
 	
@@ -909,7 +909,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		_facade.indexSymbol(createEntry(moduleQnameAppl1 , symbolId3 , typeAppl3 , data3));
 		
 		
-		_facade.persistChanges();
+		_facade.commit();
 		
 		// closing persistence manager
 		_registry.closePersistenceManager(this.projectNameTerm);
@@ -919,7 +919,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		SpxSemanticIndexFacade tfacade = _registry.getFacade(this.projectNameTerm);
 		
 		Set<SpxSymbol> resolvedSymbols = tfacade
-				.persistenceManager()
+				.getPersistenceManager()
 				.spxSymbolTable()
 				.undefineSymbols(this.moduleDeclarationP1M1.getId(), symbolId1,
 						typeAppl1.getConstructor());
@@ -930,7 +930,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 			assertTrue(sym.equalType(typeAppl1.getConstructor())); 
 		}
 		
-		List<SpxSymbol> resolvedSymbols1 = tfacade.persistenceManager().spxSymbolTable()
+		List<SpxSymbol> resolvedSymbols1 = tfacade.getPersistenceManager().spxSymbolTable()
 				.resolveNamespace(this.moduleDeclarationP1M1.getId())
 				.getMembers()
 				.get(new SpxSymbolKey(symbolId1));
@@ -970,7 +970,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		
 		_facade.indexSymbol(createEntry(moduleQnameAppl3 , symbolId3 , typeAppl3 , data3));
 		
-		_facade.persistChanges();
+		_facade.commit();
 		
 		// closing persistence manager
 		_registry.closePersistenceManager(this.projectNameTerm);

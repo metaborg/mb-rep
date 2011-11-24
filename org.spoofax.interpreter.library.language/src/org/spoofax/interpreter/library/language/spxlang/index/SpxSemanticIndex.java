@@ -7,9 +7,10 @@ import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 
+import static org.spoofax.interpreter.library.language.spxlang.index.Utils.assertIsNotNull;
 
 /**
- * Semantic Index to store the symbols of SPXlang projects. 
+ * Semantic Index to store the symbols of Spoofaxlang projects. 
  *  
  * @author Md. Adil Akhter
  * Created On : Aug 20, 2011
@@ -25,7 +26,7 @@ public class SpxSemanticIndex {
 	private final SpxSemanticIndexFacadeRegistry _facadeRegistry;
 		
 	public SpxSemanticIndex(){
-		_facadeRegistry = new SpxSemanticIndexFacadeRegistry();
+		_facadeRegistry = SpxSemanticIndexFacadeRegistry.instance;
 	}
 	
 	public SpxSemanticIndexFacadeRegistry getFacadeRegistry() {
@@ -82,6 +83,9 @@ public class SpxSemanticIndex {
 	}
 
 	public boolean indexLanguageDescriptor(IStrategoString projectPath,	final IStrategoAppl languageDescriptor) throws Exception {
+		assertIsNotNull(languageDescriptor, "languageDescriptor is Null.");
+		
+		
 		return new SpxIndexer() {
 			public void index(IStrategoString projectPath, IStrategoAppl appl)
 					throws Exception {
@@ -93,6 +97,9 @@ public class SpxSemanticIndex {
 
 	public boolean indexCompilationUnit(IStrategoString projectPath, IStrategoString spxCompilationUnitPath, IStrategoAppl spxCompilationUnitAST) throws IllegalStateException, Exception{
 
+		assertIsNotNull(spxCompilationUnitPath, "spxCompilationUnitPath is Null.");
+		assertIsNotNull(spxCompilationUnitPath, "spxCompilationUnitAST is Null.");
+		
 		SpxSemanticIndexFacade idxFacade = getFacade(projectPath);
 		idxFacade.indexCompilationUnit( spxCompilationUnitPath, spxCompilationUnitAST);
 		return true;
@@ -291,7 +298,6 @@ public class SpxSemanticIndex {
 	
 	
 	public boolean removeCompilationUnit(IStrategoString projectPath,IStrategoString spxCompilationUnitPath) throws Exception{
-	
 			SpxSemanticIndexFacade idxFacade = getFacade(projectPath);
 			idxFacade.removeCompilationUnit(spxCompilationUnitPath);
 			
@@ -325,10 +331,5 @@ public class SpxSemanticIndex {
 		public abstract <U> U resolve(IStrategoString projectPath , IStrategoTerm term) throws Exception ;
 	}
 
-
-
-	
-
-	
 
 }

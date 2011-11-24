@@ -26,7 +26,7 @@ public final class GlobalNamespace extends BaseNamespace {
 	 * @return
 	 */
 	public static INamespace createInstance(SpxSemanticIndexFacade facade){
-		SpxPrimarySymbolTable  symbol_table = facade.persistenceManager().spxSymbolTable();
+		SpxPrimarySymbolTable  symbol_table = facade.getPersistenceManager().spxSymbolTable();
 		IStrategoList spoofaxNamespaceUri = getGlobalNamespaceId(facade);
 		INamespace gns = symbol_table.resolveNamespace(spoofaxNamespaceUri); 
 		if(gns != null)
@@ -34,7 +34,7 @@ public final class GlobalNamespace extends BaseNamespace {
 		else{
 			return new GlobalNamespace(symbol_table.toNamespaceUri(spoofaxNamespaceUri), 
 					facade.getCons().getGlobalNamespaceTypeCon(), 
-					facade.persistenceManager()
+					facade.getPersistenceManager()
 			);
 		}
 

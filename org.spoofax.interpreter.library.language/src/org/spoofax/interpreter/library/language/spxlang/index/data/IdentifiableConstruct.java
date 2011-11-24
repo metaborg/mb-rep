@@ -65,7 +65,7 @@ public abstract class IdentifiableConstruct implements Serializable
 			if((decl != null) && (!SpxSymbol.verifyEquals(this.id, id))){	
 				this.importReferences.add(id);
 				decl.addImportedTo(this.getId());
-				idxFacade.persistenceManager().spxPackageTable().definePackageDeclaration(decl);
+				idxFacade.getPersistenceManager().spxPackageTable().definePackageDeclaration(decl);
 			}
 		}
 		else 

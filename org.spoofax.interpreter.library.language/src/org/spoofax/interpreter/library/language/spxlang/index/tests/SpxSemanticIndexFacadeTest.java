@@ -37,7 +37,7 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 	protected void setUp() throws Exception {
 		super.setUp("C:/work/projects/spoofax/spx-imp/source-codes/trunk/org.strategoxt.imp.editors.spoofax/include");
 		interpreter().addOperatorRegistry(new LanguageLibrary());
-		_registry = new SpxSemanticIndexFacadeRegistry();
+		_registry = SpxSemanticIndexFacadeRegistry.instance;
 		
 		projectNameTerm = termFactory().makeString(System.getProperty("user.dir")+ "/"+_projectName);
 	
@@ -79,7 +79,7 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 		
 		
 		//Test Namespaces 
-		_facade.persistenceManager().spxSymbolTable().getAllNamespaces();
+		_facade.getPersistenceManager().spxSymbolTable().getAllNamespaces();
 	}
 	
 	public void testGetModuleDeclarationsByPackageId() throws SpxSymbolTableException, IOException

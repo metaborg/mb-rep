@@ -29,18 +29,24 @@ public final class Utils {
 	
 	
 	public static final String SPX_CACHE_DIRECTORY = ".spxcache";
+	public static final String SPX_SHADOWDIR_DIRECTORY = ".shadowdir"; //TODO : get rid off this hardcoding of shadowdir
 	public static final String SPX_INDEX_DIRECTORY = ".spxindex";
 	
 	
 	static boolean DEBUG = false;
 	
+	
+	public static void assertIsNotNull( Object arg , String meesage){
+		if( arg == null)
+			throw new IllegalArgumentException(meesage);
+	}
 	/**
 	 * Constructs {@link IStrategoList} from {@code decls}  
 	 * 
 	 * @param idxFacade an instance of {@link SpxSemanticIndexFacade }
 	 * @param decls A collection of ModuleDeclataions 
 	 * @return {@link IStrategoList}
-	 */
+ 	 */
 	public static <T extends IdentifiableConstruct> IStrategoList toTerm( SpxSemanticIndexFacade idxFacade , Iterable<T> decls){
 		ITermFactory termFactory = idxFacade.getTermFactory();
 		IStrategoList result = termFactory.makeList();

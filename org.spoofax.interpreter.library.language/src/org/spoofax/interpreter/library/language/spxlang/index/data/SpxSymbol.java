@@ -90,7 +90,7 @@ public class SpxSymbol extends SpxBaseSymbol implements Serializable{
 		
 		//Enclosing Namespace 
 		IStrategoConstructor qnameCons = facade.getCons().getQNameCon();
-		IStrategoAppl nsQNameAppl = this.namespaceUri().resolve(facade.persistenceManager().spxSymbolTable()).toTypedQualifiedName(facade);
+		IStrategoAppl nsQNameAppl = this.namespaceUri().resolve(facade.getPersistenceManager().spxSymbolTable()).toTypedQualifiedName(facade);
 		
 		//ID/Key 
 		IStrategoTerm id = this.Id(termFactory); //TODO : It might require term conversion.

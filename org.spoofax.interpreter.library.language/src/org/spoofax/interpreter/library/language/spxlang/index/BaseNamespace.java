@@ -155,7 +155,7 @@ public abstract class BaseNamespace implements INamespace {
 	}
 	
 	public SpxSymbol resolve(IStrategoTerm searchingFor, IStrategoTerm type, INamespace searchedBy, SpxSemanticIndexFacade  facade) throws SpxSymbolTableException{
-		facade.persistenceManager().logMessage(this.src, "resolve | Resolving Symbol in " + this.namespaceUri().id() +  " . Key :  " + searchingFor + " origin Namespace: " + searchedBy.namespaceUri().id() );
+		facade.getPersistenceManager().logMessage(this.src, "resolve | Resolving Symbol in " + this.namespaceUri().id() +  " . Key :  " + searchingFor + " origin Namespace: " + searchedBy.namespaceUri().id() );
 		
 		assert type instanceof IStrategoConstructor : "Type is expected to be IStrategoConstructor" ;
 			
@@ -167,7 +167,7 @@ public abstract class BaseNamespace implements INamespace {
 		// Hence, searching any enclosing(parent) scope if it is not 
 		// null. After searching global scope, it is not searching
 		// anymore.
-		INamespace namespace = getEnclosingNamespace(facade.persistenceManager().spxSymbolTable());
+		INamespace namespace = getEnclosingNamespace(facade.getPersistenceManager().spxSymbolTable());
 		if( namespace  != null) {
 			//checks whether searching to the enclosing scope is allowed.
 			if( shouldSearchInEnclosingNamespace( searchedBy))
@@ -179,7 +179,7 @@ public abstract class BaseNamespace implements INamespace {
 	
 	public Collection<SpxSymbol> resolveAll(SpxSemanticIndexFacade  facade, IStrategoTerm searchingFor, IStrategoTerm ofType, INamespace searchedBy, boolean returnDuplicate) throws SpxSymbolTableException {
 		
-		facade.persistenceManager().logMessage(this.src, "resolveAll(Base) | Resolving Symbol in " + this.namespaceUri().id() +  " . Key :  " + searchingFor + " origin Namespace: " + searchedBy.namespaceUri().id() );
+		facade.getPersistenceManager().logMessage(this.src, "resolveAll(Base) | Resolving Symbol in " + this.namespaceUri().id() +  " . Key :  " + searchingFor + " origin Namespace: " + searchedBy.namespaceUri().id() );
 		
 		Collection<SpxSymbol> retResult = null;
 		
@@ -192,7 +192,7 @@ public abstract class BaseNamespace implements INamespace {
 		List<SpxSymbol> lookupResult = lookupSymbols(getMembers() , searchingFor , ofType);
 		retResult.addAll(lookupResult);
 		
-		INamespace namespace = getEnclosingNamespace(facade.persistenceManager().spxSymbolTable());
+		INamespace namespace = getEnclosingNamespace(facade.getPersistenceManager().spxSymbolTable());
 		//checking whether resolved namespace is Null. In that case, all the scopes are covered.
 		//also checking that the resolved namespace is not equal to the current namespace 
 		//that we already have searched - to avoid any cycle in the hierarchy.
