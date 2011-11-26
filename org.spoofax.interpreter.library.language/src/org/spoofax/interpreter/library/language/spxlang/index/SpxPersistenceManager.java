@@ -36,7 +36,6 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	
 	private SpxPrimarySymbolTable _spxSymbolTable;// Symbol Table for storing program symbols 
 
-	private Properties options;
 	/**
 	 * Instantiates a new instance of SpxPersistenceManager. Main Responsibility of this class  
 	 * is to store symbol table in disk and manage it . 
@@ -44,7 +43,19 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	 * @param spxSemanticIndexFacade
 	 * @throws IOException
 	 */
-	public SpxPersistenceManager (SpxSemanticIndexFacade spxSemanticIndexFacade) throws IOException {
+	public SpxPersistenceManager(SpxSemanticIndexFacade spxSemanticIndexFacade) throws IOException{
+		this(spxSemanticIndexFacade, null);
+	}
+	
+	
+	/**
+	 * @param projectName
+	 * @param indexDirectory
+	 * @param ioAgent
+	 * @param options
+	 * @throws IOException
+	 */
+	private SpxPersistenceManager (SpxSemanticIndexFacade spxSemanticIndexFacade,Properties options) throws IOException {
 		assert spxSemanticIndexFacade != null : "SpxSemanticIndexFacade is expected to be nonnull" ;
 
 		this._agent = spxSemanticIndexFacade.getIOAgent();
@@ -60,7 +71,38 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 		options.put(RecordManagerOptions.CACHE_TYPE, "soft");
 		options.put(RecordManagerOptions.DISABLE_TRANSACTIONS, "false");
 		
+		tryInitRecordManager(spxSemanticIndexFacade,options);
+		
 		logMessage(SRC + ".ctor" , "Instantiation of PersistenceManager is done. Index Directory : ["+ BaseRecordManager.DEFAULT_RELATIVE_PATH_INDEX  + "] indexid : "+ getIndexId());
+	}
+
+
+	/**
+	 * Tries to initialise record manager
+	 * 
+	 * @param options
+	 * @throws IOException
+	 */
+	private void tryInitRecordManager(SpxSemanticIndexFacade spxSemanticIndexFacade, Properties options) throws IOException {
+		int noOfTries = Utils.NO_OF_ATTEMPT_TO_INIT_RECORDMANAGER;
+		
+		while(true){
+			try {
+				_recordManager = RecordManagerFactory.createRecordManager(_indexId , options);
+				break;
+			}catch(IOException ex) {
+				logMessage(SRC + ".tryInitRecordManager" , "Failed to create recordmanager with arg : " + _indexId +". exception : "+ ex);
+				if(noOfTries == 0){ 
+					logMessage(SRC + ".tryInitRecordManager" , "RecordManager creation is failed. Reason : "+ ex);
+					throw ex;
+				}else{
+					_indexId  = _indexId+ "[" + UUID.randomUUID().toString() +"]";
+					this.clearCache();
+					spxSemanticIndexFacade.invalidateSpxCacheDirectory();
+					noOfTries--;
+				}
+			}
+		}
 	}
 	
 	/**
@@ -69,8 +111,6 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	 * @param projectName name of the Project 
 	 */
 	public void initializeSymbolTables(String projectName , SpxSemanticIndexFacade facade) throws Exception {
-		
-		tryInitRecordManager(facade,options);
 		
 		_spxUnitsTable   = new SpxCompilationUnitTable(this);
 		_spxPackageTable = new SpxPackageLookupTable(this);
@@ -86,38 +126,6 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 		}
 		*/	
 	}
-	
-
-
-	/**
-	 * Tries to initialise record manager
-	 * 
-	 * @param options
-	 * @throws IOException
-	 */
-	private void tryInitRecordManager(SpxSemanticIndexFacade spxSemanticIndexFacade, Properties options) throws IOException {
-		int noOfTries = Utils.NO_OF_ATTEMPT_TO_INIT_RECORDMANAGER;
-		if(isClosed()){
-			while(true){
-				try {
-					_recordManager = RecordManagerFactory.createRecordManager(_indexId , options);
-					break;
-				}catch(IOException ex) {
-					logMessage(SRC + ".tryInitRecordManager" , "Failed to create recordmanager with arg : " + _indexId +". exception : "+ ex);
-					if(noOfTries == 0){ 
-						logMessage(SRC + ".tryInitRecordManager" , "RecordManager creation is failed. Reason : "+ ex);
-						throw ex;
-					}else{
-						_indexId  = _indexId+ "[" + UUID.randomUUID().toString() +"]";
-						this.clearCache();
-						noOfTries--;
-					}
-				}
-			}
-		}
-	}
-	
-	
 	
 	
 	/**
@@ -153,7 +161,10 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	 * @param mapName
 	 * @return
 	 */
-	public <K,V> PrimaryHashMap<K,V> loadHashMap ( String mapName){ return _recordManager.hashMap(mapName) ; }
+	public <K,V> PrimaryHashMap<K,V> loadHashMap ( String mapName){
+		return _recordManager.hashMap(mapName) ;
+		
+	}
 	
 	/**
 	 * Instantiates a new StoreHashMap

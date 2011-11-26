@@ -3,9 +3,7 @@ package org.spoofax.interpreter.library.language.spxlang.index;
 import static org.spoofax.interpreter.core.Tools.asJavaString;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Map;
 
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbolTableException;
@@ -16,31 +14,9 @@ import org.spoofax.interpreter.terms.ITermFactory;
 //project name to the IndexFactory . Current Implementation 
 //will still work in multiproject situation - but will be 
 //using only one SemanticIndexFactory and require initialization. 
-public final class SpxSemanticIndexFacadeRegistry
+public class SpxSemanticIndexFacadeRegistry
 {
-	public static final SpxSemanticIndexFacadeRegistry instance = new SpxSemanticIndexFacadeRegistry();
-	private final static Map<String, SpxSemanticIndexFacade> _registry;
-	
-	static{
-		_registry = Collections.synchronizedMap(new HashMap<String, SpxSemanticIndexFacade>());
-	}
-	
-	private SpxSemanticIndexFacadeRegistry(){
-	} 
-	
-	protected void finalize() throws Throwable {
-		try {
-			if (_registry != null){
-				for( SpxSemanticIndexFacade r : _registry.values()){
-					r.close(true);
-				}
-			}
-		} catch (Exception e) {
-		}
-		finally {
-			super.finalize();
-		}
-	}
+	final HashMap<String, SpxSemanticIndexFacade> _registry = new HashMap<String, SpxSemanticIndexFacade>();
 	
 	/**
 	 * Initializes the SemanticIndexFactory if the registry does not contain any mapping of existing Facade, or it 
@@ -54,31 +30,27 @@ public final class SpxSemanticIndexFacadeRegistry
 	{	
 		SpxSemanticIndexFacade fac = null;
 		String projectNameString  =  Utils.toAbsPathString(asJavaString(projectPath));
-		boolean updateMap = true;
 		
 		if ( !containsFacade(projectPath)) {
-			fac = SpxSemanticIndexFacade.getInstance(projectPath, termFactory, agent) ;
+			
+			fac = new SpxSemanticIndexFacade(projectPath, termFactory, agent);
+			fac.initializePersistenceManager();
 		}	
 		else {
 			fac = _registry.get(projectNameString);
-			
-			if( fac == null){
-				fac = SpxSemanticIndexFacade.getInstance(projectPath, termFactory, agent) ;
-			}
-			else
-			{
-				if(fac.isPersistenceManagerClosed())
-					fac.tryReInitializePersistenceManager();
-				else
-					updateMap = false;
-			}
+			// Checks to verify whether the persistence manager is closed. 
+			// If it is , creating a new instance of PersistenceManager.
+			if( (fac != null) && fac.isPersistenceManagerClosed()){
+				fac.initializePersistenceManager();
+			}else if ( fac == null){
+				fac = new SpxSemanticIndexFacade(projectPath, termFactory, agent);
+				fac.initializePersistenceManager();
+			}	
 		}
 		
-		if(updateMap)
+		if(fac != null){
 			_registry.put(fac.getProjectPath(), fac);
-		
-		Utils.assertIsNotNull(fac, "Unexpected error . Facade is null for "+ projectNameString );
-		
+		}	
 		return fac;
 	}
 
@@ -96,12 +68,11 @@ public final class SpxSemanticIndexFacadeRegistry
 		SpxSemanticIndexFacade facade =  _registry.get(key);
 		
 		if(facade == null) {
-			throw new IllegalStateException("Symbol Table is not initialized for project : " + projectPath + " . Invoke SPX_index_init. ");
+			throw new SpxSymbolTableException("Symbol Table is not initialized for project : " + projectPath + " . Invoke SPX_index_init. ");
 		}	
-		else{
-			facade.tryReInitializePersistenceManager();
+		else if( (facade != null) && facade.isPersistenceManagerClosed()){
+			facade.initializePersistenceManager();
 		}	
-		
 		return facade;
 	}
 

@@ -52,7 +52,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		super.setUp("C:/work/projects/spoofax/spx-imp/source-codes/trunk/org.strategoxt.imp.editors.spoofax/include");
 		interpreter().addOperatorRegistry(new LanguageLibrary());
 		
-		_registry = SpxSemanticIndexFacadeRegistry.instance;
+		_registry = new SpxSemanticIndexFacadeRegistry();
 		
 		projectNameTerm = termFactory().makeString(System.getProperty("user.dir")+ "/"+_projectName);
 	
@@ -675,7 +675,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		
 		_facade.indexSymbol(createEntry(moduleQnameAppl3 , symbolId3 , typeAppl3 , data3));
 		
-		_facade.commit();
+		_facade.commitChanges();
 		_registry.closePersistenceManager(this.projectNameTerm);
 		
 		_registry.initFacade(projectNameTerm, termFactory(), ioAgent());
@@ -909,7 +909,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		_facade.indexSymbol(createEntry(moduleQnameAppl1 , symbolId3 , typeAppl3 , data3));
 		
 		
-		_facade.commit();
+		_facade.commitChanges();
 		
 		// closing persistence manager
 		_registry.closePersistenceManager(this.projectNameTerm);
@@ -970,7 +970,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		
 		_facade.indexSymbol(createEntry(moduleQnameAppl3 , symbolId3 , typeAppl3 , data3));
 		
-		_facade.commit();
+		_facade.commitChanges();
 		
 		// closing persistence manager
 		_registry.closePersistenceManager(this.projectNameTerm);

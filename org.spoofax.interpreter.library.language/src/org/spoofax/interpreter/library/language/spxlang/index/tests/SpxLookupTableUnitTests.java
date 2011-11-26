@@ -60,7 +60,7 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		super.setUp("C:/work/projects/spoofax/spx-imp/source-codes/trunk/org.strategoxt.imp.editors.spoofax/include");
 		interpreter().addOperatorRegistry(new LanguageLibrary());
 		
-		_registry = SpxSemanticIndexFacadeRegistry.instance;
+		_registry = new SpxSemanticIndexFacadeRegistry();
 		
 		projectNameTerm = termFactory().makeString(System.getProperty("user.dir")+ "/"+_projectName);
 	
@@ -81,7 +81,7 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 		symtable.clear();
 		mSymTable.clear();
 		
-		_facade.commit();
+		_facade.commitChanges();
 	}
 	
 	public void testShouldReturngPackageDeclarationbyUri() throws IOException 
