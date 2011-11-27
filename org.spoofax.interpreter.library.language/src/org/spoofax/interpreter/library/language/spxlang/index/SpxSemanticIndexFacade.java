@@ -1037,8 +1037,6 @@ public class SpxSemanticIndexFacade {
 			persistenceManager.close();
 			persistenceManager = null;
 			
-			this.clearCache();
-			
 		}else {
 			logMessage("close | underlying persistence manager is already closed. ");
 		}	
