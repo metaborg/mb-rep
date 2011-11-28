@@ -58,7 +58,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 	
 		_registry.initFacade(projectNameTerm, termFactory(), ioAgent()); 
 		_facade = _registry.getFacade(projectNameTerm);
-		_facade.reinitSymbolTable();
+		_facade.cleanIndexAndSymbolTable();
 		
 		
 		symbol_table = _facade.getPersistenceManager().spxSymbolTable();

@@ -126,7 +126,7 @@ public class SpxIndexManager implements IIndexManageCommand
 				if(idxFacade == null)
 					idxFacade = idx.getFacadeRegistry().initFacade(projectPath, (ITermFactory)objects[0], (IOAgent)objects[1]) ;
 				
-				idxFacade.reinitSymbolTable();
+				idxFacade.cleanIndexAndSymbolTable();
 			}
 		};
 	}

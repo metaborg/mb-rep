@@ -66,7 +66,7 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 	
 		_registry.initFacade(projectNameTerm, termFactory(), ioAgent()); 
 		_facade = _registry.getFacade(projectNameTerm);
-		_facade.reinitSymbolTable();
+		_facade.cleanIndexAndSymbolTable();
 		
 		symtable = _facade.getPersistenceManager().spxPackageTable();
 		mSymTable= _facade.getPersistenceManager().spxModuleTable();

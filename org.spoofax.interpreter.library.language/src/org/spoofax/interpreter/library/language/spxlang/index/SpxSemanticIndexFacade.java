@@ -450,7 +450,7 @@ public class SpxSemanticIndexFacade {
 	public void invalidateGlobalNamespace() {
 		SpxPrimarySymbolTable  symbolTable = getPersistenceManager().spxSymbolTable();
 		
-		symbolTable.clearGlobalNamespce(this);
+		symbolTable.cleanGlobalNamespace(this);
 		
 		
 	}
@@ -1008,18 +1008,21 @@ public class SpxSemanticIndexFacade {
 	 * @throws IOException
 	 */
 	public void commitChanges() throws IOException {
-		
 		ISpxPersistenceManager persistenceManager = this.getPersistenceManager();
-		
 		persistenceManager.commit();
-		if (Utils.DEBUG){
+		printSymbolTable(!Utils.DEBUG, "commit");
+		//printSymbolTable(true, "commit");
+	}	
+
+	private void printSymbolTable(boolean printIfDebug, String stageName) throws IOException {
+		ISpxPersistenceManager persistenceManager = this.getPersistenceManager();
+		if (printIfDebug){
 			try {
-				persistenceManager.spxSymbolTable().printSymbols(this, "commit", this.getProjectPath(), this.indexId());
+				persistenceManager.spxSymbolTable().printSymbols(this, stageName, this.getProjectPath(), this.indexId());
 			} catch (SpxSymbolTableException e) {
 			}
 		}
-	}	
-
+	}
 	/**
 	 * Closes any underlying open connection. 
 	 * @param shouldCommit TODO
@@ -1047,22 +1050,29 @@ public class SpxSemanticIndexFacade {
 	 * symbol tables.
 	 * @throws Exception 
 	 */
-	public void reinitSymbolTable() throws Exception {	
+	public void cleanIndexAndSymbolTable() throws Exception {
+		ISpxPersistenceManager manager = getPersistenceManager();
 		if (!isPersistenceManagerClosed()){
-			getPersistenceManager().clear(); // cleaning persistence manager.
-			getPersistenceManager().commitAndClose();
-			//tryCleanupIndexDirectory();
-			invalidateSpxCacheDirectory(); //cleaning the SpxCache as well.
+			invalidateSpxCacheDirectories(); //cleaning the SpxCache as well.
+			
+			manager.clearCache();
+			manager.clear(); // cleaning persistence manager.
+			
+			manager.commitAndClose();
 		}
+		
 		initializePersistenceManager();
+		printSymbolTable(!Utils.DEBUG, "clean");
+		
 	}
 
 	/**
 	 * Deletes the Spx Cache directory configured in Utils. By this way, the Spx cache will 
 	 * be invalidated and all the symbols will be indexed again. 
 	 */
-	void invalidateSpxCacheDirectory() {
+	void invalidateSpxCacheDirectories() {
 		Utils.deleteSpxCacheDir( new File(  _projectPath +"/" + Utils.SPX_CACHE_DIRECTORY));
+		Utils.deleteSpxCacheDir( new File(  _projectPath +"/" + Utils.SPX_SHADOW_DIR));
 	}
 	
 	private void tryCleanupIndexDirectory(){

@@ -18,6 +18,7 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.attachments.TermAttachmentSerializer;
 
 public class SpxSymbol extends SpxBaseSymbol implements Serializable{
+	
 	private static final long serialVersionUID = -5293805213473800423L;
 	
 	private String _data;
@@ -168,7 +169,7 @@ public class SpxSymbol extends SpxBaseSymbol implements Serializable{
 	}
 	
 	public String printSymbol(){
-		return "\t\tId =  " + this.getId() + "| Type = " + _type + "| Namespace = "+ _namespace+"\n";
+		return "\t\tId =  " + this.getId() + "| Type = " + _type + "| value = "+ this._data +"\n";
 	}
 	
 }

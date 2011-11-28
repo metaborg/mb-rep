@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -71,7 +72,6 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 				
 	}
 	
-	
 	long getLastCodeGeneratedOn(){ 
 		Long lastCodeGenOn = timestamps.get(LAST_CODEGEN_ON_KEY);
 		
@@ -126,8 +126,7 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 		return namespaces.get(id); 
 	}
 	
-	public INamespace removeNamespace(IStrategoList id){
-		INamespace nsToRemove  = resolveNamespace(id) ;
+	private INamespace removeNamespace(INamespace nsToRemove){
 		if(nsToRemove != null){
 			// Removing the internal namespace associate with the PackageNamespace
 			if(nsToRemove instanceof PackageNamespace){
@@ -150,6 +149,18 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 		return nsToRemove;
 	}
 	
+	private INamespace removeNamespaceByUri(NamespaceUri id){
+		INamespace nsToRemove  = resolveNamespace(id) ;
+		
+		return removeNamespace(nsToRemove);
+	}
+	
+	public INamespace removeNamespaceById(IStrategoList id){
+		INamespace nsToRemove  = resolveNamespace(id) ;
+		
+		return removeNamespace(nsToRemove);
+	}
+	
 	public NamespaceUri getNamespaceUri(IStrategoList id) {
 		Iterable<NamespaceUri> uriIterator = namespaceByStrategoId.get(id);
 		if(uriIterator != null)
@@ -166,7 +177,17 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 	public boolean containsNamespace(INamespace namespace) { return this.containsNamespace(namespace.namespaceUri());}
 
 	public void clear(){  
-		namespaces.clear();  
+		Set<NamespaceUri> keys = namespaces.keySet();
+		
+		List<NamespaceUri> namespacesToRemove = new ArrayList<NamespaceUri>();
+		for(NamespaceUri u : keys){ namespacesToRemove.add(u);} 
+			
+		for(NamespaceUri uriToRemove : namespacesToRemove){
+			removeNamespaceByUri(uriToRemove);
+		}	
+		
+		this._activeNamespace =null;
+		timestamps.clear();
 	}
 	
 	public int size() { return namespaces.size();}
@@ -275,7 +296,7 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 	public INamespace destroyNamespace(IStrategoList namespaceId) throws SpxSymbolTableException{
 		persistenceManager().logMessage(SRC, "destroyNamespace | Removing the following namespace : "  + namespaceId);
 		
-		INamespace ns = this.removeNamespace(namespaceId);
+		INamespace ns = this.removeNamespaceById(namespaceId);
 		ensureActiveNamespaceUnloaded(namespaceId);
 		persistenceManager().logMessage(SRC, "destroyNamespace | Folloiwng namesapce is removed : "  + ns);
 		
@@ -301,7 +322,7 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 			public void recordRemoved(IStrategoList packageID,
 					PackageDeclaration value) throws IOException {
 				
-				removeNamespace(packageID) ;
+				removeNamespaceById(packageID) ;
 			}};
 	}
 
@@ -321,14 +342,14 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 
 			public void recordRemoved(IStrategoList moduleId, ModuleDeclaration value)
 					throws IOException {
-				removeNamespace(moduleId) ;
+				removeNamespaceById(moduleId) ;
 				
 			}
 			
 		};
 	}
 
-	public void clearGlobalNamespce(SpxSemanticIndexFacade spxSemanticIndexFacade) {
+	public void cleanGlobalNamespace(SpxSemanticIndexFacade spxSemanticIndexFacade) {
 		persistenceManager().logMessage(SRC, "clearGlobalNamespce | Remove all the entries stored currently in GlobalNamespace" );
 		
 		IStrategoList gnsId = GlobalNamespace.getGlobalNamespaceId(spxSemanticIndexFacade);
@@ -348,7 +369,7 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 	 */
 	public void printSymbols(SpxSemanticIndexFacade f, String state , String projectPath , String indexId) throws IOException, SpxSymbolTableException{
 		new File(projectPath + "/.log").mkdirs();
-		FileWriter fstream = new FileWriter(projectPath + "/.log/"+indexId+"_symbols_"+Utils.now("yyyy-MM-dd HH.mm")+".txt" , true);
+		FileWriter fstream = new FileWriter(projectPath + "/.log/"+indexId+"_symbols_"+Utils.now("yyyy-MM-dd HH.mm.ss")+".txt" , true);
 		BufferedWriter out = new BufferedWriter(fstream);
 		out.write("---Logging [" +state+ "] state of Symbol-Table at :" + Utils.now("yyyy-MM-dd HH.mm.ss")+":----\n");
 		try
@@ -376,14 +397,14 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 			for(NamespaceUri uri : ns.enclosedNamespaceUris ){
 				logger.write( "\t\t"+uri +"\n");
 			}
-			logger.write("\n");
+			logger.write("---------------------------\n");
 			
 
 			logger.write("\tImported Namespace Uris"+"\n");
 			for(NamespaceUri uri : ns.importedNamespaceUris ){
 				logger.write("\t\t"+uri +"\n");
 			}
-			logger.write("\n");
+			logger.write("---------------------------\n");
 		}
 		
 		if( namespace instanceof ModuleNamespace){
@@ -391,7 +412,7 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 		}
 		
 		for( SpxSymbolKey k : members.keySet()) {
-			logger.write("\t\t"+k.toString()  + "  ----> \n");
+			logger.write("\t\t"+k.toString()  + "  ----> \t");
 			for( SpxSymbol s : members.get(k) ){
 				logger.write( s.printSymbol());
 			}

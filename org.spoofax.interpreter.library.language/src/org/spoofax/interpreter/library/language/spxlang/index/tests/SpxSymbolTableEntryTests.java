@@ -37,7 +37,7 @@ public class SpxSymbolTableEntryTests extends AbstractInterpreterTest{
 		
 	
 		_facade = new SpxSemanticIndexFacade(projectNameTerm , termFactory() , ioAgent());
-		_facade.reinitSymbolTable();
+		_facade.cleanIndexAndSymbolTable();
 	}
 	
 	public void testSpoofaxSymbolTableEntryBuilder() throws IOException{

@@ -43,7 +43,7 @@ public class SpxSemanticIndexFacadeTest extends AbstractInterpreterTest{
 	
 		_registry.initFacade(projectNameTerm, termFactory(), ioAgent()); 
 		_facade = _registry.getFacade(projectNameTerm);
-		_facade.reinitSymbolTable();
+		_facade.cleanIndexAndSymbolTable();
 	
 		indexCompilationUnit();
 	}

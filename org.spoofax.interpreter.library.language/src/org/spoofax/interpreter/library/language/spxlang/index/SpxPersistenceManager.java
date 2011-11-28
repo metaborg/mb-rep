@@ -98,7 +98,7 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 				}else{
 					_indexId  = _indexId+ "[" + UUID.randomUUID().toString() +"]";
 					this.clearCache();
-					spxSemanticIndexFacade.invalidateSpxCacheDirectory();
+					spxSemanticIndexFacade.invalidateSpxCacheDirectories();
 					noOfTries--;
 				}
 			}
@@ -196,10 +196,9 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 		// checking in the changes before closing the connection 
 		spxSymbolTable().commit();
 		
-		if(!this.isClosed()){ 
+		if(!this.isClosed()) 
 			_recordManager.close();
-		}	
-		// setting all the symboltable to null
+		
 		this._spxModuleTable = null;
 		this._spxPackageTable = null;
 		this._spxUnitsTable = null;

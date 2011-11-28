@@ -30,6 +30,7 @@ public final class Utils {
 	
 	public static final String SPX_CACHE_DIRECTORY = ".spxcache";
 	public static final String SPX_INDEX_DIRECTORY = ".spxindex";
+	public static final String SPX_SHADOW_DIR = ".shadowdir";
 	
 	
 	static boolean DEBUG = false;

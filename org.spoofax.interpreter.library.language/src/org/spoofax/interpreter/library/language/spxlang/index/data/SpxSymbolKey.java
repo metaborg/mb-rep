@@ -12,6 +12,6 @@ public class SpxSymbolKey extends SpxBaseSymbol implements Serializable{
 
 	@Override
 	public String toString() {
-		return "SpxIndexKey {_id=" + this.getId() +"}";
+		return "Key = [" + this.getId() +"]";
 	}
 }
