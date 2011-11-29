@@ -6,7 +6,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,14 +29,19 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDeclarationRecordListener,IModuleDeclarationRecordListener {
 	private final String SRC = this.getClass().getSimpleName();
 	
+	private transient INamespace _activeNamespace ;
+	
 	private final SpxSemanticIndexFacade _facade;
+	
 	private final PrimaryMap <NamespaceUri,INamespace> namespaces;
 	private final PrimaryMap <String,Long> timestamps;
 	private final SecondaryHashMap <IStrategoList,NamespaceUri,INamespace> namespaceByStrategoId;
-	private transient INamespace _activeNamespace ;
 	
-	public ISpxPersistenceManager persistenceManager(){ return _facade.getPersistenceManager(); }
-	public SpxPrimarySymbolTable (SpxSemanticIndexFacade facade) throws SecurityException, IOException{
+	
+	private final static String INITIALIZED_ON_KEY = "INITIALIZED_ON";
+	private final static String LAST_CODEGEN_ON_KEY = "LAST_CODEGEN_ON";
+	
+	public SpxPrimarySymbolTable(SpxSemanticIndexFacade facade) throws SecurityException, IOException{
 		assert facade != null  : "SpxSemanticIndexFacade  is expected to non-null" ;
 
 		_facade = facade;
@@ -55,35 +59,8 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 				});
 	}
 	
-	
-	private final static String INITIALIZED_ON_KEY = "INITIALIZED_ON";
-	private final static String LAST_CODEGEN_ON_KEY = "LAST_CODEGEN_ON";
-	
-	long getIntializedOn(){ 
-		Long initializedOn = timestamps.get(INITIALIZED_ON_KEY);
-		
-		if(initializedOn ==null) return System.currentTimeMillis();
-		
-		return initializedOn;
-	}
-	
-	void setCompileSessionEndedOn(){ 
-		timestamps.put(INITIALIZED_ON_KEY, System.currentTimeMillis());
-				
-	}
-	
-	long getLastCodeGeneratedOn(){ 
-		Long lastCodeGenOn = timestamps.get(LAST_CODEGEN_ON_KEY);
-		
-		if(lastCodeGenOn ==null) 
-			return 0;
-		
-		return lastCodeGenOn;
-	}
-	
-	void setLastCodeGeneratedOn(long timestap){ 
-		timestamps.put(LAST_CODEGEN_ON_KEY, timestap);
-				
+	private ISpxPersistenceManager persistenceManager(){ 
+		return _facade.getPersistenceManager(); 
 	}
 	
 	/**
@@ -111,14 +88,28 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 	public INamespace resolveNamespace(IStrategoList id){
 		if(_activeNamespace != null && _activeNamespace.namespaceUri().equalSpoofaxId(id))
 			return _activeNamespace;
-		
-		Iterator<INamespace> resolvedNamespaces = namespaceByStrategoId.getPrimaryValues(id).iterator();
-		if(resolvedNamespaces.hasNext())
-			return resolvedNamespaces.next();
-		else
-			return null;
+
+		boolean alreadyFoundNamespace = false;
+		int foundNamespaces = 0;
+		INamespace toReturn = null;
+
+		Iterable<INamespace> resolvedNamespaces = namespaceByStrategoId.getPrimaryValues(id);
+
+		if(resolvedNamespaces !=null){
+			for( INamespace n : resolvedNamespaces) {
+				if(!alreadyFoundNamespace){
+					alreadyFoundNamespace = true;
+					toReturn = n;
+				}
+				foundNamespaces = foundNamespaces + 1;  
+			}
+			if(foundNamespaces > 1 ){
+				throw new IllegalStateException(String.format("More than one Namespace found with the following spoofax Id : %s", id.toString()));
+			}
+		}
+		return toReturn;
 	}
-	
+
 	public INamespace resolveNamespace(NamespaceUri id) {
 		if(_activeNamespace != null  && _activeNamespace.namespaceUri().equals(id))
 			return _activeNamespace;
@@ -128,10 +119,12 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 	
 	private INamespace removeNamespace(INamespace nsToRemove){
 		if(nsToRemove != null){
+			
 			// Removing the internal namespace associate with the PackageNamespace
 			if(nsToRemove instanceof PackageNamespace){
 				NamespaceUri internalNamespaceUri = PackageNamespace.packageInternalNamespace(nsToRemove.namespaceUri(), _facade);
 				INamespace internalNS = this.namespaces.remove(internalNamespaceUri);	
+				
 				if(internalNS  != null)
 					persistenceManager().logMessage(SRC, "removenamespace | removed internal namespace: " + internalNS);
 				else
@@ -186,7 +179,7 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 			removeNamespaceByUri(uriToRemove);
 		}	
 		
-		this._activeNamespace =null;
+		this.ensureActiveNamespaceUnloaded(this._activeNamespace);
 		timestamps.clear();
 	}
 	
@@ -201,58 +194,29 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 	public Set<NamespaceUri> getAllNamespaces() { return namespaces.keySet() ; }
 
 	public void defineSymbol(IStrategoList namespaceId, SpxSymbolTableEntry symTableEntry) throws SpxSymbolTableException {
-		persistenceManager().logMessage(SRC, "defineSymbol | defining symbols with the following criteria :  search origin " + namespaceId +  " with Key : "+ symTableEntry.key + " Value : "+ symTableEntry.value);	
-		ensureActiveNamespaceLoaded(namespaceId);
-	
-		_activeNamespace = _activeNamespace.define(symTableEntry, _facade); 
+		INamespace currentNamespace = activateNamespace(namespaceId);
+		
+		persistenceManager().logMessage(SRC, "defineSymbol (Thread Id :"+Thread.currentThread().getId() +")| defining symbols with the following criteria :  namespace " + namespaceId +  " with Key : "+ symTableEntry.key + " Value : "+ symTableEntry.value);
+		currentNamespace.define(symTableEntry, _facade);
 	}
 	
 	public Set<SpxSymbol> undefineSymbols(IStrategoList namespaceId, IStrategoTerm symbolId, IStrategoConstructor symbolType) throws SpxSymbolTableException {
 		persistenceManager().logMessage(SRC, "undefineSymbol | undefineSymbol symbol with the following criteria :  search origin " + namespaceId +  " with Key : "+ symbolId + "of Type : "+ symbolType.getName());
 			
-	    ensureActiveNamespaceLoaded(namespaceId);
-		Set<SpxSymbol> undefinedSymbols = _activeNamespace.undefineSymbols(
-				symbolId, symbolType, _facade);
+		INamespace currentNamespace =  activateNamespace(namespaceId);
+		Set<SpxSymbol> undefinedSymbols = currentNamespace.undefineSymbols(symbolId, symbolType, _facade);
 	
 		persistenceManager().logMessage(SRC, "undefineSymbol | undefineSymbol Symbols : " + undefinedSymbols );
-			
-	    return undefinedSymbols;
-	}
-	
-	private void ensureActiveNamespaceUnloaded(IStrategoList namespaceId){
-		if(_activeNamespace.namespaceUri().equalSpoofaxId(namespaceId)){
-			_activeNamespace = null;
-		}
-	}
-	
-	public void commit() {
-		if(_activeNamespace != null) {
-			this.namespaces.put(_activeNamespace.namespaceUri(), _activeNamespace);
-		}
-	}
-	
-	private void ensureActiveNamespaceLoaded(IStrategoList namespaceId) throws SpxSymbolTableException{
-		if(_activeNamespace == null ||!_activeNamespace.namespaceUri().equalSpoofaxId(namespaceId)){
-			commit(); 
-			
-			//Keeping a transient reference to the current/active Namespace
-			//More likely that there are other symbols to be defined in the
-			//current and active namespace. In that case, it will imporve 
-			//performance as namespace resolving avoided by means of extra 
-			//caching
-			_activeNamespace = this.resolveNamespace(namespaceId);
-			if(_activeNamespace ==null){
-				throw new SpxSymbolTableException("Unknown namespaceId: "+ namespaceId+". Namespace can not be resolved from symbol-table") ;
-			}
-		}
-		
-	}
 
+		return undefinedSymbols;
+	}
+	
+	
 	public Collection<SpxSymbol> resolveSymbols(IStrategoList namespaceId, IStrategoTerm symbolId, IStrategoConstructor symbolType, boolean returnDuplicates) throws SpxSymbolTableException {
 		persistenceManager().logMessage(SRC, "resolveSymbols | Resolving symbols with the following criteria :  search origin " + namespaceId +  " with Key : "+ symbolId + " of Type : "+ symbolType.getName());
 		
-		ensureActiveNamespaceLoaded(namespaceId);
-		Collection<SpxSymbol> resolvedSymbols = _activeNamespace.resolveAll(_facade, symbolId ,symbolType, returnDuplicates);
+		INamespace namespace = activateNamespace(namespaceId);
+		Collection<SpxSymbol> resolvedSymbols = namespace.resolveAll(_facade, symbolId ,symbolType, returnDuplicates);
 		
 		persistenceManager().logMessage(SRC, "resolveSymbols | Resolved Symbols : " + resolvedSymbols);
 		return resolvedSymbols;
@@ -262,9 +226,9 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 	public SpxSymbol resolveSymbol(IStrategoList namespaceId, IStrategoTerm symbolId, IStrategoConstructor symbolType) throws SpxSymbolTableException {
 		persistenceManager().logMessage(SRC, "resolveSymbol | Resolving symbol with the following criteria :  search origin " + namespaceId +  " with Key : "+ symbolId + "of Type : "+ symbolType.getName());
 		
-		ensureActiveNamespaceLoaded(namespaceId);
+		INamespace namespace =  activateNamespace(namespaceId);
 		
-		SpxSymbol  resolvedSymbol = _activeNamespace.resolve(symbolId, symbolType ,_activeNamespace ,_facade);
+		SpxSymbol  resolvedSymbol = namespace.resolve(symbolId, symbolType ,_activeNamespace ,_facade);
 		
 		persistenceManager().logMessage(SRC, "resolveSymbol | Resolved Symbol : " + resolvedSymbol );
 		
@@ -273,17 +237,17 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 	
 	public INamespace newAnonymousNamespace(IStrategoList enclosingNamespaceId) throws SpxSymbolTableException{
 		persistenceManager().logMessage(SRC, "newAnonymousNamespace | Inserting a Anonymous Namespace in following enclosing namespace : "  + enclosingNamespaceId);
-		ensureActiveNamespaceLoaded(enclosingNamespaceId);
 		
-		INamespace localNamespace = LocalNamespace.createInstance(_facade, _activeNamespace); 
+		INamespace currentNamespace = activateNamespace(enclosingNamespaceId);
+		
+		// creating and defining a new local namesapce 
+		INamespace localNamespace = LocalNamespace.createInstance(_facade, currentNamespace); 
 		this.defineNamespace(localNamespace);
-	
+		this.commitChanges(); // committing the unsaved chagnes in to save changes regarding its enclosed namespaces 
+		
 		persistenceManager().logMessage(SRC, "newAnonymousNamespace | Folloiwng namesapce is created : "  + localNamespace);
 		
-		this.commit();
-		_activeNamespace = localNamespace;
-		
-		return _activeNamespace ;
+		return localNamespace ;
 	}
 
 	/**
@@ -298,8 +262,8 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 		
 		INamespace ns = this.removeNamespaceById(namespaceId);
 		ensureActiveNamespaceUnloaded(namespaceId);
-		persistenceManager().logMessage(SRC, "destroyNamespace | Folloiwng namesapce is removed : "  + ns);
 		
+		persistenceManager().logMessage(SRC, "destroyNamespace | Folloiwng namesapce is removed : "  + ns);
 		
 		return ns;
 	} 
@@ -349,6 +313,11 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 		};
 	}
 
+	/**
+	 * Removes all the entries from the Global Namespace
+	 * 
+	 * @param spxSemanticIndexFacade
+	 */
 	public void cleanGlobalNamespace(SpxSemanticIndexFacade spxSemanticIndexFacade) {
 		persistenceManager().logMessage(SRC, "clearGlobalNamespce | Remove all the entries stored currently in GlobalNamespace" );
 		
@@ -361,6 +330,12 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 		persistenceManager().logMessage(SRC, "clearGlobalNamespce | Successfully removed all the entries." );
 	}
 	
+	public synchronized void commitChanges() {
+		if(_activeNamespace != null) {
+			this.namespaces.put(_activeNamespace.namespaceUri(), _activeNamespace);
+		}
+	}
+		
 	/**
 	 * Printing all the symbols current hashmap 
 	 * 
@@ -421,4 +396,59 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 		logger.write("\n");
 	}
 	
+	private void ensureActiveNamespaceUnloaded(INamespace namespace){
+		if(namespace!=null)
+			this.ensureActiveNamespaceUnloaded(namespace.namespaceUri().id());
+	}
+	
+	private synchronized void ensureActiveNamespaceUnloaded(IStrategoList namespaceId){
+		if( (_activeNamespace !=null) && _activeNamespace.namespaceUri().equalSpoofaxId(namespaceId)){
+			_activeNamespace = null;
+		}
+	}
+	
+	
+	private synchronized INamespace activateNamespace(IStrategoList namespaceId) throws SpxSymbolTableException{
+		if((_activeNamespace == null) ||(!_activeNamespace.namespaceUri().equalSpoofaxId(namespaceId))){
+			// changing active namespace
+			// hence, committing the changes 
+			commitChanges(); 
+			
+			//Keeping a transient reference to the current/active Namespace
+			//More likely that there are other symbols to be defined in the
+			//current and active namespace. In that case, it will improve 
+			//performance as namespace resolving avoided by means of extra 
+			//caching
+			_activeNamespace = this.resolveNamespace(namespaceId);
+			if(_activeNamespace ==null){
+				throw new RuntimeException("Unknown namespaceId: "+ namespaceId+". Namespace can not be resolved from symbol-table") ;
+			}
+		}
+		return _activeNamespace;
+	}
+	
+	long getIntializedOn(){ 
+		Long initializedOn = timestamps.get(INITIALIZED_ON_KEY);
+		
+		if(initializedOn ==null) return System.currentTimeMillis();
+		
+		return initializedOn;
+	}
+	
+	void setCompileSessionEndedOn(){ 
+		timestamps.put(INITIALIZED_ON_KEY, System.currentTimeMillis());
+	}
+	
+	long getLastCodeGeneratedOn(){ 
+		Long lastCodeGenOn = timestamps.get(LAST_CODEGEN_ON_KEY);
+		
+		if(lastCodeGenOn ==null) 
+			return 0;
+		
+		return lastCodeGenOn;
+	}
+	
+	void setLastCodeGeneratedOn(long timestap){ 
+		timestamps.put(LAST_CODEGEN_ON_KEY, timestap);
+	}
 }

@@ -165,7 +165,7 @@ public class SpxSymbol extends SpxBaseSymbol implements Serializable{
 	 */
 	@Override
 	public String toString() {
-		return "SpxSymbol [ Id : " + this.getId() + " Type= " + _type + ", Namespace=" + _namespace + "]";
+		return "SpxSymbol [ Id : " + this.getId() + " Type= " + _type + ", Namespace=" + _namespace + "value = "+ this._data +"]";
 	}
 	
 	public String printSymbol(){

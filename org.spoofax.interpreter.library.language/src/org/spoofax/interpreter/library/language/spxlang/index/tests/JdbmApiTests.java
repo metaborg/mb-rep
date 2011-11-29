@@ -74,27 +74,7 @@ interface IPerson{
 	public void setAddresses() ;
 }
 
-class Employee extends PersonBase implements Serializable, IPerson{
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -2742987981816165179L;
-	public Employee(String name, Address adress,String fatherName) {
-		super(name, adress, fatherName);
-	}
-	@Override
-	public void setAddresses() 
-	{
-		addAddress(new Address("First street1"+ctr++, "Athlone","Ireland"));
-	}
-	
-	private void addAddress( Address address){
-		this.getMembers().define("address", address);
-		
-	}
-	
-}
 
 class PersonBase  implements Serializable, IPerson
 {
@@ -136,7 +116,27 @@ class PersonBase  implements Serializable, IPerson
 	}
 }
 
+class Employee extends PersonBase implements Serializable, IPerson{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2742987981816165179L;
+	public Employee(String name, Address adress,String fatherName) {
+		super(name, adress, fatherName);
+	}
+	@Override
+	public void setAddresses() 
+	{
+		addAddress(new Address("First street1"+ctr++, "Athlone","Ireland"));
+	}
+	
+	private void addAddress( Address address){
+		this.getMembers().define("address", address);
+		
+	}
+	
+}
 class Person extends PersonBase implements Serializable{
 	
 	/**
@@ -210,33 +210,23 @@ public class JdbmApiTests {
 		if(personsByName.size() > 0)
 			personsByName.clear();
 		
-		//create a few persons
-		Person patrick = new Person("Patrick Moore", 
-				new Address("First street", "Athlone","Ireland"),
-				null);
-		patrick.setAddresses(); 
-		personsByName.put(patrick.name, patrick);
-		recman.commit();
-		patrick = new Person("Patrick Moore2", 
-				new Address("First street", "Athlone","Ireland"),
-				null);
-		patrick.setAddresses();
-		recman.commit();
-		
 		Employee emp = new Employee("Patrick EMP", 
 				new Address("First street", "Athlone","NL"),
 				null);
 		emp.setAddresses();
 		emp.setAddresses();
+		
 		personsByName.put(emp.getName(), emp);
 		
 		personsByName.get("Patrick EMP").setAddresses();
 		emp.setAddresses();
 		
-		//personsByName.put(emp.getName(), emp);
+		personsByName.get("Patrick EMP").getMembers().logEntries();
+		
+		personsByName.put(emp.getName(), emp);
 		recman.commit();
 		
-		//personsByName.get("Patrick Moore").getMembers().logEntries();
+		personsByName.get("Patrick EMP").getMembers().logEntries();
 		recman.close();
 		recman = null;
 		

@@ -3,7 +3,10 @@ package org.spoofax.interpreter.library.language.spxlang.index;
 import static org.spoofax.interpreter.core.Tools.asJavaString;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Collections;
 
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbolTableException;
@@ -16,7 +19,11 @@ import org.spoofax.interpreter.terms.ITermFactory;
 //using only one SemanticIndexFactory and require initialization. 
 public class SpxSemanticIndexFacadeRegistry
 {
-	final HashMap<String, SpxSemanticIndexFacade> _registry = new HashMap<String, SpxSemanticIndexFacade>();
+	final static Map<String, SpxSemanticIndexFacade> _registry;
+	
+	static {
+		_registry = Collections.synchronizedMap(new HashMap<String, SpxSemanticIndexFacade>());
+	}
 	
 	/**
 	 * Initializes the SemanticIndexFactory if the registry does not contain any mapping of existing Facade, or it 
@@ -26,13 +33,14 @@ public class SpxSemanticIndexFacadeRegistry
 	 * @param termFactory
 	 * @throws Exception 
 	 */
-	public SpxSemanticIndexFacade initFacade(IStrategoTerm projectPath , ITermFactory termFactory , IOAgent agent) throws Exception
+	public synchronized SpxSemanticIndexFacade initFacade(IStrategoTerm projectPath , ITermFactory termFactory , IOAgent agent) throws Exception
 	{	
 		SpxSemanticIndexFacade fac = null;
 		String projectNameString  =  Utils.toAbsPathString(asJavaString(projectPath));
 		
+		agent.getWriter(IOAgent.CONST_STDOUT).write( "Initializing at " + Thread.currentThread().getId() + " at process : " + ManagementFactory.getRuntimeMXBean().getName()+"\n\n\n");
+		
 		if ( !containsFacade(projectPath)) {
-			
 			fac = new SpxSemanticIndexFacade(projectPath, termFactory, agent);
 			fac.initializePersistenceManager();
 		}	
@@ -76,7 +84,7 @@ public class SpxSemanticIndexFacadeRegistry
 		return facade;
 	}
 
-	public void clearAll() throws IOException{
+	public synchronized void clearAll() throws IOException{
 		for(String fname : _registry.keySet())
 			removeFacade(Utils.toAbsPathString(fname));
 	}

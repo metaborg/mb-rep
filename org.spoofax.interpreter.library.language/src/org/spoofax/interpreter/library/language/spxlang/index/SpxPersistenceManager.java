@@ -180,7 +180,7 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	 * @throws IOException
 	 */
 	public void commit() throws IOException {
-		this.spxSymbolTable().commit();
+		this.spxSymbolTable().commitChanges();
 		if(!this.isClosed()){
 			_recordManager.commit();
 		}	
@@ -194,7 +194,7 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	public void close() throws IOException { 
 		// Since, spxSymbolTable uses internal caching
 		// checking in the changes before closing the connection 
-		spxSymbolTable().commit();
+		spxSymbolTable().commitChanges();
 		
 		if(!this.isClosed()) 
 			_recordManager.close();

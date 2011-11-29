@@ -205,7 +205,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		assertEquals( 1 + 2 + 2 + 2 + 1 ,symbol_table.size());
 	}
 	
-	public void testUnknownNamespaceShouldThrowSpxSymbolTableException() throws IOException{
+	public void testUnknownNamespaceShouldThrowRuntimeException() throws RuntimeException, SpxSymbolTableException, IOException{
 			
 		// defining following composite ID :  (Global() , "TestId")
 		IStrategoAppl namespaceAppl = termFactory().makeAppl(_facade.getCons().getGlobalNamespaceTypeCon());
@@ -222,7 +222,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 						termFactory().makeString("*")
 					));
 			
-		}catch(SpxSymbolTableException ex) { }
+		}catch(RuntimeException ex) { }
 	}
 	
 	public void testDefiningGlobalSymbol() throws IOException, SpxSymbolTableException {
