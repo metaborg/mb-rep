@@ -53,6 +53,7 @@ public class SpxSemanticIndexFacade {
 	private final SpxConstructors _spxConstructors;
 	
 	private long _currentCodeGenerationStratedOn;
+	private long _currentIndexUpdatingStartedOn;
 
 	
 	/**
@@ -82,8 +83,6 @@ public class SpxSemanticIndexFacade {
 		_persistenceManager = new SpxPersistenceManager(this);
 		_persistenceManager.initializeSymbolTables(this._projectPath, this);
 		_indexId = _persistenceManager.getIndexId();
-		
-		
 	}
 	
 	protected void finalize() throws Throwable {
@@ -125,12 +124,25 @@ public class SpxSemanticIndexFacade {
 	 */
 	public ISpxPersistenceManager getPersistenceManager(){	return _persistenceManager; }
 
-	public void onInitCodeGeneration(){
+	
+	
+	synchronized  void onInitIndexUpdating(){
+		this._currentIndexUpdatingStartedOn = System.currentTimeMillis();
+	}
+	
+	synchronized void onIndexUpatingCompleted(){
+		ISpxPersistenceManager manager = this.getPersistenceManager();
+		manager.spxSymbolTable().setIndexUpdatedOn(this._currentIndexUpdatingStartedOn);
+	}
+	
+	synchronized void onInitCodeGeneration(){
 		this._currentCodeGenerationStratedOn = System.currentTimeMillis(); 
 	}
 	
-	public void onCompleteCodeGeneration() { 
-		this.getPersistenceManager().spxSymbolTable().setLastCodeGeneratedOn(this._currentCodeGenerationStratedOn);
+	synchronized void onCompleteCodeGeneration() { 
+		
+		ISpxPersistenceManager manager = this.getPersistenceManager();
+		manager.spxSymbolTable().setLastCodeGeneratedOn(this._currentCodeGenerationStratedOn);
 	}
 	
 	/**
@@ -260,7 +272,7 @@ public class SpxSemanticIndexFacade {
 	}
 
 	/**
-	 * Stores PackageDeclaration in Symbol Table 
+	 * Stores PackageDeclaration in Symbol-Table 
 	 * 
 	 * @param packageDeclaration
 	 */
@@ -872,7 +884,7 @@ public class SpxSemanticIndexFacade {
 		long ts = 0;
 	
 		if( getCons().hasEqualConstructor( qualifiedFor , getCons().getToCompileCon()))
-			ts = this.getPersistenceManager().spxSymbolTable().getIntializedOn();
+			ts = this.getPersistenceManager().spxSymbolTable().getIndexLastInitializedOn();
 		else if ( getCons().hasEqualConstructor( qualifiedFor , getCons().getToCodeGenerateCon()))
 			ts = this.getPersistenceManager().spxSymbolTable().getLastCodeGeneratedOn();
 		else
@@ -1036,7 +1048,6 @@ public class SpxSemanticIndexFacade {
 			if(shouldCommit)
 				persistenceManager.commit();
 			
-			persistenceManager.spxSymbolTable().setCompileSessionEndedOn();
 			persistenceManager.close();
 			persistenceManager = null;
 			
@@ -1052,17 +1063,19 @@ public class SpxSemanticIndexFacade {
 	 */
 	public void cleanIndexAndSymbolTable() throws Exception {
 		ISpxPersistenceManager manager = getPersistenceManager();
+		
 		if (!isPersistenceManagerClosed()){
-			invalidateSpxCacheDirectories(); //cleaning the SpxCache as well.
+			if(!tryInvalidatingSpxCacheDirectories()){
+				throw new RuntimeException("Failed to clean Spx Cache Directories. Please manually clean it");
+			} 
 			
 			manager.clearCache();
 			manager.clear(); // cleaning persistence manager.
-			
 			manager.commitAndClose();
 		}
 		
 		initializePersistenceManager();
-		printSymbolTable(!Utils.DEBUG, "clean");
+		printSymbolTable(Utils.DEBUG, "clean");
 		
 	}
 
@@ -1070,18 +1083,13 @@ public class SpxSemanticIndexFacade {
 	 * Deletes the Spx Cache directory configured in Utils. By this way, the Spx cache will 
 	 * be invalidated and all the symbols will be indexed again. 
 	 */
-	void invalidateSpxCacheDirectories() {
-		Utils.deleteSpxCacheDir( new File(  _projectPath +"/" + Utils.SPX_CACHE_DIRECTORY));
-		Utils.deleteSpxCacheDir( new File(  _projectPath +"/" + Utils.SPX_SHADOW_DIR));
+	boolean tryInvalidatingSpxCacheDirectories() {
+		if(Utils.deleteSpxCacheDir( new File(  _projectPath +"/" + Utils.SPX_CACHE_DIRECTORY), true)){
+			return Utils.deleteSpxCacheDir( new File(  _projectPath +"/" + Utils.SPX_SHADOW_DIR) , true);
+		}
+		return false;
 	}
 	
-	private void tryCleanupIndexDirectory(){
-		try{
-			Utils.tryDeleteSpxIndexDir( new File( _projectPath + "/" + Utils.SPX_INDEX_DIRECTORY));
-		}catch(Exception ex){
-			// In case of SecurityException , Do nothing
-		}
-	}
 	
 	public void rollbackChanges() throws IOException{	
 		

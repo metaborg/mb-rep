@@ -427,16 +427,19 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 		return _activeNamespace;
 	}
 	
-	long getIntializedOn(){ 
+	//TODO : refactor this time-stamps to a separate class. It is not the right 
+	// place for the following codes.
+	long getIndexLastInitializedOn(){ 
 		Long initializedOn = timestamps.get(INITIALIZED_ON_KEY);
 		
-		if(initializedOn ==null) return System.currentTimeMillis();
+		if(initializedOn ==null) 
+			return 0;
 		
 		return initializedOn;
 	}
 	
-	void setCompileSessionEndedOn(){ 
-		timestamps.put(INITIALIZED_ON_KEY, System.currentTimeMillis());
+	void setIndexUpdatedOn(long timestamp){ 
+		timestamps.put(INITIALIZED_ON_KEY, timestamp);
 	}
 	
 	long getLastCodeGeneratedOn(){ 
@@ -448,7 +451,7 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 		return lastCodeGenOn;
 	}
 	
-	void setLastCodeGeneratedOn(long timestap){ 
-		timestamps.put(LAST_CODEGEN_ON_KEY, timestap);
+	void setLastCodeGeneratedOn(long timestamp){ 
+		timestamps.put(LAST_CODEGEN_ON_KEY, timestamp);
 	}
 }

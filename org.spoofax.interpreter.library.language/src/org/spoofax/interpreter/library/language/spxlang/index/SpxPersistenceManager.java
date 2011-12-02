@@ -98,7 +98,7 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 				}else{
 					_indexId  = _indexId+ "[" + UUID.randomUUID().toString() +"]";
 					this.clearCache();
-					spxSemanticIndexFacade.invalidateSpxCacheDirectories();
+					spxSemanticIndexFacade.tryInvalidatingSpxCacheDirectories();
 					noOfTries--;
 				}
 			}

@@ -52,6 +52,7 @@ public class LanguageLibrary extends AbstractStrategoOperatorRegistry {
 		add(new SPX_index_get_related_files_of_packages(spxIndex));
 		add(new SPX_index_equal_resource_uri(spxIndex));
 		
+
 		// Primitives related to symbol-table - i.e. symbol definition and resolving
 		add(new SPX_symtab_new_scope(spxIndex));
 		add(new SPX_symtab_destroy_scope(spxIndex));

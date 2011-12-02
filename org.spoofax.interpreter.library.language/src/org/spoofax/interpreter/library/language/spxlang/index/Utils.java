@@ -95,16 +95,20 @@ public final class Utils {
 	// the cache directory denoted using cacheDir. 
 	// If it fails to delete any Files or Directories
 	// , it returns false. Otherwise, it returns true.
-	static  boolean deleteSpxCacheDir(File cacheDir){
+	static  boolean deleteSpxCacheDir(File cacheDir , boolean isRoot){
 	    if ( cacheDir.exists() &&  cacheDir.isDirectory()) {
 	        String[] children = cacheDir.list();
 	        for (int i=0; i<children.length; i++) {
-	            boolean success = deleteSpxCacheDir(new File(cacheDir, children[i]));
+	            boolean success = deleteSpxCacheDir(new File(cacheDir, children[i]) , false);
 	            if (!success) {
 	                return false;
 	            }
 	        }
 	    }
+	    
+	    if(isRoot)
+	    	return true; // avoid deleting the root directories 
+	    		
 	    return cacheDir.delete();
 	}
 	

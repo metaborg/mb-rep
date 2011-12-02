@@ -12,5 +12,8 @@ public interface IIndexManageCommand {
 	static final String ON_INIT_CODEGEN_COMMAND_STRING = "ON_INIT_CODEGEN" ;
 	static final String ON_COMPLETE_CODEGEN_COMMAND_STRING = "ON_COMPLETE_CODEGEN" ;
 	
+	static final String ON_INIT_INDEX_UPDATING_COMMAND_STRING = "ON_INIT_INDEX_UPDATING";
+	static final String ON_INDEX_UPDATING_COMPLETED_COMMAND_STRING = "ON_INDEX_UPDATING_COMPLETED";
+	
 	public void run() throws Exception;
 }

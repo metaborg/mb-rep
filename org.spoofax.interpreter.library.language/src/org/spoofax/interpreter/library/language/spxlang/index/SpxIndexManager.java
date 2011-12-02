@@ -26,7 +26,7 @@ public class SpxIndexManager implements IIndexManageCommand
 	
 	static void ensureFacadeInitialized(SpxSemanticIndexFacade f) throws SpxSymbolTableException {
 		if(f== null) {
-			throw new SpxSymbolTableException("Symbol Table is not initialized for project . Invoke SPX_index_init. ");
+			throw new RuntimeException("Symbol Table is not initialized for project . Invoke SPX_index_init. ");
 		}	
 	}
 	protected void executeCommnad(SpxSemanticIndex idx, IStrategoTerm projectName , Object... objects) throws Exception{} ;
@@ -72,10 +72,40 @@ public class SpxIndexManager implements IIndexManageCommand
 		if(commandName.equalsIgnoreCase(ON_COMPLETE_CODEGEN_COMMAND_STRING))
 			return onCompleteCodeGenrationCommandInstance(spxSemanticIndex , projectPath, objects);
 		
+		if(commandName.equalsIgnoreCase(ON_INIT_INDEX_UPDATING_COMMAND_STRING))
+			return onInitIndexUpdatingCommandInstance(spxSemanticIndex , projectPath, objects);
+		
+		if(commandName.equalsIgnoreCase(ON_INDEX_UPDATING_COMPLETED_COMMAND_STRING))
+			return onIndexUpdatingCompletedCommandInstance(spxSemanticIndex , projectPath, objects);
+		
 		
 		throw new IllegalArgumentException("Invalid command name :"+ commandName) ;
 	}
-
+	
+	private static IIndexManageCommand onInitIndexUpdatingCommandInstance(
+			final SpxSemanticIndex index, IStrategoString projectPath, Object[] objects) {
+		
+		return new SpxIndexManager(index , projectPath, objects){
+			public void executeCommnad(SpxSemanticIndex idx, IStrategoTerm projectPath, Object... objects) throws Exception{
+				SpxSemanticIndexFacade f = idx.getFacadeRegistry().getFacade(projectPath);
+				if(f != null)
+					f.onInitIndexUpdating();
+			}
+		};
+	}
+	
+	private static IIndexManageCommand onIndexUpdatingCompletedCommandInstance(
+			final SpxSemanticIndex index, IStrategoString projectPath, Object[] objects) {
+		
+		return new SpxIndexManager(index , projectPath, objects){
+			public void executeCommnad(SpxSemanticIndex idx, IStrategoTerm projectPath, Object... objects) throws Exception{
+				SpxSemanticIndexFacade f = idx.getFacadeRegistry().getFacade(projectPath);
+				if(f != null)
+					f.onIndexUpatingCompleted();
+			}
+		};
+	}
+	
 	private static IIndexManageCommand onInitCodeGenrationCommandInstance(
 			final SpxSemanticIndex index, IStrategoString projectPath,
 			Object[] objects) {

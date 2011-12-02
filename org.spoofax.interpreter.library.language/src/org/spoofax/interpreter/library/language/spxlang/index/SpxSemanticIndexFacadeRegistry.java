@@ -41,8 +41,13 @@ public class SpxSemanticIndexFacadeRegistry
 		agent.getWriter(IOAgent.CONST_STDOUT).write( "Initializing at " + Thread.currentThread().getId() + " at process : " + ManagementFactory.getRuntimeMXBean().getName()+"\n\n\n");
 		
 		if ( !containsFacade(projectPath)) {
+		 
 			fac = new SpxSemanticIndexFacade(projectPath, termFactory, agent);
 			fac.initializePersistenceManager();
+			
+			// when facade is first time initializing, it cleans up
+			// index and symbol table so that every thing get re-indexed
+			fac.cleanIndexAndSymbolTable();
 		}	
 		else {
 			fac = _registry.get(projectNameString);
