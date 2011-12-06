@@ -28,6 +28,10 @@ public class StrategoString extends StrategoTerm implements IStrategoString {
         initImmutableHashCode();
     }
     
+    protected StrategoString(String value) {
+    	this(value, TermFactory.EMPTY_LIST, IStrategoTerm.IMMUTABLE);
+    }
+    
     public IStrategoTerm getSubterm(int index) {
         throw new IndexOutOfBoundsException();
     }

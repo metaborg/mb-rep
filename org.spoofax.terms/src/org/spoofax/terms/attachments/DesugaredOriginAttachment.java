@@ -2,7 +2,6 @@ package org.spoofax.terms.attachments;
 
 import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.terms.TermVisitor;
 
 /** 
  * @author Maartje de Jonge

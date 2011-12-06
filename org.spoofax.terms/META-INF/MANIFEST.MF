@@ -9,4 +9,5 @@ Export-Package: org.spoofax,
  org.spoofax.terms,
  org.spoofax.terms.attachments,
  org.spoofax.terms.io,
- org.spoofax.terms.io.binary
+ org.spoofax.terms.io.binary,
+ org.spoofax.terms.skeleton

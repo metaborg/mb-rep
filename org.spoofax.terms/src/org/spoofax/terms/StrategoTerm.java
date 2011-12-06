@@ -209,7 +209,7 @@ public abstract class StrategoTerm extends AbstractSimpleTerm implements IStrate
     	}
     }
     
-    public boolean isList() {
+    public final boolean isList() {
     	return getTermType() == LIST;
     }
 }
