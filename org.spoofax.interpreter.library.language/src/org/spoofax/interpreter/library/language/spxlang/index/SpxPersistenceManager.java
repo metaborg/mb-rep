@@ -59,7 +59,7 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 		assert spxSemanticIndexFacade != null : "SpxSemanticIndexFacade is expected to be nonnull" ;
 
 		this._agent = spxSemanticIndexFacade.getIOAgent();
-		this._indexId = spxSemanticIndexFacade.indexId() ;
+		this._indexId = spxSemanticIndexFacade.getIndexId() ;
 		
 		BaseRecordManager.DEFAULT_RELATIVE_PATH_INDEX = spxSemanticIndexFacade.getProjectPath()+ "/" + Utils.SPX_INDEX_DIRECTORY+ "/" + _indexId + ".idx";
 

@@ -37,24 +37,28 @@ import org.spoofax.terms.StrategoListIterator;
 import org.spoofax.terms.attachments.TermAttachmentSerializer;
 import org.spoofax.terms.attachments.TermAttachmentStripper;
 
-//TODO :  refactor this class  to multiple facades one for package, one for modules 
-//TODO FIXME : combine symbol table and index
 public class SpxSemanticIndexFacade {
 	
-	private ISpxPersistenceManager _persistenceManager;
+	// TODO : Implement SRP i.e., refactor this class  to multiple facades one for package, one for modules 
+	// FIXME : Eliminate additional index used for symbol-table. Reuse Symboltable for that. 
 	
-	private final String _projectPath ;
+	private ISpxPersistenceManager _persistenceManager;
+	private final SpxConstructors _spxConstructors;
+	
 	private String _indexId;
+	private final String _projectPath ;
+	
+	
+	// Time-stamps for sliding/incremental compilation 
+	private long _currentCodeGenerationStratedOn;
+	private long _currentIndexUpdatingStartedOn;
+
+	
 	private final ITermFactory _termFactory;
 	private final IOAgent _agent;
 	private final TermAttachmentStripper _stripper;
 	private final TermAttachmentSerializer _termAttachmentSerializer;
 	private final TermConverter _converter;
-	private final SpxConstructors _spxConstructors;
-	
-	private long _currentCodeGenerationStratedOn;
-	private long _currentIndexUpdatingStartedOn;
-
 	
 	/**
 	 * Initialises the factory for the semantic index
@@ -79,6 +83,10 @@ public class SpxSemanticIndexFacade {
 		_spxConstructors = new SpxConstructors(_termFactory);
 	}
 	
+	/**
+	 * Initializes Persistence Manager 
+	 * @throws Exception
+	 */
 	public synchronized void initializePersistenceManager() throws Exception {
 		_persistenceManager = new SpxPersistenceManager(this);
 		_persistenceManager.initializeSymbolTables(this._projectPath, this);
@@ -101,11 +109,8 @@ public class SpxSemanticIndexFacade {
 		return _termAttachmentSerializer;
 	}
 	
-	public String indexId() {return _indexId; }
-	/**
-	 * Returns the TermFactory 
-	 * @return
-	 */
+	public String getIndexId() {return _indexId; }
+	
 	public ITermFactory getTermFactory() { return _termFactory; }
 
 	public TermConverter getTermConverter() {return _converter ; }
@@ -161,8 +166,9 @@ public class SpxSemanticIndexFacade {
 		
 		IStrategoAppl term = (IStrategoAppl)table.get(this, resUri);
 		
-		if ( term != null)
+		if ( term != null){
 			retTerm = forceImploderAttachment(term, resUri);
+		}
 		
 		logMessage("SpxSemanticIndexFacade.getCompilationUnit :  Returning Following APPL for uri " + resUri +  " : "+ retTerm);
 		
@@ -1030,7 +1036,7 @@ public class SpxSemanticIndexFacade {
 		ISpxPersistenceManager persistenceManager = this.getPersistenceManager();
 		if (printIfDebug){
 			try {
-				persistenceManager.spxSymbolTable().printSymbols(this, stageName, this.getProjectPath(), this.indexId());
+				persistenceManager.spxSymbolTable().printSymbols(this, stageName, this.getProjectPath(), this.getIndexId());
 			} catch (SpxSymbolTableException e) {
 			}
 		}

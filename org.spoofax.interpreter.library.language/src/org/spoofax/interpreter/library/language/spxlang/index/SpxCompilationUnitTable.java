@@ -79,7 +79,7 @@ public class SpxCompilationUnitTable {
 		// instantiating a new SpxCompilationUnitInfo object with the newly created resID
 		// and storing it in infomap
 		SpxCompilationUnitInfo newResInfo = new SpxCompilationUnitInfo(absPath,resID);
-		String key = newResInfo.getAbsPathString();
+		String key = newResInfo.getAbsPathString(); 
 		
 		_infoMap.put(key, newResInfo);
 		

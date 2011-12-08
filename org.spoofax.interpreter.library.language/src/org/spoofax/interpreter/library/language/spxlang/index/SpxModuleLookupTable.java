@@ -2,8 +2,10 @@ package org.spoofax.interpreter.library.language.spxlang.index;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import jdbm.PrimaryHashMap;
 import jdbm.RecordListener;
@@ -58,6 +60,7 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 		String tableName = SRC+ "_"+ manager.getIndexId();
 
 		assert manager != null;
+		
 		_manager = manager;
 		_moduleLookupMap = manager.loadHashMap(tableName+ "._lookupModuleMap.idx");
 
@@ -337,7 +340,7 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 		if(foundModuleDecls  != null)
 		{
 			for ( IStrategoList l: foundModuleDecls)
-				ret.add(_moduleByFileAbsPath.getPrimaryValue(l));
+				ret.add(_moduleLookupMap.get(l));
 		}
 		
 		return ret;
@@ -518,7 +521,19 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 	 * @return
 	 */
 	public Iterable<IStrategoList> getModuleIdsByLangaugeName(String langaugeName) {
-		return this._modulesByLangaugeName.get(langaugeName);
+		Set<IStrategoList> mIds = new HashSet<IStrategoList>();
+		
+		Iterable<LanguageDescriptor> lDescs = this._modulesByLangaugeName.getPrimaryValues(langaugeName);
+		
+		if(lDescs != null)
+		{
+			for(LanguageDescriptor l:lDescs){ 
+				mIds.add(l.getId());
+			}
+		}
+		
+		return mIds;
+	
 	}
 	
 	public Iterable<IStrategoList> getModuleIdsByLangaugeName(IStrategoString langaugeName) {
