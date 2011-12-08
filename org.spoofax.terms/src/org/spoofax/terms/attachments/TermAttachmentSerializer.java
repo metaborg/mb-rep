@@ -39,9 +39,11 @@ public class TermAttachmentSerializer {
 				while (attachment != null) {
 					if (attachment.getAttachmentType().isSerializationSupported()) {
 						
-						IStrategoTerm result = attachment.getAttachmentType().toTerm(factory, attachment);
+						//IStrategoTerm result = tryConvertAttachmentTypeToTerm(factory, attachment);
+						
+						IStrategoTerm result =  attachment.getAttachmentType().toTerm(factory, attachment);
 						if (results == null) results = term.getAnnotations();
-						results = factory.makeListCons(result, results);
+						results = (result ==null) ? results : factory.makeListCons(result, results);
 					}
 					attachment = attachment.getNext();
 				}
@@ -52,10 +54,18 @@ public class TermAttachmentSerializer {
 		}.transform(term);
 	}
 	
+	static IStrategoTerm  tryConvertAttachmentTypeToTerm( ITermFactory factory , ITermAttachment attachment ){
+		try{
+			return attachment.getAttachmentType().toTerm(factory, attachment);
+		}catch(Exception e){
+			//do nothing
+		}
+		return null;
+	}
 	public IStrategoTerm fromAnnotations(IStrategoTerm term, final boolean mutableOperations) {
 		final TermAttachmentType<?>[] types = TermAttachmentType.getKnownTypes();
 		
-		return new TermTransformer(factory, false) {
+		return new TermTransformer(factory, true) {
 			@Override
 			public IStrategoTerm preTransform(IStrategoTerm term) {
 				IStrategoTerm origin = OriginAttachment.getOrigin(term); 
