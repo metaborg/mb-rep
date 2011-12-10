@@ -404,9 +404,9 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 	 * @throws SpxSymbolTableException 
 	 */
 	public void printSymbols(SpxSemanticIndexFacade f, String state , String projectPath , String indexId) throws IOException, SpxSymbolTableException{
-		new File(projectPath + "/.log").mkdirs();
+		new File(projectPath +"/"+Utils.SPX_INDEX_DIRECTORY+ "/.log").mkdirs();
 		
-		FileWriter fstream = new FileWriter(projectPath + "/.log/"+indexId+"_symbols_"+Utils.now("yyyy-MM-dd HH.mm.ss.SSS")+".csv" , true);
+		FileWriter fstream = new FileWriter(projectPath +"/"+ Utils.SPX_INDEX_DIRECTORY+ "/.log/"+indexId+"_symbols_"+Utils.now("yyyy-MM-dd HH.mm.ss.SSS")+".csv" , true);
 		BufferedWriter out = new BufferedWriter(fstream);
 		out.write(", , ,------------- Logging [" +state+ "] state of Symbol-Table at :" + Utils.now("yyyy-MM-dd HH.mm.ss")+"-------------\n");
 		try

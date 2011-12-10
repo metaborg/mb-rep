@@ -325,10 +325,4 @@ public class SpxSemanticIndex {
 		public abstract <U> U resolve(IStrategoString projectPath , IStrategoTerm term) throws Exception ;
 	}
 
-
-
-	
-
-	
-
 }

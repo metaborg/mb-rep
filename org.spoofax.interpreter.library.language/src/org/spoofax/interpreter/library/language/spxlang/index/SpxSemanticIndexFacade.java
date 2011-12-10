@@ -1038,8 +1038,7 @@ public class SpxSemanticIndexFacade {
 	public void commitChanges() throws IOException {
 		ISpxPersistenceManager persistenceManager = this.getPersistenceManager();
 		persistenceManager.commit();
-		printSymbolTable(!Utils.DEBUG, "commit");
-		//printSymbolTable(true, "commit");
+		printSymbolTable(Utils.DEBUG, "commit");
 	}	
 
 	private void printSymbolTable(boolean printIfDebug, String stageName) throws IOException {
