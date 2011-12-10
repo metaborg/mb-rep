@@ -38,7 +38,7 @@ public abstract class BaseNamespace implements INamespace {
 	 * Stores all the symbols from the current namespace. 
 	 * @serialField
 	 */
-	protected HashMap<SpxSymbolKey, List<SpxSymbol>> symbols;
+	protected Map<SpxSymbolKey, List<SpxSymbol>> symbols;
 
 	public NamespaceUri namespaceUri() {return _currentNamespaceId;}
 	
@@ -67,16 +67,46 @@ public abstract class BaseNamespace implements INamespace {
 		return this;
 	}
 	
+	/**
+	 * Defines symbol in this Namespace. Define does not replace  
+	 * old symbol mapped using the key with the new one. It just adds the 
+	 * new symbol at the end of the multi-value hashmap. 
+	 * 
+	 * @param key - The key that the symbol will be mapped to .
+	 * @param symbol - The symbol to store. 
+	 */
+	private void defineSymbol(SpxSymbolTableEntry entry){
+		
+		List<SpxSymbol> values = new ArrayList<SpxSymbol>();	
+		
+		if (!symbols.containsKey(entry.key)){
+			values.add(entry.value);	
+		}else{
+			values = symbols.get(entry.key);
+	
+			if( entry.key.isOverridable())
+				values.add(entry.value);
+			else{
+				assert values.size() == 1;
+				values.set(0, entry.value);
+			}
+		}
+		symbols.put(entry.key, values);
+	}
+	
 	public Set<SpxSymbol> undefineSymbols(IStrategoTerm searchingFor, IStrategoTerm type , SpxSemanticIndexFacade  facade){
-		SpxSymbolKey key = new SpxSymbolKey(searchingFor);
+		assert type instanceof IStrategoConstructor : "type is expected to be a IStrategoConstructor" ;
+	
+		SpxSymbolKey key = new SpxSymbolKey(searchingFor , (IStrategoConstructor)type);
 		Set<SpxSymbol> undefinedSymbols = new HashSet<SpxSymbol>();
 		
 		if(this.symbols.containsKey(key)){
 			// Found following symbols indexed by key 
 			List<SpxSymbol> foundSymbols  = getMembers().get(key);
 			
-			// filtering symbols by type to retrieve the list of symbols to undefine
-			List<SpxSymbol> symbolsToDelete  = SpxSymbol.filterByType((IStrategoConstructor)type, foundSymbols);
+			//cloning the symbols to the be deleted
+			List<SpxSymbol> symbolsToDelete  =  new ArrayList<SpxSymbol>();
+			for(SpxSymbol s:foundSymbols){ symbolsToDelete.add(s);}
 			
 			// deleting the symbols to be undefined
 			for ( SpxSymbol s : symbolsToDelete){
@@ -87,29 +117,10 @@ public abstract class BaseNamespace implements INamespace {
 			}
 			this.symbols.put(key, foundSymbols);
 		}
-		
-		//facade.persistenceManager().spxSymbolTable().commit();
 		return undefinedSymbols;
 	}
-	/**
-	 * Defines symbol in this Namespace. Define does not replace  
-	 * old symbol mapped using the key with the new one. It just adds the 
-	 * new symbol at the end of the multi-value hashmap. 
-	 * 
-	 * @param key - The key that the symbol will be mapped to .
-	 * @param symbol - The symbol to store. 
-	 */
-	private void defineSymbol(SpxSymbolTableEntry entry){
-		SpxSymbolKey key = entry.key;
-		
-		if (symbols.containsKey(key)){
-			symbols.get(key).add(entry.value);
-		}else{
-			List<SpxSymbol> values = new ArrayList<SpxSymbol>(); 
-			values.add(entry.value);
-			symbols.put( key , values );
-		}
-	}
+	
+	
 	private static List<SpxSymbol> appendSymbols( List<SpxSymbol> origin , List<SpxSymbol> symbols){
 		if(symbols != null){
 			origin.addAll(symbols);
@@ -120,7 +131,7 @@ public abstract class BaseNamespace implements INamespace {
 	/**
 	 * Returns all the symbols matching the search-criteria specified as the argument. In addition,
 	 * it also accepts *(ALL) as an argument and returns all the symbols of a particular type  
-	 * from this namespace and the namespace visible in this namespace. 
+	 * from this namespace and the namespace visible from this namespace. 
 	 * 
 	 * @param members Symbol-Table contains all the members/symbols of this current Namespace
 	 * @param id  Symbol-ID
@@ -130,27 +141,36 @@ public abstract class BaseNamespace implements INamespace {
 	protected static List<SpxSymbol> lookupSymbols(Map<SpxSymbolKey, List<SpxSymbol>> members, IStrategoTerm id, IStrategoTerm type){
 		assert type instanceof IStrategoConstructor : "type is expected to be a IStrategoConstructor" ;
 	
-		SpxSymbolKey key = new SpxSymbolKey(id);
+		SpxSymbolKey key = new SpxSymbolKey(id , (IStrategoConstructor)type);
+		
 		List<SpxSymbol> resolvedSymbols  = new ArrayList<SpxSymbol>();
 		
 		if(key.getId().equalsIgnoreCase(Utils.All_SYMBOLS)){
 			// Found * in the ID. 
 			// Hence returning ALL symbols of  a particular type specified in the argument.
 			for (Entry<SpxSymbolKey, List<SpxSymbol>> entry : members.entrySet()) {
-				resolvedSymbols = appendSymbols(resolvedSymbols, SpxSymbol.filterByType((IStrategoConstructor)type, members.get(entry.getKey())));
+				
+				if(SpxSymbolKey.equalSignature((IStrategoConstructor)type, entry.getKey())){
+					resolvedSymbols = appendSymbols(resolvedSymbols, members.get(entry.getKey()));
+				}
+				//resolvedSymbols = appendSymbols(resolvedSymbols, SpxSymbol.filterByType((IStrategoConstructor)type, members.get(entry.getKey())));
 			}
 		}
 		else{
-			resolvedSymbols = appendSymbols(resolvedSymbols, SpxSymbol.filterByType( (IStrategoConstructor)type, members.get(key)));
+			//resolvedSymbols = appendSymbols(resolvedSymbols, SpxSymbol.filterByType( (IStrategoConstructor)type, members.get(key)));
+			resolvedSymbols = appendSymbols(resolvedSymbols, members.get(key));
+			
 		}
 		
 		return resolvedSymbols ; 
 	}
 	
 	protected  static SpxSymbol lookupSymbol(Map<SpxSymbolKey, List<SpxSymbol>> members,  IStrategoTerm id , IStrategoTerm type){
+		assert type instanceof IStrategoConstructor : "type is expected to be a IStrategoConstructor" ;
+	
 		List<SpxSymbol> resolvedSymbols = lookupSymbols( members , id , type); 
 	 	if(resolvedSymbols.size() >0 )
-			return resolvedSymbols.get(resolvedSymbols.size()-1);
+			return resolvedSymbols.get(resolvedSymbols.size()-1); // returning last symbol of the list
 		return null;
 	}
 	
@@ -266,6 +286,6 @@ public abstract class BaseNamespace implements INamespace {
 	 */
 	@Override
 	public String toString() {
-		return "namespace : "+ src + "";
+		return "Namespace { "+ src + "}";
 	}
 }

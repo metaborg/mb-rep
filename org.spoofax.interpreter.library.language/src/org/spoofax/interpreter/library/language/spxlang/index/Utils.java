@@ -1,13 +1,20 @@
 package org.spoofax.interpreter.library.language.spxlang.index;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
 
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.library.language.spxlang.index.data.IdentifiableConstruct;
+import org.spoofax.interpreter.library.language.spxlang.index.data.NamespaceUri;
+import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbol;
+import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbolKey;
+import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbolTableException;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
@@ -116,8 +123,12 @@ public final class Utils {
 		if(t == null) return null;
 		IStrategoTerm annotatedTerm = serializer.toAnnotations(t);
 		
+		return termToString(annotatedTerm);
+	}
+	
+	public static String termToString(IStrategoTerm t) throws IOException{
 		StringBuilder sb = new StringBuilder();
-		annotatedTerm.writeAsString(sb ,Integer.MAX_VALUE);
+		t.writeAsString(sb ,Integer.MAX_VALUE);
 		
 		return sb.toString();
 	}
@@ -131,5 +142,53 @@ public final class Utils {
 		return deserializedAterm;
 	}
 	
+	public static String getCsvFormatted(String text){
+		if(text ==null) return "";
+		
+		return text.replace(",", "__");
+	}
 	
+	static  void logEntries(SpxSemanticIndexFacade f,  INamespace namespace , BufferedWriter logger) throws IOException, SpxSymbolTableException{
+		Map<SpxSymbolKey , List<SpxSymbol>> members = namespace.getMembers();
+		if( namespace instanceof PackageNamespace){
+			PackageNamespace ns = (PackageNamespace)namespace;
+			ns.ensureEnclosedNamespaceUrisLoaded(f);
+			ns.ensureImportedNamespaceUrisLoaded(f);
+			
+			logger.write("Enclosed Namespace Uris:\n");
+			for(NamespaceUri uri : ns.enclosedNamespaceUris ){
+				logger.write( Utils.getCsvFormatted(uri.toString()) +"\n");
+			}
+			logger.write("\n");
+			
+				
+			logger.write("Imported Namespace Uris:\n");
+			for(NamespaceUri uri : ns.importedNamespaceUris ){
+				logger.write(Utils.getCsvFormatted(uri.toString())+"\n");
+			}
+			
+			logger.write("\n");
+		}
+		
+		
+		if( namespace instanceof ModuleNamespace){
+			logger.write("Parent Namespace = "+ ((ModuleNamespace) namespace).enclosingNamespaceUri()+"\n" );
+		}
+		
+		logger.write("\n");
+		if(members.keySet().size() >0)
+		{	
+			logger.write("Key, Type , Symbol\n");
+			for( SpxSymbolKey k : members.keySet()) {
+				for( SpxSymbol s : members.get(k) ){
+					logger.write(Utils.getCsvFormatted(k.printSymbolKey())+ ",");
+					logger.write( s.printSymbol(f) + "\n");
+				}
+			}
+		}
+		else
+			logger.write("No Symbols\n");
+		
+		logger.write("\n");
+	}
 }

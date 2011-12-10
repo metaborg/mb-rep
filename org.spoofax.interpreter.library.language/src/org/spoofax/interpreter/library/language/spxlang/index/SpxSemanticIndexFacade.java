@@ -348,12 +348,16 @@ public class SpxSemanticIndexFacade {
 		return _termFactory.makeAppl(getCons().getLocalNamespaceTypeCon(), deletedLocalNs.namespaceUri().id());
 	}
 	
-	// SymbolDef : namespace * id * type *  value -> Def  
+	// SymbolDef :  namespace * id * type *  value * unique/overridable -> Def  
 	public void indexSymbol(IStrategoAppl symbolDefinition) throws SpxSymbolTableException, IOException{	
-		final int NAMESPACE_ID_INDEX  = 0;
-		verifyConstructor(symbolDefinition.getConstructor(), getCons().getSymbolTableEntryDefCon(), "Illegal SymbolDefinition argument");
-		IStrategoConstructor typeCtor = null;
 		
+		final int NAMESPACE_ID_INDEX  = 0;
+		
+		verifyConstructor(symbolDefinition.getConstructor(), getCons().getSymbolTableEntryDefCon(), "Illegal SymbolDefinition argument");
+		
+		
+		//TODO : refactor following logic of retrieving the known constructor
+		IStrategoConstructor typeCtor = null;
 		try{
 			typeCtor = verifyKnownContructorExists((IStrategoAppl)symbolDefinition.getSubterm(SpxSymbolTableEntry.TYPE_INDEX));
 		}catch(IllegalArgumentException ex){
@@ -363,20 +367,26 @@ public class SpxSemanticIndexFacade {
 			typeCtor = _spxConstructors.indexConstructor(ctor);
 		}
 		
-		// Constructing Spx Symbol-Table Entry from the provided symbolDefinition argument.  
+		// Constructing SPX Symbol-Table Entry from the provided symbolDefinition argument.  
 		// Note: TermAttachment or Annotation are stripped from the ID Term since, in symbol-table, term attachments 
 		// is not require and will make the equals operation a bit complicated. 
-		SpxSymbolTableEntry entry = 
+		SpxSymbolTableEntry.EntryBuilder entryBuilder = 
 			SpxSymbolTableEntry.newEntry()
 						  .with(
 								  strip(symbolDefinition.getSubterm(SpxSymbolTableEntry.SYMBOL_ID_INDEX))
 						   )
 						  .instanceOf(typeCtor)	
 					      .uses(this._termAttachmentSerializer)
-					      .data(symbolDefinition.getSubterm(SpxSymbolTableEntry.DATA_INDEX))
-					      .build();
-					   		
+					      .data(symbolDefinition.getSubterm(SpxSymbolTableEntry.DATA_INDEX));
+					      
 		
+
+		IStrategoConstructor symbolSort = ((IStrategoAppl)symbolDefinition.getSubterm(SpxSymbolTableEntry.OVERRIDE_PROPERTY_INDEX)).getConstructor();
+		if(symbolSort == getCons().getUniqueSymbolTypeCon()){
+			entryBuilder = entryBuilder.isUnique();
+		}
+			
+		SpxSymbolTableEntry entry =  entryBuilder.build();
 		SpxPrimarySymbolTable  symbolTable = getPersistenceManager().spxSymbolTable();
 		symbolTable.defineSymbol(getNamespaceId((IStrategoAppl)symbolDefinition.getSubterm(NAMESPACE_ID_INDEX)), entry);
 	}

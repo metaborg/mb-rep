@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.spoofax.interpreter.library.language.spxlang.index.SpxPrimarySymbolTable;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxSemanticIndexFacade;
 import org.spoofax.interpreter.library.language.spxlang.index.Utils;
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -22,27 +23,17 @@ public class SpxSymbol extends SpxBaseSymbol implements Serializable{
 	private static final long serialVersionUID = -5293805213473800423L;
 	
 	private String _data;
-	private String _type;
 	private NamespaceUri _namespace; // refer to the namespace uri . 
 	
-	public SpxSymbol (IStrategoTerm id){super(id);}
+	//TODO : consider to add arity of the signature in the SPX Symbol . Currently
+	// all the signature used in Spoofaxlang has arity 0;
 	
-	public SpxSymbol (IStrategoTerm id , String type){ 
-		this(id) ;
-		_type = type;
-	}
-	
-	public String type() {
-		assert _type != null : "Non-Null _type is expected. ";
-		return _type; 
-	}
-
+	public SpxSymbol (IStrategoTerm id, IStrategoConstructor signature,boolean isOverridable){super(id,signature,isOverridable);}
+		
 	public String getDataString () {return _data;}
 	
 	public NamespaceUri namespaceUri() { return _namespace; }
 	
-	void setType(String type) {	_type = type; }
-
 	IStrategoTerm deserializedDataToTerm(ITermFactory fac , TermAttachmentSerializer serializer){ 
 		return Utils.deserializeToTerm(fac, serializer, _data);
 	}
@@ -52,14 +43,10 @@ public class SpxSymbol extends SpxBaseSymbol implements Serializable{
 }
 	
 	public IStrategoConstructor typeCons(SpxSemanticIndexFacade facade){
-		return facade.getCons().getConstructor( type() , 0);
+		return facade.getCons().getConstructor( getSignatureString() , 0);
 	}
 	
 	public void setNamespace(NamespaceUri id){ _namespace = id;}
-	
-	public boolean equalType (IStrategoConstructor term) { 
-		return _type.equals(term.getName()); 
-	}
 	
 	/**
 	 * Return symbols that has type equals expectedType. In case of expectedType equals null,
@@ -73,12 +60,12 @@ public class SpxSymbol extends SpxBaseSymbol implements Serializable{
 		List<SpxSymbol> retSymbols = new ArrayList<SpxSymbol>();
 		if( symbols != null){
 			for(SpxSymbol s : symbols){
-				if( (expectedType==null) ||  s.equalType(expectedType) ){ retSymbols.add(s) ;}
+				if(SpxBaseSymbol.equalSignature(expectedType, s) ){ retSymbols.add(s) ;}
 			}
 		}
 		return retSymbols;
 	}
-	
+
 	public IStrategoTerm toTerm (SpxSemanticIndexFacade facade) throws SpxSymbolTableException{
 		final ITermFactory termFactory = facade.getTermFactory();
 		
@@ -96,11 +83,16 @@ public class SpxSymbol extends SpxBaseSymbol implements Serializable{
 		//ID/Key 
 		IStrategoTerm id = this.Id(termFactory); //TODO : It might require term conversion.
 
-		return (IStrategoTerm)termFactory.makeAppl( facade.getCons().getSymbolTableEntryDefCon(),
-				nsQNameAppl,  //ns qname 
-				spxTypeCtorAppl,  // type
-				id,			  //id	
-				deserializedDataToTerm )	;
+		IStrategoConstructor symbolSortCtor = this.isOverridable()? facade.getCons().getOverridableSymbolTypeCon() 
+													              : facade.getCons().getUniqueSymbolTypeCon();
+				
+		return (IStrategoTerm) termFactory.makeAppl(
+				facade.getCons().getSymbolTableEntryDefCon(), 
+				nsQNameAppl, // ns qname
+				spxTypeCtorAppl, // signature
+				id, // id
+				deserializedDataToTerm, 
+				termFactory.makeAppl(symbolSortCtor));
 	}
 	
 	public static IStrategoTerm toTerms(SpxSemanticIndexFacade facade , Collection<SpxSymbol> symbols) throws SpxSymbolTableException{
@@ -126,7 +118,6 @@ public class SpxSymbol extends SpxBaseSymbol implements Serializable{
 		result = prime * result + ((_data == null) ? 0 : _data.hashCode());
 		result = prime * result
 				+ ((_namespace == null) ? 0 : _namespace.hashCode());
-		result = prime * result + ((_type == null) ? 0 : _type.hashCode());
 		return result;
 	}
 
@@ -152,11 +143,6 @@ public class SpxSymbol extends SpxBaseSymbol implements Serializable{
 				return false;
 		} else if (!_namespace.equals(other._namespace))
 			return false;
-		if (_type == null) {
-			if (other._type != null)
-				return false;
-		} else if (!_type.equals(other._type))
-			return false;
 		return true;
 	}
 
@@ -165,11 +151,13 @@ public class SpxSymbol extends SpxBaseSymbol implements Serializable{
 	 */
 	@Override
 	public String toString() {
-		return "SpxSymbol [ Id : " + this.getId() + " Type= " + _type + ", Namespace=" + _namespace + "value = "+ this._data +"]";
+		return "SpxSymbol [ Id : " + this.getId() + " Type= " + this.getSignatureString() + ", Namespace=" + _namespace + "value = "+ this._data +"]";
 	}
 	
-	public String printSymbol(){
-		return "\t\tId =  " + this.getId() + "| Type = " + _type + "| value = "+ this._data +"\n";
+	public String printSymbol(SpxSemanticIndexFacade f) throws IOException{
+		return  Utils.getCsvFormatted(this.getSignatureString()) 
+				+ ", "
+				+ Utils.getCsvFormatted( Utils.termToString(this.deserializedDataToTerm(f.getTermFactory(), f.getTermAttachmentSerializer()) ));
 	}
 	
 }

@@ -75,4 +75,6 @@ public class NamespaceUri implements Serializable
 	public String toString() {
 		return "NamespaceId [ID =" + _id + "]";
 	}
+	
+	
 }

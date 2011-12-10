@@ -9,7 +9,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 
-abstract class SpxBaseSymbol implements Serializable{
+public abstract class SpxBaseSymbol implements Serializable{
 
 	private static final long serialVersionUID = 3160588874266553126L;
 	
@@ -18,8 +18,10 @@ abstract class SpxBaseSymbol implements Serializable{
 	/**
 	 *  @serial
 	 */
-	private String _idString;
-	
+	private final String _idString;
+	private final String _signatureString;
+	private final boolean _isOverridable;
+
 	/**
 	 * Returns String representation of ID
 	 * 
@@ -27,11 +29,26 @@ abstract class SpxBaseSymbol implements Serializable{
 	 */
 	public String getId(){  return _idString ; }
 	
-	public SpxBaseSymbol(IStrategoTerm id){
-		_id = id ;
-		_idString = id.toString(Integer.MAX_VALUE);
+	public String getSignatureString() {
+		assert _signatureString != null : "Non-Null Signature is expected. ";
+		return _signatureString; 
+	}
+
+	/**
+	 * @return the isOverridable
+	 */
+	public boolean isOverridable() {
+		return _isOverridable;
 	}
 	
+
+	public SpxBaseSymbol(IStrategoTerm id, IStrategoConstructor signature,boolean isOveridable){
+		this._id = id ;
+		
+		this._idString = id.toString(Integer.MAX_VALUE);
+		this._signatureString = signature.getName();
+		this._isOverridable = isOveridable;
+	}
 	
 	public IStrategoTerm Id(ITermFactory _fac ){
 		if (_id == null){
@@ -39,8 +56,6 @@ abstract class SpxBaseSymbol implements Serializable{
 		}
 		return _id;
 	}
-	
-	void setId(IStrategoTerm id){_id = id;}
 	
 	public static boolean verifyEquals(IStrategoConstructor ctor1 , IStrategoConstructor ctor2){
 		if( (ctor1.getArity() == ctor2.getArity()) && (ctor1.getName().equals(ctor2.getName()))){
@@ -98,7 +113,24 @@ abstract class SpxBaseSymbol implements Serializable{
 			}
 		}
 		return retValue;
-	}		
+	}	
+	
+	/**
+	 * @param expectedType
+	 * @param s
+	 * @return
+	 */
+	public static boolean equalSignature(IStrategoConstructor expectedType,	SpxBaseSymbol s) {
+		return (expectedType==null) ||  s.equalSignature(expectedType);
+	}
+	
+	
+	// TODO FIX : bring the singature to the base class 
+	public boolean equalSignature (IStrategoConstructor term) { 
+		return _signatureString.equals(term.getName()); 
+	}
+	
+	
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
@@ -108,7 +140,9 @@ abstract class SpxBaseSymbol implements Serializable{
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((_idString == null) ? 0 : _idString.hashCode());
-		//result = prime * result + ((_idString == null) ? 0 : _id.hashCode());
+		result = prime * result
+		+ ((_signatureString == null) ? 0 : _signatureString.hashCode());
+
 		return result;
 	}
 
@@ -124,18 +158,17 @@ abstract class SpxBaseSymbol implements Serializable{
 		if (getClass() != obj.getClass())
 			return false;
 		SpxBaseSymbol other = (SpxBaseSymbol) obj;
-//		if (_id == null) {
-//			if (other._id != null)
-//				return false;
-//		}else if(!verifyEquals(this._id, other._id)){ 
-//			return false;
-//		}
 		if (_idString == null) {
 			if (other._idString != null)
 				return false;
 		}else if( !this._idString.equals(other._idString ) ){
 			return false;
 		}
+		if (_signatureString == null) {
+			if (other._signatureString != null)
+				return false;
+		} else if (!_signatureString.equals(other._signatureString))
+			return false;
 		return true;
 	}
 }

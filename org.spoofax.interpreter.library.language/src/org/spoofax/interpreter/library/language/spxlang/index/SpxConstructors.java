@@ -23,7 +23,7 @@ public class SpxConstructors {
 	private void initKnownConstructors(){
 		ConstructorDef.newInstance("ModuleDef"  ,5).index(_knownCons, _termFactory);
 		ConstructorDef.newInstance("ModuleDecl" ,3).index(_knownCons, _termFactory);
-		ConstructorDef.newInstance("SymbolDef"  ,4).index(_knownCons, _termFactory);
+		ConstructorDef.newInstance("SymbolDef"  ,5).index(_knownCons, _termFactory);
 
 		ConstructorDef.newInstance("PackageDecl",2).index(_knownCons, _termFactory);
 		ConstructorDef.newInstance("ImportDecl" ,2).index(_knownCons, _termFactory);
@@ -41,6 +41,9 @@ public class SpxConstructors {
 		
 		ConstructorDef.newInstance("ToCompile"  , 0).index(_knownCons, _termFactory);
 		ConstructorDef.newInstance("ToCodeGenerate" , 0).index(_knownCons, _termFactory);
+		
+		ConstructorDef.newInstance("OverridableSymbol"  , 0).index(_knownCons, _termFactory);
+		ConstructorDef.newInstance("UniqueSymbol" , 0).index(_knownCons, _termFactory);
 	}
 	
 	IStrategoConstructor indexConstructor(IStrategoConstructor ctor){
@@ -132,7 +135,11 @@ public class SpxConstructors {
 	
 	public IStrategoConstructor getModuleNamespaceTypeCon() {return getConstructor("Module",0);}
 	
-	public IStrategoConstructor getSymbolTableEntryDefCon() {return getConstructor("SymbolDef",4);}
+	public IStrategoConstructor getOverridableSymbolTypeCon() {return getConstructor("OverridableSymbol" , 0); }
+	
+	public IStrategoConstructor getUniqueSymbolTypeCon() {return getConstructor("UniqueSymbol" , 0); }
+	
+	public IStrategoConstructor getSymbolTableEntryDefCon() {return getConstructor("SymbolDef",5);}
 	
 	public IStrategoConstructor getLocalNamespaceTypeCon() { return getConstructor("Locals",1);  }
 	

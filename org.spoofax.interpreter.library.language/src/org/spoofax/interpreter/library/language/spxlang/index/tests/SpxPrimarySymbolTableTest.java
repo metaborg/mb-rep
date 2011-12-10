@@ -423,7 +423,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		assertEquals(1, resolvedSymbols.size());
 		
 		SpxSymbol actual = (SpxSymbol)resolvedSymbols.toArray()[0];
-		assertEquals("SDFDef", actual.type());
+		assertEquals("SDFDef", actual.getSignatureString());
 		assertTrue(SpxSymbol.verifyEquals(symbolId1, actual.Id(_facade.getTermFactory())));
 		assertTrue( SpxSymbol.verifyEquals( currentAppl.getSubterm(0).getSubterm(0) , actual.namespaceUri().id()) );
 	}
@@ -493,7 +493,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		assertEquals(1, resolvedSymbols.size());
 		
 		SpxSymbol actual = (SpxSymbol)resolvedSymbols.toArray()[0];
-		assertEquals("SDFDef", actual.type());
+		assertEquals("SDFDef", actual.getSignatureString());
 		assertTrue(SpxSymbol.verifyEquals(symbolId1, actual.Id(_facade.getTermFactory())));
 		assertTrue( SpxSymbol.verifyEquals( internalModuleAppl.getSubterm(0).getSubterm(0) , actual.namespaceUri().id()) );
 	}
@@ -575,7 +575,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		assertEquals(1, resolvedSymbols.size());
 		
 		SpxSymbol actual = (SpxSymbol)resolvedSymbols.toArray()[0];
-		assertEquals("ModuleDef", actual.type());
+		assertEquals("ModuleDef", actual.getSignatureString());
 		assertTrue(SpxSymbol.verifyEquals(symbolId1, actual.Id(_facade.getTermFactory())));
 		assertTrue(SpxSymbol.verifyEquals( this.moduleDeclarationP3M1.getId() , actual.namespaceUri().id()) );
 	}
@@ -614,7 +614,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		assertEquals(1, resolvedSymbols.size());
 		
 		SpxSymbol actual = (SpxSymbol)resolvedSymbols.toArray()[0]; // resolved from the current namespace - Module 1 of Package 1 
-		assertEquals("ModuleDef", actual.type());
+		assertEquals("ModuleDef", actual.getSignatureString());
 		assertTrue(SpxSymbol.verifyEquals(symbolId3, actual.Id(_facade.getTermFactory())));
 		assertTrue(SpxSymbol.verifyEquals( this.moduleDeclarationP1M1.getId() , actual.namespaceUri().id()) );
 	}
@@ -650,7 +650,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		
 		assertEquals(1, resolvedSymbols.size());
 		SpxSymbol actual = (SpxSymbol)resolvedSymbols.toArray()[0]; // Resolved from the imported namespace - Module 1 of Package 3
-		assertEquals("ModuleDef", actual.type());
+		assertEquals("ModuleDef", actual.getSignatureString());
 		assertTrue(SpxSymbol.verifyEquals(symbolId3, actual.Id(_facade.getTermFactory())));
 		assertTrue(SpxSymbol.verifyEquals( this.moduleDeclarationP3M1.getId() , actual.namespaceUri().id()) );
 	}
@@ -808,7 +808,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		assertEquals(1, resolvedSymbols.size());
 		
 		SpxSymbol actual = (SpxSymbol)resolvedSymbols.toArray()[0];// resolved from the current namespace - Module 1 of Package 1 
-		assertEquals("ModuleDef", actual.type());
+		assertEquals("ModuleDef", actual.getSignatureString());
 		assertTrue(SpxSymbol.verifyEquals(symbolId1, actual.Id(_facade.getTermFactory())));
 		assertTrue(SpxSymbol.verifyEquals( this.moduleDeclarationP1M1.getId() , actual.namespaceUri().id()) );
 	
@@ -833,7 +833,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		assertEquals(1, resolvedSymbols.size());
 		
 		actual = (SpxSymbol)resolvedSymbols.toArray()[0]; // resolved from the current namespace - Module 1 of Package 1 
-		assertEquals("SDFDef", actual.type());
+		assertEquals("SDFDef", actual.getSignatureString());
 		assertTrue(SpxSymbol.verifyEquals(symbolId2, actual.Id(_facade.getTermFactory())));
 		assertTrue(SpxSymbol.verifyEquals( GlobalNamespace.getGlobalNamespaceId(_facade) , actual.namespaceUri().id()) );
 	
@@ -873,7 +873,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		assertEquals(1, resolvedSymbols.size());
 		
 		SpxSymbol actual = (SpxSymbol)resolvedSymbols.toArray()[0];// resolved from the current local namespace
-		assertEquals("ModuleDef", actual.type());
+		assertEquals("ModuleDef", actual.getSignatureString());
 		assertTrue(SpxSymbol.verifyEquals(symbolId1, actual.Id(_facade.getTermFactory())));
 		assertTrue(SpxSymbol.verifyEquals( (IStrategoList)nsAppl.getSubterm(0) , actual.namespaceUri().id()) );
 		
@@ -927,18 +927,18 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		assertEquals(2, resolvedSymbols.size());
 		
 		for( SpxSymbol sym : resolvedSymbols) {
-			assertTrue(sym.equalType(typeAppl1.getConstructor())); 
+			assertTrue(sym.equalSignature(typeAppl1.getConstructor())); 
 		}
 		
 		List<SpxSymbol> resolvedSymbols1 = tfacade.getPersistenceManager().spxSymbolTable()
 				.resolveNamespace(this.moduleDeclarationP1M1.getId())
 				.getMembers()
-				.get(new SpxSymbolKey(symbolId1));
+				.get(new SpxSymbolKey(symbolId1,typeAppl2.getConstructor()));
 		
 		assertEquals(1, resolvedSymbols1.size());
 		
 		for( SpxSymbol sym : resolvedSymbols1) {
-			assertTrue(sym.equalType(typeAppl2.getConstructor())); 
+			assertTrue(sym.equalSignature(typeAppl2.getConstructor())); 
 		}
 	}
 	
@@ -993,7 +993,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		assertEquals(1, resolvedSymbols.size());
 		
 		for( SpxSymbol sym : resolvedSymbols) {
-			assertTrue(sym.equalType(typeAppl1.getConstructor())); 
+			assertTrue(sym.equalSignature(typeAppl1.getConstructor())); 
 		}
 		
 		//-------------------------Resolving Symbol in Package 1--------------------------------------------
@@ -1009,7 +1009,7 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		assertEquals(2, resolvedSymbols.size());
 		
 		for( SpxSymbol sym : resolvedSymbols) {
-			assertTrue(sym.equalType(typeAppl1.getConstructor())); 
+			assertTrue(sym.equalSignature(typeAppl1.getConstructor())); 
 		}
 	}
 	

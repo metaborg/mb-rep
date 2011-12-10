@@ -56,7 +56,7 @@ public class SpxSymbolTableEntryTests extends AbstractInterpreterTest{
 		
 		assertTrue(entry.value != null);
 		assertTrue(entry.value.namespaceUri() == null);
-		assertEquals(_facade.getCons().getGlobalNamespaceTypeCon().getName() , entry.value.type());
+		assertEquals(_facade.getCons().getGlobalNamespaceTypeCon().getName() , entry.value.getSignatureString());
 		assertEquals(_facade.getCons().getGlobalNamespaceTypeCon(), entry.value.typeCons(_facade));
 		assertTrue(entry.key != null);
 	}

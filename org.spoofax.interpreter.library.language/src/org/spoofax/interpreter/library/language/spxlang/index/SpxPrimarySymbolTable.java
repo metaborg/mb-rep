@@ -335,66 +335,6 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 			this.namespaces.put(_activeNamespace.namespaceUri(), _activeNamespace);
 		}
 	}
-		
-	/**
-	 * Printing all the symbols current hashmap 
-	 * 
-	 * @throws IOException
-	 * @throws SpxSymbolTableException 
-	 */
-	public void printSymbols(SpxSemanticIndexFacade f, String state , String projectPath , String indexId) throws IOException, SpxSymbolTableException{
-		new File(projectPath + "/.log").mkdirs();
-		FileWriter fstream = new FileWriter(projectPath + "/.log/"+indexId+"_symbols_"+Utils.now("yyyy-MM-dd HH.mm.ss")+".txt" , true);
-		BufferedWriter out = new BufferedWriter(fstream);
-		out.write("---Logging [" +state+ "] state of Symbol-Table at :" + Utils.now("yyyy-MM-dd HH.mm.ss")+":----\n");
-		try
-		{	
-			if(namespaces != null){
-				for(INamespace ns : namespaces.values()){
-					out.write("[" + ns +"]\n\n");
-					logEntries(f, ns,out) ;
-				}
-			}
-		}catch(IOException ex){ //ignore 
-			
-		}
-		finally{out.close();}
-	}
-
-	private static  void logEntries(SpxSemanticIndexFacade f,  INamespace namespace , BufferedWriter logger) throws IOException, SpxSymbolTableException{
-		Map<SpxSymbolKey , List<SpxSymbol>> members = namespace.getMembers();
-		if( namespace instanceof PackageNamespace){
-			PackageNamespace ns = (PackageNamespace)namespace;
-			ns.ensureEnclosedNamespaceUrisLoaded(f);
-			ns.ensureImportedNamespaceUrisLoaded(f);
-			
-			logger.write("\t" + "Enclosed Namespace Uris"+"\n");
-			for(NamespaceUri uri : ns.enclosedNamespaceUris ){
-				logger.write( "\t\t"+uri +"\n");
-			}
-			logger.write("---------------------------\n");
-			
-
-			logger.write("\tImported Namespace Uris"+"\n");
-			for(NamespaceUri uri : ns.importedNamespaceUris ){
-				logger.write("\t\t"+uri +"\n");
-			}
-			logger.write("---------------------------\n");
-		}
-		
-		if( namespace instanceof ModuleNamespace){
-			logger.write("\t\tParent Namespace :"+ ((ModuleNamespace) namespace).enclosingNamespaceUri()+"\n" );
-		}
-		
-		for( SpxSymbolKey k : members.keySet()) {
-			logger.write("\t\t"+k.toString()  + "  ----> \t");
-			for( SpxSymbol s : members.get(k) ){
-				logger.write( s.printSymbol());
-			}
-			logger.write("\n");
-		}
-		logger.write("\n");
-	}
 	
 	private void ensureActiveNamespaceUnloaded(INamespace namespace){
 		if(namespace!=null)
@@ -454,4 +394,36 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 	void setLastCodeGeneratedOn(long timestamp){ 
 		timestamps.put(LAST_CODEGEN_ON_KEY, timestamp);
 	}
+	
+	
+	
+	/**
+	 * Printing all the symbols current hashmap 
+	 * 
+	 * @throws IOException
+	 * @throws SpxSymbolTableException 
+	 */
+	public void printSymbols(SpxSemanticIndexFacade f, String state , String projectPath , String indexId) throws IOException, SpxSymbolTableException{
+		new File(projectPath + "/.log").mkdirs();
+		
+		FileWriter fstream = new FileWriter(projectPath + "/.log/"+indexId+"_symbols_"+Utils.now("yyyy-MM-dd HH.mm.ss.SSS")+".csv" , true);
+		BufferedWriter out = new BufferedWriter(fstream);
+		out.write(", , ,------------- Logging [" +state+ "] state of Symbol-Table at :" + Utils.now("yyyy-MM-dd HH.mm.ss")+"-------------\n");
+		try
+		{	
+			if(namespaces != null){
+				for(INamespace ns : namespaces.values()){
+					out.write("\n, --- "+ Utils.getCsvFormatted(ns.toString()) +"--- \n");
+					Utils.logEntries(f, ns,out) ;
+				}
+			}
+		}catch(IOException ex){ //ignore 
+			
+		}
+		finally{out.close();}
+	}
+
+	
+	
+	
 }
