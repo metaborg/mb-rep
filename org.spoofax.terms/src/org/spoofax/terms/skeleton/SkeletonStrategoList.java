@@ -32,8 +32,6 @@ public abstract class SkeletonStrategoList extends StrategoTerm implements IStra
     private IStrategoTerm head;
     
     private IStrategoList tail;
-    
-    private int size = UNKNOWN_SIZE;
 
     /**
      * Creates a new list.
