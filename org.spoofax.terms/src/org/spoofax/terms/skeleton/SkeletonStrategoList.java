@@ -1,10 +1,9 @@
-package org.spoofax.terms.skeleton;
 /*
- * Copyright (c) 2005-2011, Karl Trygve Kalleberg <karltk near strategoxt dot org>
- * 
+ * Copyright (c) 2011, Karl Trygve Kalleberg <karltk near strategoxt dot org>
+ *
  * Licensed under the GNU Lesser General Public License, v2.1
  */
-
+package org.spoofax.terms.skeleton;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -18,30 +17,28 @@ import org.spoofax.terms.StrategoTerm;
 import org.spoofax.terms.TermFactory;
 
 public abstract class SkeletonStrategoList extends StrategoTerm implements IStrategoList, Iterable<IStrategoTerm> {
-    
+
     private static final long serialVersionUID = 624120573663698628L;
 
-    private static final int UNKNOWN_SIZE = -1;
-    
     /**
      * @see #hashFunction()
      * @see TermFactory#EMPTY_LIST  The singleton maximally shared empty list instance.
      */
     static final int EMPTY_LIST_HASH = 1 * 71 * 71;
-    
+
     private IStrategoTerm head;
-    
+
     private IStrategoList tail;
 
     /**
      * Creates a new list.
-     * 
+     *
      * @see #prepend(IStrategoTerm) Adds a new head element to a list.
      */
     public SkeletonStrategoList(IStrategoList annotations, int storageType) {
         super(annotations, storageType);
     }
-    
+
     @Deprecated
     public IStrategoList prepend(IStrategoTerm prefix) {
         throw new NotImplementedException();
@@ -50,7 +47,7 @@ public abstract class SkeletonStrategoList extends StrategoTerm implements IStra
     public final IStrategoTerm get(int index) {
         throw new NotImplementedException();
     }
-    
+
     public final int size() {
         return getSubtermCount();
     }
@@ -63,20 +60,20 @@ public abstract class SkeletonStrategoList extends StrategoTerm implements IStra
     protected boolean doSlowMatch(IStrategoTerm second, int commonStorageType) {
         if (second.getTermType() != IStrategoTerm.LIST)
             return false;
-        
+
         final IStrategoList snd = (IStrategoList) second;
         if (size() != snd.size())
             return false;
-        
+
         if (!isEmpty()) {
             IStrategoTerm head = head();
             IStrategoTerm head2 = snd.head();
             if (head != head2 && !head.match(head2))
                 return false;
-            
+
             IStrategoList tail = tail();
             IStrategoList tail2 = snd.tail();
-        
+
             // TODO: test equality of annos on cons nodes (see BasicStrategoList)
             for (IStrategoList cons = tail, cons2 = tail2; !cons.isEmpty(); cons = cons.tail(), cons2 = cons2.tail()) {
                 IStrategoTerm consHead = cons.head();
@@ -84,13 +81,13 @@ public abstract class SkeletonStrategoList extends StrategoTerm implements IStra
                 if (consHead != cons2Head && !consHead.match(cons2Head))
                     return false;
             }
-            
+
             if (commonStorageType == SHARABLE) {
                 this.head = head2;
                 this.tail = tail2;
             }
         }
-        
+
         IStrategoList annotations = getAnnotations();
         IStrategoList secondAnnotations = second.getAnnotations();
         if (annotations == secondAnnotations) {
@@ -106,7 +103,7 @@ public abstract class SkeletonStrategoList extends StrategoTerm implements IStra
     public final void prettyPrint(ITermPrinter pp) {
         throw new NotImplementedException();
     }
-    
+
     public final void writeAsString(Appendable output, int maxDepth) throws IOException {
         output.append('[');
         if(!isEmpty()) {
@@ -143,5 +140,10 @@ public abstract class SkeletonStrategoList extends StrategoTerm implements IStra
 
     public final Iterator<IStrategoTerm> iterator() {
         return new StrategoListIterator(this);
+    }
+
+    @Override
+    public final String toString(int maxDepth) {
+    	return super.toString(maxDepth);
     }
 }

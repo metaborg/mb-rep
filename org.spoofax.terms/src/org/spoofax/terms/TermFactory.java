@@ -134,7 +134,7 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
     public IStrategoString makeString(String s) {
     	if (s.length() > MAX_POOLED_STRING_LENGTH)
     		return new StrategoString(s, null, defaultStorageType);
-    	
+
     	synchronized (TermFactory.class) {
 	    	WeakReference<StrategoString> resultRef = asyncStringPool.get(s);
 	    	StrategoString result = resultRef == null ? null : resultRef.get();
