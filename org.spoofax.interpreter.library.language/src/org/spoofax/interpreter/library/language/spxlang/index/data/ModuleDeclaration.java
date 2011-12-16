@@ -99,7 +99,7 @@ public class ModuleDeclaration extends IdentifiableConstruct implements INamespa
 		NamespaceUri namespaceUri = table.toNamespaceUri(id) ;
 		NamespaceUri packageUri = table.toNamespaceUri(enclosingPackageID) ;
 		
-		namespaces.add(ModuleNamespace.createInstance(namespaceUri, packageUri,idxFacade));
+		namespaces.add(ModuleNamespace.createInstance(namespaceUri, packageUri,idxFacade, getFileLocation()));
 		
 		return namespaces; 
 	}

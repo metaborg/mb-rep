@@ -47,4 +47,9 @@ public final class LocalNamespace extends BaseNamespace{
 
 		return (IStrategoList) localAnonymousId;
 	}
+	
+	@Override
+	public String getAbosoluteFilePath(){
+		return super.getAbosoluteFilePath();
+	}
 }

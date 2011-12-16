@@ -44,6 +44,9 @@ public class SpxConstructors {
 		
 		ConstructorDef.newInstance("OverridableSymbol"  , 0).index(_knownCons, _termFactory);
 		ConstructorDef.newInstance("UniqueSymbol" , 0).index(_knownCons, _termFactory);
+		
+		ConstructorDef.newInstance("LookupLocalScope" , 0).index(_knownCons, _termFactory);
+		ConstructorDef.newInstance("LookupAllScope" , 0).index(_knownCons, _termFactory);
 	}
 	
 	IStrategoConstructor indexConstructor(IStrategoConstructor ctor){
@@ -146,6 +149,11 @@ public class SpxConstructors {
 	public IStrategoConstructor getToCompileCon(){return getConstructor("ToCompile", 0);}
 	
 	public IStrategoConstructor getToCodeGenerateCon(){return getConstructor("ToCodeGenerate", 0);}
+	
+	public IStrategoConstructor getToLookupTypeAll(){return getConstructor("LookupAllScope", 0);}
+	
+	public IStrategoConstructor getToLookupTypeLocal(){return getConstructor("LookupLocalScope", 0);}
+	
 	
 	public IStrategoConstructor getConstructor(String symbolTypeCons, int arity) {
 		return _knownCons.get(ConstructorDef.newInstance(symbolTypeCons ,arity));

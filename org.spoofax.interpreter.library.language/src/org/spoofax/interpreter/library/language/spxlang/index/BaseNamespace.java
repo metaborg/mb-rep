@@ -42,7 +42,7 @@ public abstract class BaseNamespace implements INamespace {
 
 	public NamespaceUri namespaceUri() {return _currentNamespaceId;}
 	
-	protected NamespaceUri enclosingNamespaceUri() { return _enclosingNamespaceId ; } 
+	public NamespaceUri enclosingNamespaceUri() { return _enclosingNamespaceId ; } 
 	
 	public abstract IStrategoAppl toTypedQualifiedName(SpxSemanticIndexFacade facade);
 	
@@ -145,7 +145,7 @@ public abstract class BaseNamespace implements INamespace {
 		
 		List<SpxSymbol> resolvedSymbols  = new ArrayList<SpxSymbol>();
 		
-		if(key.getId().equalsIgnoreCase(Utils.All_SYMBOLS)){
+		if(key.getId().equalsIgnoreCase(SpxIndexUtils.All_SYMBOLS)){
 			// Found * in the ID. 
 			// Hence returning ALL symbols of  a particular type specified in the argument.
 			for (Entry<SpxSymbolKey, List<SpxSymbol>> entry : members.entrySet()) {
@@ -153,13 +153,10 @@ public abstract class BaseNamespace implements INamespace {
 				if(SpxSymbolKey.equalSignature((IStrategoConstructor)type, entry.getKey())){
 					resolvedSymbols = appendSymbols(resolvedSymbols, members.get(entry.getKey()));
 				}
-				//resolvedSymbols = appendSymbols(resolvedSymbols, SpxSymbol.filterByType((IStrategoConstructor)type, members.get(entry.getKey())));
 			}
 		}
 		else{
-			//resolvedSymbols = appendSymbols(resolvedSymbols, SpxSymbol.filterByType( (IStrategoConstructor)type, members.get(key)));
 			resolvedSymbols = appendSymbols(resolvedSymbols, members.get(key));
-			
 		}
 		
 		return resolvedSymbols ; 
@@ -174,7 +171,7 @@ public abstract class BaseNamespace implements INamespace {
 		return null;
 	}
 	
-	public SpxSymbol resolve(IStrategoTerm searchingFor, IStrategoTerm type, INamespace searchedBy, SpxSemanticIndexFacade  facade) throws SpxSymbolTableException{
+	public SpxSymbol resolve(IStrategoTerm searchingFor, IStrategoTerm type, INamespace searchedBy, SpxSemanticIndexFacade  facade, int lookupDepth) throws SpxSymbolTableException{
 		facade.getPersistenceManager().logMessage(this.src, "resolve | Resolving Symbol in " + this.namespaceUri().id() +  " . Key :  " + searchingFor + " origin Namespace: " + searchedBy.namespaceUri().id() );
 		
 		assert type instanceof IStrategoConstructor : "Type is expected to be IStrategoConstructor" ;
@@ -190,14 +187,14 @@ public abstract class BaseNamespace implements INamespace {
 		INamespace namespace = getEnclosingNamespace(facade.getPersistenceManager().spxSymbolTable());
 		if( namespace  != null) {
 			//checks whether searching to the enclosing scope is allowed.
-			if( shouldSearchInEnclosingNamespace( searchedBy))
-				return namespace.resolve(searchingFor, type, this, facade);
+			if( shouldSearchInEnclosingNamespace( searchedBy , lookupDepth))
+				return namespace.resolve(searchingFor, type, this, facade, lookupDepth-1);
 		}	 
 		
 		return null; // symbol is not found
 	}
 	
-	public Collection<SpxSymbol> resolveAll(SpxSemanticIndexFacade  facade, IStrategoTerm searchingFor, IStrategoTerm ofType, INamespace searchedBy, boolean returnDuplicate) throws SpxSymbolTableException {
+	public Collection<SpxSymbol> resolveAll(SpxSemanticIndexFacade  facade, IStrategoTerm searchingFor, IStrategoTerm ofType, INamespace searchedBy, int lookupDepth, boolean returnDuplicate) throws SpxSymbolTableException {
 		
 		facade.getPersistenceManager().logMessage(this.src, "resolveAll(Base) | Resolving Symbol in " + this.namespaceUri().id() +  " . Key :  " + searchingFor + " origin Namespace: " + searchedBy.namespaceUri().id() );
 		
@@ -213,13 +210,14 @@ public abstract class BaseNamespace implements INamespace {
 		retResult.addAll(lookupResult);
 		
 		INamespace namespace = getEnclosingNamespace(facade.getPersistenceManager().spxSymbolTable());
+		
 		//checking whether resolved namespace is Null. In that case, all the scopes are covered.
 		//also checking that the resolved namespace is not equal to the current namespace 
 		//that we already have searched - to avoid any cycle in the hierarchy.
 		if( namespace  != null && !namespace.equals(this)){
 			//checks whether searching to the enclosing scope is allowed.
-			if( shouldSearchInEnclosingNamespace(searchedBy)){	
-				Collection<SpxSymbol> parentResults  = namespace.resolveAll(facade, searchingFor, ofType ,this, false);
+			if( shouldSearchInEnclosingNamespace(searchedBy,lookupDepth)){	
+				Collection<SpxSymbol> parentResults  = namespace.resolveAll(facade, searchingFor, ofType ,this, lookupDepth, false);
 				retResult.addAll(parentResults);
 			}
 		}	 
@@ -234,8 +232,8 @@ public abstract class BaseNamespace implements INamespace {
 	 * (non-Javadoc)
 	 * @see org.spoofax.interpreter.library.language.spxlang.INamespace#resolveAll(org.spoofax.interpreter.terms.IStrategoTerm, org.spoofax.interpreter.terms.IStrategoTerm, org.spoofax.interpreter.library.language.spxlang.SpxSemanticIndexFacade)
 	 */
-	public Collection<SpxSymbol> resolveAll(SpxSemanticIndexFacade spxFacade, IStrategoTerm searchingFor, IStrategoTerm ofType, boolean retrunDuplicate) throws SpxSymbolTableException{
-		return resolveAll(spxFacade, searchingFor,  ofType, this, retrunDuplicate);
+	public Collection<SpxSymbol> resolveAll(SpxSemanticIndexFacade spxFacade, IStrategoTerm searchingFor, IStrategoTerm ofType, int lookupDepth, boolean retrunDuplicate) throws SpxSymbolTableException{
+		return resolveAll(spxFacade, searchingFor,  ofType, this, lookupDepth, retrunDuplicate);
 	}
 	
 	public Map<SpxSymbolKey, List<SpxSymbol>> getMembers(){
@@ -250,9 +248,9 @@ public abstract class BaseNamespace implements INamespace {
 			this.symbols.clear();
 	}
 
-	/* 
+	/** 
 	 * Returns the enclosing scope of the current scope.
-	 * */
+	 */
 	public INamespace getEnclosingNamespace(INamespaceResolver rs) throws SpxSymbolTableException { 
 		return (_enclosingNamespaceId != null) 
 					? _enclosingNamespaceId.resolve(rs) 
@@ -263,22 +261,21 @@ public abstract class BaseNamespace implements INamespace {
 	
 	public boolean isInternalNamespace() { return false;  }
 	
-	protected boolean shouldSearchInInternalNamespace( INamespace searchedBy) {
-		// If searchedBy Namespace is enclosingNamespace of CurrentNamespace 
-		// Search for internal symbol scopes as well
-		return searchedBy.namespaceUri().equals(this.enclosingNamespaceUri()) || searchedBy.namespaceUri().equals(this.namespaceUri());  
-	}
-	
 	/**
 	 * Base Condition of the lookup : 
 	 * Allow search enclosing Namespace only if searchedBy is not enclosing Namespace. 
+	 * It actually disable lookup in global namespace multiple times.  
 	 *  
 	 * @param searchedBy
 	 * @return True if enclosing Namespace != searachedBy  ; otherwise false.
 	 */
-	protected boolean shouldSearchInEnclosingNamespace(INamespace searchedBy) {
-		// search enclosing Namesapce only if searchedBy is not enclosing Namespace
-		return !(searchedBy.namespaceUri().equals(this.enclosingNamespaceUri())); 
+	protected boolean shouldSearchInEnclosingNamespace(INamespace searchedBy, int lookupDepth) {
+		// Search enclosing Namesapce only if searchedBy is not enclosing Namespace
+		return !(searchedBy.namespaceUri().equals(this.enclosingNamespaceUri())) && verifyIsValidForLookup(lookupDepth); 
+	}
+	
+	protected boolean verifyIsValidForLookup( int lookupDepth){
+		return (lookupDepth > 0);
 	}
 
 	/* (non-Javadoc)
@@ -287,5 +284,9 @@ public abstract class BaseNamespace implements INamespace {
 	@Override
 	public String toString() {
 		return "Namespace { "+ src + "}";
+	}
+	
+	public String getAbosoluteFilePath(){
+		return null;
 	}
 }

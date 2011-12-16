@@ -2,7 +2,7 @@ package org.spoofax.interpreter.library.language.spxlang.index.data;
 
 import java.io.Serializable;
 
-import org.spoofax.interpreter.library.language.spxlang.index.Utils;
+import org.spoofax.interpreter.library.language.spxlang.index.SpxIndexUtils;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
@@ -26,7 +26,7 @@ public class SpxSymbolKey extends SpxBaseSymbol implements Serializable{
 	}
 	
 	public String printSymbolKey(){
-		String toRet =  Utils.getCsvFormatted(this.getId().toString()) ;
+		String toRet =  SpxIndexUtils.getCsvFormatted(this.getId().toString()) ;
 		
 		if(isOverridable()) {return toRet+"{overridable}" ;}
 		return toRet;

@@ -4,7 +4,7 @@ import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxSemanticIndex;
-import org.spoofax.interpreter.library.language.spxlang.index.Utils;
+import org.spoofax.interpreter.library.language.spxlang.index.SpxIndexUtils;
 import org.spoofax.interpreter.library.ssl.SSLLibrary;
 import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -34,8 +34,8 @@ public class SPX_index_equal_resource_uri extends SpxAbstractPrimitive {
 		String resUri1 = Tools.asJavaString(Tools.stringAt(resTuple, 0)).trim();
 		String resUri2 = Tools.asJavaString(Tools.stringAt(resTuple, 1)).trim();
 		
-		String absPath1 =  Utils.getAbsolutePathString(resUri1, agent);
-		String absPath2 =  Utils.getAbsolutePathString(resUri2, agent);
+		String absPath1 =  SpxIndexUtils.getAbsolutePathString(resUri1, agent);
+		String absPath2 =  SpxIndexUtils.getAbsolutePathString(resUri2, agent);
 		
 		return absPath1.equalsIgnoreCase(absPath2);
 	}

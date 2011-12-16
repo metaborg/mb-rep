@@ -215,13 +215,13 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 	}
 	
 	private SpxModuleLookupTable addModuleDefinition(SpxSemanticIndexFacade f, IStrategoList id, IStrategoAppl moduleDefinition) throws IOException{	
-		_moduleDefinition.put(id, Utils.serializeToString(f.getTermAttachmentSerializer(), moduleDefinition));
+		_moduleDefinition.put(id, SpxIndexUtils.serializeToString(f.getTermAttachmentSerializer(), moduleDefinition));
 		return this;
 	}
 	
 	//TODO : save it as binary serialized format
 	private SpxModuleLookupTable addAnalyzedModuleDefinition(SpxSemanticIndexFacade f, IStrategoList id, IStrategoAppl moduleDefinition) throws IOException{
-		_moduleAnalyzedDefinition.put(id, Utils.serializeToString(f.getTermAttachmentSerializer(), moduleDefinition));
+		_moduleAnalyzedDefinition.put(id, SpxIndexUtils.serializeToString(f.getTermAttachmentSerializer(), moduleDefinition));
 		
 		return this;
 	}
@@ -303,7 +303,7 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 	 * @return
 	 */
 	public IStrategoAppl getModuleDefinition(SpxSemanticIndexFacade facade, IStrategoList id){
-		IStrategoTerm deserializedTerm = Utils.deserializeToTerm(facade.getTermFactory(), facade.getTermAttachmentSerializer(), this._moduleDefinition.get(id));
+		IStrategoTerm deserializedTerm = SpxIndexUtils.deserializeToTerm(facade.getTermFactory(), facade.getTermAttachmentSerializer(), this._moduleDefinition.get(id));
 		assert deserializedTerm instanceof IStrategoAppl : "Expected IStrategoAppl" ;  
 		
 		return (IStrategoAppl)deserializedTerm;
@@ -318,7 +318,7 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 	 */
 	public IStrategoAppl getAnalyzedModuleDefinition(SpxSemanticIndexFacade f, IStrategoList id)
 	{
-		IStrategoTerm deserializedTerm = Utils.deserializeToTerm(f.getTermFactory(), f.getTermAttachmentSerializer(), this._moduleAnalyzedDefinition.get(id));
+		IStrategoTerm deserializedTerm = SpxIndexUtils.deserializeToTerm(f.getTermFactory(), f.getTermAttachmentSerializer(), this._moduleAnalyzedDefinition.get(id));
 		assert deserializedTerm instanceof IStrategoAppl : "Expected IStrategoAppl" ;  
 		
 		return (IStrategoAppl)deserializedTerm; 

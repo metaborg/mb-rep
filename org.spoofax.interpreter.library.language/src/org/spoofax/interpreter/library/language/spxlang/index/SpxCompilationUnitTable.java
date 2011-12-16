@@ -53,7 +53,7 @@ public class SpxCompilationUnitTable {
 	 */
 	public void define(SpxSemanticIndexFacade facade , URI absPath, IStrategoTerm compilationUnitRTree) throws IOException
 	{	
-		String abspathString = Utils.uriToAbsPathString(absPath);
+		String abspathString = SpxIndexUtils.uriToAbsPathString(absPath);
 		
 		if ( _infoMap.containsKey(abspathString))
 			this.update(facade , absPath, compilationUnitRTree); //URI is already there in the symbol table . Hence updating the table
@@ -72,7 +72,7 @@ public class SpxCompilationUnitTable {
 	 */
 	private void add(SpxSemanticIndexFacade facade , URI absPath , IStrategoTerm compilationUnitAST) throws IOException {
 		
-		String serializedTerm = Utils.serializeToString(facade.getTermAttachmentSerializer(), compilationUnitAST);
+		String serializedTerm = SpxIndexUtils.serializeToString(facade.getTermAttachmentSerializer(), compilationUnitAST);
 		
 		long resID = _spxUnitStoreMap.putValue(serializedTerm); // Adding Compilation Unit to the storemap
 		
@@ -105,19 +105,19 @@ public class SpxCompilationUnitTable {
 	 */
 	private void update(SpxSemanticIndexFacade facade ,  URI absPath , IStrategoTerm compilationUnitAterm) throws IOException {	
 		
-		SpxCompilationUnitInfo oldValue = _infoMap.get(Utils.uriToAbsPathString(absPath));
+		SpxCompilationUnitInfo oldValue = _infoMap.get(SpxIndexUtils.uriToAbsPathString(absPath));
 		SpxCompilationUnitInfo newValue = SpxCompilationUnitInfo.newInstance(oldValue);
 		newValue.incrVersion();
 		
 		_infoMap.put(newValue.getAbsPathString(), newValue);
 		
-		String serializedTerm = Utils.serializeToString(facade.getTermAttachmentSerializer(), compilationUnitAterm);
+		String serializedTerm = SpxIndexUtils.serializeToString(facade.getTermAttachmentSerializer(), compilationUnitAterm);
 		
 		_spxUnitStoreMap.put(newValue.getRecId(), serializedTerm);
 	
 		if(!recordListeners.isEmpty()){	
 			for(RecordListener<String, SpxCompilationUnitInfo> r:recordListeners){
-				r.recordUpdated(Utils.uriToAbsPathString(absPath), oldValue , newValue);
+				r.recordUpdated(SpxIndexUtils.uriToAbsPathString(absPath), oldValue , newValue);
 			}
 		}
 	}
@@ -129,7 +129,7 @@ public class SpxCompilationUnitTable {
 	 * @throws IOException 
 	 */
 	public void remove(URI absPathUri) throws IOException{
-		String key =  Utils.uriToAbsPathString(absPathUri); 
+		String key =  SpxIndexUtils.uriToAbsPathString(absPathUri); 
 		
 		remove(key);
 	}
@@ -177,14 +177,14 @@ public class SpxCompilationUnitTable {
 		SpxCompilationUnitInfo retUnitData= getInfo(f, absPath);
 		
 		String serializedString = _spxUnitStoreMap.get(retUnitData.getRecId());
-		IStrategoTerm deserializedTerm = Utils.deserializeToTerm(f.getTermFactory(), f.getTermAttachmentSerializer(), serializedString);
+		IStrategoTerm deserializedTerm = SpxIndexUtils.deserializeToTerm(f.getTermFactory(), f.getTermAttachmentSerializer(), serializedString);
 		
 		return deserializedTerm ;
 	}
 	
 	
 	public SpxCompilationUnitInfo getInfo(SpxSemanticIndexFacade f, URI absPath){
-		String key = Utils.uriToAbsPathString(absPath);
+		String key = SpxIndexUtils.uriToAbsPathString(absPath);
 		
 		return  _infoMap.get(key);
 		

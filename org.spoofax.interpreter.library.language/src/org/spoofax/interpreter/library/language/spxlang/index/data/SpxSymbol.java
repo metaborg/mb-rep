@@ -1,5 +1,8 @@
 package org.spoofax.interpreter.library.language.spxlang.index.data;
 
+import static org.spoofax.interpreter.core.Tools.isTermTuple;
+
+import java.beans.DesignMode;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -8,14 +11,17 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.spoofax.interpreter.library.language.spxlang.index.INamespace;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxPrimarySymbolTable;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxSemanticIndexFacade;
-import org.spoofax.interpreter.library.language.spxlang.index.Utils;
+import org.spoofax.interpreter.library.language.spxlang.index.SpxIndexUtils;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.jsglr.client.imploder.ImploderAttachment;
+import org.spoofax.jsglr.client.imploder.Token;
 import org.spoofax.terms.attachments.TermAttachmentSerializer;
 
 public class SpxSymbol extends SpxBaseSymbol implements Serializable{
@@ -35,11 +41,11 @@ public class SpxSymbol extends SpxBaseSymbol implements Serializable{
 	public NamespaceUri namespaceUri() { return _namespace; }
 	
 	IStrategoTerm deserializedDataToTerm(ITermFactory fac , TermAttachmentSerializer serializer){ 
-		return Utils.deserializeToTerm(fac, serializer, _data);
+		return SpxIndexUtils.deserializeToTerm(fac, serializer, _data);
 	}
 	
 	void serializerDataString(TermAttachmentSerializer serializer, IStrategoTerm data) throws IOException { 
-		_data  = Utils.serializeToString(serializer , data);
+		_data  = SpxIndexUtils.serializeToString(serializer , data);
 }
 	
 	public IStrategoConstructor typeCons(SpxSemanticIndexFacade facade){
@@ -73,12 +79,14 @@ public class SpxSymbol extends SpxBaseSymbol implements Serializable{
 		IStrategoConstructor spxTypeCtor = this.typeCons(facade);
 		IStrategoAppl spxTypeCtorAppl = termFactory.makeAppl(spxTypeCtor); 
 		
+		//Enclosing Namespace 
+		INamespace symbolNamespace = this.namespaceUri().resolve(facade.getPersistenceManager().spxSymbolTable());
+		IStrategoAppl nsQNameAppl = symbolNamespace.toTypedQualifiedName(facade);
+		
 		//Data
 		IStrategoTerm deserializedDataToTerm = this.deserializedDataToTerm(termFactory, facade.getTermAttachmentSerializer());
+		//deserializedDataToTerm = forceImploderAttachment( deserializedDataToTerm , symbolNamespace.getAbosoluteFilePath());
 		
-		//Enclosing Namespace 
-		IStrategoConstructor qnameCons = facade.getCons().getQNameCon();
-		IStrategoAppl nsQNameAppl = this.namespaceUri().resolve(facade.getPersistenceManager().spxSymbolTable()).toTypedQualifiedName(facade);
 		
 		//ID/Key 
 		IStrategoTerm id = this.Id(termFactory); //TODO : It might require term conversion.
@@ -93,6 +101,25 @@ public class SpxSymbol extends SpxBaseSymbol implements Serializable{
 				id, // id
 				deserializedDataToTerm, 
 				termFactory.makeAppl(symbolSortCtor));
+	}
+	
+	private IStrategoTerm forceImploderAttachment ( IStrategoTerm term  , String uri){
+		
+		ImploderAttachment attach = ImploderAttachment.get(term);
+		
+		if( attach != null){
+			term.removeAttachment(ImploderAttachment.TYPE);
+			ImploderAttachment.putImploderAttachment(term, isListOrTuple(term), attach.getSort(), attach.getLeftToken(), attach.getRightToken());
+		}
+		else
+		{	
+			term.putAttachment(ImploderAttachment.createCompactPositionAttachment(uri, 0, 0, 0, -1));
+		}
+		return term;
+	}
+	
+	private static boolean isListOrTuple(IStrategoTerm term) {
+		return term.isList() || isTermTuple(term);
 	}
 	
 	public static IStrategoTerm toTerms(SpxSemanticIndexFacade facade , Collection<SpxSymbol> symbols) throws SpxSymbolTableException{
@@ -155,9 +182,9 @@ public class SpxSymbol extends SpxBaseSymbol implements Serializable{
 	}
 	
 	public String printSymbol(SpxSemanticIndexFacade f) throws IOException{
-		return  Utils.getCsvFormatted(this.getSignatureString()) 
+		return  SpxIndexUtils.getCsvFormatted(this.getSignatureString()) 
 				+ ", "
-				+ Utils.getCsvFormatted( Utils.termToString(this.deserializedDataToTerm(f.getTermFactory(), f.getTermAttachmentSerializer()) ));
+				+ SpxIndexUtils.getCsvFormatted( SpxIndexUtils.termToString(this.deserializedDataToTerm(f.getTermFactory(), f.getTermAttachmentSerializer()) ));
 	}
 	
 }

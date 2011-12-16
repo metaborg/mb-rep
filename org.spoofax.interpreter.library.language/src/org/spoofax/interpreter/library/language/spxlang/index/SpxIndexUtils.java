@@ -20,27 +20,18 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.attachments.TermAttachmentSerializer;
 
-public final class Utils {
-	private Utils() {
+public final class SpxIndexUtils {
+	private SpxIndexUtils() {
 		
 	}
-	public static final int NO_OF_ATTEMPT_TO_INIT_RECORDMANAGER = 1;
 	
 	public static final String AllWithDuplicates = "**";
+
 	public static final String All = "*";
 	public static final String DIRTY = "-";
-	public static final String CURRENT = ".";
 	public static final String ONLY_ONE= ".";
 	
 	public static final String All_SYMBOLS = "\"*\"";
-	
-	
-	public static final String SPX_CACHE_DIRECTORY = ".spxcache";
-	public static final String SPX_INDEX_DIRECTORY = ".spxindex";
-	public static final String SPX_SHADOW_DIR = ".shadowdir";
-	
-	
-	static boolean DEBUG = false;
 	
 	/**
 	 * Constructs {@link IStrategoList} from {@code decls}  
@@ -145,7 +136,7 @@ public final class Utils {
 	public static String getCsvFormatted(String text){
 		if(text ==null) return "";
 		
-		return text.replace(",", "__");
+		return text.replace(",", SpxIndexConfiguration.getCSVDelimiter() );
 	}
 	
 	static  void logEntries(SpxSemanticIndexFacade f,  INamespace namespace , BufferedWriter logger) throws IOException, SpxSymbolTableException{
@@ -157,14 +148,14 @@ public final class Utils {
 			
 			logger.write("Enclosed Namespace Uris:\n");
 			for(NamespaceUri uri : ns.enclosedNamespaceUris ){
-				logger.write( Utils.getCsvFormatted(uri.toString()) +"\n");
+				logger.write( SpxIndexUtils.getCsvFormatted(uri.toString()) +"\n");
 			}
 			logger.write("\n");
 			
 				
 			logger.write("Imported Namespace Uris:\n");
 			for(NamespaceUri uri : ns.importedNamespaceUris ){
-				logger.write(Utils.getCsvFormatted(uri.toString())+"\n");
+				logger.write(SpxIndexUtils.getCsvFormatted(uri.toString())+"\n");
 			}
 			
 			logger.write("\n");
@@ -181,7 +172,7 @@ public final class Utils {
 			logger.write("Key, Type , Symbol\n");
 			for( SpxSymbolKey k : members.keySet()) {
 				for( SpxSymbol s : members.get(k) ){
-					logger.write(Utils.getCsvFormatted(k.printSymbolKey())+ ",");
+					logger.write(SpxIndexUtils.getCsvFormatted(k.printSymbolKey())+ ",");
 					logger.write( s.printSymbol(f) + "\n");
 				}
 			}

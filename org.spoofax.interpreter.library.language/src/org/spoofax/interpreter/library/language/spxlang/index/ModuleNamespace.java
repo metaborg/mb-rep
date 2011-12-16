@@ -36,17 +36,20 @@ public final class ModuleNamespace extends BaseNamespace
 	/**
 	 * Creates an instance of GlobalScope. Point of caution : GlobalScope is valid  
 	 * for the current project. 
-	 * 
 	 * @param facade
+	 * @param moduleFilePath TODO
+	 * 
 	 * @return
 	 */
-	public static INamespace createInstance(NamespaceUri id, NamespaceUri enclosingNamespaceId, SpxSemanticIndexFacade facade) {
+	public static INamespace createInstance(NamespaceUri id, NamespaceUri enclosingNamespaceId, SpxSemanticIndexFacade facade, String moduleFilePath) {
 		SpxPrimarySymbolTable  symbol_table = facade.getPersistenceManager().spxSymbolTable();
 		INamespace ns = symbol_table.resolveNamespace(id); 
-		if(ns != null)
-			return ns;
-		else
-			return new ModuleNamespace(id, facade.getCons().getModuleNamespaceTypeCon(), enclosingNamespaceId, facade.getPersistenceManager());
+		if(ns == null)
+		{	
+			ns = new ModuleNamespace(id, facade.getCons().getModuleNamespaceTypeCon(), enclosingNamespaceId, facade.getPersistenceManager());
+			((ModuleNamespace)ns).setAbosoluteFilePath(moduleFilePath);
+		}
+		return ns;
 	}
 
 	@Override
@@ -54,5 +57,14 @@ public final class ModuleNamespace extends BaseNamespace
 		return ModuleDeclaration.toModuleQNameAppl(facade, this.namespaceUri().id());
 	}
 	
+	protected String moduleFilePath;
 	
+	void setAbosoluteFilePath(String filePath){
+		moduleFilePath = filePath;
+	}
+
+	@Override
+	public String getAbosoluteFilePath(){
+		return moduleFilePath;
+	}
 }

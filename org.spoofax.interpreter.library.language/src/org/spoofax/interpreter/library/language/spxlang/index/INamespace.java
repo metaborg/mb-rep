@@ -20,23 +20,27 @@ public interface INamespace extends Serializable {
 
 	INamespace getCurrentNamespace(INamespaceResolver resolver) throws SpxSymbolTableException;
 	
-	public INamespace define(SpxSymbolTableEntry entry, SpxSemanticIndexFacade f);
+	INamespace define(SpxSymbolTableEntry entry, SpxSemanticIndexFacade f);
 	
 	Set<SpxSymbol> undefineSymbols(IStrategoTerm searchingFor, IStrategoTerm type , SpxSemanticIndexFacade  facade) ;
     
-	SpxSymbol resolve(IStrategoTerm searchingFor, IStrategoTerm type, INamespace searchedBy , SpxSemanticIndexFacade spxFacade) throws SpxSymbolTableException;
+	SpxSymbol resolve(IStrategoTerm searchingFor, IStrategoTerm type, INamespace searchedBy , SpxSemanticIndexFacade spxFacade, int lookupDepth) throws SpxSymbolTableException;
     
-	Collection<SpxSymbol> resolveAll(SpxSemanticIndexFacade spxFacade, IStrategoTerm searchingFor, IStrategoTerm type, boolean retrunDuplicate) throws SpxSymbolTableException;
+	Collection<SpxSymbol> resolveAll(SpxSemanticIndexFacade spxFacade, IStrategoTerm searchingFor, IStrategoTerm type, int lookupDepth, boolean retrunDuplicate) throws SpxSymbolTableException;
 	
-	Collection<SpxSymbol>  resolveAll(SpxSemanticIndexFacade spxFacade, IStrategoTerm searchingFor, IStrategoTerm ofType , INamespace searchedByNamepsace, boolean returnDuplicate) throws SpxSymbolTableException;
+	Collection<SpxSymbol>  resolveAll(SpxSemanticIndexFacade spxFacade, IStrategoTerm searchingFor, IStrategoTerm ofType , INamespace searchedByNamepsace, int lookupDepth, boolean returnDuplicate) throws SpxSymbolTableException;
 	
 	Map<SpxSymbolKey, List<SpxSymbol>> getMembers();
 	
 	NamespaceUri namespaceUri();
 	
+	NamespaceUri enclosingNamespaceUri(); 
+	
 	boolean isInternalNamespace() ;
 	
-	public IStrategoAppl toTypedQualifiedName(SpxSemanticIndexFacade facade);
+	String getAbosoluteFilePath();
+	
+	IStrategoAppl toTypedQualifiedName(SpxSemanticIndexFacade facade);
 
 	void clear();	
 }

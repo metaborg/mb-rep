@@ -212,23 +212,23 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 	}
 	
 	
-	public Collection<SpxSymbol> resolveSymbols(IStrategoList namespaceId, IStrategoTerm symbolId, IStrategoConstructor symbolType, boolean returnDuplicates) throws SpxSymbolTableException {
+	public Collection<SpxSymbol> resolveSymbols(IStrategoList namespaceId, IStrategoTerm symbolId, IStrategoConstructor symbolType, int lookupDepth, boolean returnDuplicates) throws SpxSymbolTableException {
 		persistenceManager().logMessage(SRC, "resolveSymbols | Resolving symbols with the following criteria :  search origin " + namespaceId +  " with Key : "+ symbolId + " of Type : "+ symbolType.getName());
 		
 		INamespace namespace = activateNamespace(namespaceId);
-		Collection<SpxSymbol> resolvedSymbols = namespace.resolveAll(_facade, symbolId ,symbolType, returnDuplicates);
+		Collection<SpxSymbol> resolvedSymbols = namespace.resolveAll(_facade, symbolId ,symbolType, lookupDepth, returnDuplicates);
 		
 		persistenceManager().logMessage(SRC, "resolveSymbols | Resolved Symbols : " + resolvedSymbols);
 		return resolvedSymbols;
 	}
 	
 	
-	public SpxSymbol resolveSymbol(IStrategoList namespaceId, IStrategoTerm symbolId, IStrategoConstructor symbolType) throws SpxSymbolTableException {
+	public SpxSymbol resolveSymbol(IStrategoList namespaceId, IStrategoTerm symbolId, IStrategoConstructor symbolType, int lookupDepth ) throws SpxSymbolTableException {
 		persistenceManager().logMessage(SRC, "resolveSymbol | Resolving symbol with the following criteria :  search origin " + namespaceId +  " with Key : "+ symbolId + "of Type : "+ symbolType.getName());
 		
 		INamespace namespace =  activateNamespace(namespaceId);
 		
-		SpxSymbol  resolvedSymbol = namespace.resolve(symbolId, symbolType ,_activeNamespace ,_facade);
+		SpxSymbol  resolvedSymbol = namespace.resolve(symbolId, symbolType ,_activeNamespace ,_facade, lookupDepth);
 		
 		persistenceManager().logMessage(SRC, "resolveSymbol | Resolved Symbol : " + resolvedSymbol );
 		
@@ -404,17 +404,17 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 	 * @throws SpxSymbolTableException 
 	 */
 	public void printSymbols(SpxSemanticIndexFacade f, String state , String projectPath , String indexId) throws IOException, SpxSymbolTableException{
-		new File(projectPath +"/"+Utils.SPX_INDEX_DIRECTORY+ "/.log").mkdirs();
+		new File(projectPath +"/"+SpxIndexConfiguration.SPX_INDEX_DIRECTORY+ "/.log").mkdirs();
 		
-		FileWriter fstream = new FileWriter(projectPath +"/"+ Utils.SPX_INDEX_DIRECTORY+ "/.log/"+indexId+"_symbols_"+Utils.now("yyyy-MM-dd HH.mm.ss.SSS")+".csv" , true);
+		FileWriter fstream = new FileWriter(projectPath +"/"+ SpxIndexConfiguration.SPX_INDEX_DIRECTORY+ "/.log/"+indexId+"_symbols_"+SpxIndexUtils.now("yyyy-MM-dd HH.mm.ss.SSS")+".csv" , true);
 		BufferedWriter out = new BufferedWriter(fstream);
-		out.write(", , ,------------- Logging [" +state+ "] state of Symbol-Table at :" + Utils.now("yyyy-MM-dd HH.mm.ss")+"-------------\n");
+		out.write(", , ,------------- Logging [" +state+ "] state of Symbol-Table at :" + SpxIndexUtils.now("yyyy-MM-dd HH.mm.ss")+"-------------\n");
 		try
 		{	
 			if(namespaces != null){
 				for(INamespace ns : namespaces.values()){
-					out.write("\n, --- "+ Utils.getCsvFormatted(ns.toString()) +"--- \n");
-					Utils.logEntries(f, ns,out) ;
+					out.write("\n, --- "+ SpxIndexUtils.getCsvFormatted(ns.toString()) +"--- \n");
+					SpxIndexUtils.logEntries(f, ns,out) ;
 				}
 			}
 		}catch(IOException ex){ //ignore 

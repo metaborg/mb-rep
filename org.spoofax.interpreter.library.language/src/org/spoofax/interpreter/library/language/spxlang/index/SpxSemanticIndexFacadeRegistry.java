@@ -36,10 +36,8 @@ public class SpxSemanticIndexFacadeRegistry
 	public synchronized SpxSemanticIndexFacade initFacade(IStrategoTerm projectPath , ITermFactory termFactory , IOAgent agent) throws Exception
 	{	
 		SpxSemanticIndexFacade fac = null;
-		String projectNameString  =  Utils.toAbsPathString(asJavaString(projectPath));
-		
-		agent.getWriter(IOAgent.CONST_STDOUT).write( "Initializing at " + Thread.currentThread().getId() + " at process : " + ManagementFactory.getRuntimeMXBean().getName()+"\n\n\n");
-		
+		String projectNameString  =  SpxIndexUtils.toAbsPathString(asJavaString(projectPath));
+
 		if ( !containsFacade(projectPath)) {
 		 
 			fac = new SpxSemanticIndexFacade(projectPath, termFactory, agent);
@@ -77,7 +75,7 @@ public class SpxSemanticIndexFacadeRegistry
 	 * @throws Exception 
 	 */
 	public SpxSemanticIndexFacade getFacade(IStrategoTerm projectPath) throws Exception{
-		String key = Utils.toAbsPathString(asJavaString(projectPath));		
+		String key = SpxIndexUtils.toAbsPathString(asJavaString(projectPath));		
 		SpxSemanticIndexFacade facade =  _registry.get(key);
 		
 		if(facade == null) {
@@ -91,7 +89,7 @@ public class SpxSemanticIndexFacadeRegistry
 
 	public synchronized void clearAll() throws IOException{
 		for(String fname : _registry.keySet())
-			removeFacade(Utils.toAbsPathString(fname));
+			removeFacade(SpxIndexUtils.toAbsPathString(fname));
 	}
 	
 	private SpxSemanticIndexFacade closePersistenceManager(String projectPath) throws IOException{
@@ -105,7 +103,7 @@ public class SpxSemanticIndexFacadeRegistry
 	}
 	
 	public SpxSemanticIndexFacade closePersistenceManager(IStrategoTerm projectPathTerm) throws IOException {
-		return closePersistenceManager(Utils.toAbsPathString(asJavaString(projectPathTerm)));
+		return closePersistenceManager(SpxIndexUtils.toAbsPathString(asJavaString(projectPathTerm)));
 	}
 
 	private SpxSemanticIndexFacade removeFacade(String projectPath) throws IOException {
@@ -115,7 +113,7 @@ public class SpxSemanticIndexFacadeRegistry
 	
 	
 	public boolean containsFacade(IStrategoTerm projectPath){
-		String key = Utils.toAbsPathString(asJavaString(projectPath));
+		String key = SpxIndexUtils.toAbsPathString(asJavaString(projectPath));
 		
 		return _registry.containsKey(key);
 	}	

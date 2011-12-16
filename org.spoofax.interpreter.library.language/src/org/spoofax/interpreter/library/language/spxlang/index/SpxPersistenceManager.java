@@ -63,7 +63,7 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 		
 		//BaseRecordManager.DEFAULT_RELATIVE_PATH_INDEX = spxSemanticIndexFacade.getProjectPath()+ "/" + Utils.SPX_INDEX_DIRECTORY+ "/" + _indexId + ".idx";
 
-		final String relPath = spxSemanticIndexFacade.getProjectPath()+ "/" + Utils.SPX_INDEX_DIRECTORY+ "/" + _indexId + ".idx";
+		final String relPath = spxSemanticIndexFacade.getProjectPath()+ "/" + SpxIndexConfiguration.SPX_INDEX_DIRECTORY+ "/" + _indexId + ".idx";
 		if( options  == null)
 			options = new Properties();// Creating empty properties collection if it is null
 		
@@ -85,7 +85,7 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	 * @throws IOException
 	 */
 	private void tryInitRecordManager(SpxSemanticIndexFacade spxSemanticIndexFacade, Properties options) throws IOException {
-		int noOfTries = Utils.NO_OF_ATTEMPT_TO_INIT_RECORDMANAGER;
+		int noOfTries = SpxIndexConfiguration.NO_OF_ATTEMPT_TO_INIT_RECORDMANAGER;
 		
 		while(true){
 			try {
@@ -238,7 +238,7 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	 * @see org.spoofax.interpreter.library.language.spxlang.ISpxPersistenceManager#logMessage(java.lang.String, java.lang.String)
 	 */
 	public void logMessage(String origin, String message) {
-		if(Utils.DEBUG){		
+		if(SpxIndexConfiguration.shouldPrintDebugInfo()){		
 			try {
 				_agent.getWriter(IOAgent.CONST_STDOUT).write(
 						"[" + this._indexId + "." + origin + "]   " + message

@@ -119,7 +119,7 @@ public class SpxSemanticIndexFacade {
 	 * Gets the project name as String
 	 * @return
 	 */
-	public String getProjectPath(){ return Utils.toAbsPathString(_projectPath); }
+	public String getProjectPath(){ return SpxIndexUtils.toAbsPathString(_projectPath); }
 	
 	public String getProjectName(){ return new File(_projectPath).getName(); }
 
@@ -176,7 +176,7 @@ public class SpxSemanticIndexFacade {
 	}
 	
 	public SpxCompilationUnitInfo getCompilationUnitInfo(String absUriPath){
-		URI resUri = Utils.getAbsolutePathUri(absUriPath ,_agent);
+		URI resUri = SpxIndexUtils.getAbsolutePathUri(absUriPath ,_agent);
 		
 		SpxCompilationUnitTable table = this.getPersistenceManager().spxCompilcationUnitTable();
 		return table.getInfo(this, resUri);
@@ -396,20 +396,12 @@ public class SpxSemanticIndexFacade {
 			throw new IllegalArgumentException(" verifySymbolExists | Illegal symbolLookupTerm Argument ; expected 4 subterms. Found : " + searchCriteria.getSubtermCount());
 		
 		IStrategoAppl typeAppl =  (IStrategoAppl)searchCriteria.getSubterm(2);
-		IStrategoConstructor typeCtor = null; 
-		try{
-			typeCtor = verifyKnownContructorExists(typeAppl);
-		}catch(IllegalArgumentException ex){
-			// It seems like the constructor does not exist in local type declarations. 
-			// Hence, defining it to be used further.
-			IStrategoConstructor ctor = (IStrategoConstructor)typeAppl.getConstructor();
-			typeCtor = _spxConstructors.indexConstructor(ctor);
-		}
+		IStrategoConstructor typeCtor = getVerifiedStrategoConstructor(typeAppl);
 		
 		IStrategoList namespaceID = this.getNamespaceId((IStrategoAppl)searchCriteria.get(0));
 		SpxPrimarySymbolTable  symbolTable = getPersistenceManager().spxSymbolTable();
 		
-		return symbolTable.resolveSymbol(namespaceID, strip(searchCriteria.get(1)), typeCtor);
+		return symbolTable.resolveSymbol(namespaceID, strip(searchCriteria.get(1)), typeCtor, Integer.MAX_VALUE);
 	}
 	
 	// (namespace * idTolookupFor * type constructor)
@@ -417,28 +409,32 @@ public class SpxSemanticIndexFacade {
 		if (searchCriteria.getSubtermCount() != 4)
 			throw new IllegalArgumentException(" resolveSymbols | Illegal symbolLookupTerm Argument ; expected 4 subterms. Found : " + searchCriteria.getSubtermCount());
 		
-		String searchMode = asJavaString(searchCriteria.get(3)).trim();
+		IStrategoTuple lookupConfiguration = (IStrategoTuple)searchCriteria.get(3);
 		
+		// lookup configuration 
+		IStrategoAppl lookupType  = (IStrategoAppl)lookupConfiguration.getSubterm(0);
+		IStrategoConstructor lookupTypeCtor = getVerifiedStrategoConstructor(lookupType);
+		String searchMode = asJavaString(lookupConfiguration.getSubterm(1)).trim();
+		
+		// type constructor 
 		IStrategoAppl typeAppl =  (IStrategoAppl)searchCriteria.getSubterm(2);
-		IStrategoConstructor typeCtor = null; 
-		try{
-			typeCtor = verifyKnownContructorExists(typeAppl);
-		}catch(IllegalArgumentException ex){
-			// It seems like the constructor does not exist in local type declarations. 
-			// Hence, defining it to be used further.
-			IStrategoConstructor ctor = (IStrategoConstructor)typeAppl.getConstructor();
-			typeCtor = _spxConstructors.indexConstructor(ctor);
+		IStrategoConstructor typeCtor = getVerifiedStrategoConstructor(typeAppl);
+		
+		int lookupDepth = Integer.MAX_VALUE; // unbounded Depth search during lookup => could search all the enclosing scope
+		
+		if(_spxConstructors.isEqualConstructor(lookupTypeCtor, _spxConstructors.getToLookupTypeLocal())){
+			lookupDepth = 0; // can only search the current namesapce 
 		}
 		
 		Collection<SpxSymbol> spxSymbols = null;
 		if (typeCtor != null) {
-			if(searchMode.equalsIgnoreCase(Utils.AllWithDuplicates)){
-				spxSymbols = resolveSymbols( (IStrategoAppl)searchCriteria.get(0), searchCriteria.get(1),typeCtor, true);
+			if(searchMode.equalsIgnoreCase(SpxIndexUtils.AllWithDuplicates)){
+				spxSymbols = resolveSymbols( (IStrategoAppl)searchCriteria.get(0), searchCriteria.get(1),typeCtor, lookupDepth, true);
 			}
-			else if(searchMode.equalsIgnoreCase(Utils.All)){
-				spxSymbols = resolveSymbols( (IStrategoAppl)searchCriteria.get(0), searchCriteria.get(1),typeCtor, false);
-			}else if(searchMode.equalsIgnoreCase(Utils.ONLY_ONE)){
-				spxSymbols = resolveSymbol( (IStrategoAppl)searchCriteria.get(0), searchCriteria.get(1),typeCtor);
+			else if(searchMode.equalsIgnoreCase(SpxIndexUtils.All)){
+				spxSymbols = resolveSymbols( (IStrategoAppl)searchCriteria.get(0), searchCriteria.get(1),typeCtor, lookupDepth, false);
+			}else if(searchMode.equalsIgnoreCase(SpxIndexUtils.ONLY_ONE)){
+				spxSymbols = resolveSymbol( (IStrategoAppl)searchCriteria.get(0), searchCriteria.get(1),typeCtor , lookupDepth);
 			}
 			else{
 				throw new IllegalArgumentException(" Illegal symbolLookupTerm searchMode Argument ; expected * or . . Found : " + searchMode);
@@ -447,6 +443,24 @@ public class SpxSemanticIndexFacade {
 			this.logMessage("resolve symbols. Unknown Type Contructor "+typeAppl.getConstructor().getName() );
 		
 		return SpxSymbol.toTerms(this, spxSymbols);
+	}
+
+	/**
+	 * @param typeAppl
+	 * @return
+	 */
+	private IStrategoConstructor getVerifiedStrategoConstructor(
+			IStrategoAppl typeAppl) {
+		IStrategoConstructor typeCtor = null; 
+		try{
+			typeCtor = verifyKnownContructorExists(typeAppl);
+		}catch(IllegalArgumentException ex){
+			// It seems like the constructor does not exist in local type declarations. 
+			// Hence, defining it to be used further.
+			IStrategoConstructor ctor = (IStrategoConstructor)typeAppl.getConstructor();
+			typeCtor = _spxConstructors.indexConstructor(ctor);
+		}
+		return typeCtor;
 	}
 	
 	public IStrategoTerm undefineSymbols (IStrategoTuple searchCriteria) throws SpxSymbolTableException{
@@ -457,15 +471,7 @@ public class SpxSemanticIndexFacade {
 	    IStrategoList namespaceID = this.getNamespaceId(Tools.applAt(searchCriteria, 0));
 	    IStrategoTerm symbolID = Tools.termAt(searchCriteria, 1);
 	    IStrategoAppl typeAppl =  Tools.applAt(searchCriteria, 2);
-	    IStrategoConstructor typeCtor = null; 
-		try{
-			typeCtor = verifyKnownContructorExists(typeAppl);
-		}catch(IllegalArgumentException ex){
-			// It seems like the constructor does not exist in local type declarations. 
-			// Hence, defining it to be used further.
-			IStrategoConstructor ctor = (IStrategoConstructor)typeAppl.getConstructor();
-			typeCtor = _spxConstructors.indexConstructor(ctor);
-		}
+	    IStrategoConstructor typeCtor = getVerifiedStrategoConstructor(typeAppl);
 		
 	    Set<SpxSymbol> spxSymbols = this.getPersistenceManager().spxSymbolTable()
 	    					.undefineSymbols(namespaceID, 
@@ -494,22 +500,22 @@ public class SpxSemanticIndexFacade {
 	 * 
 	 * @throws SpxSymbolTableException
 	 */
-	public Collection<SpxSymbol> resolveSymbols(IStrategoAppl namespaceToStartSearchWith, IStrategoTerm symbolId, IStrategoConstructor  symbolType, boolean returnDuplicates) throws SpxSymbolTableException {
+	public Collection<SpxSymbol> resolveSymbols(IStrategoAppl namespaceToStartSearchWith, IStrategoTerm symbolId, IStrategoConstructor  symbolType, int lookupDepth, boolean returnDuplicates) throws SpxSymbolTableException {
 		IStrategoList namespaceID = this.getNamespaceId(namespaceToStartSearchWith);
 
 		SpxPrimarySymbolTable  symbolTable = getPersistenceManager().spxSymbolTable();
 		
-		Collection<SpxSymbol> resolvedSymbols = symbolTable.resolveSymbols(namespaceID, strip(symbolId), symbolType, returnDuplicates);
+		Collection<SpxSymbol> resolvedSymbols = symbolTable.resolveSymbols(namespaceID, strip(symbolId), symbolType, lookupDepth, returnDuplicates);
 		return resolvedSymbols;
 	}
 	
-	public Set<SpxSymbol> resolveSymbol(IStrategoAppl namespaceToStartSearchWith, IStrategoTerm symbolId, IStrategoConstructor  symbolType) throws SpxSymbolTableException {
+	public Set<SpxSymbol> resolveSymbol(IStrategoAppl namespaceToStartSearchWith, IStrategoTerm symbolId, IStrategoConstructor  symbolType,int lookupDepth) throws SpxSymbolTableException {
 		Set<SpxSymbol> resolvedSymbols= new HashSet<SpxSymbol>();
 		
 		IStrategoList namespaceID = this.getNamespaceId(namespaceToStartSearchWith);
 		SpxPrimarySymbolTable  symbolTable = getPersistenceManager().spxSymbolTable();
 		
-		SpxSymbol sym = symbolTable.resolveSymbol(namespaceID, strip(symbolId), symbolType);
+		SpxSymbol sym = symbolTable.resolveSymbol(namespaceID, strip(symbolId), symbolType, lookupDepth);
 		if(sym != null)
 			resolvedSymbols.add(sym) ;
 		
@@ -741,7 +747,7 @@ public class SpxSemanticIndexFacade {
 		String filepathString = asJavaString(filePath);
 		
 		Set<PackageDeclaration> decls; 
-		if(Utils.All == filepathString) {
+		if(SpxIndexUtils.All == filepathString) {
 			decls = table.getPackageDeclarations();  //returning all the package declarations found in the current project
 		}else{
 			String absFilePath = toAbsulatePath(filePath);
@@ -749,7 +755,7 @@ public class SpxSemanticIndexFacade {
 			decls = table.packageDeclarationsByUri(absFilePath);
 		}
 		
-		IStrategoList result =  Utils.toTerm(this, decls);
+		IStrategoList result =  SpxIndexUtils.toTerm(this, decls);
 		logMessage("getPackageDeclarationsByUri | Returning IStrategoList : " + result );
 
 		return result;
@@ -831,9 +837,9 @@ public class SpxSemanticIndexFacade {
 		
 		if(Tools.isTermAppl(res))
 		{	
-			if( Utils.DIRTY  == asJavaString(queryType)) {
+			if( SpxIndexUtils.DIRTY  == asJavaString(queryType)) {
 				retValue  = this.getDirtyModuleDeclarations((IStrategoAppl)res , (IStrategoAppl)searchQueryTuple.getSubterm(2)) ;
-			}else if (Utils.All == asJavaString(queryType)){
+			}else if (SpxIndexUtils.All == asJavaString(queryType)){
 				retValue  = this.getModuleDeclarations((IStrategoAppl)res);
 			}else
 				throw new IllegalArgumentException("Unknown queryType argument in getModuleDeclarationOf: " + queryType);
@@ -853,7 +859,7 @@ public class SpxSemanticIndexFacade {
 		String filepathString = asJavaString(filePath);
 		
 		Iterable<ModuleDeclaration> decls; 
-		if(Utils.All == filepathString) {
+		if(SpxIndexUtils.All == filepathString) {
 			decls = table.getModuleDeclarations();  //returning all the package declarations found in the current project
 		}else{	
 			String absFilePath = toAbsulatePath(filePath);
@@ -861,7 +867,7 @@ public class SpxSemanticIndexFacade {
 			decls = table.getModuleDeclarationsByUri(absFilePath);
 		}
 		
-		IStrategoList result =  Utils.toTerm(this, decls);
+		IStrategoList result =  SpxIndexUtils.toTerm(this, decls);
 		logMessage("getModuleDeclarations | Returning IStrategoList : " + result );
 		return result;
 	}
@@ -881,7 +887,7 @@ public class SpxSemanticIndexFacade {
 		Iterable<ModuleDeclaration> decls = getModuleDeclarations(packageID);
 		logMessage("getModuleDeclarations | Found following result from SymbolTable : " + decls);
 		
-		IStrategoList result =  Utils.toTerm(this, decls);
+		IStrategoList result =  SpxIndexUtils.toTerm(this, decls);
 		logMessage("getModuleDeclarations | Returning IStrategoList : " + result );
 		
 		return result;
@@ -912,7 +918,7 @@ public class SpxSemanticIndexFacade {
 				dirtyModuleDeclarations.add(decl);
 			}
 		}
-		IStrategoList result =  Utils.toTerm(this, dirtyModuleDeclarations);
+		IStrategoList result =  SpxIndexUtils.toTerm(this, dirtyModuleDeclarations);
 		logMessage("getDirtyModuleDeclarations | Returning IStrategoList : " + result );
 		
 		return result;
@@ -1038,9 +1044,10 @@ public class SpxSemanticIndexFacade {
 	public void commitChanges() throws IOException {
 		ISpxPersistenceManager persistenceManager = this.getPersistenceManager();
 		persistenceManager.commit();
-		printSymbolTable(Utils.DEBUG, "commit");
+		printSymbolTable(SpxIndexConfiguration.shouldLogSymbols(), "commit");
 	}	
 
+	
 	private void printSymbolTable(boolean printIfDebug, String stageName) throws IOException {
 		ISpxPersistenceManager persistenceManager = this.getPersistenceManager();
 		if (printIfDebug){
@@ -1090,7 +1097,7 @@ public class SpxSemanticIndexFacade {
 		}
 		
 		initializePersistenceManager();
-		printSymbolTable(Utils.DEBUG, "clean");
+		printSymbolTable(SpxIndexConfiguration.shouldPrintDebugInfo(), "clean");
 		
 	}
 
@@ -1099,8 +1106,8 @@ public class SpxSemanticIndexFacade {
 	 * be invalidated and all the symbols will be indexed again. 
 	 */
 	boolean tryInvalidatingSpxCacheDirectories() {
-		if(Utils.deleteSpxCacheDir( new File(  _projectPath +"/" + Utils.SPX_CACHE_DIRECTORY), true)){
-			return Utils.deleteSpxCacheDir( new File(  _projectPath +"/" + Utils.SPX_SHADOW_DIR) , true);
+		if(SpxIndexUtils.deleteSpxCacheDir( new File(  _projectPath +"/" + SpxIndexConfiguration.SPX_CACHE_DIRECTORY), true)){
+			return SpxIndexUtils.deleteSpxCacheDir( new File(  _projectPath +"/" + SpxIndexConfiguration.SPX_SHADOW_DIR) , true);
 		}
 		return false;
 	}
@@ -1142,9 +1149,9 @@ public class SpxSemanticIndexFacade {
 	 * @param uri URI of the Resource. 
 	 * @return Absolute Path represented by the URI  
 	 */
-	public String toAbsulatePath( IStrategoString uri){ return Utils.uriToAbsPathString(toFileURI(uri)); }
+	public String toAbsulatePath( IStrategoString uri){ return SpxIndexUtils.uriToAbsPathString(toFileURI(uri)); }
 
-	private URI toFileURI(IStrategoTerm filePath) {	return Utils.getAbsolutePathUri(Tools.asJavaString(filePath) ,_agent); }
+	private URI toFileURI(IStrategoTerm filePath) {	return SpxIndexUtils.getAbsolutePathUri(Tools.asJavaString(filePath) ,_agent); }
 
 	/**
 	 * Verify type of declaration . 
@@ -1190,9 +1197,9 @@ public class SpxSemanticIndexFacade {
 	}
 	
 	public static IStrategoAppl forceImploderAttachment(IStrategoTerm id, IStrategoAppl term , URI file) {
-		
 		ImploderAttachment attach = ImploderAttachment.get(id);
 		if (attach != null) {
+			
 			ImploderAttachment.putImploderAttachment(term, false, attach.getSort(), attach.getLeftToken(), attach.getRightToken());
 		} else {
 			String fn = file == null ? null : file.toString();
