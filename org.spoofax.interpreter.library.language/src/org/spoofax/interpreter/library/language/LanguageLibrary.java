@@ -70,6 +70,8 @@ public class LanguageLibrary extends AbstractStrategoOperatorRegistry {
 		add(new SPX_symtab_resolve_symbols(spxIndex));
 		add(new SPX_symtab_verify_symbol_exists(spxIndex));
 		add(new SPX_symtab_undefine_symbols(spxIndex));
+		add(new SPX_symtab_verify_symbols_have_equal_origin(spxIndex));
+		
 	}
 
 	public String getOperatorRegistryName() {
