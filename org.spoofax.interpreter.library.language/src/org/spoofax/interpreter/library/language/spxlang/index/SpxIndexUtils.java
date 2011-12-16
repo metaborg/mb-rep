@@ -182,4 +182,14 @@ public final class SpxIndexUtils {
 		
 		logger.write("\n");
 	}
+	
+	static void printSymbolTable(SpxSemanticIndexFacade f, boolean printIfDebug, String stageName) throws IOException {
+		ISpxPersistenceManager persistenceManager = f.getPersistenceManager();
+		if (printIfDebug){
+			try {
+				persistenceManager.spxSymbolTable().printSymbols(f, stageName, f.getProjectPath(), f.getIndexId());
+			} catch (SpxSymbolTableException e) {
+			}
+		}
+	}
 }

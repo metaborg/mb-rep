@@ -13,10 +13,10 @@ import org.spoofax.interpreter.library.language.spxlang.index.GlobalNamespace;
 import org.spoofax.interpreter.library.language.spxlang.index.INamespace;
 import org.spoofax.interpreter.library.language.spxlang.index.PackageNamespace;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxIndexConfiguration;
+import org.spoofax.interpreter.library.language.spxlang.index.SpxIndexUtils;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxPrimarySymbolTable;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxSemanticIndexFacade;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxSemanticIndexFacadeRegistry;
-import org.spoofax.interpreter.library.language.spxlang.index.SpxIndexUtils;
 import org.spoofax.interpreter.library.language.spxlang.index.data.ModuleDeclaration;
 import org.spoofax.interpreter.library.language.spxlang.index.data.NamespaceUri;
 import org.spoofax.interpreter.library.language.spxlang.index.data.PackageDeclaration;
@@ -29,9 +29,8 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
-import org.spoofax.interpreter.test.AbstractInterpreterTest;
 
-public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
+public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 	
 	private final String _projectName = ".test-symbol-table_12";
 	
@@ -50,7 +49,8 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 	
 	@Override
 	protected void setUp() throws Exception {
-		super.setUp("C:/work/projects/spoofax/spx-imp/source-codes/trunk/org.strategoxt.imp.editors.spoofax/include");
+		
+		super.setUp();
 		interpreter().addOperatorRegistry(new LanguageLibrary());
 		
 		_registry = new SpxSemanticIndexFacadeRegistry();
@@ -60,6 +60,8 @@ public class SpxPrimarySymbolTableTest extends AbstractInterpreterTest{
 		_registry.initFacade(projectNameTerm, termFactory(), ioAgent()); 
 		_facade = _registry.getFacade(projectNameTerm);
 		_facade.cleanIndexAndSymbolTable();
+		
+		
 		
 		
 		symbol_table = _facade.getPersistenceManager().spxSymbolTable();

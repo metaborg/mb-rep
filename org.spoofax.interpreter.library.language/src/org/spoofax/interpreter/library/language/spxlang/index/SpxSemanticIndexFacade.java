@@ -1044,19 +1044,11 @@ public class SpxSemanticIndexFacade {
 	public void commitChanges() throws IOException {
 		ISpxPersistenceManager persistenceManager = this.getPersistenceManager();
 		persistenceManager.commit();
-		printSymbolTable(SpxIndexConfiguration.shouldLogSymbols(), "commit");
+		SpxIndexUtils.printSymbolTable(this, SpxIndexConfiguration.shouldLogSymbols(), "commit");
 	}	
 
 	
-	private void printSymbolTable(boolean printIfDebug, String stageName) throws IOException {
-		ISpxPersistenceManager persistenceManager = this.getPersistenceManager();
-		if (printIfDebug){
-			try {
-				persistenceManager.spxSymbolTable().printSymbols(this, stageName, this.getProjectPath(), this.getIndexId());
-			} catch (SpxSymbolTableException e) {
-			}
-		}
-	}
+	
 	/**
 	 * Closes any underlying open connection. 
 	 * @param shouldCommit TODO
@@ -1097,7 +1089,7 @@ public class SpxSemanticIndexFacade {
 		}
 		
 		initializePersistenceManager();
-		printSymbolTable(SpxIndexConfiguration.shouldPrintDebugInfo(), "clean");
+		SpxIndexUtils.printSymbolTable(this,SpxIndexConfiguration.shouldPrintDebugInfo(), "clean");
 		
 	}
 

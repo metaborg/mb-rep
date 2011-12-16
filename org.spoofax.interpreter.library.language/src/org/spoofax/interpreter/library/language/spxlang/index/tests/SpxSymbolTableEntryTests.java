@@ -11,9 +11,8 @@ import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
-import org.spoofax.interpreter.test.AbstractInterpreterTest;
 
-public class SpxSymbolTableEntryTests extends AbstractInterpreterTest{
+public class SpxSymbolTableEntryTests extends SpxIndexBaseTestCase{
 	private final String _projectName = "test-sybol-table";
 	
 	private IStrategoString projectNameTerm; 
@@ -30,7 +29,7 @@ public class SpxSymbolTableEntryTests extends AbstractInterpreterTest{
 	
 	@Override
 	protected void setUp() throws Exception {
-		super.setUp("C:/work/projects/spoofax/spx-imp/source-codes/trunk/org.strategoxt.imp.editors.spoofax/include");
+		super.setUp();
 		interpreter().addOperatorRegistry(new LanguageLibrary());
 		
 		projectNameTerm = termFactory().makeString(_projectName);

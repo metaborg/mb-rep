@@ -22,9 +22,8 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
-import org.spoofax.interpreter.test.AbstractInterpreterTest;
 
-public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
+public class SpxLookupTableUnitTests  extends SpxIndexBaseTestCase{
 	
 	private final String _projectName = "test-sybol-table_2";
 	private IStrategoString projectNameTerm;
@@ -57,7 +56,7 @@ public class SpxLookupTableUnitTests  extends AbstractInterpreterTest{
 	
 	@Override 
 	protected void setUp() throws Exception {
-		super.setUp("C:/work/projects/spoofax/spx-imp/source-codes/trunk/org.strategoxt.imp.editors.spoofax/include");
+		super.setUp();
 		interpreter().addOperatorRegistry(new LanguageLibrary());
 		
 		_registry = new SpxSemanticIndexFacadeRegistry();
