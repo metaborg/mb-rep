@@ -170,8 +170,7 @@ public class SpxIndexManager implements IIndexManageCommand
 			public void executeCommnad(SpxSemanticIndex idx, IStrategoTerm projectPath, Object... objects) throws Exception{
 				SpxSemanticIndexFacade idxFacade = idx.getFacadeRegistry().getFacade(projectPath);
 				if(idxFacade!= null){
-					idxFacade.commitChanges();
-					idxFacade.close(false);
+					idxFacade.close(true); // also commiting if the persistence manager is still open
 				} 	
 			}
 		};

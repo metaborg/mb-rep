@@ -194,8 +194,61 @@ public class SpxSemanticIndexFacadeTest extends SpxIndexBaseTestCase{
 
 		PackageDeclaration decl =  _facade.lookupPackageDecl(pQnameAppl1);
 		
-		assertEquals(1, decl.getImortedToPackageReferences().size());
+		assertEquals(1, _facade.getPersistenceManager().spxPackageTable().getImportedToReferencesOf(decl.getId()).size());
 	}
+	
+	
+	public void testIndexingImportToReferences() throws SpxSymbolTableException, IOException
+	{
+
+		String packageName1 =  	"\"languages\", \"entitylang1\"" ;
+		String packageName2 =  	"\"languages\", \"entitylang2\"" ;
+		
+		IStrategoAppl pQnameAppl1 = indexTestPackageDecl(packageName1, absPathString1);
+		IStrategoAppl pQnameAppl2 = indexTestPackageDecl(packageName2, absPathString1);
+		
+		String packageName3 =  	"\"languages\", \"entitylang3\"" ;
+		IStrategoAppl pQnameAppl3 = indexTestPackageDecl(packageName3, absPathString1);
+		
+		
+		
+		// p3 imports p1
+		IStrategoAppl importDecl1 = this.termFactory().makeAppl(_facade.getCons().getImportDeclCon(), pQnameAppl3,  
+																this.termFactory().makeList(pQnameAppl1) );
+		this._facade.indexImportReferences(importDecl1);
+		
+		
+		//p3 imports p2
+		importDecl1 = this.termFactory().makeAppl(_facade.getCons().getImportDeclCon(), pQnameAppl3,  
+				this.termFactory().makeList(pQnameAppl2) );
+		this._facade.indexImportReferences(importDecl1);
+
+			
+		IStrategoList actuals = null;
+		
+		actuals = (IStrategoList) _facade.getImportReferences(pQnameAppl1);
+		assertEquals(0, actuals.size());
+		
+		
+		//following invocation should return both the import reference of itself and enclosing
+		//modules' import references. 
+		//Hence, it will return both pQnameAppl1 and pQnameAppl2
+		actuals = (IStrategoList) _facade.getImportReferences( pQnameAppl3 );
+		assertEquals(2, actuals.size());
+
+		PackageDeclaration decl =  _facade.lookupPackageDecl(pQnameAppl1);
+		
+		assertEquals(1, _facade.getPersistenceManager().spxPackageTable().getImportedToReferencesOf(decl.getId()).size());
+		
+		
+		_facade.removePackageDeclaration(this.termFactory().makeString(absPathString1), pQnameAppl1);
+		indexTestPackageDecl(packageName1, absPathString1);
+		decl =  _facade.lookupPackageDecl(pQnameAppl1);
+		
+		
+		assertEquals(1, _facade.getPersistenceManager().spxPackageTable().getImportedToReferencesOf(decl.getId()).size());
+	}
+	
 	
 	public void testIndexModuleDeclaration() throws IllegalArgumentException, SpxSymbolTableException, IOException 
 	{

@@ -116,7 +116,7 @@ public final class PackageNamespace  extends BaseNamespace {
 		
 		PackageDeclaration	assiciatedPackageDeclaration = facade.lookupPackageDecl(this.namespaceUri().id());
 		
-		Set<IStrategoList> importedToPackages = assiciatedPackageDeclaration.getImortedToPackageReferences();
+		Set<IStrategoList> importedToPackages = facade.getPersistenceManager().spxPackageTable().getImportedToReferencesOf(assiciatedPackageDeclaration.getId());
 		
 		return importedToPackages.contains(searchOrigin.namespaceUri().id());
 	}

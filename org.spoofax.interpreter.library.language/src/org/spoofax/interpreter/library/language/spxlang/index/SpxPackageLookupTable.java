@@ -2,11 +2,13 @@ package org.spoofax.interpreter.library.language.spxlang.index;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import jdbm.InverseHashView;
 import jdbm.PrimaryHashMap;
 import jdbm.RecordListener;
 import jdbm.SecondaryHashMap;
@@ -30,7 +32,9 @@ public class SpxPackageLookupTable implements ICompilationUnitRecordListener{
 	// Symbol table that stores package declarations
 	private final PrimaryHashMap<IStrategoList, PackageDeclaration> _packageLookupTable;
 	private final SecondaryHashMap<String, IStrategoList, PackageDeclaration> _uriMap;
-
+	private final SecondaryHashMap<IStrategoList, IStrategoList, PackageDeclaration> _importedToReferences;
+	
+	
 	private final String SRC = this.getClass().getSimpleName();
 	private final ISpxPersistenceManager _manager;
 
@@ -54,10 +58,20 @@ public class SpxPackageLookupTable implements ICompilationUnitRecordListener{
 		String tableName = SRC + "_" + manager.getIndexId();
 
 		_manager = manager;
-		_packageLookupTable = manager.loadHashMap(manager.getIndexId()
-				+ "._lookupPackageMap.idx");
+		_packageLookupTable = manager.loadHashMap(manager.getIndexId()	+ "._lookupPackageMap.idx");
 
-		// readonly secondary view of the the lookup table .
+			// readonly secondary views of the  primary lookup table .
+		_importedToReferences = _packageLookupTable.secondaryHashMapManyToOne(
+				tableName + "._importedToReferences.idx", 
+				new SecondaryKeyExtractor<Iterable<IStrategoList>, IStrategoList, PackageDeclaration>() {
+					public Iterable<IStrategoList> extractSecondaryKey(IStrategoList key, PackageDeclaration value) {
+						
+						Set<IStrategoList> values = new HashSet<IStrategoList>();
+						values.addAll(value.getImportReferneces());
+						return values;
+					}
+				});
+				
 		_uriMap = _packageLookupTable.secondaryHashMapManyToOne(
 						tableName + "._urimap.idx",
 						new SecondaryKeyExtractor<Iterable<String>, IStrategoList, PackageDeclaration>() {
@@ -78,6 +92,7 @@ public class SpxPackageLookupTable implements ICompilationUnitRecordListener{
 							}
 						});
 
+		
 		initListeners();		
 	}
 
@@ -195,19 +210,7 @@ public class SpxPackageLookupTable implements ICompilationUnitRecordListener{
 			throw new IllegalArgumentException("Unknown PackageID : "+ pId);
 		
 	}
-
-	void removeImportedToReferences(PackageDeclaration decl) {
-		assert decl != null;
-		PackageDeclaration packageDecl;
-
-		for (IStrategoList id : decl.getImortedToPackageReferences()) {
-			packageDecl = this.getPackageDeclaration(id);
-			if (packageDecl != null) {
-				packageDecl.removeImportedToPackageReference(decl);
-			}
-		}
-	}
-
+	
 	public PackageDeclaration getPackageDeclaration(IStrategoList id) { return _packageLookupTable.get(id); }
 
 	public Set<PackageDeclaration> getPackageDeclarations() {
@@ -231,8 +234,6 @@ public class SpxPackageLookupTable implements ICompilationUnitRecordListener{
 		_manager.logMessage(SRC + ".remove", "Removing Package " + id + " from symbol table.");
 
 		PackageDeclaration decl = _packageLookupTable.remove(id);
-		
-		this.removeImportedToReferences(decl);
 		
 		_manager.logMessage(SRC + ".remove", "Removed Package " + id + " from symbol table.");
 		return decl;
@@ -355,6 +356,20 @@ public class SpxPackageLookupTable implements ICompilationUnitRecordListener{
 
 	public void removeRecordListener( final IPackageDeclarationRecordListener rl){
 		this.recordListeners.remove(rl.getPackageDeclarationRecordListener());
+	}
+	
+	public Set<IStrategoList> getImportedToReferencesOf(IStrategoList packageId) {
+		Set<IStrategoList> pIds = new HashSet<IStrategoList>();
+		
+		Iterable<PackageDeclaration> pDecs = this._importedToReferences.getPrimaryValues(packageId);
+		
+		if(pDecs != null)
+		{
+			for(PackageDeclaration p:pDecs){ 
+				pIds.add(p.getId());
+			}
+		}
+		return pIds;
 	}
 }
 

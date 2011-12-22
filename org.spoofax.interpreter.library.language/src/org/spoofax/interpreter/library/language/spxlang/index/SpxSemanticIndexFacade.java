@@ -595,12 +595,13 @@ public class SpxSemanticIndexFacade {
 	public void indexImportReferences(IStrategoAppl importReferences) throws SpxSymbolTableException{
 		verifyConstructor(importReferences.getConstructor(), getCons().getImportDeclCon(), "Illegal ImportDeclaration Constructor encountered.");
 		
+		ISpxPersistenceManager manager = getPersistenceManager();
 		IStrategoAppl namespaceId = (IStrategoAppl) importReferences.getSubterm(0);
 		IStrategoList imports = (IStrategoList) importReferences.getSubterm(1);
 		IStrategoList packageId; 
 		
 		if (namespaceId.getConstructor() == getCons().getModuleQNameCon()) {
-			packageId = getPersistenceManager()
+			packageId = manager
 					.spxModuleTable()
 					.packageId(ModuleDeclaration.getModuleId(this, namespaceId));
 			
@@ -612,8 +613,10 @@ public class SpxSemanticIndexFacade {
 
 		PackageDeclaration packageDeclaration= this.lookupPackageDecl(packageId);
 		
-		packageDeclaration.addImportRefernces(this, imports);
-		getPersistenceManager().spxPackageTable().definePackageDeclaration(packageDeclaration);
+		PackageDeclaration newDecl = PackageDeclaration.newInstance(packageDeclaration);
+		newDecl.addImportRefernces(this, imports);
+
+		manager.spxPackageTable().definePackageDeclaration(newDecl);
 	}
 	
 	
@@ -674,8 +677,9 @@ public class SpxSemanticIndexFacade {
 	public IStrategoTerm getImportedToReferences(IStrategoAppl namespaceId) throws SpxSymbolTableException {
 		PackageDeclaration ns; 
 
+		ISpxPersistenceManager manager  = getPersistenceManager();
 		if (namespaceId.getConstructor() == getCons().getModuleQNameCon()) {
-			IStrategoList packageId = getPersistenceManager()
+			IStrategoList packageId = manager  
 					.spxModuleTable()
 					.packageId(ModuleDeclaration.getModuleId(this, namespaceId));
 			ns = lookupPackageDecl(packageId);
@@ -684,7 +688,16 @@ public class SpxSemanticIndexFacade {
 		} else
 			throw new IllegalArgumentException("Unknown Namespace "	+ namespaceId.toString());
 		
-		return ns.getImportedToReferences(this);
+		Set<IStrategoList> importedTos = manager.spxPackageTable().getImportedToReferencesOf(ns.getId());
+		
+		
+		//Converting to terms 
+		IStrategoList result = this.getTermFactory().makeList();
+		for (IStrategoTerm t: importedTos){
+			result = this.getTermFactory().makeListCons(PackageDeclaration.tranformToSpxImport(this,t), result);
+		}
+		
+		return result ; 
 	}
 	
 	/**
@@ -1060,7 +1073,7 @@ public class SpxSemanticIndexFacade {
 			logMessage("close | closing underlying persistence manager instance.");
 			ISpxPersistenceManager persistenceManager = this.getPersistenceManager();
 			if(shouldCommit)
-				persistenceManager.commit();
+				commitChanges();
 			
 			persistenceManager.close();
 			persistenceManager = null;

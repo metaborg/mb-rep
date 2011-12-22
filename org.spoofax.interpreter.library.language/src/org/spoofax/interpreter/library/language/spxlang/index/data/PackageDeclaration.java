@@ -23,7 +23,6 @@ public class PackageDeclaration extends IdentifiableConstruct implements INamesp
 	public static final int SPX_COMPILATION_UNIT_PATH = 1;
 	
 	private final Set<String> resourceAbsPaths = new HashSet<String>();
-	private final Set<IStrategoList> importedToReferences = new HashSet<IStrategoList>();
 	
 	public PackageDeclaration(String resourceAbsPath, IStrategoList id) {
 		super(id);
@@ -40,37 +39,13 @@ public class PackageDeclaration extends IdentifiableConstruct implements INamesp
 		super(id);
 	}
 	
-	public Set<IStrategoList> getImortedToPackageReferences(){return importedToReferences;}
-	
-	public void removeImportedToPackageReference(PackageDeclaration decl) {
-		this.importedToReferences.remove(decl.getId());
-	}
 	
 	public void addFileUri(String resAbsolutePath){
 		resourceAbsPaths.add(resAbsolutePath);
 	}
 	
-	public void addImportedTo(IStrategoList packageId){
-		importedToReferences.add(packageId);
-	}
-	
-	
+		
 
-	public IStrategoTerm getImportedToReferences(
-			SpxSemanticIndexFacade idxFacade) {
-		ITermFactory termFactory = idxFacade.getTermFactory();
-		TermConverter termConverter = idxFacade.getTermConverter();
-		
-		HashSet<IStrategoTerm> importedTo = new HashSet<IStrategoTerm>();
-		importedTo.addAll(this.importedToReferences);
-		
-		IStrategoList result = termFactory.makeList();
-		for (IStrategoTerm t: importedTo){
-			result = idxFacade.getTermFactory().makeListCons(tranformToSpxImport(idxFacade,t), result);
-		}	
-		return termConverter.convert(result);
-	
-	}
 	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
@@ -179,7 +154,6 @@ public class PackageDeclaration extends IdentifiableConstruct implements INamesp
 		for( String str : decl.getAllFilePaths())
 			newDecl.addFileUri(str); 
 		
-		newDecl.importedToReferences.addAll(decl.importedToReferences);
 		newDecl.importReferences.addAll(decl.importReferences);
 		newDecl.legacyImportReferences.addAll(decl.legacyImportReferences);
 		

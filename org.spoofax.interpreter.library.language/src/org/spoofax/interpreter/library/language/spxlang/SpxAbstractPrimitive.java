@@ -49,21 +49,22 @@ public abstract class SpxAbstractPrimitive extends AbstractPrimitive{
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) throws InterpreterException {
 		boolean successStatement = false;
 		IOAgent agent = SSLLibrary.instance(env).getIOAgent();
+		String projectPath = Tools.asJavaString(getProjectPath(tvars));
+		
 		try {
 			validateArguments(env, svars, tvars);
 			successStatement = executePrimitive(env, svars, tvars) ;
 		}
 		catch (Exception ex) {
-			
 			if (!( ex instanceof SpxSymbolTableException)) 
-				logException(agent , ex);
+				logException(projectPath , agent , ex);
 			
 			if( ex instanceof IOException ||  ex instanceof IllegalStateException){
 				tryCleanupResources( index.getFacadeRegistry() ,  getProjectPath(tvars) , agent);
 			}
 		}
 		catch (Error e) {
-			logException(agent , e);
+			logException(projectPath, agent , e);
 			tryCleanupResources( index.getFacadeRegistry() ,  getProjectPath(tvars) , agent);
 			throw e;
 		}
@@ -92,15 +93,15 @@ public abstract class SpxAbstractPrimitive extends AbstractPrimitive{
 		agent.printError("[" + this.getName() + "] " + message);
 	}
 		
-	void logException(IOAgent agent , Throwable ex){
-		agent.printError("[" + this.getName() + "]  Invocation failed . "
+	void logException(String projectPath , IOAgent agent , Throwable ex){
+		agent.printError("[" + this.getName() + "]  Invocation failed for following project : "+ projectPath +". "
 									+ ex.getClass().getSimpleName()
 									+ " | error message: " + ex.getMessage()
 									+ " | stack track : "+ getStackTrace(ex));
 	}
 	
 	
-	 public static String getStackTrace(Throwable aThrowable) {
+	public static String getStackTrace(Throwable aThrowable) {
 		    final Writer result = new StringWriter();
 		    final PrintWriter printWriter = new PrintWriter(result);
 		    if(aThrowable == null) 

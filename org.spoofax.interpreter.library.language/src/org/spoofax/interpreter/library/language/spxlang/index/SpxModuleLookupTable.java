@@ -221,6 +221,7 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 	
 	//TODO : save it as binary serialized format
 	private SpxModuleLookupTable addAnalyzedModuleDefinition(SpxSemanticIndexFacade f, IStrategoList id, IStrategoAppl moduleDefinition) throws IOException{
+		
 		_moduleAnalyzedDefinition.put(id, SpxIndexUtils.serializeToString(f.getTermAttachmentSerializer(), moduleDefinition));
 		
 		return this;

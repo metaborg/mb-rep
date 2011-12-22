@@ -61,18 +61,15 @@ public abstract class IdentifiableConstruct implements Serializable
 		IStrategoAppl packageRef = (IStrategoAppl)i;
 		if( packageRef.getConstructor() ==  idxFacade.getCons().getPackageQNameCon()){
 			IStrategoList id = PackageDeclaration.getPackageId(idxFacade, packageRef);
-			PackageDeclaration decl = idxFacade.lookupPackageDecl(id);
-			if((decl != null) && (!SpxSymbol.verifyEquals(this.id, id))){	
+			if(!SpxSymbol.verifyEquals(this.id, id)){	
 				this.importReferences.add(id);
-				decl.addImportedTo(this.getId());
-				idxFacade.getPersistenceManager().spxPackageTable().definePackageDeclaration(decl);
 			}
 		}
 		else 
 			throw new NotImplementedException("Unknown Import Reference. Not implemented for : " + packageRef.toString());
 	}
 	
-	protected IStrategoTerm tranformToSpxImport(SpxSemanticIndexFacade idxFacade, IStrategoTerm i){
+	public static IStrategoTerm tranformToSpxImport(SpxSemanticIndexFacade idxFacade, IStrategoTerm i){
 		IStrategoTerm retTerm = i ; 
 		if( i instanceof IStrategoList)
 			retTerm = PackageDeclaration.toPackageQNameAppl(idxFacade, (IStrategoList)i);
