@@ -61,14 +61,11 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 		this._agent = spxSemanticIndexFacade.getIOAgent();
 		this._indexId = spxSemanticIndexFacade.getIndexId() ;
 		
-		//BaseRecordManager.DEFAULT_RELATIVE_PATH_INDEX = spxSemanticIndexFacade.getProjectPath()+ "/" + Utils.SPX_INDEX_DIRECTORY+ "/" + _indexId + ".idx";
-
-		final String relPath = spxSemanticIndexFacade.getProjectPath()+ "/" + SpxIndexConfiguration.SPX_INDEX_DIRECTORY+ "/" + _indexId + ".idx";
 		if( options  == null)
 			options = new Properties();// Creating empty properties collection if it is null
 		
 		//setting properties of RecordManager
-		options.put(RecordManagerOptions.INDEX_RELATIVE_PATH_OPTION, relPath);
+		options.put(RecordManagerOptions.INDEX_RELATIVE_PATH_OPTION, spxSemanticIndexFacade.getProjectPath()+ "/" + SpxIndexConfiguration.SPX_INDEX_DIRECTORY+ "/" );
 		options.put(RecordManagerOptions.CACHE_TYPE, "soft");
 		options.put(RecordManagerOptions.DISABLE_TRANSACTIONS, "false");
 		

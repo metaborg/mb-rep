@@ -252,22 +252,21 @@ public final class BaseRecordManager
     }
 
 	private void reopen() throws IOException {
-		_physFileFree = new RecordFile(_filename + DBF, FREE_BLOCK_SIZE,
-				_indexDirRelativePathString);
+		_physFileFree = new RecordFile(_filename + DBF, FREE_BLOCK_SIZE, _indexDirRelativePathString);
 
 		_physPagemanFree = new PageManager(_physFileFree);
-		_physFile = new RecordFile(_filename + DBR, DATA_BLOCK_SIZE);
+		_physFile = new RecordFile(_filename + DBR, DATA_BLOCK_SIZE, _indexDirRelativePathString);
 		_physPageman = new PageManager(_physFile);
 		_physMgr = new PhysicalRowIdManager(_physFile, _physPageman,
 				new FreePhysicalRowIdPageManager(_physFileFree,
 						_physPagemanFree, appendToEnd));
 
-		_logicFileFree = new RecordFile(_filename + IDF, FREE_BLOCK_SIZE);
+		_logicFileFree = new RecordFile(_filename + IDF, FREE_BLOCK_SIZE, _indexDirRelativePathString);
 		_logicPagemanFree = new PageManager(_logicFileFree);
 		if (TRANS_BLOCK_SIZE > 256 * 8)
 			throw new InternalError(); // to big page, slot number would not fit
 										// into page
-		_logicFile = new RecordFile(_filename + IDR, TRANS_BLOCK_SIZE);
+		_logicFile = new RecordFile(_filename + IDR, TRANS_BLOCK_SIZE, _indexDirRelativePathString);
 		_logicPageman = new PageManager(_logicFile);
 		_logicMgr = new LogicalRowIdManager(_logicFile, _logicPageman,
 				new FreeLogicalRowIdPageManager(_logicFileFree,
