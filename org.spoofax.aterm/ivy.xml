@@ -1,9 +1,0 @@
-<ivy-module version="1.3">
-    <info organisation="spoofax" 
-          module="spoofax-aterm"
-          revision="0.2.1"/>
-    <dependencies>
-        <dependency org="cwi" name="shared-objects" rev="1.4"/>
-        <dependency org="cwi" name="jjtraveler" rev="0.4.3"/>
-    </dependencies>
-</ivy-module>
