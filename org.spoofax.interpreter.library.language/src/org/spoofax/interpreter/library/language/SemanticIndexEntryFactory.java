@@ -23,7 +23,9 @@ public class SemanticIndexEntryFactory {
 
 	private final IStrategoConstructor defCon;
 
-	private final IStrategoConstructor useCon;
+	private final IStrategoConstructor useCon1;
+
+	private final IStrategoConstructor useCon2;
 
 	private final IStrategoConstructor defDataCon;
 
@@ -35,7 +37,8 @@ public class SemanticIndexEntryFactory {
 		this.termFactory = termFactory;
 		this.stripper = new TermAttachmentStripper(termFactory);
 		defCon = termFactory.makeConstructor("Def", 1);
-		useCon = termFactory.makeConstructor("Use", 1);
+		useCon1 = termFactory.makeConstructor("Use", 1);
+		useCon2 = termFactory.makeConstructor("Use", 2);
 		defDataCon = termFactory.makeConstructor("DefData", 3);
 		badDefCon = termFactory.makeConstructor("BadDef", 1);
 		badUseCon = termFactory.makeConstructor("BadUse", 1);
@@ -95,8 +98,8 @@ public class SemanticIndexEntryFactory {
 		IStrategoConstructor type = entry.getConstructor();
 		if (type == defCon || type == badDefCon) {
 			return defCon;
-		} else if (type == useCon || type == badUseCon) {
-			return useCon;
+		} else if (type == useCon1 || type == useCon2 || type == badUseCon) {
+			return useCon2;
 		} else if (type == defDataCon) {
 			return entry.getSubterm(1);
 		} else {

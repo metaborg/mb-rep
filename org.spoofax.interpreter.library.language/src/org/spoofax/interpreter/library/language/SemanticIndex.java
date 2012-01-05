@@ -1,7 +1,6 @@
 package org.spoofax.interpreter.library.language;
 
 import java.io.File;
-import java.io.Writer;
 import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
