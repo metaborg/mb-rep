@@ -1,10 +1,8 @@
 package org.spoofax.interpreter.library.language;
 
-import static org.spoofax.interpreter.core.Tools.asJavaString;
-import static org.spoofax.interpreter.core.Tools.isTermString;
+import static org.spoofax.interpreter.core.Tools.isTermAppl;
 
-import java.net.URI;
-
+import org.spoofax.NotImplementedException;
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.library.AbstractPrimitive;
 import org.spoofax.interpreter.stratego.Strategy;
@@ -13,22 +11,24 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-public class LANG_index_is_indexed_file extends AbstractPrimitive {
+public class LANG_index_get_for_name extends AbstractPrimitive {
 
-	private static String NAME = "LANG_index_is_indexed_file";
+	private static String NAME = "LANG_index_get_for_name";
 	
 	private final SemanticIndexManager index;
 	
-	public LANG_index_is_indexed_file(SemanticIndexManager index) {
+	public LANG_index_get_for_name(SemanticIndexManager index) {
 		super(NAME, 0, 1);
 		this.index = index;
 	}
 
 	@Override
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
-		if (isTermString(tvars[0])) {
-			URI file = index.getCurrent().toFileURI(asJavaString(tvars[0]));
-			return index.getCurrent().isIndexed(file);
+		if (isTermAppl(tvars[0])) {
+			throw new NotImplementedException();
+			/*IStrategoAppl template = (IStrategoAppl) tvars[0];
+			env.setCurrent(index.getCurrent().getTerms(template));
+			return true; */
 		} else {
 			return false;
 		}

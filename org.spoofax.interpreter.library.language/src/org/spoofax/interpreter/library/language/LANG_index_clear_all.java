@@ -12,16 +12,16 @@ public class LANG_index_clear_all extends AbstractPrimitive {
 
 	private static String NAME = "LANG_index_clear_all";
 	
-	private final SemanticIndex index;
+	private final SemanticIndexManager index;
 	
-	public LANG_index_clear_all(SemanticIndex index) {
+	public LANG_index_clear_all(SemanticIndexManager index) {
 		super(NAME, 0, 0);
 		this.index = index;
 	}
 
 	@Override
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
-		index.clear();
+		index.getCurrent().clear();
 		return true;
 	}
 }

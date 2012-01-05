@@ -17,9 +17,9 @@ public class LANG_index_clear_file extends AbstractPrimitive {
 
 	private static String NAME = "LANG_index_clear_file";
 	
-	private final SemanticIndex index;
+	private final SemanticIndexManager index;
 	
-	public LANG_index_clear_file(SemanticIndex index) {
+	public LANG_index_clear_file(SemanticIndexManager index) {
 		super(NAME, 0, 1);
 		this.index = index;
 	}
@@ -27,8 +27,8 @@ public class LANG_index_clear_file extends AbstractPrimitive {
 	@Override
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
 		if (isTermString(tvars[0])) {
-			URI file = index.toFileURI(asJavaString(tvars[0]));
-			index.clear(file);
+			URI file = index.getCurrent().toFileURI(asJavaString(tvars[0]));
+			index.getCurrent().clear(file);
 			return true;
 		} else {
 			return false;

@@ -15,9 +15,9 @@ public class LANG_index_get extends AbstractPrimitive {
 
 	private static String NAME = "LANG_index_get";
 	
-	private final SemanticIndex index;
+	private final SemanticIndexManager index;
 	
-	public LANG_index_get(SemanticIndex index) {
+	public LANG_index_get(SemanticIndexManager index) {
 		super(NAME, 0, 1);
 		this.index = index;
 	}
@@ -26,7 +26,7 @@ public class LANG_index_get extends AbstractPrimitive {
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
 		if (isTermAppl(tvars[0])) {
 			IStrategoAppl template = (IStrategoAppl) tvars[0];
-			env.setCurrent(index.getTerms(template));
+			env.setCurrent(index.getCurrent().getTerms(template));
 			return true;
 		} else {
 			return false;

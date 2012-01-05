@@ -19,9 +19,9 @@ public class LANG_index_add extends AbstractPrimitive {
 
 	private static String NAME = "LANG_index_add";
 	
-	private final SemanticIndex index;
+	private final SemanticIndexManager index;
 	
-	public LANG_index_add(SemanticIndex index) {
+	public LANG_index_add(SemanticIndexManager index) {
 		super(NAME, 0, 2);
 		this.index = index;
 	}
@@ -30,8 +30,8 @@ public class LANG_index_add extends AbstractPrimitive {
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
 		if (isTermAppl(tvars[0]) && isTermString(tvars[1])) {
 			IStrategoAppl entry = (IStrategoAppl) tvars[0];
-			URI file = index.toFileURI(asJavaString(tvars[1]));
-			index.add(entry, file);
+			URI file = index.getCurrent().toFileURI(asJavaString(tvars[1]));
+			index.getCurrent().add(entry, file);
 			return true;
 		} else {
 			return false;

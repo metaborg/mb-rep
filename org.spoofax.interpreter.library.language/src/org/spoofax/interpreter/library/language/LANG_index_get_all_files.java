@@ -19,16 +19,16 @@ public class LANG_index_get_all_files extends AbstractPrimitive {
 
 	private static String NAME = "LANG_index_all_files";
 	
-	private final SemanticIndex index;
+	private final SemanticIndexManager index;
 	
-	public LANG_index_get_all_files(SemanticIndex index) {
+	public LANG_index_get_all_files(SemanticIndexManager index) {
 		super(NAME, 0, 1);
 		this.index = index;
 	}
 
 	@Override
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
-		Set<URI> allFiles = index.getAllFiles();
+		Set<URI> allFiles = index.getCurrent().getAllFiles();
 		ITermFactory factory = env.getFactory();
 		IStrategoList results = factory.makeList();
 		for (URI file : allFiles) {

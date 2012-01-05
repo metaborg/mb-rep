@@ -283,6 +283,10 @@ public class SemanticIndex {
 	}
 	
 	public URI toFileURI(String path) {
+		return toFileURI(path, agent);
+	}
+
+	public static URI toFileURI(String path, IOAgent agent) {
 		File file = new File(path);
 		return file.isAbsolute()
 			? file.toURI()

@@ -17,9 +17,9 @@ public class LANG_index_get_files_of extends AbstractPrimitive {
 
 	private static String NAME = "LANG_index_get_file_of";
 	
-	private final SemanticIndex index;
+	private final SemanticIndexManager index;
 	
-	public LANG_index_get_files_of(SemanticIndex index) {
+	public LANG_index_get_files_of(SemanticIndexManager index) {
 		super(NAME, 0, 1);
 		this.index = index;
 	}
@@ -28,11 +28,11 @@ public class LANG_index_get_files_of extends AbstractPrimitive {
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
 		if (isTermAppl(tvars[0])) {
 			IStrategoAppl template = (IStrategoAppl) tvars[0];
-			SemanticIndexEntry entry = index.getEntry(template);
+			SemanticIndexEntry entry = index.getCurrent().getEntry(template);
 			if (entry == null) return false;
 			
 			if (entry.getTail() == null) {
-				String file = index.fromFileURI(entry.getFile());
+				String file = index.getCurrent().fromFileURI(entry.getFile());
 				IStrategoTerm result = env.getFactory().makeString(file);
 				IStrategoList results = env.getFactory().makeListCons(result, env.getFactory().makeList());
 				env.setCurrent(results);

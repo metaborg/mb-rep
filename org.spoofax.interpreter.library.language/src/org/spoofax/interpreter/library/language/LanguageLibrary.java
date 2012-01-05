@@ -13,7 +13,7 @@ public class LanguageLibrary extends AbstractStrategoOperatorRegistry {
 
 	public LanguageLibrary() {
 		
-		SemanticIndex index = new SemanticIndex();
+		SemanticIndexManager index = new SemanticIndexManager();
 		add(new LANG_index_add(index));
 		add(new LANG_index_clear_all(index));
 		add(new LANG_index_clear_file(index));
@@ -25,7 +25,6 @@ public class LanguageLibrary extends AbstractStrategoOperatorRegistry {
 		add(new LANG_index_is_indexed_file(index));
 		add(new LANG_index_setup(index));
 		add(new LANG_get_all_projects_in_Workspace());
-		
 		
 		addSpxIndexPrimitives();
 	}
