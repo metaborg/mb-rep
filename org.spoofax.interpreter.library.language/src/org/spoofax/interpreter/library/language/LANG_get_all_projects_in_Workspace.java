@@ -21,7 +21,7 @@ import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 
 /**
- * @author Lennart Kats <lennart add lclnet.nl>
+ * @author Md. Adil Akhter <md.adilakhter add gmail.com>
  */
 public class LANG_get_all_projects_in_Workspace extends AbstractPrimitive {
 
@@ -39,16 +39,18 @@ public class LANG_get_all_projects_in_Workspace extends AbstractPrimitive {
 		IStrategoList results = factory.makeList();
 		
 		for (IProject project: projects) {
-			IStrategoString projectName =factory.makeString( project.getName());
-			IStrategoString projectPath =factory.makeString( project.getLocation().toString());
-			
-			// Creating tuple for each project entry. Tuple contains project name and project path.
-			IStrategoTuple result = factory.makeTuple(
-					projectName ,
-					projectPath
-			);		
-			// Adding it to the head of the list 
-			results = factory.makeListCons(result, results);
+			if( project.isOpen()){
+				IStrategoString projectName =factory.makeString( project.getName());
+				IStrategoString projectPath =factory.makeString( project.getLocation().toString());
+				
+				// Creating tuple for each project entry. Tuple contains project name and project path.
+				IStrategoTuple result = factory.makeTuple(
+						projectName ,
+						projectPath
+				);		
+				// Adding it to the head of the list 
+				results = factory.makeListCons(result, results);
+			}
 		}
 		env.setCurrent(results);
 		return true;
