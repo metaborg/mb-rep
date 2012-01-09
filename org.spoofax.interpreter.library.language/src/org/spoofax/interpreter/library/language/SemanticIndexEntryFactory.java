@@ -29,8 +29,6 @@ public class SemanticIndexEntryFactory {
 
 	private final IStrategoConstructor defDataCon;
 
-	private final IStrategoConstructor badDefCon;
-
 	private final IStrategoConstructor badUseCon;
 
 	public SemanticIndexEntryFactory(ITermFactory termFactory) {
@@ -40,7 +38,6 @@ public class SemanticIndexEntryFactory {
 		useCon1 = termFactory.makeConstructor("Use", 1);
 		useCon2 = termFactory.makeConstructor("Use", 2);
 		defDataCon = termFactory.makeConstructor("DefData", 3);
-		badDefCon = termFactory.makeConstructor("BadDef", 1);
 		badUseCon = termFactory.makeConstructor("BadUse", 1);
 	}
 	
@@ -96,12 +93,10 @@ public class SemanticIndexEntryFactory {
 	
 	public IStrategoTerm getEntryType(IStrategoAppl entry) {
 		IStrategoConstructor type = entry.getConstructor();
-		if (type == defCon || type == badDefCon) {
-			return defCon;
-		} else if (type == useCon1 || type == useCon2 || type == badUseCon) {
-			return useCon2;
-		} else if (type == defDataCon) {
+		if (type == defDataCon) {
 			return entry.getSubterm(1);
+		} else if (type == defCon || type == useCon1 || type == useCon2 || type == badUseCon) {
+			return type;
 		} else {
 			throw new IllegalArgumentException("Illegal index entry: " + entry);
 		}

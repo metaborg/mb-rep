@@ -104,7 +104,8 @@ public class SemanticIndexEntry {
 	}
 	
 	/**
-	 * Returns a term representation of this entry.
+	 * Returns a term representation of this entry,
+	 * ignoring its tail.
 	 * (Null for {@link SemanticIndexEntryParent} terms.)
 	 */
 	public IStrategoAppl toTerm(SemanticIndexEntryFactory factory) {
@@ -121,6 +122,41 @@ public class SemanticIndexEntry {
 			term = terms.makeAppl(factory.getDefDataCon(), namespaceId, type, data);
 		}
 		return forceImploderAttachment(term);
+	}
+
+	/**
+	 * Returns a term representation of this entry and its tail as a list.
+	 * (Null for {@link SemanticIndexEntryParent} terms.)
+	 */
+	public final IStrategoList toTerms(SemanticIndexEntryFactory factory) {
+		IStrategoList results = factory.getTermFactory().makeList();
+		return toTerms(factory, results);
+	}
+
+	protected IStrategoList toTerms(SemanticIndexEntryFactory factory, IStrategoList results) {
+		ITermFactory termFactory = factory.getTermFactory();
+		IStrategoAppl result = toTerm(factory);
+		results = termFactory.makeListCons(result, results);
+		List<SemanticIndexEntry> tail = getTail();
+		
+		for (int i = 0, max = tail.size(); i < max; i++) {
+			result = tail.get(i).toTerm(factory);
+			results = termFactory.makeListCons(result, results);
+		}
+		
+		return results;
+	}
+	
+	/**
+	 * Returns a term representation of these entries their tails as a list.
+	 * (Null for {@link SemanticIndexEntryParent} terms.)
+	 */
+	public static IStrategoList toTerms(SemanticIndexEntryFactory factory, Iterable<SemanticIndexEntry> entries) {
+		IStrategoList results = factory.getTermFactory().makeList();
+		for (SemanticIndexEntry entry : entries) {
+			results = entry.toTerms(factory, results);
+		}
+		return results;
 	}
 
 	/**

@@ -151,30 +151,13 @@ public class SemanticIndex {
 		return result;
 	}
 	
-	public IStrategoList getTerms(IStrategoAppl template) {
-		IStrategoList results = termFactory.makeList();
-		SemanticIndexEntry entry = getEntry(template);
-		if (entry == null) return results;
-		
-		IStrategoAppl result = entry.toTerm(factory);
-		results = termFactory.makeListCons(result, results);
-		List<SemanticIndexEntry> tail = entry.getTail();
-		
-		for (int i = 0, max = tail.size(); i < max; i++) {
-			result = tail.get(i).toTerm(factory);
-			results = termFactory.makeListCons(result, results);
-		}
-		
-		return results;
-	}
-	
 	/**
 	 * Returns an entry in the index that matches the given template.
 	 * Note that the result can have a 'tail' with other matching entries.
 	 */
-	public SemanticIndexEntry getEntry(IStrategoAppl template) {
+	public SemanticIndexEntry getEntries(IStrategoAppl template) {
 		ensureInitialized();
-		return getEntry(factory.getEntryType(template),
+		return getEntries(factory.getEntryType(template),
 				factory.getEntryNamespace(template),
 				factory.getEntryId(template),
 				factory.getEntryData(template) != null
@@ -185,7 +168,7 @@ public class SemanticIndex {
 	 * Returns an entry in the index that matches the given type and id.
 	 * Note that the result can have a 'tail' with other matching entries.
 	 */
-	private SemanticIndexEntry getEntry(IStrategoTerm type, IStrategoTerm namespace, IStrategoList id, boolean isDataEntry) {
+	private SemanticIndexEntry getEntries(IStrategoTerm type, IStrategoTerm namespace, IStrategoList id, boolean isDataEntry) {
 		entryTemplate.internalReinit(type, namespace, id, isDataEntry ? factory.getDefDataCon() : null);
 		return table.get(entryTemplate);
 	}
@@ -251,7 +234,7 @@ public class SemanticIndex {
 	 * Gets the {@link SemanticIndexEntryParent} with the given identifier.
 	 */
 	private SemanticIndexEntryParent getEntryParentAt(IStrategoTerm namespace, IStrategoList id) {
-		return (SemanticIndexEntryParent) getEntry(SemanticIndexEntryParent.TYPE, namespace, id, false);
+		return (SemanticIndexEntryParent) getEntries(SemanticIndexEntryParent.TYPE, namespace, id, false);
 	}
 	
 	public void clear() {
@@ -268,6 +251,13 @@ public class SemanticIndex {
 		for (SemanticIndexEntry entry : copy) {
 			remove(entry);
 		}
+	}
+	
+	public Set<SemanticIndexEntry> getEntries(URI file) {
+		Set<SemanticIndexEntry> fileSet = fileTable.get(file);
+		if (fileSet == null)
+			return Collections.emptySet();
+		return fileSet;
 	}
 	
 	public boolean isIndexed(URI file) {

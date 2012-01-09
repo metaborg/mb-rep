@@ -26,7 +26,8 @@ public class LANG_index_get extends AbstractPrimitive {
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
 		if (isTermAppl(tvars[0])) {
 			IStrategoAppl template = (IStrategoAppl) tvars[0];
-			env.setCurrent(index.getCurrent().getTerms(template));
+			SemanticIndex ind = index.getCurrent();
+			env.setCurrent(ind.getEntries(template).toTerms(ind.getFactory()));
 			return true;
 		} else {
 			return false;

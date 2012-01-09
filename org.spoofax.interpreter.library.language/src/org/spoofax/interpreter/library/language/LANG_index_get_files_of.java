@@ -28,7 +28,7 @@ public class LANG_index_get_files_of extends AbstractPrimitive {
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
 		if (isTermAppl(tvars[0])) {
 			IStrategoAppl template = (IStrategoAppl) tvars[0];
-			SemanticIndexEntry entry = index.getCurrent().getEntry(template);
+			SemanticIndexEntry entry = index.getCurrent().getEntries(template);
 			if (entry == null) return false;
 			
 			if (entry.getTail() == null) {
