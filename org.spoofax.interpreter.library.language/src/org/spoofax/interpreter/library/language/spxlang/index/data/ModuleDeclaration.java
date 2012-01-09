@@ -42,12 +42,24 @@ public class ModuleDeclaration extends IdentifiableConstruct implements INamespa
 	 * @see org.spoofax.interpreter.library.language.spxlang.IdentifiableConstruct#getFileLocation()
 	 */
 	@Override 
-	protected String getFileLocation() {
+	protected String getLocation() {
 		return resourceAbsPath;
 	}
 
 
+	/**
+	 * @param tf
+	 * @param decls
+	 * @return
+	 */
+	IStrategoTerm getIndexSummary(ITermFactory tf) {
+		
+		IStrategoString mId =tf.makeString(this.getIdString()) ;
+		IStrategoString mLoc = tf.makeString(this.getLocation());
+			
+		return tf.makeTuple(mId, mLoc);
 	
+	}
 	
 	public static IStrategoList getModuleId(SpxSemanticIndexFacade facade, IStrategoAppl moduleQName ){
 		IStrategoConstructor moduleCon  = facade.getCons().getModuleQNameCon();
@@ -99,7 +111,7 @@ public class ModuleDeclaration extends IdentifiableConstruct implements INamespa
 		NamespaceUri namespaceUri = table.toNamespaceUri(id) ;
 		NamespaceUri packageUri = table.toNamespaceUri(enclosingPackageID) ;
 		
-		namespaces.add(ModuleNamespace.createInstance(namespaceUri, packageUri,idxFacade, getFileLocation()));
+		namespaces.add(ModuleNamespace.createInstance(namespaceUri, packageUri,idxFacade, getLocation()));
 		
 		return namespaces; 
 	}

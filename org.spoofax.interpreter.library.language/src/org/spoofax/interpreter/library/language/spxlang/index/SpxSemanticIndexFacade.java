@@ -304,6 +304,8 @@ public class SpxSemanticIndexFacade {
 		
 		IStrategoList packageId = PackageDeclaration.getPackageId(this, packageIdAppl);
 		
+		if( packageId.size() == 0){ throw new IllegalArgumentException("Illegal Package ID. Found 0 SubTerms in Package's Qualified name.") ;}
+		
 		//verify valid package URI. Checking whether compilation unit exist with this URI
 		// in compilation unit table.
 		spxCompilationUnitPath  = (IStrategoString)toCompactPositionInfo((IStrategoTerm)spxCompilationUnitPath);
@@ -798,6 +800,27 @@ public class SpxSemanticIndexFacade {
 		return result;
 	}
 	
+
+	public IStrategoTerm getIndexSummary() throws SpxSymbolTableException {
+	
+		ITermFactory termFactory =  this.getTermFactory();
+		ISpxPersistenceManager manager = this.getPersistenceManager();
+		
+		Set<PackageDeclaration> packageDeclarations= manager.spxPackageTable().getPackageDeclarations();
+	
+		IStrategoList result = termFactory .makeList();
+		for (PackageDeclaration p : packageDeclarations){
+		
+			Iterable<ModuleDeclaration> mDecls = manager.spxModuleTable().getModuleDeclarationsByPackageId(p.getId());
+			
+			result = termFactory.makeListCons( p.getIndexSummary(termFactory, mDecls), result);
+		}
+		
+		return result;
+	}
+	
+	
+
 	/**
 	 * Returns {@link ModuleDeclaration} indexed with Module Id - {@code moduleTypeQName}  
 	 * 
@@ -937,8 +960,7 @@ public class SpxSemanticIndexFacade {
 		return result;
 	}	
 	
-	public Iterable<ModuleDeclaration> getModuleDeclarations(IStrategoList pacakgeID) throws SpxSymbolTableException
-	{
+	public Iterable<ModuleDeclaration> getModuleDeclarations(IStrategoList pacakgeID) {
 		SpxModuleLookupTable table = getPersistenceManager().spxModuleTable();
 		this.getPersistenceManager().spxPackageTable().verifyPackageIDExists(pacakgeID) ;
 		

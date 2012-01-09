@@ -432,6 +432,7 @@ public class SpxLookupTableUnitTests  extends SpxIndexBaseTestCase{
 		
 		IStrategoList pId = f.makeList(f.makeString("test"));
 		IStrategoList pId2 = f.makeList(f.makeString("test2"));
+		IStrategoList pId3 = f.makeList(f.makeString("test3"));
 		
 		//module declaration 
 		IStrategoList idm1 = f.makeList(f.makeString("test") , f.makeString("m1"));
@@ -466,10 +467,12 @@ public class SpxLookupTableUnitTests  extends SpxIndexBaseTestCase{
 		manager.commit();
 		
 		
-		ArrayList<ModuleDeclaration> modulesByPackageID 
-			= (ArrayList<ModuleDeclaration>)lookupTable.getModuleDeclarationsByPackageId(pId);
+		ArrayList<ModuleDeclaration> modulesByPackageID	= (ArrayList<ModuleDeclaration>)lookupTable.getModuleDeclarationsByPackageId(pId);
 		
 		assertEquals(2, modulesByPackageID.size());
+		
+		modulesByPackageID	= (ArrayList<ModuleDeclaration>)lookupTable.getModuleDeclarationsByPackageId(pId3);
+		assertEquals(0, modulesByPackageID.size());
 	}
 	
 	public void testShouldReturnModuleDeclarationByFilePath() throws IOException

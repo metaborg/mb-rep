@@ -13,7 +13,6 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
-import org.spoofax.interpreter.terms.TermConverter;
 
 public class PackageDeclaration extends IdentifiableConstruct implements INamespaceFactory
 {
@@ -25,8 +24,8 @@ public class PackageDeclaration extends IdentifiableConstruct implements INamesp
 	private final Set<String> resourceAbsPaths = new HashSet<String>();
 	
 	public PackageDeclaration(String resourceAbsPath, IStrategoList id) {
-		super(id);
 		
+		super(id);
 		resourceAbsPaths.add(resourceAbsPath); 
 	}
 	
@@ -35,17 +34,12 @@ public class PackageDeclaration extends IdentifiableConstruct implements INamesp
 	 * 
 	 * @param id
 	 */
-	PackageDeclaration(IStrategoList id){
-		super(id);
-	}
+	PackageDeclaration(IStrategoList id){ super(id); }
 	
 	
 	public void addFileUri(String resAbsolutePath){
 		resourceAbsPaths.add(resAbsolutePath);
 	}
-	
-		
-
 	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
@@ -181,4 +175,22 @@ public class PackageDeclaration extends IdentifiableConstruct implements INamesp
 	public Iterable<INamespace> newNamespaces(SpxSemanticIndexFacade idxFacade) {
 		return PackageNamespace.createInstances(id , idxFacade);
 	}
+	
+	
+	public IStrategoTerm getIndexSummary(ITermFactory tf , Iterable<ModuleDeclaration> decls){
+		IStrategoList modulesSnapshot = tf.makeList();
+		for(ModuleDeclaration m : decls){
+			IStrategoTerm mTerm = m.getIndexSummary(tf);
+			modulesSnapshot = tf.makeListCons( mTerm, modulesSnapshot);
+		}
+
+		IStrategoList importRefs = tf.makeList();
+		for( IStrategoList importRef : this.getImportReferneces()){
+			importRefs = tf.makeListCons(tf.makeString(toString(importRef, ".")), importRefs);
+		}
+		
+		return tf.makeTuple( new IStrategoTerm[]{ tf.makeString(this.getIdString()), importRefs , modulesSnapshot});
+	}
+
+	
 }

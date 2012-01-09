@@ -5,10 +5,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.spoofax.NotImplementedException;
+import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxSemanticIndexFacade;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.interpreter.terms.TermConverter;
@@ -18,11 +20,11 @@ import org.spoofax.terms.StrategoListIterator;
 public abstract class IdentifiableConstruct implements Serializable
 {
 	private static final long serialVersionUID = 1055862481052307186L;
-	
+
 	protected final IStrategoList id;
 	protected final Set<IStrategoList> importReferences; 
 	protected final Set<IStrategoTerm> legacyImportReferences;
-	
+
 	public IdentifiableConstruct(IStrategoList id) {
 		assert id != null :  " ID can not be null " ;
 
@@ -30,11 +32,11 @@ public abstract class IdentifiableConstruct implements Serializable
 		this.importReferences = new HashSet<IStrategoList>();
 		this.legacyImportReferences = new HashSet<IStrategoTerm>();
 	}
-	
+
 	public IStrategoList getId(){ return id; }  
-	
+
 	public abstract IStrategoTerm toTerm(SpxSemanticIndexFacade idxFacade);
-	
+
 	public void addImportRefernces (SpxSemanticIndexFacade idxFacade, IStrategoList  imports) throws NotImplementedException, SpxSymbolTableException {
 		for (IStrategoTerm i: StrategoListIterator.iterable(imports)) {
 			if(i instanceof IStrategoAppl)
@@ -43,7 +45,6 @@ public abstract class IdentifiableConstruct implements Serializable
 				addLegacyImport(i);
 		}
 	}
-
 	/**
 	 * @param i
 	 */
@@ -68,7 +69,7 @@ public abstract class IdentifiableConstruct implements Serializable
 		else 
 			throw new NotImplementedException("Unknown Import Reference. Not implemented for : " + packageRef.toString());
 	}
-	
+
 	public static IStrategoTerm tranformToSpxImport(SpxSemanticIndexFacade idxFacade, IStrategoTerm i){
 		IStrategoTerm retTerm = i ; 
 		if( i instanceof IStrategoList)
@@ -76,49 +77,45 @@ public abstract class IdentifiableConstruct implements Serializable
 
 		return retTerm;	
 	}
-	
+
 	protected Set<IStrategoTerm> getEnclosedImportReferences(SpxSemanticIndexFacade idxFacade) throws SpxSymbolTableException { return new HashSet<IStrategoTerm>(); } 
-	
+
 	public Set<IStrategoList> getImportReferneces() { return importReferences; }
-	
+
 	public  IStrategoList getImports(SpxSemanticIndexFacade idxFacade) {	
 		ITermFactory termFactory = idxFacade.getTermFactory();
 		TermConverter termConverter = idxFacade.getTermConverter();
-		
+
 		HashSet<IStrategoTerm> allImportRefs = new HashSet<IStrategoTerm>();
 		allImportRefs.addAll(this.importReferences);
 		allImportRefs.addAll(this.legacyImportReferences);
-		
-		
+
 		IStrategoList result = termFactory.makeList();
 		for (IStrategoTerm t: allImportRefs){
 			result = idxFacade.getTermFactory().makeListCons(tranformToSpxImport(idxFacade,t), result);
 		}	
 		return termConverter.convert(result);
 	}
-	
 
-	
 	protected IStrategoTerm forceImploderAttachment(IStrategoTerm term) {
 		ImploderAttachment attach = ImploderAttachment.get(term);
 		if (attach != null) {
 			ImploderAttachment.putImploderAttachment(term, false, attach.getSort(), attach.getLeftToken(), attach.getRightToken());
 		} 
 		else {
-			String fn = getFileLocation();
+			String fn = getLocation();
 			term.putAttachment(ImploderAttachment.createCompactPositionAttachment(
 					fn, 0, 0, 0, -1));
 		}
 		return term;
 	} 
-	
+
 	/**
 	 * Returns the location of the construct 
 	 * 
 	 * @return {@link String} representing the absolute path of the  Construct
 	 */
-	protected String getFileLocation() { return null; }
-	
+	protected String getLocation() { return null; }
 
 	/**
 	 * Converts {@code id} to qualified name . If the given id is [id],
@@ -131,7 +128,7 @@ public abstract class IdentifiableConstruct implements Serializable
 	 */
 	static IStrategoAppl toIdTerm ( SpxSemanticIndexFacade facade , IStrategoConstructor namespaceCon, IStrategoList id){
 		ITermFactory factory = facade.getTermFactory();
-		
+
 		IStrategoConstructor qnameCons = facade.getCons().getQNameCon();
 		IStrategoAppl qnameAppl = factory.makeAppl(qnameCons, id);
 		return factory.makeAppl(namespaceCon, qnameAppl);
@@ -146,13 +143,12 @@ public abstract class IdentifiableConstruct implements Serializable
 	 * @return underlying {@link IStrategoList} qualified name
 	 */
 	public static IStrategoList getID(SpxSemanticIndexFacade facade, IStrategoAppl qName) {
-		
+
 		if(qName.getConstructor() == facade.getCons().getQNameCon())
 			return (IStrategoList)qName.getSubterm(0);
-		
+
 		throw new IllegalArgumentException("Invalid QName : " + qName);
 	}
-	
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
@@ -164,7 +160,7 @@ public abstract class IdentifiableConstruct implements Serializable
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		return result;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
@@ -172,12 +168,45 @@ public abstract class IdentifiableConstruct implements Serializable
 	public String toString() {
 		return "IdentifiableConstruct [id=" + id + "]";
 	}
+
+
+	public String getIdString(){
+		return getIdString(".");
+	}
+
 	
+	String getIdString(String seperator){
+		return toString( this.getId() , seperator);
+	}
+	
+	protected static String toString ( IStrategoList l , String seperator){
+		if ((seperator == null) || seperator.equals("")) 
+			throw new IllegalArgumentException("Illegal Seperator provided as argument. Expected : Non Null and Not Empty String.");
+		
+		if( l == null) { return "" ; }
+		
+		final StringBuilder sb = new StringBuilder();
+		for (IStrategoTerm i: StrategoListIterator.iterable(l)) {
+			if(!(i instanceof IStrategoString)){
+				throw new IllegalStateException("Only IStrategoString expected as a SubTerm of ID");
+			}
+			sb.append(Tools.asJavaString(i));
+			sb.append(seperator);
+		}	
+
+		// removing extra separator before returning string representation
+		if(sb.length() > 1){
+			return sb.substring(0, sb.length()-seperator.length());  
+		}
+		
+		return sb.toString();
+	} 
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
+
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -193,6 +222,4 @@ public abstract class IdentifiableConstruct implements Serializable
 			return false;
 		return true;
 	}
-
-
 }

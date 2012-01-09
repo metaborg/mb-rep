@@ -18,7 +18,6 @@ import org.spoofax.interpreter.library.language.spxlang.index.data.LanguageDescr
 import org.spoofax.interpreter.library.language.spxlang.index.data.ModuleDeclaration;
 import org.spoofax.interpreter.library.language.spxlang.index.data.PackageDeclaration;
 import org.spoofax.interpreter.library.language.spxlang.index.data.SpxCompilationUnitInfo;
-import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbolTableException;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
@@ -355,18 +354,14 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 
 	private boolean containsUri ( String absPath ) { return _moduleByFileAbsPath.containsKey(absPath);}
 	 
-	public Iterable<ModuleDeclaration> getModuleDeclarationsByPackageId(IStrategoList packageID) throws SpxSymbolTableException
-	{
+	public Iterable<ModuleDeclaration> getModuleDeclarationsByPackageId(IStrategoList packageID) {
 		List<ModuleDeclaration> ret = new ArrayList<ModuleDeclaration>();
 		
 		Iterable<IStrategoList> foundModuleDecls = _moduleByPackageId.get(packageID);
 		
-		if(foundModuleDecls  != null){
+		if(foundModuleDecls  != null)
 			for ( IStrategoList l: foundModuleDecls)
 				ret.add(_moduleByPackageId.getPrimaryValue(l));
-		}else{
-			throw new SpxSymbolTableException( "Unknown Package Id "+ packageID.toString());
-		}
 		
 		return ret;
 	}

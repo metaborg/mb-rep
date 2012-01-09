@@ -12,7 +12,6 @@ import org.spoofax.interpreter.library.language.LanguageLibrary;
 import org.spoofax.interpreter.library.language.spxlang.index.GlobalNamespace;
 import org.spoofax.interpreter.library.language.spxlang.index.INamespace;
 import org.spoofax.interpreter.library.language.spxlang.index.PackageNamespace;
-import org.spoofax.interpreter.library.language.spxlang.index.SpxIndexConfiguration;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxIndexUtils;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxPrimarySymbolTable;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxSemanticIndexFacade;
@@ -32,7 +31,7 @@ import org.spoofax.interpreter.terms.ITermFactory;
 
 public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 	
-	private final String _projectName = ".test-symbol-table_12";
+	private final String _projectName = ".index.spx.primarysymboltable.test";
 	
 	private IStrategoString projectNameTerm; 
 	private SpxSemanticIndexFacade _facade;
@@ -109,6 +108,33 @@ public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 		moduleDeclarationP2M1 = indexTestModuleDefs ( "p2m1" , packageName2 , absPathString2);
 	}
 	
+	public void testGetIDString() throws IOException, SpxSymbolTableException, URISyntaxException{
+		this.createExtendedScopeTree();
+		
+		String retValue = this.packageDeclaration1.getIdString();
+		
+		assertEquals("lang.p1", retValue);
+	}
+	
+	public void testGetIDStringWithEmptyID() throws IOException, SpxSymbolTableException, URISyntaxException{
+		this.createExtendedScopeTree();
+		
+		PackageDeclaration p1 = indexTestPackageDecl("\"\",\"\"", absPathString1);
+		
+		String retValue = p1.getIdString();
+		
+		assertEquals(".", retValue);
+	}
+	
+	public void testGetIndexSummary() throws IOException, SpxSymbolTableException, URISyntaxException{
+		
+		this.createExtendedScopeTree();
+		
+		
+		IStrategoTerm t = this._facade.getIndexSummary();
+		
+		t.writeAsString(System.out, Integer.MAX_VALUE);
+	}
 	
 	public void testRemovingPackageDeclarationShouldAlsoRemoveNamespace() throws IOException, SpxSymbolTableException, URISyntaxException{
 		
@@ -126,6 +152,8 @@ public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 		ns = _facade.getPersistenceManager().spxSymbolTable().resolveNamespace(packageDeclaration1.getId());
 		assertNull(ns);
 	}
+	
+	
 	
 	public void testRemovingModuleDeclarationShouldAlsoRemoveNamespace() throws IOException, SpxSymbolTableException, URISyntaxException{
 		

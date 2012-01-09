@@ -2,24 +2,19 @@ package org.spoofax.interpreter.library.language.spxlang.index;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import jdbm.InverseHashView;
 import jdbm.PrimaryHashMap;
 import jdbm.RecordListener;
 import jdbm.SecondaryHashMap;
 import jdbm.SecondaryKeyExtractor;
 
-import org.spoofax.interpreter.core.Tools;
-import org.spoofax.interpreter.library.language.spxlang.index.data.LanguageDescriptor;
 import org.spoofax.interpreter.library.language.spxlang.index.data.PackageDeclaration;
 import org.spoofax.interpreter.library.language.spxlang.index.data.SpxCompilationUnitInfo;
 import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoString;
 
 /**
  * SymbolTable for Spx Packages
@@ -206,8 +201,7 @@ public class SpxPackageLookupTable implements ICompilationUnitRecordListener{
 			this.definePackageDeclaration(decl); // redefining packagedeclaration
 			_manager.logMessage(SRC + ".removePackageDeclarationLocation", "removed "+ absPath + " from following package : "+ decl );
 		}
-		else
-			throw new IllegalArgumentException("Unknown PackageID : "+ pId);
+		
 		
 	}
 	
