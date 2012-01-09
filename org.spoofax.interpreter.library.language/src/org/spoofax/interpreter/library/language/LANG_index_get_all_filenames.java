@@ -15,13 +15,13 @@ import org.spoofax.interpreter.terms.ITermFactory;
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-public class LANG_index_get_all_files extends AbstractPrimitive {
+public class LANG_index_get_all_filenames extends AbstractPrimitive {
 
-	private static String NAME = "LANG_index_all_files";
+	private static String NAME = "LANG_index_all_filenames";
 	
 	private final SemanticIndexManager index;
 	
-	public LANG_index_get_all_files(SemanticIndexManager index) {
+	public LANG_index_get_all_filenames(SemanticIndexManager index) {
 		super(NAME, 0, 1);
 		this.index = index;
 	}
