@@ -9,7 +9,6 @@ package org.spoofax.interpreter.terms;
 
 import org.spoofax.terms.ParseError;
 import org.spoofax.terms.StringTermReader;
-import org.spoofax.terms.io.TAFTermReader;
 
 /**
  * 
