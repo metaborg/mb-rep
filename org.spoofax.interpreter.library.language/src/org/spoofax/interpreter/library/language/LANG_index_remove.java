@@ -33,10 +33,10 @@ public class LANG_index_remove extends AbstractPrimitive {
 			URI file = index.getCurrent().toFileURI(asJavaString(tvars[1]));
 			SemanticIndexEntry entry = index.getCurrent().getEntries(template);
 			if (entry != null) {
-				if (entry.getFile() == file)
+				if (entry.getFile().getURI() == file)
 					index.getCurrent().remove(entry);
 				for (SemanticIndexEntry tailEntry : entry.getTail()) {
-					if (tailEntry.getFile() == file) {
+					if (tailEntry.getFile().getURI() == file) {
 						index.getCurrent().remove(tailEntry);
 					}
 				}

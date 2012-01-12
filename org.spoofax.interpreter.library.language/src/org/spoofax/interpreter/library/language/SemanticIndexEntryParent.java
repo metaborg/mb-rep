@@ -16,7 +16,7 @@ import org.spoofax.terms.TermFactory;
  */
 public class SemanticIndexEntryParent extends SemanticIndexEntry {
 
-	public static final IStrategoConstructor TYPE =
+	public static final IStrategoConstructor CONSTRUCTOR =
 		new TermFactory().makeConstructor("<parent>", 1);
 
 	private final Set<SemanticIndexEntry> children =
@@ -25,7 +25,7 @@ public class SemanticIndexEntryParent extends SemanticIndexEntry {
 	private transient IStrategoList allDefsCached;
 	
 	protected SemanticIndexEntryParent(IStrategoTerm namespace, IStrategoList id) {
-		super(TYPE, namespace, id, null, null);
+		super(CONSTRUCTOR, namespace, id, null, null, null);
 	}
 	
 	@Override

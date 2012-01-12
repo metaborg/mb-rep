@@ -1,6 +1,5 @@
 package org.spoofax.interpreter.library.language;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,21 +10,24 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
+import org.spoofax.terms.Term;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 public class SemanticIndexEntry {
+	
+	private IStrategoConstructor constructor;
 
-	private IStrategoTerm type;
+	private IStrategoTerm namespace;
 	
 	private IStrategoList id;
 
-	private IStrategoTerm namespace;
+	private IStrategoTerm contentsType;
 
-	private IStrategoTerm data;
+	private IStrategoTerm contents;
 	
-	private URI file;
+	private SemanticIndexFile file;
 	
 	private List<SemanticIndexEntry> tail = null;
 	
@@ -35,19 +37,25 @@ public class SemanticIndexEntry {
 	 * @param namespace The namespace of the entry, e.g., 'Foo()'
 	 * @param id        The identifier of the entry, e.g., '["foo", Foo()]'
 	 */
-	protected SemanticIndexEntry(IStrategoTerm type, IStrategoTerm namespace,
-			IStrategoList id, IStrategoTerm data, URI file) {
-		this.type = type;
+	protected SemanticIndexEntry(IStrategoConstructor constructor, IStrategoTerm namespace,
+			IStrategoList id, IStrategoTerm contentsType, IStrategoTerm contents, SemanticIndexFile file) {
+		this.constructor = constructor;
 		this.id = id;
 		this.namespace = namespace;
-		this.data = data;
+		this.contentsType = contentsType;
+		this.contents = contents;
 		this.file = file;
-		assert id != null && namespace != null && id != null;
-		assert data != null || type instanceof IStrategoConstructor;
+		assert constructor != null && id != null && namespace != null;
+		assert contents != null || constructor.getArity() < 2 : "Contents can't be null for Use/2 or DefData/3";
+		assert contentsType == null || "DefData".equals(constructor.getName()) : "Contents type only expected for DefData";
+	}
+	
+	public IStrategoConstructor getConstructor() {
+		return constructor;
 	}
 	
 	public IStrategoTerm getType() {
-		return type;
+		return contentsType;
 	}
 	
 	public IStrategoList getId() {
@@ -58,11 +66,11 @@ public class SemanticIndexEntry {
 		return namespace;
 	}
 	
-	public IStrategoTerm getData() {
-		return data;
+	public IStrategoTerm getContents() {
+		return contents;
 	}
 	
-	public URI getFile() {
+	public SemanticIndexFile getFile() {
 		return file;
 	}
 	
@@ -74,7 +82,7 @@ public class SemanticIndexEntry {
 	}
 	
 	public boolean isParent() {
-		return type == SemanticIndexEntryParent.TYPE;
+		return constructor == SemanticIndexEntryParent.CONSTRUCTOR;
 	}
 	
 	public void setTail(List<SemanticIndexEntry> tail) {
@@ -96,11 +104,11 @@ public class SemanticIndexEntry {
 	 * Reinitialize this template. Used for maintaining a reusable lookup object
 	 * in the index.
 	 */
-	protected void internalReinit(IStrategoTerm type, IStrategoTerm namespace, IStrategoList id, IStrategoTerm data) {
-		this.type = type;
+	protected void internalReinit(IStrategoConstructor constructor, IStrategoTerm namespace, IStrategoList id, IStrategoTerm contentsType) {
+		this.constructor = constructor;
+		this.contentsType = contentsType;
 		this.namespace = namespace;
 		this.id = id;
-		this.data = data;
 	}
 	
 	/**
@@ -114,12 +122,12 @@ public class SemanticIndexEntry {
 		
 		ITermFactory terms = factory.getTermFactory();
 		IStrategoList namespaceId = terms.makeListCons(namespace, id);
-		if (!isDataEntry()) {
-			// Def/Use/BadDef/BadUse
-			term = terms.makeAppl((IStrategoConstructor) type, namespaceId);
+		if (constructor.getArity() == 3) {
+			term = terms.makeAppl(constructor, namespaceId, contentsType, contents);
+		} else if (constructor.getArity() == 2) {
+			term = terms.makeAppl(constructor, namespaceId, contents);
 		} else {
-			assert !(type instanceof IStrategoConstructor) : "DefData expected";
-			term = terms.makeAppl(factory.getDefDataCon(), namespaceId, type, data);
+			term = terms.makeAppl(constructor, namespaceId);
 		}
 		return forceImploderAttachment(term);
 	}
@@ -160,17 +168,6 @@ public class SemanticIndexEntry {
 	}
 
 	/**
-	 * Determines if this is a data entry.
-	 * If it is, the {@link #getType()} determines the data type,
-	 * and is a {@link IStrategoTerm}. If it is not,
-	 * {@link #getType()} is simply an {@link IStrategoConstructor}
-	 * such as 'Def' or 'Use'.
-	 */
-	private boolean isDataEntry() {
-		return data != null;
-	}
-
-	/**
 	 * Force an imploder attachment for a term.
 	 * This ensures that there is always some form of position info,
 	 * and makes sure that origin info is not added to the term.
@@ -190,12 +187,10 @@ public class SemanticIndexEntry {
 	
 	@Override
 	public String toString() {
-		if (isDataEntry()) {
-			return "DefData(" + namespace + "," + id + "," + type + "," + data + ")";
-		} else { 
-			// Def/Use/BadDef/BadUse
-			return ((IStrategoConstructor) type).getName() + "(" + namespace + "," + id + ")";
-		}
+		String result = constructor.getName() + "([" + namespace + "," + id + "]";
+		if (contentsType != null) result += "," + contentsType; 
+		if (contents != null) result += "," + contents; 
+		return result + ")";
 	}
 
 	@Override
@@ -203,7 +198,10 @@ public class SemanticIndexEntry {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + id.hashCode();
-		result = prime * result + type.hashCode();
+		result = prime * result + (contentsType == null ? 0 : contentsType.hashCode());
+		/* Not considered: data is not part of the key, makes it impossible to look up!
+		result = prime * result + (contents == null ? 0 : contents.hashCode());
+		*/
 		result = prime * result + namespace.hashCode();
 		return result;
 	}
@@ -217,18 +215,16 @@ public class SemanticIndexEntry {
 		if (!(obj instanceof SemanticIndexEntry))
 			return false;
 		SemanticIndexEntry other = (SemanticIndexEntry) obj;
-		if (type != other.type) {
-			if (!isDataEntry()) {
-				assert type instanceof IStrategoConstructor && !type.equals(other.type);
-				return false;
-			} else if (!type.match(other.type)) {
-				return false;
-			}
-		}
 		if (namespace != other.namespace && !namespace.match(other.namespace))
+			return false;
+		if (contentsType != other.contentsType && contentsType != null && !contentsType.match(other.contentsType))
 			return false;
 		if (id != other.id && !id.match(other.id))
 			return false;
+		/* Not considered: data is not part of the key, makes it impossible to look up!
+		if (contents != other.contents && contents != null && !contents.match(other.contents))
+			return false;
+		*/
 		return true;
 	}
 }

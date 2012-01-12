@@ -32,7 +32,7 @@ public class LANG_index_get_files_of extends AbstractPrimitive {
 			if (entry == null) return false;
 			
 			if (entry.getTail() == null) {
-				String file = index.getCurrent().fromFileURI(entry.getFile());
+				String file = index.getCurrent().fromFileURI(entry.getFile().getURI());
 				IStrategoTerm result = env.getFactory().makeString(file);
 				IStrategoList results = env.getFactory().makeListCons(result, env.getFactory().makeList());
 				env.setCurrent(results);

@@ -2,8 +2,6 @@ package org.spoofax.interpreter.library.language;
 
 import static org.spoofax.interpreter.core.Tools.isTermList;
 
-import java.net.URI;
-
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -16,6 +14,13 @@ import org.spoofax.terms.attachments.TermAttachmentStripper;
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 public class SemanticIndexEntryFactory {
+	
+	@SuppressWarnings("unused")
+	private static final int DEFDATA_URI = 0;
+	
+	private static final int DEFDATA_TYPE = 1;
+	
+	private static final int DEFDATA_CONTENTS = 2;
 
 	private final ITermFactory termFactory;
 
@@ -23,57 +28,45 @@ public class SemanticIndexEntryFactory {
 
 	private final IStrategoConstructor defCon;
 
-	private final IStrategoConstructor useCon1;
-
-	private final IStrategoConstructor useCon2;
-
 	private final IStrategoConstructor defDataCon;
-
-	private final IStrategoConstructor badUseCon;
 
 	public SemanticIndexEntryFactory(ITermFactory termFactory) {
 		this.termFactory = termFactory;
 		this.stripper = new TermAttachmentStripper(termFactory);
-		defCon = termFactory.makeConstructor("Def", 1);
-		useCon1 = termFactory.makeConstructor("Use", 1);
-		useCon2 = termFactory.makeConstructor("Use", 2);
+		defCon = termFactory.makeConstructor("DefCon", 1);
 		defDataCon = termFactory.makeConstructor("DefData", 3);
-		badUseCon = termFactory.makeConstructor("BadUse", 1);
 	}
 	
 	public ITermFactory getTermFactory() {
 		return termFactory;
 	}
 	
-	public IStrategoConstructor getDefCon() {
-		return defCon;
-	}
-	
 	public IStrategoConstructor getDefDataCon() {
 		return defDataCon;
 	}
 	
-	public SemanticIndexEntry createEntry(IStrategoAppl entryTerm, SemanticIndexEntryParent parent, URI file) {
-		return createEntry(getEntryType(entryTerm), getEntryNamespace(entryTerm), getEntryId(entryTerm), getEntryData(entryTerm), parent, file);
+	public IStrategoConstructor getDefCon() {
+		return defCon;
 	}
 	
-	public SemanticIndexEntry createEntry(IStrategoTerm type, IStrategoTerm namespace, IStrategoList id, IStrategoTerm data,
-			SemanticIndexEntryParent parent, URI file) {
+	public SemanticIndexEntry createEntry(IStrategoConstructor constructor,
+			IStrategoTerm namespace, IStrategoList id, IStrategoTerm contentsType, IStrategoTerm contents,
+			SemanticIndexEntryParent parent, SemanticIndexFile file) {
 		
 		ImploderAttachment idAttachment = ImploderAttachment.getCompactPositionAttachment(id, true);
 		ImploderAttachment dataAttachment =
-			data == null ? null : ImploderAttachment.getCompactPositionAttachment(data, false);
+			contents == null ? null : ImploderAttachment.getCompactPositionAttachment(contents, false);
 		
 		id = createSanitizedId(id, parent);
-		data = stripper.strip(data);
-		type = stripper.strip(type);
+		contents = stripper.strip(contents);
+		contentsType = stripper.strip(contentsType);
 		assert namespace == stripper.strip(namespace);
 		
 		id.putAttachment(idAttachment);
-		if (data != null)
-			data.putAttachment(dataAttachment);
+		if (contents != null)
+			contents.putAttachment(dataAttachment);
 
-		return new SemanticIndexEntry(type, namespace, id, data, file);
+		return new SemanticIndexEntry(constructor, namespace, id, contentsType, contents, file);
 	}
 
 	private IStrategoList createSanitizedId(IStrategoList id, SemanticIndexEntryParent parent) {
@@ -91,14 +84,12 @@ public class SemanticIndexEntryFactory {
 		return new SemanticIndexEntryParent(namespace, id);
 	}
 	
-	public IStrategoTerm getEntryType(IStrategoAppl entry) {
+	public IStrategoTerm getEntryContentsType(IStrategoAppl entry) {
 		IStrategoConstructor type = entry.getConstructor();
 		if (type == defDataCon) {
-			return entry.getSubterm(1);
-		} else if (type == defCon || type == useCon1 || type == useCon2 || type == badUseCon) {
-			return type;
+			return entry.getSubterm(DEFDATA_TYPE);
 		} else {
-			throw new IllegalArgumentException("Illegal index entry: " + entry);
+			return null;
 		}
 	}
 	
@@ -122,9 +113,11 @@ public class SemanticIndexEntryFactory {
 		}
 	}
 	
-	public IStrategoTerm getEntryData(IStrategoAppl entry) {
+	public IStrategoTerm getEntryContents(IStrategoAppl entry) {
 		if (entry.getSubtermCount() == 3) {
-			return entry.getSubterm(2);
+			return entry.getSubterm(DEFDATA_CONTENTS);
+		} else if (entry.getSubtermCount() == 2) {
+			return entry.getSubterm(1);
 		} else {
 			assert entry.getSubtermCount() < 3;
 			return null;

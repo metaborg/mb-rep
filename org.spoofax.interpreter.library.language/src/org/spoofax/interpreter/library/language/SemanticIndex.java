@@ -2,15 +2,16 @@ package org.spoofax.interpreter.library.language;
 
 import java.io.File;
 import java.net.URI;
-import java.util.Collections;
+import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
@@ -23,8 +24,8 @@ public class SemanticIndex {
 	private final Map<SemanticIndexEntry, SemanticIndexEntry> table =
 		new HashMap<SemanticIndexEntry, SemanticIndexEntry>();
 	
-	private final Map<URI, Set<SemanticIndexEntry>> fileTable =
-		new HashMap<URI, Set<SemanticIndexEntry>>();
+	private final Map<URI, SemanticIndexFile> files =
+		new HashMap<URI, SemanticIndexFile>();
 
 	private IOAgent agent;
 
@@ -34,12 +35,15 @@ public class SemanticIndex {
 	
 	private SemanticIndexEntry entryTemplate;
 	
+	private Date updatesTime; // TODO: use updatesTime for time stamping updated files
+	
 	public void initialize(ITermFactory factory, IOAgent agent) {
 		this.agent = agent;
 		this.factory = new SemanticIndexEntryFactory(factory);
 		this.termFactory = factory;
 		entryTemplate = new SemanticIndexEntry(
-			factory.makeConstructor("template", 0), factory.makeList(), factory.makeList(), null, null);
+			factory.makeConstructor("template", 0), factory.makeList(), factory.makeList(),
+			null, null, null);
 	}
 	
 	public void ensureInitialized() {
@@ -53,12 +57,13 @@ public class SemanticIndex {
 	
 	public void add(IStrategoAppl entry, URI file) {
 		ensureInitialized();
-		IStrategoTerm type = factory.getEntryType(entry);
+		IStrategoTerm contentsType = factory.getEntryContentsType(entry);
 		IStrategoList id = factory.getEntryId(entry);
 		IStrategoTerm namespace = factory.getEntryNamespace(entry);
-		IStrategoTerm data = factory.getEntryData(entry);
+		IStrategoTerm contents = factory.getEntryContents(entry);
 		SemanticIndexEntryParent parent = getEntryParentAbove(namespace, id, true);
-		add(factory.createEntry(type, namespace, id, data, parent, file), parent);
+		SemanticIndexFile semFile = getFile(file);
+		add(factory.createEntry(entry.getConstructor(), namespace, id, contentsType, contents, parent, semFile), parent);
 	}
 	
 	public void add(SemanticIndexEntry entry) {
@@ -73,18 +78,20 @@ public class SemanticIndex {
 		if (existing == null) {
 			table.put(entry, entry);
 			if (entry.getFile() != null)
-				getFileSet(entry.getFile()).add(entry);
+				entry.getFile().getEntries().add(entry);
 		} else {
 			assert !entry.isParent();
 			existing.addToTail(entry);
 			if (entry.getFile() != null)
-				getFileSet(entry.getFile()).add(existing);
+				entry.getFile().getEntries().add(existing);
 		}
+		if (entry.getFile() != null)
+			entry.getFile().setTime(updatesTime);
 	}
 	
 	public void remove(SemanticIndexEntry entry) {
 		// Remove from table
-		SemanticIndexEntry head;
+		final SemanticIndexEntry head;
 		List<SemanticIndexEntry> tail = entry.getTail();
 		if (!tail.isEmpty()) {
 			head = tail.remove(tail.size() - 1);
@@ -117,22 +124,21 @@ public class SemanticIndex {
 		}
 			
 		// Remove from fileTable
-		URI file = entry.getFile();
+		SemanticIndexFile file = entry.getFile();
 		if (file != null) {
-			Set<SemanticIndexEntry> fileSet = getFileSet(file);
-			if (fileSet == null) {
-				// Already removed by clear(URI)
-			} if (otherEntriesExist && isFileReferenced(head, tail, file)) {
+			Set<SemanticIndexEntry> fileSet = file.getEntries();
+			if (otherEntriesExist && isFileReferenced(head, tail, file)) {
 				fileSet.add(head); // overwrite with head
 			} else {
 				fileSet.remove(entry);
-				if (fileSet.isEmpty())
-					fileTable.remove(file);
 			}
 		}
+		
+		if (entry.getFile() != null)
+			entry.getFile().setTime(updatesTime);
 	}
 
-	private boolean isFileReferenced(SemanticIndexEntry head, List<SemanticIndexEntry> tail, URI file) {
+	private static boolean isFileReferenced(SemanticIndexEntry head, List<SemanticIndexEntry> tail, SemanticIndexFile file) {
 		if (file.equals(head.getFile()))
 			return true;
 		for (int i = 0, max = tail.size(); i < max; i++) {
@@ -142,11 +148,15 @@ public class SemanticIndex {
 		return false;
 	}
 	
-	private Set<SemanticIndexEntry> getFileSet(URI file) {
-		Set<SemanticIndexEntry> result = fileTable.get(file);
+	/**
+	 * Gets a {@link SemanticIndexFile}.
+	 * Creates it if it didn't exist yet.
+	 */
+	public SemanticIndexFile getFile(URI file) {
+		SemanticIndexFile result = files.get(file);
 		if (result == null) {
-			result = new HashSet<SemanticIndexEntry>();
-			fileTable.put(file, result);
+			result = new SemanticIndexFile(file, updatesTime);
+			files.put(file, result);
 		}
 		return result;
 	}
@@ -157,10 +167,10 @@ public class SemanticIndex {
 	 */
 	public SemanticIndexEntry getEntries(IStrategoAppl template) {
 		ensureInitialized();
-		return getEntries(factory.getEntryType(template),
+		return getEntries(template.getConstructor(),
 				factory.getEntryNamespace(template),
 				factory.getEntryId(template),
-				factory.getEntryData(template) != null
+				factory.getEntryContentsType(template)
 				);
 	}
 	
@@ -168,49 +178,50 @@ public class SemanticIndex {
 	 * Returns an entry in the index that matches the given type and id.
 	 * Note that the result can have a 'tail' with other matching entries.
 	 */
-	private SemanticIndexEntry getEntries(IStrategoTerm type, IStrategoTerm namespace, IStrategoList id, boolean isDataEntry) {
-		entryTemplate.internalReinit(type, namespace, id, isDataEntry ? factory.getDefDataCon() : null);
+	private SemanticIndexEntry getEntries(IStrategoConstructor constructor, IStrategoTerm namespace, IStrategoList id, IStrategoTerm contentsType) {
+		entryTemplate.internalReinit(constructor, namespace, id, contentsType);
 		return table.get(entryTemplate);
 	}
 	
 	public IStrategoList getEntryChildTerms(IStrategoAppl template) {
 		ensureInitialized();
-		IStrategoTerm type = factory.getEntryType(template);
+		IStrategoConstructor constructor = template.getConstructor();
 		IStrategoTerm namespace = factory.getEntryNamespace(template);
 		SemanticIndexEntryParent parent = getEntryParentAt(namespace, factory.getEntryId(template));
 		if (parent == null)
 			return termFactory.makeList();
-		if (type == factory.getDefCon() && parent.getAllDefsCached() != null)
+		if (constructor == factory.getDefCon() && parent.getAllDefsCached() != null)
 			return parent.getAllDefsCached();
 		IStrategoList results = termFactory.makeList();
 		for (SemanticIndexEntry entry : parent.getChildren()) {
-			if (entry.getType() == type) {
+			if (entry.getConstructor() == constructor) {
 				assert !entry.isParent();
 				assert entry.getNamespace().match(namespace);
 				results = termFactory.makeListCons(entry.toTerm(factory), results);
 			}
 		}
-		if (type == factory.getDefCon())
+		if (constructor == factory.getDefCon())
 			parent.setAllDefsCached(results);
 		return results;
 	}
 	
 	public IStrategoList getEntryDescendantTerms(IStrategoAppl template) {
 		ensureInitialized();
-		IStrategoTerm type = factory.getEntryType(template);
+		IStrategoConstructor constructor = template.getConstructor();
 		IStrategoTerm namespace = factory.getEntryNamespace(template);
 		SemanticIndexEntryParent parent = getEntryParentAt(namespace, factory.getEntryId(template));
-		return collectEntryDescendentTerms(parent, type, namespace, termFactory.makeList());
+		return collectEntryDescendentTerms(parent, constructor, namespace, termFactory.makeList());
 	}
 	
-	private IStrategoList collectEntryDescendentTerms(SemanticIndexEntryParent parent, IStrategoTerm type, IStrategoTerm namespace, IStrategoList results) {
+	private IStrategoList collectEntryDescendentTerms(SemanticIndexEntryParent parent, IStrategoConstructor constructor,
+			IStrategoTerm namespace, IStrategoList results) {
 		for (SemanticIndexEntry entry : parent.getChildren()) {
-			if (entry.getType() == type) {
+			if (entry.getConstructor() == constructor) {
 				assert !entry.isParent();
 				assert entry.getNamespace().match(namespace);
 				results = termFactory.makeListCons(entry.toTerm(factory), results);
 			} else if (entry.isParent()) {
-				results = collectEntryDescendentTerms((SemanticIndexEntryParent) entry, type, namespace, results);
+				results = collectEntryDescendentTerms((SemanticIndexEntryParent) entry, constructor, namespace, results);
 			}
 		}
 		return results;
@@ -224,6 +235,7 @@ public class SemanticIndex {
 		}
 		SemanticIndexEntryParent result = getEntryParentAt(namespace, id);
 		if (result == null && createNonExistant) {
+			// add initial entry (that stores our time stamp)
 			result = factory.createEntryParent(namespace, id, getEntryParentAbove(namespace, id, true));
 			add(result); // add and recurse for parents
 		}
@@ -234,17 +246,17 @@ public class SemanticIndex {
 	 * Gets the {@link SemanticIndexEntryParent} with the given identifier.
 	 */
 	private SemanticIndexEntryParent getEntryParentAt(IStrategoTerm namespace, IStrategoList id) {
-		return (SemanticIndexEntryParent) getEntries(SemanticIndexEntryParent.TYPE, namespace, id, false);
+		return (SemanticIndexEntryParent) getEntries(SemanticIndexEntryParent.CONSTRUCTOR, namespace, id, null);
 	}
 	
 	public void clear() {
 		table.clear();
-		fileTable.clear();
+		files.clear();
 	}
 	
-	public void clear(URI file) {
-		Set<SemanticIndexEntry> fileSet = fileTable.remove(file);
-		if (fileSet == null) return;
+	public void clear(SemanticIndexFile file) {
+		Set<SemanticIndexEntry> fileSet = file.getEntries();
+		if (fileSet.isEmpty()) return;
 		
 		SemanticIndexEntry[] copy = new SemanticIndexEntry[fileSet.size()];
 		copy = fileSet.toArray(copy);
@@ -253,23 +265,8 @@ public class SemanticIndex {
 		}
 	}
 	
-	public Set<SemanticIndexEntry> getEntries(URI file) {
-		Set<SemanticIndexEntry> fileSet = fileTable.get(file);
-		if (fileSet == null)
-			return Collections.emptySet();
-		return fileSet;
-	}
-	
-	public boolean isIndexed(URI file) {
-		return fileTable.get(file) != null;
-	}
-	
-	public void setIndexed(URI file) {
-		getFileSet(file); // creates new file set
-	}
-	
-	public Set<URI> getAllFiles() {
-		return Collections.unmodifiableSet(fileTable.keySet());
+	public Collection<SemanticIndexFile> getAllFiles() {
+		return files.values();
 	}
 	
 	public URI toFileURI(String path) {

@@ -30,7 +30,7 @@ public class LANG_index_get_all_in_file extends AbstractPrimitive {
 		if (isTermString(tvars[0])) {
 			SemanticIndex idn = index.getCurrent();
 			URI file = idn.toFileURI(asJavaString(tvars[0]));
-			Set<SemanticIndexEntry> results = idn.getEntries(file);
+			Set<SemanticIndexEntry> results = idn.getFile(file).getEntries();
 			env.setCurrent(SemanticIndexEntry.toTerms(idn.getFactory(), results));
 			return true;
 		} else {

@@ -28,7 +28,7 @@ public class LANG_index_clear_file extends AbstractPrimitive {
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
 		if (isTermString(tvars[0])) {
 			URI file = index.getCurrent().toFileURI(asJavaString(tvars[0]));
-			index.getCurrent().clear(file);
+			index.getCurrent().clear(index.getCurrent().getFile(file));
 			return true;
 		} else {
 			return false;

@@ -1,8 +1,6 @@
 package org.spoofax.interpreter.library.language;
 
-import java.io.File;
-import java.net.URI;
-import java.util.Set;
+import java.util.Collection;
 
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.library.AbstractPrimitive;
@@ -28,11 +26,12 @@ public class LANG_index_get_all_filenames extends AbstractPrimitive {
 
 	@Override
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
-		Set<URI> allFiles = index.getCurrent().getAllFiles();
+		Collection<SemanticIndexFile> allFiles = index.getCurrent().getAllFiles();
 		ITermFactory factory = env.getFactory();
 		IStrategoList results = factory.makeList();
-		for (URI file : allFiles) {
-			IStrategoString result = factory.makeString(new File(file).getAbsolutePath());
+		for (SemanticIndexFile file : allFiles) {
+			String uri = index.getCurrent().fromFileURI(file.getURI());
+			IStrategoString result = factory.makeString(uri);
 			results = factory.makeListCons(result, results);
 		}
 		env.setCurrent(results);
