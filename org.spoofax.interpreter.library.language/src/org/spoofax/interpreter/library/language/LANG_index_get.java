@@ -6,6 +6,7 @@ import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.library.AbstractPrimitive;
 import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 /**
@@ -27,7 +28,15 @@ public class LANG_index_get extends AbstractPrimitive {
 		if (isTermAppl(tvars[0])) {
 			IStrategoAppl template = (IStrategoAppl) tvars[0];
 			SemanticIndex ind = index.getCurrent();
-			env.setCurrent(ind.getEntries(template).toTerms(ind.getFactory()));
+			SemanticIndexEntry entry = ind.getEntries(template);
+			SemanticIndexEntryFactory fact = ind.getFactory();
+			
+			if(entry == null) {
+			    env.setCurrent(fact.getTermFactory().makeList());
+			} else {
+			    env.setCurrent(entry.toTerms(fact));
+			}
+			
 			return true;
 		} else {
 			return false;
