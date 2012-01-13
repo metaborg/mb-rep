@@ -32,11 +32,11 @@ public class LANG_index_get_files_of extends AbstractPrimitive {
 			IStrategoAppl template = (IStrategoAppl) tvars[0];
 
 			IStrategoList results = env.getFactory().makeList();
-			for (SemanticIndexEntry entry = index.getCurrent().getEntries(template); entry != null; entry = entry.getNext()) {
+			SemanticIndexEntry entry;
+			for (entry = index.getCurrent().getEntries(template); entry != null; entry = entry.getNext()) {
 				String file = index.getCurrent().fromFileURI(entry.getFile().getURI());
 				IStrategoTerm result = env.getFactory().makeString(file);
 				results = env.getFactory().makeListCons(result, results);
-				entry = entry.getNext();
 			}
 			
 			env.setCurrent(results);

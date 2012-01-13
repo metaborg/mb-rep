@@ -20,7 +20,7 @@ public class LANG_index_get_all_filenames extends AbstractPrimitive {
 	private final SemanticIndexManager index;
 	
 	public LANG_index_get_all_filenames(SemanticIndexManager index) {
-		super(NAME, 0, 1);
+		super(NAME, 0, 0);
 		this.index = index;
 	}
 
