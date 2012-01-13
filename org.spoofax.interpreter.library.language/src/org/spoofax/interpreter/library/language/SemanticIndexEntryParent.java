@@ -2,7 +2,6 @@ package org.spoofax.interpreter.library.language;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -31,21 +30,6 @@ public class SemanticIndexEntryParent extends SemanticIndexEntry {
 	@Override
 	public IStrategoAppl toTerm(SemanticIndexEntryFactory factory) {
 		return null;
-	}
-	
-	@Override
-	public void setTail(List<SemanticIndexEntry> tail) {
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public void addToTail(SemanticIndexEntry entry) {
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public void removeFromTail(SemanticIndexEntry entry) {
-		throw new UnsupportedOperationException();
 	}
 	
 	public void add(SemanticIndexEntry entry) {

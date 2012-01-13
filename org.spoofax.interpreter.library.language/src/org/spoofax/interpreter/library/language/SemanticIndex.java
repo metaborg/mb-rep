@@ -5,7 +5,6 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -80,72 +79,42 @@ public class SemanticIndex {
 			if (entry.getFile() != null)
 				entry.getFile().getEntries().add(entry);
 		} else {
-			assert !entry.isParent();
-			existing.addToTail(entry);
+			assert !entry.isParent() && existing != entry;
+			existing.getLast().setNext(entry);
 			if (entry.getFile() != null)
-				entry.getFile().getEntries().add(existing);
+				entry.getFile().getEntries().add(entry);
 		}
 		if (entry.getFile() != null)
 			entry.getFile().setTime(updatesTime);
 	}
 	
+	/**
+	 * Removes a single entry (not a list of entries).
+	 */
 	public void remove(SemanticIndexEntry entry) {
 		// Remove from table
-		final SemanticIndexEntry head;
-		List<SemanticIndexEntry> tail = entry.getTail();
-		if (!tail.isEmpty()) {
-			head = tail.remove(tail.size() - 1);
-			head.setTail(tail);
-			table.put(head, head);
-		} else if ((head = table.get(entry)) != entry) {
-			tail = head.getTail();
-			for (int i = 0, max = tail.size(); i < max; i++) {
-				if (tail.get(i) == entry) {
-					tail.remove(i);
-					break;
-				}
-			}
-		} else {
-			// Common case: only one entry with this id exists
+		SemanticIndexEntry head = table.get(entry);
+		if (head == null) {
+		    return;
+		} else if (head == entry) {
 			table.remove(entry);
+			if (entry.getNext() != null)
+				table.put(entry.getNext(), entry.getNext());
+		} else {
+			head.setNext(entry.getNext());
 		}
-		
-		boolean otherEntriesExist = head != entry;
 		
 		// Remove from parent
 		SemanticIndexEntryParent parent = getEntryParentAbove(entry.getNamespace(), entry.getId(), false);
-		if (parent != null) {
-			if (!otherEntriesExist) {
-				parent.remove(entry);
-				if (parent.isEmpty()) remove(parent);
-			} else {
-				parent.add(head); // overwrite with head
-			}
-		}
+		if (parent != null)
+			parent.remove(entry);
 			
 		// Remove from fileTable
 		SemanticIndexFile file = entry.getFile();
 		if (file != null) {
-			Set<SemanticIndexEntry> fileSet = file.getEntries();
-			if (otherEntriesExist && isFileReferenced(head, tail, file)) {
-				fileSet.add(head); // overwrite with head
-			} else {
-				fileSet.remove(entry);
-			}
-		}
-		
-		if (entry.getFile() != null)
+			file.getEntries().remove(entry);
 			entry.getFile().setTime(updatesTime);
-	}
-
-	private static boolean isFileReferenced(SemanticIndexEntry head, List<SemanticIndexEntry> tail, SemanticIndexFile file) {
-		if (file.equals(head.getFile()))
-			return true;
-		for (int i = 0, max = tail.size(); i < max; i++) {
-			if (file.equals(tail.get(i).getFile()))
-				return true;
 		}
-		return false;
 	}
 	
 	/**
@@ -261,6 +230,7 @@ public class SemanticIndex {
 		SemanticIndexEntry[] copy = new SemanticIndexEntry[fileSet.size()];
 		copy = fileSet.toArray(copy);
 		for (SemanticIndexEntry entry : copy) {
+		    assert table.get(entry) != null;
 			remove(entry);
 		}
 	}

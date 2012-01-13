@@ -31,15 +31,9 @@ public class LANG_index_remove extends AbstractPrimitive {
 		if (isTermAppl(tvars[0]) && isTermString(tvars[1])) {
 			IStrategoAppl template = (IStrategoAppl) tvars[0];
 			URI file = index.getCurrent().toFileURI(asJavaString(tvars[1]));
-			SemanticIndexEntry entry = index.getCurrent().getEntries(template);
-			if (entry != null) {
+			for (SemanticIndexEntry entry = index.getCurrent().getEntries(template); entry != null; entry = entry.getNext()) {
 				if (entry.getFile().getURI() == file)
 					index.getCurrent().remove(entry);
-				for (SemanticIndexEntry tailEntry : entry.getTail()) {
-					if (tailEntry.getFile().getURI() == file) {
-						index.getCurrent().remove(tailEntry);
-					}
-				}
 			} 
 			return true;
 		} else {

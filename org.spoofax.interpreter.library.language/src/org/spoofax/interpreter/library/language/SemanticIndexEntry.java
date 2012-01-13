@@ -1,18 +1,17 @@
 package org.spoofax.interpreter.library.language;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
-import org.spoofax.terms.Term;
 
 /**
+ * A linked list representation of one or more index entries.
+ * 
+ * @see #getNext()
+ * 
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 public class SemanticIndexEntry {
@@ -29,7 +28,7 @@ public class SemanticIndexEntry {
 	
 	private SemanticIndexFile file;
 	
-	private List<SemanticIndexEntry> tail = null;
+	private SemanticIndexEntry next = null;
 	
 	private transient IStrategoAppl term;
 
@@ -48,6 +47,7 @@ public class SemanticIndexEntry {
 		assert constructor != null && id != null && namespace != null;
 		assert contents != null || constructor.getArity() < 2 : "Contents can't be null for Use/2 or DefData/3";
 		assert contentsType == null || "DefData".equals(constructor.getName()) : "Contents type only expected for DefData";
+		assert constructor != SemanticIndexEntryParent.CONSTRUCTOR || this instanceof SemanticIndexEntryParent;
 	}
 	
 	public IStrategoConstructor getConstructor() {
@@ -74,30 +74,26 @@ public class SemanticIndexEntry {
 		return file;
 	}
 	
-	public List<SemanticIndexEntry> getTail() {
-		if (tail == null)
-			return Collections.emptyList();
-		else
-			return tail;
+	/**
+	 * Gets the next entry in this list of entries, or null if there is none.
+	 */
+	public SemanticIndexEntry getNext() {
+		return next;
+	}
+	
+	public final SemanticIndexEntry getLast() {
+		SemanticIndexEntry result = this;
+		while (result.getNext() != null)
+			result = result.getNext();
+		return result;
 	}
 	
 	public boolean isParent() {
 		return constructor == SemanticIndexEntryParent.CONSTRUCTOR;
 	}
 	
-	public void setTail(List<SemanticIndexEntry> tail) {
-		this.tail = tail;
-	}
-	
-	public void addToTail(SemanticIndexEntry entry) {
-		if (tail == null)
-			tail = new ArrayList<SemanticIndexEntry>();
-		tail.add(entry);
-	}
-	
-	public void removeFromTail(SemanticIndexEntry entry) {
-		if (tail == null) return;
-		tail.remove(entry);
+	public void setNext(SemanticIndexEntry next) {
+		this.next = next;
 	}
 	
 	/**
@@ -143,12 +139,8 @@ public class SemanticIndexEntry {
 
 	protected IStrategoList toTerms(SemanticIndexEntryFactory factory, IStrategoList results) {
 		ITermFactory termFactory = factory.getTermFactory();
-		IStrategoAppl result = toTerm(factory);
-		results = termFactory.makeListCons(result, results);
-		List<SemanticIndexEntry> tail = getTail();
-		
-		for (int i = 0, max = tail.size(); i < max; i++) {
-			result = tail.get(i).toTerm(factory);
+		for (SemanticIndexEntry entry = this; entry != null; entry = entry.getNext()) {
+			IStrategoAppl result = entry.toTerm(factory);
 			results = termFactory.makeListCons(result, results);
 		}
 		
@@ -156,7 +148,7 @@ public class SemanticIndexEntry {
 	}
 	
 	/**
-	 * Returns a term representation of these entries their tails as a list.
+	 * Returns a term representation of entries and their tails as a list.
 	 * (Null for {@link SemanticIndexEntryParent} terms.)
 	 */
 	public static IStrategoList toTerms(SemanticIndexEntryFactory factory, Iterable<SemanticIndexEntry> entries) {
@@ -215,6 +207,8 @@ public class SemanticIndexEntry {
 		if (!(obj instanceof SemanticIndexEntry))
 			return false;
 		SemanticIndexEntry other = (SemanticIndexEntry) obj;
+		if (constructor != other.constructor && !constructor.match(other.constructor))
+			return false;
 		if (namespace != other.namespace && !namespace.match(other.namespace))
 			return false;
 		if (contentsType != other.contentsType && contentsType != null && !contentsType.match(other.contentsType))
