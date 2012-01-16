@@ -20,6 +20,7 @@ import org.spoofax.interpreter.library.language.spxlang.SPX_index_import_referen
 import org.spoofax.interpreter.library.language.spxlang.SPX_index_language_descriptor;
 import org.spoofax.interpreter.library.language.spxlang.SPX_index_module_definition;
 import org.spoofax.interpreter.library.language.spxlang.SPX_index_package_declaration;
+import org.spoofax.interpreter.library.language.spxlang.SPX_index_remove_compilation_unit;
 import org.spoofax.interpreter.library.language.spxlang.SPX_symtab_define_symbol;
 import org.spoofax.interpreter.library.language.spxlang.SPX_symtab_destroy_scope;
 import org.spoofax.interpreter.library.language.spxlang.SPX_symtab_new_scope;
@@ -66,6 +67,7 @@ public class LanguageLibrary extends AbstractStrategoOperatorRegistry {
 		// primitives to index spoofaxlang compilation unit 
 		add(new SPX_index_compilation_unit(spxIndex));
 		add(new SPX_index_get_compilation_unit(spxIndex));
+		add(new SPX_index_remove_compilation_unit(spxIndex));
 		
 		// primitives to index packages, language descriptions  and modules 
 		add(new SPX_index_package_declaration(spxIndex));

@@ -262,6 +262,7 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 	 */
 	public ModuleDeclaration remove(IStrategoList id){	
 		_manager.logMessage(SRC+".remove", "Removing following Module : "+ id);
+		
 		//removing module declaration from the table 
 		//and returning it.
 		ModuleDeclaration ret = _moduleLookupMap.remove(id);

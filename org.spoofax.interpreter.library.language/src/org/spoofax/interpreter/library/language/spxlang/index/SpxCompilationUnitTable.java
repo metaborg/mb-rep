@@ -153,14 +153,15 @@ public class SpxCompilationUnitTable {
 	 */
 	void remove(String absPathString) throws IOException{
 		SpxCompilationUnitInfo removedValue = _infoMap.remove(absPathString);
-		
+
 		if ((removedValue != null)
-				&& _spxUnitStoreMap.containsKey(removedValue.getRecId()))
+				&& _spxUnitStoreMap.containsKey(removedValue.getRecId())){
 			_spxUnitStoreMap.remove(removedValue.getRecId());
 
-		if (!recordListeners.isEmpty()) {
-			for (RecordListener<String, SpxCompilationUnitInfo> r : recordListeners) {
-				r.recordRemoved(absPathString, removedValue);
+			if (!recordListeners.isEmpty()) {
+				for (RecordListener<String, SpxCompilationUnitInfo> r : recordListeners) {
+					r.recordRemoved(absPathString, removedValue);
+				}
 			}
 		}
 	}
