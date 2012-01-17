@@ -1,6 +1,5 @@
 <project name="spoofax-terms" default="jar">
 	
-    <property name="lib.dir" value="lib" />
     <property name="build.dir" value="target" />
     <property name="src.dir" value="src" />
 
@@ -17,14 +16,7 @@
         <mkdir dir="${prefix}/bin" />
         <mkdir dir="${prefix}/share/java" />
 
-        <copy todir="${prefix}/share/java">
-            <fileset dir="${lib.dir}/" />
-        </copy>
-
-        <copy file="build/${jarname}-${version}.jar" todir="${prefix}/share/java" />
-
-        <copy file="jsglr" todir="${prefix}/bin" />
-        <chmod perm="a+x" file="${prefix}/bin/jsglr" />
+        <copy file="${build.dir}/${jarname}-${version}.jar" todir="${prefix}/share/java" />
    </target>
 
    <target name="dist" description="--> create the dist tarball">
