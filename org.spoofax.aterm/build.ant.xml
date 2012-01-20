@@ -38,4 +38,5 @@
    <target name="check" depends="jar">
    </target>
 
+   <target name="bundle-ctree" />
 </project>
