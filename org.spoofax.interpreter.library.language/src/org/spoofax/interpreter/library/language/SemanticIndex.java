@@ -1,5 +1,7 @@
 package org.spoofax.interpreter.library.language;
 
+import static org.spoofax.interpreter.library.language.SemanticIndexFile.DEFAULT_DESCRIPTOR;
+
 import java.io.File;
 import java.net.URI;
 import java.util.Collection;
@@ -124,7 +126,7 @@ public class SemanticIndex {
 	public SemanticIndexFile getFile(URI file) {
 		SemanticIndexFile result = files.get(file);
 		if (result == null) {
-			result = new SemanticIndexFile(file, updatesTime);
+			result = new SemanticIndexFile(file, DEFAULT_DESCRIPTOR, updatesTime);
 			files.put(file, result);
 		}
 		return result;
@@ -166,7 +168,7 @@ public class SemanticIndex {
 			if (entry.getConstructor() == constructor) {
 				assert !entry.isParent();
 				assert entry.getNamespace().match(namespace);
-				results = termFactory.makeListCons(entry.toTerm(factory), results);
+				results = termFactory.makeListCons(entry.toTerm(factory.getTermFactory()), results);
 			}
 		}
 		if (constructor == factory.getDefCon())
@@ -188,7 +190,7 @@ public class SemanticIndex {
 			if (entry.getConstructor() == constructor) {
 				assert !entry.isParent();
 				assert entry.getNamespace().match(namespace);
-				results = termFactory.makeListCons(entry.toTerm(factory), results);
+				results = termFactory.makeListCons(entry.toTerm(factory.getTermFactory()), results);
 			} else if (entry.isParent()) {
 				results = collectEntryDescendentTerms((SemanticIndexEntryParent) entry, constructor, namespace, results);
 			}
@@ -221,6 +223,12 @@ public class SemanticIndex {
 	public void clear() {
 		table.clear();
 		files.clear();
+	}
+	
+	public IStrategoTerm toTerm() {
+		ITermFactory terms = factory.getTermFactory();
+		IStrategoList entries = SemanticIndexEntry.toTerms(terms, table.values());
+		return entries;
 	}
 	
 	public void clear(SemanticIndexFile file) {
@@ -260,5 +268,5 @@ public class SemanticIndex {
 		return table.keySet().toString();
 	}
 	
-
+	
 }

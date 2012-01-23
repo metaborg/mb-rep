@@ -8,6 +8,7 @@ import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.TermFactory;
 
 /**
@@ -28,7 +29,7 @@ public class SemanticIndexEntryParent extends SemanticIndexEntry {
 	}
 	
 	@Override
-	public IStrategoAppl toTerm(SemanticIndexEntryFactory factory) {
+	public IStrategoAppl toTerm(ITermFactory factory) {
 		return null;
 	}
 	

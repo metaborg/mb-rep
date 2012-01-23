@@ -33,7 +33,7 @@ public class LANG_index_get extends AbstractPrimitive {
 			if(entry == null) {
 			    env.setCurrent(fact.getTermFactory().makeList());
 			} else {
-			    env.setCurrent(entry.toTerms(fact));
+			    env.setCurrent(entry.toTerms(env.getFactory()));
 			}
 			
 			return true;
