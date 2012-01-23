@@ -1,37 +1,38 @@
 /*
- * Created on 28. jan.. 2007
- *
- * Copyright (c) 2005-2012, Karl Trygve Kalleberg <karltk near strategoxt.org>
+ * Copyright (c) 2005-2012, Karl Trygve Kalleberg <karltk near strategoxt dot org>
  * 
  * Licensed under the GNU Lesser General Public License, v2.1
  */
-package org.spoofax.terms;
+package org.spoofax.terms.skeleton;
 
 import java.io.IOException;
+import java.math.BigInteger;
 
+import org.spoofax.NotImplementedException;
 import org.spoofax.interpreter.terms.IStrategoInt;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
+import org.spoofax.terms.StrategoTerm;
+import org.spoofax.terms.TermFactory;
 
-
-public class StrategoInt extends StrategoTerm implements IStrategoInt {
+public class SkeletonStrategoInt extends StrategoTerm implements IStrategoInt {
 
     private static final long serialVersionUID = 2915870332171452430L;
 	
-    private final int value;
+    private final BigInteger value;
     
-    public StrategoInt(int value, IStrategoList annotations, int storageType) {
+    public SkeletonStrategoInt(long value, IStrategoList annotations, int storageType) {
         super(annotations, storageType);
-        this.value = value;
+        this.value = BigInteger.valueOf(value);
     }
     
-    public StrategoInt(int value, int storageType) {
+    public SkeletonStrategoInt(int value, int storageType) {
         this(value, null, storageType);
     }
     
     public int intValue() {
-        return value;
+        return value.intValue();
     }
 
     public IStrategoTerm[] getAllSubterms() {
@@ -76,8 +77,7 @@ public class StrategoInt extends StrategoTerm implements IStrategoInt {
 
     @Deprecated
 	public void prettyPrint(ITermPrinter pp) {
-        pp.print(String.valueOf(intValue()));
-        printAnnotations(pp);
+    	throw new NotImplementedException();
     }
     
     public void writeAsString(Appendable output, int maxDepth) throws IOException {
