@@ -172,7 +172,7 @@ public class SemanticIndexEntry {
 		if (attach != null) {
 			ImploderAttachment.putImploderAttachment(term, false, attach.getSort(), attach.getLeftToken(), attach.getRightToken());
 		} else {
-			String fn = file == null ? null : file.getURI().toString();
+			String fn = file == null ? null : file.getURI().getPath();
 			term.putAttachment(ImploderAttachment.createCompactPositionAttachment(
 					fn, 0, 0, 0, -1));
 		}

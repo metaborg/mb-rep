@@ -236,6 +236,10 @@ public class SemanticIndex {
 		return entries;
 	}
 	
+	public static SemanticIndex fromTerm(IStrategoTerm term) {
+		return null; // TODO
+	}
+	
 	public void clear(SemanticIndexFile file) {
 		assert files.get(file) == null || files.get(file) == file;
 		
