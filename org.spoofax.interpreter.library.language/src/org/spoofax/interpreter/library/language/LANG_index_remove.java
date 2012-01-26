@@ -1,10 +1,8 @@
 package org.spoofax.interpreter.library.language;
 
-import static org.spoofax.interpreter.core.Tools.asJavaString;
 import static org.spoofax.interpreter.core.Tools.isTermAppl;
 import static org.spoofax.interpreter.core.Tools.isTermString;
-
-import java.net.URI;
+import static org.spoofax.interpreter.core.Tools.isTermTuple;
 
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.library.AbstractPrimitive;
@@ -28,12 +26,13 @@ public class LANG_index_remove extends AbstractPrimitive {
 
 	@Override
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
-		if (isTermAppl(tvars[0]) && isTermString(tvars[1])) {
+		if (isTermAppl(tvars[0]) && (isTermTuple(tvars[1]) || isTermString(tvars[1]))) {
 			IStrategoAppl template = (IStrategoAppl) tvars[0];
-			URI file = index.getCurrent().toFileURI(asJavaString(tvars[1]));
-			for (SemanticIndexEntry entry = index.getCurrent().getEntries(template); entry != null; entry = entry.getNext()) {
-				if (entry.getFile().getURI() == file)
-					index.getCurrent().remove(entry);
+			SemanticIndex ind = index.getCurrent();
+			SemanticIndexFile file = ind.getFile(tvars[1]);
+			for (SemanticIndexEntry entry = ind.getEntries(template); entry != null; entry = entry.getNext()) {
+				if (entry.getFile().equals(file))
+					ind.remove(entry);
 			} 
 			return true;
 		} else {

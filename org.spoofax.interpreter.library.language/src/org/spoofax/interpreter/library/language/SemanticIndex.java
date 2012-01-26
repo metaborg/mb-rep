@@ -1,9 +1,5 @@
 package org.spoofax.interpreter.library.language;
 
-import static org.spoofax.interpreter.library.language.SemanticIndexFile.DEFAULT_DESCRIPTOR;
-
-import java.io.File;
-import java.net.URI;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -25,8 +21,8 @@ public class SemanticIndex {
 	private final Map<SemanticIndexEntry, SemanticIndexEntry> table =
 		new HashMap<SemanticIndexEntry, SemanticIndexEntry>();
 	
-	private final Map<URI, SemanticIndexFile> files =
-		new HashMap<URI, SemanticIndexFile>();
+	private final Map<SemanticIndexFile, SemanticIndexFile> files =
+		new HashMap<SemanticIndexFile, SemanticIndexFile>();
 
 	private IOAgent agent;
 
@@ -35,8 +31,6 @@ public class SemanticIndex {
 	private SemanticIndexEntryFactory factory;
 	
 	private SemanticIndexEntry entryTemplate;
-	
-	private Date updatesTime; // TODO: use updatesTime for time stamping updated files
 	
 	public void initialize(ITermFactory factory, IOAgent agent) {
 		this.agent = agent;
@@ -56,15 +50,21 @@ public class SemanticIndex {
 		return factory;
 	}
 	
-	public void add(IStrategoAppl entry, URI file) {
+	/**
+	 * Adds a new entry to the index.
+	 * 
+	 * @param file  The file to associate the entry with.
+	 *              Must be the result of {@linkplain #getFile()}.
+	 */
+	public void add(IStrategoAppl entry, SemanticIndexFile file) {
+		assert getFile(file) == file : "Files must be maximally shared: use getFile() to get a shared File reference";
 		ensureInitialized();
 		IStrategoTerm contentsType = factory.getEntryContentsType(entry);
 		IStrategoList id = factory.getEntryId(entry);
 		IStrategoTerm namespace = factory.getEntryNamespace(entry);
 		IStrategoTerm contents = factory.getEntryContents(entry);
 		SemanticIndexEntryParent parent = getEntryParentAbove(namespace, id, true);
-		SemanticIndexFile semFile = getFile(file);
-		add(factory.createEntry(entry.getConstructor(), namespace, id, contentsType, contents, parent, semFile), parent);
+		add(factory.createEntry(entry.getConstructor(), namespace, id, contentsType, contents, parent, file), parent);
 	}
 	
 	public void add(SemanticIndexEntry entry) {
@@ -87,7 +87,7 @@ public class SemanticIndex {
 				entry.getFile().getEntries().add(entry);
 		}
 		if (entry.getFile() != null)
-			entry.getFile().setTime(updatesTime);
+			entry.getFile().setTime(new Date());
 	}
 	
 	/**
@@ -115,19 +115,24 @@ public class SemanticIndex {
 		SemanticIndexFile file = entry.getFile();
 		if (file != null) {
 			file.getEntries().remove(entry);
-			entry.getFile().setTime(updatesTime);
+			entry.getFile().setTime(new Date());
 		}
 	}
 	
+	public SemanticIndexFile getFile(IStrategoTerm fileTerm) {
+		return getFile(SemanticIndexFile.fromTerm(agent, fileTerm));
+	}
+	
 	/**
-	 * Gets a {@link SemanticIndexFile}.
+	 * Gets a {@link SemanticIndexFile} from the index,
+	 * ensuring maximal sharing of index files.
 	 * Creates it if it didn't exist yet.
 	 */
-	public SemanticIndexFile getFile(URI file) {
+	private SemanticIndexFile getFile(SemanticIndexFile file) {
 		SemanticIndexFile result = files.get(file);
 		if (result == null) {
-			result = new SemanticIndexFile(file, DEFAULT_DESCRIPTOR, updatesTime);
-			files.put(file, result);
+			result = file;
+			files.put(file, file);
 		}
 		return result;
 	}
@@ -232,6 +237,8 @@ public class SemanticIndex {
 	}
 	
 	public void clear(SemanticIndexFile file) {
+		assert files.get(file) == null || files.get(file) == file;
+		
 		Set<SemanticIndexEntry> fileSet = file.getEntries();
 		if (fileSet.isEmpty()) return;
 		
@@ -245,22 +252,6 @@ public class SemanticIndex {
 	
 	public Collection<SemanticIndexFile> getAllFiles() {
 		return files.values();
-	}
-	
-	public URI toFileURI(String path) {
-		return toFileURI(path, agent);
-	}
-
-	public static URI toFileURI(String path, IOAgent agent) {
-		File file = new File(path);
-		return file.isAbsolute()
-			? file.toURI()
-			: new File(agent.getWorkingDir(), path).toURI();
-	}
-	
-	public String fromFileURI(URI uri) {
-		File file = new File(uri);
-		return file.toString();
 	}
 	
 	@Override

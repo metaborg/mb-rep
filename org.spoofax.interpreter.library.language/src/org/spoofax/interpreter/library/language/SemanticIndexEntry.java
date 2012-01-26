@@ -181,7 +181,7 @@ public class SemanticIndexEntry {
 	
 	@Override
 	public String toString() {
-		String result = constructor.getName() + "([" + namespace + "," + id + "]";
+		String result = constructor.getName() + "([" + namespace + "|" + id + "]";
 		if (contentsType != null) result += "," + contentsType; 
 		if (contents != null) result += "," + contents; 
 		return result + ")";

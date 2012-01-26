@@ -2,8 +2,6 @@ package org.spoofax.interpreter.library.language;
 
 import static org.spoofax.interpreter.core.Tools.asJavaString;
 
-import java.net.URI;
-
 import org.spoofax.NotImplementedException;
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.library.AbstractPrimitive;
@@ -36,9 +34,9 @@ public class LANG_index_setup extends AbstractPrimitive {
 			throw new NotImplementedException("Multiple project paths");
 		}
 		IOAgent agent = SSLLibrary.instance(env).getIOAgent();
-		URI projectPathURI = SemanticIndex.toFileURI(asJavaString(projectPaths.head()), agent);
-		index.loadIndex(asJavaString(language), projectPathURI); 
-		index.getCurrent().initialize(env.getFactory(), agent);
+		SemanticIndexFile project = SemanticIndexFile.fromTerm(agent, projectPaths.head());
+		index.loadIndex(asJavaString(language), project.getURI()); 
+		index.getCurrent().initialize(env.getFactory(), SSLLibrary.instance(env).getIOAgent());
 		return true;
 	}
 }

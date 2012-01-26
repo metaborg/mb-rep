@@ -1,10 +1,15 @@
 package org.spoofax.interpreter.library.language;
 
+import static org.spoofax.interpreter.core.Tools.asJavaString;
+import static org.spoofax.interpreter.core.Tools.isTermTuple;
+
+import java.io.File;
 import java.net.URI;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
@@ -54,9 +59,31 @@ public class SemanticIndexFile {
 			throw new IllegalArgumentException("descriptor can't be null, use DEFAULT_DESCRIPTOR");
 	}
 	
+	/**
+	 * Converts a term file representation to a SemanticIndexFile,
+	 * using the  {@link IOAgent} to create an absolute path.
+	 * 
+	 * @see SemanticIndex#getFile()
+	 */
+	public static SemanticIndexFile fromTerm(IOAgent agent, IStrategoTerm term) {
+		String name;
+		String descriptor;
+		if (isTermTuple(term)) {
+			name = asJavaString(term.getSubterm(0));
+			descriptor = asJavaString(term.getSubterm(1));
+		} else {
+			name = asJavaString(term);
+			descriptor = DEFAULT_DESCRIPTOR;
+		}
+		File file = new File(name);
+		if (!file.isAbsolute())
+			file = new File(agent.getWorkingDir(), name);
+		return new SemanticIndexFile(file.toURI(), descriptor, null);
+	}
+ 	
 	@Override
 	public String toString() {
-		return uri.toString();
+		return uri.getPath();
 	}
 	
 	public IStrategoTerm toTerm(ITermFactory factory) {

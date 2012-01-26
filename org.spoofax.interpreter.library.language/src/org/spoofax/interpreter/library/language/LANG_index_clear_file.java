@@ -1,9 +1,7 @@
 package org.spoofax.interpreter.library.language;
 
-import static org.spoofax.interpreter.core.Tools.asJavaString;
 import static org.spoofax.interpreter.core.Tools.isTermString;
-
-import java.net.URI;
+import static org.spoofax.interpreter.core.Tools.isTermTuple;
 
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.library.AbstractPrimitive;
@@ -26,9 +24,9 @@ public class LANG_index_clear_file extends AbstractPrimitive {
 
 	@Override
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
-		if (isTermString(tvars[0])) {
-			URI file = index.getCurrent().toFileURI(asJavaString(tvars[0]));
-			index.getCurrent().clear(index.getCurrent().getFile(file));
+		if (isTermString(tvars[0]) || isTermTuple(tvars[0])) {
+			SemanticIndex ind = index.getCurrent();
+			ind.clear(ind.getFile(tvars[0]));
 			return true;
 		} else {
 			return false;

@@ -17,7 +17,7 @@ public class LanguageLibrary extends AbstractStrategoOperatorRegistry {
 		add(new LANG_index_add(index));
 		add(new LANG_index_clear_all(index));
 		add(new LANG_index_clear_file(index));
-		add(new LANG_index_get_all_filenames(index));
+		add(new LANG_index_get_all_files(index));
 		add(new LANG_index_get_all_in_file(index));
 		add(new LANG_index_get_children(index));
 		add(new LANG_index_get_descendants(index));
@@ -26,8 +26,7 @@ public class LanguageLibrary extends AbstractStrategoOperatorRegistry {
 		add(new LANG_index_remove(index));
 		add(new LANG_index_setup(index));
 		add(new LANG_index_commit(index));
-		add(new LANG_index_timestamp_get_changes(index));
-		add(new LANG_index_timestamp_update(index));
+		add(new LANG_index_get_files_newer_than(index));
 		
 		addSpxIndexPrimitives();
 	}
