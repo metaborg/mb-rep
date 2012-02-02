@@ -33,7 +33,7 @@ public class SemanticIndexEntryFactory {
 	public SemanticIndexEntryFactory(ITermFactory termFactory) {
 		this.termFactory = termFactory;
 		this.stripper = new TermAttachmentStripper(termFactory);
-		defCon = termFactory.makeConstructor("DefCon", 1);
+		defCon = termFactory.makeConstructor("Def", 1);
 		defDataCon = termFactory.makeConstructor("DefData", 3);
 	}
 	
