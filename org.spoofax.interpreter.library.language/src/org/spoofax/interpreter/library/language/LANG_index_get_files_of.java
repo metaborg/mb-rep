@@ -14,7 +14,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
  */
 public class LANG_index_get_files_of extends AbstractPrimitive {
 
-	private static String NAME = "LANG_index_get_file_of";
+	private static String NAME = "LANG_index_get_files_of";
 	
 	private final SemanticIndexManager index;
 	
