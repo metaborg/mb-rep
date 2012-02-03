@@ -43,7 +43,7 @@ public class LANG_index_get_files_newer_than extends AbstractPrimitive {
 	private static IStrategoList getFilesAfter(ITermFactory factory, SemanticIndex ind, Date time) {
  		IStrategoList results = factory.makeList();
 		for (SemanticIndexFile file : ind.getAllFiles()) {
-			if (!file.getTime().before(time)) {
+			if (file.getTime() != null && !file.getTime().before(time)) {
 				results = factory.makeListCons(file.toTerm(factory), results);
 			}
 		}

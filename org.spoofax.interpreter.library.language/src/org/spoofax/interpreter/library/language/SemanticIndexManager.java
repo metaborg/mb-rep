@@ -31,6 +31,9 @@ public class SemanticIndexManager {
 		new HashMap<String, Map<URI, WeakReference<SemanticIndex>>>();
 	
 	public SemanticIndex getCurrent() {
+		if(current == null)
+			throw new IllegalStateException("No semantic index has been set-up, use index-setup(|language, project-paths) to set up the index before use.");
+		
 		return current;
 	}
 	
