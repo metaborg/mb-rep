@@ -1,10 +1,15 @@
 package org.spoofax.interpreter.library.language;
 
+import static org.spoofax.interpreter.core.Tools.isTermList;
+import static org.spoofax.terms.Term.termAt;
+import static org.spoofax.terms.Term.tryGetConstructor;
+
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -12,6 +17,8 @@ import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.terms.TermFactory;
+import org.spoofax.terms.attachments.TermAttachmentSerializer;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
@@ -23,6 +30,9 @@ public class SemanticIndex {
 	
 	private final Map<SemanticIndexFile, SemanticIndexFile> files =
 		new HashMap<SemanticIndexFile, SemanticIndexFile>();
+	
+	private static final IStrategoConstructor FILE_ENTRIES_CON =
+			new TermFactory().makeConstructor("FileEntries", 2);
 
 	private IOAgent agent;
 
@@ -67,6 +77,13 @@ public class SemanticIndex {
 		add(factory.createEntry(entry.getConstructor(), namespace, id, contentsType, contents, parent, file), parent);
 	}
 	
+	public void addAll(IStrategoList entries, SemanticIndexFile file) {
+		while (!entries.isEmpty()) {
+			add((IStrategoAppl) entries.head(), file);
+			entries = entries.tail();
+		}
+	}
+	
 	public void add(SemanticIndexEntry entry) {
 		ensureInitialized();
 		add(entry, getEntryParentAbove(entry.getNamespace(), entry.getId(), true));
@@ -79,12 +96,12 @@ public class SemanticIndex {
 		if (existing == null) {
 			table.put(entry, entry);
 			if (entry.getFile() != null)
-				entry.getFile().getEntries().add(entry);
+				entry.getFile().addEntry(entry);
 		} else {
 			assert !entry.isParent() && existing != entry;
 			existing.getLast().setNext(entry);
 			if (entry.getFile() != null)
-				entry.getFile().getEntries().add(entry);
+				entry.getFile().addEntry(entry);
 		}
 		if (entry.getFile() != null)
 			entry.getFile().setTime(new Date());
@@ -114,11 +131,15 @@ public class SemanticIndex {
 		// Remove from fileTable
 		SemanticIndexFile file = entry.getFile();
 		if (file != null) {
-			file.getEntries().remove(entry);
+			file.removeEntry(entry);
 			entry.getFile().setTime(new Date());
 		}
 	}
 	
+	/**
+	 * @param fileTerm  a string or (string, string) tuple with the filename
+	 *                  or the filename and subfilename
+	 */
 	public SemanticIndexFile getFile(IStrategoTerm fileTerm) {
 		return getFile(SemanticIndexFile.fromTerm(agent, fileTerm));
 	}
@@ -230,28 +251,75 @@ public class SemanticIndex {
 		files.clear();
 	}
 	
-	public IStrategoTerm toTerm() {
+	public IStrategoTerm toTerm(boolean includePositions) {
 		ITermFactory terms = factory.getTermFactory();
-		IStrategoList entries = SemanticIndexEntry.toTerms(terms, table.values());
-		return entries;
+		IStrategoList results = terms.makeList();
+		for (SemanticIndexFile file : files.keySet()) {
+			IStrategoList fileResults = SemanticIndexEntry.toTerms(terms, file.getEntries());
+			// TODO: include time stamp for file
+			IStrategoTerm result = terms.makeAppl(FILE_ENTRIES_CON, file.toTerm(terms), fileResults);
+			results = terms.makeListCons(result, results);
+		}
+		
+		if (includePositions) {
+			// TODO: optimize -- store more compact attachments for positions
+			TermFactory simpleFactory = new TermFactory();
+			TermAttachmentSerializer serializer = new TermAttachmentSerializer(simpleFactory);
+			results = (IStrategoList) serializer.toAnnotations(results);
+		}
+		
+		return results;
 	}
 	
-	public static SemanticIndex fromTerm(IStrategoTerm term) {
-		return null; // TODO
+	/**
+	 * Reads an index from a term.
+	 */
+	public static SemanticIndex fromTerm(IStrategoTerm term, ITermFactory factory, IOAgent agent, boolean extractPositions) throws IOException {
+		if (extractPositions) {
+			TermAttachmentSerializer serializer = new TermAttachmentSerializer(factory);
+			term = (IStrategoList) serializer.fromAnnotations(term, false);
+		}
+		
+		if (isTermList(term)) {
+			SemanticIndex result = new SemanticIndex();
+			result.initialize(factory, agent);
+			for (IStrategoList list = (IStrategoList) term; !list.isEmpty(); list = list.tail()) {
+				fromFileEntriesTerm(list.head(), result);
+			}
+			return result;
+		} else {
+			throw new IOException("Expected list of " + FILE_ENTRIES_CON.getName());
+		}
 	}
 	
+	private static void fromFileEntriesTerm(IStrategoTerm fileEntries, SemanticIndex result) throws IOException {
+		if (tryGetConstructor(fileEntries) == FILE_ENTRIES_CON) {
+			try {
+				SemanticIndexFile file = SemanticIndexFile.fromTerm(null, termAt(fileEntries, 0));
+				result.addAll((IStrategoList) termAt(fileEntries, 1), file);
+			} catch (IllegalStateException e) {
+				throw new IllegalStateException(e);
+			} catch (RuntimeException e) { // HACK: catch all runtime exceptions
+				throw new IOException("Unexpected exception reading index: " + e);
+			}
+		} else {
+			throw new IOException("Illegal index entry: " + fileEntries);
+		}
+	}
+
 	public void clear(SemanticIndexFile file) {
 		assert files.get(file) == null || files.get(file) == file;
 		
-		Set<SemanticIndexEntry> fileSet = file.getEntries();
-		if (fileSet.isEmpty()) return;
+		List<SemanticIndexEntry> entries = file.getEntries();
+		if (entries.isEmpty()) return;
 		
-		SemanticIndexEntry[] copy = new SemanticIndexEntry[fileSet.size()];
-		copy = fileSet.toArray(copy);
+		SemanticIndexEntry[] copy = entries.toArray(new SemanticIndexEntry[entries.size()]);
 		for (SemanticIndexEntry entry : copy) {
 		    assert table.get(entry) != null;
 			remove(entry);
 		}
+		
+		assert file.getEntries().isEmpty();
 	}
 	
 	public Collection<SemanticIndexFile> getAllFiles() {
@@ -260,7 +328,7 @@ public class SemanticIndex {
 	
 	@Override
 	public String toString() {
-		return table.keySet().toString();
+		return files.keySet().toString();
 	}
 	
 	

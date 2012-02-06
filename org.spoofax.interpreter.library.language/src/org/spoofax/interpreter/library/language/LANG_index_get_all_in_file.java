@@ -3,7 +3,7 @@ package org.spoofax.interpreter.library.language;
 import static org.spoofax.interpreter.core.Tools.isTermString;
 import static org.spoofax.interpreter.core.Tools.isTermTuple;
 
-import java.util.Set;
+import java.util.List;
 
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.library.AbstractPrimitive;
@@ -28,7 +28,7 @@ public class LANG_index_get_all_in_file extends AbstractPrimitive {
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
 		if (isTermTuple(tvars[0]) || isTermString(tvars[0])) {
 			SemanticIndex idn = index.getCurrent();
-			Set<SemanticIndexEntry> results = idn.getFile(tvars[0]).getEntries();
+			List<SemanticIndexEntry> results = idn.getFile(tvars[0]).getEntries();
 			env.setCurrent(SemanticIndexEntry.toTerms(env.getFactory(), results));
 			return true;
 		} else {

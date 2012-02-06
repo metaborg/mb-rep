@@ -173,8 +173,8 @@ public class SemanticIndexEntry {
 			ImploderAttachment.putImploderAttachment(term, false, attach.getSort(), attach.getLeftToken(), attach.getRightToken());
 		} else {
 			String fn = file == null ? null : file.getURI().getPath();
-			term.putAttachment(ImploderAttachment.createCompactPositionAttachment(
-					fn, 0, 0, 0, -1));
+			attach = ImploderAttachment.createCompactPositionAttachment(fn, 0, 0, 0, -1);
+			term.putAttachment(attach);
 		}
 		return term;
 	}
@@ -218,6 +218,7 @@ public class SemanticIndexEntry {
 		if (id != other.id && !id.match(other.id))
 			return false;
 		/* Not considered: data is not part of the key, makes it impossible to look up!
+		   (same for file)
 		if (contents != other.contents && contents != null && !contents.match(other.contents))
 			return false;
 		*/

@@ -35,8 +35,8 @@ public class LANG_index_setup extends AbstractPrimitive {
 		}
 		IOAgent agent = SSLLibrary.instance(env).getIOAgent();
 		SemanticIndexFile project = SemanticIndexFile.fromTerm(agent, projectPaths.head());
-		index.loadIndex(asJavaString(language), project.getURI()); 
-		index.getCurrent().initialize(env.getFactory(), SSLLibrary.instance(env).getIOAgent());
+		index.loadIndex(asJavaString(language), project.getURI(), env.getFactory(), agent); 
+		index.getCurrent().initialize(env.getFactory(), agent);
 		return true;
 	}
 }

@@ -5,9 +5,10 @@ import static org.spoofax.interpreter.core.Tools.isTermTuple;
 
 import java.io.File;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.terms.IStrategoString;
@@ -23,7 +24,7 @@ public class SemanticIndexFile {
 	
 	public static final String DEFAULT_DESCRIPTOR = "";
 	
-	private final Set<SemanticIndexEntry> entries = new HashSet<SemanticIndexEntry>();
+	private final List<SemanticIndexEntry> entries = new ArrayList<SemanticIndexEntry>();
 
 	private final URI uri;
 	
@@ -43,8 +44,33 @@ public class SemanticIndexFile {
 		return descriptor;
 	}
 	
-	public Set<SemanticIndexEntry> getEntries() {
+	/**
+	 * Gets all entries associated with this file.
+	 * Should not be modified.
+	 */
+	public List<SemanticIndexEntry> getEntries() {
+		boolean assertionsOn = false;
+		assert assertionsOn = true;
+		if (assertionsOn)
+			return Collections.unmodifiableList(entries);
 		return entries;
+	}
+	
+	public void addEntry(SemanticIndexEntry entry) {
+		entries.add(entry);
+	}
+	
+	/**
+	 * Removes an entry using pointer-equality, taking into account
+	 * other entries that may be equal to the given entry
+	 */
+	public void removeEntry(SemanticIndexEntry entry) {
+		for (int i = 0; i < entries.size(); i++) {
+			if (entries.get(i) == entry) {
+				entries.remove(i);
+				return;
+			}
+		}
 	}
 	
 	public void setTime(Date time) {
@@ -63,6 +89,11 @@ public class SemanticIndexFile {
 	 * Converts a term file representation to a SemanticIndexFile,
 	 * using the  {@link IOAgent} to create an absolute path.
 	 * 
+	 * @param agent  The agent that provides the current path and file system access,
+	 *               or null if the path should be used as-is.
+	 * @param term   A string or (string, string) tuple with the filename
+	 *               or the filename and subfilename
+	 * 
 	 * @see SemanticIndex#getFile()
 	 */
 	public static SemanticIndexFile fromTerm(IOAgent agent, IStrategoTerm term) {
@@ -76,7 +107,7 @@ public class SemanticIndexFile {
 			descriptor = DEFAULT_DESCRIPTOR;
 		}
 		File file = new File(name);
-		if (!file.isAbsolute())
+		if (!file.isAbsolute() && agent != null)
 			file = new File(agent.getWorkingDir(), name);
 		return new SemanticIndexFile(file.toURI(), descriptor, null);
 	}
