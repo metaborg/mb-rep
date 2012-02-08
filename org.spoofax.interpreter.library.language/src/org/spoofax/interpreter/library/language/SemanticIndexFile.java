@@ -22,7 +22,8 @@ import org.spoofax.interpreter.terms.ITermFactory;
  */
 public class SemanticIndexFile {
 	
-	public static final String DEFAULT_DESCRIPTOR = "";
+	@Deprecated
+	public static final String DEFAULT_DESCRIPTOR = null;
 	
 	private final List<SemanticIndexEntry> entries = new ArrayList<SemanticIndexEntry>();
 
@@ -81,8 +82,6 @@ public class SemanticIndexFile {
 		this.uri = uri;
 		this.descriptor = descriptor;
 		this.time = time;
-		if (descriptor == null)
-			throw new IllegalArgumentException("descriptor can't be null, use DEFAULT_DESCRIPTOR");
 	}
 	
 	/**
@@ -119,14 +118,20 @@ public class SemanticIndexFile {
 	
 	public IStrategoTerm toTerm(ITermFactory factory) {
 		IStrategoString uriString = factory.makeString(toString());
-		return factory.makeTuple(uriString, factory.makeString(descriptor));
+		IStrategoString descriptorName = factory.makeString(descriptor == null ? "" : descriptor);
+		return factory.makeTuple(uriString, descriptorName);
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
-		return obj instanceof SemanticIndexFile
-			&& ((SemanticIndexFile) obj).uri.equals(uri)
-			&& ((SemanticIndexFile) obj).descriptor.equals(descriptor);
+		if (obj instanceof SemanticIndexFile) {
+			if (obj == this) return true;
+			SemanticIndexFile other = (SemanticIndexFile) obj;
+			return other.uri.equals(uri)
+					&& (descriptor == null ? other.descriptor == null : descriptor.equals(other.descriptor));
+		} else {
+			return false;
+		}
 	}
 	
 	@Override
