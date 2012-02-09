@@ -80,7 +80,7 @@ public class SemanticIndexFile {
 	
 	public SemanticIndexFile(URI uri, String descriptor, Date time) {
 		this.uri = uri;
-		this.descriptor = descriptor;
+		this.descriptor = "".equals(descriptor) ? null : descriptor;
 		this.time = time;
 	}
 	
@@ -103,7 +103,7 @@ public class SemanticIndexFile {
 			descriptor = asJavaString(term.getSubterm(1));
 		} else {
 			name = asJavaString(term);
-			descriptor = DEFAULT_DESCRIPTOR;
+			descriptor = null;
 		}
 		File file = new File(name);
 		if (!file.isAbsolute() && agent != null)

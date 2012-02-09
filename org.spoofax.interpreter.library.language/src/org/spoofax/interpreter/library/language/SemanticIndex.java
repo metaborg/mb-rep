@@ -295,7 +295,7 @@ public class SemanticIndex {
 	private static void fromFileEntriesTerm(IStrategoTerm fileEntries, SemanticIndex result) throws IOException {
 		if (tryGetConstructor(fileEntries) == FILE_ENTRIES_CON) {
 			try {
-				SemanticIndexFile file = SemanticIndexFile.fromTerm(null, termAt(fileEntries, 0));
+				SemanticIndexFile file = result.getFile(termAt(fileEntries, 0));
 				result.addAll((IStrategoList) termAt(fileEntries, 1), file);
 			} catch (IllegalStateException e) {
 				throw new IllegalStateException(e);
