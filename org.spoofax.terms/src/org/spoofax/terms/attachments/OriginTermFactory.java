@@ -174,6 +174,7 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 	 * May add origin tracking information to list Cons nodes.
 	 */
 	private IStrategoList makeListLink(IStrategoList terms, IStrategoList old) {
+		IStrategoList results = terms;
 		assert terms.size() == old.size();
 		while (!terms.isEmpty()) {
 			IStrategoTerm term = terms.head();
@@ -183,7 +184,7 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 			terms = terms.tail();
 			old = old.tail();
 		}
-		return terms;
+		return results;
 	}
 	
 	protected IStrategoTerm[] ensureChildLinks(IStrategoTerm[] kids, IStrategoTerm old) {
