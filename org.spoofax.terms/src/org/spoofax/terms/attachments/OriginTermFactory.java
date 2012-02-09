@@ -174,26 +174,16 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 	 * May add origin tracking information to list Cons nodes.
 	 */
 	private IStrategoList makeListLink(IStrategoList terms, IStrategoList old) {
-		if (terms.isEmpty()) {
-			assert old.isEmpty();
-			// We don't bother linking empty lists
-			return terms;
-		} else {
-			IStrategoTerm head = terms.head();
-			IStrategoList tail = terms.tail();
-			IStrategoTerm newHead = ensureLink(head, old.head(), false);
-			IStrategoList newTail = makeListLink(tail, old.tail());
-			
-			/* UNDONE: Origin tracking for Cons nodes
-			           (relatively expensive, and who cares about them?)
-			if (old instanceof WrappedAstNodeList) {
-				WrappedAstNodeList oldList = (WrappedAstNodeList) old;
-				return new WrappedAstNodeList(oldList.getNode(), oldList.getOffset(), head, tail, terms.getAnnotations());
-			}
-			*/
-			if (head == newHead && tail == newTail) return terms;
-			return makeListCons(newHead, newTail, terms.getAnnotations());
+		assert terms.size() == old.size();
+		while (!terms.isEmpty()) {
+			IStrategoTerm term = terms.head();
+			IStrategoTerm oldTerm = old.head();
+			IStrategoTerm newTerm = ensureLink(term, oldTerm, false);
+			assert newTerm == term : "We assume mutable operations for origins";
+			terms = terms.tail();
+			old = old.tail();
 		}
+		return terms;
 	}
 	
 	protected IStrategoTerm[] ensureChildLinks(IStrategoTerm[] kids, IStrategoTerm old) {
