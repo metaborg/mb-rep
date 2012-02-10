@@ -27,11 +27,11 @@ public class NotificationCenter {
 		}
 	}
 
-	/*
-	private static boolean isUriPrefixOf(URI file, URI root) {
-		return !root.relativize(file).isAbsolute();
+	public synchronized static void notifyNewProject(URI project) {
+		for (INotificationService observer : asyncObservers.values()) {
+			observer.notifyNewProject(project);
+		}
 	}
-	*/
 	
 	/**
 	 * Registers an observer. Only one observer is stored at a time for a language/serviceName combination.
@@ -43,14 +43,8 @@ public class NotificationCenter {
 		asyncObservers.put(new ObserverDescription(language, serviceName), service);
 	}
 	
-	public static boolean removeObserver(String language, String service) {
+	public synchronized static boolean removeObserver(String language, String service) {
 		return asyncObservers.remove(new ObserverDescription(language, service)) != null;
-	}
-
-	public static void notifyNewProject(URI project) {
-		for (INotificationService observer : asyncObservers.values()) {
-			observer.notifyNewProject(project);
-		}
 	}
 	
 	
