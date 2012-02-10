@@ -1,8 +1,8 @@
 package org.spoofax.interpreter.library.language;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
@@ -19,8 +19,8 @@ public class SemanticIndexEntryParent extends SemanticIndexEntry {
 	public static final IStrategoConstructor CONSTRUCTOR =
 		new TermFactory().makeConstructor("<parent>", 1);
 
-	private final Set<SemanticIndexEntry> children =
-		new HashSet<SemanticIndexEntry>();
+	private final List<SemanticIndexEntry> children =
+		new ArrayList<SemanticIndexEntry>();
 	
 	private transient IStrategoList allDefsCached;
 	
@@ -40,15 +40,18 @@ public class SemanticIndexEntryParent extends SemanticIndexEntry {
 	
 	public void remove(SemanticIndexEntry entry) {
 		allDefsCached = null;
-		children.remove(entry);
+		for (int i = 0, max = children.size(); i < max; i++) {
+			if (children.get(i) == entry)
+				children.remove(i--);
+		}
 	}
 	
 	public boolean isEmpty() {
 		return children.isEmpty();
 	}
 	
-	public Set<SemanticIndexEntry> getChildren() {
-		return Collections.unmodifiableSet(children);
+	public List<SemanticIndexEntry> getChildren() {
+		return Collections.unmodifiableList(children);
 	}
 	
 	public IStrategoList getAllDefsCached() {
