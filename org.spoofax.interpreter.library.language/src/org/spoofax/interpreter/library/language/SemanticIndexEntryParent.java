@@ -40,7 +40,7 @@ public class SemanticIndexEntryParent extends SemanticIndexEntry {
 	
 	public void remove(SemanticIndexEntry entry) {
 		allDefsCached = null;
-		for (int i = 0, max = children.size(); i < max; i++) {
+		for (int i = 0; i < children.size(); i++) {
 			if (children.get(i) == entry)
 				children.remove(i--);
 		}
