@@ -113,7 +113,7 @@ public class SemanticIndexFile {
  	
 	@Override
 	public String toString() {
-		return "file".equals(uri.getScheme()) ? new File(uri).getAbsolutePath() : uri.toString();
+		return "file".equals(uri.getScheme()) ? new File(uri).getAbsolutePath().replace("\\", "/") : uri.toString();
 	}
 	
 	public IStrategoTerm toTerm(ITermFactory factory) {
