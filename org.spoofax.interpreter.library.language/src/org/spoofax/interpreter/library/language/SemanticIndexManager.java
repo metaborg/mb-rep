@@ -26,6 +26,8 @@ public class SemanticIndexManager {
 	
 	private String currentLanguage;
 	
+	private SemanticIndexFile currentFile;
+	
 	/**
 	 * Indices by language and project. Access requires a lock on {@link #getSyncRoot}
 	 */
@@ -37,6 +39,17 @@ public class SemanticIndexManager {
 			throw new IllegalStateException("No semantic index has been set-up, use index-setup(|language, project-paths) to set up the index before use.");
 		
 		return current;
+	}
+	
+	public SemanticIndexFile getCurrentFile() {
+		if (!isInitialized())
+			throw new IllegalStateException("No semantic index has been set-up, use index-setup(|language, project-paths) to set up the index before use.");
+		
+		return currentFile;
+	}
+	
+	public void setCurrentFile(SemanticIndexFile currentFile) {
+		this.currentFile = currentFile;
 	}
 	
 	private static Object getSyncRoot() {

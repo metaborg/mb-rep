@@ -22,9 +22,6 @@ import org.spoofax.interpreter.terms.ITermFactory;
  */
 public class SemanticIndexFile {
 	
-	@Deprecated
-	public static final String DEFAULT_DESCRIPTOR = null;
-	
 	private final List<SemanticIndexEntry> entries = new ArrayList<SemanticIndexEntry>();
 
 	private final URI uri;

@@ -22,7 +22,7 @@ public class LANG_index_setup extends AbstractPrimitive {
 	private final SemanticIndexManager index;
 	
 	public LANG_index_setup(SemanticIndexManager index) {
-		super(NAME, 0, 2);
+		super(NAME, 0, 3);
 		this.index = index;
 	}
 
@@ -30,12 +30,15 @@ public class LANG_index_setup extends AbstractPrimitive {
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
 		IStrategoString language = (IStrategoString) tvars[0];
 		IStrategoList projectPaths = (IStrategoList) tvars[1];
+		IStrategoTerm fileTerm = tvars[2];
 		if (projectPaths.size() != 1) {
 			throw new NotImplementedException("Multiple project paths");
 		}
 		IOAgent agent = SSLLibrary.instance(env).getIOAgent();
 		SemanticIndexFile project = SemanticIndexFile.fromTerm(agent, projectPaths.head());
-		index.loadIndex(asJavaString(language), project.getURI(), env.getFactory(), agent); 
+		SemanticIndexFile file = SemanticIndexFile.fromTerm(agent, fileTerm);
+		index.loadIndex(asJavaString(language), project.getURI(), env.getFactory(), agent);
+		index.setCurrentFile(file);
 		index.getCurrent().initialize(env.getFactory(), agent);
 		return true;
 	}
