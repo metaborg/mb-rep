@@ -125,7 +125,7 @@ public abstract class SpxBaseSymbol implements Serializable{
 	}
 	
 	
-	// TODO FIX : bring the singature to the base class 
+	// TODO FIX : bring the signature to the base class 
 	public boolean equalSignature (IStrategoConstructor term) { 
 		return _signatureString.equals(term.getName()); 
 	}
