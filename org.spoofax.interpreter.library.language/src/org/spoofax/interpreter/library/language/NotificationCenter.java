@@ -17,16 +17,23 @@ public class NotificationCenter {
 			new HashMap<ObserverDescription, INotificationService>();
 	
 	/**
+	 * Notify listeners of a added/removed/changed file.
+	 *
 	 * @param file      The URI of the file
 	 * @param subfile   The subfilename, or null if not applicable
 	 */
-	public synchronized static void notifyChanges(URI file, String subfile) {
+	public synchronized static void notifyFileChanges(URI file, String subfile) {
 		assert file.isAbsolute();
 		for (INotificationService observer : asyncObservers.values()) {
 			observer.notifyFileChanges(file, subfile);
 		}
 	}
 
+	/**
+	 * Notify listener of a new project.
+	 * All files in it should be compared to the
+	 * timestamps or other metadata stored about them.
+	 */
 	public synchronized static void notifyNewProject(URI project) {
 		for (INotificationService observer : asyncObservers.values()) {
 			observer.notifyNewProject(project);
