@@ -94,9 +94,7 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 			} else {
 				return term;
 			}
-		} else if (
-			haveSameSignature(term, origin)
-		) {
+		} else if (haveSameSignature(term, origin)) {
 			ensureChildLinks(term.getAllSubterms(), origin);
 			return ensureLink(term, origin, false);
 		} else {
@@ -135,7 +133,7 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 			StrategoWrapped result = new StrategoWrapped(term);
 			setOrigin(result, origin);
 			return result;
-			*/
+			*/			
 		}
 		return term;
 	}
@@ -212,7 +210,7 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 		}		
 		if(assignDesugaredOrigins){
 			//do not trust child link heuristic
-			if(!isChildLink) DesugaredOriginAttachment.setDesugaredOrigin(term, term);
+			if(!isChildLink) makeLinkDesugared(term, term);
 		} 
 		else {
 			IStrategoTerm desugared = DesugaredOriginAttachment.getDesugaredOrigin(old);
