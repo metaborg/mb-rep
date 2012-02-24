@@ -136,14 +136,17 @@ public class SemanticIndexEntry {
 	 */
 	public final IStrategoList toTerms(ITermFactory factory) {
 		IStrategoList results = factory.makeList();
-		return toTerms(factory, results);
+		return toTerms(factory, results, true);
 	}
 
-	protected IStrategoList toTerms(ITermFactory factory, IStrategoList results) {
+	protected IStrategoList toTerms(ITermFactory factory, IStrategoList results, boolean lookAtNext) {
 		for (SemanticIndexEntry entry = this; entry != null; entry = entry.getNext()) {
 			IStrategoAppl result = entry.toTerm(factory);
 			if (result != null)
 				results = factory.makeListCons(result, results);
+			
+			if(!lookAtNext)
+				break;
 		}
 		
 		return results;
@@ -153,10 +156,10 @@ public class SemanticIndexEntry {
 	 * Returns a term representation of given entries and their tails as a list.
 	 * (Null for {@link SemanticIndexEntryParent} terms.)
 	 */
-	public static IStrategoList toTerms(ITermFactory factory, Iterable<SemanticIndexEntry> entries) {
+	public static IStrategoList toTerms(ITermFactory factory, Iterable<SemanticIndexEntry> entries, boolean lookAtNext) {
 		IStrategoList results = factory.makeList();
 		for (SemanticIndexEntry entry : entries) {
-			results = entry.toTerms(factory, results);
+			results = entry.toTerms(factory, results, lookAtNext);
 		}
 		return results;
 	}

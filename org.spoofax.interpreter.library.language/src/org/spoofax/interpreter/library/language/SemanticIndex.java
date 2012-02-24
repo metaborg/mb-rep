@@ -255,7 +255,7 @@ public class SemanticIndex {
 		ITermFactory terms = factory.getTermFactory();
 		IStrategoList results = terms.makeList();
 		for (SemanticIndexFile file : files.keySet()) {
-			IStrategoList fileResults = SemanticIndexEntry.toTerms(terms, file.getEntries());
+			IStrategoList fileResults = SemanticIndexEntry.toTerms(terms, file.getEntries(), false);
 			// TODO: include time stamp for file
 			IStrategoTerm result = terms.makeAppl(FILE_ENTRIES_CON, file.toTerm(terms), fileResults);
 			results = terms.makeListCons(result, results);
