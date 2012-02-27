@@ -97,12 +97,11 @@ public class SemanticIndexEntry {
 	}
 	
 	boolean isReferenceInTail(SemanticIndexEntry entry) {
-		for (SemanticIndexEntry tail = this; tail != null; tail = entry.getNext()) {
+		for (SemanticIndexEntry tail = this; tail != null; tail = tail.getNext()) {
 			if (entry == tail) return true;
 		}
 		return false;
 	}
-	
 	/**
 	 * Reinitialize this template. Used for maintaining a reusable lookup object
 	 * in the index.
