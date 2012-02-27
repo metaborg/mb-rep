@@ -113,16 +113,22 @@ public class SemanticIndex {
 	 */
 	public void remove(SemanticIndexEntry entry) {
 		// Remove from table
-		SemanticIndexEntry head = table.get(entry);
-		if (head == null) {
+		SemanticIndexEntry existing = table.get(entry);
+		if (existing == null) {
 		    return;
-		} else if (head == entry) {
+		} else if (existing == entry) {
 			table.remove(entry);
 			if (entry.getNext() != null)
 				table.put(entry.getNext(), entry.getNext());
 		} else {
-			head.setNext(entry.getNext());
-			assert !head.isReferenceInTail(entry);
+			while (existing != null && existing.getNext() != entry)
+				existing = existing.getNext();
+			if (existing == null) {
+				assert false;
+				return;
+			}
+			existing.setNext(entry.getNext());
+			assert !existing.isReferenceInTail(entry);
 		}
 		
 		// Remove from parent
