@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -89,6 +90,20 @@ public class SemanticIndex {
 		add(entry, getEntryParentAbove(entry.getNamespace(), entry.getId(), true));
 	}
 	
+	private SemanticIndexEntry getReferenceInChain(SemanticIndexEntry entry) {
+		if(entry == null)
+			return null;
+		
+		for(Entry<SemanticIndexEntry, SemanticIndexEntry> e : table.entrySet()) {
+			if(entry == e.getKey().getNext())
+				return e.getKey();
+			if(entry == e.getValue().getNext())
+				return e.getValue();
+		}
+		
+		return null;
+	}
+	
 	private void add(SemanticIndexEntry entry, SemanticIndexEntryParent parent) {
 		if (parent != null)
 			parent.add(entry);
@@ -99,6 +114,7 @@ public class SemanticIndex {
 				entry.getFile().addEntry(entry);
 		} else {
 			assert !entry.isParent() && existing != entry;
+			assert getReferenceInChain(existing.getLast()) == null;
 			existing.getLast().setNext(entry);
 			if (entry.getFile() != null)
 				entry.getFile().addEntry(entry);
@@ -120,6 +136,7 @@ public class SemanticIndex {
 			if (entry.getNext() != null)
 				table.put(entry.getNext(), entry.getNext());
 		} else {
+			assert getReferenceInChain(head) == null;
 			head.setNext(entry.getNext());
 		}
 		
