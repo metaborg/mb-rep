@@ -96,6 +96,13 @@ public class SemanticIndexEntry {
 		this.next = next;
 	}
 	
+	boolean isReferenceInTail(SemanticIndexEntry entry) {
+		for (SemanticIndexEntry tail = this; tail != null; tail = entry.getNext()) {
+			if (entry == tail) return true;
+		}
+		return false;
+	}
+	
 	/**
 	 * Reinitialize this template. Used for maintaining a reusable lookup object
 	 * in the index.
