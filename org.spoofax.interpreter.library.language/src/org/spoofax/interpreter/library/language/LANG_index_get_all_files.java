@@ -25,6 +25,9 @@ public class LANG_index_get_all_files extends AbstractPrimitive {
 		ITermFactory factory = env.getFactory();
 		IStrategoList results = getAllFiles(index.getCurrent(), factory);
 		env.setCurrent(results);
+		
+		new SemanticIndexStatistics(index.getCurrent()).printStats();
+		
 		return true;
 	}
 
