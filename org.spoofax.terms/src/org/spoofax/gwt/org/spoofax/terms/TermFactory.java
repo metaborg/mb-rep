@@ -48,6 +48,7 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
 	new StrategoList(null, null, null, MAXIMALLY_SHARED);
 
     // StrategoXT/801: must use weak keys and values, and must maintain maximal sharing to avoid early collection
+    // TODO: FIXME FIXME FIXME you can't keep strings around like this
     private static final HashMap<String, StrategoString> asyncStringPool =
         new HashMap<String, StrategoString>();
 
