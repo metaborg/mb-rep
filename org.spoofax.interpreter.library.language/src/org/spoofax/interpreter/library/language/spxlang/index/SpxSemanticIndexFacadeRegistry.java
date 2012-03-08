@@ -78,10 +78,7 @@ public class SpxSemanticIndexFacadeRegistry
 		String key = SpxIndexUtils.toAbsPathString(asJavaString(projectPath));		
 		SpxSemanticIndexFacade facade =  _registry.get(key);
 		
-		if(facade == null) {
-			throw new SpxSymbolTableException("Symbol Table is not initialized for project : " + projectPath + " . Invoke SPX_index_init. ");
-		}	
-		else if( (facade != null) && facade.isPersistenceManagerClosed()){
+		if( (facade != null) && facade.isPersistenceManagerClosed()){
 			facade.initializePersistenceManager();
 		}	
 		return facade;
