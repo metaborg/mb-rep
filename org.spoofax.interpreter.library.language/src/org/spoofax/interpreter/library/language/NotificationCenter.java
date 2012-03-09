@@ -4,6 +4,8 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.spoofax.interpreter.library.language.INotificationService.FileSubfile;
+
 /**
  * A central, static go-to point for file system notifications.
  * 
@@ -26,6 +28,28 @@ public class NotificationCenter {
 		assert file.isAbsolute();
 		for (INotificationService observer : asyncObservers.values()) {
 			observer.notifyFileChanges(file, subfile);
+		}
+	}
+	
+	/**
+	 * Notify listeners of multiple added/removed/changed files.
+	 *
+	 * @param files		The changed files
+	 */
+	public synchronized static void notifyFileChanges(FileSubfile[] files) {
+		if(files.length == 1)
+		{
+			FileSubfile file = files[0];
+			notifyFileChanges(file.file, file.subfile);
+			return;
+		}
+		
+		for(FileSubfile file : files) {
+			assert file.file.isAbsolute();
+		}
+		
+		for (INotificationService observer : asyncObservers.values()) {
+			observer.notifyFileChanges(files);
 		}
 	}
 
@@ -53,7 +77,6 @@ public class NotificationCenter {
 	public synchronized static boolean removeObserver(String language, String service) {
 		return asyncObservers.remove(new ObserverDescription(language, service)) != null;
 	}
-	
 	
 	/**
 	 * An observer. A wannabe case class.
