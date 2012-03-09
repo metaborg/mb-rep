@@ -16,8 +16,9 @@
 
 package jdbm.htree;
 
-import java.awt.image.Kernel;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import jdbm.SerializerInput;
@@ -230,13 +231,14 @@ final class HashBucket<K,V>
     /**
      * Implement Externalizable interface.
      */
+	@SuppressWarnings("unchecked")
     public void writeExternal( SerializerOutput out )
         throws IOException
     {
 
     	LongPacker.packInt(out, _depth);
 
-        ArrayList keys = (ArrayList) _keys.clone();;
+    	ArrayList keys = (ArrayList) _keys.clone();;
         //write keys
         if(tree.keySerializer!=null){
             for(int i = 0;i<_keys.size();i++){

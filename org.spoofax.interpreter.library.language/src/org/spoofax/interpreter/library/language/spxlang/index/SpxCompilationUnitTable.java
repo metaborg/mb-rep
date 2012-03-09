@@ -45,7 +45,7 @@ public class SpxCompilationUnitTable {
 	/**
 	 * Defines a new symbol table entry. If the entry is already present in the symboltable, 
 	 * it updates the existing entry by invoking {@link #update(URI, IStrategoTerm)}. 
-	 * @param facade TODO
+	 * @param facade 
 	 * @param absPath URI representing the absolute path of the Compilation Unit.   
 	 * @param compilationUnit compilation unit AST represented by {@link IStrategoTerm}
 	 * 
@@ -238,5 +238,22 @@ public class SpxCompilationUnitTable {
 	public void removeRecordListener( final ICompilationUnitRecordListener rl)
 	{
 		this.removeRecordListener(rl.getCompilationUnitRecordListener());
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder b = new StringBuilder();
+		b.append("CompilationUnit Index Table : ");
+		b.append("\n");
+		b.append("No of Entries :");
+		b.append("\n");
+		b.append(this._infoMap.size());
+		
+		b.append("\n Entries : \n");
+		for ( String  s : this._infoMap.keySet()){
+			b.append( "*" +s+ "\n");
+		}
+		
+		return b.toString();
 	}
 }

@@ -10,9 +10,9 @@ import org.spoofax.interpreter.core.InterpreterException;
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.library.AbstractPrimitive;
 import org.spoofax.interpreter.library.IOAgent;
+import org.spoofax.interpreter.library.language.spxlang.index.SpxIndexManager;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxSemanticIndex;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxSemanticIndexFacade;
-import org.spoofax.interpreter.library.language.spxlang.index.SpxSemanticIndexFacadeRegistry;
 import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbolTableException;
 import org.spoofax.interpreter.library.ssl.SSLLibrary;
 import org.spoofax.interpreter.stratego.Strategy;
@@ -20,37 +20,37 @@ import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 public abstract class SpxAbstractPrimitive extends AbstractPrimitive{
-	
+
 	private final static int PROJECT_PATH_INDEX = 0;
 
 	protected final SpxSemanticIndex index;
-	
+
 	public SpxAbstractPrimitive(SpxSemanticIndex index, String name, int svars, int tvars ) {
 		super(name, svars, tvars);
-		
+
 		this.index = index;
 	}
-	
+
 	protected IStrategoString getProjectPath( IStrategoTerm[] tvars){
 		//TODO : get project path from EditorIOAgent instead of passing as an argument
 		return (IStrategoString)tvars[PROJECT_PATH_INDEX]; 
 	}
-	
+
 	protected SpxPrimitiveValidator validateArguments(IContext env, Strategy[] svars, IStrategoTerm[] tvars){
 		return SpxPrimitiveValidator.newValidator()
-					.validatePrimitive(getName()).with(env, tvars)								
-												 .validateArity(getTArity())
-												 .validateStringTermAt(PROJECT_PATH_INDEX);
+		.validatePrimitive(getName()).with(env, tvars)								
+		.validateArity(getTArity())
+		.validateStringTermAt(PROJECT_PATH_INDEX);
 	}
-	
+
 	protected abstract boolean executePrimitive(IContext env, Strategy[] svars, IStrategoTerm[] tvars) throws Exception;
-	
+
 	@Override 
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) throws InterpreterException {
 		boolean successStatement = false;
 		IOAgent agent = SSLLibrary.instance(env).getIOAgent();
 		String projectPath = Tools.asJavaString(getProjectPath(tvars));
-		
+
 		try {
 			validateArguments(env, svars, tvars);
 			successStatement = executePrimitive(env, svars, tvars) ;
@@ -58,29 +58,31 @@ public abstract class SpxAbstractPrimitive extends AbstractPrimitive{
 		catch (Exception ex) {
 			if (!( ex instanceof SpxSymbolTableException)) 
 				logException(projectPath , agent , ex);
-			
+
 			if( ex instanceof IOException ||  ex instanceof IllegalStateException){
-				tryCleanupResources( index.getFacadeRegistry() ,  getProjectPath(tvars) , agent);
+				tryCleanupResources( index ,  getProjectPath(tvars) , agent);
 			}
 		}
 		catch (Error e) {
 			logException(projectPath, agent , e);
-			tryCleanupResources( index.getFacadeRegistry() ,  getProjectPath(tvars) , agent);
+			tryCleanupResources( index ,  getProjectPath(tvars) , agent);
 			throw e;
 		}
 		return successStatement; 
 	};
-	
-	void tryCleanupResources(SpxSemanticIndexFacadeRegistry registry,IStrategoTerm projectPath , IOAgent agent){
 
-		if (registry.containsFacade(projectPath)) {
-			SpxSemanticIndexFacade facade =null; 
+	void tryCleanupResources(SpxSemanticIndex idx , IStrategoTerm projectPath , IOAgent agent){
+
+		SpxSemanticIndexFacade facade =  SpxIndexManager.getSpxIndexFacade(idx, projectPath);
+
+		if(facade == null){
+			logMessage( agent, "Cleanup Failed since index is not initialized");
+		}
+		else
+		{
 			try {
-				facade = registry.getFacade(projectPath);
-				if(facade!=null){
-					facade.clearCache();
-					facade.close(false);
-				}
+				facade.clearCache();
+				facade.close(false);
 			} catch (Exception e) {
 				logMessage( agent, "Cleanup Failed due to error :"+ e.getMessage() );
 			} catch (Error e) {
@@ -88,28 +90,28 @@ public abstract class SpxAbstractPrimitive extends AbstractPrimitive{
 			}
 		}
 	}
-	
+
 	void logMessage(IOAgent agent , String message){ 
 		agent.printError("[" + this.getName() + "] " + message);
 	}
-		
+
 	void logException(String projectPath , IOAgent agent , Throwable ex){
 		agent.printError("[" + this.getName() + "]  Invocation failed for following project : "+ projectPath +". "
-									+ ex.getClass().getSimpleName()
-									+ " | error message: " + ex.getMessage()
-									+ " | stack track : "+ getStackTrace(ex));
+				+ ex.getClass().getSimpleName()
+				+ " | error message: " + ex.getMessage()
+				+ " | stack track : "+ getStackTrace(ex));
 	}
-	
-	
+
+
 	public static String getStackTrace(Throwable aThrowable) {
-		    final Writer result = new StringWriter();
-		    final PrintWriter printWriter = new PrintWriter(result);
-		    if(aThrowable == null) 
-		    	return "";
-		    
-		    aThrowable.printStackTrace(printWriter);
-		    return result.toString();
-		  }
+		final Writer result = new StringWriter();
+		final PrintWriter printWriter = new PrintWriter(result);
+		if(aThrowable == null) 
+			return "";
+
+		aThrowable.printStackTrace(printWriter);
+		return result.toString();
+	}
 
 	static class SpxPrimitiveValidator{
 		IContext env;
@@ -161,7 +163,7 @@ public abstract class SpxAbstractPrimitive extends AbstractPrimitive{
 			}
 			return this;
 		}
-		
+
 		SpxPrimitiveValidator validateApplTermAt(int ordinal){
 			if(!Tools.isTermAppl(tvars[ordinal])){
 				throwException( "Illegal Arugments. Expected "
@@ -180,18 +182,18 @@ public abstract class SpxAbstractPrimitive extends AbstractPrimitive{
 			}
 			return this;
 		} 
-		
-		
+
+
 		void throwException(String errorMessage){
 			SSLLibrary
-				.instance(env)
-				.getIOAgent()
-				.printError("["+this.primitiveName +"] " +
-						"Error Occured during Argument Validation : " +
-						"" + errorMessage);
+			.instance(env)
+			.getIOAgent()
+			.printError("["+this.primitiveName +"] " +
+					"Error Occured during Argument Validation : " +
+					"" + errorMessage);
 
 			throw new IllegalArgumentException( errorMessage );
 		}
-		
+
 	}
 }

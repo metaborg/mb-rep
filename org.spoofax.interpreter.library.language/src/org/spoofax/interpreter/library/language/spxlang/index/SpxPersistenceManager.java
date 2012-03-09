@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import jdbm.PrimaryHashMap;
 import jdbm.PrimaryStoreMap;
+import jdbm.PrimaryTreeMap;
 import jdbm.RecordManager;
 import jdbm.RecordManagerFactory;
 import jdbm.RecordManagerOptions;
@@ -27,12 +28,11 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	private static final String SRC =   "SpxPersistenceManager" ;
 
 	private RecordManager _recordManager; 
-	private final IOAgent _agent;
 	private String _indexId ;
-
+	private final IOAgent _agent;
 	private SpxCompilationUnitTable _spxUnitsTable; // Keeps a reference to the SpxCompilation Units  
-	private SpxPackageLookupTable _spxPackageTable; // Indexing Package and Module Definitions
-	private SpxModuleLookupTable _spxModuleTable;
+	private SpxPackageLookupTable   _spxPackageTable; // Indexing Package and Module Definitions
+	private SpxModuleLookupTable    _spxModuleTable;
 	
 	private SpxPrimarySymbolTable _spxSymbolTable;// Symbol Table for storing program symbols 
 
@@ -67,7 +67,7 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 		//setting properties of RecordManager
 		options.put(RecordManagerOptions.INDEX_RELATIVE_PATH_OPTION, spxSemanticIndexFacade.getProjectPath()+ "/" + SpxIndexConfiguration.SPX_INDEX_DIRECTORY+ "/" );
 		options.put(RecordManagerOptions.CACHE_TYPE, "soft");
-		options.put(RecordManagerOptions.DISABLE_TRANSACTIONS, "false");
+		options.put(RecordManagerOptions.DISABLE_TRANSACTIONS, "true");
 		
 		tryInitRecordManager(spxSemanticIndexFacade,options);
 		
@@ -159,10 +159,15 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	 * @param mapName
 	 * @return
 	 */
-	public <K,V> PrimaryHashMap<K,V> loadHashMap ( String mapName){
-		return _recordManager.hashMap(mapName) ;
-		
+	public <K,V> PrimaryHashMap<K,V> loadHashMap (String mapName){ 
+		return _recordManager.hashMap(mapName) ; 
 	}
+	
+	@SuppressWarnings("rawtypes")
+	public <K extends Comparable,V> PrimaryTreeMap<K,V> loadTreeMap ( String mapName){
+		return _recordManager.treeMap(mapName);
+	}
+	
 	
 	/**
 	 * Instantiates a new StoreHashMap
@@ -171,7 +176,9 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	 * @param storeMapName
 	 * @return
 	 */
-	public <V> PrimaryStoreMap <Long, V> loadStoreMap( String storeMapName) { return _recordManager.storeMap(storeMapName); }
+	public <V> PrimaryStoreMap <Long, V> loadStoreMap(String storeMapName) { 
+		return _recordManager.storeMap(storeMapName); 
+	}
 	
 	/**
 	 * Commits any unsaved changes to the disk 

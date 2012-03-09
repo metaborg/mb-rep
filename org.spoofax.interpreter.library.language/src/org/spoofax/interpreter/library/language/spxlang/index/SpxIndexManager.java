@@ -36,6 +36,26 @@ public class SpxIndexManager implements IIndexManageCommand
 		
 	}
 	
+	/**
+	 * @param idx
+	 * @param projectPath
+	 * @return
+	 * @throws Exception
+	 */
+	public static SpxSemanticIndexFacade getSpxIndexFacade(SpxSemanticIndex idx,
+			IStrategoTerm projectPath) {
+		SpxSemanticIndexFacade idxFacade = null;
+		try {
+			idxFacade = idx.getFacadeRegistry().getFacade(projectPath);
+		} catch (SpxSymbolTableException ex) {
+			// do nothing
+		} catch (Exception e) {
+			// do nothing 
+		}
+		return idxFacade;
+	}
+	
+	
 	public static IIndexManageCommand getCommandInstance(final SpxSemanticIndex spxSemanticIndex , IStrategoString commandName, 
 			IStrategoString projectName, Object... objects){
 		
@@ -87,7 +107,7 @@ public class SpxIndexManager implements IIndexManageCommand
 		
 		return new SpxIndexManager(index , projectPath, objects){
 			public void executeCommnad(SpxSemanticIndex idx, IStrategoTerm projectPath, Object... objects) throws Exception{
-				SpxSemanticIndexFacade f = idx.getFacadeRegistry().getFacade(projectPath);
+				SpxSemanticIndexFacade f = getSpxIndexFacade(idx, projectPath);
 				if(f != null)
 					f.onInitIndexUpdating();
 			}
@@ -99,7 +119,8 @@ public class SpxIndexManager implements IIndexManageCommand
 		
 		return new SpxIndexManager(index , projectPath, objects){
 			public void executeCommnad(SpxSemanticIndex idx, IStrategoTerm projectPath, Object... objects) throws Exception{
-				SpxSemanticIndexFacade f = idx.getFacadeRegistry().getFacade(projectPath);
+				
+				SpxSemanticIndexFacade f = getSpxIndexFacade(idx, projectPath);
 				if(f != null)
 					f.onIndexUpatingCompleted();
 			}
@@ -112,7 +133,7 @@ public class SpxIndexManager implements IIndexManageCommand
 		
 		return new SpxIndexManager(index , projectPath, objects){
 			public void executeCommnad(SpxSemanticIndex idx, IStrategoTerm projectPath, Object... objects) throws Exception{
-				SpxSemanticIndexFacade f = idx.getFacadeRegistry().getFacade(projectPath);
+				SpxSemanticIndexFacade f = getSpxIndexFacade(idx, projectPath);
 				if(f != null)
 					f.onInitCodeGeneration();
 			}
@@ -125,9 +146,10 @@ public class SpxIndexManager implements IIndexManageCommand
 		
 		return new SpxIndexManager(index , projectPath, objects){
 			public void executeCommnad(SpxSemanticIndex idx, IStrategoTerm projectPath, Object... objects) throws Exception{
-				SpxSemanticIndexFacade f = idx.getFacadeRegistry().getFacade(projectPath);
-				if(f != null)
-					f.onCompleteCodeGeneration();
+				
+				SpxSemanticIndexFacade idxFacade = getSpxIndexFacade(idx, projectPath);
+				if(idxFacade != null)
+					idxFacade.onCompleteCodeGeneration();
 			}
 		};
 	}
@@ -138,7 +160,7 @@ public class SpxIndexManager implements IIndexManageCommand
 		
 		return new SpxIndexManager(index , projectPath, objects){
 			public void executeCommnad(SpxSemanticIndex idx, IStrategoTerm projectPath, Object... objects) throws Exception{
-				SpxSemanticIndexFacade f = idx.getFacadeRegistry().getFacade(projectPath);
+				SpxSemanticIndexFacade f = getSpxIndexFacade(idx, projectPath);
 				if(f != null)
 					f.rollbackChanges();
 			}
@@ -152,12 +174,16 @@ public class SpxIndexManager implements IIndexManageCommand
 
 		return new SpxIndexManager(index , projectPath, objects){
 			public void executeCommnad(SpxSemanticIndex idx, IStrategoTerm projectPath, Object... objects) throws Exception{
-				SpxSemanticIndexFacade idxFacade = idx.getFacadeRegistry().getFacade(projectPath);
+				
+				SpxSemanticIndexFacade idxFacade = getSpxIndexFacade(idx, projectPath);
+				
 				if(idxFacade == null)
 					idxFacade = idx.getFacadeRegistry().initFacade(projectPath, (ITermFactory)objects[0], (IOAgent)objects[1]) ;
 				
 				idxFacade.cleanIndexAndSymbolTable();
 			}
+
+			
 		};
 	}
 	
@@ -168,9 +194,11 @@ public class SpxIndexManager implements IIndexManageCommand
 
 		return new SpxIndexManager(index , projectPath, objects){
 			public void executeCommnad(SpxSemanticIndex idx, IStrategoTerm projectPath, Object... objects) throws Exception{
-				SpxSemanticIndexFacade idxFacade = idx.getFacadeRegistry().getFacade(projectPath);
+				
+				SpxSemanticIndexFacade idxFacade = getSpxIndexFacade(idx, projectPath);
+				
 				if(idxFacade!= null){
-					idxFacade.close(true); // also commiting if the persistence manager is still open
+					idxFacade.close(true); // Also committing if the persistence manager is still open
 				} 	
 			}
 		};
@@ -204,9 +232,9 @@ public class SpxIndexManager implements IIndexManageCommand
 
 		return new SpxIndexManager(index , projectPath, objects){
 			public void executeCommnad(SpxSemanticIndex idx, IStrategoTerm projectPath, Object... objects) throws Exception{
-				SpxSemanticIndexFacade idxFacade = idx.getFacadeRegistry().getFacade(projectPath);
-				if(idxFacade!= null){
-					idxFacade.commitChanges();
+				SpxSemanticIndexFacade f = getSpxIndexFacade(idx, projectPath);
+				if(f!= null){
+					f.commitChanges();
 				}	
 			}
 		};

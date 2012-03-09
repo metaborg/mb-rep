@@ -9,15 +9,19 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
+import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.library.language.spxlang.index.data.IdentifiableConstruct;
 import org.spoofax.interpreter.library.language.spxlang.index.data.NamespaceUri;
 import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbol;
 import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbolKey;
 import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbolTableException;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.terms.StrategoListIterator;
 import org.spoofax.terms.attachments.TermAttachmentSerializer;
 
 public final class SpxIndexUtils {
@@ -31,7 +35,7 @@ public final class SpxIndexUtils {
 	public static final String DIRTY = "-";
 	public static final String ONLY_ONE= ".";
 	
-	public static final String All_SYMBOLS = "\"*\"";
+	public static final String All_SYMBOLS = "\".*\"";
 	
 	/**
 	 * Constructs {@link IStrategoList} from {@code decls}  
@@ -57,7 +61,7 @@ public final class SpxIndexUtils {
 	}
 	
 	public static String toAbsPathString(String path) {
-		return new File(path).getAbsolutePath();
+		return new File(path).getAbsolutePath().trim();
 	}
 	
 	public static URI getAbsolutePathUri(String path, IOAgent agent){
@@ -188,8 +192,43 @@ public final class SpxIndexUtils {
 		if (printIfDebug){
 			try {
 				persistenceManager.spxSymbolTable().printSymbols(f, stageName, f.getProjectPath(), f.getIndexId());
+			
+				// System.out.println(persistenceManager.spxCompilcationUnitTable());
+				// System.out.println(persistenceManager.spxPackageTable());
+				// System.out.println(persistenceManager.spxModuleTable());
+				
 			} catch (SpxSymbolTableException e) {
 			}
 		}
 	}
+	
+	public static String listToString ( IStrategoList l , String seperator){
+		if ((seperator == null) || seperator.equals("")) 
+			throw new IllegalArgumentException("Illegal Seperator provided as argument. Expected : Non Null and Not Empty String.");
+		
+		if( l == null) { return "" ; }
+		
+		final StringBuilder sb = new StringBuilder();
+		for (IStrategoTerm i: StrategoListIterator.iterable(l)) {
+			if(!((i instanceof IStrategoString) || (i instanceof IStrategoConstructor))){
+				throw new IllegalStateException("Only IStrategoString expected as a SubTerm of ID");
+			}
+			if( i instanceof IStrategoString){
+				sb.append(Tools.asJavaString(i));
+			}
+			else
+			{
+				sb.append( ((IStrategoConstructor)i).getName() );	
+			}
+			sb.append(seperator);
+		}	
+
+		// removing extra separator before returning string representation
+		if(sb.length() > 1){
+			return sb.substring(0, sb.length()-seperator.length());  
+		}
+		
+		return sb.toString();
+	} 
+
 }

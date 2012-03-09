@@ -365,5 +365,22 @@ public class SpxPackageLookupTable implements ICompilationUnitRecordListener{
 		}
 		return pIds;
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder b = new StringBuilder();
+		b.append("Package Index Table : ");
+		b.append("\n");
+		b.append("No of Entries :");
+		b.append("\n");
+		
+		b.append(this._packageLookupTable.size());
+		b.append("\n Entries : \n");
+		
+		for ( IStrategoList s : this._packageLookupTable.keySet()){
+			b.append( "*" +SpxIndexUtils.listToString(s, ".")+ "\n");
+		}
+		return b.toString();
+	}
 }
 

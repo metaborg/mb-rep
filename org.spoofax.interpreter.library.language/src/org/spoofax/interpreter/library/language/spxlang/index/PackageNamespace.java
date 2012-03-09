@@ -257,7 +257,7 @@ public final class PackageNamespace  extends BaseNamespace {
 				// hence, ignoring it.
 				continue;
 			}
-			retSymbol.addAll((Set<SpxSymbol>)thisNamespace.resolveAll(facade, key, ofType, this, Integer.MAX_VALUE, false));
+			retSymbol.addAll(thisNamespace.resolveAll(facade, key, ofType, this, Integer.MAX_VALUE, returnDuplicates));
 		}
 		
 		return retSymbol;

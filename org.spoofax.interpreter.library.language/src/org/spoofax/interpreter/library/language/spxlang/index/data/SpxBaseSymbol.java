@@ -13,12 +13,15 @@ public abstract class SpxBaseSymbol implements Serializable{
 
 	private static final long serialVersionUID = 3160588874266553126L;
 	
-	private transient IStrategoTerm _id;
+	private transient IStrategoTerm _id; 
 	
 	/**
 	 *  @serial
 	 */
-	private final String _idString;
+	// TODO : why keep it as string ? Why not IStrategoTerm? 
+	// ANSWER: Problem with the serialization of the IStrategoAppl . Construction sharing .
+	private final String _idString; 
+	 
 	private final String _signatureString;
 	private final boolean _isOverridable;
 
@@ -50,7 +53,7 @@ public abstract class SpxBaseSymbol implements Serializable{
 		this._isOverridable = isOveridable;
 	}
 	
-	public IStrategoTerm Id(ITermFactory _fac ){
+	public IStrategoTerm Id(ITermFactory _fac){
 		if (_id == null){
 			_id = _fac.parseFromString(_idString);
 		}

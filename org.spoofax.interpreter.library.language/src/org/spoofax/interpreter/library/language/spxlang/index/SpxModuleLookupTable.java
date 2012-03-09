@@ -536,5 +536,44 @@ public class SpxModuleLookupTable implements ICompilationUnitRecordListener, IPa
 	public Iterable<IStrategoList> getModuleIdsByLangaugeName(IStrategoString langaugeName) {
 		return getModuleIdsByLangaugeName(Tools.asJavaString(langaugeName));
 	}
+	
+	
+	
+	// FOR TRACING
+	// FIX ME: REMOVE IT AFTER TESTING
+	@Override
+	public String toString() {
+		
+		StringBuilder b = new StringBuilder();
+		b.append("Module Index Table : ");
+		b.append("\n");
+		b.append("No of Entries :");
+		b.append("\n");
+		
+		b.append(this._moduleDefinition.size());
+		
+		if (_moduleDefinition.size()>0){
+			b.append("\n Entries : \n");
+			for ( IStrategoList s : this._moduleDefinition.keySet()){
+				b.append( "*" +SpxIndexUtils.listToString(s, ".")+ "\n");
+			}
+		}
+		
+		b.append("LanguageDescriptor Index Table : ");
+		b.append("\n");
+		b.append("No of Entries :");
+		b.append("\n");
+		
+		b.append(this._languageDescriptors.size());
+		if( _languageDescriptors.size()>0){
+			b.append("\n Entries : \n");
+
+			for ( IStrategoList s : this._languageDescriptors.keySet()){
+				b.append( "*" +SpxIndexUtils.listToString(s, ".")+ "\n");
+			}
+		}
+		return b.toString();
+	}
+	
 }
 

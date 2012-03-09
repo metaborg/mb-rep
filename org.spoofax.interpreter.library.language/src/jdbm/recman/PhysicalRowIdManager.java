@@ -96,9 +96,9 @@ final class PhysicalRowIdManager {
 		short head = Location.getOffset(rowid);
 		int availSize = RecordHeader.getAvailableSize(block, head);
 		if (length > availSize || 
-			//difference between free and available space can be only 64KB. 
-			//if bigger, need to realocate and free block	
-			availSize - length > RecordHeader.MAX_SIZE_SPACE	
+				//difference between free and available space can be only 64KB. 
+				//if bigger, need to realocate and free block	
+				availSize - length > RecordHeader.MAX_SIZE_SPACE	
 		) {
 			// not enough space - we need to copy to a new rowid.
 			file.release(block);
@@ -254,16 +254,18 @@ final class PhysicalRowIdManager {
 		}
 
 		short hdr = pos;
-		while (RecordHeader.getAvailableSize(curBlock, hdr) != 0 && pos < BLOCK_SIZE) {
-			pos += RecordHeader.getAvailableSize(curBlock, hdr) + RecordHeader.SIZE;
+		int availSize = RecordHeader.getAvailableSize(curBlock, hdr);
+		while (availSize != 0 && pos < BLOCK_SIZE) {
+			pos += availSize + RecordHeader.SIZE;
 			if (pos == BLOCK_SIZE) {
 				// Again, a filled page.
 				file.release(curBlock);
 				return allocNew(size, 0);
 			}
-
 			hdr = pos;
+			availSize = RecordHeader.getAvailableSize(curBlock, hdr);
 		}
+
 
 		if (pos == RecordHeader.SIZE) {
 			// the last record exactly filled the page. Restart forcing

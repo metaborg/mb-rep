@@ -13,7 +13,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
 public class SpxSymbolTableEntryTests extends SpxIndexBaseTestCase{
-	private final String _projectName = "test-sybol-table";
+	private final String _projectName = ".UnitTest3";
 	
 	private IStrategoString projectNameTerm; 
 	private SpxSemanticIndexFacade _facade;

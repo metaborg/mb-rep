@@ -224,6 +224,7 @@ public final class TransactionManager {
 //            }
         }
         owner.sync();
+        fis.close();
         logFile.delete();
     }
 

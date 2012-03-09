@@ -5,12 +5,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.spoofax.NotImplementedException;
-import org.spoofax.interpreter.core.Tools;
+import org.spoofax.interpreter.library.language.spxlang.index.SpxIndexUtils;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxSemanticIndexFacade;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.interpreter.terms.TermConverter;
@@ -176,32 +175,10 @@ public abstract class IdentifiableConstruct implements Serializable
 
 	
 	String getIdString(String seperator){
-		return toString( this.getId() , seperator);
+		return SpxIndexUtils.listToString( this.getId() , seperator);
 	}
 	
-	protected static String toString ( IStrategoList l , String seperator){
-		if ((seperator == null) || seperator.equals("")) 
-			throw new IllegalArgumentException("Illegal Seperator provided as argument. Expected : Non Null and Not Empty String.");
-		
-		if( l == null) { return "" ; }
-		
-		final StringBuilder sb = new StringBuilder();
-		for (IStrategoTerm i: StrategoListIterator.iterable(l)) {
-			if(!(i instanceof IStrategoString)){
-				throw new IllegalStateException("Only IStrategoString expected as a SubTerm of ID");
-			}
-			sb.append(Tools.asJavaString(i));
-			sb.append(seperator);
-		}	
-
-		// removing extra separator before returning string representation
-		if(sb.length() > 1){
-			return sb.substring(0, sb.length()-seperator.length());  
-		}
-		
-		return sb.toString();
-	} 
-
+	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */

@@ -2,6 +2,7 @@ package org.spoofax.interpreter.library.language.spxlang.index.tests;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.spoofax.interpreter.core.Interpreter;
@@ -261,10 +262,10 @@ public class SpxLookupTableUnitTests  extends SpxIndexBaseTestCase{
 		
 		mSymTable.defineLanguageDescriptor(idm2, langDescriptor);
 				
-		ArrayList<IStrategoList> actual = (ArrayList<IStrategoList>)mSymTable.getModuleIdsByLangaugeName("langname2");
+		HashSet<IStrategoList> actual = (HashSet<IStrategoList>)mSymTable.getModuleIdsByLangaugeName("langname2");
 	
 		assertEquals( actual.size() , 1) ;
-		assertEquals(idm2, actual.get(0));
+		assertEquals(idm2, actual.toArray()[0]);
 	}	
 	
 	public void testUpdatingLanguageDescriptorIsPersisted() throws IOException{
@@ -305,10 +306,10 @@ public class SpxLookupTableUnitTests  extends SpxIndexBaseTestCase{
 		
 		mSymTable.defineLanguageDescriptor(idm2, langDescriptor2);
 		
-		ArrayList<IStrategoList> actual = (ArrayList<IStrategoList>)mSymTable.getModuleIdsByLangaugeName("langname3");
+		HashSet<IStrategoList> actual = (HashSet<IStrategoList>)mSymTable.getModuleIdsByLangaugeName("langname3");
 	
 		assertEquals( actual.size() , 1) ;
-		assertEquals(idm2, actual.get(0));
+		assertEquals(idm2, actual.toArray()[0]);
 	}	
 	
 	public void testShouldThrowIllegalArgumentExceptionIfUnknownModuleId() throws IOException

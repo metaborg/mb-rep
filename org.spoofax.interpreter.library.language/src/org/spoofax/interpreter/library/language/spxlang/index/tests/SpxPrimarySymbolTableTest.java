@@ -2,7 +2,7 @@ package org.spoofax.interpreter.library.language.spxlang.index.tests;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -12,6 +12,7 @@ import org.spoofax.interpreter.library.language.LanguageLibrary;
 import org.spoofax.interpreter.library.language.spxlang.index.GlobalNamespace;
 import org.spoofax.interpreter.library.language.spxlang.index.INamespace;
 import org.spoofax.interpreter.library.language.spxlang.index.PackageNamespace;
+import org.spoofax.interpreter.library.language.spxlang.index.SpxIndexConfiguration;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxIndexUtils;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxPrimarySymbolTable;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxSemanticIndexFacade;
@@ -31,7 +32,7 @@ import org.spoofax.interpreter.terms.ITermFactory;
 
 public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 	
-	private final String _projectName = ".index.spx.primarysymboltable.test";
+	private final String _projectName = ".UnitTest1";
 	
 	private IStrategoString projectNameTerm; 
 	private SpxSemanticIndexFacade _facade;
@@ -57,18 +58,16 @@ public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 		projectNameTerm = termFactory().makeString(System.getProperty("user.dir")+ "/"+_projectName);
 	
 		_registry.initFacade(projectNameTerm, termFactory(), ioAgent()); 
+		
 		_facade = _registry.getFacade(projectNameTerm);
 		_facade.cleanIndexAndSymbolTable();
-		
-		
-		
 		
 		symbol_table = _facade.getPersistenceManager().spxSymbolTable();
 	}
 
 	@Override 
 	protected void tearDown() throws Exception { 
-		_facade.close(false); 
+		_facade.close(true); 
 	}
 	
 	private void indexCompilationUnit() throws IOException
@@ -108,8 +107,27 @@ public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 		moduleDeclarationP2M1 = indexTestModuleDefs ( "p2m1" , packageName2 , absPathString2);
 	}
 	
+	
+	private void setupScopeTree1() throws IOException, SpxSymbolTableException {
+		String packageName1 =  	"\"lang\", \"p1\"" ;
+		String packageName2 =  	"\"lang\", \"p2\"" ;
+		
+		indexCompilationUnit();
+		
+		// Indexing Package Declaration . That will create a package name-space and an internal name-space
+		packageDeclaration1 = indexTestPackageDecl(packageName1, absPathString1);
+		packageDeclaration2 = indexTestPackageDecl(packageName2, absPathString2);
+		
+		
+		moduleDeclarationP1M1 = indexTestModuleDefs ( "p1m1" , packageName1 , absPathString1);
+		moduleDeclarationP1M2 = indexTestModuleDefs ( "p1m2" , packageName1 , absPathString1);
+		moduleDeclarationP2M1 = indexTestModuleDefs ( "p2m1" , packageName2 , absPathString2);
+	}
+	
 	public void testGetIDString() throws IOException, SpxSymbolTableException, URISyntaxException{
-		this.createExtendedScopeTree();
+		SpxIndexConfiguration.setLoggingSymbols(true);
+		
+		this.setupScopeTree1();
 		
 		String retValue = this.packageDeclaration1.getIdString();
 		
@@ -970,7 +988,7 @@ public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 		
 		IStrategoAppl nsAppl = PackageDeclaration.toPackageQNameAppl(_facade, this.packageDeclaration1.getId());
 		
-		Collection<SpxSymbol> resolvedSymbols = _facade.resolveSymbols(
+		ArrayList resolvedSymbols = (ArrayList)_facade.resolveSymbols(
 				nsAppl, // search origin
 				symbolId1,	//looking for 
 				_facade.getCons().getConstructor("ModuleDef", 0) // with type 
@@ -1396,7 +1414,7 @@ public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 		//--------------------------------------------------------------------------------------------------
 		Set<SpxSymbol> resolvedSymbols = (Set<SpxSymbol>)tfacade.resolveSymbols(
 				ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP3M1.getId()), // search origin
-				termFactory().makeString(SpxIndexUtils.All), // loooking for * symbols 
+				termFactory().makeString(SpxIndexUtils.All_SYMBOLS.replace('"', ' ').trim()), // loooking for * symbols 
 				typeAppl1.getConstructor(), // of Type 
 				Integer.MAX_VALUE, false
 			);
@@ -1412,7 +1430,7 @@ public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 		//--------------------------------------------------------------------------------------------------
 		resolvedSymbols = (Set<SpxSymbol>)tfacade.resolveSymbols(
 				ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP1M1.getId()), // search origin
-				termFactory().makeString(SpxIndexUtils.All), // loooking for * symbols 
+				termFactory().makeString(SpxIndexUtils.All_SYMBOLS.replace('"', ' ').trim()), // loooking for * symbols 
 				typeAppl1.getConstructor(), // of Type 
 				Integer.MAX_VALUE, 
 				false

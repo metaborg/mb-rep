@@ -3,10 +3,9 @@ package org.spoofax.interpreter.library.language.spxlang.index;
 import static org.spoofax.interpreter.core.Tools.asJavaString;
 
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Collections;
 
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbolTableException;
@@ -118,4 +117,16 @@ public class SpxSemanticIndexFacadeRegistry
 		return _registry.containsKey(key);
 	}	
 	
+	@Override
+	public String toString() {
+		
+		StringBuilder b = new StringBuilder();
+		
+		for ( String key: _registry.keySet()){
+			b.append(key);
+			b.append("\n");
+		}	
+		
+		return b.toString();
+	}
 }

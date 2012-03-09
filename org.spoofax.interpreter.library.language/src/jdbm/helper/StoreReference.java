@@ -49,6 +49,7 @@ public class StoreReference<E> {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	public StoreReference(RecordManager recman, E val){
 		this(recman,val,(Serializer<E>) DefaultSerializer.INSTANCE);
 	}
@@ -65,6 +66,7 @@ public class StoreReference<E> {
 		throw new IllegalStateException("Should not be here");			
 	}
 	
+	@SuppressWarnings("unchecked")
 	public E get(RecordManager recman2){
 		return get(recman2,(Serializer<E>) DefaultSerializer.INSTANCE);
 	}

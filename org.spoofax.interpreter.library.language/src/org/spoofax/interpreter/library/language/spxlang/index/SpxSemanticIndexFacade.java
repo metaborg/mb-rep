@@ -410,15 +410,15 @@ public class SpxSemanticIndexFacade {
 	public IStrategoTerm resolveSymbols(IStrategoTuple searchCriteria) throws SpxSymbolTableException{
 		if (searchCriteria.getSubtermCount() != 4)
 			throw new IllegalArgumentException(" resolveSymbols | Illegal symbolLookupTerm Argument ; expected 4 subterms. Found : " + searchCriteria.getSubtermCount());
-		
+	
+		// lookup configuration - lookup depth: = LookupLocalScope | LookupAllVisibleScope , search mode = allasSet | all | only one
 		IStrategoTuple lookupConfiguration = (IStrategoTuple)searchCriteria.get(3);
 		
-		// lookup configuration 
 		IStrategoAppl lookupType  = (IStrategoAppl)lookupConfiguration.getSubterm(0);
 		IStrategoConstructor lookupTypeCtor = getVerifiedStrategoConstructor(lookupType);
 		String searchMode = asJavaString(lookupConfiguration.getSubterm(1)).trim();
 		
-		// type constructor 
+		// typeof constructor 
 		IStrategoAppl typeAppl =  (IStrategoAppl)searchCriteria.getSubterm(2);
 		IStrategoConstructor typeCtor = getVerifiedStrategoConstructor(typeAppl);
 		
@@ -1115,9 +1115,9 @@ public class SpxSemanticIndexFacade {
 		
 		if (!isPersistenceManagerClosed()){
 			if(!tryInvalidatingSpxCacheDirectories()){
-				throw new RuntimeException("Failed to clean Spx Cache Directories. Please manually clean it");
+				System.err.println("Failed to clean Spx Cache Directories. Please manually clean it");
 			} 
-			
+			manager.spxSymbolTable().initTimestamps();
 			manager.clearCache();
 			manager.clear(); // cleaning persistence manager.
 			manager.commitAndClose();
@@ -1141,7 +1141,6 @@ public class SpxSemanticIndexFacade {
 	
 	
 	public void rollbackChanges() throws IOException{	
-		
 		if (! isPersistenceManagerClosed())
 			getPersistenceManager().rollback();
 	}

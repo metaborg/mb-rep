@@ -18,7 +18,6 @@ import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbolTabl
 import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbolTableException;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
-
 import org.spoofax.interpreter.terms.IStrategoTerm;
 /**
  * BaseScope  is an abstract base class that implements Scope Interface

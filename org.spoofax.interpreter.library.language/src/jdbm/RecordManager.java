@@ -257,7 +257,7 @@ public interface  RecordManager
      * @return
      */
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes" })
 	public <K extends Comparable, V> PrimaryTreeMap<K, V> treeMap(String name);
 
     /**

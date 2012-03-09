@@ -218,8 +218,8 @@ public final class BlockIo {
      *  Writes an int to the indicated position
      */
     public void writeThreeByteInt(int pos, int value) {
-    	if(value<0 || value>ThreeByteInt_MAX)
-    		throw new IllegalArgumentException("out of range: "+value);
+        if(value<0 || value>ThreeByteInt_MAX)
+                throw new IllegalArgumentException("out of range: "+value);
         data[pos+0] = (byte)(0xff & (value >> 16));
         data[pos+1] = (byte)(0xff & (value >>  8));
         data[pos+2] = (byte)(0xff & (value >>  0));
@@ -231,18 +231,6 @@ public final class BlockIo {
      */
     public long readLong( int pos )
     {
-        // Contributed by Erwin Bolwidt <ejb@klomp.org>
-        // Gives about 15% performance improvement
-        return
-            ( (long)( ((data[pos+0] & 0xff) << 24) |
-                      ((data[pos+1] & 0xff) << 16) |
-                      ((data[pos+2] & 0xff) <<  8) |
-                      ((data[pos+3] & 0xff)      ) ) << 32 ) |
-            ( (long)( ((data[pos+4] & 0xff) << 24) |
-                      ((data[pos+5] & 0xff) << 16) |
-                      ((data[pos+6] & 0xff) <<  8) |
-                      ((data[pos+7] & 0xff)      ) ) & 0xffffffff );
-        /* Original version by Alex Boisvert.  Might be faster on 64-bit JVMs.
         return
             (((long)(data[pos+0] & 0xff) << 56) |
              ((long)(data[pos+1] & 0xff) << 48) |
@@ -252,7 +240,7 @@ public final class BlockIo {
              ((long)(data[pos+5] & 0xff) << 16) |
              ((long)(data[pos+6] & 0xff) <<  8) |
              ((long)(data[pos+7] & 0xff) <<  0));
-        */
+
     }
 
     /**
@@ -290,9 +278,9 @@ public final class BlockIo {
      *  Writes a long to the indicated position
      */
     public void writeSixByteLong(int pos, long value) {
-//    	if(value >> (6*8)!=0)
-//    		throw new IllegalArgumentException("does not fit");
-    	
+//      if(value >> (6*8)!=0)
+//              throw new IllegalArgumentException("does not fit");
+        
         data[pos+0] = (byte)(0xff & (value >> 40));
         data[pos+1] = (byte)(0xff & (value >> 32));
         data[pos+2] = (byte)(0xff & (value >> 24));
@@ -323,26 +311,26 @@ public final class BlockIo {
 
     // implement externalizable interface
     public void writeExternal(DataOutputStream out) throws IOException {
-    	LongPacker.packLong(out, blockId);
-    	LongPacker.packInt(out, data.length);
+        LongPacker.packLong(out, blockId);
+        LongPacker.packInt(out, data.length);
         out.write(data);
     }
 
     static final int UNSIGNED_SHORT_MAX = 256 * 256 -1;  
 
    
-	public void writeUnsignedShort(int pos, int value) {
-		if(value>UNSIGNED_SHORT_MAX || value<0)
-			throw new IllegalArgumentException("Out of range: "+value);
+        public void writeUnsignedShort(int pos, int value) {
+                if(value>UNSIGNED_SHORT_MAX || value<0)
+                        throw new IllegalArgumentException("Out of range: "+value);
         data[pos+0] = (byte)(0xff & (value >>  8));
         data[pos+1] = (byte)(0xff & (value >>  0));
-        setDirty();		
-	}
-	
-	public int readUnsignedshort(int pos){
+        setDirty();             
+        }
+        
+        public int readUnsignedshort(int pos){
       return 
         (((int)(data[pos+0] & 0xff) <<  8) |
         ((int)(data[pos+1] & 0xff) <<  0));
-	}
+        }
 
 }

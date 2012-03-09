@@ -2,26 +2,21 @@ package org.spoofax.interpreter.library.language.spxlang.index.data;
 
 import static org.spoofax.interpreter.core.Tools.isTermTuple;
 
-import java.beans.DesignMode;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 
 import org.spoofax.interpreter.library.language.spxlang.index.INamespace;
-import org.spoofax.interpreter.library.language.spxlang.index.SpxPrimarySymbolTable;
-import org.spoofax.interpreter.library.language.spxlang.index.SpxSemanticIndexFacade;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxIndexUtils;
+import org.spoofax.interpreter.library.language.spxlang.index.SpxSemanticIndexFacade;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
-import org.spoofax.jsglr.client.imploder.Token;
 import org.spoofax.terms.attachments.TermAttachmentSerializer;
 
 public class SpxSymbol extends SpxBaseSymbol implements Serializable{
@@ -97,10 +92,11 @@ public class SpxSymbol extends SpxBaseSymbol implements Serializable{
 		return (IStrategoTerm) termFactory.makeAppl(
 				facade.getCons().getSymbolTableEntryDefCon(), 
 				nsQNameAppl, // ns qname
-				spxTypeCtorAppl, // signature
 				id, // id
-				deserializedDataToTerm, 
-				termFactory.makeAppl(symbolSortCtor));
+				spxTypeCtorAppl, // signature
+				deserializedDataToTerm, // symbol def  
+				termFactory.makeAppl(symbolSortCtor) // type of symbol = unique or overridable
+			);
 	}
 	
 	private IStrategoTerm forceImploderAttachment ( IStrategoTerm term  , String uri){

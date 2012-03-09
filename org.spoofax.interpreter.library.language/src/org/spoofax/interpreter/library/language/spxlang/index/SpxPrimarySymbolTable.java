@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import jdbm.PrimaryMap;
@@ -19,7 +18,6 @@ import org.spoofax.interpreter.library.language.spxlang.index.data.ModuleDeclara
 import org.spoofax.interpreter.library.language.spxlang.index.data.NamespaceUri;
 import org.spoofax.interpreter.library.language.spxlang.index.data.PackageDeclaration;
 import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbol;
-import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbolKey;
 import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbolTableEntry;
 import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbolTableException;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
@@ -180,9 +178,9 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 		}	
 		
 		this.ensureActiveNamespaceUnloaded(this._activeNamespace);
-		timestamps.clear();
+		initTimestamps();
 	}
-	
+	public void initTimestamps(){timestamps.clear(); }
 	public int size() { return namespaces.size();}
 	 
 	/* (non-Javadoc)

@@ -6,6 +6,7 @@ import java.util.Set;
 import org.spoofax.interpreter.library.language.spxlang.index.INamespace;
 import org.spoofax.interpreter.library.language.spxlang.index.INamespaceFactory;
 import org.spoofax.interpreter.library.language.spxlang.index.PackageNamespace;
+import org.spoofax.interpreter.library.language.spxlang.index.SpxIndexUtils;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxSemanticIndexFacade;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
@@ -186,7 +187,7 @@ public class PackageDeclaration extends IdentifiableConstruct implements INamesp
 
 		IStrategoList importRefs = tf.makeList();
 		for( IStrategoList importRef : this.getImportReferneces()){
-			importRefs = tf.makeListCons(tf.makeString(toString(importRef, ".")), importRefs);
+			importRefs = tf.makeListCons(tf.makeString(SpxIndexUtils.listToString(importRef, ".")), importRefs);
 		}
 		
 		return tf.makeTuple( new IStrategoTerm[]{ tf.makeString(this.getIdString()), importRefs , modulesSnapshot});
