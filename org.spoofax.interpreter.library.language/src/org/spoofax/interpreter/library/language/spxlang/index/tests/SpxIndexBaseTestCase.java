@@ -5,6 +5,7 @@ import junit.framework.TestCase;
 
 import org.spoofax.interpreter.core.Interpreter;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxIndexConfiguration;
+import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.ITermFactory;
 
 public abstract class SpxIndexBaseTestCase extends TestCase {
@@ -13,6 +14,8 @@ public abstract class SpxIndexBaseTestCase extends TestCase {
     protected ITermFactory factory;
     protected String basePath;
 
+    final String  projectRoot = "UnitTestsRoot";
+    
     protected void setUp() throws Exception {
     	super.setUp();
     	
@@ -29,5 +32,9 @@ public abstract class SpxIndexBaseTestCase extends TestCase {
         itp = null;
         factory = null;
         super.tearDown();
+    }
+    
+    protected IStrategoString getProjectPath(String projectName) {
+    	return factory.makeString(projectRoot+ "/" + projectName); 
     }
 }

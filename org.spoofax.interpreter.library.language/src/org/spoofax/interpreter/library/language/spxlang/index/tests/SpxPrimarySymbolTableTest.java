@@ -34,7 +34,6 @@ public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 	
 	private final String _projectName = ".UnitTest1";
 	
-	private IStrategoString projectNameTerm; 
 	private SpxSemanticIndexFacade _facade;
 	private SpxPrimarySymbolTable symbol_table;
 	private SpxSemanticIndexFacadeRegistry _registry;
@@ -55,11 +54,10 @@ public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 		
 		_registry = new SpxSemanticIndexFacadeRegistry();
 		
-		projectNameTerm = termFactory().makeString(System.getProperty("user.dir")+ "/"+_projectName);
-	
-		_registry.initFacade(projectNameTerm, termFactory(), ioAgent()); 
 		
-		_facade = _registry.getFacade(projectNameTerm);
+		_registry.initFacade(getProjectPath(_projectName), termFactory(), ioAgent()); 
+		
+		_facade = _registry.getFacade(getProjectPath(_projectName));
 		_facade.cleanIndexAndSymbolTable();
 		
 		symbol_table = _facade.getPersistenceManager().spxSymbolTable();
@@ -897,10 +895,10 @@ public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 		_facade.indexSymbol(createEntry(moduleQnameAppl3 , symbolId3 , typeAppl3 , data3));
 		
 		_facade.commitChanges();
-		_registry.closePersistenceManager(this.projectNameTerm);
+		_registry.closePersistenceManager(this.getProjectPath(_projectName));
 		
-		_registry.initFacade(projectNameTerm, termFactory(), ioAgent());
-		SpxSemanticIndexFacade tfacade = _registry.getFacade(this.projectNameTerm);
+		_registry.initFacade(this.getProjectPath(_projectName), termFactory(), ioAgent());
+		SpxSemanticIndexFacade tfacade = _registry.getFacade(this.getProjectPath(_projectName));
 		
 		//Resolving Symbol in Package 3
 		Set<SpxSymbol> resolvedSymbols = (Set<SpxSymbol>)tfacade.resolveSymbols(
@@ -1134,12 +1132,14 @@ public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 		
 		_facade.commitChanges();
 		
+		IStrategoString projectNameTerm = this.getProjectPath(_projectName);
+		
 		// closing persistence manager
-		_registry.closePersistenceManager(this.projectNameTerm);
+		_registry.closePersistenceManager(projectNameTerm );
 		_registry.initFacade(projectNameTerm, termFactory(), ioAgent());
 		
 		// loading tfacade again
-		SpxSemanticIndexFacade tfacade = _registry.getFacade(this.projectNameTerm);
+		SpxSemanticIndexFacade tfacade = _registry.getFacade(projectNameTerm);
 		
 		Set<SpxSymbol> resolvedSymbols = tfacade
 				.getPersistenceManager()
@@ -1194,12 +1194,14 @@ public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 	 	_facade.indexSymbol(createEntry(moduleQnameAppl2 , symbolId2 , typeAppl2  , data2));
 		_facade.indexSymbol(createEntry(globalNamespaceAppl , symbolId3 , typeAppl3  , data3));
 		_facade.commitChanges();
-	
-		_registry.closePersistenceManager(this.projectNameTerm);
+		
+		IStrategoString projectNameTerm = this.getProjectPath(_projectName) ;
+			
+		_registry.closePersistenceManager(projectNameTerm);
 		_registry.initFacade(projectNameTerm, termFactory(), ioAgent());
 		
 		// loading Index Facade again
-		SpxSemanticIndexFacade tfacade = _registry.getFacade(this.projectNameTerm);
+		SpxSemanticIndexFacade tfacade = _registry.getFacade(projectNameTerm);
 		
 		Set<SpxSymbol> resolvedSymbols = (Set<SpxSymbol>)tfacade.resolveSymbol(
 				moduleQnameAppl1, // search origin
@@ -1262,11 +1264,12 @@ public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 		_facade.commitChanges();
 	
 		// closing persistence manager
-		_registry.closePersistenceManager(this.projectNameTerm);
+		IStrategoString projectNameTerm = this.getProjectPath(_projectName) ;
+		_registry.closePersistenceManager(projectNameTerm);
 		_registry.initFacade(projectNameTerm, termFactory(), ioAgent());
 		
 		// loading Index Facade again
-		SpxSemanticIndexFacade tfacade = _registry.getFacade(this.projectNameTerm);
+		SpxSemanticIndexFacade tfacade = _registry.getFacade(projectNameTerm);
 		
 		//Test 1 : Should return Only 1 symbol 
 		Set<SpxSymbol> resolvedSymbols = (Set<SpxSymbol>)tfacade.resolveSymbols(
@@ -1349,12 +1352,14 @@ public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 		
 		_facade.commitChanges();
 	
+		IStrategoString projectNameTerm = this.getProjectPath(_projectName) ;
+		
 		// closing persistence manager
-		_registry.closePersistenceManager(this.projectNameTerm);
+		_registry.closePersistenceManager(projectNameTerm);
 		_registry.initFacade(projectNameTerm, termFactory(), ioAgent());
 		
 		// loading tfacade again
-		SpxSemanticIndexFacade tfacade = _registry.getFacade(this.projectNameTerm);
+		SpxSemanticIndexFacade tfacade = _registry.getFacade(projectNameTerm);
 		
 
 		//Test 0 : Should not return any symbol as Module does not have any symbol with ID = symbolId1
@@ -1401,12 +1406,14 @@ public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 		
 		_facade.commitChanges();
 		
+		IStrategoString projectNameTerm = this.getProjectPath(_projectName) ;
+		
 		// closing persistence manager
-		_registry.closePersistenceManager(this.projectNameTerm);
+		_registry.closePersistenceManager(projectNameTerm);
 		_registry.initFacade(projectNameTerm, termFactory(), ioAgent());
 		
 		// loading tfacade again
-		SpxSemanticIndexFacade tfacade = _registry.getFacade(this.projectNameTerm);
+		SpxSemanticIndexFacade tfacade = _registry.getFacade(projectNameTerm);
 		
 
 		//-------------------------Resolving Symbol in Package 3--------------------------------------------

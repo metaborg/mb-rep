@@ -8,14 +8,11 @@ import org.spoofax.interpreter.library.language.LanguageLibrary;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxSemanticIndexFacade;
 import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbolTableEntry;
 import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
 public class SpxSymbolTableEntryTests extends SpxIndexBaseTestCase{
 	private final String _projectName = ".UnitTest3";
-	
-	private IStrategoString projectNameTerm; 
 	private SpxSemanticIndexFacade _facade;
 	
 	final String absPathString1 = "c:/temp/test1.spx" ;
@@ -32,10 +29,7 @@ public class SpxSymbolTableEntryTests extends SpxIndexBaseTestCase{
 		super.setUp();
 		interpreter().addOperatorRegistry(new LanguageLibrary());
 		
-		projectNameTerm = termFactory().makeString(_projectName);
-		
-	
-		_facade = new SpxSemanticIndexFacade(projectNameTerm , termFactory() , ioAgent());
+		_facade = new SpxSemanticIndexFacade(getProjectPath(_projectName) , termFactory() , ioAgent());
 		_facade.cleanIndexAndSymbolTable();
 	}
 	

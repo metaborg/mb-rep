@@ -11,7 +11,6 @@ import org.spoofax.interpreter.library.language.spxlang.index.data.PackageDeclar
 import org.spoofax.interpreter.library.language.spxlang.index.data.SpxSymbolTableException;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
@@ -19,7 +18,6 @@ public class SpxSemanticIndexFacadeTest extends SpxIndexBaseTestCase{
 	
 	private final String _projectName = ".UnitTest2";
 	
-	private IStrategoString projectNameTerm; 
 	private SpxSemanticIndexFacade _facade;
 	private SpxSemanticIndexFacadeRegistry _registry;
 	
@@ -38,10 +36,8 @@ public class SpxSemanticIndexFacadeTest extends SpxIndexBaseTestCase{
 		interpreter().addOperatorRegistry(new LanguageLibrary());
 		_registry = new SpxSemanticIndexFacadeRegistry();
 		
-		projectNameTerm = termFactory().makeString(System.getProperty("user.dir")+ "/"+_projectName);
-	
-		_registry.initFacade(projectNameTerm, termFactory(), ioAgent()); 
-		_facade = _registry.getFacade(projectNameTerm);
+		_registry.initFacade(getProjectPath(_projectName), termFactory(), ioAgent()); 
+		_facade = _registry.getFacade(getProjectPath(_projectName));
 		_facade.cleanIndexAndSymbolTable();
 	
 		indexCompilationUnit();

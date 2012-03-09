@@ -26,7 +26,7 @@ import org.spoofax.interpreter.terms.ITermFactory;
 
 public class SpxLookupTableUnitTests  extends SpxIndexBaseTestCase{
 	
-	private final String _projectName = "test-sybol-table_2";
+	private final String _projectName = ".UnitTest2";
 	private IStrategoString projectNameTerm;
 	
 	private SpxSemanticIndexFacade _facade;
