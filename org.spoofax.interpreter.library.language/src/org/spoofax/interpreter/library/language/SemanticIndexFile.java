@@ -16,7 +16,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
 /**
- * A URI/time stamp container. Only one SemanticIndexFile may exist per URI.
+ * A URI/time stamp container. Only one SemanticIndexFile may exist per URI/descriptor.
  * 
  * @author Lennart Kats <lennart add lclnet.nl>
  */
@@ -30,12 +30,18 @@ public class SemanticIndexFile {
 	
 	private Date time;
 	
+	private long revision;
+	
 	public URI getURI() {
 		return uri;
 	}
 	
 	public Date getTime() {
 		return time;
+	}
+	
+	public long getRevision() {
+		return revision;
 	}
 	
 	public String getDescriptor() {
@@ -71,11 +77,16 @@ public class SemanticIndexFile {
 		}
 	}
 	
-	public void setTime(Date time) {
+	public void setTimeRevision(Date time, long revision) {
 		this.time = time;
 	}
 	
-	public SemanticIndexFile(URI uri, String descriptor, Date time) {
+	/**
+	 * Creates a new SemanticIndexFile.
+	 * 
+	 * @see SemanticIndex#getFile  Gets a properly shared SemanticIndexFile instance.
+	 */
+	protected SemanticIndexFile(URI uri, String descriptor, Date time) {
 		this.uri = uri;
 		this.descriptor = "".equals(descriptor) ? null : descriptor;
 		this.time = time;

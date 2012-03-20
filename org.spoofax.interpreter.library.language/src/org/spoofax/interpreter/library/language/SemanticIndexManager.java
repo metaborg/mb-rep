@@ -9,6 +9,7 @@ import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -19,6 +20,8 @@ import org.spoofax.terms.io.binary.TermReader;
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 public class SemanticIndexManager {
+	
+	private final AtomicLong revisionProvider = new AtomicLong();
 
 	private SemanticIndex current;
 	
@@ -54,6 +57,10 @@ public class SemanticIndexManager {
 	
 	private static Object getSyncRoot() {
 		return SemanticIndexManager.class;
+	}
+	
+	public AtomicLong getRevisionProvider() {
+		return revisionProvider;
 	}
 	
 	public boolean isInitialized() {

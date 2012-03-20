@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -35,6 +36,8 @@ public class SemanticIndex {
 			new TermFactory().makeConstructor("FileEntries", 2);
 
 	private IOAgent agent;
+	
+	private AtomicLong revisionProvider;
 
 	private ITermFactory termFactory;
 	
@@ -42,10 +45,17 @@ public class SemanticIndex {
 	
 	private SemanticIndexEntry entryTemplate;
 	
-	public void initialize(ITermFactory factory, IOAgent agent) {
+	/**
+	 * Initializes this index.
+	 * 
+	 * @param revisionProvider  An atomic revision number provider, should be shared between copies
+	 *                          of the same index.
+	 */
+	public void initialize(ITermFactory factory, IOAgent agent, AtomicLong revisionProvider) {
 		this.agent = agent;
 		this.factory = new SemanticIndexEntryFactory(factory);
 		this.termFactory = factory;
+		this.revisionProvider = revisionProvider;
 		entryTemplate = new SemanticIndexEntry(
 			factory.makeConstructor("template", 0), factory.makeList(), factory.makeList(),
 			null, null, null);
@@ -105,7 +115,7 @@ public class SemanticIndex {
 				entry.getFile().addEntry(entry);
 		}
 		if (entry.getFile() != null)
-			entry.getFile().setTime(new Date());
+			entry.getFile().setTimeRevision(new Date(), revisionProvider.incrementAndGet());
 	}
 	
 	/**
@@ -140,7 +150,7 @@ public class SemanticIndex {
 		SemanticIndexFile file = entry.getFile();
 		if (file != null) {
 			file.removeEntry(entry);
-			entry.getFile().setTime(new Date());
+			entry.getFile().setTimeRevision(new Date(), revisionProvider.incrementAndGet());
 		}
 	}
 	
@@ -280,9 +290,11 @@ public class SemanticIndex {
 	}
 	
 	/**
-	 * Reads an index from a term.
+	 * Reads an index from a term and initializes it.
 	 */
-	public static SemanticIndex fromTerm(IStrategoTerm term, ITermFactory factory, IOAgent agent, boolean extractPositions) throws IOException {
+	public static SemanticIndex fromTerm(IStrategoTerm term, ITermFactory factory, IOAgent agent,
+			boolean extractPositions) throws IOException {
+		
 		if (extractPositions) {
 			TermAttachmentSerializer serializer = new TermAttachmentSerializer(factory);
 			term = (IStrategoList) serializer.fromAnnotations(term, false);
@@ -290,9 +302,9 @@ public class SemanticIndex {
 		
 		if (isTermList(term)) {
 			SemanticIndex result = new SemanticIndex();
-			result.initialize(factory, agent);
+			result.initialize(factory, agent, new AtomicLong());
 			for (IStrategoList list = (IStrategoList) term; !list.isEmpty(); list = list.tail()) {
-				fromFileEntriesTerm(list.head(), result);
+				result.loadFileEntriesTerm(list.head());
 			}
 			return result;
 		} else {
@@ -300,11 +312,11 @@ public class SemanticIndex {
 		}
 	}
 	
-	private static void fromFileEntriesTerm(IStrategoTerm fileEntries, SemanticIndex result) throws IOException {
+	private void loadFileEntriesTerm(IStrategoTerm fileEntries) throws IOException {
 		if (tryGetConstructor(fileEntries) == FILE_ENTRIES_CON) {
 			try {
-				SemanticIndexFile file = result.getFile(termAt(fileEntries, 0));
-				result.addAll((IStrategoList) termAt(fileEntries, 1), file);
+				SemanticIndexFile file = getFile(termAt(fileEntries, 0));
+				addAll((IStrategoList) termAt(fileEntries, 1), file);
 			} catch (IllegalStateException e) {
 				throw new IllegalStateException(e);
 			} catch (RuntimeException e) { // HACK: catch all runtime exceptions
