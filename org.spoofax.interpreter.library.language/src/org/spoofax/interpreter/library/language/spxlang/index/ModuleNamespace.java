@@ -1,14 +1,9 @@
 package org.spoofax.interpreter.library.language.spxlang.index;
 
-import java.net.URI;
-
 import org.spoofax.interpreter.library.language.spxlang.index.data.ModuleDeclaration;
 import org.spoofax.interpreter.library.language.spxlang.index.data.NamespaceUri;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
-import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.ITermFactory;
 
 /**
  * Instantiates a new ModuleNamespace . Each ModuleNamespace is associated with a ModuleDeclaration.
@@ -54,7 +49,7 @@ public final class ModuleNamespace extends BaseNamespace
 
 	@Override
 	public IStrategoAppl toTypedQualifiedName(SpxSemanticIndexFacade facade) {
-		return ModuleDeclaration.toModuleQNameAppl(facade, this.namespaceUri().id());
+		return ModuleDeclaration.toModuleQNameAppl(facade, this.namespaceUri().strategoID(facade.getTermFactory()));
 	}
 	
 	protected String moduleFilePath;
@@ -64,7 +59,7 @@ public final class ModuleNamespace extends BaseNamespace
 	}
 
 	@Override
-	public String getAbosoluteFilePath(){
+	public String getAbosoluteFilePath(){  
 		return moduleFilePath;
 	}
 }

@@ -26,10 +26,12 @@ public class ModuleDeclaration extends IdentifiableConstruct implements INamespa
 	public static final int AnalyzedAstIndex = 4;
 	
 	public final String resourceAbsPath; 
-
 	public final IStrategoList enclosingPackageID;
 	private long  lastModifiedOn;
+	private LanguageDescriptor _languageDescriptor;
 	
+	private Long recIdOfModuleDefinition;
+	private Long recIdOfAnalyzedModuleDefinition;
 	
 	public ModuleDeclaration(String resourceAbsPath, IStrategoList id , IStrategoList packageID) {
 		super(id);
@@ -37,15 +39,31 @@ public class ModuleDeclaration extends IdentifiableConstruct implements INamespa
 		this.resourceAbsPath = resourceAbsPath;
 		this.enclosingPackageID = packageID;
 	}
-
+	
+	
+	public static ModuleDeclaration newInstance(ITermFactory f, ModuleDeclaration  decl){
+		if (decl == null) 
+			return decl;
+		
+		ModuleDeclaration newDecl = new ModuleDeclaration(decl.getLocation() , decl.getId() , decl.enclosingPackageID);
+		newDecl.setLastModifiedOn(decl.getLastModifiedOn());
+		newDecl.setModuleAnalyzedAstRecId(decl.getModuleAnalyzedAstRecId());
+		newDecl.setModuleAstRecId(decl.getModuleAstRecId());
+		
+		if(decl.getLanguageDescriptor() == null)
+			decl.setLanguageDescriptor(LanguageDescriptor.newInstance(f, decl.getId()));
+		
+		newDecl.setLanguageDescriptor( LanguageDescriptor.newInstance(f, decl.getLanguageDescriptor()));
+		
+		return newDecl;
+	}
+	
+	
 	/* (non-Javadoc)
 	 * @see org.spoofax.interpreter.library.language.spxlang.IdentifiableConstruct#getFileLocation()
 	 */
 	@Override 
-	protected String getLocation() {
-		return resourceAbsPath;
-	}
-
+	protected String getLocation() { return resourceAbsPath; }
 
 	/**
 	 * @param tf
@@ -58,7 +76,6 @@ public class ModuleDeclaration extends IdentifiableConstruct implements INamespa
 		IStrategoString mLoc = tf.makeString(this.getLocation());
 			
 		return tf.makeTuple(mId, mLoc);
-	
 	}
 	
 	public static IStrategoList getModuleId(SpxSemanticIndexFacade facade, IStrategoAppl moduleQName ){
@@ -70,13 +87,11 @@ public class ModuleDeclaration extends IdentifiableConstruct implements INamespa
 		throw new IllegalArgumentException("Invalid module qname : "+ moduleQName.toString());
 	}
 	
-	public static IStrategoAppl toModuleQNameAppl(SpxSemanticIndexFacade facade , ModuleDeclaration decl)
-	{
+	public static IStrategoAppl toModuleQNameAppl(SpxSemanticIndexFacade facade , ModuleDeclaration decl){
 		return toIdTerm(facade, facade.getCons().getModuleQNameCon() , decl.getId());
 	}
 	
-	public static IStrategoAppl toModuleQNameAppl(SpxSemanticIndexFacade facade , IStrategoList id)
-	{
+	public static IStrategoAppl toModuleQNameAppl(SpxSemanticIndexFacade facade , IStrategoList id){
 		return toIdTerm(facade, facade.getCons().getModuleQNameCon() , id);
 	}
 
@@ -111,22 +126,24 @@ public class ModuleDeclaration extends IdentifiableConstruct implements INamespa
 		NamespaceUri namespaceUri = table.toNamespaceUri(id) ;
 		NamespaceUri packageUri = table.toNamespaceUri(enclosingPackageID) ;
 		
-		namespaces.add(ModuleNamespace.createInstance(namespaceUri, packageUri,idxFacade, getLocation()));
+		SpxPrimarySymbolTable  symbol_table = idxFacade.getPersistenceManager().spxSymbolTable();
+		INamespace ns = symbol_table.resolveNamespace(namespaceUri); 
+		
+		if(ns == null)
+			namespaces.add(ModuleNamespace.createInstance(namespaceUri, packageUri,idxFacade, getLocation()));
 		
 		return namespaces; 
 	}
 	
-	public  NamespaceUri getNamespaceUri(SpxSemanticIndexFacade idxFacade)
-	{
+	
+	public  NamespaceUri getNamespaceUri(SpxSemanticIndexFacade idxFacade){
 		return idxFacade.getPersistenceManager().spxSymbolTable().toNamespaceUri(id) ;
 	}
-
+	
 	/**
 	 * @return the lastModifiedOn
 	 */
-	public long getLastModifiedOn() {
-		return lastModifiedOn;
-	}
+	public long getLastModifiedOn() { return lastModifiedOn; }
 
 	/**
 	 * @param lastModifiedOn the lastModifiedOn to set
@@ -171,6 +188,13 @@ public class ModuleDeclaration extends IdentifiableConstruct implements INamespa
 		} else if (!enclosingPackageID.match(other.enclosingPackageID))
 			return false;
 		
+		if (_languageDescriptor == null) {
+			if (other._languageDescriptor != null)
+				return false;
+		} else if (!_languageDescriptor.equals(other._languageDescriptor))
+			return false;
+		
+		
 		return true;
 	}
 	
@@ -186,7 +210,56 @@ public class ModuleDeclaration extends IdentifiableConstruct implements INamespa
 		
 		result = prime * result + ((enclosingPackageID == null) ? 0 : enclosingPackageID.hashCode());
 		
+		result = prime * result + ((_languageDescriptor == null) ? 0 : _languageDescriptor.hashCode());
+		
 		return result;
+	}
+
+
+	/**
+	 * @return the recId
+	 */
+	public Long getModuleAstRecId() {
+		return recIdOfModuleDefinition;
+	}
+
+
+	/**
+	 * @param recId the recId to set
+	 */
+	public void setModuleAstRecId(Long recId) {
+		this.recIdOfModuleDefinition = recId;
+	}
+
+	/**
+	 * @return the recId
+	 */
+	public Long getModuleAnalyzedAstRecId() {
+		return  recIdOfAnalyzedModuleDefinition;
+	}
+
+
+	/**
+	 * @param recId the recId to set
+	 */
+	public  void setModuleAnalyzedAstRecId(Long recId) {
+		this.recIdOfAnalyzedModuleDefinition = recId;
+	}
+
+
+	/**
+	 * @return the languageDescriptor
+	 */
+	public LanguageDescriptor getLanguageDescriptor() {
+		return _languageDescriptor;
+	}
+
+
+	/**
+	 * @param languageDescriptor the languageDescriptor to set
+	 */
+	public void setLanguageDescriptor(LanguageDescriptor languageDescriptor) {
+		_languageDescriptor = languageDescriptor;
 	}
 }
 

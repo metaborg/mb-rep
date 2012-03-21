@@ -37,7 +37,7 @@ public final class LocalNamespace extends BaseNamespace{
 		ITermFactory termFactory = facade.getTermFactory();
 		
 		UUID uniqueId= UUID.randomUUID();
-		NamespaceUri localNamespaceUri = new NamespaceUri(termFactory.makeList(termFactory.makeString("anonymous_"+uniqueId.toString())) , uniqueId);
+		NamespaceUri localNamespaceUri = new NamespaceUri(termFactory.makeList(termFactory.makeString("anonymous_"+uniqueId.toString())));
 
 		return new LocalNamespace(localNamespaceUri , facade.getCons().getLocalNamespaceTypeCon(), facade.getPersistenceManager(), enclosingNamespace.namespaceUri());
 	}

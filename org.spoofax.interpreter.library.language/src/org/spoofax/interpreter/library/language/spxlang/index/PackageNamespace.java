@@ -69,7 +69,7 @@ public final class PackageNamespace  extends BaseNamespace {
 			//add internal Module's namespace uri  
 			enclosedNamespaceUris.add(packageInternalNamespace(this.namespaceUri() , facade));
 			
-			Iterable<ModuleDeclaration> mDecls = facade.getModuleDeclarations( this.namespaceUri().id());
+			Iterable<ModuleDeclaration> mDecls = facade.getModuleDeclarations( this.namespaceUri().strategoID(facade.getTermFactory()));
 			if(mDecls !=null){
 				for(ModuleDeclaration m : mDecls){
 					enclosedNamespaceUris.add(m.getNamespaceUri(facade));
@@ -92,7 +92,7 @@ public final class PackageNamespace  extends BaseNamespace {
 			SpxPrimarySymbolTable symTable =  facade.getPersistenceManager().spxSymbolTable();
 			
 			//getting the package declaration and retrieving it imported references 
-			PackageDeclaration assiciatedPackageDeclaration = facade.lookupPackageDecl(this.namespaceUri().id());
+			PackageDeclaration assiciatedPackageDeclaration = facade.lookupPackageDecl(this.namespaceUri().strategoID(facade.getTermFactory()));
 			
 			Set<IStrategoList> importedIds = assiciatedPackageDeclaration.getImportReferneces();
 			
@@ -114,11 +114,11 @@ public final class PackageNamespace  extends BaseNamespace {
 	 */
 	boolean isTransitiveImportLookup(SpxSemanticIndexFacade facade , INamespace searchOrigin) throws SpxSymbolTableException{
 		
-		PackageDeclaration	assiciatedPackageDeclaration = facade.lookupPackageDecl(this.namespaceUri().id());
+		PackageDeclaration	assiciatedPackageDeclaration = facade.lookupPackageDecl(this.namespaceUri().strategoID(facade.getTermFactory()));
 		
 		Set<IStrategoList> importedToPackages = facade.getPersistenceManager().spxPackageTable().getImportedToReferencesOf(assiciatedPackageDeclaration.getId());
 		
-		return importedToPackages.contains(searchOrigin.namespaceUri().id());
+		return importedToPackages.contains(searchOrigin.namespaceUri().strategoID(facade.getTermFactory()));
 	}
 	
 	
@@ -131,7 +131,7 @@ public final class PackageNamespace  extends BaseNamespace {
 	 */
 	@Override
 	public SpxSymbol resolve(IStrategoTerm id, IStrategoTerm type, INamespace searchedBy, SpxSemanticIndexFacade facade, int lookupDepth) throws SpxSymbolTableException {
-		facade.getPersistenceManager().logMessage(this.src, "resolve | Resolving Symbol in " + this.namespaceUri().id() +  " . Key :  " + id + " origin Namespace: " + searchedBy.namespaceUri().id() );
+		facade.getPersistenceManager().logMessage(this.src, "resolve | Resolving Symbol in " + this.namespaceUri() +  " . Key :  " + id + " origin Namespace: " + searchedBy.namespaceUri().id() );
 		
 		ensureEnclosedNamespaceUrisLoaded(facade);
 		SpxSymbol retSymbol = resolveSymbolinNamespaces(this.enclosedNamespaceUris, id, type, searchedBy, facade);
@@ -159,7 +159,7 @@ public final class PackageNamespace  extends BaseNamespace {
 	 */
 	@Override
 	public Collection<SpxSymbol> resolveAll(SpxSemanticIndexFacade facade,IStrategoTerm key, IStrategoTerm type, INamespace originNamespace, int lookupDepth, boolean returnDuplicate) throws SpxSymbolTableException{
-		facade.getPersistenceManager().logMessage(this.src, "resolveAll | Resolving Symbol in " + this.namespaceUri().id() +  " . Key :  " + key + " origin Namespace: " + originNamespace.namespaceUri().id() );
+		facade.getPersistenceManager().logMessage(this.src, "resolveAll | Resolving Symbol in " + this.namespaceUri() +  " . Key :  " + key + " origin Namespace: " + originNamespace.namespaceUri().id() );
 		
 		Collection<SpxSymbol> retResult = null;
 		
@@ -307,11 +307,10 @@ public final class PackageNamespace  extends BaseNamespace {
 			NamespaceUri currentPackageUri = table.toNamespaceUri(id);
 	
 			ns = new PackageNamespace(currentPackageUri, facade.getCons().getPackageNamespaceTypeCon(), globalNsUri,facade.getPersistenceManager());
+			namespaces.add(ns);
+			namespaces.add(createInternalNamespace(ns.namespaceUri() , facade));
 		}
-		
-		namespaces.add(ns);
-		namespaces.add(createInternalNamespace(ns.namespaceUri() , facade));
-		
+	
 		return namespaces;
 	}
 	
@@ -344,7 +343,7 @@ public final class PackageNamespace  extends BaseNamespace {
 		
 		SpxPrimarySymbolTable  table =  idxFacade.getPersistenceManager().spxSymbolTable() ;
 		
-		IStrategoList internalModuleID  = packageInternalModuleId(enclosingNamespaceId.id() , idxFacade);
+		IStrategoList internalModuleID  = packageInternalModuleId(enclosingNamespaceId.strategoID(idxFacade.getTermFactory()), idxFacade);
 		NamespaceUri internalModuleUri  = table.toNamespaceUri(internalModuleID);
 		return internalModuleUri;
 	}
@@ -360,11 +359,10 @@ public final class PackageNamespace  extends BaseNamespace {
 		subTerms.add(termFactory.makeString(INTERNAL_NAMESPACENAME));
 		
 		return termFactory.makeList(subTerms);
-		
 	}
 
 	@Override
 	public IStrategoAppl toTypedQualifiedName(SpxSemanticIndexFacade facade) {
-		return PackageDeclaration.toPackageQNameAppl(facade, this.namespaceUri().id());
+		return PackageDeclaration.toPackageQNameAppl(facade, this.namespaceUri().strategoID(facade.getTermFactory()));
 	}
 }

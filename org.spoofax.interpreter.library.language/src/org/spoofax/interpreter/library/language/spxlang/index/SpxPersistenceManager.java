@@ -2,7 +2,6 @@ package org.spoofax.interpreter.library.language.spxlang.index;
 
 import java.io.IOException;
 import java.util.Properties;
-import java.util.UUID;
 
 import jdbm.PrimaryHashMap;
 import jdbm.PrimaryStoreMap;
@@ -27,10 +26,16 @@ import org.spoofax.interpreter.library.IOAgent;
 public class SpxPersistenceManager implements ISpxPersistenceManager {
 	private static final String SRC =   "SpxPersistenceManager" ;
 
-	private RecordManager _recordManager; 
 	private String _indexId ;
 	private final IOAgent _agent;
-	private SpxCompilationUnitTable _spxUnitsTable; // Keeps a reference to the SpxCompilation Units  
+	
+	
+	private RecordManager _recordManagerIndex;
+	private RecordManager _recordManagerModuleIndex;
+	private RecordManager _recordManagerSymbolTable;
+	
+	
+	private SpxCompilationUnitTable _spxUnitsTable; 	// Keeps a reference to the SpxCompilation Units  
 	private SpxPackageLookupTable   _spxPackageTable; // Indexing Package and Module Definitions
 	private SpxModuleLookupTable    _spxModuleTable;
 	
@@ -82,26 +87,16 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	 * @throws IOException
 	 */
 	private void tryInitRecordManager(SpxSemanticIndexFacade spxSemanticIndexFacade, Properties options) throws IOException {
-		int noOfTries = SpxIndexConfiguration.NO_OF_ATTEMPT_TO_INIT_RECORDMANAGER;
-		
-		while(true){
-			try {
-				_recordManager = RecordManagerFactory.createRecordManager(_indexId , options);
-				break;
-			}catch(IOException ex) {
-				logMessage(SRC + ".tryInitRecordManager" , "Failed to create recordmanager with arg : " + _indexId +". exception : "+ ex);
-				if(noOfTries == 0){ 
-					logMessage(SRC + ".tryInitRecordManager" , "RecordManager creation is failed. Reason : "+ ex);
-					throw ex;
-				}else{
-					_indexId  = _indexId+ "[" + UUID.randomUUID().toString() +"]";
-					this.clearCache();
-					spxSemanticIndexFacade.tryInvalidatingSpxCacheDirectories();
-					noOfTries--;
-				}
-			}
+		try {
+			_recordManagerIndex 	 = RecordManagerFactory.createRecordManager(getIndexId() , options);
+			_recordManagerModuleIndex = RecordManagerFactory.createRecordManager(getModuleIndexId(), options);
+			_recordManagerSymbolTable = RecordManagerFactory.createRecordManager(getSymbolTableId(), options);
+		}catch(IOException ex) {
+			logMessage(SRC + ".tryInitRecordManager" , "Failed to create recordmanager with arg : " + _indexId +". exception : "+ ex);
+			throw ex;
 		}
 	}
+
 	
 	/**
 	 * Initializes Symbol Tables for {@code projectName} Project
@@ -112,17 +107,13 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 		
 		_spxUnitsTable   = new SpxCompilationUnitTable(this);
 		_spxPackageTable = new SpxPackageLookupTable(this);
-		_spxModuleTable  = new SpxModuleLookupTable(this);
-		_spxSymbolTable = new SpxPrimarySymbolTable(facade);
+		
+		_spxModuleTable  = new SpxModuleLookupTable(facade.getTermFactory(), this , _recordManagerModuleIndex);
+		_spxSymbolTable = new SpxPrimarySymbolTable(facade, _recordManagerSymbolTable );
+		
 		_spxSymbolTable.addGlobalNamespace(facade);
 
 		initListeners();
-		
-		/*
-		if(Utils.DEBUG){
-			_spxSymbolTable.printSymbols(facade, "init" , facade.getProjectPath() , facade.indexId());
-		}
-		*/	
 	}
 	
 	
@@ -151,6 +142,8 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 		_spxModuleTable.addRecordListener((IModuleDeclarationRecordListener) _spxSymbolTable);
 	}
 	
+	
+	
 	/**
 	 * Instantiates a new HashMap 
 	 * 
@@ -160,14 +153,14 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	 * @return
 	 */
 	public <K,V> PrimaryHashMap<K,V> loadHashMap (String mapName){ 
-		return _recordManager.hashMap(mapName) ; 
+		return _recordManagerIndex.hashMap(mapName) ; 
 	}
+	
 	
 	@SuppressWarnings("rawtypes")
-	public <K extends Comparable,V> PrimaryTreeMap<K,V> loadTreeMap ( String mapName){
-		return _recordManager.treeMap(mapName);
+	public <K extends Comparable,V> PrimaryTreeMap<K,V> loadTreeMap (String mapName){
+		return _recordManagerIndex.treeMap(mapName);
 	}
-	
 	
 	/**
 	 * Instantiates a new StoreHashMap
@@ -177,9 +170,10 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	 * @return
 	 */
 	public <V> PrimaryStoreMap <Long, V> loadStoreMap(String storeMapName) { 
-		return _recordManager.storeMap(storeMapName); 
+		return _recordManagerIndex.storeMap(storeMapName); 
 	}
 	
+
 	/**
 	 * Commits any unsaved changes to the disk 
 	 * @throws IOException
@@ -187,7 +181,9 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	public void commit() throws IOException {
 		this.spxSymbolTable().commitChanges();
 		if(!this.isClosed()){
-			_recordManager.commit();
+			_recordManagerIndex.commit();
+			_recordManagerSymbolTable.commit();
+			_recordManagerModuleIndex.commit();
 		}	
 	}
 	
@@ -201,8 +197,11 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 		// checking in the changes before closing the connection 
 		spxSymbolTable().commitChanges();
 		
-		if(!this.isClosed()) 
-			_recordManager.close();
+		if(!this.isClosed()){ 
+			_recordManagerIndex.close();
+			_recordManagerSymbolTable.close();
+			_recordManagerModuleIndex.close();
+		}	
 		
 		this._spxModuleTable = null;
 		this._spxPackageTable = null;
@@ -217,8 +216,17 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 
 	public SpxCompilationUnitTable spxCompilcationUnitTable() { return _spxUnitsTable; }
 
-	public boolean isClosed() { return _recordManager == null? true : _recordManager.IsClosed(); }
+	public boolean isClosed() { return isRecordManagerIndexClosed() || isRecordManagerSymbolTableClosed() ;}
 
+	
+	private boolean isRecordManagerIndexClosed(){
+		return _recordManagerIndex == null ?  true : _recordManagerIndex.IsClosed();
+	}
+	
+	private boolean isRecordManagerSymbolTableClosed(){
+		return _recordManagerSymbolTable == null ?  true : _recordManagerSymbolTable.IsClosed();
+	}
+	
 	public SpxPackageLookupTable spxPackageTable() { return _spxPackageTable; }
 
 	public SpxModuleLookupTable spxModuleTable() { return _spxModuleTable; }	
@@ -255,17 +263,32 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 	public String getIndexId() {
 		return _indexId;
 	}
-
+	
+	public String getModuleIndexId() {
+		return _indexId + "ModuleIndex";
+	}
+	public String getSymbolTableId() {
+		return _indexId + "SymbolTable";
+	}
+	
 	public SpxPrimarySymbolTable spxSymbolTable() {
 		return _spxSymbolTable;
 	}
 
 	public void rollback() throws IOException{
-		_recordManager.rollback();
+		_recordManagerIndex.rollback();
+		_recordManagerSymbolTable.rollback();
+		_recordManagerModuleIndex.rollback();
 	}
 
 	public void clearCache() throws IOException {
-		if( _recordManager instanceof CacheRecordManager)
-			_recordManager.clearCache();
+		if( _recordManagerIndex instanceof CacheRecordManager)
+			_recordManagerIndex.clearCache();
+		
+		if( _recordManagerSymbolTable instanceof CacheRecordManager)
+			_recordManagerSymbolTable.clearCache();
+		
+		if( _recordManagerModuleIndex instanceof CacheRecordManager)
+			_recordManagerModuleIndex.clearCache();
 	}
 }

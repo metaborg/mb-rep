@@ -156,7 +156,6 @@ public class SpxLookupTableUnitTests  extends SpxIndexBaseTestCase{
 		
 		symtable.definePackageDeclaration(p1);
 		symtable.definePackageDeclaration(p2);
-	
 		
 		//adding another uri in package declaration
 		symtable.addPackageDeclarationLocation(idp2, absPathString1);
@@ -238,7 +237,10 @@ public class SpxLookupTableUnitTests  extends SpxIndexBaseTestCase{
 		
 		IStrategoList pId2 = factory.makeList(factory.makeString("test2"));
 		IStrategoList idm2 = factory.makeList(factory.makeString("test") , factory.makeString("m2"));
+	
 		ModuleDeclaration m2 = new ModuleDeclaration(absPathString1, idm2,pId2 );
+		m2.setLanguageDescriptor(LanguageDescriptor.newInstance(this.termFactory(), m2.getId()));
+		
 		
 		mSymTable.define(
 				this._facade , 
@@ -264,7 +266,7 @@ public class SpxLookupTableUnitTests  extends SpxIndexBaseTestCase{
 				
 		HashSet<IStrategoList> actual = (HashSet<IStrategoList>)mSymTable.getModuleIdsByLangaugeName("langname2");
 	
-		assertEquals( actual.size() , 1) ;
+		assertEquals( 1 ,actual.size()) ;
 		assertEquals(idm2, actual.toArray()[0]);
 	}	
 	
@@ -279,6 +281,7 @@ public class SpxLookupTableUnitTests  extends SpxIndexBaseTestCase{
 		symtable.definePackageDeclaration(p1);
 		
 		IStrategoList idm2 = factory.makeList(factory.makeString("test") , factory.makeString("m2"));
+		
 		ModuleDeclaration m2 = new ModuleDeclaration(absPathString1, idm2,pId2 );
 		
 		mSymTable.define(
@@ -438,6 +441,10 @@ public class SpxLookupTableUnitTests  extends SpxIndexBaseTestCase{
 		//module declaration 
 		IStrategoList idm1 = f.makeList(f.makeString("test") , f.makeString("m1"));
 		ModuleDeclaration m1 = new ModuleDeclaration(absPathString1, idm1,pId );
+		m1.setLanguageDescriptor(LanguageDescriptor.newInstance(this.termFactory(), m1.getId()));
+		
+		
+		
 		lookupTable.define(
 				_facade , 
 					m1 , 
@@ -446,6 +453,7 @@ public class SpxLookupTableUnitTests  extends SpxIndexBaseTestCase{
 		
 		IStrategoList idm2 = f.makeList(f.makeString("test") , f.makeString("m2"));
 		ModuleDeclaration m2 = new ModuleDeclaration(absPathString1, idm2,pId2 );
+		m2.setLanguageDescriptor(LanguageDescriptor.newInstance(this.termFactory(), m2.getId()));
 		
 		lookupTable.define(
 				_facade , 
@@ -456,7 +464,8 @@ public class SpxLookupTableUnitTests  extends SpxIndexBaseTestCase{
 		
 		IStrategoList idm3 = f.makeList(f.makeString("test") , f.makeString("m3"));
 		ModuleDeclaration m3 = new ModuleDeclaration(absPathString2, idm3,pId );
-
+		m3.setLanguageDescriptor(LanguageDescriptor.newInstance(this.termFactory(), m3.getId()));
+		
 		lookupTable.define(
 				_facade , 
 				m3 , 
@@ -487,6 +496,7 @@ public class SpxLookupTableUnitTests  extends SpxIndexBaseTestCase{
 		//module declaration 
 		IStrategoList idm1 = f.makeList(f.makeString("test") , f.makeString("m1"));
 		ModuleDeclaration m1 = new ModuleDeclaration(absPathString1, idm1,pId );
+		m1.setLanguageDescriptor(LanguageDescriptor.newInstance(this.termFactory(), m1.getId()));
 		
 		
 		lookupTable.define(
@@ -497,6 +507,7 @@ public class SpxLookupTableUnitTests  extends SpxIndexBaseTestCase{
 		
 		IStrategoList idm2 = f.makeList(f.makeString("test") , f.makeString("m2"));
 		ModuleDeclaration m2 = new ModuleDeclaration(absPathString2, idm2,pId2 );
+		m2.setLanguageDescriptor(LanguageDescriptor.newInstance(this.termFactory(), m2.getId()));
 		
 		lookupTable.define(
 				_facade , 
@@ -507,7 +518,8 @@ public class SpxLookupTableUnitTests  extends SpxIndexBaseTestCase{
 		
 		IStrategoList idm3 = f.makeList(f.makeString("test") , f.makeString("m3"));
 		ModuleDeclaration m3 = new ModuleDeclaration(absPathString2, idm3,pId );
-
+		m3.setLanguageDescriptor(LanguageDescriptor.newInstance(this.termFactory(), m3.getId()));
+		
 		lookupTable.define(
 				_facade , 
 				m3 , 
@@ -537,7 +549,7 @@ public class SpxLookupTableUnitTests  extends SpxIndexBaseTestCase{
 		//module declaration 
 		IStrategoList idm1 = f.makeList(f.makeString("test") , f.makeString("m1"));
 		ModuleDeclaration m1 = new ModuleDeclaration(absPathString1, idm1,pId );
-		
+		m1.setLanguageDescriptor(LanguageDescriptor.newInstance(this.termFactory(), m1.getId()));
 		
 		lookupTable.define(
 				_facade , 
@@ -547,6 +559,7 @@ public class SpxLookupTableUnitTests  extends SpxIndexBaseTestCase{
 		
 		IStrategoList idm2 = f.makeList(f.makeString("test") , f.makeString("m2"));
 		ModuleDeclaration m2 = new ModuleDeclaration(absPathString2, idm2,pId2 );
+		m2.setLanguageDescriptor(LanguageDescriptor.newInstance(this.termFactory(), m2.getId()));
 		
 		lookupTable.define(
 				_facade , 
@@ -557,7 +570,8 @@ public class SpxLookupTableUnitTests  extends SpxIndexBaseTestCase{
 		
 		IStrategoList idm3 = f.makeList(f.makeString("test") , f.makeString("m3"));
 		ModuleDeclaration m3 = new ModuleDeclaration(absPathString2, idm3,pId );
-
+		m3.setLanguageDescriptor(LanguageDescriptor.newInstance(this.termFactory(), m3.getId()));
+		
 		lookupTable.define(
 				_facade , 
 				m3 , 

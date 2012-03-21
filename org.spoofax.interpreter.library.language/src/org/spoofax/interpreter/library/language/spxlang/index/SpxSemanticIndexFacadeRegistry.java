@@ -39,28 +39,29 @@ public class SpxSemanticIndexFacadeRegistry
 
 		if ( !containsFacade(projectPath)) {
 		 
-			fac = new SpxSemanticIndexFacade(projectPath, termFactory, agent);
-			fac.initializePersistenceManager();
-			
+			fac = newFacade( projectPath, termFactory, agent);
 			// when facade is first time initializing, it cleans up
 			// index and symbol table so that every thing get re-indexed
-			fac.cleanIndexAndSymbolTable();
+			// fac.cleanIndexAndSymbolTable();
 		}	
 		else {
 			fac = _registry.get(projectNameString);
+		
 			// Checks to verify whether the persistence manager is closed. 
 			// If it is , creating a new instance of PersistenceManager.
 			if( (fac != null) && fac.isPersistenceManagerClosed()){
 				fac.initializePersistenceManager();
 			}else if ( fac == null){
-				fac = new SpxSemanticIndexFacade(projectPath, termFactory, agent);
-				fac.initializePersistenceManager();
+				fac = newFacade( projectPath, termFactory, agent);
 			}	
 		}
-		
-		if(fac != null){
-			_registry.put(fac.getProjectPath(), fac);
-		}	
+	
+		return fac;
+	}
+	private SpxSemanticIndexFacade newFacade ( IStrategoTerm projectPath, ITermFactory termFactory , IOAgent agent ) throws Exception{
+		SpxSemanticIndexFacade fac  = new SpxSemanticIndexFacade(projectPath, termFactory, agent);
+		fac.initializePersistenceManager();
+		_registry.put(fac.getProjectPath(), fac);
 		return fac;
 	}
 

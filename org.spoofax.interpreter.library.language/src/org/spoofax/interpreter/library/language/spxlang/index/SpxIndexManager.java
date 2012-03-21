@@ -1,5 +1,6 @@
 package org.spoofax.interpreter.library.language.spxlang.index;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.spoofax.interpreter.core.Tools;
@@ -174,13 +175,23 @@ public class SpxIndexManager implements IIndexManageCommand
 
 		return new SpxIndexManager(index , projectPath, objects){
 			public void executeCommnad(SpxSemanticIndex idx, IStrategoTerm projectPath, Object... objects) throws Exception{
-				
-				SpxSemanticIndexFacade idxFacade = getSpxIndexFacade(idx, projectPath);
-				
-				if(idxFacade == null)
-					idxFacade = idx.getFacadeRegistry().initFacade(projectPath, (ITermFactory)objects[0], (IOAgent)objects[1]) ;
-				
-				idxFacade.cleanIndexAndSymbolTable();
+				try { 
+					SpxSemanticIndexFacade idxFacade = getSpxIndexFacade(idx, projectPath);
+					if(idxFacade == null)
+						idxFacade = idx.getFacadeRegistry().initFacade(projectPath, (ITermFactory)objects[0], (IOAgent)objects[1]) ;
+					idxFacade.cleanIndexAndSymbolTable();
+				}catch(IOException ex){
+					
+					try {
+						if(SpxIndexUtils.deleteSpxCacheDir( new File(  projectPath +"/" + SpxIndexConfiguration.SPX_CACHE_DIRECTORY), true)){
+							SpxIndexUtils.deleteSpxCacheDir( new File(  projectPath +"/" + SpxIndexConfiguration.SPX_SHADOW_DIR) , true);
+						}
+					}catch(Exception  ex2){
+						// Ignore 	
+					}
+					
+					throw ex;
+				}
 			}
 
 			
@@ -196,10 +207,11 @@ public class SpxIndexManager implements IIndexManageCommand
 			public void executeCommnad(SpxSemanticIndex idx, IStrategoTerm projectPath, Object... objects) throws Exception{
 				
 				SpxSemanticIndexFacade idxFacade = getSpxIndexFacade(idx, projectPath);
-				
 				if(idxFacade!= null){
-					idxFacade.close(true); // Also committing if the persistence manager is still open
-				} 	
+					System.out.println("Closing Index for "+projectPath );
+					idxFacade.close(false); // Also committing if the persistence manager is still open
+				}else
+					System.out.println("Index already closed for "+projectPath );
 			}
 		};
 	}

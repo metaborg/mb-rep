@@ -15,6 +15,7 @@ public interface ISpxPersistenceManager  extends ILogger{
 	public <V> PrimaryStoreMap <Long, V> loadStoreMap( String storeMapName);
 	
 	public <K,V> PrimaryHashMap<K,V> loadHashMap ( String mapName);
+
 	
 	@SuppressWarnings("rawtypes")
 	public <K extends Comparable,V> PrimaryTreeMap<K,V> loadTreeMap ( String mapName);

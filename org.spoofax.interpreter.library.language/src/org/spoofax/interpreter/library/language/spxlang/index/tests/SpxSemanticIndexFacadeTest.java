@@ -46,7 +46,7 @@ public class SpxSemanticIndexFacadeTest extends SpxIndexBaseTestCase{
 	@Override 
 	protected void tearDown() throws Exception { _facade.close(false); }
 	
-	public void testGetModuleDeclarationsByFileUri() throws IOException
+	public void testGetModuleDeclarationsByFileUri() throws IOException, SpxSymbolTableException
 	{
 		String packageName1 =  	"\"languages\", \"entitylang\"" ;
 
@@ -74,7 +74,7 @@ public class SpxSemanticIndexFacadeTest extends SpxIndexBaseTestCase{
 		
 		
 		//Test Namespaces 
-		_facade.getPersistenceManager().spxSymbolTable().getAllNamespaces();
+		_facade.getPersistenceManager().spxSymbolTable().getAllNamespaceSpxId();
 	}
 	
 	public void testGetModuleDeclarationsByPackageId() throws SpxSymbolTableException, IOException

@@ -171,7 +171,7 @@ public abstract class BaseNamespace implements INamespace {
 	}
 	
 	public SpxSymbol resolve(IStrategoTerm searchingFor, IStrategoTerm type, INamespace searchedBy, SpxSemanticIndexFacade  facade, int lookupDepth) throws SpxSymbolTableException{
-		facade.getPersistenceManager().logMessage(this.src, "resolve | Resolving Symbol in " + this.namespaceUri().id() +  " . Key :  " + searchingFor + " origin Namespace: " + searchedBy.namespaceUri().id() );
+		facade.getPersistenceManager().logMessage(this.src, "resolve | Resolving Symbol in " + this.namespaceUri() +  " . Key :  " + searchingFor + " origin Namespace: " + searchedBy.namespaceUri().id() );
 		
 		assert type instanceof IStrategoConstructor : "Type is expected to be IStrategoConstructor" ;
 			
@@ -189,13 +189,11 @@ public abstract class BaseNamespace implements INamespace {
 			if( shouldSearchInEnclosingNamespace( searchedBy , lookupDepth))
 				return namespace.resolve(searchingFor, type, this, facade, lookupDepth-1);
 		}	 
-		
 		return null; // symbol is not found
 	}
 	
 	public Collection<SpxSymbol> resolveAll(SpxSemanticIndexFacade  facade, IStrategoTerm searchingFor, IStrategoTerm ofType, INamespace searchedBy, int lookupDepth, boolean returnDuplicate) throws SpxSymbolTableException {
-		
-		facade.getPersistenceManager().logMessage(this.src, "resolveAll(Base) | Resolving Symbol in " + this.namespaceUri().id() +  " . Key :  " + searchingFor + " origin Namespace: " + searchedBy.namespaceUri().id() );
+		facade.getPersistenceManager().logMessage(this.src, "resolveAll(Base) | Resolving Symbol in " + this.namespaceUri() +  " . Key :  " + searchingFor + " origin Namespace: " + searchedBy.namespaceUri().id() );
 		
 		Collection<SpxSymbol> retResult = null;
 		
@@ -222,7 +220,6 @@ public abstract class BaseNamespace implements INamespace {
 		}	 
 		
 		return retResult;
-		//return SpxSymbol.filterByType((IStrategoConstructor) type, this.resolveAll(id, searchedBy, spxFacade)) ;
 	}
 	
 	

@@ -95,7 +95,7 @@ public class SpxSemanticIndexFacade {
 	
 	protected void finalize() throws Throwable {
 		try {
-			close(true);
+			close(false);
 		} catch (Exception e) {
 		}
 		finally {
@@ -207,7 +207,7 @@ public class SpxSemanticIndexFacade {
 
 		URI resUri = toFileURI(spxCompilationUnitPath); // Converting IStrategoString to File URI 
 		
-		IStrategoTerm astTerm = toCompactPositionInfo(spxCompilationUnitAST);
+		IStrategoTerm astTerm = null;
 
 		SpxCompilationUnitTable table = this.getPersistenceManager().spxCompilcationUnitTable();
 	
@@ -270,6 +270,7 @@ public class SpxSemanticIndexFacade {
 		
 		ModuleDeclaration mDecl = new ModuleDeclaration(info.getAbsPathString(), moduleId, packageId);
 		mDecl.setLastModifiedOn(info.getLastModifiedOn()) ;
+		mDecl.setLanguageDescriptor(LanguageDescriptor.newInstance(_termFactory, moduleId));
 		
 		table.define(this , mDecl, ast, analyzedAst);// updating/adding module to index 
 		
@@ -325,6 +326,7 @@ public class SpxSemanticIndexFacade {
 			PackageDeclaration pDecl = new PackageDeclaration(absFilePath,packageId);
 			table.definePackageDeclaration(pDecl);
 			
+			// defining package declaration only if is newly created 
 			defineNamespace(pDecl); 
 		}
 	}
@@ -336,7 +338,7 @@ public class SpxSemanticIndexFacade {
 		SpxPrimarySymbolTable  symbolTable = getPersistenceManager().spxSymbolTable();
 		INamespace ns = symbolTable.newAnonymousNamespace(parentId);
 		
-		return this.getTermFactory().makeAppl(getCons().getLocalNamespaceTypeCon(), ns.namespaceUri().id());
+		return this.getTermFactory().makeAppl(getCons().getLocalNamespaceTypeCon(), ns.namespaceUri().strategoID(_termFactory));
 	}
 	
 	public IStrategoTerm destroyScope(IStrategoAppl namespaceAppl) throws SpxSymbolTableException {
@@ -347,7 +349,7 @@ public class SpxSemanticIndexFacade {
 		SpxPrimarySymbolTable  symbolTable = getPersistenceManager().spxSymbolTable();
 		INamespace deletedLocalNs = symbolTable.destroyNamespace(id);
 		
-		return _termFactory.makeAppl(getCons().getLocalNamespaceTypeCon(), deletedLocalNs.namespaceUri().id());
+		return _termFactory.makeAppl(getCons().getLocalNamespaceTypeCon(), deletedLocalNs.namespaceUri().strategoID(_termFactory));
 	}
 	
 	// SymbolDef :  namespace * id * type *  value * unique/overridable -> Def  
@@ -649,14 +651,19 @@ public class SpxSemanticIndexFacade {
 		IdentifiableConstruct ns; 
 
 		if (namespaceId.getConstructor() == getCons().getModuleQNameCon()) {
-			IStrategoList packageId = getPersistenceManager()
+			IStrategoList packageId = 
+				getPersistenceManager()
 					.spxModuleTable()
 					.packageId(ModuleDeclaration.getModuleId(this, namespaceId));
-			ns = lookupPackageDecl(packageId);
+			if(packageId != null)
+				ns = lookupPackageDecl(packageId);
+			else
+				throw new SpxSymbolTableException( "Unknown Module Namespace: "+ namespaceId.toString());
+			
 		} else if (namespaceId.getConstructor() == getCons().getPackageQNameCon()) {
 			ns = this.lookupPackageDecl(namespaceId);
 		} else
-			throw new IllegalArgumentException("Unknown Namespace "	+ namespaceId.toString());
+			throw new IllegalArgumentException("Illegal Namespace "	+ namespaceId.toString());
 		
 		return ns.getImports(this);
 	}
@@ -880,15 +887,20 @@ public class SpxSemanticIndexFacade {
 			}else
 				throw new IllegalArgumentException("Unknown queryType argument in getModuleDeclarationOf: " + queryType);
 		}	
-		else if(Tools.isTermString(res))
-			retValue = this.getModuleDeclarations((IStrategoString)res);
+		else if(Tools.isTermString(res)){
+			try {
+				retValue = this.getModuleDeclarations((IStrategoString)res);
+			}catch(SpxSymbolTableException ex){
+				retValue =  this._termFactory.makeList();
+			}
+		}	
 		else
 			throw new IllegalArgumentException("Unknown argument in getModuleDeclarationOf: " + res);
 		
 		return retValue;
 	}
 
-	public IStrategoList getModuleDeclarations (IStrategoString filePath){
+	public IStrategoList getModuleDeclarations (IStrategoString filePath) throws SpxSymbolTableException{
 		logMessage("getModuleDeclarations | Arguments : " + filePath);
 		
 		SpxModuleLookupTable table = getPersistenceManager().spxModuleTable();
@@ -1079,7 +1091,7 @@ public class SpxSemanticIndexFacade {
 	public void commitChanges() throws IOException {
 		ISpxPersistenceManager persistenceManager = this.getPersistenceManager();
 		persistenceManager.commit();
-		SpxIndexUtils.printSymbolTable(this, SpxIndexConfiguration.shouldLogSymbols(), "commit");
+//		SpxIndexUtils.printSymbolTable(this, SpxIndexConfiguration.shouldLogSymbols(), "commit");
 	}	
 
 	
@@ -1114,13 +1126,14 @@ public class SpxSemanticIndexFacade {
 		ISpxPersistenceManager manager = getPersistenceManager();
 		
 		if (!isPersistenceManagerClosed()){
-			if(!tryInvalidatingSpxCacheDirectories()){
-				System.err.println("Failed to clean Spx Cache Directories. Please manually clean it");
-			} 
 			manager.spxSymbolTable().initTimestamps();
 			manager.clearCache();
 			manager.clear(); // cleaning persistence manager.
 			manager.commitAndClose();
+		}
+		
+		if(!tryInvalidatingSpxCacheDirectories()){
+			System.err.println("Failed to clean Spx Cache Directories. Please manually clean it");
 		}
 		
 		initializePersistenceManager();
@@ -1235,7 +1248,5 @@ public class SpxSemanticIndexFacade {
 		return term;
 	}
 
-	public void clearCache() throws IOException{ getPersistenceManager().clearCache();	}
-
-	
+	public void clearCache() throws IOException{ getPersistenceManager().clearCache();	}	
 }

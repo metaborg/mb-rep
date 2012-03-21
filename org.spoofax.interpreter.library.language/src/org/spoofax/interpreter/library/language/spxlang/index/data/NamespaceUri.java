@@ -1,72 +1,39 @@
 package org.spoofax.interpreter.library.language.spxlang.index.data;
 
+import java.io.IOException;
 import java.io.Serializable;
-import java.util.UUID;
 
 import org.spoofax.interpreter.library.language.spxlang.index.INamespace;
 import org.spoofax.interpreter.library.language.spxlang.index.INamespaceResolver;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxIndexUtils;
 import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.ITermFactory;
 
 /**
  * @author Md. Adil Akhter
  * 
  */
-@SuppressWarnings("rawtypes")
-public class NamespaceUri implements Serializable, Comparable
+public class NamespaceUri implements Serializable, Comparable<NamespaceUri>
 {
 	private static final long serialVersionUID = 7219193145612008432L;
-	private final IStrategoList _id;
-	private final UUID _uId ;
-	private final String _idString;
+	private transient IStrategoList _id;
+	private final String _spxID;
 	
-	public NamespaceUri(IStrategoList id, UUID uId){
+	
+	public NamespaceUri(IStrategoList id){
+		this(toSpxID(id) );
 		_id = id ; 
-		_uId = uId;
-		
-		_idString = SpxIndexUtils.listToString( _id , ".");
 	}
 	
-	public NamespaceUri(IStrategoList id){ 
-		this(id, UUID.randomUUID()); 
+	public NamespaceUri(String spxId){
+		_spxID = spxId.trim();
 	}
 	
-	public IStrategoList id(){ 
-		return _id ; 
+	
+	public int compareTo(NamespaceUri o) {
+		return this._spxID.compareTo(o._spxID);
 	}
 	
-	public String idString(){ 
-		return _idString ; 
-	}
-
-	public String uniqueID(){ return _uId.toString();};
-	
-	public INamespace resolve(INamespaceResolver sTable) throws SpxSymbolTableException {
-		INamespace retNamespace = sTable.resolveNamespace((NamespaceUri)this);
-		
-		if(retNamespace == null) {
-			throw new SpxSymbolTableException("Unknown Namespace Uri. Namespace can not be resolved from symbol-table") ;
-		}
-		return retNamespace;
-	}
-	
-	public boolean equalSpoofaxId(IStrategoList spoofaxUri){
-		return _id.equals(spoofaxUri);
-	}
-	
-	public boolean equalSpoofaxId(String spoofaxUri){
-		return _idString.equals(spoofaxUri);
-	}
-	
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		//result = prime * result + ((_id == null) ? 0 : _id.hashCode());
-		result = prime * result + ((_uId == null) ? 0 : _uId.hashCode());
-		return result;
-	}
-
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -76,22 +43,62 @@ public class NamespaceUri implements Serializable, Comparable
 		if (getClass() != obj.getClass())
 			return false;
 		NamespaceUri other = (NamespaceUri) obj;
-		if (_uId == null) {
-			if (other._uId != null)
+		if (_spxID== null) {
+			if (other._spxID!= null)
 				return false;
-		} else if (!_uId.equals(other._uId))
+		} else if (!_spxID.equals(other._spxID))
 			return false;
 		return true;
+	}
+	
+	public boolean equalSpoofaxId(ITermFactory f, IStrategoList spoofaxUri){
+		return toSpxID(spoofaxUri).equals(_spxID);
+	}
+	
+	public boolean equalSpoofaxId(String spoofaxUri){
+		return _spxID.equals(spoofaxUri);
+	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((_spxID == null) ? 0 : _spxID.hashCode());
+		return result;
+	}
+	
+	public String id(){	return _spxID ;	}
+	public INamespace resolve(INamespaceResolver sTable) throws SpxSymbolTableException {
+		INamespace retNamespace = sTable.resolveNamespace(this._spxID);
+		
+		
+		if(retNamespace == null) {
+			throw new SpxSymbolTableException("Unknown Namespace Uri " +this.toString()+ ". Namespace can not be resolved from symbol-table") ;
+		}
+		return retNamespace;
+	}
+	
+	public IStrategoList strategoID( ITermFactory f) { 
+		if(_id ==null)
+			_id = NamespaceUri.toStrategoID(f, this._spxID) ;
+		return _id;
 	}
 
 	@Override
 	public String toString() {
-		return "NamespaceId [ID =" + _id + "]";
+		return _spxID ;
 	}
 
-	public int compareTo(Object o) {
-		return this._idString.compareTo( ((NamespaceUri)o )._idString);
+	// TODO refactor to utils class + make is static 
+	public static String toSpxID(IStrategoList id) {
+		try {
+			return SpxIndexUtils.termToString(id);
+		} catch (IOException e) {
+			return "";
+		}
 	}
-	
-	
+
+	public static IStrategoList toStrategoID(ITermFactory termFactory , String spxID) {
+		return (IStrategoList) SpxIndexUtils.stringToTerm(termFactory, spxID);
+	}
 }

@@ -7,7 +7,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import jdbm.PrimaryHashMap;
-import jdbm.PrimaryStoreMap;
 import jdbm.RecordListener;
 
 import org.spoofax.interpreter.library.language.spxlang.index.data.ModuleDeclaration;
@@ -19,8 +18,6 @@ public class SpxCompilationUnitTable {
 	
 	private final String SRC  = this.getClass().getSimpleName();
 	private final PrimaryHashMap<String , SpxCompilationUnitInfo> _infoMap;
-	
-	private final PrimaryStoreMap<Long,String> _spxUnitStoreMap;
 	
     /**
      * Listeners which are notified about changes in records
@@ -35,11 +32,8 @@ public class SpxCompilationUnitTable {
 	 * @param manager an instance of IPersistenceManager
 	 */
 	public SpxCompilationUnitTable(ISpxPersistenceManager manager)
-	{
-		String tableName = SRC+ "_"+ manager.getIndexId();
-		
-		_infoMap = manager.loadHashMap(tableName  + "._infomap.idx");
-		_spxUnitStoreMap = manager.loadStoreMap(tableName + "._spxUnitStorageMap.idx");
+	{	
+		_infoMap = manager.loadHashMap(SRC+ "_"+ manager.getIndexId()+ "._infomap.idx");
 	}
 	
 	/**
@@ -71,14 +65,7 @@ public class SpxCompilationUnitTable {
 	 * @throws IOException 
 	 */
 	private void add(SpxSemanticIndexFacade facade , URI absPath , IStrategoTerm compilationUnitAST) throws IOException {
-		
-		String serializedTerm = SpxIndexUtils.serializeToString(facade.getTermAttachmentSerializer(), compilationUnitAST);
-		
-		long resID = _spxUnitStoreMap.putValue(serializedTerm); // Adding Compilation Unit to the storemap
-		
-		// instantiating a new SpxCompilationUnitInfo object with the newly created resID
-		// and storing it in infomap
-		SpxCompilationUnitInfo newResInfo = new SpxCompilationUnitInfo(absPath,resID);
+		SpxCompilationUnitInfo newResInfo = new SpxCompilationUnitInfo(absPath,0);
 		String key = newResInfo.getAbsPathString(); 
 		
 		_infoMap.put(key, newResInfo);
@@ -111,10 +98,6 @@ public class SpxCompilationUnitTable {
 		
 		_infoMap.put(newValue.getAbsPathString(), newValue);
 		
-		String serializedTerm = SpxIndexUtils.serializeToString(facade.getTermAttachmentSerializer(), compilationUnitAterm);
-		
-		_spxUnitStoreMap.put(newValue.getRecId(), serializedTerm);
-	
 		if(!recordListeners.isEmpty()){	
 			for(RecordListener<String, SpxCompilationUnitInfo> r:recordListeners){
 				r.recordUpdated(SpxIndexUtils.uriToAbsPathString(absPath), oldValue , newValue);
@@ -154,10 +137,7 @@ public class SpxCompilationUnitTable {
 	void remove(String absPathString) throws IOException{
 		SpxCompilationUnitInfo removedValue = _infoMap.remove(absPathString);
 
-		if ((removedValue != null)
-				&& _spxUnitStoreMap.containsKey(removedValue.getRecId())){
-			_spxUnitStoreMap.remove(removedValue.getRecId());
-
+		if (removedValue != null){
 			if (!recordListeners.isEmpty()) {
 				for (RecordListener<String, SpxCompilationUnitInfo> r : recordListeners) {
 					r.recordRemoved(absPathString, removedValue);
@@ -175,21 +155,14 @@ public class SpxCompilationUnitTable {
 	 * @return SpxCompilationUnit indexed in the {@code absPath} 
 	 */
 	public IStrategoTerm get(SpxSemanticIndexFacade f, URI absPath){
-		SpxCompilationUnitInfo retUnitData= getInfo(f, absPath);
-		
-		String serializedString = _spxUnitStoreMap.get(retUnitData.getRecId());
-		IStrategoTerm deserializedTerm = SpxIndexUtils.deserializeToTerm(f.getTermFactory(), f.getTermAttachmentSerializer(), serializedString);
-		
-		return deserializedTerm ;
+		return f.getTermFactory().makeList();
 	}
 	
 	
 	public SpxCompilationUnitInfo getInfo(SpxSemanticIndexFacade f, URI absPath){
-		String key = SpxIndexUtils.uriToAbsPathString(absPath);
-		
-		return  _infoMap.get(key);
-		
+		return  _infoMap.get(SpxIndexUtils.uriToAbsPathString(absPath));
 	}
+	
 	/**
 	 * Removes all the CompilationUnit from the symbol-table  
 	 *  

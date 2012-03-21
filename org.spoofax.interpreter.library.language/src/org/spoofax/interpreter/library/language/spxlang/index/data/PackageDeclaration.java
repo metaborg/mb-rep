@@ -25,7 +25,6 @@ public class PackageDeclaration extends IdentifiableConstruct implements INamesp
 	private final Set<String> resourceAbsPaths = new HashSet<String>();
 	
 	public PackageDeclaration(String resourceAbsPath, IStrategoList id) {
-		
 		super(id);
 		resourceAbsPaths.add(resourceAbsPath); 
 	}
@@ -141,7 +140,7 @@ public class PackageDeclaration extends IdentifiableConstruct implements INamesp
 	 * @param decl an instance of {@link PackageDeclaration} to copy from. 
 	 * @return {@link PackageDeclaration}
 	 */
-	public static PackageDeclaration newInstance( PackageDeclaration decl){
+	public static PackageDeclaration newInstance(PackageDeclaration decl){
 		if (decl == null) 
 			return decl;
 		

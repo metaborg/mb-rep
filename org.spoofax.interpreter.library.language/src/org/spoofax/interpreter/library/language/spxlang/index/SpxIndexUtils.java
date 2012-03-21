@@ -125,7 +125,12 @@ public final class SpxIndexUtils {
 		StringBuilder sb = new StringBuilder();
 		t.writeAsString(sb ,Integer.MAX_VALUE);
 		
+		
 		return sb.toString();
+	}
+	
+	public static IStrategoTerm stringToTerm (ITermFactory fac  , String s){
+		return fac.parseFromString(s);
 	}
 	
 	public static IStrategoTerm deserializeToTerm(ITermFactory fac , TermAttachmentSerializer serializer, String termString){

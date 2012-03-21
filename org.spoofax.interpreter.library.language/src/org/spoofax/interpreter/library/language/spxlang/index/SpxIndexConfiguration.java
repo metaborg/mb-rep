@@ -5,7 +5,7 @@ public final  class SpxIndexConfiguration {
 	private SpxIndexConfiguration() {
 	}
 	
-	public static final int NO_OF_ATTEMPT_TO_INIT_RECORDMANAGER = 1;
+	public static final int NO_OF_ATTEMPT_TO_INIT_RECORDMANAGER = 0;
 	private static boolean LOG_SYMBOLS = true;
 	private static boolean DEBUG = false;
 	private static String CSVDelimiter = " __ ";  

@@ -164,6 +164,7 @@ public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 				packageDeclaration1.getId(), 
 				_facade.toAbsulatePath(uriTerm) 
 			);
+		
 
 		ns = _facade.getPersistenceManager().spxSymbolTable().resolveNamespace(packageDeclaration1.getId());
 		assertNull(ns);
@@ -214,34 +215,33 @@ public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 		NamespaceUri internalNamespaceUri;
 		
 		namespace = symbol_table.resolveNamespace(packageDeclaration1.getId());
-		assertTrue(namespace.namespaceUri().id().equals(packageDeclaration1.getId()));
+		assertTrue(namespace.namespaceUri().equalSpoofaxId(termFactory(), packageDeclaration1.getId()));
 		
 		internalNamespaceUri = PackageNamespace.packageInternalNamespace(namespace.namespaceUri(), _facade);
 		namespace = symbol_table.resolveNamespace(internalNamespaceUri.id());
-		assertTrue(namespace.namespaceUri().id().equals(internalNamespaceUri.id()));
+		assertTrue(namespace.namespaceUri().equalSpoofaxId(internalNamespaceUri.id()));
 		
 		
 		namespace = symbol_table.resolveNamespace(packageDeclaration1.getId());
-		assertTrue(namespace.namespaceUri().id().equals(packageDeclaration1.getId()));
+		assertTrue(namespace.namespaceUri().equalSpoofaxId(termFactory(), packageDeclaration1.getId()));
 		
 		internalNamespaceUri = PackageNamespace.packageInternalNamespace(namespace.namespaceUri(), _facade);
 		namespace = symbol_table.resolveNamespace(internalNamespaceUri.id());
-		assertTrue(namespace.namespaceUri().id().equals(internalNamespaceUri.id()));
+		assertTrue(namespace.namespaceUri().equalSpoofaxId(internalNamespaceUri.id()));
+		
 		
 		namespace = symbol_table.resolveNamespace(packageDeclaration2.getId());
-		assertTrue(namespace.namespaceUri().id().equals(packageDeclaration2.getId()));
+		assertTrue(namespace.namespaceUri().equalSpoofaxId(termFactory(), packageDeclaration2.getId()));
 		
 		namespace = symbol_table.resolveNamespace(moduleDeclarationP1M1.getId());
-		assertTrue(namespace.namespaceUri().id().equals(moduleDeclarationP1M1.getId()));
+		assertTrue(namespace.namespaceUri().equalSpoofaxId(termFactory(),moduleDeclarationP1M1.getId()));
 
 		namespace = symbol_table.resolveNamespace(moduleDeclarationP1M2.getId());
-		assertTrue(namespace.namespaceUri().id().equals(moduleDeclarationP1M2.getId()));
+		assertTrue(namespace.namespaceUri().equalSpoofaxId(termFactory(),moduleDeclarationP1M2.getId()));
 
 
 		namespace = symbol_table.resolveNamespace(moduleDeclarationP2M1.getId());
-		assertTrue(namespace.namespaceUri().id().equals(moduleDeclarationP2M1.getId()));
-
-
+		assertTrue(namespace.namespaceUri().equalSpoofaxId(termFactory(),moduleDeclarationP2M1.getId()));
 	}
 	
 	public void testNoOfNamespaceDefined() throws IOException, SpxSymbolTableException {
@@ -486,7 +486,10 @@ public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 		SpxSymbol actual = (SpxSymbol)resolvedSymbols.toArray()[0];
 		assertEquals("SDFDef", actual.getSignatureString());
 		assertTrue(SpxSymbol.verifyEquals(symbolId1, actual.Id(_facade.getTermFactory())));
-		assertTrue( SpxSymbol.verifyEquals( currentAppl.getSubterm(0).getSubterm(0) , actual.namespaceUri().id()) );
+		//assertTrue( SpxSymbol.verifyEquals( currentAppl.getSubterm(0).getSubterm(0) , actual.namespaceUri().id()) );
+	
+		assertTrue(actual.namespaceUri().equalSpoofaxId(termFactory(),  (IStrategoList)currentAppl.getSubterm(0).getSubterm(0) ));
+		
 	}
 	
 	public void testShouldNotResolveModuleSymbolsFromOtherPackage() throws IOException, SpxSymbolTableException{
@@ -714,7 +717,8 @@ public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 		SpxSymbol actual = (SpxSymbol)resolvedSymbols.toArray()[0];
 		assertEquals("SDFDef", actual.getSignatureString());
 		assertTrue(SpxSymbol.verifyEquals(symbolId1, actual.Id(_facade.getTermFactory())));
-		assertTrue( SpxSymbol.verifyEquals( internalModuleAppl.getSubterm(0).getSubterm(0) , actual.namespaceUri().id()) );
+		assertTrue(actual.namespaceUri().equalSpoofaxId(this.termFactory(), (IStrategoList)internalModuleAppl.getSubterm(0).getSubterm(0)));
+		
 	}
 	
 	public void testShouldNotResolveSymbolFromImportedNamespaceInCyclicReference() throws IOException, SpxSymbolTableException{
@@ -766,7 +770,7 @@ public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 		String packageName3 =  	"\"lang\", \"p3\"" ;
 		
 		packageDeclaration3   = indexTestPackageDecl(packageName3, absPathString2);
-		moduleDeclarationP3M1 = indexTestModuleDefs ( "p3m1" , packageName3 , absPathString2);
+		moduleDeclarationP3M1 = indexTestModuleDefs("p3m1" , packageName3 , absPathString2);
 		
 		
 		IStrategoAppl moduleQnameAppl = ModuleDeclaration.toModuleQNameAppl(_facade,this.moduleDeclarationP3M1.getId());
@@ -796,7 +800,7 @@ public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 		SpxSymbol actual = (SpxSymbol)resolvedSymbols.toArray()[0];
 		assertEquals("ModuleDef", actual.getSignatureString());
 		assertTrue(SpxSymbol.verifyEquals(symbolId1, actual.Id(_facade.getTermFactory())));
-		assertTrue(SpxSymbol.verifyEquals( this.moduleDeclarationP3M1.getId() , actual.namespaceUri().id()) );
+		assertTrue(actual.namespaceUri().equalSpoofaxId(this.termFactory(), this.moduleDeclarationP3M1.getId()));
 	}
 	
 	public void testShouldNotRetrunTransitiveImportSymbols() throws IOException, SpxSymbolTableException{
@@ -835,7 +839,7 @@ public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 		SpxSymbol actual = (SpxSymbol)resolvedSymbols.toArray()[0]; // resolved from the current namespace - Module 1 of Package 1 
 		assertEquals("ModuleDef", actual.getSignatureString());
 		assertTrue(SpxSymbol.verifyEquals(symbolId3, actual.Id(_facade.getTermFactory())));
-		assertTrue(SpxSymbol.verifyEquals( this.moduleDeclarationP1M1.getId() , actual.namespaceUri().id()) );
+		assertTrue(actual.namespaceUri().equalSpoofaxId(termFactory(), this.moduleDeclarationP1M1.getId()));
 	}
 	
 	public void testShouldRetrunSymbolsFromImportedScope() throws IOException, SpxSymbolTableException{
@@ -871,7 +875,10 @@ public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 		SpxSymbol actual = (SpxSymbol)resolvedSymbols.toArray()[0]; // Resolved from the imported namespace - Module 1 of Package 3
 		assertEquals("ModuleDef", actual.getSignatureString());
 		assertTrue(SpxSymbol.verifyEquals(symbolId3, actual.Id(_facade.getTermFactory())));
-		assertTrue(SpxSymbol.verifyEquals( this.moduleDeclarationP3M1.getId() , actual.namespaceUri().id()) );
+		
+		assertTrue(actual.namespaceUri().equalSpoofaxId(termFactory(),  this.moduleDeclarationP3M1.getId()));
+		
+		//assertTrue(SpxSymbol.verifyEquals( this.moduleDeclarationP3M1.getId() , actual.namespaceUri().id()) );
 	}
 	
 	public void testShouldNotFailIncaseOfCyclicImports() throws Exception{
@@ -927,7 +934,11 @@ public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 		
 		assertEquals(1, resolvedSymbols.size());
 		SpxSymbol actual = (SpxSymbol)resolvedSymbols.toArray()[0]; // Resolved from the imported namespace - Module 1 of Package 3
-		assertTrue(SpxSymbol.verifyEquals( this.moduleDeclarationP3M1.getId() , actual.namespaceUri().id()) );
+		
+		
+
+		assertTrue(actual.namespaceUri().equalSpoofaxId(termFactory(),  this.moduleDeclarationP3M1.getId() ));
+		
 	}
 	
 	public void testAnonymousScopeCreation() throws IOException, SpxSymbolTableException {
@@ -1031,8 +1042,10 @@ public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 		SpxSymbol actual = (SpxSymbol)resolvedSymbols.toArray()[0];// resolved from the current namespace - Module 1 of Package 1 
 		assertEquals("ModuleDef", actual.getSignatureString());
 		assertTrue(SpxSymbol.verifyEquals(symbolId1, actual.Id(_facade.getTermFactory())));
-		assertTrue(SpxSymbol.verifyEquals( this.moduleDeclarationP1M1.getId() , actual.namespaceUri().id()) );
+		//assertTrue(SpxSymbol.verifyEquals( this.moduleDeclarationP1M1.getId() , actual.namespaceUri().id()) );
 	
+		assertTrue(actual.namespaceUri().equalSpoofaxId(termFactory(),  this.moduleDeclarationP1M1.getId()));
+		
 		//Resolve symbol defined in GlobalScope 
 		IStrategoAppl globalNamespaceAppl = termFactory().makeAppl(_facade.getCons().getGlobalNamespaceTypeCon());
 		
@@ -1056,7 +1069,10 @@ public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 		actual = (SpxSymbol)resolvedSymbols.toArray()[0]; // resolved from the current namespace - Module 1 of Package 1 
 		assertEquals("SDFDef", actual.getSignatureString());
 		assertTrue(SpxSymbol.verifyEquals(symbolId2, actual.Id(_facade.getTermFactory())));
-		assertTrue(SpxSymbol.verifyEquals( GlobalNamespace.getGlobalNamespaceId(_facade) , actual.namespaceUri().id()) );
+		
+
+		assertTrue(actual.namespaceUri().equalSpoofaxId(termFactory(),  GlobalNamespace.getGlobalNamespaceId(_facade) ));
+		
 	
 	}
 	
@@ -1096,7 +1112,8 @@ public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 		SpxSymbol actual = (SpxSymbol)resolvedSymbols.toArray()[0];// resolved from the current local namespace
 		assertEquals("ModuleDef", actual.getSignatureString());
 		assertTrue(SpxSymbol.verifyEquals(symbolId1, actual.Id(_facade.getTermFactory())));
-		assertTrue(SpxSymbol.verifyEquals( (IStrategoList)nsAppl.getSubterm(0) , actual.namespaceUri().id()) );
+		//assertTrue(SpxSymbol.verifyEquals( (IStrategoList)nsAppl.getSubterm(0) , actual.namespaceUri().id()) );
+		assertTrue(actual.namespaceUri().equalSpoofaxId(termFactory(),  (IStrategoList)nsAppl.getSubterm(0)));
 		
 		_facade.destroyScope(nsAppl);
 		ns = _facade.getPersistenceManager().spxSymbolTable().resolveNamespace((IStrategoList) nsAppl.getSubterm(0));
@@ -1285,7 +1302,8 @@ public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 		
 		for( SpxSymbol sym : resolvedSymbols) {
 			assertTrue(SpxSymbol.verifyEquals(symbolId1, sym.Id(_facade.getTermFactory())));
-			assertTrue(SpxSymbol.verifyEquals( this.moduleDeclarationP1M1.getId() , sym.namespaceUri().id()) );
+			//assertTrue(SpxSymbol.verifyEquals( this.moduleDeclarationP1M1.getId() , sym.namespaceUri().id()) );
+			assertTrue(sym.namespaceUri().equalSpoofaxId(termFactory(),  this.moduleDeclarationP1M1.getId()));
 			
 			assertTrue(sym.equalSignature(typeAppl1.getConstructor())); 
 		}
@@ -1545,12 +1563,15 @@ public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 	
 	private int noOfGlobalNamespaceInSymbolTable() {
 		int noOfGlobalNamespace = 0 ;
+		Iterable<String> uris = symbol_table.getAllNamespaceSpxId();
 		
-		Iterable<NamespaceUri> uris = symbol_table.getAllNamespaces();
-		for( NamespaceUri uri : uris){
-			if ( uri.equalSpoofaxId(GlobalNamespace.getGlobalNamespaceId(_facade)))
+		for(String uri : uris){
+			NamespaceUri i = new NamespaceUri(uri);
+			
+			if ( i.equalSpoofaxId(this.termFactory() , GlobalNamespace.getGlobalNamespaceId(_facade)))
 				noOfGlobalNamespace = noOfGlobalNamespace  +1 ;
 		}
+		
 		return noOfGlobalNamespace;
 	}
 }
