@@ -3,7 +3,6 @@ package org.spoofax.interpreter.library.language;
 import org.spoofax.interpreter.library.AbstractStrategoOperatorRegistry;
 import org.spoofax.interpreter.library.language.spxlang.SPX_exec_index_manage_command;
 import org.spoofax.interpreter.library.language.spxlang.SPX_index_compilation_unit;
-import org.spoofax.interpreter.library.language.spxlang.SPX_index_equal_resource_uri;
 import org.spoofax.interpreter.library.language.spxlang.SPX_index_get_compilation_unit;
 import org.spoofax.interpreter.library.language.spxlang.SPX_index_get_imported_to_references;
 import org.spoofax.interpreter.library.language.spxlang.SPX_index_get_imports;
@@ -87,7 +86,6 @@ public class LanguageLibrary extends AbstractStrategoOperatorRegistry {
 		add(new SPX_index_get_imports(spxIndex));
 		add(new SPX_index_get_imported_to_references(spxIndex));
 		add(new SPX_index_get_related_files_of_packages(spxIndex));
-		add(new SPX_index_equal_resource_uri(spxIndex));
 		
 		add(new SPX_index_get_summary(spxIndex));
 		
