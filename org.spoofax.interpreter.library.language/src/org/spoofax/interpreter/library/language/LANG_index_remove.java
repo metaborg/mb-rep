@@ -28,12 +28,9 @@ public class LANG_index_remove extends AbstractPrimitive {
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
 		if (isTermAppl(tvars[0]) && (isTermTuple(tvars[1]) || isTermString(tvars[1]))) {
 			IStrategoAppl template = (IStrategoAppl) tvars[0];
-			SemanticIndex ind = index.getCurrent();
+			ISemanticIndex ind = index.getCurrent();
 			SemanticIndexFile file = ind.getFile(tvars[1]);
-			for (SemanticIndexEntry entry = ind.getEntries(template); entry != null; entry = entry.getNext()) {
-				if (entry.getFile().equals(file))
-					ind.remove(entry);
-			} 
+			ind.remove(template, file);
 			return true;
 		} else {
 			return false;

@@ -2,6 +2,8 @@ package org.spoofax.interpreter.library.language;
 
 import static org.spoofax.interpreter.core.Tools.isTermAppl;
 
+import java.util.Collection;
+
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.library.AbstractPrimitive;
 import org.spoofax.interpreter.stratego.Strategy;
@@ -26,7 +28,9 @@ public class LANG_index_get_children extends AbstractPrimitive {
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
 		if (isTermAppl(tvars[0])) {
 			IStrategoAppl template = (IStrategoAppl) tvars[0];
-			env.setCurrent(index.getCurrent().getEntryChildTerms(template));
+			ISemanticIndex ind = index.getCurrent();
+			Collection<SemanticIndexEntry> entries = ind.getEntryChildTerms(template);
+			env.setCurrent(SemanticIndexEntry.toTerms(env.getFactory(), entries));
 			return true;
 		} else {
 			return false;

@@ -49,40 +49,42 @@ public class SemanticIndexEntryFactory {
 		return defCon;
 	}
 	
-	public SemanticIndexEntry createEntry(IStrategoConstructor constructor,
-			IStrategoTerm namespace, IStrategoList id, IStrategoTerm contentsType, IStrategoTerm contents,
-			SemanticIndexEntryParent parent, SemanticIndexFile file) {
-		
+	public SemanticIndexURI createURI(IStrategoConstructor constructor,
+			IStrategoTerm namespace, IStrategoList id, IStrategoTerm contentsType) {
 		ImploderAttachment idAttachment = ImploderAttachment.getCompactPositionAttachment(id, true);
-		ImploderAttachment dataAttachment =
-			contents == null ? null : ImploderAttachment.getCompactPositionAttachment(contents, false);
-		
-		id = createSanitizedId(id, parent);
-		contents = stripper.strip(contents);
 		contentsType = stripper.strip(contentsType);
 		assert namespace == stripper.strip(namespace);
 		
 		id.putAttachment(idAttachment);
+		
+		return new SemanticIndexURI(constructor, namespace, id, contentsType);
+	}
+	
+	public SemanticIndexURI createURIFromTemplate(IStrategoAppl template) {
+		return createURI(template.getConstructor(), getEntryNamespace(template), getEntryId(template), 
+				getEntryContentsType(template));
+	}
+	
+	public SemanticIndexEntry createEntry(IStrategoConstructor constructor,
+			IStrategoTerm namespace, IStrategoList id, IStrategoTerm contentsType, IStrategoTerm contents,
+			SemanticIndexFile file) {
+		return createEntry(contents, createURI(constructor, namespace, id, contentsType), file);
+	}
+	
+	public SemanticIndexEntry createEntry(IStrategoTerm contents, SemanticIndexURI uri, SemanticIndexFile file) {
+		
+		ImploderAttachment dataAttachment =
+			contents == null ? null : ImploderAttachment.getCompactPositionAttachment(contents, false);
+		contents = stripper.strip(contents);
 		if (contents != null)
 			contents.putAttachment(dataAttachment);
 
-		return new SemanticIndexEntry(constructor, namespace, id, contentsType, contents, file);
+		return new SemanticIndexEntry(contents, uri, file);
 	}
 
-	private IStrategoList createSanitizedId(IStrategoList id, SemanticIndexEntryParent parent) {
-		if (parent != null) {
-			// Share the parent's identifier prefix for efficiency
-			return termFactory.makeListCons(stripper.strip(id.head()), parent.getId());
-		} else {
-			return (IStrategoList) stripper.strip(id);
-		}
-	}
-	
-	public SemanticIndexEntryParent createEntryParent(IStrategoTerm namespace, IStrategoList id, SemanticIndexEntryParent parent) {
-		assert namespace == stripper.strip(namespace);
-		id = createSanitizedId(id, parent);
-		return new SemanticIndexEntryParent(namespace, id);
-	}
+	/*private IStrategoList createSanitizedId(IStrategoList id) {
+		return (IStrategoList) stripper.strip(id);
+	}*/
 	
 	public IStrategoTerm getEntryContentsType(IStrategoAppl entry) {
 		IStrategoConstructor type = entry.getConstructor();

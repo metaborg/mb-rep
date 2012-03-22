@@ -25,8 +25,8 @@ public class LANG_index_clear_file extends AbstractPrimitive {
 	@Override
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
 		if (index.isInitialized() && (isTermString(tvars[0]) || isTermTuple(tvars[0]))) {
-			SemanticIndex ind = index.getCurrent();
-			ind.clear(ind.getFile(tvars[0]));
+			ISemanticIndex ind = index.getCurrent();
+			ind.removeFile(tvars[0]);
 			return true;
 		} else {
 			return false;

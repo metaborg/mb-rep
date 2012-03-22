@@ -5,6 +5,8 @@ import static org.spoofax.terms.Term.termAt;
 import static org.spoofax.terms.Term.tryGetConstructor;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -21,262 +23,225 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.attachments.TermAttachmentSerializer;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 /**
- * @author Lennart Kats <lennart add lclnet.nl>
+ * @author Gabri�l Konat
  */
-public class SemanticIndex {
-	
-	private final Map<SemanticIndexEntry, SemanticIndexEntry> table =
-		new HashMap<SemanticIndexEntry, SemanticIndexEntry>();
-	
+public class SemanticIndex implements ISemanticIndex {
+	private final Multimap<SemanticIndexURI, SemanticIndexEntry> entries = 
+			ArrayListMultimap.create();
+	private final Multimap<SemanticIndexURI, SemanticIndexEntry> childs = 
+			ArrayListMultimap.create();
 	private final Map<SemanticIndexFile, SemanticIndexFile> files =
-		new HashMap<SemanticIndexFile, SemanticIndexFile>();
+			new HashMap<SemanticIndexFile, SemanticIndexFile>();
 	
 	private static final IStrategoConstructor FILE_ENTRIES_CON =
 			new TermFactory().makeConstructor("FileEntries", 2);
-
+	
 	private IOAgent agent;
-	
 	private AtomicLong revisionProvider;
-
 	private ITermFactory termFactory;
-	
 	private SemanticIndexEntryFactory factory;
 	
-	private SemanticIndexEntry entryTemplate;
-	
-	/**
-	 * Initializes this index.
-	 * 
-	 * @param revisionProvider  An atomic revision number provider, should be shared between copies
-	 *                          of the same index.
-	 */
 	public void initialize(ITermFactory factory, IOAgent agent, AtomicLong revisionProvider) {
 		this.agent = agent;
 		this.factory = new SemanticIndexEntryFactory(factory);
 		this.termFactory = factory;
 		this.revisionProvider = revisionProvider;
-		entryTemplate = new SemanticIndexEntry(
-			factory.makeConstructor("template", 0), factory.makeList(), factory.makeList(),
-			null, null, null);
 	}
-	
+
 	public void ensureInitialized() {
 		if (factory == null)
 			throw new IllegalStateException("Semantic index not initialized");
 	}
-	
+
 	public SemanticIndexEntryFactory getFactory() {
 		return factory;
 	}
 	
-	/**
-	 * Adds a new entry to the index.
-	 * 
-	 * @param file  The file to associate the entry with.
-	 *              Must be the result of {@linkplain #getFile()}.
-	 */
 	public void add(IStrategoAppl entry, SemanticIndexFile file) {
 		assert getFile(file) == file : "Files must be maximally shared: use getFile() to get a shared File reference";
 		ensureInitialized();
+		
+		IStrategoConstructor constructor = entry.getConstructor();
 		IStrategoTerm contentsType = factory.getEntryContentsType(entry);
 		IStrategoList id = factory.getEntryId(entry);
 		IStrategoTerm namespace = factory.getEntryNamespace(entry);
 		IStrategoTerm contents = factory.getEntryContents(entry);
-		SemanticIndexEntryParent parent = getEntryParentAbove(namespace, id, true);
-		add(factory.createEntry(entry.getConstructor(), namespace, id, contentsType, contents, parent, file), parent);
+		
+		SemanticIndexEntry newEntry = 
+				factory.createEntry(constructor, namespace, id, contentsType, contents, file);
+
+		add(newEntry);
 	}
-	
+
 	public void addAll(IStrategoList entries, SemanticIndexFile file) {
-		while (!entries.isEmpty()) {
+		while(!entries.isEmpty()) {
 			add((IStrategoAppl) entries.head(), file);
 			entries = entries.tail();
 		}
 	}
 	
-	public void add(SemanticIndexEntry entry) {
-		ensureInitialized();
-		add(entry, getEntryParentAbove(entry.getNamespace(), entry.getId(), true));
+	private void add(SemanticIndexEntry entry) {
+		entries.put(entry.getURI(), entry);
+		
+		// Add entry to childs.
+		SemanticIndexURI parent = entry.getURI().getParent();
+		if(parent != null)
+			childs.put(entry.getURI().getParent(), entry);
+
+		// Add entry to files.
+		entry.getFile().addEntry(entry);
+		entry.getFile().setTimeRevision(new Date(), revisionProvider.incrementAndGet());
+	}
+
+	public void remove(IStrategoAppl template) {
+		remove(factory.createURIFromTemplate(template));
 	}
 	
-	private void add(SemanticIndexEntry entry, SemanticIndexEntryParent parent) {
-		if (parent != null)
-			parent.add(entry);
-		SemanticIndexEntry existing = table.get(entry);
-		if (existing == null) {
-			table.put(entry, entry);
-			if (entry.getFile() != null)
-				entry.getFile().addEntry(entry);
-		} else {
-			assert !entry.isParent() && existing != entry;
-			assert !existing.isReferenceInTail(entry);
-			existing.getLast().setNext(entry);
-			if (entry.getFile() != null)
-				entry.getFile().addEntry(entry);
-		}
-		if (entry.getFile() != null)
-			entry.getFile().setTimeRevision(new Date(), revisionProvider.incrementAndGet());
-	}
-	
-	/**
-	 * Removes a single entry (not a list of entries).
-	 */
-	public void remove(SemanticIndexEntry entry) {
-		// Remove from table
-		SemanticIndexEntry existing = table.get(entry);
-		if (existing == null) {
-		    return;
-		} else if (existing == entry) {
-			table.remove(entry);
-			if (entry.getNext() != null)
-				table.put(entry.getNext(), entry.getNext());
-		} else {
-			while (existing != null && existing.getNext() != entry)
-				existing = existing.getNext();
-			if (existing == null) {
-				assert false;
-				return;
+	public void remove(IStrategoAppl template, SemanticIndexFile file) {
+		SemanticIndexURI uri = factory.createURIFromTemplate(template);
+		Collection<SemanticIndexEntry> candidateEntries = entries.get(uri);
+		SemanticIndexEntry[] copy = candidateEntries.toArray(new SemanticIndexEntry[candidateEntries.size()]);
+		List<SemanticIndexEntry> entriesToRemove = new ArrayList<SemanticIndexEntry>();
+		for(SemanticIndexEntry entry : copy) {
+			if(entry.getFile() == file) {
+				entriesToRemove.add(entry);
+				entries.remove(uri, entry);
 			}
-			existing.setNext(entry.getNext());
-			assert !existing.isReferenceInTail(entry);
 		}
 		
-		// Remove from parent
-		SemanticIndexEntryParent parent = getEntryParentAbove(entry.getNamespace(), entry.getId(), false);
-		if (parent != null)
-			parent.remove(entry);
-			
-		// Remove from fileTable
-		SemanticIndexFile file = entry.getFile();
-		if (file != null) {
-			file.removeEntry(entry);
-			entry.getFile().setTimeRevision(new Date(), revisionProvider.incrementAndGet());
+		remove(uri, entriesToRemove);
+	}
+	
+	/**
+	 * Removes all entries with given URI.
+	 * 
+	 * @param uri	The URI to remove all entries for.
+	 */
+	private void remove(SemanticIndexURI uri) {
+		Collection<SemanticIndexEntry> removedEntries = entries.removeAll(uri);
+		
+		remove(uri, removedEntries);
+	}
+	
+	/**
+	 * Removes given entries from the childs multimap and file lists. The given entries
+	 * should already be removed from the entries multimap.
+	 * 
+	 * @param uri				The common URI of the removed elements.
+	 * @param removedEntries	The removed entries.
+	 */
+	private void remove(SemanticIndexURI uri, Collection<SemanticIndexEntry> removedEntries) {
+		// Remove entry from childs.
+		// TODO: Linear run-time, can be improved with an inverse childs map?
+		SemanticIndexURI parentURI = uri.getParent();
+		for(SemanticIndexEntry entry : removedEntries) {
+			childs.remove(parentURI, entry);
+		}
+		
+		// Remove entry from files.
+		for(SemanticIndexEntry entry : removedEntries) {
+			SemanticIndexFile file = entry.getFile();
+			if (file != null) {
+				// TODO: Linear run-time (in SemanticIndexfile), can be improved with a HashMultimap?
+				file.removeEntry(entry); 
+				file.setTimeRevision(new Date(), revisionProvider.incrementAndGet());
+				
+				// Remove file if there are no entries left in it.
+				if(file.getEntries().isEmpty())
+					removeSharedFile(getFile(file));
+			}
 		}
 	}
 	
 	/**
-	 * @param fileTerm  a string or (string, string) tuple with the filename
-	 *                  or the filename and subfilename
+	 * Removes a single entry.
+	 * 
+	 * @param entry	The entry to remove.
 	 */
+	private void remove(SemanticIndexEntry entry) {
+		SemanticIndexURI uri = entry.getURI();
+		boolean removed = entries.remove(uri, entry);
+		
+		if(removed)
+			remove(uri, Arrays.asList(new SemanticIndexEntry[]{entry}));
+	}
+	
+	public Collection<SemanticIndexEntry> getEntries(IStrategoAppl template) {
+		return entries.get(factory.createURIFromTemplate(template));
+	}
+
+	public Collection<SemanticIndexEntry> getEntryChildTerms(IStrategoAppl template) {
+		return childs.get(factory.createURIFromTemplate(template));
+	}
+	
 	public SemanticIndexFile getFile(IStrategoTerm fileTerm) {
 		return getFile(SemanticIndexFile.fromTerm(agent, fileTerm));
 	}
 	
 	/**
-	 * Gets a {@link SemanticIndexFile} from the index,
-	 * ensuring maximal sharing of index files.
-	 * Creates it if it didn't exist yet.
+	 * Gets a maximally shared file reference equal to the given file.
 	 */
 	private SemanticIndexFile getFile(SemanticIndexFile file) {
-		SemanticIndexFile result = files.get(file);
-		if (result == null) {
-			result = file;
+		SemanticIndexFile sharedFile = files.get(file);
+		if(sharedFile == null) {
 			files.put(file, file);
+			return file;
 		}
-		return result;
+		return sharedFile;
 	}
 	
-	/**
-	 * Returns an entry in the index that matches the given template.
-	 * Note that the result can have a 'tail' with other matching entries.
-	 */
-	public SemanticIndexEntry getEntries(IStrategoAppl template) {
-		ensureInitialized();
-		return getEntries(template.getConstructor(),
-				factory.getEntryNamespace(template),
-				factory.getEntryId(template),
-				factory.getEntryContentsType(template)
-				);
+	public void removeFile(IStrategoTerm fileTerm) {
+		SemanticIndexFile file = getFile(fileTerm);
+		
+		clearFile(file);
+		removeSharedFile(file);
 	}
 	
-	/**
-	 * Returns an entry in the index that matches the given type and id.
-	 * Note that the result can have a 'tail' with other matching entries.
-	 */
-	private SemanticIndexEntry getEntries(IStrategoConstructor constructor, IStrategoTerm namespace, IStrategoList id, IStrategoTerm contentsType) {
-		entryTemplate.internalReinit(constructor, namespace, id, contentsType);
-		return table.get(entryTemplate);
-	}
-	
-	public IStrategoList getEntryChildTerms(IStrategoAppl template) {
-		ensureInitialized();
-		IStrategoConstructor constructor = template.getConstructor();
-		IStrategoTerm namespace = factory.getEntryNamespace(template);
-		SemanticIndexEntryParent parent = getEntryParentAt(namespace, factory.getEntryId(template));
-		if (parent == null)
-			return termFactory.makeList();
-		if (constructor == factory.getDefCon() && parent.getAllDefsCached() != null)
-			return parent.getAllDefsCached();
-		IStrategoList results = termFactory.makeList();
-		for (SemanticIndexEntry entry : parent.getChildren()) {
-			if (entry.getConstructor() == constructor) {
-				assert !entry.isParent();
-				assert entry.getNamespace().match(namespace);
-				results = termFactory.makeListCons(entry.toTerm(factory.getTermFactory()), results);
-			}
+	private void clearFile(SemanticIndexFile file) {
+		assert files.get(file) == null || files.get(file) == file;	// Require maximally shared file or null file.
+		
+		List<SemanticIndexEntry> fileEntries = file.getEntries();
+		if (fileEntries.isEmpty()) return;
+		
+		// Remove every entry in this file from the index.
+		// TODO: Add more efficient remove operation for removing multiple entries.
+		SemanticIndexEntry[] copy = fileEntries.toArray(new SemanticIndexEntry[fileEntries.size()]);
+		for(SemanticIndexEntry entry : copy) {
+			// TODO: Assert doesn't work, should it be here?
+		    //assert entries.get(entry.getURI()).size() != 0;
+			remove(entry);
 		}
-		if (constructor == factory.getDefCon())
-			parent.setAllDefsCached(results);
-		return results;
+		
+		assert file.getEntries().isEmpty();
 	}
 	
-	public IStrategoList getEntryDescendantTerms(IStrategoAppl template) {
-		ensureInitialized();
-		IStrategoConstructor constructor = template.getConstructor();
-		IStrategoTerm namespace = factory.getEntryNamespace(template);
-		SemanticIndexEntryParent parent = getEntryParentAt(namespace, factory.getEntryId(template));
-		return collectEntryDescendentTerms(parent, constructor, namespace, termFactory.makeList());
+	private void removeSharedFile(SemanticIndexFile file) {
+		assert file.getEntries().isEmpty(); // Only allow removing a shared file if it has no entries.
+		
+		files.remove(file);
 	}
 	
-	private IStrategoList collectEntryDescendentTerms(SemanticIndexEntryParent parent, IStrategoConstructor constructor,
-			IStrategoTerm namespace, IStrategoList results) {
-		for (SemanticIndexEntry entry : parent.getChildren()) {
-			if (entry.getConstructor() == constructor) {
-				assert !entry.isParent();
-				assert entry.getNamespace().match(namespace);
-				results = termFactory.makeListCons(entry.toTerm(factory.getTermFactory()), results);
-			} else if (entry.isParent()) {
-				results = collectEntryDescendentTerms((SemanticIndexEntryParent) entry, constructor, namespace, results);
-			}
-		}
-		return results;
-	}
-	
-	private SemanticIndexEntryParent getEntryParentAbove(IStrategoTerm namespace, IStrategoList id, boolean createNonExistant) {
-		if (id.isEmpty()) {
-			return null;
-		} else {
-			id = id.tail();
-		}
-		SemanticIndexEntryParent result = getEntryParentAt(namespace, id);
-		if (result == null && createNonExistant) {
-			// add initial entry (that stores our time stamp)
-			result = factory.createEntryParent(namespace, id, getEntryParentAbove(namespace, id, true));
-			add(result); // add and recurse for parents
-		}
-		return result;
-	}
-	
-	/**
-	 * Gets the {@link SemanticIndexEntryParent} with the given identifier.
-	 */
-	private SemanticIndexEntryParent getEntryParentAt(IStrategoTerm namespace, IStrategoList id) {
-		return (SemanticIndexEntryParent) getEntries(SemanticIndexEntryParent.CONSTRUCTOR, namespace, id, null);
+	public Collection<SemanticIndexFile> getAllFiles() {
+		return files.values();
 	}
 	
 	public void clear() {
-		table.clear();
+		entries.clear();
+		childs.clear();
 		files.clear();
 	}
 	
 	public IStrategoTerm toTerm(boolean includePositions) {
-		ITermFactory terms = factory.getTermFactory();
-		IStrategoList results = terms.makeList();
+		IStrategoList results = termFactory.makeList();
 		for (SemanticIndexFile file : files.keySet()) {
-			IStrategoList fileResults = SemanticIndexEntry.toTerms(terms, file.getEntries(), false);
+			IStrategoList fileResults = SemanticIndexEntry.toTerms(termFactory, file.getEntries());
 			// TODO: include time stamp for file
-			IStrategoTerm result = terms.makeAppl(FILE_ENTRIES_CON, file.toTerm(terms), fileResults);
-			results = terms.makeListCons(result, results);
+			IStrategoTerm result = termFactory.makeAppl(FILE_ENTRIES_CON, file.toTerm(termFactory), fileResults);
+			results = termFactory.makeListCons(result, results);
 		}
 		
 		if (includePositions) {
@@ -289,9 +254,6 @@ public class SemanticIndex {
 		return results;
 	}
 	
-	/**
-	 * Reads an index from a term and initializes it.
-	 */
 	public static SemanticIndex fromTerm(IStrategoTerm term, ITermFactory factory, IOAgent agent,
 			boolean extractPositions) throws IOException {
 		
@@ -327,29 +289,4 @@ public class SemanticIndex {
 		}
 	}
 
-	public void clear(SemanticIndexFile file) {
-		assert files.get(file) == null || files.get(file) == file;
-		
-		List<SemanticIndexEntry> entries = file.getEntries();
-		if (entries.isEmpty()) return;
-		
-		SemanticIndexEntry[] copy = entries.toArray(new SemanticIndexEntry[entries.size()]);
-		for (SemanticIndexEntry entry : copy) {
-		    assert table.get(entry) != null;
-			remove(entry);
-		}
-		
-		assert file.getEntries().isEmpty();
-	}
-	
-	public Collection<SemanticIndexFile> getAllFiles() {
-		return files.values();
-	}
-	
-	@Override
-	public String toString() {
-		return files.keySet().toString();
-	}
-	
-	
 }

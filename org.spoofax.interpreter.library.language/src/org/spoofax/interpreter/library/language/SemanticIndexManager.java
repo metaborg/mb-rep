@@ -23,7 +23,7 @@ public class SemanticIndexManager {
 	
 	private final AtomicLong revisionProvider = new AtomicLong();
 
-	private SemanticIndex current;
+	private ISemanticIndex current;
 	
 	private URI currentProject;
 	
@@ -34,10 +34,10 @@ public class SemanticIndexManager {
 	/**
 	 * Indices by language and project. Access requires a lock on {@link #getSyncRoot}
 	 */
-	private static Map<String, Map<URI, WeakReference<SemanticIndex>>> asyncIndexCache =
-		new HashMap<String, Map<URI, WeakReference<SemanticIndex>>>();
+	private static Map<String, Map<URI, WeakReference<ISemanticIndex>>> asyncIndexCache =
+		new HashMap<String, Map<URI, WeakReference<ISemanticIndex>>>();
 	
-	public SemanticIndex getCurrent() {
+	public ISemanticIndex getCurrent() {
 		if (!isInitialized())
 			throw new IllegalStateException("No semantic index has been set-up, use index-setup(|language, project-paths) to set up the index before use.");
 		
@@ -75,14 +75,14 @@ public class SemanticIndexManager {
 	
 	public void loadIndex(String language, URI project, ITermFactory factory, IOAgent agent) {
 		synchronized (getSyncRoot()) {
-			Map<URI, WeakReference<SemanticIndex>> indicesByProject =
+			Map<URI, WeakReference<ISemanticIndex>> indicesByProject =
 					asyncIndexCache.get(language);
 			if (indicesByProject == null) {
-				indicesByProject = new HashMap<URI, WeakReference<SemanticIndex>>();
+				indicesByProject = new HashMap<URI, WeakReference<ISemanticIndex>>();
 				asyncIndexCache.put(language, indicesByProject);
 			}
-			WeakReference<SemanticIndex> indexRef = indicesByProject.get(project);
-			SemanticIndex index = indexRef == null ? null : indexRef.get();
+			WeakReference<ISemanticIndex> indexRef = indicesByProject.get(project);
+			ISemanticIndex index = indexRef == null ? null : indexRef.get();
 			if (index == null) {
 				index = tryReadFromFile(getIndexFile(project, language), factory, agent);
 			}
@@ -90,17 +90,17 @@ public class SemanticIndexManager {
 				index = new SemanticIndex();
 				NotificationCenter.notifyNewProject(project);
 			}
-			indicesByProject.put(project, new WeakReference<SemanticIndex>(index));
+			indicesByProject.put(project, new WeakReference<ISemanticIndex>(index));
 			current = index;
 			currentLanguage = language;
 			currentProject = project;
 		}
 	}
 	
-	public SemanticIndex tryReadFromFile(File file, ITermFactory factory, IOAgent agent) {
+	public ISemanticIndex tryReadFromFile(File file, ITermFactory factory, IOAgent agent) {
 		try {
 			IStrategoTerm term = new TermReader(factory).parseFromFile(file.toString());
-			return SemanticIndex.fromTerm(term, factory, agent, true);
+			return SemanticIndex.fromTerm(term, factory, agent, true); // TODO: Move to other class
 		} catch (IOException e) {
 			return null;
 		}

@@ -28,7 +28,7 @@ public class LANG_index_get_files_newer_than extends AbstractPrimitive {
 
 	@Override
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
-		SemanticIndex ind = index.getCurrent();
+		ISemanticIndex ind = index.getCurrent();
 		SemanticIndexFile file = ind.getFile(tvars[0]);
 		if (file == null || file.getTime() == null) {
 			env.setCurrent(LANG_index_get_all_files.getAllFiles(
@@ -40,7 +40,7 @@ public class LANG_index_get_files_newer_than extends AbstractPrimitive {
 		return true;
 	}
 
-	private static IStrategoList getFilesAfter(ITermFactory factory, SemanticIndex ind, Date time) {
+	private static IStrategoList getFilesAfter(ITermFactory factory, ISemanticIndex ind, Date time) {
  		IStrategoList results = factory.makeList();
 		for (SemanticIndexFile file : ind.getAllFiles()) {
 			if (file.getTime() != null && !file.getTime().before(time)) {

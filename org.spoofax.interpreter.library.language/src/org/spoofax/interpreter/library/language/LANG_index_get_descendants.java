@@ -1,11 +1,8 @@
 package org.spoofax.interpreter.library.language;
 
-import static org.spoofax.interpreter.core.Tools.isTermAppl;
-
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.library.AbstractPrimitive;
 import org.spoofax.interpreter.stratego.Strategy;
-import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 /**
@@ -15,6 +12,7 @@ public class LANG_index_get_descendants extends AbstractPrimitive {
 
 	private static String NAME = "LANG_index_get_descendants";
 	
+	@SuppressWarnings("unused")
 	private final SemanticIndexManager index;
 	
 	public LANG_index_get_descendants(SemanticIndexManager index) {
@@ -24,12 +22,15 @@ public class LANG_index_get_descendants extends AbstractPrimitive {
 
 	@Override
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
-		if (isTermAppl(tvars[0])) {
+		// Deprecated?
+		/*if (isTermAppl(tvars[0])) {
 			IStrategoAppl template = (IStrategoAppl) tvars[0];
 			env.setCurrent(index.getCurrent().getEntryDescendantTerms(template));
 			return true;
 		} else {
 			return false;
-		}
+		}*/
+		
+		return false;
 	}
 }

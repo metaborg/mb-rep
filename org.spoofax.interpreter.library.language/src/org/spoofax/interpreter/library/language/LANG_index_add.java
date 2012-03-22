@@ -28,8 +28,9 @@ public class LANG_index_add extends AbstractPrimitive {
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
 		if (isTermAppl(tvars[0]) && (isTermTuple(tvars[1]) || isTermString(tvars[1]))) {
 			IStrategoAppl entry = (IStrategoAppl) tvars[0];
-			SemanticIndexFile file = index.getCurrent().getFile(tvars[1]);
-			index.getCurrent().add(entry, file);
+			ISemanticIndex ind = index.getCurrent();
+			SemanticIndexFile file = ind.getFile(tvars[1]);
+			ind.add(entry, file);
 			return true;
 		} else {
 			return false;

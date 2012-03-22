@@ -25,13 +25,11 @@ public class LANG_index_get_all_files extends AbstractPrimitive {
 		ITermFactory factory = env.getFactory();
 		IStrategoList results = getAllFiles(index.getCurrent(), factory);
 		env.setCurrent(results);
-		
 		new SemanticIndexStatistics(index.getCurrent()).printStats();
-		
 		return true;
 	}
 
-	public static IStrategoList getAllFiles(SemanticIndex index, ITermFactory factory) {
+	public static IStrategoList getAllFiles(ISemanticIndex index, ITermFactory factory) {
 		Collection<SemanticIndexFile> allFiles = index.getAllFiles();
 		IStrategoList results = factory.makeList();
 		for (SemanticIndexFile file : allFiles) {

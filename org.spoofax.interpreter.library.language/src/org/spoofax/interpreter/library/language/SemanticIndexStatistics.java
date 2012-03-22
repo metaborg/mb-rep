@@ -18,9 +18,9 @@ public class SemanticIndexStatistics {
 		public Map<IStrategoTerm, Integer> entriesPerNamespace;
 	}
 	
-	private SemanticIndex index;
+	private ISemanticIndex index;
 	
-	public SemanticIndexStatistics(SemanticIndex index) {
+	public SemanticIndexStatistics(ISemanticIndex index) {
 		this.index = index;
 	}
 	
@@ -46,17 +46,18 @@ public class SemanticIndexStatistics {
 		data.entriesPerConstructor = new HashMap<IStrategoConstructor, Integer>();
 		data.entriesPerNamespace = new HashMap<IStrategoTerm, Integer>();
 		for(SemanticIndexEntry entry : data.entries) {
-			Integer constructorCount = data.entriesPerConstructor.get(entry.getConstructor());
+			SemanticIndexURI uri = entry.getURI();
+			Integer constructorCount = data.entriesPerConstructor.get(uri.getConstructor());
 			if(constructorCount == null)
-				data.entriesPerConstructor.put(entry.getConstructor(), 1);
+				data.entriesPerConstructor.put(uri.getConstructor(), 1);
 			else
-				data.entriesPerConstructor.put(entry.getConstructor(), constructorCount + 1);
+				data.entriesPerConstructor.put(uri.getConstructor(), constructorCount + 1);
 				
-			Integer namespaceCount = data.entriesPerNamespace.get(entry.getNamespace());
+			Integer namespaceCount = data.entriesPerNamespace.get(uri.getNamespace());
 			if(namespaceCount == null)
-				data.entriesPerNamespace.put(entry.getNamespace(), 1);
+				data.entriesPerNamespace.put(uri.getNamespace(), 1);
 			else
-				data.entriesPerNamespace.put(entry.getNamespace(), namespaceCount + 1);
+				data.entriesPerNamespace.put(uri.getNamespace(), namespaceCount + 1);
 		}
 		
 		return data;

@@ -2,6 +2,8 @@ package org.spoofax.interpreter.library.language;
 
 import static org.spoofax.interpreter.core.Tools.isTermAppl;
 
+import java.util.Collection;
+
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.library.AbstractPrimitive;
 import org.spoofax.interpreter.stratego.Strategy;
@@ -30,15 +32,14 @@ public class LANG_index_get_files_of extends AbstractPrimitive {
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
 		if (isTermAppl(tvars[0])) {
 			IStrategoAppl template = (IStrategoAppl) tvars[0];
-
-			IStrategoList results = env.getFactory().makeList();
-			SemanticIndexEntry entry;
-			for (entry = index.getCurrent().getEntries(template); entry != null; entry = entry.getNext()) {
-				IStrategoTerm result = entry.getFile().toTerm(env.getFactory());
-				results = env.getFactory().makeListCons(result, results);
+			ISemanticIndex ind = index.getCurrent();
+			Collection<SemanticIndexEntry> entries = ind.getEntries(template);
+			IStrategoList files = env.getFactory().makeList();
+			for(SemanticIndexEntry entry : entries) {
+				IStrategoTerm file = entry.getFile().toTerm(env.getFactory());
+				files = env.getFactory().makeListCons(file, files);
 			}
-			
-			env.setCurrent(results);
+			env.setCurrent(files);
 			return true;
 		} else {
 			return false;
