@@ -113,7 +113,7 @@ public class SemanticIndex implements ISemanticIndex {
 			}
 		}
 		
-		remove(uri, entriesToRemove);
+		removeFinal(entriesToRemove);
 	}
 	
 	/**
@@ -124,37 +124,7 @@ public class SemanticIndex implements ISemanticIndex {
 	private void remove(SemanticIndexURI uri) {
 		Collection<SemanticIndexEntry> removedEntries = entries.removeAll(uri);
 		
-		remove(uri, removedEntries);
-	}
-	
-	/**
-	 * Removes given entries from the childs multimap and file lists. The given entries
-	 * should already be removed from the entries multimap.
-	 * 
-	 * @param uri				The common URI of the removed elements.
-	 * @param removedEntries	The removed entries.
-	 */
-	private void remove(SemanticIndexURI uri, Collection<SemanticIndexEntry> removedEntries) {
-		// Remove entry from childs.
-		// TODO: Linear run-time, can be improved with an inverse childs map?
-		SemanticIndexURI parentURI = uri.getParent();
-		for(SemanticIndexEntry entry : removedEntries) {
-			childs.remove(parentURI, entry);
-		}
-		
-		// Remove entry from files.
-		for(SemanticIndexEntry entry : removedEntries) {
-			SemanticIndexFile file = entry.getFile();
-			if (file != null) {
-				// TODO: Linear run-time (in SemanticIndexfile), can be improved with a HashMultimap?
-				file.removeEntry(entry); 
-				file.setTimeRevision(new Date(), revisionProvider.incrementAndGet());
-				
-				// Remove file if there are no entries left in it.
-				if(file.getEntries().isEmpty())
-					removeSharedFile(getFile(file));
-			}
-		}
+		removeFinal(removedEntries);
 	}
 	
 	/**
@@ -162,12 +132,54 @@ public class SemanticIndex implements ISemanticIndex {
 	 * 
 	 * @param entry	The entry to remove.
 	 */
+	@SuppressWarnings("unused")
 	private void remove(SemanticIndexEntry entry) {
 		SemanticIndexURI uri = entry.getURI();
 		boolean removed = entries.remove(uri, entry);
 		
 		if(removed)
-			remove(uri, Arrays.asList(new SemanticIndexEntry[]{entry}));
+			removeFinal(Arrays.asList(new SemanticIndexEntry[]{entry}));
+	}
+	
+	/**
+	 * Removes entries.
+	 * 
+	 * @param entriesToRemove	The entries to remove.
+	 */
+	private void remove(Collection<SemanticIndexEntry> entriesToRemove) {
+		List<SemanticIndexEntry> removedEntries = new ArrayList<SemanticIndexEntry>(entriesToRemove.size());
+		for(SemanticIndexEntry entry : entriesToRemove) {
+			if(entries.remove(entry.getURI(), entry))
+				removedEntries.add(entry);
+		}
+
+		removeFinal(removedEntries);
+	}
+	
+	/**
+	 * Removes given entries from the childs multimap and file lists. The given entries
+	 * should already be removed from the entries multimap.
+	 * 
+	 * @param removedEntries	The removed entries.
+	 */
+	private void removeFinal(Collection<SemanticIndexEntry> removedEntries) {
+		for(SemanticIndexEntry entry : removedEntries) {
+			// Remove entry from childs.
+			// TODO: Linear run-time (because of for loop), can be improved with an inverse childs map?
+			childs.remove(entry.getURI().getParent(), entry);
+			
+			// Remove entry from files.
+			SemanticIndexFile file = entry.getFile();
+			if (file != null) {
+				// TODO: Linear run-time (in SemanticIndexfile), can be improved with a Multimap?
+				file.removeEntry(entry); 
+				file.setTimeRevision(new Date(), revisionProvider.incrementAndGet());
+				
+				// Remove file if there are no entries left in it.
+				if(file.getEntries().isEmpty())
+					removeSharedFile(file);
+			}
+		}
 	}
 	
 	public Collection<SemanticIndexEntry> getEntries(IStrategoAppl template) {
@@ -208,14 +220,9 @@ public class SemanticIndex implements ISemanticIndex {
 		if (fileEntries.isEmpty()) return;
 		
 		// Remove every entry in this file from the index.
-		// TODO: Add more efficient remove operation for removing multiple entries.
 		SemanticIndexEntry[] copy = fileEntries.toArray(new SemanticIndexEntry[fileEntries.size()]);
-		for(SemanticIndexEntry entry : copy) {
-			// TODO: Assert doesn't work, should it be here?
-		    //assert entries.get(entry.getURI()).size() != 0;
-			remove(entry);
-		}
-		
+		remove(Arrays.asList(copy));
+
 		assert file.getEntries().isEmpty();
 	}
 	
