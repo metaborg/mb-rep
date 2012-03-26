@@ -17,14 +17,15 @@ public class SemanticIndexEntry {
 	
 	private SemanticIndexURI uri;
 	
-	private SemanticIndexFile file;
+	private SemanticIndexFileDescriptor fileDescriptor;
 	
 	private transient IStrategoAppl term;
 
-	protected SemanticIndexEntry(IStrategoTerm contents, SemanticIndexURI uri, SemanticIndexFile file) {
+	protected SemanticIndexEntry(IStrategoTerm contents, SemanticIndexURI uri, 
+			SemanticIndexFileDescriptor fileDescriptor) {
 		this.contents = contents;
 		this.uri = uri;
-		this.file = file;
+		this.fileDescriptor = fileDescriptor;
 		
 		assert contents != null || uri.getConstructor().getArity() < 2 : "Contents can't be null for Use/2 or DefData/3";
 	}
@@ -37,8 +38,8 @@ public class SemanticIndexEntry {
 		return uri;
 	}
 	
-	public SemanticIndexFile getFile() {
-		return file;
+	public SemanticIndexFileDescriptor getFileDescriptor() {
+		return fileDescriptor;
 	}
 	
 	/**
@@ -75,7 +76,7 @@ public class SemanticIndexEntry {
 		if (attach != null) {
 			ImploderAttachment.putImploderAttachment(term, false, attach.getSort(), attach.getLeftToken(), attach.getRightToken());
 		} else {
-			String fn = file == null ? null : file.getURI().getPath();
+			String fn = fileDescriptor == null ? null : fileDescriptor.getURI().getPath();
 			attach = ImploderAttachment.createCompactPositionAttachment(fn, 0, 0, 0, -1);
 			term.putAttachment(attach);
 		}
@@ -111,9 +112,7 @@ public class SemanticIndexEntry {
 		SemanticIndexEntry other = (SemanticIndexEntry) obj;
 		if (uri != other.uri && !uri.equals(other.uri))
 			return false;
-		if (file != other.file && !file.equals(other.file))
-			return false;
-		
+
 		return true;
 	}
 }

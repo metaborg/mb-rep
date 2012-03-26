@@ -31,18 +31,18 @@ public interface ISemanticIndex {
 	/**
 	 * Adds a new entry to the index.
 	 * 
-	 * @param entry	The entry to add.
-	 * @param file  The file to associate the entry with.
+	 * @param entry				The entry to add.
+	 * @param fileDescriptor  	The file to associate the entry with.
 	 */
-	public abstract void add(IStrategoAppl entry, SemanticIndexFile file);
+	public abstract void add(IStrategoAppl entry, SemanticIndexFileDescriptor fileDescriptor);
 
 	/**
 	 * Adds a list of entries to the index.
 	 * 
-	 * @param entries	The entries to add.
-	 * @param file		The file to associate the entries with.
+	 * @param entries			The entries to add.
+	 * @param fileDescriptor	The file to associate the entries with.
 	 */
-	public abstract void addAll(IStrategoList entries, SemanticIndexFile file);
+	public abstract void addAll(IStrategoList entries, SemanticIndexFileDescriptor fileDescriptor);
 
 	/**
 	 * Removes all entries that match given template.
@@ -54,10 +54,10 @@ public interface ISemanticIndex {
 	/**
 	 * Removes all entries that match given template and are from given file.
 	 * 
-	 * @param template	The template to match entries against.
-	 * @param file		The file entries must be from.
+	 * @param template			The template to match entries against.
+	 * @param fileDescriptor	The file entries must be from.
 	 */
-	public abstract void remove(IStrategoAppl template, SemanticIndexFile file);
+	public abstract void remove(IStrategoAppl template, SemanticIndexFileDescriptor fileDescriptor);
 	
 	/**
 	 * Gets all entries that match given template.
@@ -72,13 +72,27 @@ public interface ISemanticIndex {
 	 * @param template	The template to match entries against.
 	 */
 	public abstract Collection<SemanticIndexEntry> getEntryChildTerms(IStrategoAppl template);
+	
+	/**
+	 * Gets all entries for given file descriptor.
+	 * 
+	 * @param fileDescriptor	The file descriptor to match entries against.
+	 */
+	public abstract Collection<SemanticIndexEntry> getEntriesInFile(SemanticIndexFileDescriptor fileDescriptor);
 
 	/**
-	 * Gets a (maximally shared) semantic index file for given file term.
+	 * Gets a semantic index file for given file term.
 	 * 
 	 * @param fileTerm	A string or (string, string) tuple with the filename or the filename and subfilename.
 	 */
 	public abstract SemanticIndexFile getFile(IStrategoTerm fileTerm);
+	
+	/**
+	 * Gets a semantic index file descriptor for given file term.
+	 * 
+	 * @param fileTerm	A string or (string, string) tuple with the filename or the filename and subfilename.
+	 */
+	public abstract SemanticIndexFileDescriptor getFileDescriptor(IStrategoTerm fileTerm);
 	
 	/**
 	 * Removes all entries in given file term and removes the file itself.
@@ -91,6 +105,11 @@ public interface ISemanticIndex {
 	 * Gets all files that are in the semantic index.
 	 */
 	public abstract Collection<SemanticIndexFile> getAllFiles();
+	
+	/**
+	 * Gets all file descriptors that are in the semantic index.
+	 */
+	public abstract Collection<SemanticIndexFileDescriptor> getAllFileDescriptors();
 
 	/**
 	 * Clears the entire semantic index.

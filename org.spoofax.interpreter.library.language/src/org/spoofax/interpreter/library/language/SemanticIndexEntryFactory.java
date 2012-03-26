@@ -67,11 +67,11 @@ public class SemanticIndexEntryFactory {
 	
 	public SemanticIndexEntry createEntry(IStrategoConstructor constructor,
 			IStrategoTerm namespace, IStrategoList id, IStrategoTerm contentsType, IStrategoTerm contents,
-			SemanticIndexFile file) {
-		return createEntry(contents, createURI(constructor, namespace, id, contentsType), file);
+			SemanticIndexFileDescriptor fileDescriptor) {
+		return createEntry(contents, createURI(constructor, namespace, id, contentsType), fileDescriptor);
 	}
 	
-	public SemanticIndexEntry createEntry(IStrategoTerm contents, SemanticIndexURI uri, SemanticIndexFile file) {
+	public SemanticIndexEntry createEntry(IStrategoTerm contents, SemanticIndexURI uri, SemanticIndexFileDescriptor fileDescriptor) {
 		
 		ImploderAttachment dataAttachment =
 			contents == null ? null : ImploderAttachment.getCompactPositionAttachment(contents, false);
@@ -79,7 +79,7 @@ public class SemanticIndexEntryFactory {
 		if (contents != null)
 			contents.putAttachment(dataAttachment);
 
-		return new SemanticIndexEntry(contents, uri, file);
+		return new SemanticIndexEntry(contents, uri, fileDescriptor);
 	}
 
 	/*private IStrategoList createSanitizedId(IStrategoList id) {

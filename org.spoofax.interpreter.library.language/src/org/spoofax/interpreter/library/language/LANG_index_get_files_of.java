@@ -36,7 +36,7 @@ public class LANG_index_get_files_of extends AbstractPrimitive {
 			Collection<SemanticIndexEntry> entries = ind.getEntries(template);
 			IStrategoList files = env.getFactory().makeList();
 			for(SemanticIndexEntry entry : entries) {
-				IStrategoTerm file = entry.getFile().toTerm(env.getFactory());
+				IStrategoTerm file = entry.getFileDescriptor().toTerm(env.getFactory());
 				files = env.getFactory().makeListCons(file, files);
 			}
 			env.setCurrent(files);

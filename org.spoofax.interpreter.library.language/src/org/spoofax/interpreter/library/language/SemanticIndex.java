@@ -27,15 +27,17 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 /**
- * @author Gabriï¿½l Konat
+ * @author Gabriël Konat
  */
 public class SemanticIndex implements ISemanticIndex {
 	private final Multimap<SemanticIndexURI, SemanticIndexEntry> entries = 
 			ArrayListMultimap.create();
 	private final Multimap<SemanticIndexURI, SemanticIndexEntry> childs = 
 			ArrayListMultimap.create();
-	private final Map<SemanticIndexFile, SemanticIndexFile> files =
-			new HashMap<SemanticIndexFile, SemanticIndexFile>();
+	private final Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry> entriesPerFile = 
+			ArrayListMultimap.create();
+	private final Map<SemanticIndexFileDescriptor, SemanticIndexFile> files =
+			new HashMap<SemanticIndexFileDescriptor, SemanticIndexFile>();
 	
 	private static final IStrategoConstructor FILE_ENTRIES_CON =
 			new TermFactory().makeConstructor("FileEntries", 2);
@@ -61,8 +63,7 @@ public class SemanticIndex implements ISemanticIndex {
 		return factory;
 	}
 	
-	public void add(IStrategoAppl entry, SemanticIndexFile file) {
-		assert getFile(file) == file : "Files must be maximally shared: use getFile() to get a shared File reference";
+	public void add(IStrategoAppl entry, SemanticIndexFileDescriptor fileDescriptor) {
 		ensureInitialized();
 		
 		IStrategoConstructor constructor = entry.getConstructor();
@@ -72,14 +73,14 @@ public class SemanticIndex implements ISemanticIndex {
 		IStrategoTerm contents = factory.getEntryContents(entry);
 		
 		SemanticIndexEntry newEntry = 
-				factory.createEntry(constructor, namespace, id, contentsType, contents, file);
+				factory.createEntry(constructor, namespace, id, contentsType, contents, fileDescriptor);
 
 		add(newEntry);
 	}
 
-	public void addAll(IStrategoList entries, SemanticIndexFile file) {
+	public void addAll(IStrategoList entries, SemanticIndexFileDescriptor fileDescriptor) {
 		while(!entries.isEmpty()) {
-			add((IStrategoAppl) entries.head(), file);
+			add((IStrategoAppl) entries.head(), fileDescriptor);
 			entries = entries.tail();
 		}
 	}
@@ -93,21 +94,21 @@ public class SemanticIndex implements ISemanticIndex {
 			childs.put(entry.getURI().getParent(), entry);
 
 		// Add entry to files.
-		entry.getFile().addEntry(entry);
-		entry.getFile().setTimeRevision(new Date(), revisionProvider.incrementAndGet());
+		entriesPerFile.put(entry.getFileDescriptor(), entry);
+		getFile(entry.getFileDescriptor()).setTimeRevision(new Date(), revisionProvider.incrementAndGet());
 	}
 
 	public void remove(IStrategoAppl template) {
 		remove(factory.createURIFromTemplate(template));
 	}
 	
-	public void remove(IStrategoAppl template, SemanticIndexFile file) {
+	public void remove(IStrategoAppl template, SemanticIndexFileDescriptor fileDescriptor) {
 		SemanticIndexURI uri = factory.createURIFromTemplate(template);
 		Collection<SemanticIndexEntry> candidateEntries = entries.get(uri);
 		SemanticIndexEntry[] copy = candidateEntries.toArray(new SemanticIndexEntry[candidateEntries.size()]);
 		List<SemanticIndexEntry> entriesToRemove = new ArrayList<SemanticIndexEntry>();
 		for(SemanticIndexEntry entry : copy) {
-			if(entry.getFile() == file) {
+			if(entry.getFileDescriptor().equals(fileDescriptor)) {
 				entriesToRemove.add(entry);
 				entries.remove(uri, entry);
 			}
@@ -169,15 +170,15 @@ public class SemanticIndex implements ISemanticIndex {
 			childs.remove(entry.getURI().getParent(), entry);
 			
 			// Remove entry from files.
-			SemanticIndexFile file = entry.getFile();
-			if (file != null) {
-				// TODO: Linear run-time (in SemanticIndexfile), can be improved with a Multimap?
-				file.removeEntry(entry); 
+			SemanticIndexFileDescriptor fileDescriptor = entry.getFileDescriptor();
+			SemanticIndexFile file = getFile(fileDescriptor);
+			if (fileDescriptor != null) {
+				entriesPerFile.remove(fileDescriptor, entry);
 				file.setTimeRevision(new Date(), revisionProvider.incrementAndGet());
 				
 				// Remove file if there are no entries left in it.
-				if(file.getEntries().isEmpty())
-					removeSharedFile(file);
+				if(entriesPerFile.get(fileDescriptor).isEmpty())
+					removeEmptyFile(fileDescriptor);
 			}
 		}
 	}
@@ -190,64 +191,74 @@ public class SemanticIndex implements ISemanticIndex {
 		return childs.get(factory.createURIFromTemplate(template));
 	}
 	
-	public SemanticIndexFile getFile(IStrategoTerm fileTerm) {
-		return getFile(SemanticIndexFile.fromTerm(agent, fileTerm));
+	public Collection<SemanticIndexEntry> getEntriesInFile(SemanticIndexFileDescriptor fileDescriptor) {
+		return entriesPerFile.get(fileDescriptor);
 	}
 	
-	/**
-	 * Gets a maximally shared file reference equal to the given file.
-	 */
-	private SemanticIndexFile getFile(SemanticIndexFile file) {
-		SemanticIndexFile sharedFile = files.get(file);
-		if(sharedFile == null) {
-			files.put(file, file);
+	public SemanticIndexFile getFile(IStrategoTerm fileTerm) {
+		return getFile(getFileDescriptor(fileTerm));
+	}
+	
+	private SemanticIndexFile getFile(SemanticIndexFileDescriptor fileDescriptor) {
+		SemanticIndexFile file = files.get(fileDescriptor);
+		if(file == null) {
+			file = new SemanticIndexFile(fileDescriptor, null);
+			files.put(fileDescriptor, file);
 			return file;
 		}
-		return sharedFile;
+		return file;
+	}
+	
+	public SemanticIndexFileDescriptor getFileDescriptor(IStrategoTerm fileTerm) {
+		return SemanticIndexFileDescriptor.fromTerm(agent, fileTerm);
 	}
 	
 	public void removeFile(IStrategoTerm fileTerm) {
-		SemanticIndexFile file = getFile(fileTerm);
+		SemanticIndexFileDescriptor fileDescriptor = getFileDescriptor(fileTerm);
 		
-		clearFile(file);
-		removeSharedFile(file);
+		clearFile(fileDescriptor);
+		removeEmptyFile(fileDescriptor);
 	}
 	
-	private void clearFile(SemanticIndexFile file) {
-		assert files.get(file) == null || files.get(file) == file;	// Require maximally shared file or null file.
-		
-		List<SemanticIndexEntry> fileEntries = file.getEntries();
-		if (fileEntries.isEmpty()) return;
+	private void clearFile(SemanticIndexFileDescriptor fileDescriptor) {
+		Collection<SemanticIndexEntry> fileEntries = entriesPerFile.get(fileDescriptor);
+		if (fileEntries.isEmpty()) 
+			return;
 		
 		// Remove every entry in this file from the index.
 		SemanticIndexEntry[] copy = fileEntries.toArray(new SemanticIndexEntry[fileEntries.size()]);
 		remove(Arrays.asList(copy));
 
-		assert file.getEntries().isEmpty();
+		assert entriesPerFile.get(fileDescriptor).isEmpty();
 	}
 	
-	private void removeSharedFile(SemanticIndexFile file) {
-		assert file.getEntries().isEmpty(); // Only allow removing a shared file if it has no entries.
+	private void removeEmptyFile(SemanticIndexFileDescriptor fileDescriptor) {
+		assert entriesPerFile.get(fileDescriptor).isEmpty(); // Only allow removing a shared file if it has no entries.
 		
-		files.remove(file);
+		files.remove(fileDescriptor);
 	}
 	
 	public Collection<SemanticIndexFile> getAllFiles() {
 		return files.values();
 	}
 	
+	public Collection<SemanticIndexFileDescriptor> getAllFileDescriptors() {
+		return files.keySet();
+	}
+	
 	public void clear() {
 		entries.clear();
 		childs.clear();
 		files.clear();
+		entriesPerFile.clear();
 	}
 	
 	public IStrategoTerm toTerm(boolean includePositions) {
 		IStrategoList results = termFactory.makeList();
-		for (SemanticIndexFile file : files.keySet()) {
-			IStrategoList fileResults = SemanticIndexEntry.toTerms(termFactory, file.getEntries());
+		for(SemanticIndexFileDescriptor fileDescriptor : files.keySet()) {
+			IStrategoList fileResults = SemanticIndexEntry.toTerms(termFactory, entriesPerFile.get(fileDescriptor));
 			// TODO: include time stamp for file
-			IStrategoTerm result = termFactory.makeAppl(FILE_ENTRIES_CON, file.toTerm(termFactory), fileResults);
+			IStrategoTerm result = termFactory.makeAppl(FILE_ENTRIES_CON, fileDescriptor.toTerm(termFactory), fileResults);
 			results = termFactory.makeListCons(result, results);
 		}
 		
@@ -284,8 +295,7 @@ public class SemanticIndex implements ISemanticIndex {
 	private void loadFileEntriesTerm(IStrategoTerm fileEntries) throws IOException {
 		if (tryGetConstructor(fileEntries) == FILE_ENTRIES_CON) {
 			try {
-				SemanticIndexFile file = getFile(termAt(fileEntries, 0));
-				addAll((IStrategoList) termAt(fileEntries, 1), file);
+				addAll((IStrategoList) termAt(fileEntries, 1), getFileDescriptor(termAt(fileEntries, 0)));
 			} catch (IllegalStateException e) {
 				throw new IllegalStateException(e);
 			} catch (RuntimeException e) { // HACK: catch all runtime exceptions

@@ -35,8 +35,8 @@ public class LANG_index_setup extends AbstractPrimitive {
 			throw new NotImplementedException("Multiple project paths");
 		}
 		IOAgent agent = SSLLibrary.instance(env).getIOAgent();
-		SemanticIndexFile project = SemanticIndexFile.fromTerm(agent, projectPaths.head());
-		SemanticIndexFile file = SemanticIndexFile.fromTerm(agent, fileTerm);
+		SemanticIndexFileDescriptor project = SemanticIndexFileDescriptor.fromTerm(agent, projectPaths.head());
+		SemanticIndexFileDescriptor file = SemanticIndexFileDescriptor.fromTerm(agent, fileTerm);
 		index.loadIndex(asJavaString(language), project.getURI(), env.getFactory(), agent);
 		index.setCurrentFile(file);
 		index.getCurrent().initialize(env.getFactory(), agent, index.getRevisionProvider());

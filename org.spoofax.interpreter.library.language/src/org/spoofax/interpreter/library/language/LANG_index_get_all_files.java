@@ -30,10 +30,10 @@ public class LANG_index_get_all_files extends AbstractPrimitive {
 	}
 
 	public static IStrategoList getAllFiles(ISemanticIndex index, ITermFactory factory) {
-		Collection<SemanticIndexFile> allFiles = index.getAllFiles();
+		Collection<SemanticIndexFileDescriptor> allFileDescriptors = index.getAllFileDescriptors();
 		IStrategoList results = factory.makeList();
-		for (SemanticIndexFile file : allFiles) {
-			results = factory.makeListCons(file.toTerm(factory), results);
+		for (SemanticIndexFileDescriptor fileDescriptor : allFileDescriptors) {
+			results = factory.makeListCons(fileDescriptor.toTerm(factory), results);
 		}
 		return results;
 	}

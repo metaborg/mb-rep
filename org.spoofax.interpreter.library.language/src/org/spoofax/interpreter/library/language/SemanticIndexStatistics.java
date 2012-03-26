@@ -12,7 +12,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 
 public class SemanticIndexStatistics {
 	private class Data {
-		public Collection<SemanticIndexFile> files;
+		public Collection<SemanticIndexFileDescriptor> files;
 		public Collection<SemanticIndexEntry> entries;
 		public Map<IStrategoConstructor, Integer> entriesPerConstructor;
 		public Map<IStrategoTerm, Integer> entriesPerNamespace;
@@ -24,14 +24,14 @@ public class SemanticIndexStatistics {
 		this.index = index;
 	}
 	
-	private Collection<SemanticIndexFile> files() {
-		return index.getAllFiles();
+	private Collection<SemanticIndexFileDescriptor> files() {
+		return index.getAllFileDescriptors();
 	}
 	
 	private Collection<SemanticIndexEntry> elements() {
 		List<SemanticIndexEntry> entries = new ArrayList<SemanticIndexEntry>();
-		for(SemanticIndexFile file : index.getAllFiles()) {
-			entries.addAll(file.getEntries());
+		for(SemanticIndexFileDescriptor fileDescriptor : index.getAllFileDescriptors()) {
+			entries.addAll(index.getEntriesInFile(fileDescriptor));
 		}
 		
 		return entries;

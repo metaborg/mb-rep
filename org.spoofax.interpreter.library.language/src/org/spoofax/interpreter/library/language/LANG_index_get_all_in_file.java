@@ -27,8 +27,9 @@ public class LANG_index_get_all_in_file extends AbstractPrimitive {
 	@Override
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
 		if (isTermTuple(tvars[0]) || isTermString(tvars[0])) {
-			ISemanticIndex idn = index.getCurrent();
-			Collection<SemanticIndexEntry> results = idn.getFile(tvars[0]).getEntries();
+			ISemanticIndex ind = index.getCurrent();
+			SemanticIndexFileDescriptor fileDescriptor = ind.getFileDescriptor(tvars[0]);
+			Collection<SemanticIndexEntry> results = ind.getEntriesInFile(fileDescriptor);
 			env.setCurrent(SemanticIndexEntry.toTerms(env.getFactory(), results));
 			return true;
 		} else {
