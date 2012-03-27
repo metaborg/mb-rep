@@ -28,6 +28,8 @@ public class LanguageLibrary extends AbstractStrategoOperatorRegistry {
 		add(new LANG_index_commit(index));
 		add(new LANG_index_get_files_newer_than(index));
 		add(new LANG_index_get_current_file(index));
+		add(new LANG_index_start_transaction(index));
+		add(new LANG_index_end_transaction(index));
 		
 		addSpxIndexPrimitives();
 	}

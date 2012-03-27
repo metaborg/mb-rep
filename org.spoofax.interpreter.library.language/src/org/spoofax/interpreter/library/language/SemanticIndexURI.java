@@ -13,32 +13,35 @@ public class SemanticIndexURI {
 	private IStrategoConstructor constructor;
 
 	private IStrategoTerm namespace;
-	
+
 	private IStrategoList id;
-	
+
 	private IStrategoTerm contentsType;
-	
+
 	private transient IStrategoAppl term;
-	
+
 	/**
-	 * @param namespace The namespace of the entry, e.g., 'Foo()'
-	 * @param id        The identifier of the entry, e.g., '["foo", Foo()]'
+	 * @param namespace
+	 *            The namespace of the entry, e.g., 'Foo()'
+	 * @param id
+	 *            The identifier of the entry, e.g., '["foo", Foo()]'
 	 */
-	protected SemanticIndexURI(IStrategoConstructor constructor, IStrategoTerm namespace, 
-			IStrategoList id, IStrategoTerm contentsType) {
+	protected SemanticIndexURI(IStrategoConstructor constructor,
+			IStrategoTerm namespace, IStrategoList id,
+			IStrategoTerm contentsType) {
 		this.constructor = constructor;
 		this.id = id;
 		this.namespace = namespace;
 		this.contentsType = contentsType;
-		
+
 		assert constructor != null && id != null && namespace != null;
 		assert contentsType == null || "DefData".equals(constructor.getName()) : "Contents type only expected for DefData";
 	}
-	
+
 	public IStrategoConstructor getConstructor() {
 		return constructor;
 	}
-	
+
 	public IStrategoTerm getNamespace() {
 		return namespace;
 	}
@@ -46,42 +49,45 @@ public class SemanticIndexURI {
 	public IStrategoList getId() {
 		return id;
 	}
-	
+
 	public IStrategoTerm getType() {
 		return contentsType;
 	}
-	
+
 	public SemanticIndexURI getParent() {
-		if(id.size() > 0)
-			return new SemanticIndexURI(constructor, namespace, id.tail(), contentsType);
+		if (id.size() > 0)
+			return new SemanticIndexURI(constructor, namespace, id.tail(),
+					contentsType);
 		else
 			return null;
 	}
-	
+
 	/**
 	 * Returns a term representation of this entry.
 	 */
 	public IStrategoAppl toTerm(ITermFactory factory, IStrategoTerm contents) {
 		if (term != null)
 			return term;
-		
+
 		IStrategoList namespaceId = factory.makeListCons(namespace, id);
 		if (constructor.getArity() == 3) {
-			term = factory.makeAppl(constructor, namespaceId, contentsType, contents);
+			term = factory.makeAppl(constructor, namespaceId, contentsType,
+					contents);
 		} else if (constructor.getArity() == 2) {
 			term = factory.makeAppl(constructor, namespaceId, contents);
 		} else {
 			term = factory.makeAppl(constructor, namespaceId);
 		}
-		
+
 		return term;
 	}
 
-	
 	@Override
 	public String toString() {
-		String result = constructor.getName() + "([" + namespace + "|" + id + "]";
-		if (contentsType != null) result += "," + contentsType; 
+		String result = constructor.getName() + "([" + namespace + "|" + id
+				+ "]";
+		if (contentsType != null)
+			result += "," + contentsType;
 		return result;
 	}
 
@@ -89,9 +95,13 @@ public class SemanticIndexURI {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + id.hashCode();
-		result = prime * result + (contentsType == null ? 0 : contentsType.hashCode());
-		result = prime * result + namespace.hashCode();
+		result = prime * result
+				+ ((constructor == null) ? 0 : constructor.hashCode());
+		result = prime * result
+				+ ((contentsType == null) ? 0 : contentsType.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result
+				+ ((namespace == null) ? 0 : namespace.hashCode());
 		return result;
 	}
 
@@ -103,17 +113,27 @@ public class SemanticIndexURI {
 			return false;
 		if (!(obj instanceof SemanticIndexURI))
 			return false;
-		
 		SemanticIndexURI other = (SemanticIndexURI) obj;
-		if (constructor != other.constructor && !constructor.match(other.constructor))
+		if (constructor == null) {
+			if (other.constructor != null)
+				return false;
+		} else if (!constructor.equals(other.constructor))
 			return false;
-		if (namespace != other.namespace && !namespace.match(other.namespace))
+		if (contentsType == null) {
+			if (other.contentsType != null)
+				return false;
+		} else if (!contentsType.equals(other.contentsType))
 			return false;
-		if (contentsType != other.contentsType && contentsType != null && !contentsType.match(other.contentsType))
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
 			return false;
-		if (id != other.id && !id.match(other.id))
+		if (namespace == null) {
+			if (other.namespace != null)
+				return false;
+		} else if (!namespace.equals(other.namespace))
 			return false;
-
 		return true;
 	}
 }

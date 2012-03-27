@@ -94,9 +94,12 @@ public class SemanticIndexEntry {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		
-		result = prime * result + uri.hashCode();
-		
+		result = prime * result
+				+ ((contents == null) ? 0 : contents.hashCode());
+		result = prime * result
+				+ ((fileDescriptor == null) ? 0 : fileDescriptor.hashCode());
+		result = prime * result + ((term == null) ? 0 : term.hashCode());
+		result = prime * result + ((uri == null) ? 0 : uri.hashCode());
 		return result;
 	}
 
@@ -108,11 +111,27 @@ public class SemanticIndexEntry {
 			return false;
 		if (!(obj instanceof SemanticIndexEntry))
 			return false;
-		
 		SemanticIndexEntry other = (SemanticIndexEntry) obj;
-		if (uri != other.uri && !uri.equals(other.uri))
+		if (contents == null) {
+			if (other.contents != null)
+				return false;
+		} else if (!contents.equals(other.contents))
 			return false;
-
+		if (fileDescriptor == null) {
+			if (other.fileDescriptor != null)
+				return false;
+		} else if (!fileDescriptor.equals(other.fileDescriptor))
+			return false;
+		if (term == null) {
+			if (other.term != null)
+				return false;
+		} else if (!term.equals(other.term))
+			return false;
+		if (uri == null) {
+			if (other.uri != null)
+				return false;
+		} else if (!uri.equals(other.uri))
+			return false;
 		return true;
 	}
 }

@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -27,9 +28,11 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 /**
- * @author Gabriël Konat
+ * @author Gabriel Konat
  */
 public class SemanticIndex implements ISemanticIndex {
+	public static final boolean DEBUG_ENABLED = SemanticIndex.class.desiredAssertionStatus();
+	
 	private final Multimap<SemanticIndexURI, SemanticIndexEntry> entries = 
 			ArrayListMultimap.create();
 	private final Multimap<SemanticIndexURI, SemanticIndexEntry> childs = 
@@ -78,14 +81,7 @@ public class SemanticIndex implements ISemanticIndex {
 		add(newEntry);
 	}
 
-	public void addAll(IStrategoList entries, SemanticIndexFileDescriptor fileDescriptor) {
-		while(!entries.isEmpty()) {
-			add((IStrategoAppl) entries.head(), fileDescriptor);
-			entries = entries.tail();
-		}
-	}
-	
-	private void add(SemanticIndexEntry entry) {
+	public void add(SemanticIndexEntry entry) {
 		entries.put(entry.getURI(), entry);
 		
 		// Add entry to childs.
@@ -96,6 +92,13 @@ public class SemanticIndex implements ISemanticIndex {
 		// Add entry to files.
 		entriesPerFile.put(entry.getFileDescriptor(), entry);
 		getFile(entry.getFileDescriptor()).setTimeRevision(new Date(), revisionProvider.incrementAndGet());
+	}
+	
+	public void addAll(IStrategoList entries, SemanticIndexFileDescriptor fileDescriptor) {
+		while(!entries.isEmpty()) {
+			add((IStrategoAppl) entries.head(), fileDescriptor);
+			entries = entries.tail();
+		}
 	}
 
 	public void remove(IStrategoAppl template) {
@@ -135,8 +138,7 @@ public class SemanticIndex implements ISemanticIndex {
 	 */
 	@SuppressWarnings("unused")
 	private void remove(SemanticIndexEntry entry) {
-		SemanticIndexURI uri = entry.getURI();
-		boolean removed = entries.remove(uri, entry);
+		boolean removed = entries.remove(entry.getURI(), entry);
 		
 		if(removed)
 			removeFinal(Arrays.asList(new SemanticIndexEntry[]{entry}));
@@ -177,22 +179,26 @@ public class SemanticIndex implements ISemanticIndex {
 				file.setTimeRevision(new Date(), revisionProvider.incrementAndGet());
 				
 				// Remove file if there are no entries left in it.
-				if(entriesPerFile.get(fileDescriptor).isEmpty())
+				if(getEntriesInFile(fileDescriptor).isEmpty())
 					removeEmptyFile(fileDescriptor);
 			}
 		}
 	}
 	
 	public Collection<SemanticIndexEntry> getEntries(IStrategoAppl template) {
-		return entries.get(factory.createURIFromTemplate(template));
+		return getCollection(entries.get(factory.createURIFromTemplate(template)));
 	}
 
 	public Collection<SemanticIndexEntry> getEntryChildTerms(IStrategoAppl template) {
-		return childs.get(factory.createURIFromTemplate(template));
+		return getCollection(childs.get(factory.createURIFromTemplate(template)));
 	}
 	
 	public Collection<SemanticIndexEntry> getEntriesInFile(SemanticIndexFileDescriptor fileDescriptor) {
-		return entriesPerFile.get(fileDescriptor);
+		return getCollection(entriesPerFile.get(fileDescriptor));
+	}
+	
+	public Collection<SemanticIndexEntry> getAllEntries() {
+		return getCollection(entries.values());
 	}
 	
 	public SemanticIndexFile getFile(IStrategoTerm fileTerm) {
@@ -214,22 +220,24 @@ public class SemanticIndex implements ISemanticIndex {
 	}
 	
 	public void removeFile(IStrategoTerm fileTerm) {
-		SemanticIndexFileDescriptor fileDescriptor = getFileDescriptor(fileTerm);
-		
+		removeFile(getFileDescriptor(fileTerm));
+	}
+	
+	public void removeFile(SemanticIndexFileDescriptor fileDescriptor) {
 		clearFile(fileDescriptor);
 		removeEmptyFile(fileDescriptor);
 	}
 	
 	private void clearFile(SemanticIndexFileDescriptor fileDescriptor) {
-		Collection<SemanticIndexEntry> fileEntries = entriesPerFile.get(fileDescriptor);
+		Collection<SemanticIndexEntry> fileEntries = getEntriesInFile(fileDescriptor);
 		if (fileEntries.isEmpty()) 
 			return;
 		
 		// Remove every entry in this file from the index.
-		SemanticIndexEntry[] copy = fileEntries.toArray(new SemanticIndexEntry[fileEntries.size()]);
+		SemanticIndexEntry[] copy = fileEntries.toArray(new SemanticIndexEntry[0]);
 		remove(Arrays.asList(copy));
 
-		assert entriesPerFile.get(fileDescriptor).isEmpty();
+		assert getEntriesInFile(fileDescriptor).isEmpty();
 	}
 	
 	private void removeEmptyFile(SemanticIndexFileDescriptor fileDescriptor) {
@@ -239,11 +247,11 @@ public class SemanticIndex implements ISemanticIndex {
 	}
 	
 	public Collection<SemanticIndexFile> getAllFiles() {
-		return files.values();
+		return getCollection(files.values());
 	}
 	
 	public Collection<SemanticIndexFileDescriptor> getAllFileDescriptors() {
-		return files.keySet();
+		return getCollection(files.keySet());
 	}
 	
 	public void clear() {
@@ -305,5 +313,15 @@ public class SemanticIndex implements ISemanticIndex {
 			throw new IOException("Illegal index entry: " + fileEntries);
 		}
 	}
-
+	
+	/**
+	 * Returns an unmodifiable collection if in debug mode, or the collection if not.
+	 */
+	private static final <T> Collection<T> getCollection(Collection<T> collection) {
+		if(DEBUG_ENABLED) {
+			return Collections.unmodifiableCollection(collection);
+		} else {
+			return collection;
+		}
+	}
 }

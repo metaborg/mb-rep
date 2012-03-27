@@ -35,6 +35,13 @@ public interface ISemanticIndex {
 	 * @param fileDescriptor  	The file to associate the entry with.
 	 */
 	public abstract void add(IStrategoAppl entry, SemanticIndexFileDescriptor fileDescriptor);
+	
+	/**
+	 * Adds a new entry to the index.
+	 * 
+	 * @param entry	The entry to add.
+	 */
+	public abstract void add(SemanticIndexEntry entry);
 
 	/**
 	 * Adds a list of entries to the index.
@@ -65,6 +72,11 @@ public interface ISemanticIndex {
 	 * @param template	The template to match entries against.
 	 */
 	public abstract Collection<SemanticIndexEntry> getEntries(IStrategoAppl template);
+	
+	/**
+	 * Gets all entries.
+	 */
+	public abstract Collection<SemanticIndexEntry> getAllEntries();
 
 	/**
 	 * Gets all child entries for URI in given template.
@@ -100,6 +112,13 @@ public interface ISemanticIndex {
 	 * @param fileTerm	A string or (string, string) tuple with the filename or the filename and subfilename.
 	 */
 	public abstract void removeFile(IStrategoTerm fileTerm);
+	
+	/**
+	 * Removes all entries for given file and removes the file itself.
+	 * 
+	 * @param fileDescriptor	A file descriptor.
+	 */
+	public abstract void removeFile(SemanticIndexFileDescriptor fileDescriptor);
 
 	/**
 	 * Gets all files that are in the semantic index.

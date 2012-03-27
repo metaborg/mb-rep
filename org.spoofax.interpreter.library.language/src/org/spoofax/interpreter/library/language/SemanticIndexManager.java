@@ -23,13 +23,13 @@ public class SemanticIndexManager {
 	
 	private final AtomicLong revisionProvider = new AtomicLong();
 
-	private ISemanticIndex current;
+	private ThreadLocal<ISemanticIndex> current = new ThreadLocal<ISemanticIndex>();
 	
-	private URI currentProject;
+	private ThreadLocal<URI> currentProject = new ThreadLocal<URI>();
 	
-	private String currentLanguage;
+	private ThreadLocal<String> currentLanguage = new ThreadLocal<String>();
 	
-	private SemanticIndexFileDescriptor currentFile;
+	private ThreadLocal<SemanticIndexFileDescriptor> currentFile = new ThreadLocal<SemanticIndexFileDescriptor>();
 	
 	/**
 	 * Indices by language and project. Access requires a lock on {@link #getSyncRoot}
@@ -41,18 +41,40 @@ public class SemanticIndexManager {
 		if (!isInitialized())
 			throw new IllegalStateException("No semantic index has been set-up, use index-setup(|language, project-paths) to set up the index before use.");
 		
-		return current;
+		return current.get();
 	}
 	
 	public SemanticIndexFileDescriptor getCurrentFile() {
 		if (!isInitialized())
 			throw new IllegalStateException("No semantic index has been set-up, use index-setup(|language, project-paths) to set up the index before use.");
 		
-		return currentFile;
+		return currentFile.get();
 	}
 	
-	public void setCurrentFile(SemanticIndexFileDescriptor file) {
-		this.currentFile = file;
+	public void setCurrentFile(SemanticIndexFileDescriptor currentFile) {
+		this.currentFile.set(currentFile);
+	}
+	
+	public void startTransaction(ITermFactory factory, IOAgent agent) {
+		ISemanticIndex currentIndex = current.get();
+		
+		assert currentIndex instanceof SemanticIndex; // Prevent multiple transactions.
+		
+		ISemanticIndex transactionIndex = new SemanticIndex();
+		transactionIndex.initialize(factory, agent, revisionProvider);
+		current.set(new TransactionSemanticIndex(currentIndex, transactionIndex));
+	}
+	
+	public void endTransaction() {
+		TransactionSemanticIndex currentIndex = (TransactionSemanticIndex)current.get();
+		ISemanticIndex index = currentIndex.getIndex();
+		ISemanticIndex transactionIndex = currentIndex.getTransactionIndex();
+		current.set(index);
+		// TODO: Efficient copy of transactionIndex into index.
+		// TODO: Aquire lock?
+		index.removeFile(currentFile.get());
+		for(SemanticIndexEntry entry : transactionIndex.getAllEntries())
+			index.add(entry);
 	}
 	
 	private static Object getSyncRoot() {
@@ -64,7 +86,7 @@ public class SemanticIndexManager {
 	}
 	
 	public boolean isInitialized() {
-		return current != null;
+		return current.get() != null;
 	}
 	
 	public static boolean isKnownIndexingLanguage(String language) {
@@ -91,9 +113,9 @@ public class SemanticIndexManager {
 				NotificationCenter.notifyNewProject(project);
 			}
 			indicesByProject.put(project, new WeakReference<ISemanticIndex>(index));
-			current = index;
-			currentLanguage = language;
-			currentProject = project;
+			current.set(index);
+			currentLanguage.set(language);
+			currentProject.set(project);
 		}
 	}
 	
@@ -107,7 +129,7 @@ public class SemanticIndexManager {
 	}
 	
 	public void storeCurrent() throws IOException {
-		File file = getIndexFile(currentProject, currentLanguage);
+		File file = getIndexFile(currentProject.get(), currentLanguage.get());
 		IStrategoTerm stored = getCurrent().toTerm(true);
 		Writer writer = new BufferedWriter(new FileWriter(file));
 		try {
