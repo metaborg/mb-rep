@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.lang.ref.WeakReference;
 import java.net.URI;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -21,7 +22,7 @@ import org.spoofax.terms.io.binary.TermReader;
  */
 public class SemanticIndexManager {
 	
-	private final AtomicLong revisionProvider = new AtomicLong();
+	private final static AtomicLong revisionProvider = new AtomicLong();
 
 	private ThreadLocal<ISemanticIndex> current = new ThreadLocal<ISemanticIndex>();
 	
@@ -61,7 +62,7 @@ public class SemanticIndexManager {
 		assert currentIndex instanceof SemanticIndex; // Prevent multiple transactions.
 		
 		ISemanticIndex transactionIndex = new SemanticIndex();
-		transactionIndex.initialize(factory, agent, revisionProvider);
+		transactionIndex.initialize(factory, agent);
 		current.set(new TransactionSemanticIndex(currentIndex, transactionIndex));
 	}
 	
@@ -72,9 +73,11 @@ public class SemanticIndexManager {
 		current.set(index);
 		// TODO: Efficient copy of transactionIndex into index.
 		// TODO: Aquire lock?
+		// TODO: Update revision before or after adding elements?
 		index.removeFile(currentFile.get());
 		for(SemanticIndexEntry entry : transactionIndex.getAllEntries())
 			index.add(entry);
+		index.getFile(currentFile.get()).setTimeRevision(new Date(), revisionProvider.getAndIncrement());
 	}
 	
 	private static Object getSyncRoot() {

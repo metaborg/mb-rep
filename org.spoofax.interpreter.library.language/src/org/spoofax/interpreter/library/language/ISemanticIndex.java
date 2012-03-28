@@ -1,7 +1,6 @@
 package org.spoofax.interpreter.library.language;
 
 import java.util.Collection;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -10,7 +9,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
 /**
- * @author Gabriël Konat
+ * @author Gabriel Konat
  */
 public interface ISemanticIndex {
 
@@ -20,8 +19,7 @@ public interface ISemanticIndex {
 	 * @param revisionProvider  An atomic revision number provider, should be shared between copies
 	 *                          of the same index.
 	 */
-	public abstract void initialize(ITermFactory factory, IOAgent agent,
-			AtomicLong revisionProvider);
+	public abstract void initialize(ITermFactory factory, IOAgent agent);
 
 	/**
 	 * Gets the entry factory used by this semantic index.
@@ -93,11 +91,11 @@ public interface ISemanticIndex {
 	public abstract Collection<SemanticIndexEntry> getEntriesInFile(SemanticIndexFileDescriptor fileDescriptor);
 
 	/**
-	 * Gets a semantic index file for given file term.
+	 * Gets a semantic index file for given file descriptor.
 	 * 
-	 * @param fileTerm	A string or (string, string) tuple with the filename or the filename and subfilename.
+	 * @param fileDescriptor	A file descriptor.
 	 */
-	public abstract SemanticIndexFile getFile(IStrategoTerm fileTerm);
+	public abstract SemanticIndexFile getFile(SemanticIndexFileDescriptor fileDescriptor);
 	
 	/**
 	 * Gets a semantic index file descriptor for given file term.

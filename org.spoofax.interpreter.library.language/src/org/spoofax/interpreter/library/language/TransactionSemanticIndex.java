@@ -3,7 +3,6 @@ package org.spoofax.interpreter.library.language;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -28,7 +27,7 @@ public class TransactionSemanticIndex implements ISemanticIndex {
 		return transactionIndex;
 	}
 	
-	public void initialize(ITermFactory factory, IOAgent agent, AtomicLong revisionProvider) {
+	public void initialize(ITermFactory factory, IOAgent agent) {
 		// TODO: Should not be called
 		assert false;
 	}
@@ -83,9 +82,9 @@ public class TransactionSemanticIndex implements ISemanticIndex {
 		return concat(entries1, entries2);
 	}
 	
-	public SemanticIndexFile getFile(IStrategoTerm fileTerm) {
+	public SemanticIndexFile getFile(SemanticIndexFileDescriptor fileDescriptor) {
 		// TODO: Does this get the right file?
-		return index.getFile(fileTerm);
+		return index.getFile(fileDescriptor);
 	}
 	
 	public SemanticIndexFileDescriptor getFileDescriptor(IStrategoTerm fileTerm) {

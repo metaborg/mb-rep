@@ -39,7 +39,7 @@ public class LANG_index_setup extends AbstractPrimitive {
 		SemanticIndexFileDescriptor file = SemanticIndexFileDescriptor.fromTerm(agent, fileTerm);
 		index.loadIndex(asJavaString(language), project.getURI(), env.getFactory(), agent);
 		index.setCurrentFile(file);
-		index.getCurrent().initialize(env.getFactory(), agent, index.getRevisionProvider());
+		index.getCurrent().initialize(env.getFactory(), agent);
 		return true;
 	}
 }

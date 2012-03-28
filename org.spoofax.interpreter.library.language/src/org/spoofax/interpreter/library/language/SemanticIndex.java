@@ -9,11 +9,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -46,15 +44,13 @@ public class SemanticIndex implements ISemanticIndex {
 			new TermFactory().makeConstructor("FileEntries", 2);
 	
 	private IOAgent agent;
-	private AtomicLong revisionProvider;
 	private ITermFactory termFactory;
 	private SemanticIndexEntryFactory factory;
 	
-	public void initialize(ITermFactory factory, IOAgent agent, AtomicLong revisionProvider) {
+	public void initialize(ITermFactory factory, IOAgent agent) {
 		this.agent = agent;
 		this.factory = new SemanticIndexEntryFactory(factory);
 		this.termFactory = factory;
-		this.revisionProvider = revisionProvider;
 	}
 
 	public void ensureInitialized() {
@@ -91,7 +87,6 @@ public class SemanticIndex implements ISemanticIndex {
 
 		// Add entry to files.
 		entriesPerFile.put(entry.getFileDescriptor(), entry);
-		getFile(entry.getFileDescriptor()).setTimeRevision(new Date(), revisionProvider.incrementAndGet());
 	}
 	
 	public void addAll(IStrategoList entries, SemanticIndexFileDescriptor fileDescriptor) {
@@ -173,15 +168,8 @@ public class SemanticIndex implements ISemanticIndex {
 			
 			// Remove entry from files.
 			SemanticIndexFileDescriptor fileDescriptor = entry.getFileDescriptor();
-			SemanticIndexFile file = getFile(fileDescriptor);
-			if (fileDescriptor != null) {
+			if (fileDescriptor != null)
 				entriesPerFile.remove(fileDescriptor, entry);
-				file.setTimeRevision(new Date(), revisionProvider.incrementAndGet());
-				
-				// Remove file if there are no entries left in it.
-				if(getEntriesInFile(fileDescriptor).isEmpty())
-					removeEmptyFile(fileDescriptor);
-			}
 		}
 	}
 	
@@ -201,16 +189,11 @@ public class SemanticIndex implements ISemanticIndex {
 		return getCollection(entries.values());
 	}
 	
-	public SemanticIndexFile getFile(IStrategoTerm fileTerm) {
-		return getFile(getFileDescriptor(fileTerm));
-	}
-	
-	private SemanticIndexFile getFile(SemanticIndexFileDescriptor fileDescriptor) {
+	public SemanticIndexFile getFile(SemanticIndexFileDescriptor fileDescriptor) {
 		SemanticIndexFile file = files.get(fileDescriptor);
 		if(file == null) {
 			file = new SemanticIndexFile(fileDescriptor, null);
 			files.put(fileDescriptor, file);
-			return file;
 		}
 		return file;
 	}
@@ -225,7 +208,6 @@ public class SemanticIndex implements ISemanticIndex {
 	
 	public void removeFile(SemanticIndexFileDescriptor fileDescriptor) {
 		clearFile(fileDescriptor);
-		removeEmptyFile(fileDescriptor);
 	}
 	
 	private void clearFile(SemanticIndexFileDescriptor fileDescriptor) {
@@ -238,12 +220,6 @@ public class SemanticIndex implements ISemanticIndex {
 		remove(Arrays.asList(copy));
 
 		assert getEntriesInFile(fileDescriptor).isEmpty();
-	}
-	
-	private void removeEmptyFile(SemanticIndexFileDescriptor fileDescriptor) {
-		assert entriesPerFile.get(fileDescriptor).isEmpty(); // Only allow removing a shared file if it has no entries.
-		
-		files.remove(fileDescriptor);
 	}
 	
 	public Collection<SemanticIndexFile> getAllFiles() {
@@ -290,7 +266,7 @@ public class SemanticIndex implements ISemanticIndex {
 		
 		if (isTermList(term)) {
 			SemanticIndex result = new SemanticIndex();
-			result.initialize(factory, agent, new AtomicLong());
+			result.initialize(factory, agent);
 			for (IStrategoList list = (IStrategoList) term; !list.isEmpty(); list = list.tail()) {
 				result.loadFileEntriesTerm(list.head());
 			}

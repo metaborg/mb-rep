@@ -36,6 +36,7 @@ public class SemanticIndexFile {
 	
 	public void setTimeRevision(Date time, long revision) {
 		this.time = time;
+		this.revision = revision;
 	}
  	
 	public IStrategoTerm toTerm(ITermFactory factory) {

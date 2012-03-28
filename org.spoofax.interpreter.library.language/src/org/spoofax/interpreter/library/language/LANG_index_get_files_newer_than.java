@@ -29,7 +29,7 @@ public class LANG_index_get_files_newer_than extends AbstractPrimitive {
 	@Override
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
 		ISemanticIndex ind = index.getCurrent();
-		SemanticIndexFile file = ind.getFile(tvars[0]);
+		SemanticIndexFile file = ind.getFile(ind.getFileDescriptor(tvars[0]));
 		if (file == null || file.getTime() == null) {
 			env.setCurrent(LANG_index_get_all_files.getAllFiles(
 					index.getCurrent(), env.getFactory()));
