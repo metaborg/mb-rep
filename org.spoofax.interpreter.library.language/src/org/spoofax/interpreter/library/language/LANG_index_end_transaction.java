@@ -13,7 +13,7 @@ public class LANG_index_end_transaction extends AbstractPrimitive {
 	private final SemanticIndexManager index;
 	
 	public LANG_index_end_transaction(SemanticIndexManager index) {
-		super(NAME, 0, 2);
+		super(NAME, 0, 0);
 		this.index = index;
 	}
 	
