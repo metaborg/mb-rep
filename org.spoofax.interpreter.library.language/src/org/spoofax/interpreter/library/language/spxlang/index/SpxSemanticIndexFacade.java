@@ -169,9 +169,6 @@ public class SpxSemanticIndexFacade {
 		if ( term != null){
 			retTerm = forceImploderAttachment(term, resUri);
 		}
-		
-		logMessage("SpxSemanticIndexFacade.getCompilationUnit :  Returning Following APPL for uri " + resUri +  " : "+ retTerm);
-		
 		return retTerm;
 	}
 	
@@ -251,6 +248,8 @@ public class SpxSemanticIndexFacade {
 			IStrategoAppl ast, 
 			IStrategoAppl analyzedAst) throws IOException {
 
+		System.out.println( "Creating a new Module Declaration .  " + moduleQName);
+		
 		SpxModuleLookupTable table = this.getPersistenceManager().spxModuleTable();
 
 		IStrategoList moduleId = ModuleDeclaration.getModuleId( this, moduleQName);
@@ -300,6 +299,8 @@ public class SpxSemanticIndexFacade {
 	 */
 	public void indexPackageDeclaration(IStrategoAppl packageIdAppl, IStrategoString spxCompilationUnitPath){
 		
+		 
+		
 		SpxPackageLookupTable table = this.getPersistenceManager().spxPackageTable();
 		SpxCompilationUnitTable spxTable = this.getPersistenceManager().spxCompilcationUnitTable();
 		
@@ -317,11 +318,14 @@ public class SpxSemanticIndexFacade {
 		
 		
 		if(table.containsPackage(packageId)){
+			System.out.println( "Updating Package Declaration .  " + packageId);
 			// Package is already there in the index. Hence,just adding the Uri where 
 			// this package declaration is found.
 			table.addPackageDeclarationLocation(packageId,absFilePath);
  			
 		}else{	
+			System.out.println( "adding Package Declaration .  " + packageId);
+			
 			// Defining PackageDeclaration in the Index
 			PackageDeclaration pDecl = new PackageDeclaration(absFilePath,packageId);
 			table.definePackageDeclaration(pDecl);
@@ -630,7 +634,10 @@ public class SpxSemanticIndexFacade {
 	private void defineNamespace(INamespaceFactory nsFactory) {
 		SpxPrimarySymbolTable symTable =  this.getPersistenceManager().spxSymbolTable();
 		
-		for( INamespace ns : nsFactory.newNamespaces(this) ) {  symTable.defineNamespace(ns) ; }
+		for( INamespace ns : nsFactory.newNamespaces(this) ) {  
+			System.out.println( "Trying to ADD following Namesapce " + ns.namespaceUri().id());
+			symTable.defineNamespace(ns) ; 
+		}
 	}
 	
 

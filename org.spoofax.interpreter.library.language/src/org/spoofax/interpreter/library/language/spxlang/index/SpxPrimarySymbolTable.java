@@ -313,9 +313,11 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 			
 			if(nsToRemove instanceof PackageNamespace){
 				NamespaceUri internalNamespaceUri = PackageNamespace.packageInternalNamespace(nsToRemove.namespaceUri(), _facade);
-				this.namespaces.remove(internalNamespaceUri.id());	
+				this.namespaces.remove(internalNamespaceUri.id());
+				this.ensureActiveNamespaceUnloaded(internalNamespaceUri.id());
 			}
 			this.namespaces.remove(nsToRemove.namespaceUri().id());
+			this.ensureActiveNamespaceUnloaded(nsToRemove.namespaceUri().id());
 		}
 		return nsToRemove;
 	}
@@ -377,9 +379,4 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 	void setLastCodeGeneratedOn(long timestamp){ 
 		timestamps.put(LAST_CODEGEN_ON_KEY, timestamp);
 	}
-	
-//	
-//	String prefixWithUniqueNumber(stri){
-//		if(timestamps.get(LAST_CODEGEN_ON_KEY);)
-//	}
 }
