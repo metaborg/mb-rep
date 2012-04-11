@@ -117,8 +117,8 @@ public class TransactionSemanticIndex implements ISemanticIndex {
 	}
 
 	public void clear() {
+		// TODO: Should not be called
 		transactionIndex.clear();
-		index.clear();
 	}
 
 	public IStrategoTerm toTerm(boolean includePositions) {

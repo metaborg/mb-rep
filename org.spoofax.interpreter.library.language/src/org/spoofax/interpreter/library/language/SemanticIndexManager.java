@@ -72,7 +72,7 @@ public class SemanticIndexManager {
 		ISemanticIndex transactionIndex = currentIndex.getTransactionIndex();
 		current.set(index);
 		// TODO: Efficient copy of transactionIndex into index.
-		// TODO: Aquire lock?
+		// TODO: Acquire lock?
 		// TODO: Update revision before or after adding elements?
 		index.removeFile(currentFile.get());
 		for(SemanticIndexEntry entry : transactionIndex.getAllEntries())
