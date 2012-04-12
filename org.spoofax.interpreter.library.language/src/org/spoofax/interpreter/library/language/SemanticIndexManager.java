@@ -32,6 +32,8 @@ public class SemanticIndexManager {
 	
 	private ThreadLocal<SemanticIndexFileDescriptor> currentFile = new ThreadLocal<SemanticIndexFileDescriptor>();
 	
+	private ThreadLocal<Long> currentRevision = new ThreadLocal<Long>();
+	
 	/**
 	 * Indices by language and project. Access requires a lock on {@link #getSyncRoot}
 	 */
@@ -56,14 +58,18 @@ public class SemanticIndexManager {
 		this.currentFile.set(currentFile);
 	}
 	
-	public void startTransaction(ITermFactory factory, IOAgent agent) {
+	public long startTransaction(ITermFactory factory, IOAgent agent) {
+		currentRevision.set(revisionProvider.getAndIncrement());
 		ISemanticIndex currentIndex = current.get();
+		currentIndex.getFile(currentFile.get()).setTimeRevision(new Date(), currentRevision.get().longValue());
 		
 		assert currentIndex instanceof SemanticIndex; // Prevent multiple transactions.
 		
 		ISemanticIndex transactionIndex = new SemanticIndex();
 		transactionIndex.initialize(factory, agent);
 		current.set(new TransactionSemanticIndex(currentIndex, transactionIndex));
+		
+		return currentRevision.get().longValue();
 	}
 	
 	public void endTransaction() {
@@ -73,11 +79,9 @@ public class SemanticIndexManager {
 		current.set(index);
 		// TODO: Efficient copy of transactionIndex into index.
 		// TODO: Acquire lock?
-		// TODO: Update revision before or after adding elements?
 		index.removeFile(currentFile.get());
 		for(SemanticIndexEntry entry : transactionIndex.getAllEntries())
 			index.add(entry);
-		index.getFile(currentFile.get()).setTimeRevision(new Date(), revisionProvider.getAndIncrement());
 	}
 	
 	private static Object getSyncRoot() {

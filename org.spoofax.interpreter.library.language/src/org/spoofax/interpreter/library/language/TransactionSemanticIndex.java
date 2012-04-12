@@ -118,6 +118,7 @@ public class TransactionSemanticIndex implements ISemanticIndex {
 
 	public void clear() {
 		// TODO: Should not be called
+		assert false;
 		transactionIndex.clear();
 	}
 

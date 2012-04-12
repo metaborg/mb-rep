@@ -23,8 +23,8 @@ public class LANG_index_start_transaction extends AbstractPrimitive {
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars)
 			throws InterpreterException {
 		IOAgent agent = SSLLibrary.instance(env).getIOAgent();
-		index.startTransaction(env.getFactory(), agent);
+		long newRev = index.startTransaction(env.getFactory(), agent);
+		env.setCurrent(env.getFactory().makeInt((int)newRev));
 		return true;
 	}
-
 }
