@@ -3,6 +3,7 @@ package org.spoofax.interpreter.library.language;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
 
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -13,10 +14,14 @@ import org.spoofax.interpreter.terms.ITermFactory;
 public class TransactionSemanticIndex implements ISemanticIndex {
 	private ISemanticIndex index;
 	private ISemanticIndex transactionIndex;
+	private SemanticIndexFileDescriptor currentFile;
+	private boolean clearedCurrentFile = false;
 	
-	public TransactionSemanticIndex(ISemanticIndex index, ISemanticIndex transactionIndex) {
+	public TransactionSemanticIndex(ISemanticIndex index, ISemanticIndex transactionIndex, 
+			SemanticIndexFileDescriptor currentFile) {
 		this.index = index;
 		this.transactionIndex = transactionIndex;
+		this.currentFile = currentFile;
 	}
 	
 	public ISemanticIndex getIndex() {
@@ -25,6 +30,10 @@ public class TransactionSemanticIndex implements ISemanticIndex {
 	
 	public ISemanticIndex getTransactionIndex() {
 		return transactionIndex;
+	}
+	
+	public boolean hasClearedCurrentFile() {
+		return clearedCurrentFile;
 	}
 	
 	public void initialize(ITermFactory factory, IOAgent agent) {
@@ -58,66 +67,107 @@ public class TransactionSemanticIndex implements ISemanticIndex {
 
 	public Collection<SemanticIndexEntry> getEntries(IStrategoAppl template) {
 		Collection<SemanticIndexEntry> entries1 = transactionIndex.getEntries(template);
-		Collection<SemanticIndexEntry> entries2 = index.getEntries(template);
-		return concat(entries1, entries2);
+		getReadLock().lock();
+		try {
+			Collection<SemanticIndexEntry> entries2 = index.getEntries(template);
+			return concat(entries1, entries2);
+		} finally {
+			getReadLock().unlock();
+		}
 	}
 	
 	public Collection<SemanticIndexEntry> getAllEntries() {
 		Collection<SemanticIndexEntry> entries1 = transactionIndex.getAllEntries();
-		Collection<SemanticIndexEntry> entries2 = index.getAllEntries();
-		return concat(entries1, entries2);
+		getReadLock().lock();
+		try {
+			Collection<SemanticIndexEntry> entries2 = index.getAllEntries();
+			return concat(entries1, entries2);
+		} finally {
+			getReadLock().unlock();
+		}
 	}
 
 	public Collection<SemanticIndexEntry> getEntryChildTerms(
 			IStrategoAppl template) {
 		Collection<SemanticIndexEntry> entries1 = transactionIndex.getEntryChildTerms(template);
-		Collection<SemanticIndexEntry> entries2 = index.getEntryChildTerms(template);
-		return concat(entries1, entries2);
+		getReadLock().lock();
+		try {
+			Collection<SemanticIndexEntry> entries2 = index.getEntryChildTerms(template);
+			return concat(entries1, entries2);
+		} finally {
+			getReadLock().unlock();
+		}
 	}
 
 	public Collection<SemanticIndexEntry> getEntriesInFile(
 			SemanticIndexFileDescriptor fileDescriptor) {
 		Collection<SemanticIndexEntry> entries1 = transactionIndex.getEntriesInFile(fileDescriptor);
-		Collection<SemanticIndexEntry> entries2 = index.getEntriesInFile(fileDescriptor);
-		return concat(entries1, entries2);
+		getReadLock().lock();
+		try {
+			Collection<SemanticIndexEntry> entries2 = index.getEntriesInFile(fileDescriptor);
+			return concat(entries1, entries2);
+		} finally {
+			getReadLock().unlock();
+		}
 	}
 	
 	public SemanticIndexFile getFile(SemanticIndexFileDescriptor fileDescriptor) {
 		// TODO: Does this get the right file?
-		return index.getFile(fileDescriptor);
+		getReadLock().lock();
+		try {
+			return index.getFile(fileDescriptor);
+		} finally {
+			getReadLock().unlock();
+		}
 	}
 	
 	public SemanticIndexFileDescriptor getFileDescriptor(IStrategoTerm fileTerm) {
 		// TODO: Does this get the right file descriptor?
-		return index.getFileDescriptor(fileTerm);
+		getReadLock().lock();
+		try {
+			return index.getFileDescriptor(fileTerm);
+		} finally {
+			getReadLock().unlock();
+		}
 	}
 
 	public void removeFile(IStrategoTerm fileTerm) {
-		// TODO: Does this remove the right file? Should it be called anyway?
-		transactionIndex.removeFile(fileTerm);
+		removeFile(transactionIndex.getFileDescriptor(fileTerm));
 	}
 	
 	public void removeFile(SemanticIndexFileDescriptor fileDescriptor) {
-		// TODO: Does this remove the right file? Should it be called anyway?
+		assert fileDescriptor.equals(currentFile);
+		
+		clearedCurrentFile = true;
 		transactionIndex.removeFile(fileDescriptor);
 	}
 
 	public Collection<SemanticIndexFile> getAllFiles() {
 		// TODO: No duplicates?
 		Collection<SemanticIndexFile> files1 = transactionIndex.getAllFiles();
-		Collection<SemanticIndexFile> files2 = index.getAllFiles();
-		return concat(files1, files2);
+		getReadLock().lock();
+		try {
+			Collection<SemanticIndexFile> files2 = index.getAllFiles();
+			return concat(files1, files2);
+		} finally {
+			getReadLock().unlock();
+		}
 	}
 	
 	public Collection<SemanticIndexFileDescriptor> getAllFileDescriptors() {
 		// TODO: No duplicates?
 		Collection<SemanticIndexFileDescriptor> files1 = transactionIndex.getAllFileDescriptors();
-		Collection<SemanticIndexFileDescriptor> files2 = index.getAllFileDescriptors();
-		return concat(files1, files2);
+		getReadLock().lock();
+		try {
+			Collection<SemanticIndexFileDescriptor> files2 = index.getAllFileDescriptors();
+			return concat(files1, files2);
+		} finally {
+			getReadLock().unlock();
+		}
 	}
 
 	public void clear() {
-		// TODO: Should not be called
+		// Should not be called.
 		assert false;
 		transactionIndex.clear();
 	}
@@ -134,5 +184,9 @@ public class TransactionSemanticIndex implements ISemanticIndex {
 		l.addAll(c2);
 		
 		return l;
+	}
+	
+	private Lock getReadLock() {
+		return SemanticIndexManager.getTransactionLock().readLock();
 	}
 }

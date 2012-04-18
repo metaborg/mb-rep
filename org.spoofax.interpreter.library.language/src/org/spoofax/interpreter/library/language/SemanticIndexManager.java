@@ -11,6 +11,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -23,6 +25,8 @@ import org.spoofax.terms.io.binary.TermReader;
 public class SemanticIndexManager {
 	
 	private final static AtomicLong revisionProvider = new AtomicLong();
+	
+	private final static ReadWriteLock transactionLock = new ReentrantReadWriteLock();
 
 	private ThreadLocal<ISemanticIndex> current = new ThreadLocal<ISemanticIndex>();
 	
@@ -32,13 +36,15 @@ public class SemanticIndexManager {
 	
 	private ThreadLocal<SemanticIndexFileDescriptor> currentFile = new ThreadLocal<SemanticIndexFileDescriptor>();
 	
-	private ThreadLocal<Long> currentRevision = new ThreadLocal<Long>();
-	
 	/**
 	 * Indices by language and project. Access requires a lock on {@link #getSyncRoot}
 	 */
 	private static Map<String, Map<URI, WeakReference<ISemanticIndex>>> asyncIndexCache =
 		new HashMap<String, Map<URI, WeakReference<ISemanticIndex>>>();
+	
+	public static ReadWriteLock getTransactionLock() {
+		return transactionLock;
+	}
 	
 	public ISemanticIndex getCurrent() {
 		if (!isInitialized())
@@ -59,17 +65,19 @@ public class SemanticIndexManager {
 	}
 	
 	public long startTransaction(ITermFactory factory, IOAgent agent) {
-		currentRevision.set(revisionProvider.getAndIncrement());
+		// TODO: Does this operation need a transaction write lock?
+		
+		long rev = revisionProvider.getAndIncrement();
 		ISemanticIndex currentIndex = current.get();
-		currentIndex.getFile(currentFile.get()).setTimeRevision(new Date(), currentRevision.get().longValue());
+		currentIndex.getFile(currentFile.get()).setTimeRevision(new Date(), rev);
 		
 		assert currentIndex instanceof SemanticIndex; // Prevent multiple transactions.
 		
 		ISemanticIndex transactionIndex = new SemanticIndex();
 		transactionIndex.initialize(factory, agent);
-		current.set(new TransactionSemanticIndex(currentIndex, transactionIndex));
+		current.set(new TransactionSemanticIndex(currentIndex, transactionIndex, currentFile.get()));
 		
-		return currentRevision.get().longValue();
+		return rev;
 	}
 	
 	public void endTransaction() {
@@ -77,11 +85,18 @@ public class SemanticIndexManager {
 		ISemanticIndex index = currentIndex.getIndex();
 		ISemanticIndex transactionIndex = currentIndex.getTransactionIndex();
 		current.set(index);
-		// TODO: Efficient copy of transactionIndex into index.
-		// TODO: Acquire lock?
-		index.removeFile(currentFile.get());
-		for(SemanticIndexEntry entry : transactionIndex.getAllEntries())
-			index.add(entry);
+		
+		transactionLock.writeLock().lock();
+		try {
+			// TODO: Efficient copy of transactionIndex into index.
+			if(currentIndex.hasClearedCurrentFile())
+				index.removeFile(currentFile.get());
+			
+			for(SemanticIndexEntry entry : transactionIndex.getAllEntries())
+				index.add(entry);
+		} finally {
+			transactionLock.writeLock().unlock();
+		}
 	}
 	
 	private static Object getSyncRoot() {
