@@ -16,6 +16,10 @@ public class SemanticIndexFileDescriptor {
 	
 	private final String subfile;
 	
+	private transient IStrategoTerm cachedTerm;
+	
+	private transient String cachedString;
+	
 	public URI getURI() {
 		return uri;
 	}
@@ -30,9 +34,14 @@ public class SemanticIndexFileDescriptor {
 	}
 	
 	public IStrategoTerm toTerm(ITermFactory factory) {
+		if (cachedTerm != null)
+			return cachedTerm;
+		
 		IStrategoString uriString = factory.makeString(toString());
 		IStrategoString descriptorName = factory.makeString(subfile == null ? "" : subfile);
-		return factory.makeTuple(uriString, descriptorName);
+		cachedTerm = factory.makeTuple(uriString, descriptorName);
+		
+		return cachedTerm;
 	}
 	
 	/**
@@ -62,7 +71,13 @@ public class SemanticIndexFileDescriptor {
 	
 	@Override
 	public String toString() {
-		return "file".equals(uri.getScheme()) ? new File(uri).getAbsolutePath().replace("\\", "/") : uri.toString();
+		if(cachedString != null)
+			return cachedString;
+		
+		cachedString = "file".equals(uri.getScheme()) ? 
+				new File(uri).getAbsolutePath().replace("\\", "/") : uri.toString();
+				
+		return cachedString;
 	}
 	
 	@Override
