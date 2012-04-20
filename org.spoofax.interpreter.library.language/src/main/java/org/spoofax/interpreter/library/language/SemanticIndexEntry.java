@@ -19,7 +19,7 @@ public class SemanticIndexEntry {
 	
 	private SemanticIndexFileDescriptor fileDescriptor;
 	
-	private transient IStrategoAppl cachedTerm;
+	private transient IStrategoAppl term;
 
 	protected SemanticIndexEntry(IStrategoTerm contents, SemanticIndexURI uri, 
 			SemanticIndexFileDescriptor fileDescriptor) {
@@ -46,12 +46,12 @@ public class SemanticIndexEntry {
 	 * Returns a term representation of this entry.
 	 */
 	public IStrategoAppl toTerm(ITermFactory factory) {
-		if (cachedTerm != null)
-			return cachedTerm;
+		if (term != null)
+			return term;
 		
-		cachedTerm = uri.toTerm(factory, contents);
+		term = uri.toTerm(factory, contents);
 		
-		return forceImploderAttachment(cachedTerm);
+		return forceImploderAttachment(term);
 	}
 	
 	/**
@@ -69,7 +69,7 @@ public class SemanticIndexEntry {
 	 * Force an imploder attachment for a term.
 	 * This ensures that there is always some form of position info,
 	 * and makes sure that origin info is not added to the term.
-	 * (The latter would be bad since we cache in {@link #cachedTerm}.)
+	 * (The latter would be bad since we cache in {@link #term}.)
 	 */
 	private IStrategoAppl forceImploderAttachment(IStrategoAppl term) {
 		ImploderAttachment attach = ImploderAttachment.get(uri.getId());
@@ -98,7 +98,7 @@ public class SemanticIndexEntry {
 				+ ((contents == null) ? 0 : contents.hashCode());
 		result = prime * result
 				+ ((fileDescriptor == null) ? 0 : fileDescriptor.hashCode());
-		result = prime * result + ((cachedTerm == null) ? 0 : cachedTerm.hashCode());
+		result = prime * result + ((term == null) ? 0 : term.hashCode());
 		result = prime * result + ((uri == null) ? 0 : uri.hashCode());
 		return result;
 	}
@@ -122,10 +122,10 @@ public class SemanticIndexEntry {
 				return false;
 		} else if (!fileDescriptor.equals(other.fileDescriptor))
 			return false;
-		if (cachedTerm == null) {
-			if (other.cachedTerm != null)
+		if (term == null) {
+			if (other.term != null)
 				return false;
-		} else if (!cachedTerm.equals(other.cachedTerm))
+		} else if (!term.equals(other.term))
 			return false;
 		if (uri == null) {
 			if (other.uri != null)

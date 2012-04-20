@@ -37,7 +37,7 @@ public class TransactionSemanticIndex implements ISemanticIndex {
 	}
 	
 	public void initialize(ITermFactory factory, IOAgent agent) {
-		// Should not be called
+		// TODO: Should not be called
 		assert false;
 	}
 
@@ -112,8 +112,8 @@ public class TransactionSemanticIndex implements ISemanticIndex {
 	}
 	
 	public SemanticIndexFile getFile(SemanticIndexFileDescriptor fileDescriptor) {
-		// Need a write lock here because getFile can add a new file.
-		getWriteLock().lock();
+		// TODO: Does this get the right file?
+		getReadLock().lock();
 		try {
 			return index.getFile(fileDescriptor);
 		} finally {
@@ -122,7 +122,13 @@ public class TransactionSemanticIndex implements ISemanticIndex {
 	}
 	
 	public SemanticIndexFileDescriptor getFileDescriptor(IStrategoTerm fileTerm) {
-		return index.getFileDescriptor(fileTerm);
+		// TODO: Does this get the right file descriptor?
+		getReadLock().lock();
+		try {
+			return index.getFileDescriptor(fileTerm);
+		} finally {
+			getReadLock().unlock();
+		}
 	}
 
 	public void removeFile(IStrategoTerm fileTerm) {
@@ -163,15 +169,16 @@ public class TransactionSemanticIndex implements ISemanticIndex {
 	public void clear() {
 		// Should not be called.
 		assert false;
+		transactionIndex.clear();
 	}
 
 	public IStrategoTerm toTerm(boolean includePositions) {
-		// TODO: Transaction data not stored, this is ok?
+		// TODO: Transaction data not stored?
 		return index.toTerm(includePositions);
 	}
 	
 	private <T> Collection<T> concat(Collection<T> c1, Collection<T> c2) {
-		// Need to copy here, collections could be changed from other threads.
+		// TODO: Make something like CompositeCollection so nothing has to be copied?
 		List<T> l = new ArrayList<T>(c1.size() + c2.size());
 		l.addAll(c1);
 		l.addAll(c2);
@@ -181,9 +188,5 @@ public class TransactionSemanticIndex implements ISemanticIndex {
 	
 	private Lock getReadLock() {
 		return SemanticIndexManager.getTransactionLock().readLock();
-	}
-	
-	private Lock getWriteLock() {
-		return SemanticIndexManager.getTransactionLock().writeLock();
 	}
 }
