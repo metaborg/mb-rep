@@ -71,19 +71,13 @@ rules // analysis traversals
   
   /**
    * Analyses given AST and annotates definition and use sites found in the AST with URIs.
-   * Defaults to Editor() phase and tries to automatically determine language name.
+   * Defaults to Editor() phase.
+   *
+   * @param language  The name of the language that is being analysed.
    *
    * @see analyze-top(|phase, language)
    */
-  analyze-top = analyze-top(|Editor())
-  
-  /**
-   * Analyses given AST and annotates definition and use sites found in the AST with URIs.
-   * Tries to automatically determine language name.
-   *
-   * @see analyze-top(|phase, language)
-   */
-  analyze-top(|phase) = ?(ast, _, _); analyze-top(|phase, <index-origin-language> ast)
+  analyze-top(|language) = analyze-top(|Editor(), language)
    
   /**
    * Analyses given AST and annotates definition and use sites found in the AST with URIs.
@@ -99,26 +93,40 @@ rules // analysis traversals
     (ast, path, project-path) -> (ast', filesToAnalyze)
     with
       Results(ast', _, _, _, _, _, filesToAnalyze) := <analyze-top-internal(|phase, language)> (ast, path, project-path)
+      
+  analyze-top-multiple(|path, project-path, phase, language):
+    asts -> (ast', filesToAnalyze)
+    with
+      full-path := $[[project-path]/[path]];
+      results := <map(analyze-top-subfile(|path, project-path, full-path, phase, language))> asts;
+      (ast', filesToAnalyzes) := <unzip> results;
+      filesToAnalyze := <concat> filesToAnalyzes
+  
+  analyze-top-subfile(|path, project-path, full-path, phase, language):
+    (ast, subfile) -> (ast', filesToAnalyze)
+    with
+      Results(ast', _, _, _, _, _, filesToAnalyze) := 
+        <analyze-top-internal(|phase, language, project-path, full-path, <uri-to-string> subfile)> ast
   
   /**
    * Analyses given AST and annotates definition and use sites found in the AST with URIs.
    *
    * @internal
    */
-  analyze-top-internal = 
+  analyze-top-internal(|language) = 
     analyze-top-internal(|Editor())
-  analyze-top-internal(|phase) = 
-    ?(ast, path, project-path); analyze-top-internal(|phase, <index-origin-language> ast)
   analyze-top-internal(|phase, language) = 
-    ?(_, path, project-path); analyze-top-internal(|phase, language, $[[project-path]/[path]])
-  analyze-top-internal(|phase, language, full-path):
-    (ast, path, project-path) -> Results(ast5, defs, uses, data', added, removed, filesToAnalyze)
+    ?(ast, path, project-path); analyze-top-internal(|phase, language, project-path, $[[project-path]/[path]]); !ast
+  analyze-top-internal(|phase, language, project-path, full-path) = 
+    analyze-top-internal(|phase, language, project-path, full-path, "")
+  analyze-top-internal(|phase, language, project-path, full-path, subfile):
+    ast -> Results(ast5, defs, uses, data', added, removed, filesToAnalyze)
     with
       // Init
-      index-setup(|language, [project-path], full-path);
+      file := (full-path, subfile);
+      index-setup(|language, [project-path], file);
       revision := <index-start-transaction>
     with
-      file := (full-path, ""); // TODO: Get subfile or add subfile param.
       oldElems := <filter(index-diff-constructors)> <index-get-all-in-file> file;
       <index-clear-file> file
     with
@@ -148,7 +156,7 @@ rules // analysis traversals
         ast5 := <prim("SSL_EXT_clone_and_set_parents", <id>)> ast4;
        
         // Store reads into the index (if current language is not testing language)
-        if not(<is-test-input(|language)> (ast, path)) then
+        if not(<is-test-input(|language)> (ast, full-path)) then
           <index-add-all(|file)> <iset-elements> readSet
         end
       |}
@@ -157,7 +165,7 @@ rules // analysis traversals
     with
       // Schedule re-analysis of dependent files (if current file is not testing language file)
       // HACK: Depends on file extension, could be other languages with .spt extension?
-      if Editor() := phase; not(<is-test-file> path) then
+      if Editor() := phase; not(<is-test-file> full-path) then
         newElems := <conc> (defs, <filter(index-diff-constructors)> data');
         
 	      // Find added and removed definitions
@@ -354,10 +362,6 @@ rules // diffs
     with
       added   := <diff(index-diff-compare)> (defs2, defs1);
       removed := <diff(index-diff-compare)> (defs1, defs2)
-  
-  /** @internal */  
-  analyze-changed-filter-file(|file) = 
-    ?files@(<id>, _); (is-test-file <+ index-is-fake-file <+ ?file); !files
     
   /** @internal */
   analyze-store-diff(|changedEntries, file, ast, revision): 
@@ -367,7 +371,7 @@ rules // diffs
       dependentFiles  := <index-get-dependent-files> changedEntries;
       
       // Files to analyze
-      analyzeFiles := <make-set> <remove-all(analyze-changed-filter-file(|<Fst> file))> dependentFiles;
+      analyzeFiles := <make-set> <remove-all(fake-file)> dependentFiles;
       analyzeFiles' := analyzeFiles;
       // TODO: Is this extra check needed?
       /*if <getfirst(index-get-file-revision; \r -> (r, revision)\; gt)> analyzeFiles then
@@ -852,9 +856,7 @@ rules // URI and value projections
        
 /** @internal */
 rules // Internal helpers
-       
-  index-origin-language = (origin-term <+ id); prim("SSL_EXT_origin_language", <id>)
-       
+
   /**
    * Transforms a term C( (a1, [b1]), (a2, [b2, b3]) )
    * to a tuple (C(a1, a2), [b1, b2, b3]).
@@ -872,6 +874,8 @@ rules // Internal helpers
     where
       <is-test-file> path;
       not(!language => "Spoofax-Testing")
+      
+  fake-file = is-test-file <+ index-is-fake-file
       
   index-filepair-to-file = Fst; string-replace(|$[[<project-path>]/], "")
        

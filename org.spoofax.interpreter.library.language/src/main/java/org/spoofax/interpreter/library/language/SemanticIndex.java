@@ -5,6 +5,7 @@ import static org.spoofax.terms.Term.termAt;
 import static org.spoofax.terms.Term.tryGetConstructor;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -35,10 +36,12 @@ public class SemanticIndex implements ISemanticIndex {
 			ArrayListMultimap.create();
 	private final Multimap<SemanticIndexURI, SemanticIndexEntry> childs = 
 			ArrayListMultimap.create();
-	private final Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry> entriesPerFile = 
+	private final Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry> entriesPerFileDescriptor = 
 			ArrayListMultimap.create();
 	private final Map<SemanticIndexFileDescriptor, SemanticIndexFile> files =
 			new HashMap<SemanticIndexFileDescriptor, SemanticIndexFile>();
+	private final Multimap<URI, SemanticIndexFileDescriptor> fileDescriptorsPerURI = 
+			ArrayListMultimap.create();
 	
 	private static final IStrategoConstructor FILE_ENTRIES_CON =
 			new TermFactory().makeConstructor("FileEntries", 2);
@@ -86,7 +89,7 @@ public class SemanticIndex implements ISemanticIndex {
 			childs.put(entry.getURI().getParent(), entry);
 
 		// Add entry to files.
-		entriesPerFile.put(entry.getFileDescriptor(), entry);
+		entriesPerFileDescriptor.put(entry.getFileDescriptor(), entry);
 	}
 	
 	public void addAll(IStrategoList entries, SemanticIndexFileDescriptor fileDescriptor) {
@@ -169,7 +172,9 @@ public class SemanticIndex implements ISemanticIndex {
 			// Remove entry from files.
 			SemanticIndexFileDescriptor fileDescriptor = entry.getFileDescriptor();
 			if (fileDescriptor != null)
-				entriesPerFile.remove(fileDescriptor, entry);
+			{
+				entriesPerFileDescriptor.remove(fileDescriptor, entry);
+			}
 		}
 	}
 	
@@ -182,7 +187,7 @@ public class SemanticIndex implements ISemanticIndex {
 	}
 	
 	public Collection<SemanticIndexEntry> getEntriesInFile(SemanticIndexFileDescriptor fileDescriptor) {
-		return getCollection(entriesPerFile.get(fileDescriptor));
+		return getCollection(entriesPerFileDescriptor.get(fileDescriptor));
 	}
 	
 	public Collection<SemanticIndexEntry> getAllEntries() {
@@ -194,6 +199,8 @@ public class SemanticIndex implements ISemanticIndex {
 		if(file == null) {
 			file = new SemanticIndexFile(fileDescriptor, null);
 			files.put(fileDescriptor, file);
+			if(fileDescriptor.getSubfile() != null)
+				fileDescriptorsPerURI.put(fileDescriptor.getURI(), fileDescriptor);
 		}
 		return file;
 	}
@@ -207,7 +214,17 @@ public class SemanticIndex implements ISemanticIndex {
 	}
 	
 	public void removeFile(SemanticIndexFileDescriptor fileDescriptor) {
-		clearFile(fileDescriptor);
+		if(fileDescriptor.getSubfile() == null && fileDescriptorsPerURI.containsKey(fileDescriptor.getURI()))
+		{
+			// Make an array copy because clearFile removes from fileDescriptorsPerURI.
+			SemanticIndexFileDescriptor[] childDescriptors = 
+					fileDescriptorsPerURI.get(fileDescriptor.getURI()).toArray(new SemanticIndexFileDescriptor[0]);
+			
+			for(SemanticIndexFileDescriptor fd : childDescriptors)
+				clearFile(fd);
+		}
+		else 
+			clearFile(fileDescriptor);
 	}
 	
 	private void clearFile(SemanticIndexFileDescriptor fileDescriptor) {
@@ -220,6 +237,8 @@ public class SemanticIndex implements ISemanticIndex {
 		remove(Arrays.asList(copy));
 
 		assert getEntriesInFile(fileDescriptor).isEmpty();
+		
+		fileDescriptorsPerURI.remove(fileDescriptor.getURI(), fileDescriptor);
 	}
 	
 	public Collection<SemanticIndexFile> getAllFiles() {
@@ -233,14 +252,15 @@ public class SemanticIndex implements ISemanticIndex {
 	public void clear() {
 		entries.clear();
 		childs.clear();
+		entriesPerFileDescriptor.clear();
 		files.clear();
-		entriesPerFile.clear();
+		fileDescriptorsPerURI.clear();
 	}
 	
 	public IStrategoTerm toTerm(boolean includePositions) {
 		IStrategoList results = termFactory.makeList();
 		for(SemanticIndexFileDescriptor fileDescriptor : files.keySet()) {
-			IStrategoList fileResults = SemanticIndexEntry.toTerms(termFactory, entriesPerFile.get(fileDescriptor));
+			IStrategoList fileResults = SemanticIndexEntry.toTerms(termFactory, entriesPerFileDescriptor.get(fileDescriptor));
 			// TODO: include time stamp for file
 			IStrategoTerm result = termFactory.makeAppl(FILE_ENTRIES_CON, fileDescriptor.toTerm(termFactory), fileResults);
 			results = termFactory.makeListCons(result, results);

@@ -48,23 +48,24 @@ rules // Compilation
 
   /** @internal */
   index-compilation-file(|language, project-path):
-    (file, subfile) -> None()
+    (path, subfile) -> None()
     with
       // Parse and analyze ast.
-      ast                              := <parse-file> file;
+      full-path                        := $[[project-path]/[path]];
+      ast                              := <parse-file> path;
       ast'                             := <try(index-desugar-ast)> ast;
-      Results(ast'', _, _, _, _, _, _) := <analyze-top-internal(|Compile(), language, file)> (ast', file, project-path)
+      Results(ast'', _, _, _, _, _, _) := <analyze-top-internal(|Compile(), language, project-path, full-path, subfile)> ast'
     with
       {| Index-ReadSet:
         readSet := <new-iset>;
         rules(Index-ReadSet: _ -> readSet);
         
         // Compile file
-        <index-compile-ast(|file, subfile, project-path)> ast';
+        <index-compile-ast(|path, subfile, project-path)> ast';
         
         // Store compile-time reads.
         reads := <iset-elements> readSet;
-        <index-add-all(|<index-compilation-file-tuple> (file, subfile))> reads
+        <index-add-all(|<index-compilation-file-tuple> (path, subfile))> reads
       |}
 
   /** @internal */

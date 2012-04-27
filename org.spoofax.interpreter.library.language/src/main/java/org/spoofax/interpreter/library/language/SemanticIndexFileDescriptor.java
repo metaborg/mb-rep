@@ -55,18 +55,18 @@ public class SemanticIndexFileDescriptor {
 	 */
 	public static SemanticIndexFileDescriptor fromTerm(IOAgent agent, IStrategoTerm term) {
 		String name;
-		String descriptor;
+		String subfile;
 		if (isTermTuple(term)) {
 			name = asJavaString(term.getSubterm(0));
-			descriptor = asJavaString(term.getSubterm(1));
+			subfile = asJavaString(term.getSubterm(1));
 		} else {
 			name = asJavaString(term);
-			descriptor = null;
+			subfile = null;
 		}
 		File file = new File(name);
 		if (!file.isAbsolute() && agent != null)
 			file = new File(agent.getWorkingDir(), name);
-		return new SemanticIndexFileDescriptor(file.toURI(), descriptor);
+		return new SemanticIndexFileDescriptor(file.toURI(), subfile);
 	}
 	
 	@Override

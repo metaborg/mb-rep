@@ -431,6 +431,8 @@ rules // Index API
     where
       key := <collect-one(?_{_})> x
       
+  uri-to-string = take-until(?Anon(_)); reverse; separate-by(|"."); concat-strings
+      
 /** @internal */
 rules // URI and value projections
 	
