@@ -12,7 +12,7 @@ rules // Extension points
   index-desugar-ast = fail
     
   // Should compile given analysed ast.
-  index-compile-ast(|file, subfile, project-path) = fail
+  index-compile-ast(|file, subfile) = fail
   
 rules // Compilation
   
@@ -51,17 +51,16 @@ rules // Compilation
     (path, subfile) -> None()
     with
       // Parse and analyze ast.
-      full-path                        := $[[project-path]/[path]];
       ast                              := <parse-file> path;
       ast'                             := <try(index-desugar-ast)> ast;
-      Results(ast'', _, _, _, _, _, _) := <analyze-top-internal(|Compile(), language, project-path, full-path, subfile)> ast'
+      Results(ast'', _, _, _, _, _, _) := <analyze-top-internal(|Compile(), language, project-path, path, subfile)> ast'
     with
       {| Index-ReadSet:
         readSet := <new-iset>;
         rules(Index-ReadSet: _ -> readSet);
         
         // Compile file
-        <index-compile-ast(|path, subfile, project-path)> ast';
+        <index-compile-ast(|path, subfile)> ast';
         
         // Store compile-time reads.
         reads := <iset-elements> readSet;
