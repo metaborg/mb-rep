@@ -77,7 +77,8 @@ rules // analysis traversals
    *
    * @see analyze-top(|phase, language)
    */
-  analyze-top(|language) = analyze-top(|Editor(), language)
+  analyze-top(|language):
+    (ast, path, project-path) -> <analyze-top(|Editor(), language, path, project-path)>
    
   /**
    * Analyses given AST and annotates definition and use sites found in the AST with URIs.
@@ -89,20 +90,26 @@ rules // analysis traversals
    *
    * @see analyze-top-internal(|phase, language)
    */
-  analyze-top(|phase, language):
-    (ast, path, project-path) -> (ast', filesToAnalyze)
+  analyze-top(|phase, language, path, project-path):
+    ast -> (ast', filesToAnalyze)
     with
-      Results(ast', _, _, _, _, _, filesToAnalyze) := <analyze-top-internal(|phase, language)> (ast, path, project-path)
+      if index-split then
+        asts := <index-toplevel-split> ast;
+        (ast', filesToAnalyze) := <analyze-top-multiple(|phase, language, path, project-path)> asts
+      else
+        full-path := $[[project-path]/[path]];
+        Results(ast', _, _, _, _, _, filesToAnalyze) := <analyze-top-internal(|phase, language, project-path, full-path)> ast
+      end
       
-  analyze-top-multiple(|path, project-path, phase, language):
+  analyze-top-multiple(|phase, language, path, project-path):
     asts -> (ast', filesToAnalyze)
     with
       full-path := $[[project-path]/[path]];
-      results := <map(analyze-top-subfile(|path, project-path, full-path, phase, language))> asts;
+      results := <map(analyze-top-subfile(|phase, language, path, project-path, full-path))> asts;
       (ast', filesToAnalyzes) := <unzip> results;
       filesToAnalyze := <concat> filesToAnalyzes
   
-  analyze-top-subfile(|path, project-path, full-path, phase, language):
+  analyze-top-subfile(|phase, language, path, project-path, full-path):
     (ast, subfile) -> (ast', filesToAnalyze)
     with
       Results(ast', _, _, _, _, _, filesToAnalyze) := 
@@ -352,6 +359,42 @@ rules // parallel analysis
       (ast', errors, warnings, notes, filesToAnalyze) := <analyze>;
       if [] := filesToAnalyze then
         complete-work-unit
+      end
+
+rules // splitter
+  
+  index-split = fail
+  index-is-toplevel = fail
+  index-is-qualifier = fail
+  index-qualifier-subelements = fail
+  index-create-qualifier(|qualifier) = fail
+  
+  index-toplevel-split = index-toplevel-split(|[])
+  index-toplevel-split(|uri):
+    node -> units
+    with
+      switch id
+        case ?():
+          units := [((), [])]
+        case index-is-qualifier:
+          elems := <mapconcat(index-toplevel-split(|[<nam-get-definition-key> node|uri]))> <index-qualifier-subelements> node;
+          units := <map(index-transform-qualifier(|node))> elems
+        case index-is-toplevel:
+          units := [(node, [<nam-get-definition-key> node|uri])]
+        otherwise:
+          <warn(|"Unknown language element found during splitting: ")> node;
+          units := [((), [])]
+      end
+      
+  index-transform-qualifier(|node):
+    (elem, subfileName) -> (qualifier, subfileName)
+    with
+      !elem;
+      switch id
+        case index-is-toplevel:
+          qualifier := <index-create-qualifier(|node)> elem
+        otherwise:
+          qualifier := ()
       end
 
 rules // diffs
