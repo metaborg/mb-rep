@@ -432,6 +432,14 @@ rules // Index API
       key := <collect-one(?_{_})> x
       
   uri-to-string = take-until(?Anon(_)); reverse; separate-by(|"."); concat-strings
+  
+  filepair-to-string:
+    (file, "") -> file
+    
+  filepair-to-string:
+    (file, subfile) -> <concat-strings> [file, "@", subfile]
+    where
+      not("" := subfile)
       
 /** @internal */
 rules // URI and value projections

@@ -188,12 +188,7 @@ rules // analysis traversals
 	      filesToAnalyze := []
       end
     with
-      if "" := subfile then
-        storePath := [full-path, "ast"]
-      else
-        storePath := [subfile, full-path, "ast"]
-      end;
-      <index-set-global(|storePath)> ast5
+      <index-set-global(|[<filepair-to-string> file, "ast"])> ast5
       
   /**
    * Identifies all definitions in the tree and annotates them with their URI.
@@ -451,14 +446,9 @@ rules // diffs
    * @internal
    */
   analyze-astdiff(|ast):
-    (file, subfile) -> <id>
+    file -> <id>
     where
-      if "" := subfile then
-        name := [file, "ast-diff"]
-      else
-        name := [subfile, file, "ast-diff"]
-      end;
-      
+    	name := [<filepair-to-string> file, "ast-checksum"];
       newChecksum := <checksum> ast;
       if oldChecksum := <index-get-global(|name)> then
       	<index-set-global(|name)> newChecksum;

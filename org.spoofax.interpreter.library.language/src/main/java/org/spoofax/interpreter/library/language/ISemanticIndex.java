@@ -48,13 +48,6 @@ public interface ISemanticIndex {
 	 * @param fileDescriptor	The file to associate the entries with.
 	 */
 	public abstract void addAll(IStrategoList entries, SemanticIndexFileDescriptor fileDescriptor);
-
-	/**
-	 * Removes all entries that match given template.
-	 * 
-	 * @param template	The template to match entries against.
-	 */
-	//public abstract void remove(IStrategoAppl template);
 	
 	/**
 	 * Removes all entries that match given template and are from given file.
