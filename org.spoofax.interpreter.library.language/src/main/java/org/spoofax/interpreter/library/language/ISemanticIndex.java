@@ -54,7 +54,7 @@ public interface ISemanticIndex {
 	 * 
 	 * @param template	The template to match entries against.
 	 */
-	public abstract void remove(IStrategoAppl template);
+	//public abstract void remove(IStrategoAppl template);
 	
 	/**
 	 * Removes all entries that match given template and are from given file.

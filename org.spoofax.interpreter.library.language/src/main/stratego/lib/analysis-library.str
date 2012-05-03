@@ -187,6 +187,13 @@ rules // analysis traversals
 	      (added, removed) := ([], []);
 	      filesToAnalyze := []
       end
+    with
+      if "" := subfile then
+        storePath := [full-path, "ast"]
+      else
+        storePath := [subfile, full-path, "ast"]
+      end;
+      <index-set-global(|storePath)> ast5
       
   /**
    * Identifies all definitions in the tree and annotates them with their URI.
@@ -446,13 +453,18 @@ rules // diffs
   analyze-astdiff(|ast):
     (file, subfile) -> <id>
     where
-      name := [subfile, file, "ast-diff"];
+      if "" := subfile then
+        name := [file, "ast-diff"]
+      else
+        name := [subfile, file, "ast-diff"]
+      end;
+      
       newChecksum := <checksum> ast;
       if oldChecksum := <index-get-global(|name)> then
       	<index-set-global(|name)> newChecksum;
         <eq> (oldChecksum, newChecksum)
       else
-        <index-add-global(|name)> newChecksum;
+        <index-set-global(|name)> newChecksum;
         fail
       end
       
@@ -958,7 +970,6 @@ rules // Internal helpers
   index-file-dependency-filter = ?Read(_) <+ ?ReadWildcard(_, _) <+ ?Use(_)
  
   do-adjust-index-lookup(|namespace, path, use, prefix) =
-    // UNDONE: try(origin-term);
     repeat-until(
       prim("SSL_EXT_get_parent", <id>)
     , adjust-index-lookup(origin-equal(|use) |namespace, path, prefix) 

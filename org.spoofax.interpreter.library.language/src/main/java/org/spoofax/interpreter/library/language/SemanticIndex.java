@@ -81,6 +81,8 @@ public class SemanticIndex implements ISemanticIndex {
 	}
 
 	public void add(SemanticIndexEntry entry) {
+		addOrGetFile(entry.getFileDescriptor());
+		
 		entries.put(entry.getURI(), entry);
 		
 		// Add entry to childs.
@@ -98,10 +100,6 @@ public class SemanticIndex implements ISemanticIndex {
 			entries = entries.tail();
 		}
 	}
-
-	public void remove(IStrategoAppl template) {
-		remove(factory.createURIFromTemplate(template));
-	}
 	
 	public void remove(IStrategoAppl template, SemanticIndexFileDescriptor fileDescriptor) {
 		SemanticIndexURI uri = factory.createURIFromTemplate(template);
@@ -116,17 +114,6 @@ public class SemanticIndex implements ISemanticIndex {
 		}
 		
 		removeFinal(entriesToRemove);
-	}
-	
-	/**
-	 * Removes all entries with given URI.
-	 * 
-	 * @param uri	The URI to remove all entries for.
-	 */
-	private void remove(SemanticIndexURI uri) {
-		Collection<SemanticIndexEntry> removedEntries = entries.removeAll(uri);
-		
-		removeFinal(removedEntries);
 	}
 	
 	/**
@@ -195,6 +182,10 @@ public class SemanticIndex implements ISemanticIndex {
 	}
 	
 	public SemanticIndexFile getFile(SemanticIndexFileDescriptor fileDescriptor) {
+		return addOrGetFile(fileDescriptor);
+	}
+	
+	private SemanticIndexFile addOrGetFile(SemanticIndexFileDescriptor fileDescriptor) {
 		SemanticIndexFile file = files.get(fileDescriptor);
 		if(file == null) {
 			file = new SemanticIndexFile(fileDescriptor, null);

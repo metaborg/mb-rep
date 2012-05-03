@@ -92,6 +92,9 @@ public class SemanticIndexManager {
 			if(currentIndex.hasClearedCurrentFile())
 				index.removeFile(currentFile.get());
 			
+			for(TemplateWithFileDescriptor entry : currentIndex.getRemovedEntries())
+				index.remove(entry.getTemplate(), entry.getFileDescriptor());
+			
 			for(SemanticIndexEntry entry : transactionIndex.getAllEntries())
 				index.add(entry);
 		} finally {

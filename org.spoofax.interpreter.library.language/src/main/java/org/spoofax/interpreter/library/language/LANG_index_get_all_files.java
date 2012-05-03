@@ -24,6 +24,7 @@ public class LANG_index_get_all_files extends AbstractPrimitive {
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
 		ITermFactory factory = env.getFactory();
 		IStrategoList results = getAllFiles(index.getCurrent(), factory);
+		System.out.println(results.toString());
 		env.setCurrent(results);
 		return true;
 	}

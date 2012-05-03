@@ -68,8 +68,10 @@ rules // Compilation
       |}
 
   /** @internal */
-  index-compilation-filter-file = 
-    ?(<id>, _); (is-test-file <+ index-is-fake-file <+ not(file-exists))
+  index-compilation-filter-file:
+    (file, subfile) -> (file, subfile)
+    where
+      <is-test-file <+ index-is-fake-file <+ not(file-exists)> file
     
 rules // On save handling
   
