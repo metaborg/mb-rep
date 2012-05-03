@@ -11,8 +11,10 @@
 	<exclude name="**/io/**"/>
   </source>
   <source path='terms'>
-    <exclude name="**/io/**"/>
-    <exclude name="**/TermFactory.java"/>
+    <exclude name="**/1io/**"/>
+    <exclude name="**/SAFReader.java"/>
+    <exclude name="**/TermReader.java"/>
+    <exclude name="**/BAFReader.java"/>
 	<exclude name="**/UniqueValueTerm.java"/>
   </source>
 </module>
