@@ -78,7 +78,7 @@ rules // analysis traversals
    * @see analyze-top(|phase, language)
    */
   analyze-top(|language):
-    (ast, path, project-path) -> <analyze-top(|Editor(), language, path, project-path)>
+    (ast, path, project-path) -> <analyze-top(|Editor(), language, path, project-path)> ast
    
   /**
    * Analyses given AST and annotates definition and use sites found in the AST with URIs.
