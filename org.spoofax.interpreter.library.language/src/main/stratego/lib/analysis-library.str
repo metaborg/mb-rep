@@ -93,11 +93,12 @@ rules // analysis traversals
   analyze-top(|phase, language, path, project-path):
     ast -> (ast', filesToAnalyze)
     with
+      full-path := $[[project-path]/[path]];
       if index-split then
+        index-setup(|language, [project-path], full-path); // Set up the index, splitting may require index calls.
         asts := <index-toplevel-split> ast;
         (ast', filesToAnalyze) := <analyze-top-multiple(|phase, language, path, project-path)> asts
       else
-        full-path := $[[project-path]/[path]];
         Results(ast', _, _, _, _, _, filesToAnalyze) := <analyze-top-internal(|phase, language, project-path, full-path)> ast
       end
       
@@ -145,7 +146,7 @@ rules // analysis traversals
         rules(Index-UnresolvedSet: _ -> unresolvedSet);
        
         // Add Unresolved annotations, record globals
-        (Some(ast2), defs) := <analyze-defs(|Anon(), Anon())> Some(ast); // HACK: force origin tracking with Some()... // TODO: still needed?
+        (Some(ast2), defs) := <analyze-defs> Some(ast); // HACK: force origin tracking with Some()... // TODO: still needed?
         <index-add-all(|file)> defs;
 
         // Find DefData
@@ -196,6 +197,7 @@ rules // analysis traversals
    *
    * @internal
    */
+  analyze-defs = analyze-defs(|Anon(), Anon())
   analyze-defs(|head-scope, head-scope-ns):
     ast -> (ast', defs')
     with
@@ -371,33 +373,33 @@ rules // splitter
   index-qualifier-subelements = fail
   index-create-qualifier(|qualifier) = fail
   
-  index-toplevel-split = index-toplevel-split(|[])
-  index-toplevel-split(|uri):
+  index-toplevel-split:
+    ast -> asts'
+    with
+      (ast', _) := <analyze-defs> ast;
+      asts      := <index-toplevel-split-internal> ast';
+      asts'     := <strip-annos> asts
+      
+  index-toplevel-split-internal:
     node -> units
     with
       switch id
         case ?():
           units := [((), [])]
         case index-is-qualifier:
-          elems := <mapconcat(index-toplevel-split(|[<nam-get-definition-key> node|uri]))> <index-qualifier-subelements> node;
+          elems := <mapconcat(index-toplevel-split-internal)> <index-qualifier-subelements> node;
           units := <map(index-transform-qualifier(|node))> elems
         case index-is-toplevel:
-          units := [(node, [<nam-get-definition-key> node|uri])]
+          units := [(node, <index-path> <nam-get-definition-key> node)]
         otherwise:
           <warn(|"Unknown language element found during splitting: ")> node;
-          units := [((), [])]
+          units := [(node, [])]
       end
       
   index-transform-qualifier(|node):
     (elem, subfileName) -> (qualifier, subfileName)
     with
-      !elem;
-      switch id
-        case index-is-toplevel:
-          qualifier := <index-create-qualifier(|node)> elem
-        otherwise:
-          qualifier := ()
-      end
+    	qualifier := <index-create-qualifier(|node)> elem
 
 rules // diffs
   
