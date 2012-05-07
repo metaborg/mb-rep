@@ -37,6 +37,10 @@ public class TransactionSemanticIndex implements ISemanticIndex {
 		return clearedCurrentFile;
 	}
 	
+	public SemanticIndexFileDescriptor getCurrentFile() {
+		return currentFile;
+	}
+	
 	public Collection<TemplateWithFileDescriptor> getRemovedEntries() {
 		return removedEntries;
 	}
@@ -133,15 +137,10 @@ public class TransactionSemanticIndex implements ISemanticIndex {
 	
 	public void removeFile(SemanticIndexFileDescriptor fileDescriptor) {
 		assert fileDescriptor.equals(currentFile) || fileDescriptor.getURI().equals(currentFile.getURI());
-		
-		// TODO: Is a write lock required when fileDescriptor equals currentFile (including the subfile!)
-		getWriteLock().lock();
-		try {
-			clearedCurrentFile = true;
-			transactionIndex.removeFile(fileDescriptor);
-		} finally {
-			getWriteLock().unlock();
-		}
+
+		// TODO: Might need to store which files have been removed and remove all those files when the transaction ends.
+		clearedCurrentFile = true;
+		transactionIndex.removeFile(fileDescriptor);
 	}
 
 	public Collection<SemanticIndexFile> getAllFiles() {

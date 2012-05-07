@@ -53,7 +53,7 @@ rules // Compilation
       // Parse and analyze ast.
       ast                              := <parse-file> path;
       ast'                             := <try(index-desugar-ast)> ast;
-      Results(ast'', _, _, _, _, _, _) := <analyze-top-internal(|Compile(), language, project-path, path, subfile)> ast'
+      Results(ast'', _, _, _, _, _, _) := <analyze-top-internal(|Compile(), language, project-path, path)> [(ast', (path, subfile))]
     with
       {| Index-ReadSet:
         readSet := <new-iset>;

@@ -38,10 +38,10 @@ public class SemanticIndex implements ISemanticIndex {
 			ArrayListMultimap.create();
 	private final Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry> entriesPerFileDescriptor = 
 			ArrayListMultimap.create();
+	private final Multimap<URI, SemanticIndexEntry> entriesPerURI = 
+			ArrayListMultimap.create();
 	private final Map<SemanticIndexFileDescriptor, SemanticIndexFile> files =
 			new HashMap<SemanticIndexFileDescriptor, SemanticIndexFile>();
-	private final Multimap<URI, SemanticIndexFileDescriptor> fileDescriptorsPerURI = 
-			ArrayListMultimap.create();
 	
 	private static final IStrategoConstructor FILE_ENTRIES_CON =
 			new TermFactory().makeConstructor("FileEntries", 2);
@@ -92,6 +92,7 @@ public class SemanticIndex implements ISemanticIndex {
 
 		// Add entry to files.
 		entriesPerFileDescriptor.put(entry.getFileDescriptor(), entry);
+		entriesPerURI.put(entry.getFileDescriptor().getURI(), entry);
 	}
 	
 	public void addAll(IStrategoList entries, SemanticIndexFileDescriptor fileDescriptor) {
@@ -161,6 +162,7 @@ public class SemanticIndex implements ISemanticIndex {
 			if (fileDescriptor != null)
 			{
 				entriesPerFileDescriptor.remove(fileDescriptor, entry);
+				entriesPerURI.remove(fileDescriptor.getURI(), entry); // TODO: Might not work because of hashCode of entry.
 			}
 		}
 	}
@@ -174,7 +176,10 @@ public class SemanticIndex implements ISemanticIndex {
 	}
 	
 	public Collection<SemanticIndexEntry> getEntriesInFile(SemanticIndexFileDescriptor fileDescriptor) {
-		return getCollection(entriesPerFileDescriptor.get(fileDescriptor));
+		if(fileDescriptor.getSubfile() == null)
+			return getCollection(entriesPerURI.get(fileDescriptor.getURI()));
+		else
+			return getCollection(entriesPerFileDescriptor.get(fileDescriptor));
 	}
 	
 	public Collection<SemanticIndexEntry> getAllEntries() {
@@ -190,8 +195,6 @@ public class SemanticIndex implements ISemanticIndex {
 		if(file == null) {
 			file = new SemanticIndexFile(fileDescriptor, null);
 			files.put(fileDescriptor, file);
-			if(fileDescriptor.getSubfile() != null)
-				fileDescriptorsPerURI.put(fileDescriptor.getURI(), fileDescriptor);
 		}
 		return file;
 	}
@@ -205,17 +208,7 @@ public class SemanticIndex implements ISemanticIndex {
 	}
 	
 	public void removeFile(SemanticIndexFileDescriptor fileDescriptor) {
-		if(fileDescriptor.getSubfile() == null && fileDescriptorsPerURI.containsKey(fileDescriptor.getURI()))
-		{
-			// Make an array copy because clearFile removes from fileDescriptorsPerURI.
-			SemanticIndexFileDescriptor[] childDescriptors = 
-					fileDescriptorsPerURI.get(fileDescriptor.getURI()).toArray(new SemanticIndexFileDescriptor[0]);
-			
-			for(SemanticIndexFileDescriptor fd : childDescriptors)
-				clearFile(fd);
-		}
-		else 
-			clearFile(fileDescriptor);
+		clearFile(fileDescriptor);
 	}
 	
 	private void clearFile(SemanticIndexFileDescriptor fileDescriptor) {
@@ -228,8 +221,6 @@ public class SemanticIndex implements ISemanticIndex {
 		remove(Arrays.asList(copy));
 
 		assert getEntriesInFile(fileDescriptor).isEmpty();
-		
-		fileDescriptorsPerURI.remove(fileDescriptor.getURI(), fileDescriptor);
 	}
 	
 	public Collection<SemanticIndexFile> getAllFiles() {
@@ -244,8 +235,8 @@ public class SemanticIndex implements ISemanticIndex {
 		entries.clear();
 		childs.clear();
 		entriesPerFileDescriptor.clear();
+		entriesPerURI.clear();
 		files.clear();
-		fileDescriptorsPerURI.clear();
 	}
 	
 	public IStrategoTerm toTerm(boolean includePositions) {

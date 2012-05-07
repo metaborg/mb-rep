@@ -97,76 +97,113 @@ rules // analysis traversals
       if index-split then
         index-setup(|language, [project-path], full-path); // Set up the index, splitting may require index calls.
         asts := <index-toplevel-split> ast;
-        (ast', filesToAnalyze) := <analyze-top-multiple(|phase, language, path, project-path)> asts
+        astsFilePairs := <map(\(ast, uri) -> (ast, (full-path, <uri-to-string> uri))\)> asts;
+        Results(ast', _, _, _, _, _, filesToAnalyze) := <analyze-top-internal(|phase, language, project-path, full-path)> astsFilePairs
       else
-        Results(ast', _, _, _, _, _, filesToAnalyze) := <analyze-top-internal(|phase, language, project-path, full-path)> ast
+        Results(ast', _, _, _, _, _, filesToAnalyze) := <analyze-top-internal(|phase, language, project-path, full-path)> [(ast, full-path)]
       end
-      
-  analyze-top-multiple(|phase, language, path, project-path):
-    asts -> (ast', filesToAnalyze)
-    with
-      full-path := $[[project-path]/[path]];
-      results := <map(analyze-top-subfile(|phase, language, path, project-path, full-path))> asts;
-      (ast', filesToAnalyzes) := <unzip> results;
-      filesToAnalyze := <concat> filesToAnalyzes
   
-  analyze-top-subfile(|phase, language, path, project-path, full-path):
-    (ast, subfile) -> (ast', filesToAnalyze)
+  /**
+   * Add URI annotations to each definition and unresolved URI annotations to each use site.
+   *
+   * @internal
+   */
+  analyze-top-defs:
+    (ast, file) -> ((ast2, file), defs)
     with
-      Results(ast', _, _, _, _, _, filesToAnalyze) := 
-        <analyze-top-internal(|phase, language, project-path, full-path, <uri-to-string> subfile)> ast
+			<index-set-current-file> file;
+			(Some(ast2), defs) := <analyze-defs> Some(ast); // HACK: force origin tracking with Some()... // TODO: still needed?
+			<index-add-all(|file)> defs
+			
+  /**
+   * Gathers all data for each definition.
+   *
+   * @internal
+   */
+  analyze-top-data(|language, full-path):
+    (ast, file) -> ((ast2, file), data2)
+    with
+			<index-set-current-file> file;
+			{| Index-ReadSet:
+			  readSet := <new-iset>;
+			  rules(Index-ReadSet: _ -> readSet);
+			  
+			  // Gather all data for each definition.
+			  ast2 := <prim("SSL_EXT_clone_and_set_parents", <id>)> ast; // Parent pointers needed.
+			  data := <origin-track-forced(analyze-tree-data)> ast2;
+			  
+			  // Resolve all references in gathered data.
+			  (data2, _) := <analyze-uses> data; // Ignoring data uses, have not found a use-case for them yet.
+			  <index-add-all(|file)> data2;
+			  
+			  // Store reads into the index (if not testing language)
+			  if not(is-test-input(|language, full-path)) then
+			    <index-add-all(|file)> <iset-elements> readSet
+			  end
+			|}
+			
+  /**
+   * Resolves all unresolved references for each use site.
+   *
+   * @internal
+   */
+	analyze-top-uses(|language, full-path):
+    (ast, file) -> ((ast3, file), uses)
+    with
+			<index-set-current-file> file;
+			{| Index-ReadSet:
+			  readSet := <new-iset>;
+			  rules(Index-ReadSet: _ -> readSet);
+			  
+			  // Resolve all unresolved references for each use site.
+			  (ast2, uses) := <analyze-uses> ast;
+			  <index-add-all(|file)> uses;
+			  
+			  ast3 := <prim("SSL_EXT_clone_and_set_parents", <id>)> ast2; // AST changed, reset parent pointers.
+			  
+			  // Store reads into the index (if not testing language)
+			  if not(is-test-input(|language, full-path)) then
+			    <index-add-all(|file)> <iset-elements> readSet
+			  end
+			|}
+			
+  /**
+   * Stores AST from file to the index.
+   *
+   * @internal
+   */		
+	analyze-top-store-ast:
+	  (ast, file) -> <id>
+	  with
+      <index-set-global(|[<filepair-to-string> file, "ast"])> ast
   
   /**
    * Analyses given AST and annotates definition and use sites found in the AST with URIs.
    *
    * @internal
    */
-  analyze-top-internal(|language) = 
-    analyze-top-internal(|Editor())
-  analyze-top-internal(|phase, language) = 
-    ?(ast, path, project-path); analyze-top-internal(|phase, language, project-path, $[[project-path]/[path]]); !ast
-  analyze-top-internal(|phase, language, project-path, full-path) = 
-    analyze-top-internal(|phase, language, project-path, full-path, "")
-  analyze-top-internal(|phase, language, project-path, full-path, subfile):
-    ast -> Results(ast5, defs, uses, data', added, removed, filesToAnalyze)
+  analyze-top-internal(|phase, language, project-path, full-path):
+    astFilePairs -> Results(asts, defs, uses, data, added, removed, filesToAnalyze)
     with
       // Init
-      file := (full-path, subfile);
-      index-setup(|language, [project-path], file);
+      index-setup(|language, [project-path], full-path);
       revision := <index-start-transaction>
     with
-      oldElems := <filter(index-diff-constructors)> <index-get-all-in-file> file;
-      <index-clear-file> file
+      // Store old elements
+      oldElems := <filter(index-diff-constructors)> <index-get-all-in-file> full-path;
+      <index-clear-file> full-path
     with
-      {| Index-ReadSet, Index-UnresolvedSet:
-        readSet := <new-iset>;
+      {| Index-UnresolvedSet:
         unresolvedSet := <new-iset>;
-        
-        rules(Index-ReadSet: _ -> readSet);
         rules(Index-UnresolvedSet: _ -> unresolvedSet);
-       
-        // Add Unresolved annotations, record globals
-        (Some(ast2), defs) := <analyze-defs> Some(ast); // HACK: force origin tracking with Some()... // TODO: still needed?
-        <index-add-all(|file)> defs;
-
-        // Find DefData
-        ast3 := <prim("SSL_EXT_clone_and_set_parents", <id>)> ast2;
-        data := <origin-track-forced(analyze-tree-data)> ast3;
-
-        // Resolve all references in DefData
-        (data', _) := <analyze-uses> data;
-        <index-add-all(|file)> data';
-       
-        // Resolve all unresolved references in the tree
-        (ast4, uses) := <analyze-uses> ast3;
-        <index-add-all(|file)> uses;
         
-        ast5 := <prim("SSL_EXT_clone_and_set_parents", <id>)> ast4;
-       
-        // Store reads into the index (if current language is not testing language)
-        if not(<is-test-input(|language)> (ast, full-path)) then
-          <index-add-all(|file)> <iset-elements> readSet
-        end
+        (astFilePairs2, defsList) := <unzip> <map(analyze-top-defs)> astFilePairs;
+        defs := <concat> defsList;
+        (astFilePairs3, dataList) := <unzip> <map(analyze-top-data(|language, full-path))> astFilePairs2;
+        data := <concat> dataList;
+        (astFilePairs4, usesList) := <unzip> <map(analyze-top-uses(|language, full-path))> astFilePairs3;
+        uses := <concat> usesList;
+      	(asts, _) := <unzip> astFilePairs4
       |}
     with
       index-end-transaction
@@ -174,7 +211,7 @@ rules // analysis traversals
       // Schedule re-analysis of dependent files (if current file is not testing language file)
       // HACK: Depends on file extension, could be other languages with .spt extension?
       if Editor() := phase; not(<is-test-file> full-path) then
-        newElems := <conc> (defs, <filter(index-diff-constructors)> data');
+        newElems := <conc> (defs, <filter(index-diff-constructors)> data);
         
 	      // Find added and removed definitions
 	      (added, removed) := <analyze-diff> (oldElems, newElems);
@@ -182,14 +219,14 @@ rules // analysis traversals
 	      
         // Store files that have changed in the index
         index-start-transaction;
-        filesToAnalyze := <analyze-store-diff(|changed, file, ast, revision)>;
+        filesToAnalyze := <analyze-store-diff(|changed, revision)> astFilePairs4;
         index-end-transaction
 	    else
 	      (added, removed) := ([], []);
 	      filesToAnalyze := []
       end
     with
-      <index-set-global(|[<filepair-to-string> file, "ast"])> ast5
+    	<list-loop(analyze-top-store-ast)> astFilePairs4
       
   /**
    * Identifies all definitions in the tree and annotates them with their URI.
@@ -322,7 +359,7 @@ rules // parallel analysis
       set-total-work-units
     with
       index-parallel-analyze(analyze);
-      filter(not(?ParallelResults((), (), _, _, _, _)); index-set-markers)
+      filter(not(?ParallelResults((), (), _, _, _, _) <+ ?ParallelResults((), [()], _, _, _, _)); index-set-markers)
   
   /** @internal */
   index-parallel-analyze(analyze):
@@ -392,7 +429,6 @@ rules // splitter
         case index-is-toplevel:
           units := [(node, <index-path> <nam-get-definition-key> node)]
         otherwise:
-          <warn(|"Unknown language element found during splitting: ")> node;
           units := [(node, [])]
       end
       
@@ -411,8 +447,8 @@ rules // diffs
       removed := <diff(index-diff-compare)> (defs1, defs2)
     
   /** @internal */
-  analyze-store-diff(|changedEntries, file, ast, revision): 
-    _ -> analyzeFiles'
+  analyze-store-diff(|changedEntries, revision): 
+    astFilePairs -> analyzeFiles'
     with
       changedFiles    := <mapconcat(index-get-files-of)> changedEntries;
       dependentFiles  := <index-get-dependent-files> changedEntries;
@@ -430,34 +466,26 @@ rules // diffs
       end;*/
       
       // Files to compile
-      compileFiles := <conc> (analyzeFiles', changedFiles);
-      if not(<analyze-astdiff(|ast)> file) then
-        // Add current file if the AST has changed. Cannot use dependency tracking here because
-        // the originating file of a removed definition is not in the index any more.
-        // TODO: Is this still true?
-        compileFiles' := <make-set> [file|compileFiles]
-      else
-        compileFiles' := <make-set> compileFiles
-      end;
+      changedAstFiles := <filter(analyze-astdiff)> astFilePairs;
+      compileFiles := <make-set> <concat> [analyzeFiles', changedFiles, changedAstFiles];
       // TODO: Optimize so that there are no duplicate files stored in the index, use iset?
-      <map(analyze-add-compilediff)> compileFiles'
+      <map(analyze-add-compilediff)> compileFiles
       
   /** 
-   * Fails if old ASTDiff is not found or if ASTDiff is different.
+   * Checks if ast for given file has changed. Succeeds if old ASTDiff is not found or if ASTDiff is different.
    *
    * @internal
    */
-  analyze-astdiff(|ast):
-    file -> <id>
+  analyze-astdiff:
+    (ast, file) -> file
     where
     	name := [<filepair-to-string> file, "ast-checksum"];
       newChecksum := <checksum> ast;
       if oldChecksum := <index-get-global(|name)> then
       	<index-set-global(|name)> newChecksum;
-        <eq> (oldChecksum, newChecksum)
+        not(<eq> (oldChecksum, newChecksum))
       else
-        <index-set-global(|name)> newChecksum;
-        fail
+        <index-set-global(|name)> newChecksum
       end
       
   /** 
@@ -916,11 +944,8 @@ rules // Internal helpers
        
   // Tests if the current file is just a testing language input
   is-test-file = string-ends-with(|".spt")
-  is-test-input(|language):
-    (ast, path) -> (ast, path)
-    where
-      <is-test-file> path;
-      not(!language => "Spoofax-Testing")
+  is-test-language = ?"Spoofax-Testing"
+  is-test-input(|language, path) = <is-test-language> language <+ <is-test-file> path
       
   fake-file = is-test-file <+ index-is-fake-file
       

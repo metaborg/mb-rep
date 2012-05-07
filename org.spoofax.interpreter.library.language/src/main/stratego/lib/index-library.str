@@ -45,6 +45,16 @@ rules // Index management
    */
   index-setup(|language, project-paths, current-file) =
     prim("LANG_index_setup", language, project-paths, current-file)
+    
+  /**
+   * Sets the current file the index (analysis) is operating on to the given file.
+   *
+   * Example:
+   *   <index-set-current-file> "fullpath/file.ext"
+   *   <index-set-current-file> ("fullpath/file.ext", "subfile")
+   */
+  index-set-current-file = 
+    prim("LANG_index_set_current_file", <id>)
 
   /**
    * Adds given element to the index with given file path and optionally subfile.
