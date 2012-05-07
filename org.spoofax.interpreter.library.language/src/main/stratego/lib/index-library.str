@@ -130,7 +130,7 @@ rules // Index management
    */
   index-end-transaction = prim("LANG_index_end_transaction")
   
-rules // Index API
+rules // Index querying
   
   /**
    * Gets the file that the analysis is currently in.
@@ -233,6 +233,8 @@ rules // Index API
    */
   indexlib-get-value:
     template -> <index-value> <?[<id>|_]> <indexlib-get-all> template
+    
+rules // Index globals
     
   /**
    * Gets the 'fake' path where globals are stored in the index.
@@ -367,6 +369,8 @@ rules // Index API
     where
       <indexlib-get> Global(<index-boolean-globals-uri> name)
 
+rules // Index utility
+
   /**
    * Queries if given index file is a 'fake' file for storing internal data.
    */
@@ -418,12 +422,34 @@ rules // Index API
     where
       key := <collect-one(?_{_})> x
       
-  uri-to-string = take-until(?Anon(_)); reverse; separate-by(|"."); concat-strings
+  /**
+   * Converts a URI to a string.
+   *
+   * Example:
+   *   <index-uri-to-string> [Entity(), "Bar", "Baz"] => "Entity://Bar.Baz"
+   */
+  index-uri-to-string:
+    [ns|path] -> <concat-strings> [nsStr, "://", pathStr]
+    with
+      pathStr := <take-until(?Anon(_)); reverse; separate-by(|"."); concat-strings> path;
+      nsStr := <?<id>#(_)> ns
   
-  filepair-to-string:
+  /**
+   * Converts a file pair ((file, subfile) tuple) to a string.
+   *
+   * Example:
+   *   <index-filepair-to-string> ("fullpath/file.ext", "") => "fullpath/file.ext"
+   */
+  index-filepair-to-string:
     (file, "") -> file
     
-  filepair-to-string:
+  /**
+   * Converts a file pair ((file, subfile) tuple) to a string.
+   *
+   * Example:
+   *   <index-filepair-to-string> ("fullpath/file.ext", "subfile") => "fullpath/file.ext@subfile"
+   */
+  index-filepair-to-string:
     (file, subfile) -> <concat-strings> [file, "@", subfile]
     where
       not("" := subfile)

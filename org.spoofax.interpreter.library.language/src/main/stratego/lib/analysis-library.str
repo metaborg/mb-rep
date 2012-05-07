@@ -97,7 +97,7 @@ rules // analysis traversals
       if index-split then
         index-setup(|language, [project-path], full-path); // Set up the index, splitting may require index calls.
         asts := <index-toplevel-split> ast;
-        astsFilePairs := <map(\(ast, uri) -> (ast, (full-path, <uri-to-string> uri))\)> asts;
+        astsFilePairs := <map(\(ast, uri) -> (ast, (full-path, <index-uri-to-string> uri))\)> asts;
         Results(ast', _, _, _, _, _, filesToAnalyze) := <analyze-top-internal(|phase, language, project-path, full-path)> astsFilePairs
       else
         Results(ast', _, _, _, _, _, filesToAnalyze) := <analyze-top-internal(|phase, language, project-path, full-path)> [(ast, full-path)]
@@ -175,7 +175,7 @@ rules // analysis traversals
 	analyze-top-store-ast:
 	  (ast, file) -> <id>
 	  with
-      <index-set-global(|[<filepair-to-string> file, "ast"])> ast
+      <index-set-global(|[<index-filepair-to-string> file, "ast"])> ast
   
   /**
    * Analyses given AST and annotates definition and use sites found in the AST with URIs.
@@ -427,7 +427,7 @@ rules // splitter
           elems := <mapconcat(index-toplevel-split-internal)> <index-qualifier-subelements> node;
           units := <map(index-transform-qualifier(|node))> elems
         case index-is-toplevel:
-          units := [(node, <index-path> <nam-get-definition-key> node)]
+          units := [(node, <index-uri> <nam-get-definition-key> node)]
         otherwise:
           units := [(node, [])]
       end
@@ -479,7 +479,7 @@ rules // diffs
   analyze-astdiff:
     (ast, file) -> file
     where
-    	name := [<filepair-to-string> file, "ast-checksum"];
+    	name := [<index-filepair-to-string> file, "ast-checksum"];
       newChecksum := <checksum> ast;
       if oldChecksum := <index-get-global(|name)> then
       	<index-set-global(|name)> newChecksum;
