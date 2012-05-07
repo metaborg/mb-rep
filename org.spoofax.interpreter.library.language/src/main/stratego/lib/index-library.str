@@ -122,13 +122,26 @@ rules // Index management
    * Starts a transaction on the index for the current file. Additions to the index are not visible to other files 
    * until index-end-transaction is called.
    */
-  index-start-transaction = prim("LANG_index_start_transaction")
+  index-start-transaction = 
+    prim("LANG_index_start_transaction")
   
   /**
    * Ends a transaction on the index for the current file. Additions made to the index during the transaction are
    * added to the global index visible for other files.
    */
-  index-end-transaction = prim("LANG_index_end_transaction")
+  index-end-transaction = 
+    prim("LANG_index_end_transaction")
+  
+  /**
+   * Starts a transaction, applies given strategy and ends the transaction.
+   * 
+   * @param s The strategy to apply.
+   *
+   * @see index-start-transaction
+   * @see index-end-transaction
+   */
+  index-transaction(s) = 
+    prim("LANG_index_start_transaction"); s; prim("LANG_index_end_transaction")
   
 rules // Index querying
   
@@ -370,16 +383,50 @@ rules // Index globals
       <indexlib-get> Global(<index-boolean-globals-uri> name)
 
 rules // Index utility
-
-  /**
-   * Queries if given index file is a 'fake' file for storing internal data.
-   */
-  index-is-fake-file = string-starts-with(|"/.internal")
-    
+  
   /**
    * Gets the URI part for given term.
    */ 
   index-uri = index-uri-impl <+ index-uri-generic
+  
+  /**
+   * Gets the namespace part of the given URI.
+   *
+   * Example:
+   *   <index-uri-path> [Entity(), "Bar", "Baz"] => Entity()
+   */ 
+  index-uri-namespace =
+    ?[<id>|_]
+  
+  /**
+   * Gets the path part of the given URI.
+   *
+   * Example:
+   *   <index-uri-path> [Entity(), "Bar", "Baz"] => ["Bar", "Baz"]
+   *   <index-uri-path> [Entity()] => []
+   */ 
+  index-uri-path =
+    ?[_|<id>]
+    
+  /**
+   * Gets the name part of the given URI or fail if there is no name.
+   *
+   * Example:
+   *   <index-uri-name> [Entity(), "Bar", "Baz"] => "Bar"
+   *   <index-uri-name> [Entity()] => fail
+   */ 
+  index-uri-name =
+    ?[_|[<id>|_]]
+  
+  /**
+   * Gets the value part for given term.
+   */  
+  index-value = index-value-impl <+ index-value-generic
+  
+  /**
+   * Queries if given index file is a 'fake' file for storing internal data.
+   */
+  index-is-fake-file = string-starts-with(|"/.internal")
   
   /**
    * Checks if given URI's are equal. Discards anonymous scopes if necessary.
@@ -395,24 +442,6 @@ rules // Index utility
   	  u1' := <index-uri-unwrap> u1;
   	  u2' := <index-uri-unwrap> u2;
       (<eq> (u1', u2') <+ <eq> (<remove-all(?Anon(_))> u1', <remove-all(?Anon(_))> u2'))
-
-  /**
-   * Checks if given keys (term{uri} elements) are equal. Discards unresolved URI's.
-   *
-   * Example:
-   *   <index-key-eq> ("Bar"{[Entity(), "Bar"]}, "Bar"{[Unresolved(Entity()), "Bar"]}) => 
-   *     ("Bar"{[Entity(), "Bar"]}, "Bar"{[Unresolved(Entity()), "Bar"]})
-   *   <index-key-eq> ("Foo"{[Entity(), "Foo"]}, "Bar"{[Entity(), "Bar"]}) => fail
-   */      
-  index-key-eq:
-    (k1, k2) -> <id>
-    where
-      <eq> (<index-key-unwrap> k1, <index-key-unwrap> k2)
-  
-  /**
-   * Gets the value part for given term.
-   */  
-  index-value = index-value-impl <+ index-value-generic
   
   /**
    * Finds the first key (term{uri} element) for given term, or fail. 
@@ -435,21 +464,32 @@ rules // Index utility
       nsStr := <?<id>#(_)> ns
   
   /**
-   * Converts a file pair ((file, subfile) tuple) to a string.
+   * Converts a file to a string.
    *
    * Example:
-   *   <index-filepair-to-string> ("fullpath/file.ext", "") => "fullpath/file.ext"
+   *   <index-file-to-string> "fullpath/file.ext" => "fullpath/file.ext"
    */
-  index-filepair-to-string:
+  index-file-to-string:
+    file -> file
+    where
+      not(<is-tuple> file)
+  
+  /**
+   * Converts a file ((file, subfile) tuple) to a string.
+   *
+   * Example:
+   *   <index-file-to-string> ("fullpath/file.ext", "") => "fullpath/file.ext"
+   */
+  index-file-to-string:
     (file, "") -> file
     
   /**
-   * Converts a file pair ((file, subfile) tuple) to a string.
+   * Converts a file ((file, subfile) tuple) to a string.
    *
    * Example:
-   *   <index-filepair-to-string> ("fullpath/file.ext", "subfile") => "fullpath/file.ext@subfile"
+   *   <index-file-to-string> ("fullpath/file.ext", "subfile") => "fullpath/file.ext@subfile"
    */
-  index-filepair-to-string:
+  index-file-to-string:
     (file, subfile) -> <concat-strings> [file, "@", subfile]
     where
       not("" := subfile)
@@ -477,6 +517,3 @@ rules // Internal helpers
     
   index-uri-unwrap =
     \[ns|xs] -> [<index-namespace-unwrap> ns|xs]\ <+ id
-    
-  index-key-unwrap = 
-    \key{uri} -> key{<index-uri-unwrap> uri}\ <+ id
