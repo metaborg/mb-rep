@@ -46,13 +46,13 @@ rules // Index management
    * Sets up the index library for given language, project paths and current file.
    * Must be called once before doing anything with the library.
    *
+   * Example:
+   *   <index-setup(|"MiniJava", [<project-path>], "test/test.mjv")
+   *
    * @param language      The language to set the index up for.
    * @param project-path  The project paths that contain all source files to analyse and compile.
    * @param current-file  The current file that is being analysed. Can be retrieved later using index-get-current-file.
    *                      Can also be changed later using index-set-current-file.
-   *
-   * Example:
-   *   <index-setup(|"MiniJava", [<project-path>], "test/test.mjv")
    */
   index-setup(|language, project-paths, current-file) =
     prim("LANG_index_setup", language, project-paths, current-file)
@@ -70,11 +70,11 @@ rules // Index management
   /**
    * Adds given element to the index with given file path and optionally subfile.
    *
-   * @param file  The file (and subfile) to add the element to.
-   *
    * Example:
    *   <index-add(|"fullpath/file.ext")> Def([Entity(), "Bar"])
    *   <index-add(|("fullpath/file.ext", "subfile"))> Def([Entity(), "Bar"])
+   *
+   * @param file  The file (and subfile) to add the element to.
    */
   index-add(|file) =
     prim("LANG_index_add", <id>, file)
@@ -82,11 +82,11 @@ rules // Index management
   /**
    * Adds all given elements to the index with given file path and optionally subfile.
    *
-   * @param file  The file (and subfile) to add the elements to.
-   *
    * Example:
    *   <index-add-all(|"fullpath/file.ext")> [Def([Entity(), "Bar"]), ...]
    *   <index-add-all(|("fullpath/file.ext", "subfile"))> [Def([Entity(), "Bar"]), ...]
+   *
+   * @param file  The file (and subfile) to add the elements to.
    */
   index-add-all(|file) =
     list-loop(with(index-add(|file)))
@@ -94,11 +94,11 @@ rules // Index management
   /**
    * Removes given element from the index that is contained in given file path and optionally subfile.
    *
-   * @param file  The file (and subfile) to remove the element from.
-   *
    * Example:
    *   <index-remove(|"fullpath/file.ext")> Def([Entity(), "Bar"])
    *   <index-remove(|("fullpath/file.ext", "subfile"))> Def([Entity(), "Bar"])
+   * 
+   * @param file  The file (and subfile) to remove the element from.
    */
   index-remove(|file) =
     prim("LANG_index_remove", <id>, file)
@@ -106,11 +106,11 @@ rules // Index management
   /**
    * Removes all given elements from the index that are contained in given file path and optionally subfile.
    *
-   * @param file  The file (and subfile) to remove the elements from.
-   *
    * Example:
    *   <index-remove-all(|"fullpath/file.ext")> [Def([Entity(), "Bar"]), ...]
    *   <index-remove-all(|("fullpath/file.ext", "subfile"))> [Def([Entity(), "Bar"]), ...]
+   *
+   * @param file  The file (and subfile) to remove the elements from.
    */
   index-remove-all(|file) =
     list-loop(with(index-remove(|file)))
@@ -199,11 +199,11 @@ rules // Index querying
   /**
    * Gets index entries in some namespace for the given file path and optionally subfile.
    *
-   * @param namespace Only index entries from this namespace are retrieved.
-   *
    * Example:
    *   <index-get-all-in-file(|Import())> "fullpath/file.ext" => [Def([Import(), "Bar"]), ...]
    *   <index-get-all-in-file(|Import())> ("fullpath/file.ext", "subfile") => [Def([Import(), "Bar"]), ...]
+   *
+   * @param namespace Only index entries from this namespace are retrieved.
    */  
   index-get-all-in-file(|namespace):
     filepath -> entries
@@ -243,10 +243,10 @@ rules // Index querying
   /**
    * Get all values of index entries that match the given template.
    *
-   * @see index-value
-   *
    * Example:
    *   <indexlib-get-all-values> DefData([Property(), "s"], Type(), ()) => [TYPE("String"), ...]
+   *
+   * @see index-value
    */
   indexlib-get-all-values:
     template -> <map(index-value)> <indexlib-get-all> template
@@ -263,10 +263,10 @@ rules // Index querying
   /**
    * Get the value of first index entry that matches the given template, or fail.
    *
-   * @see index-value
-   *
    * Example:
    *   <indexlib-get-value> DefData([Entity(), "Bar"], Type(), ()) => TYPE("Bar")
+   *
+   * @see index-value
    */
   indexlib-get-value:
     template -> <index-value> <?[<id>|_]> <indexlib-get-all> template

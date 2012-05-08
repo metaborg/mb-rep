@@ -33,6 +33,9 @@ rules // Extension points
    *       writeFile :=  $[[writePath][filename]];
    *       try(<mkdir> writePath);
    *       <fclose> <fputs> (java, <fopen> (writeFile, "w"))
+   *
+   * @param file    The file that must be compiled.
+   * @param subfile The subfile that must be compiled ("" if there is no subfile).
    */
   index-compile-ast(|file, subfile) = fail
   
