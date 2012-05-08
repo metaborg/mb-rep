@@ -287,12 +287,12 @@ rules // Index globals
    * @internal
    */
   index-globals-uri:
-  	names -> uri
-  	with
-  		if is-list then
-  			uri := <concat> [[Global()], names, ["globals", ".internal"]]
+    names -> uri
+    with
+      if is-list then
+        uri := <concat> [[Global()], names, ["globals", ".internal"]]
       else
-      	uri := [Global(), names, "global", ".internal"]
+        uri := [Global(), names, "global", ".internal"]
       end
     
   /**
@@ -436,7 +436,7 @@ rules // Index utility
    * @see index-uri-generic
    */ 
   index-uri = 
-  	index-uri-impl <+ index-uri-generic
+    index-uri-impl <+ index-uri-generic
   
   /**
    * Gets the namespace part of the given URI.
@@ -479,13 +479,13 @@ rules // Index utility
    * @see index-value-generic
    */  
   index-value = 
-  	index-value-impl <+ index-value-generic
+    index-value-impl <+ index-value-generic
   
   /**
    * Queries if given index file is a 'fake' file for storing internal data.
    */
   index-is-fake-file = 
-  	string-starts-with(|"/.internal")
+    string-starts-with(|"/.internal")
   
   /**
    * Checks if given URI's are equal. Discards anonymous scopes if necessary.
@@ -496,10 +496,10 @@ rules // Index utility
    *   <index-uri-eq> ([Entity(), "Foo"], [Entity(), "Bar"]) => fail
    */
   index-uri-eq:
-  	(u1, u2) -> <id>
-  	where
-  	  u1' := <index-uri-unwrap> u1;
-  	  u2' := <index-uri-unwrap> u2;
+    (u1, u2) -> <id>
+    where
+      u1' := <index-uri-unwrap> u1;
+      u2' := <index-uri-unwrap> u2;
       (<eq> (u1', u2') <+ <eq> (<remove-all(?Anon(_))> u1', <remove-all(?Anon(_))> u2'))
   
   /**
@@ -555,8 +555,8 @@ rules // Index utility
       
 /** @internal */
 rules // URI and value projections
-	
-	/** @internal */
+  
+  /** @internal */
   index-uri-impl:
     DefData(uri, _, _) -> uri
 
