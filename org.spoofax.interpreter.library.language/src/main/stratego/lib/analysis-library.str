@@ -73,6 +73,7 @@ rules // Index analysis extension points
    * @param path                The path the lookup algorithm is currently looking at for the element.
    * @param prefix              The prefix name of the element the lookup algorithm is looking for. This is usually the
    *                            full name of the element, but could be a partial prefix during content completion.
+   * @type def -> List(Def(uri) or [namespace|path]) or StopLookup()
    */
   adjust-index-lookup(check-target-name|namespace, path, prefix) = fail
   
@@ -94,6 +95,7 @@ rules // Index analysis extension points
    * @param store-results Call this on the data you want to store in the index.
    * @param namespace     The namespace of the definition that the rule is being called on.
    * @param path          The path of the definition that the rule is being called on.
+   * @type def -> fail 
    */
   adjust-index-def-data(store-results|namespace, path) = fail
   
@@ -109,6 +111,7 @@ rules // Index analysis extension points
    * @param check-target-definition 
    * @param namespace               The namespace that would be given to the current definition or use site.
    * @param path                    The path that would be given to the current definition or use site.
+   * @type def -> uri@[namespace|path]
    */
   adjust-index-path(check-target-definition|namespace, path) = fail
   
@@ -118,6 +121,8 @@ rules // Index analysis extension points
    *
    * Extension example:
    *   index-diff-constructors = ?Type(_, _)
+   *
+   * @type a -> ?a
    *
    * @see index-diff-compare
    */
@@ -136,6 +141,8 @@ rules // Index analysis extension points
    *       <index-uri-eq> (u1, u2);
    *       <eq> (v1, v2)
    *
+   * @type (a, b) -> ?(a, b)
+   *
    * @see index-diff-constructors
    */
   index-diff-compare:
@@ -151,6 +158,8 @@ rules // Analysis traversals
    *
    * @param language  The name of the language that is being analysed.
    *
+   * @type (ast, path, project-path) -> (ast', List(fileToAnalyze@(file, subfile)))
+   *
    * @see analyze-top(|phase, language)
    */
   analyze-top(|language):
@@ -165,6 +174,7 @@ rules // Analysis traversals
    * @param language      The name of the language that is being analysed.
    * @param path          The path of the file to analyze relative to project-path.
    * @param project-path  The path of the directory that contains all the source files.
+   * @type ast -> (ast', List(fileToAnalyze@(file, subfile)))
    *
    * @see analyze-top-internal(|phase, language, project-path, full-path)
    */
@@ -187,6 +197,8 @@ rules // Analysis traversals
    * Analyses given AST and annotates definition and use sites found in the AST with URIs.
    *
    * @internal
+   * @type List((ast, (file, subfile))) -> Results(List(ast), List(def), List(use), List(data), List(addedElem), 
+   *                                       List(removedElem), List(fileToAnalyze@(file, subfile))))
    */
   analyze-top-internal(|phase, language, project-path, full-path):
     astFilePairs -> Results(asts, defs, uses, data, added, removed, filesToAnalyze)
@@ -443,6 +455,7 @@ rules // Parallel analysis
    * @param analyze (ast, path, project-path) -> (ast', errors, warnings, notes, filesToAnalyze). Strategy that 
    *                analyzes a file using the index. Gets a (ast, path, project-path) tuple as input and must return 
    *                a (ast', errors, warnings, notes, filesToAnalyze) tuple as output.
+   * @type List((file, subfile) or file) -> None()
    */
   index-parallel-analyze-files(analyze):
     files -> None()
@@ -613,6 +626,7 @@ rules // index API query primitives
    *   <index-get-data(|Type())> Def([Entity(), "Bar"]) => [DefData([Entity(), "Bar"], Type(), TYPE("Bar")), ...]
    *
    * @param kind Only data of this kind is returned.
+   * @type Def(uri) -> List(DefData(uri, kind, value))
    */
   index-get-data(|kind):
     <with(?Def(uri) | "Def expected")> -> <index-get-value> DefData(uri, kind, ())
@@ -624,6 +638,7 @@ rules // index API query primitives
    *   <index-get-data-all(|Type())> Def([Entity(), "Bar"]) => [TYPE("Bar"), ...]
    *
    * @param kind Only data of this kind is returned.
+   * @type Def(uri) -> List(value)
    */
   index-get-data-all(|kind):
     <with(?Def(uri) | "Def expected")> -> <index-get-all-values> DefData(uri, kind, ())
@@ -633,6 +648,8 @@ rules // index API query primitives
    *
    * Example:
    *   <index-get-uses-all> Def([Entity(), "M", "Bar"]) => [Use([Entity(), "M", "Bar"]), ...]
+   *
+   * @type Def(uri) -> List(Use(uri))
    */
   index-get-uses-all:
     <with(?Def(uri) | "Def expected")> -> <index-get-all> Use(uri)
@@ -642,6 +659,8 @@ rules // index API query primitives
    *
    * Example:
    *   <index-get-reads-all> [Property(), "Bar", "p"] => [Read([Property(), "Bar", "p"]), ...]
+   *
+   * @type Def(uri) -> List(Read(uri) or ReadWildcard(uri, prefix))
    */
   index-get-reads-all:
     template -> <conc> (reads, readwildcards')
@@ -660,6 +679,8 @@ rules // index API query primitives
    *
    * Example:
    *   <index-get-all> Def([Entity(), "Bar"]) => [Def([Entity(), "Bar"]), ...]
+   *
+   * @type template -> List(elem)
    */
   index-get-all:
     template -> <indexlib-get-all> template
@@ -675,6 +696,8 @@ rules // index API query primitives
    * Example:
    *   <index-get-all-values> DefData([Property(), "s"], Type(), ()) => [TYPE("String"), ...]
    *
+   * @type template -> List(value)
+   *
    * @see index-value
    */
   index-get-all-values:
@@ -685,6 +708,8 @@ rules // index API query primitives
    *
    * Example:
    *   <index-get> Def([Entity(), "Bar"]) => Def([Entity(), "Bar"])
+   *
+   * @type template -> ?elem
    */
   index-get:
     template -> <?[<id>|_]> <index-get-all> template
@@ -694,6 +719,8 @@ rules // index API query primitives
    *
    * Example:
    *   <index-get-value> DefData([Entity(), "Bar"], Type(), ()) => TYPE("Bar")
+   *
+   * @type template -> ?value
    *
    * @see index-value
    */
@@ -710,6 +737,7 @@ rules // index API query primitives
    *   <index-get-children(|Field())> [Entity(), "Baz"] => [Def([Field(), "Bar"]), Def([Field(), "Foo"]), ...]
    *
    * @param namespace Only child Def elements in this namespace are returned.
+   * @type Def(uri) or "name"{uri} or uri@[namespace|path] -> List(Def(uri))
    */
   index-get-children(|namespace) = 
     index-get-children(\uri -> Def(uri)\|namespace)
@@ -720,6 +748,7 @@ rules // index API query primitives
    *
    * @param construct-template  uri -> template. Should create a template to match index entries with, given an URI.
    * @param namespace           Only child elements in this namespace are returned.
+   * @type Def(uri) or "name"{uri} or uri@[namespace|path] -> List(Def(uri))
    */
   index-get-children(construct-template|namespace):
     <with(?Def([parent-ns | path]) <+ ?_{[parent-ns | path]} <+ ?[parent-ns | path] | "Def, key or uri expected")> -> children
@@ -739,6 +768,7 @@ rules // index API query primitives
    *
    * @param namespace Only child Def elements in this namespace are returned.
    * @param prefix    Only child Def elements where the name starts with this prefix are returned.
+   * @type Def(uri) or "name"{uri} or uri@[namespace|path] -> List(Def(uri))
    */
   index-get-children(|namespace, prefix) = 
     index-get-children(\uri -> Def(uri)\|namespace, prefix)
@@ -751,6 +781,7 @@ rules // index API query primitives
    * @param construct-template  uri -> template. Should create a template to match index entries with, given an URI.
    * @param namespace           Only child elements in this namespace are returned.
    * @param prefix              Only child elements where the name starts with this prefix are returned.
+   * @type Def(uri) or "name"{uri} or uri@[namespace|path] -> List(Def(uri))
    */
   index-get-children(construct-template|namespace, prefix):
     <with(?Def([parent-ns | path]) <+ ?_{[parent-ns | path]} <+ ?[parent-ns | path] | "Def, key or uri expected")> -> children'
@@ -770,6 +801,7 @@ rules // index API query primitives
    *
    * @param construct-from-uri  uri -> List(elements). Construction strategy that creates a list of reference 
    *                            constructs from all given entries, such as \uri -> [Read(uri), Use(uri, [])]\
+   * @type List(elem) -> List((file, subfile))
    */
   index-get-referenced-files(construct-from-uri):
     entries -> files
@@ -784,6 +816,8 @@ rules // index API query primitives
    * Example:
    *   <index-get-dependent-files> [Def([Entity(), "Bar"]), ...] => [("fullpath/otherfile.ext", "subfile"), ...]
    *
+   * @type List(elem) -> List((file, subfile))
+   *
    * @see index-get-referenced-files(construct-from-uri)
    * @see index-file-dependent-construct
    */
@@ -794,12 +828,16 @@ rules // Index lookup rules (take into account adjust-index-lookup)
  
   /**
    * Given an annotated AST node, resolves it, returning its Def.
+   *
+   * @type "name"{uri} -> ?Def(uri')
    */
   index-lookup:
     x{[namespace|path]} -> <index-lookup(id|<index-namespace-unwrap> namespace, path, <strip-annos> x)>
  
   /**
    * Given an annotated AST node, resolves it, returning all its Defs.
+   * 
+   * @type "name"{uri} -> List(Def(uri'))
    */
   index-lookup-all:
     x{[namespace|path]} -> <index-lookup-all(id|<index-namespace-unwrap> namespace, path, <strip-annos> x)>
@@ -810,6 +848,7 @@ rules // Index lookup rules (take into account adjust-index-lookup)
    * @param prefix  Only Defs with a name that starts with this string are returned.
    *
    * @internal
+   * @type "name"{uri} -> ?Def(uri')
    */
   index-lookup(is-adjust-lookup-enabled|namespace, path, prefix):
     x -> def
@@ -830,6 +869,7 @@ rules // Index lookup rules (take into account adjust-index-lookup)
    *
    * @param prefix  Only Defs with a name that starts with this string are returned.
    *
+   * @type "name"{uri} -> List(Def(uri'))
    * @internal
    */
   index-lookup-all(is-adjust-lookup-enabled|namespace, path, prefix):
@@ -849,6 +889,7 @@ rules // Index lookup rules (take into account adjust-index-lookup)
    * Given an annotated AST node, returns the outermost Def with a corresponding URI.
    *
    * @param prefix  Only Defs with a name that starts with this string are returned.
+   * @type "name"{uri} -> ?Def(uri')
    */
   index-lookup-outermost(|prefix):
     x{[namespace|path]} -> <index-lookup-outermost(id|<index-namespace-unwrap> namespace, path, prefix)>
@@ -858,6 +899,7 @@ rules // Index lookup rules (take into account adjust-index-lookup)
    *
    * @param prefix  Only Defs with a name that starts with this string are returned.
    *
+   * @type "name"{uri} -> ?Def(uri')
    * @internal
    */
   index-lookup-outermost(is-adjust-lookup-enabled |namespace, path, prefix):
@@ -871,9 +913,10 @@ rules // Index lookup rules (take into account adjust-index-lookup)
       def        := <index-select(|namespace, path, x)>
  
   /**
-   * Given an annotated AST node, returns a Def that has the same parent URI.
+   * Given an annotated AST node, returns Defs that have the same parent URI.
    *
    * @param prefix  Only Defs with a name that starts with this string are returned.
+   * @type "name"{uri} -> List(Def(uri'))
    */
   index-lookup-one-level(|prefix):
     x{[namespace|path]} -> <index-lookup-one-level(id|<index-namespace-unwrap> namespace, path, prefix)>
@@ -884,6 +927,7 @@ rules // Index lookup rules (take into account adjust-index-lookup)
    * @param namespace Only Defs with this namespace are returned.
    * @param prefix    Only Defs with a name that starts with this string are returned.
    *
+   * @type "name"{uri} -> List(Def(uri'))
    * @internal
    */
   index-lookup-one-level(is-adjusted-lookup-enabled|namespace, path, prefix):
@@ -907,6 +951,7 @@ rules // Index lookup rules (take into account adjust-index-lookup)
    *
    * @param namespace Only Defs with this namespace are returned.
    * @param prefix    Only Defs with a name that starts with this string are returned.
+   * @type "name"{uri} -> List(Def(uri'))
    */
   index-lookup-all-levels(|prefix):
     x{[namespace|path]} -> <index-lookup-all-levels(id|<index-namespace-unwrap> namespace, path, prefix)>
@@ -917,6 +962,7 @@ rules // Index lookup rules (take into account adjust-index-lookup)
    * @param prefix  Only Defs with a name that starts with this string are returned.
    *
    * @internal
+   * @type "name"{uri} -> List(Def(uri'))
    */
   index-lookup-all-levels(is-adjust-lookup-enabled |namespace, path, prefix):
     x{_} -> all-defs
@@ -944,6 +990,7 @@ rules // Index lookup rules (take into account adjust-index-lookup)
    *
    * @param namespace Only child Defs with this namespace are returned.
    * @param prefix    Only Defs with a name that starts with this string are returned.
+   * @type "name"{uri} -> List(Def(uri'))
    */
   index-lookup-children(|namespace, prefix): // TODO: how does this compare w/ index-lookup-one-level?
     x{[ns | path]} -> defs
@@ -963,7 +1010,9 @@ rules // Index utilities
    * Gets the namespace part of the URI for given key (term{uri} element).
    *
    * Example:
-   *   <index-uri-namespace> "Bar"{[Entity(), "Bar", "Baz"]} => Entity() 
+   *   <index-uri-namespace> "Bar"{[Entity(), "Bar", "Baz"]} => Entity()
+   *
+   * @type "name"{uri@[namespace|path]} -> namespace
    */
   index-uri-namespace:
     x{[namespace|path]} -> <index-namespace-unwrap> namespace
@@ -973,6 +1022,8 @@ rules // Index utilities
    *
    * Example:
    *   <index-uri-path> "Bar"{[Entity(), "Bar", "Baz"]} => ["Bar", "Baz"]
+   *
+   * @type "name"{uri@[namespace|path]} -> path'
    */
   index-uri-path:
     x{[namespace|path]} -> path'
@@ -988,6 +1039,8 @@ rules // Index utilities
    *
    * Example:
    *   <index-uri-name> "Bar"{[Entity(), "Bar", "Baz"] => "Bar"
+   *
+   * @type "name"{uri@[namespace|[name|restPath]]} -> name
    */ 
   index-uri-name:
     x{[_|[name|_]]} -> name
@@ -999,6 +1052,8 @@ rules // Index utilities
    *   <index-uri-name> Def([Entity(), "Bar", "Baz"]) => "Bar"
    *   <index-uri-name> Type("Foo") => fail
    *   <index-uri-name> Read([Entity()]) => fail
+   *
+   * @type x -> name
    */   
   index-uri-name:
     x -> <index-uri-name> <index-uri> x
@@ -1008,7 +1063,9 @@ rules // Index utilities
   /**
    * Determines if a given AST node is a definition site, according to the syntax.
    *
-   * TODO: Does not work?
+   * FIXME: Also succeeds on use sites.
+   *
+   * @type def -> ?def
    */
   index-is-definition =
     where(nam-get-definition-key)
@@ -1020,6 +1077,8 @@ rules // Index utilities
    *   <index-key-eq> ("Bar"{[Entity(), "Bar"]}, "Bar"{[Unresolved(Entity()), "Bar"]}) => 
    *     ("Bar"{[Entity(), "Bar"]}, "Bar"{[Unresolved(Entity()), "Bar"]})
    *   <index-key-eq> ("Foo"{[Entity(), "Foo"]}, "Bar"{[Entity(), "Bar"]}) => fail
+   *
+   * @type (k1, k2) -> ?(k1, k2)
    */      
   index-key-eq:
     (k1, k2) -> <id>

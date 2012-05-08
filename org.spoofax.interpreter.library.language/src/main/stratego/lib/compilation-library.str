@@ -14,6 +14,8 @@ rules // Extension points
    * Extension example:
    *   index-desugar-ast:
    *     ast -> <desugar> ast
+   *
+   * @type ast -> ast'
    */
   index-desugar-ast = fail
     
@@ -36,6 +38,7 @@ rules // Extension points
    *
    * @param file    The file that must be compiled.
    * @param subfile The subfile that must be compiled ("" if there is no subfile).
+   * @type ast -> None()
    */
   index-compile-ast(|file, subfile) = fail
   
@@ -43,6 +46,8 @@ rules // Compilation
   
   /**
    * Schedules compilation in the background of all files that have changed since the last compilation.
+   *
+   * @type x -> x
    */
   index-schedule-compilation:
     _ -> None()
@@ -119,6 +124,8 @@ rules // On save handling
    * Compilation can be delayed by using disable-commit-and-compile. Compilation will be triggered when 
    * enable-commit-and-compile is called.
    *
+   * @type language -> ?language
+   *
    * @see enable-commit-and-compile
    * @see disable-commit-and-compile
    */
@@ -134,6 +141,8 @@ rules // On save handling
   /**
    * Delays commit and compilation until enable-commit-and-compile is called.
    *
+   * @type x -> x
+   *
    * @see enable-commit-and-compile
    */
   disable-commit-and-compile = 
@@ -142,6 +151,8 @@ rules // On save handling
   /**
    * Cancels the commit and compilation delay. If commit and compilation was triggered during the delay, it
    * is triggered now.
+   *
+   * @type x -> x
    *
    * @see disable-commit-and-compile
    */
