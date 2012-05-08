@@ -31,29 +31,103 @@ signature constructors
   // Parallel
   ParallelResults : AST * AST * List(Error) * List(Warning) * List(Note) * List(File) -> ParallelResults
   
-rules // extension points
+rules // Index analysis extension points
  
-  // Should return list of Def(_) and/or [namespace | path] or StopLookup() to stop the lookup
-  adjust-index-lookup(is-use |namespace, path, prefix) = fail
- 
-  // Should call <store-results> on a (list of) DefData
-  adjust-index-def-data(store-results |namespace, path) = fail
- 
-  // Should return a path
-  adjust-index-path(is-def |namespace, path) = fail
- 
-  // adjust-index-path-from-filesystem(|project-path, path)
+  /**
+   * Extension point. Override this rule to adjust how the index analysis looks up use sites to definitions.
+   *
+   * The overriden rule must return a list that contains any of the following items:
+   *   - Def(uri)         : A definition with exactly this URI has been found. This tells the lookup to resolve the
+   *                        use site to this definition.
+   *   - [namespace|path] : This tells the lookup to do a new lookup at the given namespace and path.
+   * 
+   * Returning multiple of these in the list is allowed, these will all show up during content completion and possibly
+   * other custom strategies. If multiple items are returned during reference resolving for example, the first item
+   * will be used.
+   *
+   * If the lookup has failed, for example your custom rule cannot find any definitions, you can also return 
+   * StopLookup() instead of a list. This tells the lookup algorithm to stop any further lookups for this use site.
+   * This can be useful to stop lookups for recursive expressions like property access, preventing a lot of useless
+   * lookups that will always fail anyway.
+   *
+   * Extension example:
+	 *   adjust-index-lookup(check-target-name|namespace, path, prefix):
+	 *	   PropAccess(exp, name) -> properties
+	 *     where
+	 *       <check-target-name> name
+	 *	   with
+   *	     if TYPE(type{_}) := <type-of> exp then
+	 *	       properties := <index-lookup-children(|Property(), prefix)> type
+	 *	     else
+	 *	       properties := StopLookup()
+	 *	     end
+	 *
+	 *   adjust-index-lookup(check-target-name|namespace, path, prefix):
+   *     Var(name) -> [[Var() | path], [Property() | path]]
+   *     where
+   *       <check-target-name> name
+   *
+   * @param check-target-name   A strategy that should be used to check if the name of the current element is what the
+   *                            lookup algorithm is looking for.
+   * @param namespace           The namespace of the element that should be looked up.
+   * @param path                The path the lookup algorithm is currently looking at for the element.
+   * @param prefix              The prefix name of the element the lookup algorithm is looking for. This is usually the
+   *                            full name of the element, but could be a partial prefix during content completion.
+   */
+  adjust-index-lookup(check-target-name|namespace, path, prefix) = fail
+  
+  /** 
+   * Extension point. Override this rule to store data about definitions in the index. Should call <store-results> on 
+   * a (list of) data that must be stored in the index.
+   *
+   * Note that store-results always fails, this is a trick to make every adjust-index-def-data override always fail so 
+   * that every overriden rule is called once for each definition. This can lead to unexpected behaviour when trying to 
+   * store multiple items by calling store-results in a map or filter! Be sure to always let your adjust-index-def-data 
+   * rule fail if you are doing a <filter(store-results)> for example.
+   *
+   * Extension example:
+	 *   adjust-index-def-data(store-results|namespace, path):
+	 *     def -> <store-results> Type([namespace|path], type)
+	 *     where
+	 *       type := <type-of> def
+   *
+   * @param store-results Call this on the data you want to store in the index.
+   * @param namespace     The namespace of the definition that the rule is being called on.
+   * @param path          The path of the definition that the rule is being called on.
+   */
+  adjust-index-def-data(store-results|namespace, path) = fail
   
   /**
-   * Should define constructors to check for difference during analysis. Defaults to Def constructs.
+   * Extension point. Override this rule to adjust how the index assigns a namespace and path (URI) to definitions and
+   * use sites. Should return a path that will be assigned to the definition or use site.
+   *
+   * Extension example:
+   *   adjust-index-path(check-target-definition|namespace, path):
+   *     Start(_, _) -> [<string-replace(|<project-path>, "")> <Fst> <index-get-current-file>]
+   *
+   *
+   * @param check-target-definition 
+   * @param namespace               The namespace that would be given to the current definition or use site.
+   * @param path                    The path that would be given to the current definition or use site.
+   */
+  adjust-index-path(check-target-definition|namespace, path) = fail
+  
+  /**
+   * Extension point. Override this rule to define index-stored constructors to check for difference during analysis.
+   * The index-diff-compare extension point is used to do the actual comparison. Defaults to Def constructs.
    *
    * Extension example:
    *   index-diff-constructors = ?Type(_, _)
+   *
+   * @see index-diff-compare
    */
-  index-diff-constructors = ?Def(_)
+  index-diff-constructors = 
+    ?Def(_)
   
   /**
-   * Should compare two index elements and fail if they are not equal.
+   * Extension point. Override this rule to define a custom comparison of two index elements. It should fail if they 
+   * are not equal and return the indentity if they are equal. Only constructors defined by index-diff-constructors are
+   * compared.
    *
    * Extension example:
 	 *   index-diff-compare:
@@ -61,13 +135,15 @@ rules // extension points
    *     where
    *       <index-uri-eq> (u1, u2);
    *       <eq> (v1, v2)
+   *
+   * @see index-diff-constructors
    */
   index-diff-compare:
     (Def(u1), Def(u2)) -> <id>
     where
        <index-uri-eq> (u1, u2)
  
-rules // analysis traversals
+rules // Analysis traversals
   
   /**
    * Analyses given AST and annotates definition and use sites found in the AST with URIs.
@@ -148,9 +224,9 @@ rules // analysis traversals
 	      changed := <conc> (added, removed);
 	      
         // Store files that have changed in the index
-        index-start-transaction;
-        filesToAnalyze := <analyze-store-diff(|changed, revision)> astFilePairs4;
-        index-end-transaction
+        index-transaction(
+          filesToAnalyze := <analyze-store-diff(|changed, revision)> astFilePairs4
+        )
 	    else
 	      (added, removed) := ([], []);
 	      filesToAnalyze := []
@@ -355,8 +431,18 @@ rules // analysis traversals
         <iset-add(|t)> set
       end
   
-rules // parallel analysis
+rules // Parallel analysis
   
+  /**
+   * Does a parallel analysis of given files using the specified analysis strategy. Automatically does parallel
+   * analysis of dependent files that have changed during the analysis.
+   *
+   * Example:
+   *   <index-parallel-analyze-files(analyze)> ["text/file1.ext", "text/file2.ext"]
+   *
+   * @param analyze Strategy that analyzes a file using the index. Gets a (ast, path, project-path) tuple as input and
+   *                must return a (ast', errors, warnings, notes, filesToAnalyze) tuple as output.
+   */
   index-parallel-analyze-files(analyze):
     files -> None()
     with
@@ -406,15 +492,22 @@ rules // parallel analysis
       if [] := filesToAnalyze then
         complete-work-unit
       end
-
-rules // splitter
+      
+/** @internal */
+rules // Splitter
   
+  /** @internal */
   index-split = fail
+  /** @internal */
   index-is-toplevel = fail
+  /** @internal */
   index-is-qualifier = fail
+  /** @internal */
   index-qualifier-subelements = fail
+  /** @internal */
   index-create-qualifier(|qualifier) = fail
   
+  /** @internal */
   index-toplevel-split:
     ast -> asts'
     with
@@ -422,6 +515,7 @@ rules // splitter
       asts      := <index-toplevel-split-internal> ast';
       asts'     := <strip-annos> asts
       
+  /** @internal */
   index-toplevel-split-internal:
     node -> units
     with
@@ -437,12 +531,14 @@ rules // splitter
           units := [(node, [])]
       end
       
+  /** @internal */
   index-transform-qualifier(|node):
     (elem, subfileName) -> (qualifier, subfileName)
     with
     	qualifier := <index-create-qualifier(|node)> elem
 
-rules // diffs
+/** @internal */
+rules // Diffs
   
   /** @internal */
   analyze-diff:
@@ -642,7 +738,8 @@ rules // index API query primitives
    *   <index-get-children(|Field(), "ba")> "Foo"{[Entity(), "Baz"]} => [Def([Field(), "Bar"]), ...]
    *   <index-get-children(|Field(), "ze")> [Entity(), "Baz"] => [...]
    */
-  index-get-children(|namespace, prefix) = index-get-children(\uri -> Def(uri)\|namespace, prefix)
+  index-get-children(|namespace, prefix) = 
+  	index-get-children(\uri -> Def(uri)\|namespace, prefix)
   
   /**
    * Gets all children elements of an URI in a certain namespace where the name starts with a prefix
@@ -943,31 +1040,43 @@ rules // Index utilities
 /** @internal */
 rules // URI and value projections
        
+  /** @internal */
   index-uri-impl:
     Def(uri) -> uri
     
+  /** @internal */  
   index-uri-impl:
     Use(uri) -> uri
     
+  /** @internal */  
   index-uri-impl:
     Read(uri) -> uri
     
+  /** @internal */  
   index-uri-impl:
     x{[namespace | path]} -> [<index-namespace-unwrap> namespace | path]
  
-  // TODO: Should second part of ReadWildcard be included in the URI, between namespace and path?
+  /**
+   * TODO: Should second part of ReadWildcard be included in the URI, between namespace and path?
+   * 
+   * @internal 
+   */
   index-uri-impl:
     ReadWildcard(uri, _) -> uri
 
+  /** @internal */
   index-value-impl:
     Def(value) -> value
 
+  /** @internal */
   index-value-impl:
     Use(value) -> value
 
+  /** @internal */
   index-value-impl:
     Read(value) -> value
-    
+  
+  /** @internal */
   index-value-impl:
     ReadWildcard(_, value) -> value
        
@@ -975,8 +1084,9 @@ rules // URI and value projections
 rules // Internal helpers
 
   /**
-   * Transforms a term C( (a1, [b1]), (a2, [b2, b3]) )
-   * to a tuple (C(a1, a2), [b1, b2, b3]).
+   * Transforms a term C( (a1, [b1]), (a2, [b2, b3]) ) to a tuple (C(a1, a2), [b1, b2, b3]).
+   *
+   * @internal
    */
   unzip-analyzed:
     appl -> (appl', unzipped-parts)
@@ -984,31 +1094,48 @@ rules // Internal helpers
       appl'          := <all(\(a, _) -> a\)> appl;
       unzipped-parts := <concat> <get-appl-arguments(\(_, b) -> b\) <+ map(\(_, b) -> b\) <+ ![]> appl
        
-  // Tests if the current file is just a testing language input
-  is-test-file = string-ends-with(|".spt")
-  is-test-language = ?"Spoofax-Testing"
-  is-test-input(|language, path) = <is-test-language> language <+ <is-test-file> path
+  /**
+   * Tests if the current file is just a testing language input
+   *
+   * @internal
+   */
+  is-test-file = 
+  	string-ends-with(|".spt")
+  /** @internal */
+  is-test-language = 
+  	?"Spoofax-Testing"
+  /** @internal */
+  is-test-input(|language, path) = 
+  	<is-test-language> language <+ <is-test-file> path
       
-  fake-file = is-test-file <+ index-is-fake-file
-      
-  index-filepair-to-file = Fst; string-replace(|$[[<project-path>]/], "")
+  /** @internal */
+  fake-file = 
+  	is-test-file <+ index-is-fake-file
   
+  /** @internal */    
+  index-filepair-to-file = 
+  	Fst; string-replace(|$[[<project-path>]/], "")
+  
+  /** @internal */
   ast-uri-to-ast-file(|full-path):
     (ast, uri) -> (ast, (full-path, uriStr))
     with
       (<index-uri-to-string> uri <+ !"") => uriStr
-       
+  
+  /** @internal */     
   index-is-name-substring(|name):
     template -> <id>
     with
       [_, uri-name | _] := <index-uri>
     where
       <is-substring(!name)> uri-name
-      
+   
+  /** @internal */    
   index-readwildcard-substring(|prefix):
     ReadWildcard(_, name) -> <id>
     where <is-substring(!prefix)> name
-    
+  
+  /** @internal */  
   store-wildcard-read(|namespace, path, prefix):
     children -> <id>
     with
@@ -1021,24 +1148,33 @@ rules // Internal helpers
           <iset-add(|ReadWildcard([namespace | path], prefix))> set
         end
       end
-      
-  index-is-unresolved(|x, uri) = Index-UnresolvedSet; (iset-contains(|(x, uri)) <+ fail)
-  index-add-unresolved(|x, uri) = (Index-UnresolvedSet; iset-add(|(x, uri))) <+ id
   
+  /** @internal */    
+  index-is-unresolved(|x, uri) = 
+  	Index-UnresolvedSet; (iset-contains(|(x, uri)) <+ fail)
+  /** @internal */
+  index-add-unresolved(|x, uri) = 
+  	(Index-UnresolvedSet; iset-add(|(x, uri))) <+ id
+  
+  /** @internal */
   index-file-dependent-construct: 
     uri -> <conc> (uses, reads)
     with
     	uses := <index-get-uses-all> Def(uri);
     	reads := <index-get-reads-all> Def(uri)
-    
-  index-file-dependency-filter = ?Read(_) <+ ?ReadWildcard(_, _) <+ ?Use(_)
+  
+  /** @internal */  
+  index-file-dependency-filter = 
+  	?Read(_) <+ ?ReadWildcard(_, _) <+ ?Use(_)
  
+  /** @internal */
   do-adjust-index-lookup(|namespace, path, use, prefix) =
     repeat-until(
       prim("SSL_EXT_get_parent", <id>)
     , adjust-index-lookup(origin-equal(|use) |namespace, path, prefix) 
     )
  
+  /** @internal */
   index-select(|namespace, path, use) =
     getfirst(
       where(
@@ -1046,6 +1182,7 @@ rules // Internal helpers
       )
     )
  
+  /** @internal */
   index-select-all(|namespace, path, use) =
     filter(
       where(
@@ -1053,33 +1190,43 @@ rules // Internal helpers
       )
     )
  
+  /** @internal */
   do-adjusted-index-path(|namespace, path, def) =
     adjust-index-path(origin-equal(|def) |namespace, path)
   <+
     ![def | path]
  
+  /** @internal */
   index-eq(|namespace, expected) =
     where(
       ?Def([_, name | _]);
       <SRTS-EXT-eq-ignore-annos(|expected)> name
     )
   
+  /** @internal */
   external SRTS-EXT-eq-ignore-annos(|t)
   
+  /** @internal */
   index-key-unwrap = 
     \key{uri} -> key{<index-uri-unwrap> uri}\ <+ id
 
 /** @internal */
-rules // interface for generated code
+rules // Interface for generated code
  
+  /** @internal */
   nam-get-def(|namespace):
     x -> Def([namespace, x | <IndexPath <+ ![]> namespace])
-   
+  
+  /** @internal */ 
   nam-annotate-use(|namespace):
     t -> t{[Unresolved(namespace), t | <IndexPath <+ ![]> namespace]}
-   
+  
+  /** @internal */ 
   nam-get-scope-types = fail
+  /** @internal */
   nam-get-definition = fail
+  /** @internal */
   nam-get-definition-key = fail
+  /** @internal */
   nam-annotate-names(|def-path) = fail
   

@@ -33,6 +33,9 @@ rules // Index management
    * Sets up the index library for given language and project paths.
    * Must be called once before doing anything with the library.
    *
+   * @param language      The language to set the index up for.
+   * @param project-path  The project paths that contain all source files to analyse and compile.
+   *
    * @obsolete
    */
   index-setup(|language, project-paths) =
@@ -40,8 +43,16 @@ rules // Index management
     index-setup(|language, project-paths, ".")
     
   /**
-   * Sets up the index library for given language and project paths.
+   * Sets up the index library for given language, project paths and current file.
    * Must be called once before doing anything with the library.
+   *
+   * @param language      The language to set the index up for.
+   * @param project-path  The project paths that contain all source files to analyse and compile.
+   * @param current-file  The current file that is being analysed. Can be retrieved later using index-get-current-file.
+   *                      Can also be changed later using index-set-current-file.
+   *
+   * Example:
+   *   <index-setup(|"MiniJava", [<project-path>], "test/test.mjv")
    */
   index-setup(|language, project-paths, current-file) =
     prim("LANG_index_setup", language, project-paths, current-file)
@@ -59,6 +70,8 @@ rules // Index management
   /**
    * Adds given element to the index with given file path and optionally subfile.
    *
+   * @param file  The file (and subfile) to add the element to.
+   *
    * Example:
    *   <index-add(|"fullpath/file.ext")> Def([Entity(), "Bar"])
    *   <index-add(|("fullpath/file.ext", "subfile"))> Def([Entity(), "Bar"])
@@ -68,6 +81,8 @@ rules // Index management
 
   /**
    * Adds all given elements to the index with given file path and optionally subfile.
+   *
+   * @param file  The file (and subfile) to add the elements to.
    *
    * Example:
    *   <index-add-all(|"fullpath/file.ext")> [Def([Entity(), "Bar"]), ...]
@@ -79,6 +94,8 @@ rules // Index management
   /**
    * Removes given element from the index that is contained in given file path and optionally subfile.
    *
+   * @param file  The file (and subfile) to remove the element from.
+   *
    * Example:
    *   <index-remove(|"fullpath/file.ext")> Def([Entity(), "Bar"])
    *   <index-remove(|("fullpath/file.ext", "subfile"))> Def([Entity(), "Bar"])
@@ -88,6 +105,8 @@ rules // Index management
     
   /**
    * Removes all given elements from the index that are contained in given file path and optionally subfile.
+   *
+   * @param file  The file (and subfile) to remove the elements from.
    *
    * Example:
    *   <index-remove-all(|"fullpath/file.ext")> [Def([Entity(), "Bar"]), ...]
@@ -120,20 +139,22 @@ rules // Index management
 
   /**
    * Starts a transaction on the index for the current file. Additions to the index are not visible to other files 
-   * until index-end-transaction is called.
+   * until index-end-transaction is called. Operations on the index are only thread safe during a transaction.
    */
   index-start-transaction = 
     prim("LANG_index_start_transaction")
   
   /**
    * Ends a transaction on the index for the current file. Additions made to the index during the transaction are
-   * added to the global index visible for other files.
+   * added to the global index visible for other files. Operations on the index are not thread safe any more after 
+   * this call.
    */
   index-end-transaction = 
     prim("LANG_index_end_transaction")
   
   /**
-   * Starts a transaction, applies given strategy and ends the transaction.
+   * Starts a transaction, applies given strategy and ends the transaction. All index operations used from the given
+   * strategy are thread safe.
    * 
    * @param s The strategy to apply.
    *
@@ -147,15 +168,18 @@ rules // Index querying
   
   /**
    * Gets the file that the analysis is currently in.
+   *
+   * @see index-setup(|language, project-paths, current-file)
+   * @see index-set-current-file
    */
   index-get-current-file =
     prim("LANG_index_get_current_file")
   
   /**
-   * Gets a list of all files and subfile for current project.
+   * Gets a list of all files and subfiles for current project.
    *
    * Example:
-   *   <index-get-all-files> => ["fullpath/file.ext", ...]
+   *   <index-get-all-files> => [("fullpath/file.ext", "subfile"), ...]
    */   
   index-get-all-files =
     prim("LANG_index_all_files")
@@ -277,6 +301,8 @@ rules // Index globals
    * Example:
    *   index-get-global(|"last-compile") => Timestamp(1334322856)
    *   index-get-global(|["last-compile", "file.str"]) => Timestamp(1334322856)
+   * 
+   * @param name  The name or list of names to identify the global value.
    */
   index-get-global(|name):
     _ -> value
@@ -289,6 +315,8 @@ rules // Index globals
    * Example:
    *   index-get-global(|"last-compile") => [Timestamp(1334322856), ...]
    *   index-get-global(|["last-compile", "file.str"]) => [Timestamp(1334322856), ...]
+   *
+   * @param name  The name or list of names to identify the global value.
    */ 
   index-get-all-globals(|name):
     _ -> values
@@ -301,6 +329,8 @@ rules // Index globals
    * Example:
    *   <index-add-global(|"last-compile")> Timestamp(1334322856)
    *   <index-add-global(|["last-compile", "file.str"])> Timestamp(1334322856)
+   *
+   * @param name  The name or list of names to identify the global value.
    */   
   index-add-global(|name):
     value -> <id>
@@ -313,6 +343,8 @@ rules // Index globals
    * Example:
    *   <index-set-global(|"last-compile")> Timestamp(1334322856)
    *   <index-set-global(|["last-compile", "file.str"])> Timestamp(1334322856)
+   *
+   * @param name  The name or list of names to identify the global value.
    */   
   index-set-global(|name):
     value -> <id>
@@ -326,6 +358,8 @@ rules // Index globals
    * Example:
    *   index-clear-global(|"last-compile")
    *   index-clear-global(|["last-compile", "file.str"])
+   *
+   * @param name  The name or list of names to identify the global value.
    */   
   index-clear-global(|name):
     _ -> <id>
@@ -352,6 +386,8 @@ rules // Index globals
    * Example:
    *   index-enable-global(|"can-compile")
    *   index-enable-global(|["can-compile", "file.str"])
+   *
+   * @param name  The name or list of names to identify the global boolean value.
    */   
   index-enable-global(|name):
     _ -> <id>
@@ -364,6 +400,8 @@ rules // Index globals
    * Example:
    *   index-disable-global(|"can-compile")
    *   index-disable-global(|["can-compile", "file.str"])
+   *
+   * @param name  The name or list of names to identify the global boolean value.
    */   
   index-disable-global(|name):
     _ -> <id>
@@ -376,6 +414,8 @@ rules // Index globals
    * Example:
    *   index-is-global-enabled(|"can-compile")
    *   index-is-global-enabled(|["can-compile", "file.str"])
+   *
+   * @param name  The name or list of names to identify the global boolean value.
    */   
   index-is-global-enabled(|name):
     _ -> <id>
@@ -385,9 +425,18 @@ rules // Index globals
 rules // Index utility
   
   /**
-   * Gets the URI part for given term.
+   * Gets the URI part for given term. Can be extended by defining a index-uri-impl rule. If no index-uri-impl rule
+   * is defined for the given term the first subterm is used as the URI. Fails if no URI can be retrieved from the
+   * given term.
+   *
+   * Example:
+   *   <index-uri> DefData([Entity(), "Bar", "Baz"], Type(), TYPE("Bar")) => [Entity(), "Bar", "Baz"]
+   *
+   * @see index-uri-impl
+   * @see index-uri-generic
    */ 
-  index-uri = index-uri-impl <+ index-uri-generic
+  index-uri = 
+  	index-uri-impl <+ index-uri-generic
   
   /**
    * Gets the namespace part of the given URI.
@@ -419,14 +468,24 @@ rules // Index utility
     ?[_|[<id>|_]]
   
   /**
-   * Gets the value part for given term.
+   * Gets the value part for given term. Can be extended by defining a index-value-impl rule. If no index-value-impl 
+   * rule is defined for the given term the second subterm is used as the value. Fails if no value can be retrieved
+   * from the given term.
+   *
+   * Example:
+   *   <index-value> DefData([Entity(), "Bar", "Baz"], Type(), TYPE("Bar")) => TYPE("Bar")
+   *
+   * @see index-value-impl
+   * @see index-value-generic
    */  
-  index-value = index-value-impl <+ index-value-generic
+  index-value = 
+  	index-value-impl <+ index-value-generic
   
   /**
    * Queries if given index file is a 'fake' file for storing internal data.
    */
-  index-is-fake-file = string-starts-with(|"/.internal")
+  index-is-fake-file = 
+  	string-starts-with(|"/.internal")
   
   /**
    * Checks if given URI's are equal. Discards anonymous scopes if necessary.
@@ -497,23 +556,29 @@ rules // Index utility
 /** @internal */
 rules // URI and value projections
 	
+	/** @internal */
   index-uri-impl:
     DefData(uri, _, _) -> uri
 
+  /** @internal */
   index-uri-generic:
     term -> <?_#(<?[<id>|_]>)> term
   
+  /** @internal */
   index-value-impl:
     DefData(_, _, value) -> value
     
+  /** @internal */
   index-value-generic:
     term -> <?_#(<?[_, <id>|_]> )> term
      
 /** @internal */ 
 rules // Internal helpers
   
+  /** @internal */
   index-namespace-unwrap =
     \Unresolved(n) -> n\ <+ id
     
+  /** @internal */
   index-uri-unwrap =
     \[ns|xs] -> [<index-namespace-unwrap> ns|xs]\ <+ id
