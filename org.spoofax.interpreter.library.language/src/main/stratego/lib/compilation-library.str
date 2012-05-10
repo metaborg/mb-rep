@@ -91,7 +91,7 @@ rules // Compilation
         rules(Index-ReadSet: _ -> readSet);
         
         // Compile file
-        <index-compile-ast(|path, subfile)> ast'';
+        <try(index-compile-ast(|path, subfile))> ast'';
         
         // Store compile-time reads.
         reads := <iset-elements> readSet;
