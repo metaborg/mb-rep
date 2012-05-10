@@ -171,8 +171,13 @@ rules // Compile time reads
   /** @internal */
   index-compilation-restore-read-file:
     (file, subfile) -> (file', subfile)
-    with
+    where
       file' := <string-replace(|<index-compilation-read-path>, "")> file
+  /** @internal */
+  index-compilation-restore-read-file:
+    (file, subfile) -> (file, subfile)
+    where
+      not(<string-replace(|<index-compilation-read-path>, "")> file)
       
   /** @internal */
   index-compilation-clean-reads = 
