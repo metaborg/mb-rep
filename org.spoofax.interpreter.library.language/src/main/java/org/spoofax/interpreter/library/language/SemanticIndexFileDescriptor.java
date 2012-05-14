@@ -7,6 +7,7 @@ import java.io.File;
 import java.net.URI;
 
 import org.spoofax.interpreter.library.IOAgent;
+import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
@@ -14,7 +15,7 @@ import org.spoofax.interpreter.terms.ITermFactory;
 public class SemanticIndexFileDescriptor {
 	private final URI uri;
 	
-	private final String subfile;
+	private final IStrategoList subfile;
 	
 	private transient IStrategoTerm cachedTerm;
 	
@@ -24,13 +25,16 @@ public class SemanticIndexFileDescriptor {
 		return uri;
 	}
 	
-	public String getSubfile() {
+	public IStrategoList getSubfile() {
 		return subfile;
 	}
 	
-	public SemanticIndexFileDescriptor(URI uri, String subfile) {
+	public SemanticIndexFileDescriptor(URI uri, IStrategoList subfile) {
 		this.uri = uri;
-		this.subfile = "".equals(subfile) ? null : subfile;
+		if(subfile == null || subfile.isEmpty())
+			this.subfile = null;
+		else
+			this.subfile = subfile;
 	}
 	
 	public IStrategoTerm toTerm(ITermFactory factory) {
@@ -38,8 +42,7 @@ public class SemanticIndexFileDescriptor {
 			return cachedTerm;
 		
 		IStrategoString uriString = factory.makeString(toString());
-		IStrategoString descriptorName = factory.makeString(subfile == null ? "" : subfile);
-		cachedTerm = factory.makeTuple(uriString, descriptorName);
+		cachedTerm = factory.makeTuple(uriString, subfile == null ? factory.makeList() : subfile);
 		
 		return cachedTerm;
 	}
@@ -55,10 +58,10 @@ public class SemanticIndexFileDescriptor {
 	 */
 	public static SemanticIndexFileDescriptor fromTerm(IOAgent agent, IStrategoTerm term) {
 		String name;
-		String subfile;
+		IStrategoList subfile;
 		if (isTermTuple(term)) {
 			name = asJavaString(term.getSubterm(0));
-			subfile = asJavaString(term.getSubterm(1));
+			subfile = (IStrategoList)term.getSubterm(1);
 		} else {
 			name = asJavaString(term);
 			subfile = null;

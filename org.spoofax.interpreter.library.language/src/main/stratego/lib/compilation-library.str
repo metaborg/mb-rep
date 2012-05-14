@@ -43,6 +43,8 @@ rules // Extension points
    */
   index-compile-ast(|file, subfile) = fail
   
+  index-partial-ast = fail
+  
 rules // Compilation
   
   /**
@@ -75,23 +77,19 @@ rules // Compilation
       <set-total-work-units> <length> filteredFiles;
       
       // Compile the files
-      <filter(index-compilation-file(|language, project-path); complete-work-unit)> filteredFiles
+      <filter(index-compilation-file(|language, project-path); complete-work-unit)> <debug(!"Files to compile: ")> filteredFiles
 
   /** @internal */
   index-compilation-file(|language, project-path):
     (path, subfile) -> None()
     with
-      // Parse and analyze ast.
-      ast                              := <parse-file> path;
-      ast'                             := <try(index-desugar-ast)> ast;
-      Results(ast'', _, _, _, _, _, _) := <analyze-top-internal(|Compile(), language, project-path, path)> [(ast', (path, subfile))]
-    with
+    	ast := <index-get-global(|<conc> (<index-file-to-uri> (path, subfile), ["ast"]))>;
       {| Index-ReadSet:
         readSet := <new-iset>;
         rules(Index-ReadSet: _ -> readSet);
         
         // Compile file
-        <try(index-compile-ast(|path, subfile))> ast'';
+        <try(index-compile-ast(|path, subfile))> ast;
         
         // Store compile-time reads.
         reads := <iset-elements> readSet;

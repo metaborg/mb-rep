@@ -40,6 +40,8 @@ public class SemanticIndex implements ISemanticIndex {
 			ArrayListMultimap.create();
 	private final Multimap<URI, SemanticIndexEntry> entriesPerURI = 
 			ArrayListMultimap.create();
+	private final Multimap<IStrategoList, SemanticIndexEntry> entriesPerSubfile = 
+			ArrayListMultimap.create();
 	private final Map<SemanticIndexFileDescriptor, SemanticIndexFile> files =
 			new HashMap<SemanticIndexFileDescriptor, SemanticIndexFile>();
 	
@@ -93,6 +95,7 @@ public class SemanticIndex implements ISemanticIndex {
 		// Add entry to files.
 		entriesPerFileDescriptor.put(entry.getFileDescriptor(), entry);
 		entriesPerURI.put(entry.getFileDescriptor().getURI(), entry);
+		entriesPerSubfile.put(entry.getFileDescriptor().getSubfile(), entry);
 	}
 	
 	public void addAll(IStrategoList entries, SemanticIndexFileDescriptor fileDescriptor) {
@@ -162,7 +165,8 @@ public class SemanticIndex implements ISemanticIndex {
 			if (fileDescriptor != null)
 			{
 				entriesPerFileDescriptor.remove(fileDescriptor, entry);
-				entriesPerURI.remove(fileDescriptor.getURI(), entry); // TODO: Might not work because of hashCode of entry.
+				entriesPerURI.remove(fileDescriptor.getURI(), entry);
+				entriesPerSubfile.remove(fileDescriptor.getSubfile(), entry);
 			}
 		}
 	}
@@ -178,6 +182,8 @@ public class SemanticIndex implements ISemanticIndex {
 	public Collection<SemanticIndexEntry> getEntriesInFile(SemanticIndexFileDescriptor fileDescriptor) {
 		if(fileDescriptor.getSubfile() == null)
 			return getCollection(entriesPerURI.get(fileDescriptor.getURI()));
+		else if(fileDescriptor.getURI() == null)
+			return getCollection(entriesPerSubfile.get(fileDescriptor.getSubfile()));
 		else
 			return getCollection(entriesPerFileDescriptor.get(fileDescriptor));
 	}
@@ -236,6 +242,7 @@ public class SemanticIndex implements ISemanticIndex {
 		childs.clear();
 		entriesPerFileDescriptor.clear();
 		entriesPerURI.clear();
+		entriesPerSubfile.clear();
 		files.clear();
 	}
 	
