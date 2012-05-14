@@ -43,8 +43,6 @@ rules // Extension points
    */
   index-compile-ast(|file, subfile) = fail
   
-  index-partial-ast = fail
-  
 rules // Compilation
   
   /**
