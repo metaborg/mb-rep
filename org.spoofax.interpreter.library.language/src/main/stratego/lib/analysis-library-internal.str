@@ -16,6 +16,10 @@ signature constructors
   // Namespaces
   Diff            : Namespace
   ASTDiff         : Namespace
+  AST             : Namespace
+  
+  // Data
+  AST             : List(UriPart) * AST -> AST
   
 rules // Analysis traversals
   
@@ -70,7 +74,7 @@ rules // Analysis traversals
         filesToAnalyze := []
       end
     with
-      <list-loop(analyze-top-store-ast)> astFilePairs4
+      <list-loop(analyze-top-store-ast(|full-path))> astFilePairs4
       
   /**
    * Add URI annotations to each definition and unresolved URI annotations to each use site.
@@ -141,10 +145,10 @@ rules // Analysis traversals
    *
    * @internal
    */   
-  analyze-top-store-ast:
-    (ast, file) -> <id>
+  analyze-top-store-ast(|full-path):
+    (ast, (_, subfile)) -> <id>
     with
-      <index-set-global(|<conc> (<index-file-to-uri> file, ["ast"]))> ast
+      <index-add(|full-path)> AST(subfile, ast)
       
   /**
    * Identifies all definitions in the tree and annotates them with their URI.
@@ -152,7 +156,9 @@ rules // Analysis traversals
    *
    * @internal
    */
-  analyze-defs = analyze-defs(|Anon(), Anon())
+  analyze-defs = 
+    analyze-defs(|Anon(), Anon())
+    
   /** @internal */
   analyze-defs(|head-scope, head-scope-ns):
     ast -> (ast', defs')
