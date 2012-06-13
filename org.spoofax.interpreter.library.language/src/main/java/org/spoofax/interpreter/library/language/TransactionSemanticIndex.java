@@ -75,7 +75,7 @@ public class TransactionSemanticIndex implements ISemanticIndex {
 		Collection<SemanticIndexEntry> entries1 = transactionIndex.getEntries(template);
 		getReadLock().lock();
 		try {
-			Collection<SemanticIndexEntry> entries2 = index.getEntries(template);
+			Collection<SemanticIndexEntry> entries2 = filterInvisibleEntries(index.getEntries(template));
 			return concat(entries1, entries2);
 		} finally {
 			getReadLock().unlock();
@@ -86,7 +86,7 @@ public class TransactionSemanticIndex implements ISemanticIndex {
 		Collection<SemanticIndexEntry> entries1 = transactionIndex.getAllEntries();
 		getReadLock().lock();
 		try {
-			Collection<SemanticIndexEntry> entries2 = index.getAllEntries();
+			Collection<SemanticIndexEntry> entries2 = filterInvisibleEntries(index.getAllEntries());
 			return concat(entries1, entries2);
 		} finally {
 			getReadLock().unlock();
@@ -98,7 +98,7 @@ public class TransactionSemanticIndex implements ISemanticIndex {
 		Collection<SemanticIndexEntry> entries1 = transactionIndex.getEntryChildTerms(template);
 		getReadLock().lock();
 		try {
-			Collection<SemanticIndexEntry> entries2 = index.getEntryChildTerms(template);
+			Collection<SemanticIndexEntry> entries2 = filterInvisibleEntries(index.getEntryChildTerms(template));
 			return concat(entries1, entries2);
 		} finally {
 			getReadLock().unlock();
@@ -108,6 +108,10 @@ public class TransactionSemanticIndex implements ISemanticIndex {
 	public Collection<SemanticIndexEntry> getEntriesInFile(
 			SemanticIndexFileDescriptor fileDescriptor) {
 		Collection<SemanticIndexEntry> entries1 = transactionIndex.getEntriesInFile(fileDescriptor);
+		
+		if(isCurrentFile(fileDescriptor) && clearedCurrentFile)
+			return entries1; // Current file has been cleared, entries from index should not be visible.
+		
 		getReadLock().lock();
 		try {
 			Collection<SemanticIndexEntry> entries2 = index.getEntriesInFile(fileDescriptor);
@@ -136,18 +140,11 @@ public class TransactionSemanticIndex implements ISemanticIndex {
 	}
 	
 	public void removeFile(SemanticIndexFileDescriptor fileDescriptor) {
-		assert fileDescriptor.equals(currentFile) || fileDescriptor.getURI().equals(currentFile.getURI());
+		assert isCurrentFile(fileDescriptor);
 
 		// TODO: Might need to store which files have been removed and remove all those files when the transaction ends.
-		//clearedCurrentFile = true;
+		clearedCurrentFile = true;
 		transactionIndex.removeFile(fileDescriptor);
-		
-		getWriteLock().lock();
-		try {
-			index.removeFile(fileDescriptor);
-		} finally {
-			getWriteLock().unlock();
-		}
 	}
 
 	public Collection<SemanticIndexFile> getAllFiles() {
@@ -182,6 +179,26 @@ public class TransactionSemanticIndex implements ISemanticIndex {
 	public IStrategoTerm toTerm(boolean includePositions) {
 		// TODO: Transaction data not stored, this is ok?
 		return index.toTerm(includePositions);
+	}
+	
+	private boolean isCurrentFile(SemanticIndexFileDescriptor fileDescriptor) {
+		return fileDescriptor.equals(currentFile) || fileDescriptor.getURI().equals(currentFile.getURI());
+	}
+	
+	private boolean isEntryVisible(SemanticIndexEntry entry) {
+		return !(clearedCurrentFile && isCurrentFile(entry.getFileDescriptor()));
+	}
+	
+	private Collection<SemanticIndexEntry> filterInvisibleEntries(Collection<SemanticIndexEntry> entries) {
+		if(!clearedCurrentFile)
+			return entries;
+		
+		List<SemanticIndexEntry> l = new ArrayList<SemanticIndexEntry>(entries.size());
+		for(SemanticIndexEntry entry : entries) {
+			if(isEntryVisible(entry))
+				l.add(entry);
+		}
+		return l;
 	}
 	
 	private <T> Collection<T> concat(Collection<T> c1, Collection<T> c2) {

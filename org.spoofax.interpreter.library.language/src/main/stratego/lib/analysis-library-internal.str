@@ -62,7 +62,7 @@ rules // Analysis traversals
         newElems := <conc> (defs, <filter(index-diff-constructors)> data);
         
         // Find added and removed definitions
-        (added, removed) := <debug(!"changed ")> <analyze-diff> (oldElems, newElems);
+        (added, removed) := <analyze-diff> (oldElems, newElems);
         changed := <conc> (added, removed);
         
         // Store files that have changed in the index

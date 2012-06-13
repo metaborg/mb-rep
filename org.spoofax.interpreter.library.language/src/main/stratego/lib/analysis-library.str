@@ -564,13 +564,12 @@ rules // Index utilities
       <eq> (<index-key-unwrap> k1, <index-key-unwrap> k2)
   
   /**
-   * Given a list of file pairs and the current file, returns the list of files to re-analyze.
+   * Given a list of file pairs, returns the list of real files.
    *
-   * @param currentFile The current file that is being analyzed. This file will not be in the final result.
    * @type List((file, subfile)) -> List(file)
    */    
-  index-reanalysis-files(|currentFile):
+  index-filepairs-to-files:
     filePairs -> files
     with
-      files := <remove-all(?currentFile)> <make-set> <map(Fst; string-replace(|<project-path>, ""))> filePairs
+      files := <make-set> <map(Fst; string-replace(|<conc-strings> (<project-path>, "/"), ""))> filePairs
       
