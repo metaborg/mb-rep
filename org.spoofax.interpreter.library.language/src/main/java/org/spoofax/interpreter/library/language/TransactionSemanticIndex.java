@@ -139,8 +139,15 @@ public class TransactionSemanticIndex implements ISemanticIndex {
 		assert fileDescriptor.equals(currentFile) || fileDescriptor.getURI().equals(currentFile.getURI());
 
 		// TODO: Might need to store which files have been removed and remove all those files when the transaction ends.
-		clearedCurrentFile = true;
+		//clearedCurrentFile = true;
 		transactionIndex.removeFile(fileDescriptor);
+		
+		getWriteLock().lock();
+		try {
+			index.removeFile(fileDescriptor);
+		} finally {
+			getWriteLock().unlock();
+		}
 	}
 
 	public Collection<SemanticIndexFile> getAllFiles() {

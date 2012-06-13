@@ -46,12 +46,12 @@ rules // Extension points
   /**
    * Extension point. 
    */
-  index-combine-asts = fail
-  
+  index-is-partial-ast = fail
+
   /**
    * Extension point. 
    */
-  index-is-partial-ast = fail
+  index-combine-asts = fail
   
 rules // Compilation
   

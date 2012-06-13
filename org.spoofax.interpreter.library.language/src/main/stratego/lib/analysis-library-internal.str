@@ -62,7 +62,7 @@ rules // Analysis traversals
         newElems := <conc> (defs, <filter(index-diff-constructors)> data);
         
         // Find added and removed definitions
-        (added, removed) := <analyze-diff> (oldElems, newElems);
+        (added, removed) := <debug(!"changed ")> <analyze-diff> (oldElems, newElems);
         changed := <conc> (added, removed);
         
         // Store files that have changed in the index
@@ -621,8 +621,8 @@ rules // Internal helpers
     is-test-file <+ index-is-fake-file
   
   /** @internal */    
-  index-filepair-to-file = 
-    Fst; string-replace(|$[[<project-path>]/], "")
+  /*index-filepair-to-file = 
+    Fst; string-replace(|$[[<project-path>]/], "")*/
   
   /** @internal */
   ast-uri-to-ast-file(|full-path):

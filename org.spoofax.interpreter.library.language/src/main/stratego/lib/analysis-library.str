@@ -184,7 +184,7 @@ rules // Analysis traversals
       else
         Results(asts, _, _, _, _, _, filesToAnalyze) := 
           <analyze-top-internal(|phase, language, project-path, full-path)> [(ast, full-path)];
-        ast' := <Hd> asts
+        ast' := <Hd> asts // Always returns a list of 1 AST if there is no splitter, so take the head.
       end
   
 rules // Parallel analysis
@@ -562,4 +562,15 @@ rules // Index utilities
     (k1, k2) -> <id>
     where
       <eq> (<index-key-unwrap> k1, <index-key-unwrap> k2)
+  
+  /**
+   * Given a list of file pairs and the current file, returns the list of files to re-analyze.
+   *
+   * @param currentFile The current file that is being analyzed. This file will not be in the final result.
+   * @type List((file, subfile)) -> List(file)
+   */    
+  index-reanalysis-files(|currentFile):
+    filePairs -> files
+    with
+      files := <remove-all(?currentFile)> <make-set> <map(Fst; string-replace(|<project-path>, ""))> filePairs
       
