@@ -46,7 +46,7 @@ public class TransactionSemanticIndex implements ISemanticIndex {
 	}
 	
 	public void initialize(ITermFactory factory, IOAgent agent) {
-		// Should not be called
+		// Should not be called, both the index and transaction index should already be initialized.
 		assert false;
 	}
 
@@ -140,9 +140,8 @@ public class TransactionSemanticIndex implements ISemanticIndex {
 	}
 	
 	public void removeFile(SemanticIndexFileDescriptor fileDescriptor) {
-		assert isCurrentFile(fileDescriptor);
+		assert isCurrentFile(fileDescriptor); // May only clear current file.
 
-		// TODO: Might need to store which files have been removed and remove all those files when the transaction ends.
 		clearedCurrentFile = true;
 		transactionIndex.removeFile(fileDescriptor);
 	}
@@ -172,23 +171,44 @@ public class TransactionSemanticIndex implements ISemanticIndex {
 	}
 
 	public void clear() {
-		// Should not be called.
+		// Should not be called on transaction index, index cannot be cleared.
 		assert false;
 	}
 
 	public IStrategoTerm toTerm(boolean includePositions) {
-		// TODO: Transaction data not stored, this is ok?
 		return index.toTerm(includePositions);
 	}
 	
+	/**
+	 * Queries if given file descriptor equals the current file; the file this transaction index has 
+	 * been created for.
+	 * 
+	 * @param fileDescriptor	The file descriptor to check.
+	 * @return True if given file descriptor equals the current file.
+	 */
 	private boolean isCurrentFile(SemanticIndexFileDescriptor fileDescriptor) {
 		return fileDescriptor.equals(currentFile) || fileDescriptor.getURI().equals(currentFile.getURI());
 	}
 	
+	/**
+	 * Query if given entry should be visible. Entries are invisible if the current file is cleared and the
+	 * file descriptor of the entry equals the current file descriptor. Invisible entries from the global
+	 * index should not be returned.
+	 * 
+	 * @param entry	The entry to check.
+	 * @return True if given entry should be visible, false otherwise.
+	 */
 	private boolean isEntryVisible(SemanticIndexEntry entry) {
 		return !(clearedCurrentFile && isCurrentFile(entry.getFileDescriptor()));
 	}
 	
+	/**
+	 * Given a collection of entries, filters out all invisible entries.
+	 * 
+	 * @see #isEntryVisible
+	 * @param entries The collection of entries to filter.
+	 * @return Filtered collection of entries.
+	 */
 	private Collection<SemanticIndexEntry> filterInvisibleEntries(Collection<SemanticIndexEntry> entries) {
 		if(!clearedCurrentFile)
 			return entries;

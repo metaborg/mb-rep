@@ -649,7 +649,7 @@ rules // Internal helpers
         if 1 := <length> children then
           // HACK: This solves the problem of ReadWildcards making too many files re-analyze, but this should
           // be handled in the index primitives instead.
-          <iset-add(|Read([namespace | path]))> set
+          <iset-add(|Read([namespace, prefix | path]))> set
         else
           <iset-add(|ReadWildcard([namespace | path], prefix))> set
         end
