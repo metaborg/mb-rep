@@ -333,17 +333,18 @@ rules // Query primitives
    * @type Def(uri) or "name"{uri} or uri@[namespace|path] -> List(Def(uri))
    */
   index-get-children(|namespace) = 
-    index-get-children(\uri -> Def(uri)\|namespace)
+    index-get-children(\uri -> Def(uri)\, id|namespace)
   
   /**
    * Gets all children elements of an URI in a certain namespace using custom templates.
    * URI can be contained in a Def(uri), key (term{uri} element) or the uri itself.
    *
    * @param construct-template  uri -> template. Should create a template to match index entries with, given an URI.
+   * @param name-compare        element -> ?element. Strategy for filtering children elements.
    * @param namespace           Only child elements in this namespace are returned.
    * @type Def(uri) or "name"{uri} or uri@[namespace|path] -> List(Def(uri))
    */
-  index-get-children(construct-template|namespace):
+  index-get-children(construct-template, name-compare|namespace):
     <with(?Def([parent-ns | path]) <+ ?_{[parent-ns | path]} <+ ?[parent-ns | path] | "Def, key or uri expected")> -> children
     with
       template  := <construct-template> [namespace | path];
@@ -364,7 +365,7 @@ rules // Query primitives
    * @type Def(uri) or "name"{uri} or uri@[namespace|path] -> List(Def(uri))
    */
   index-get-children(|namespace, prefix) = 
-    index-get-children(\uri -> Def(uri)\|namespace, prefix)
+    index-get-children(\uri -> Def(uri)\, index-is-name-substring(|prefix, namespace)|namespace, prefix)
   
   /**
    * Gets all children elements of an URI in a certain namespace where the name starts with a prefix
@@ -372,18 +373,18 @@ rules // Query primitives
    * URI can be contained in a Def(uri), key (term{uri} element) or the uri itself.
    *
    * @param construct-template  uri -> template. Should create a template to match index entries with, given an URI.
+   * @param name-compare        element -> ?element. Strategy for filtering children elements.
    * @param namespace           Only child elements in this namespace are returned.
    * @param prefix              Only child elements where the name starts with this prefix are returned.
    * @type Def(uri) or "name"{uri} or uri@[namespace|path] -> List(Def(uri))
    */
-  index-get-children(construct-template|namespace, prefix):
+  index-get-children(construct-template, name-compare|namespace, prefix):
     <with(?Def([parent-ns | path]) <+ ?_{[parent-ns | path]} <+ ?[parent-ns | path] | "Def, key or uri expected")> -> children'
     with
-      prefix'   := <strip-annos> prefix;
       template  := <construct-template> [namespace | path];
       children  := <prim("LANG_index_get_children", template)>;
-      children' := <filter(index-is-name-substring(|prefix'))> children;
-      <store-wildcard-read(|namespace, path, prefix')> children'
+      children' := <filter(name-compare)> children;
+      <store-wildcard-read(|namespace, path, prefix)> children'
 
   /**
    * Gets a set of all files that have a reference to the given index entries.
@@ -418,69 +419,135 @@ rules // Query primitives
     index-get-referenced-files(index-file-dependent-construct)
      
 rules // Index lookup rules (that take into account adjust-index-lookup)
- 
-  /**
-   * Given an annotated AST node, resolves it, returning its Def.
+  
+   /**
+   * Given an annotated AST node, resolves it, returning its definition.
+   * Uses precise matching for names.
    *
    * @type "name"{uri} -> ?Def(uri')
    */
   index-lookup:
-    x{[namespace|path]} -> <index-lookup(id|<index-namespace-unwrap> namespace, path, <strip-annos> x)>
+    x{[namespace|path]} -> <index-lookup-internal(id, index-is-name-precise(|name)|ns, path, name)> x
+    where
+    	ns := <index-namespace-unwrap> namespace;
+    	name := <strip-annos> x
  
   /**
-   * Given an annotated AST node, resolves it, returning all its Defs.
+   * Given an annotated AST node, resolves it, returning all its definitions.
+   * Uses precise matching for names.
    * 
    * @type "name"{uri} -> List(Def(uri'))
    */
   index-lookup-all:
-    x{[namespace|path]} -> <index-lookup-all(id|<index-namespace-unwrap> namespace, path, <strip-annos> x)>
- 
+    x{[namespace|path]} -> <index-lookup-all-internal(id, index-is-name-precise(|name)|ns, path, name)> x
+    where
+      ns := <index-namespace-unwrap> namespace;
+      name := <strip-annos> x
+  
+  // TODO: Should return item with most specific (longest?) name instead of just the first one.  
   /**
-   * Given an annotated AST node, returns the outermost Def with a corresponding URI.
+   * Given an annotated AST node and a prefix, looks for a definition with given prefix, starting at the scope of 
+   * the given node.
+   * Uses substring matching for names.
    *
-   * @param prefix  Only Defs with a name that starts with this string are returned.
+   * @param prefix    Only definitions with a name that starts with this string are returned.
    * @type "name"{uri} -> ?Def(uri')
    */
-  index-lookup-outermost(|prefix):
-    x{[namespace|path]} -> <index-lookup-outermost(id|<index-namespace-unwrap> namespace, path, prefix)>
+  index-lookup(|prefix):
+    x{[namespace|path]} -> <index-lookup-internal(id, index-is-name-substring(|prefix)|ns, path, prefix)> x
+    where
+      ns := <index-namespace-unwrap> namespace
  
   /**
-   * Given an annotated AST node, returns Defs that have the same parent URI.
+   * Given an annotated AST node and a prefix, looks for all definitions with given prefix starting at the scope of 
+   * the given node.
+   * Uses substring matching for names.
    *
-   * @param prefix  Only Defs with a name that starts with this string are returned.
+   * @param prefix    Only definitions with a name that starts with this string are returned.
    * @type "name"{uri} -> List(Def(uri'))
    */
-  index-lookup-one-level(|prefix):
-    x{[namespace|path]} -> <index-lookup-one-level(id|<index-namespace-unwrap> namespace, path, prefix)>
+  index-lookup-all(|prefix):
+    x{[namespace|path]} -> <index-lookup-all-internal(id, index-is-name-substring(|prefix)|ns, path, prefix)> x
+    where
+      ns := <index-namespace-unwrap> namespace
+
+  // TODO: Should return item with most specific (longest?) name instead of just the first one.
+  /**
+   * Given an annotated AST node, resolves it in only the parent scope of the given node, returning its definition.
+   * Uses precise matching for names.
+   *
+   * @type "name"{uri} -> ?Def(uri')
+   */
+  index-lookup-scoped:
+    x{[namespace|path]} -> <index-lookup-scoped-internal(id, index-is-name-precise(|name)|ns, parent-path, name)> x
+    where
+      ns := <index-namespace-unwrap> namespace;
+      name := <strip-annos> x;
+      (<?[_|<id>]> path <+ !path) => parent-path
+ 
+  /**
+   * Given an annotated AST node, resolves it in only the parent scope of the given node, returning all its definitions.
+   * Uses precise matching for names.
+   *
+   * @type "name"{uri} -> List(Def(uri'))
+   */
+  index-lookup-all-scoped:
+    x{[namespace|path]} -> <index-lookup-all-scoped-internal(id, index-is-name-precise(|name)|ns, parent-path, name)> x
+    where
+      ns := <index-namespace-unwrap> namespace;
+      name := <strip-annos> x;
+      (<?[_|<id>]> path <+ !path) => parent-path
+  
+  // TODO: Should return item with most specific (longest?) name instead of just the first one.
+  /**
+   * Given an annotated AST node and a prefix, looks for a definition with given prefix in only the parent scope of 
+   * the given node.
+   * Uses substring matching for names.
+   *
+   * @param prefix    Only definitions with a name that starts with this string are returned.
+   * @type "name"{uri} -> ?Def(uri')
+   */
+  index-lookup-scoped(|prefix):
+    x{[namespace|path]} -> <index-lookup-scoped-internal(id, index-is-name-substring(|prefix)|ns, parent-path, prefix)> x
+    where
+      ns := <index-namespace-unwrap> namespace;
+      (<?[_|<id>]> path <+ !path) => parent-path
+  
+  /**
+   * Given an annotated AST node and a prefix, looks for all definitions with given prefix in only the parent scope of 
+   * the given node.
+   * Uses substring matching for names.
+   *
+   * @param prefix    Only definitions with a name that starts with this string are returned.
+   * @type "name"{uri} -> List(Def(uri'))
+   */
+  index-lookup-all-scoped(|prefix):
+    x{[namespace|path]} -> <index-lookup-all-scoped-internal(id, index-is-name-substring(|prefix)|ns, parent-path, prefix)> x
+    where
+      ns := <index-namespace-unwrap> namespace;
+      (<?[_|<id>]> path <+ !path) => parent-path
+
+  /**
+   * Given an annotated AST node and a namespace, returns all definitions inside given node with given namespace.
+   * Does not match names, all names are allowed.
+   *
+   * @param namespace Only definitions with this namespace are returned.
+   * @type "name"{uri} -> List(Def(uri'))
+   */
+  index-lookup-children(|namespace) = 
+    index-lookup-children(|namespace, "")
       
   /**
-   * Given an annotated AST node, resolves it, and returns all possibly matching Defs with a common ancestor URI. 
+   * Given an annotated AST node, a namespace and prefix, returns all definitions inside given node with given 
+   * namespace and prefix.
+   * Uses substring matching for names.
    *
-   * @param namespace Only Defs with this namespace are returned.
-   * @param prefix    Only Defs with a name that starts with this string are returned.
+   * @param namespace Only definitions with this namespace are returned.
+   * @param prefix    Only definitions with a name that starts with this string are returned.
    * @type "name"{uri} -> List(Def(uri'))
-   */
-  index-lookup-all-levels(|prefix):
-    x{[namespace|path]} -> <index-lookup-all-levels(id|<index-namespace-unwrap> namespace, path, prefix)>
- 
-  /**
-   * Given an annotated AST node, resolves it, and returns all child Defs of its definition.
-   *
-   * @param namespace Only child Defs with this namespace are returned.
-   * @param prefix    Only Defs with a name that starts with this string are returned.
-   * @type "name"{uri} -> List(Def(uri'))
-   */
-  index-lookup-children(|namespace, prefix): // TODO: how does this compare w/ index-lookup-one-level?
-    x{[ns | path]} -> defs
-    with
-      if !ns => Unresolved(_) then
-        Def([_ | def-path]) := <index-lookup>;
-        defs := <index-lookup-one-level(id|namespace, def-path, prefix)> x
-      else
-        defs := <index-lookup-one-level(id|<index-namespace-unwrap> namespace, path, prefix)>
-      end
-    <+
-      defs := []
+   */    
+  index-lookup-children(|namespace, prefix):
+  	x{[_|path]} -> <index-lookup-all-scoped-internal(id, index-is-name-substring(|prefix, namespace)|namespace, path, prefix)> x
       
 rules // Index utilities
   

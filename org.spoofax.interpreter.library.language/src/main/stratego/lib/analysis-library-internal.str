@@ -229,8 +229,8 @@ rules // Analysis traversals
     with
       analyzed     := <all(analyze-uses)> ast;
       (ast', uses) := <unzip-analyzed> analyzed;
-      if !ast' => _{unresolved@[Unresolved(namespace), x | path]} then
-        if Def(def-uri) := <index-lookup(id |namespace, path, <strip-annos> ast')> ast' then
+      if !ast' => _{[Unresolved(namespace), x|_]} then
+        if Def(def-uri) := <index-lookup> ast' then
           ast'' := ast{def-uri};
           uses' := [Use(def-uri) | uses]
         else
@@ -431,119 +431,99 @@ rules // Diffs
 rules // Index lookup rules (that take into account adjust-index-lookup)
   
   /**
-   * Given an annotated AST node, resolves it, returning all its Defs.
+   * Given a term x, namespace n, path s and prefix p, looks for a definition in the 
+   * scope of s and outer scopes in namespace n that start with prefix p, returning the first 
+   * found definition.
    *
-   * @param prefix  Only Defs with a name that starts with this string are returned.
+   * @param namespace Only definitions with this namespace are returned.
+   * @param path      Only definitions with this path or part of this path are returned.
+   * @param prefix    Only definitions with a name that starts with this string are returned.
+   *
+   * @type term -> ?Def(uri')
    *
    * @internal
-   * @type "name"{uri} -> ?Def(uri')
    */
-  index-lookup(is-adjust-lookup-enabled|namespace, path, prefix):
+  index-lookup-internal(adjust-lookup, name-compare|namespace, path, prefix):
     x -> def
     where
-      candidates := <index-lookup-one-level(is-adjust-lookup-enabled|namespace, path, prefix)>;
-      if <?StopLookup()> candidates then
+      defs := <index-lookup-all-scoped-internal(adjust-lookup, name-compare|namespace, path, prefix)> x;
+      
+      if StopLookup() := defs then
         fail
-      else
-        def        := <index-select(|namespace, path, x)>
-      <+
-        // TODO: optimize: try not to call do-adjust-index-lookup from here
-        [_ | path'] := path;
-        def         := <index-lookup(is-adjust-lookup-enabled|namespace, path', prefix)> x
+      end;
+      
+      if not(def := <Hd> defs) then
+        [_|path'] := path;
+        def       := <index-lookup-internal(adjust-lookup, name-compare|namespace, path', prefix)> x
       end
 
   /**
-   * Given an annotated AST node, resolves it, returning all its Defs.
+   * Given a term x, namespace n, path s and prefix p, looks for definitions in the scope of s 
+   * and outer scopes in namespace n that start with prefix p, returning all found definition.
    *
-   * @param prefix  Only Defs with a name that starts with this string are returned.
-   *
+   * @param namespace Only definitions with this namespace are returned.
+   * @param path      Only definitions with this path or part of this path are returned.
+   * @param prefix    Only definitions with a name that starts with this string are returned.
    * @type "name"{uri} -> List(Def(uri'))
+   *
    * @internal
    */
-  index-lookup-all(is-adjust-lookup-enabled|namespace, path, prefix):
+  index-lookup-all-internal(adjust-lookup, name-compare|namespace, path, prefix):
     x -> defs'
     where
-      candidates := <index-lookup-one-level(is-adjust-lookup-enabled|namespace, path, prefix)>;
-      defs       := <index-select-all(|namespace, path, x)>;
-      // TODO: optimize: try not to call do-adjust-index-lookup from here
-      if [_ | path'] := path then
-        defs2 := <index-lookup-all(is-adjust-lookup-enabled|namespace, path', prefix)> x;
+      defs := <index-lookup-all-scoped-internal(adjust-lookup, name-compare|namespace, path, prefix)> x;
+      
+      if [_|path'] := path then
+        defs2 := <index-lookup-all-internal(adjust-lookup, name-compare|namespace, path', prefix)> x;
         defs' := <conc> (defs, defs2)
       else
         defs' := defs
       end
+
+  /**
+   * Given a term x, namespace n, path s and prefix p, looks for a definition in the 
+   * scope of s and outer scopes in namespace n that start with prefix p, returning the first 
+   * found definition or fail if none was found.
+   *
+   * @param namespace Only definitions with this namespace are returned.
+   * @param path      Only definitions with this path are returned.
+   * @param prefix    Only definitions with a name that starts with this string are returned.
+   * @type term -> ?Def(uri)
+   *
+   * @internal
+   */     
+  index-lookup-scoped-internal(adjust-lookup, name-compare|namespace, path, prefix) = 
+    index-lookup-all-scoped-internal(adjust-lookup, name-compare|namespace, path, prefix); Hd
       
   /**
-   * Given an annotated AST node, returns the outermost Def with a corresponding URI.
+   * Given a term x, namespace n, path s and prefix p, looks for a definition in the 
+   * scope of s in namespace n that start with prefix p, returning the first found definition.
    *
-   * @param prefix  Only Defs with a name that starts with this string are returned.
+   * @param namespace Only definitions with this namespace are returned.
+   * @param path      Only definitions with this path are returned.
+   * @param prefix    Only definitions with a name that starts with this string are returned.
+   * @type term -> List(Def(uri))
    *
-   * @type "name"{uri} -> ?Def(uri')
    * @internal
    */
-  index-lookup-outermost(is-adjust-lookup-enabled |namespace, path, prefix):
-    x -> def
-    where
-      // TODO: optimize: just like index-lookup
-      [_ | path'] := path;
-      def         := <index-lookup-outermost(is-adjust-lookup-enabled |namespace, path', prefix)> x
-    <+
-      candidates := <index-lookup-one-level(is-adjust-lookup-enabled|namespace, path, prefix)>;
-      def        := <index-select(|namespace, path, x)>
-      
-  /**
-   * Given an annotated AST node, resolves it, and returns all possibly matching Defs with a common ancestor URI. 
-   *
-   * @param namespace Only Defs with this namespace are returned.
-   * @param prefix    Only Defs with a name that starts with this string are returned.
-   *
-   * @type "name"{uri} -> List(Def(uri'))
-   * @internal
-   */
-  index-lookup-one-level(is-adjusted-lookup-enabled|namespace, path, prefix):
-    x{_} -> defs
+  index-lookup-all-scoped-internal(adjust-lookup, name-compare|namespace, path, prefix):
+    x -> defs'
     with
-      is-adjusted-lookup-enabled;
-      do-adjust-index-lookup(|namespace, path, x, prefix);
-      if ?StopLookup() then
-        defs := StopLookup()
+      adjust-lookup;
+      adjusted := <do-adjust-index-lookup(|namespace, path, x, prefix)> x;
+      if StopLookup() := adjusted then
+        defs' := StopLookup()
       else
-        mapconcat(\d@Def(p) -> [d]\
-          <+ \[namespace' | path'] -> <index-lookup-one-level(fail |namespace', path', prefix)> x\
-          <+ fatal-err(|"Unexpected result from adjust-index-lookup, should be a list Def(_) or [namespace | path] or StopLookup() to stop the lookup"));
-        ?defs
+        defs := 
+          <mapconcat(
+               \d@Def(p) -> [d]\
+            <+ \[namespace'|path'] -> <index-lookup-all-scoped-internal(fail, name-compare|namespace', path', prefix)> x\
+            <+ fatal-err(|"Unexpected result from adjust-index-lookup, should be a list Def(_) or [namespace | path] or StopLookup() to stop the lookup")
+          )> adjusted;
+        defs' := <filter(name-compare)> defs
       end
     <+
-      defs := <index-get-children(|namespace, prefix)> Def([namespace | path])
-      
-  /**
-   * Given an annotated AST node, resolves it, and returns all possibly matching Defs with a common ancestor URI. 
-   *
-   * @param prefix  Only Defs with a name that starts with this string are returned.
-   *
-   * @internal
-   * @type "name"{uri} -> List(Def(uri'))
-   */
-  index-lookup-all-levels(is-adjust-lookup-enabled |namespace, path, prefix):
-    x{_} -> all-defs
-    with
-      is-adjust-lookup-enabled;
-      do-adjust-index-lookup(|namespace, path, x, prefix);
-      if ?StopLookup() then
-        all-defs := []
-      else
-        mapconcat(\d@Def(p) -> [d]\
-            <+ \[namespace' | path'] -> <index-lookup-all-levels(fail |namespace', path', prefix)> x\
-            <+ fatal-err(|"Unexpected result from adjust-index-lookup, should be a list Def(_) or [namespace | path] or StopLookup() to stop the lookup"));
-        ?all-defs
-      end
-    <+
-      one-level := <index-get-children(|namespace, prefix)> Def([namespace | path]);
-      if [_ | path'] := path then
-        all-defs := <concat> [one-level, <index-lookup-all-levels(fail |namespace, path', prefix)> x]
-      else
-        all-defs := one-level
-      end
+      defs' := <index-get-children(\uri -> Def(uri)\, name-compare|namespace, prefix)> [namespace | path]
       
 /** @internal */
 rules // URI and value projections
@@ -620,22 +600,40 @@ rules // Internal helpers
   fake-file = 
     is-test-file <+ index-is-fake-file
   
-  /** @internal */    
-  /*index-filepair-to-file = 
-    Fst; string-replace(|$[[<project-path>]/], "")*/
-  
   /** @internal */
   ast-uri-to-ast-file(|full-path):
     (ast, uri) -> (ast, (full-path, uri))
   
   /** @internal */     
-  index-is-name-substring(|name):
-    template -> <id>
-    with
-      [_, uri-name | _] := <index-uri>
+  index-is-name-substring(|prefix):
+    element -> <id>
     where
-      <is-substring(!name)> uri-name
-   
+      uri := <index-uri> element;
+      <is-substring(!prefix)> <index-uri-name> uri
+      
+  /** @internal */     
+  index-is-name-substring(|prefix, namespace):
+    element -> <id>
+    where
+      uri := <index-uri> element;
+    	<eq> (namespace, <index-uri-namespace> uri);
+      <is-substring(!prefix)> <index-uri-name> uri
+  
+  /** @internal */    
+  index-is-name-precise(|name):
+    element -> <id>
+    where
+      uri := <index-uri> element;
+      <SRTS-EXT-eq-ignore-annos(|name)> <index-uri-name> uri
+      
+  /** @internal */    
+  index-is-name-precise(|name, namespace):
+    element -> <id>
+    where
+      uri := <index-uri> element;
+    	<eq> (namespace, <index-uri-namespace> uri);
+      <SRTS-EXT-eq-ignore-annos(|name)> <index-uri-name> uri
+      
   /** @internal */    
   index-readwildcard-substring(|prefix):
     ReadWildcard(_, name) -> <id>
@@ -678,22 +676,6 @@ rules // Internal helpers
     repeat-until(
       prim("SSL_EXT_get_parent", <id>)
     , adjust-index-lookup(origin-equal(|use) |namespace, path, prefix) 
-    )
- 
-  /** @internal */
-  index-select(|namespace, path, use) =
-    getfirst(
-      where(
-        ?Def([_, <SRTS-EXT-eq-ignore-annos(|use)> | _])
-      )
-    )
- 
-  /** @internal */
-  index-select-all(|namespace, path, use) =
-    filter(
-      where(
-        ?Def([_, <SRTS-EXT-eq-ignore-annos(|use)> | _])
-      )
     )
  
   /** @internal */
