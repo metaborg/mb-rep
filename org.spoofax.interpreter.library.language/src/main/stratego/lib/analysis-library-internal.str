@@ -196,28 +196,18 @@ rules // Analysis traversals
     where
       if !head-scope-ns => Anon() then
         path  := <IndexPath <+ ![]> scope-type;
-        path' := <do-adjusted-index-path(|scope-type, path, Anon(<new>))> ast
+        path' := <index-do-adjust-path(|scope-type, path, Anon(<new>))> ast
       else
         path  := <IndexPath <+ ![]> head-scope-ns;
-        path' := <do-adjusted-index-path(|scope-type, path, head-scope)> ast
+        path' := <index-do-adjust-path(|scope-type, path, head-scope)> ast
       end;
       rules(IndexPath: scope-type -> path')
- 
-  /* TODO: consider using simple-update-def-path
-   *       which uses "balanced" path scopes
-   *       e.g. when Entity doesn't scope Function
-   *       then it's hard to access properties from a function
-  balanced-update-index-path:
-    head-scope -> head-scope
-    where
-      if !head-scope => Anon() then
-        head-scope' := Anon(<new>)
-      else
-        head-scope' := head-scope
-      end;
-      (something with do-adjust-path)
-      rules(IndexPath := [head-scope' | <IndexPath <+ ![]> ()])
-  */
+      
+  /** @internal */
+  index-do-adjust-path(|namespace, path, scope) =
+    adjust-index-path(origin-equal(|scope)|namespace, path)
+  <+
+    ![scope|path]
  
   /**
    * Analyze all uses, changing their preliminary "Unresolved(_)" URI to a definite URI of their definition.
@@ -456,6 +446,10 @@ rules // Index lookup rules (that take into account adjust-index-lookup)
         [_|path'] := path;
         def       := <index-lookup-internal(adjust-lookup, name-compare|namespace, path', prefix)> x
       end
+      
+  /** @internal */
+  index-lookup-internal(name-compare|namespace, path, prefix) = 
+    index-lookup-internal(id, name-compare|namespace, path, prefix)
 
   /**
    * Given a term x, namespace n, path s and prefix p, looks for definitions in the scope of s 
@@ -479,21 +473,10 @@ rules // Index lookup rules (that take into account adjust-index-lookup)
       else
         defs' := defs
       end
-
-  /**
-   * Given a term x, namespace n, path s and prefix p, looks for a definition in the 
-   * scope of s and outer scopes in namespace n that start with prefix p, returning the first 
-   * found definition or fail if none was found.
-   *
-   * @param namespace Only definitions with this namespace are returned.
-   * @param path      Only definitions with this path are returned.
-   * @param prefix    Only definitions with a name that starts with this string are returned.
-   * @type term -> ?Def(uri)
-   *
-   * @internal
-   */     
-  index-lookup-scoped-internal(adjust-lookup, name-compare|namespace, path, prefix) = 
-    index-lookup-all-scoped-internal(adjust-lookup, name-compare|namespace, path, prefix); Hd
+      
+  /** @internal */
+  index-lookup-all-internal(name-compare|namespace, path, prefix) = 
+    index-lookup-all-internal(id, name-compare|namespace, path, prefix)
       
   /**
    * Given a term x, namespace n, path s and prefix p, looks for a definition in the 
@@ -507,10 +490,29 @@ rules // Index lookup rules (that take into account adjust-index-lookup)
    * @internal
    */
   index-lookup-all-scoped-internal(adjust-lookup, name-compare|namespace, path, prefix):
-    x -> defs'
+    x -> defs
     with
       adjust-lookup;
-      adjusted := <do-adjust-index-lookup(|namespace, path, x, prefix)> x;
+      adjusted := <index-do-adjust-lookup(|namespace, path, x, prefix)> x;
+      defs     := <index-get-adjust-lookup-results(name-compare|adjusted, prefix)> x
+    <+
+      defs     := <index-get-children(\uri -> Def(uri)\, name-compare|namespace, prefix)> [namespace | path]
+      
+  /** @internal */
+  index-lookup-all-scoped-internal(name-compare|namespace, path, prefix) = 
+    index-lookup-all-scoped-internal(id, name-compare|namespace, path, prefix)
+    
+  /** @internal */
+  index-do-adjust-lookup(|namespace, path, use, prefix) =
+    repeat-until(
+      prim("SSL_EXT_get_parent", <id>)
+    , adjust-index-lookup(origin-equal(|use)|namespace, path, prefix) 
+    )
+  
+  /** @internal */  
+  index-get-adjust-lookup-results(name-compare|adjusted, prefix):
+    x -> defs'
+    with
       if StopLookup() := adjusted then
         defs' := StopLookup()
       else
@@ -520,12 +522,45 @@ rules // Index lookup rules (that take into account adjust-index-lookup)
             <+ \[namespace'|path'] -> <index-lookup-all-scoped-internal(fail, name-compare|namespace', path', prefix)> x\
             <+ fatal-err(|"Unexpected result from adjust-index-lookup, should be a list Def(_) or [namespace | path] or StopLookup() to stop the lookup")
           )> adjusted;
-        defs' := <filter(name-compare)> defs
+          defs' := <filter(name-compare)> defs
       end
-    <+
-      defs' := <index-get-children(\uri -> Def(uri)\, name-compare|namespace, prefix)> [namespace | path]
       
-/** @internal */
+rules // Name comparisons
+  
+  /**
+   * Compares given element (with an URI) to given prefix using substring comparison.
+   * 
+   * @internal 
+   */     
+  index-compare-name-substring(|prefix):
+    element -> <id>
+    where
+      uri := <index-uri> element;
+      <is-substring(!prefix)> <index-uri-name> uri
+      
+  /**
+   * Compares given element (with an URI) to given prefix using substring comparison and given namespace.
+   * 
+   * @internal 
+   */      
+  index-compare-name-substring(|prefix, namespace):
+    element -> <id>
+    where
+      uri := <index-uri> element;
+      <eq> (namespace, <index-uri-namespace> uri);
+      <is-substring(!prefix)> <index-uri-name> uri
+  
+  /**
+   * Compares given element (with an URI) to given name using string equality comparison.
+   * 
+   * @internal 
+   */     
+  index-compare-name-equal(|name):
+    element -> <id>
+    where
+      uri := <index-uri> element;
+      <SRTS-EXT-eq-ignore-annos(|name)> <index-uri-name> uri
+      
 rules // URI and value projections
        
   /** @internal */
@@ -567,8 +602,7 @@ rules // URI and value projections
   /** @internal */
   index-value-impl:
     ReadWildcard(_, value) -> value
-       
-/** @internal */
+    
 rules // Internal helpers
 
   /**
@@ -603,36 +637,6 @@ rules // Internal helpers
   /** @internal */
   ast-uri-to-ast-file(|full-path):
     (ast, uri) -> (ast, (full-path, uri))
-  
-  /** @internal */     
-  index-is-name-substring(|prefix):
-    element -> <id>
-    where
-      uri := <index-uri> element;
-      <is-substring(!prefix)> <index-uri-name> uri
-      
-  /** @internal */     
-  index-is-name-substring(|prefix, namespace):
-    element -> <id>
-    where
-      uri := <index-uri> element;
-    	<eq> (namespace, <index-uri-namespace> uri);
-      <is-substring(!prefix)> <index-uri-name> uri
-  
-  /** @internal */    
-  index-is-name-precise(|name):
-    element -> <id>
-    where
-      uri := <index-uri> element;
-      <SRTS-EXT-eq-ignore-annos(|name)> <index-uri-name> uri
-      
-  /** @internal */    
-  index-is-name-precise(|name, namespace):
-    element -> <id>
-    where
-      uri := <index-uri> element;
-    	<eq> (namespace, <index-uri-namespace> uri);
-      <SRTS-EXT-eq-ignore-annos(|name)> <index-uri-name> uri
       
   /** @internal */    
   index-readwildcard-substring(|prefix):
@@ -656,6 +660,7 @@ rules // Internal helpers
   /** @internal */    
   index-is-unresolved(|x, uri) = 
     Index-UnresolvedSet; (iset-contains(|(x, uri)) <+ fail)
+    
   /** @internal */
   index-add-unresolved(|x, uri) = 
     (Index-UnresolvedSet; iset-add(|(x, uri))) <+ id
@@ -672,19 +677,6 @@ rules // Internal helpers
     ?Read(_) <+ ?ReadWildcard(_, _) <+ ?Use(_)
  
   /** @internal */
-  do-adjust-index-lookup(|namespace, path, use, prefix) =
-    repeat-until(
-      prim("SSL_EXT_get_parent", <id>)
-    , adjust-index-lookup(origin-equal(|use) |namespace, path, prefix) 
-    )
- 
-  /** @internal */
-  do-adjusted-index-path(|namespace, path, def) =
-    adjust-index-path(origin-equal(|def) |namespace, path)
-  <+
-    ![def | path]
- 
-  /** @internal */
   index-eq(|namespace, expected) =
     where(
       ?Def([_, name | _]);
@@ -698,7 +690,6 @@ rules // Internal helpers
   index-key-unwrap = 
     \key{uri} -> key{<index-uri-unwrap> uri}\ <+ id
     
-/** @internal */
 rules // Interface for generated code
  
   /** @internal */

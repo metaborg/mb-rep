@@ -365,7 +365,7 @@ rules // Query primitives
    * @type Def(uri) or "name"{uri} or uri@[namespace|path] -> List(Def(uri))
    */
   index-get-children(|namespace, prefix) = 
-    index-get-children(\uri -> Def(uri)\, index-is-name-substring(|prefix, namespace)|namespace, prefix)
+    index-get-children(\uri -> Def(uri)\, index-compare-name-substring(|prefix, namespace)|namespace, prefix)
   
   /**
    * Gets all children elements of an URI in a certain namespace where the name starts with a prefix
@@ -419,18 +419,18 @@ rules // Query primitives
     index-get-referenced-files(index-file-dependent-construct)
      
 rules // Index lookup rules (that take into account adjust-index-lookup)
-  
-   /**
+ 
+  /**
    * Given an annotated AST node, resolves it, returning its definition.
    * Uses precise matching for names.
    *
    * @type "name"{uri} -> ?Def(uri')
    */
   index-lookup:
-    x{[namespace|path]} -> <index-lookup-internal(id, index-is-name-precise(|name)|ns, path, name)> x
+    x{[namespace|path]} -> <index-lookup-internal(id, index-compare-name-equal(|name)|ns, path, name)> x
     where
-    	ns := <index-namespace-unwrap> namespace;
-    	name := <strip-annos> x
+      ns := <index-namespace-unwrap> namespace;
+      name := <strip-annos> x
  
   /**
    * Given an annotated AST node, resolves it, returning all its definitions.
@@ -439,24 +439,10 @@ rules // Index lookup rules (that take into account adjust-index-lookup)
    * @type "name"{uri} -> List(Def(uri'))
    */
   index-lookup-all:
-    x{[namespace|path]} -> <index-lookup-all-internal(id, index-is-name-precise(|name)|ns, path, name)> x
+    x{[namespace|path]} -> <index-lookup-all-internal(id, index-compare-name-equal(|name)|ns, path, name)> x
     where
       ns := <index-namespace-unwrap> namespace;
       name := <strip-annos> x
-  
-  // TODO: Should return item with most specific (longest?) name instead of just the first one.  
-  /**
-   * Given an annotated AST node and a prefix, looks for a definition with given prefix, starting at the scope of 
-   * the given node.
-   * Uses substring matching for names.
-   *
-   * @param prefix    Only definitions with a name that starts with this string are returned.
-   * @type "name"{uri} -> ?Def(uri')
-   */
-  index-lookup(|prefix):
-    x{[namespace|path]} -> <index-lookup-internal(id, index-is-name-substring(|prefix)|ns, path, prefix)> x
-    where
-      ns := <index-namespace-unwrap> namespace
  
   /**
    * Given an annotated AST node and a prefix, looks for all definitions with given prefix starting at the scope of 
@@ -467,24 +453,10 @@ rules // Index lookup rules (that take into account adjust-index-lookup)
    * @type "name"{uri} -> List(Def(uri'))
    */
   index-lookup-all(|prefix):
-    x{[namespace|path]} -> <index-lookup-all-internal(id, index-is-name-substring(|prefix)|ns, path, prefix)> x
+    x{[namespace|path]} -> <index-lookup-all-internal(id, index-compare-name-substring(|prefix)|ns, path, prefix)> x
     where
       ns := <index-namespace-unwrap> namespace
-
-  // TODO: Should return item with most specific (longest?) name instead of just the first one.
-  /**
-   * Given an annotated AST node, resolves it in only the parent scope of the given node, returning its definition.
-   * Uses precise matching for names.
-   *
-   * @type "name"{uri} -> ?Def(uri')
-   */
-  index-lookup-scoped:
-    x{[namespace|path]} -> <index-lookup-scoped-internal(id, index-is-name-precise(|name)|ns, parent-path, name)> x
-    where
-      ns := <index-namespace-unwrap> namespace;
-      name := <strip-annos> x;
-      (<?[_|<id>]> path <+ !path) => parent-path
- 
+      
   /**
    * Given an annotated AST node, resolves it in only the parent scope of the given node, returning all its definitions.
    * Uses precise matching for names.
@@ -492,25 +464,10 @@ rules // Index lookup rules (that take into account adjust-index-lookup)
    * @type "name"{uri} -> List(Def(uri'))
    */
   index-lookup-all-scoped:
-    x{[namespace|path]} -> <index-lookup-all-scoped-internal(id, index-is-name-precise(|name)|ns, parent-path, name)> x
+    x{[namespace|path]} -> <index-lookup-all-scoped-internal(id, index-compare-name-equal(|name)|ns, parent-path, name)> x
     where
       ns := <index-namespace-unwrap> namespace;
       name := <strip-annos> x;
-      (<?[_|<id>]> path <+ !path) => parent-path
-  
-  // TODO: Should return item with most specific (longest?) name instead of just the first one.
-  /**
-   * Given an annotated AST node and a prefix, looks for a definition with given prefix in only the parent scope of 
-   * the given node.
-   * Uses substring matching for names.
-   *
-   * @param prefix    Only definitions with a name that starts with this string are returned.
-   * @type "name"{uri} -> ?Def(uri')
-   */
-  index-lookup-scoped(|prefix):
-    x{[namespace|path]} -> <index-lookup-scoped-internal(id, index-is-name-substring(|prefix)|ns, parent-path, prefix)> x
-    where
-      ns := <index-namespace-unwrap> namespace;
       (<?[_|<id>]> path <+ !path) => parent-path
   
   /**
@@ -522,7 +479,7 @@ rules // Index lookup rules (that take into account adjust-index-lookup)
    * @type "name"{uri} -> List(Def(uri'))
    */
   index-lookup-all-scoped(|prefix):
-    x{[namespace|path]} -> <index-lookup-all-scoped-internal(id, index-is-name-substring(|prefix)|ns, parent-path, prefix)> x
+    x{[namespace|path]} -> <index-lookup-all-scoped-internal(id, index-compare-name-substring(|prefix)|ns, parent-path, prefix)> x
     where
       ns := <index-namespace-unwrap> namespace;
       (<?[_|<id>]> path <+ !path) => parent-path
@@ -547,7 +504,7 @@ rules // Index lookup rules (that take into account adjust-index-lookup)
    * @type "name"{uri} -> List(Def(uri'))
    */    
   index-lookup-children(|namespace, prefix):
-  	x{[_|path]} -> <index-lookup-all-scoped-internal(id, index-is-name-substring(|prefix, namespace)|namespace, path, prefix)> x
+    x{[_|path]} -> <index-lookup-all-scoped-internal(id, index-compare-name-substring(|prefix, namespace)|namespace, path, prefix)> x
       
 rules // Index utilities
   
