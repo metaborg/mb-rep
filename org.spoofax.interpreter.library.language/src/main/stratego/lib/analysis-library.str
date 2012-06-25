@@ -70,6 +70,11 @@ rules // Index analysis extension points
    */
   adjust-index-lookup(check-target-name|namespace, path, prefix) = fail
   
+  /**
+   * Extension point.
+   */
+  adjust-index-import(|namespace, path) = fail
+  
   /** 
    * Extension point. Override this rule to store data about definitions in the index. Should call <store-results> on 
    * a (list of) data that must be stored in the index.
@@ -427,7 +432,7 @@ rules // Index lookup rules (that take into account adjust-index-lookup)
    * @type "name"{uri} -> ?Def(uri')
    */
   index-lookup:
-    x{[namespace|path]} -> <index-lookup-internal(id, index-compare-name-equal(|name)|ns, path, name)> x
+    x{[namespace|path]} -> <index-lookup-internal(index-compare-name-equal(|name)|ns, path, name)> x
     where
       ns := <index-namespace-unwrap> namespace;
       name := <strip-annos> x
@@ -439,7 +444,7 @@ rules // Index lookup rules (that take into account adjust-index-lookup)
    * @type "name"{uri} -> List(Def(uri'))
    */
   index-lookup-all:
-    x{[namespace|path]} -> <index-lookup-all-internal(id, index-compare-name-equal(|name)|ns, path, name)> x
+    x{[namespace|path]} -> <index-lookup-all-internal(index-compare-name-equal(|name)|ns, path, name)> x
     where
       ns := <index-namespace-unwrap> namespace;
       name := <strip-annos> x
@@ -453,7 +458,7 @@ rules // Index lookup rules (that take into account adjust-index-lookup)
    * @type "name"{uri} -> List(Def(uri'))
    */
   index-lookup-all(|prefix):
-    x{[namespace|path]} -> <index-lookup-all-internal(id, index-compare-name-substring(|prefix)|ns, path, prefix)> x
+    x{[namespace|path]} -> <index-lookup-all-internal(index-compare-name-substring(|prefix)|ns, path, prefix)> x
     where
       ns := <index-namespace-unwrap> namespace
       
@@ -464,7 +469,20 @@ rules // Index lookup rules (that take into account adjust-index-lookup)
    * @type "name"{uri} -> List(Def(uri'))
    */
   index-lookup-all-scoped:
-    x{[namespace|path]} -> <index-lookup-all-scoped-internal(id, index-compare-name-equal(|name)|ns, parent-path, name)> x
+    x{[namespace|path]} -> <index-lookup-all-scoped-internal(index-compare-name-equal(|name)|ns, parent-path, name)> x
+    where
+      ns := <index-namespace-unwrap> namespace;
+      name := <strip-annos> x;
+      (<?[_|<id>]> path <+ !path) => parent-path
+      
+  /**
+   * Given an annotated AST node, resolves it in only the parent scope of the given node, returning all its definitions.
+   * Uses precise matching for names. Imports are not considered.
+   *
+   * @type "name"{uri} -> List(Def(uri'))
+   */
+  index-lookup-all-scoped-noimports:
+    x{[namespace|path]} -> <index-lookup-all-scoped-internal(fail, id, index-compare-name-equal(|name)|ns, parent-path, name)> x
     where
       ns := <index-namespace-unwrap> namespace;
       name := <strip-annos> x;
@@ -479,7 +497,7 @@ rules // Index lookup rules (that take into account adjust-index-lookup)
    * @type "name"{uri} -> List(Def(uri'))
    */
   index-lookup-all-scoped(|prefix):
-    x{[namespace|path]} -> <index-lookup-all-scoped-internal(id, index-compare-name-substring(|prefix)|ns, parent-path, prefix)> x
+    x{[namespace|path]} -> <index-lookup-all-scoped-internal(index-compare-name-substring(|prefix)|ns, parent-path, prefix)> x
     where
       ns := <index-namespace-unwrap> namespace;
       (<?[_|<id>]> path <+ !path) => parent-path
@@ -504,7 +522,7 @@ rules // Index lookup rules (that take into account adjust-index-lookup)
    * @type "name"{uri} -> List(Def(uri'))
    */    
   index-lookup-children(|namespace, prefix):
-    x{[_|path]} -> <index-lookup-all-scoped-internal(id, index-compare-name-substring(|prefix, namespace)|namespace, path, prefix)> x
+    x{[_|path]} -> <index-lookup-all-scoped-internal(index-compare-name-substring(|prefix, namespace)|namespace, path, prefix)> x
       
 rules // Index utilities
   
@@ -586,7 +604,7 @@ rules // Index utilities
     (k1, k2) -> <id>
     where
       <eq> (<index-key-unwrap> k1, <index-key-unwrap> k2)
-  
+      
   /**
    * Given a list of file pairs, returns the list of real files.
    *
@@ -596,4 +614,3 @@ rules // Index utilities
     filePairs -> files
     with
       files := <make-set> <map(Fst; string-replace(|<conc-strings> (<project-path>, "/"), ""))> filePairs
-      

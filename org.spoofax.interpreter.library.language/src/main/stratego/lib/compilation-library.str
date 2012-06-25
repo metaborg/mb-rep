@@ -87,8 +87,8 @@ rules // Compilation
       <set-total-work-units> <add> (<length> completeFiles, <length> partialFiles);
       
       // Compile the files
-      <filter(index-compilation-file; complete-work-unit)> <debug(!"Complete compilation: ")> completeFiles;
-      <filter(index-compilation-partial-file; complete-work-unit)> <debug(!"Partial compilation: ")> partialFiles
+      <filter(index-compilation-file; complete-work-unit)> completeFiles;
+      <filter(index-compilation-partial-file; complete-work-unit)> partialFiles
       
   /** @internal */    
   index-split-partial-files:
@@ -107,7 +107,6 @@ rules // Compilation
   index-compilation-partial-file:
     (path, subfile) -> None()
     with
-    	// TODO: Combine AST's
       asts := <index-get-all-values> AST(subfile, ());
       if 1 := <length> asts then
       	ast := <?[<id>|_]> asts
