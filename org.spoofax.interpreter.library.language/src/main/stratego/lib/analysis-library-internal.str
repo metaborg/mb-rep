@@ -538,13 +538,13 @@ rules // Index lookup rules (that take into account adjust-index-lookup)
   index-lookup-all-scoped-internal(adjust-import, adjust-lookup, name-compare|namespace, path, prefix):
     x -> defs
     with
-      adjust-import;
-      adjusted := <index-do-adjust-import(|namespace, path)> x;
-      defs     := <index-get-adjust-import-results(adjust-lookup, name-compare|adjusted, prefix)> x
-    <+
       adjust-lookup;
       adjusted := <index-do-adjust-lookup(|namespace, path, x, prefix)> x;
       defs     := <index-get-adjust-lookup-results(adjust-import, name-compare|adjusted, prefix)> x
+    <+
+      adjust-import;
+      adjusted := <index-do-adjust-import(|namespace, path)> x;
+      defs     := <index-get-adjust-import-results(adjust-lookup, name-compare|adjusted, prefix)> x
     <+
       defs     := <index-get-children(\uri -> Def(uri)\, name-compare|namespace, prefix)> [namespace | path]
       
