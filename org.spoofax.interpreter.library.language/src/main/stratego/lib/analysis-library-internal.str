@@ -556,16 +556,31 @@ rules // Index lookup rules (that take into account adjust-index-lookup)
   index-do-adjust-import(|namespace, path) =
     adjust-index-import(|namespace, path)
     
-  /** @internal */  
+  /** @internal */
   index-get-adjust-import-results(adjust-lookup, name-compare|adjusted, prefix):
     x -> defs'
     with
       defs := 
         <mapconcat(
-             \[namespace'|path'] -> <index-lookup-all-scoped-internal(fail, adjust-lookup, name-compare|namespace', path', prefix)> x\
+             index-adjust-import-recurse(adjust-lookup, name-compare|x, prefix)
           <+ fatal-err(|"Unexpected result from adjust-index-import, should be a list of [namespace | path].")
         )> adjusted;
-        defs' := <filter(name-compare)> defs
+        if not(<elem> (StopLookup(), defs)) then
+        	defs' := <filter(name-compare)> defs
+        else
+        	defs' := StopLookup()
+      	end
+      	
+  /** @internal */
+  index-adjust-import-recurse(adjust-lookup, name-compare|x, prefix):
+  	[namespace|path] -> results'
+  	with
+  		results := <index-lookup-all-scoped-internal(fail, adjust-lookup, name-compare|namespace, path, prefix)> x;
+  		if not(<is-list> results) then
+  			results' := [results]
+  		else
+  			results' := results
+			end
         
   /** @internal */
   index-do-adjust-lookup(|namespace, path, use, prefix) =
