@@ -49,25 +49,25 @@ public abstract class AbstractSimpleTerm implements ISimpleTerm, Cloneable {
     }
     
     public ITermAttachment removeAttachment(TermAttachmentType<?> type) {
-    	if (attachment != null) {
-    		if (attachment.getAttachmentType() == type) {
-    			ITermAttachment old = attachment;
-    			attachment = attachment.getNext();
-    			old.setNext(null);
-    			return old;
-    		}
-    	} else {
-			ITermAttachment previous = this.attachment;
-			for (ITermAttachment a = attachment.getNext(); a != null; a = a.getNext()) {
-        		if (a.getAttachmentType() == type) {
-        			previous.setNext(a.getNext());
-        			a.setNext(null);
-        			return a;
-        		}
-        		previous = a;
-        	}
-    	}
-    	return null;
+		if (attachment != null) {
+			if (attachment.getAttachmentType() == type) {
+				ITermAttachment old = attachment;
+				attachment = attachment.getNext();
+				old.setNext(null);
+				return old;
+			} else {
+				ITermAttachment previous = this.attachment;
+				for (ITermAttachment a = attachment.getNext(); a != null; a = a.getNext()) {
+					if (a.getAttachmentType() == type) {
+						previous.setNext(a.getNext());
+						a.setNext(null);
+						return a;
+					}
+					previous = a;
+				}
+			}
+		}
+		return null;
     }
     
     protected void clearAttachments() {
