@@ -51,7 +51,7 @@ rules // Import adjust rule
       
       if not(<elem> (uri, seen)) then
         allImports := <import-values(|namespace, path)> ;
-        transitiveUris := <mapconcat(import-defs(|namespace, <conc> (seen, [uri])))> allImports
+        transitiveUris := <mapconcat(import-defs(|namespace, [uri|seen]))> allImports
       else
         transitiveUris := []
       end
