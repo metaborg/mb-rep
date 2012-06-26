@@ -331,13 +331,17 @@ rules // Parallel analysis
   
   /** @internal */   
   index-parse-file:
-    file -> (ast, file)
+    file -> (ast', file)
     with
-    if <file-exists> file then
-      ast := <parse-file> file
-    else
-      ast := ()
-    end
+	    if <file-exists> file then
+	    	if ast := <parse-file> file then
+	    		ast' := ast
+	      else
+	      	ast' := ()
+      	end
+	    else
+	      ast' := ()
+	    end
    
   /** @internal */   
   index-set-markers:
