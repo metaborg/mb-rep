@@ -151,8 +151,19 @@ rules // Analysis traversals
    */   
   analyze-top-store-ast(|full-path):
     (ast, (_, subfile)) -> <id>
-    with
+    where
       <index-add(|full-path)> AST(subfile, ast)
+
+  /**
+   * Stores AST from file to the index.
+   *
+   * @internal
+   */   
+  analyze-top-store-ast(|full-path):
+    (ast, file) -> <id>
+    where
+      <is-string> file;
+      <index-add(|full-path)> AST([AST()], ast)
       
   /**
    * Identifies all definitions in the tree and annotates them with their URI.
@@ -610,6 +621,17 @@ rules // Index lookup rules (that take into account adjust-index-lookup)
       end
       
 rules // Name comparisons
+
+  /**
+   * Compares given element (with an URI) to given name using string equality comparison.
+   * 
+   * @internal 
+   */     
+  index-compare-name-equal(|name):
+    element -> <id>
+    where
+      uri := <index-uri> element;
+      <SRTS-EXT-eq-ignore-annos(|name)> <index-uri-name> uri
   
   /**
    * Compares given element (with an URI) to given prefix using substring comparison.
@@ -633,17 +655,6 @@ rules // Name comparisons
       uri := <index-uri> element;
       <eq> (namespace, <index-uri-namespace> uri);
       <is-substring(!prefix)> <index-uri-name> uri
-  
-  /**
-   * Compares given element (with an URI) to given name using string equality comparison.
-   * 
-   * @internal 
-   */     
-  index-compare-name-equal(|name):
-    element -> <id>
-    where
-      uri := <index-uri> element;
-      <SRTS-EXT-eq-ignore-annos(|name)> <index-uri-name> uri
       
 rules // URI and value projections
        

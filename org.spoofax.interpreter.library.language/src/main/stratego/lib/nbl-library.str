@@ -81,3 +81,65 @@ rules // Error checks
       defs := <index-lookup-all-scoped-noimports> key;
       <gt> (<length> defs, 1)
       
+rules // Type dependant lookup
+	
+	/**
+   * Given an annotated AST node and a type, resolves it and checks if type equals given type, returning its definition.
+   * Uses precise matching for names.
+   *
+   * @param type	Only definitions with this type are returned.
+   * @type "name"{uri} -> ?Def(uri')
+   */
+  index-lookup-typed(|type):
+    x{[namespace|path]} -> <index-lookup-internal(index-compare-nametype-equal(|name, type)|ns, path, name)> x
+    where
+      ns := <index-namespace-unwrap> namespace;
+      name := <strip-annos> x
+
+  /**
+   * Given an annotated AST node, a prefix and a type, looks for all definitions with given prefix and type starting at the scope of 
+   * the given node.
+   * Uses substring matching for names.
+   *
+   * @param prefix    Only definitions with a name that starts with this string are returned.
+   * @param type			Only definitions with this type are returned.
+   * @type "name"{uri} -> List(Def(uri'))
+   */
+  index-lookup-all-typed(|prefix, type):
+    x{[namespace|path]} -> <index-lookup-all-internal(index-compare-nametype-substring(|prefix, type)|ns, path, prefix)> x
+    where
+      ns := <index-namespace-unwrap> namespace
+
+  /**
+   * Compares given element (with an URI) to given name using string equality comparison and given type using equality.
+   * 
+   * @internal 
+   */     
+  index-compare-nametype-equal(|name, type):
+    element -> <id>
+    where
+      uri := <index-uri> element;
+      <SRTS-EXT-eq-ignore-annos(|name)> <index-uri-name> uri;
+      <nbl-type-eq(|type)> <nbl-get-type> uri
+      
+  /**
+   * Compares given element (with an URI) to given prefix using substring comparison and given type using equality.
+   * 
+   * @internal 
+   */     
+  index-compare-nametype-substring(|prefix, type):
+    element -> <id>
+    where
+      uri := <index-uri> element;
+      <is-substring(!prefix)> <index-uri-name> uri;
+      <nbl-type-eq(|type)> <nbl-get-type> uri
+  
+  /** @internal */
+  nbl-get-type:
+  	uri -> <index-get-data(|Type())> Def(uri)
+  
+  // TODO: Allow user defined type equality.
+  /** @internal */	
+  nbl-type-eq(|type) = 
+  	<eq> (<id>, type)
+  	
