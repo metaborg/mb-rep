@@ -111,7 +111,7 @@ rules // Compilation
       if 1 := <length> asts then
       	ast := <?[<id>|_]> asts
     	else
-    		ast := <index-combine-asts> asts
+    		ast := <try(index-combine-asts)> asts
   		end;
       <index-compilation-ast(|path, subfile)> ast
       
@@ -205,12 +205,22 @@ rules // Compile time reads
   index-compilation-restore-read-file:
     (file, subfile) -> (file', subfile)
     where
-      file' := <string-replace(|<index-compilation-read-path>, "")> file
+      if removedPath := <string-replace(|<index-compilation-read-path>, "")> file then
+        file' := removedPath
+      else
+        file' := file
+      end
+
   /** @internal */
   index-compilation-restore-read-file:
-    (file, subfile) -> (file, subfile)
+    file -> file'
     where
-      not(<string-replace(|<index-compilation-read-path>, "")> file)
+      not(<is-tuple> file);
+      if removedPath := <string-replace(|<index-compilation-read-path>, "")> file then
+        file' := removedPath
+      else
+        file' := file
+      end
       
   /** @internal */
   index-compilation-clean-reads = 
