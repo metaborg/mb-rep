@@ -588,6 +588,19 @@ rules // Index utility
     x -> key
     where
       key := <collect-one(?_{_})> x
+
+  /**
+   * Converts a path from an URI to a string.
+   *
+   * Example:
+   *   <index-path-to-string> ["Bar", "Baz"] => "Bar.Baz"
+   *
+   * @type path -> str
+   */
+  index-path-to-string:
+    path -> str
+    with
+      str := <take-until(?Anon(_)); reverse; separate-by(|"."); concat-strings> path
       
   /**
    * Converts a URI to a string.
@@ -600,7 +613,7 @@ rules // Index utility
   index-uri-to-string:
     [ns|path] -> <concat-strings> [nsStr, "://", pathStr]
     with
-      pathStr := <take-until(?Anon(_)); reverse; separate-by(|"."); concat-strings> path;
+      pathStr := <index-path-to-string> path;
       nsStr := <?<id>#(_)> ns
   
   /**
@@ -679,6 +692,10 @@ rules // Index utility
       
 /** @internal */
 rules // URI and value projections
+
+  /** @internal */
+  index-uri-impl:
+    [_|_] -> <id>
   
   /** @internal */
   index-uri-impl:

@@ -214,6 +214,29 @@ rules // Parallel analysis
     with
       index-parallel-analyze(analyze);
       filter(not(?ParallelResults((), (), _, _, _, _) <+ ?ParallelResults((), [()], _, _, _, _)); index-set-markers)
+      
+rules // Splitter
+  
+  /**
+   * Merges a top level definition back into an AST using splitter rules.
+   *
+   * @param toplevel  The top level definition to merge back into the given AST.
+   * @type ast -> ast'
+   */
+  index-merge-ast(|toplevel):
+    term -> merged
+    with
+      if <is-list> term then
+        [first-ast|_] := term;
+        merged        := <index-merge-ast(|toplevel)> first-ast
+      else
+        if <index-is-qualifier> term then
+          [elem|_]    := <index-qualifier-subelements> term;
+          merged      := <index-create-qualifier(|term)> <index-merge-ast(|toplevel)> elem
+        else
+          merged      := toplevel
+        end
+      end
  
 rules // Query primitives
  
