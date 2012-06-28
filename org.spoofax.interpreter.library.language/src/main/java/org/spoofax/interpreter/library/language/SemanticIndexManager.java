@@ -63,6 +63,13 @@ public class SemanticIndexManager {
 	public void setCurrentFile(SemanticIndexFileDescriptor currentFile) {
 		this.currentFile.set(currentFile);
 	}
+
+	public URI getCurrentProject() {
+		if (!isInitialized())
+			throw new IllegalStateException("No semantic index has been set-up, use index-setup(|language, project-paths) to set up the index before use.");
+		
+		return currentProject.get();
+	}
 	
 	public long startTransaction(ITermFactory factory, IOAgent agent) {
 		// TODO: Does this operation need a transaction write lock?

@@ -145,6 +145,14 @@ rules // Index management
    */
   index-clear = 
     prim("LANG_index_clear_all")
+    
+  /**
+   * Clears all elements from the index and re-analyzes all files in the project.
+   *
+   * @type x -> x
+   */
+  index-reload = 
+    prim("LANG_index_reload")
    
   /**
    * Commits index to a file on disk.
