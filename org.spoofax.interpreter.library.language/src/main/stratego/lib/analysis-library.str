@@ -218,52 +218,62 @@ rules // Parallel analysis
 rules // Query primitives
  
   /**
-   * Gets all DefData entries that match the kind of data and URI in given definition.
+   * Gets a DefData entry that matches the kind of data and given URI, or fail.
    *
    * Example:
    *   <index-get-data(|Type())> Def([Entity(), "Bar"]) => [DefData([Entity(), "Bar"], Type(), TYPE("Bar")), ...]
    *
    * @param kind Only data of this kind is returned.
-   * @type Def(uri) -> List(DefData(uri, kind, value))
+   * @type Def(uri) or "name"{uri} or [namespace|path] -> List(DefData(uri, kind, value))
    */
   index-get-data(|kind):
-    <with(?Def(uri) | "Def expected")> -> <index-get-value> DefData(uri, kind, ())
+    <with(uri := <index-uri> | "Def, key or URI expected")> -> <index-get-value> DefData(uri, kind, ())
       
   /**
-   * Gets all data entries that match the kind of data and URI in given definition.
+   * Gets all DefData entries that match the kind of data and given URI
    *
    * Example:
    *   <index-get-data-all(|Type())> Def([Entity(), "Bar"]) => [TYPE("Bar"), ...]
    *
    * @param kind Only data of this kind is returned.
-   * @type Def(uri) -> List(value)
+   * @type Def(uri) or "name"{uri} or [namespace|path] -> List(value)
    */
   index-get-data-all(|kind):
-    <with(?Def(uri) | "Def expected")> -> <index-get-all-values> DefData(uri, kind, ())
-     
+     <with(uri := <index-uri> | "Def, key or URI expected")> -> <index-get-all-values> DefData(uri, kind, ())
+
   /**
-   * Gets all Use entries that match the URI in given definition.
+   * Gets a Use entry that matches given URI, or fail.
    *
    * Example:
    *   <index-get-uses-all> Def([Entity(), "M", "Bar"]) => [Use([Entity(), "M", "Bar"]), ...]
    *
-   * @type Def(uri) -> List(Use(uri))
+   * @type Def(uri) or "name"{uri} or [namespace|path] -> List(Use(uri))
    */
-  index-get-uses-all:
-    <with(?Def(uri) | "Def expected")> -> <index-get-all> Use(uri)
+  index-get-use:
+    <with(uri := <index-uri> | "Def, key or URI expected")> -> <index-get-all> Use(uri)
      
   /**
-   * Gets all Read or ReadWildcard entries that match the given template.
+   * Gets all Use entries that match the given URI.
+   *
+   * Example:
+   *   <index-get-uses-all> Def([Entity(), "M", "Bar"]) => [Use([Entity(), "M", "Bar"]), ...]
+   *
+   * @type Def(uri) or "name"{uri} or [namespace|path] -> List(Use(uri))
+   */
+  index-get-uses-all:
+    <with(uri := <index-uri> | "Def, key or URI expected")> -> <index-get-all> Use(uri)
+     
+  /**
+   * Gets all Read and ReadWildcard entries that match the given URI.
    *
    * Example:
    *   <index-get-reads-all> [Property(), "Bar", "p"] => [Read([Property(), "Bar", "p"]), ...]
    *
-   * @type Def(uri) -> List(Read(uri) or ReadWildcard(uri, prefix))
+   * @type Def(uri) or "name"{uri} or [namespace|path] -> List(Read(uri) or ReadWildcard(uri, prefix))
    */
   index-get-reads-all:
-    template -> <conc> (reads, readwildcards')
+    <with(uri := <index-uri> | "Def, key or URI expected")> -> <conc> (reads, readwildcards')
     where
-      uri   := <index-uri> template;
       reads := <index-get-all> Read(uri);
       if !uri => [namespace, prefix | path-parent] then
         readwildcards  := <index-get-all> ReadWildcard([namespace | path-parent], ());
@@ -350,7 +360,7 @@ rules // Query primitives
    * @type Def(uri) or "name"{uri} or uri@[namespace|path] -> List(Def(uri))
    */
   index-get-children(construct-template, name-compare|namespace):
-    <with(?Def([parent-ns | path]) <+ ?_{[parent-ns | path]} <+ ?[parent-ns | path] | "Def, key or uri expected")> -> children
+    <with([parent-ns | path] := <index-uri> | "Def, key or URI expected")> -> children
     with
       template  := <construct-template> [namespace | path];
       children  := <prim("LANG_index_get_children", template)>;
@@ -367,7 +377,7 @@ rules // Query primitives
    *
    * @param namespace Only child Def elements in this namespace are returned.
    * @param prefix    Only child Def elements where the name starts with this prefix are returned.
-   * @type Def(uri) or "name"{uri} or uri@[namespace|path] -> List(Def(uri))
+   * @type Def(uri) or "name"{uri} or [namespace|path] -> List(Def(uri))
    */
   index-get-children(|namespace, prefix) = 
     index-get-children(\uri -> Def(uri)\, index-compare-name-substring(|prefix, namespace)|namespace, prefix)
@@ -381,10 +391,10 @@ rules // Query primitives
    * @param name-compare        element -> ?element. Strategy for filtering children elements.
    * @param namespace           Only child elements in this namespace are returned.
    * @param prefix              Only child elements where the name starts with this prefix are returned.
-   * @type Def(uri) or "name"{uri} or uri@[namespace|path] -> List(Def(uri))
+   * @type Def(uri) or "name"{uri} or [namespace|path] -> List(Def(uri))
    */
   index-get-children(construct-template, name-compare|namespace, prefix):
-    <with(?Def([parent-ns | path]) <+ ?_{[parent-ns | path]} <+ ?[parent-ns | path] | "Def, key or uri expected")> -> children'
+    <with([parent-ns | path] := <index-uri> | "Def, key or URI expected")> -> children'
     with
       template  := <construct-template> [namespace | path];
       children  := <prim("LANG_index_get_children", template)>;
@@ -564,21 +574,6 @@ rules // Index utilities
    */ 
   index-uri-name:
     x{[_|[name|_]]} -> name
-    
-  /**
-   * Tries to get the name part of the URI for given term or fail if given term does not have an URI or name.
-   *
-   * Example:
-   *   <index-uri-name> Def([Entity(), "Bar", "Baz"]) => "Bar"
-   *   <index-uri-name> Type("Foo") => fail
-   *   <index-uri-name> Read([Entity()]) => fail
-   *
-   * @type x -> name
-   */   
-  index-uri-name:
-    x -> <index-uri-name> <index-uri> x
-    where
-      not(<has-annos> x)
     
   /**
    * Determines if a given AST node is a definition site, according to the syntax.
