@@ -241,5 +241,5 @@ rules // Utility
   index-file-is-partial:
   	file -> file
   	where 
-      Snd; index-uri-namespace; index-is-partial-ast
+      Snd; index-uri; index-is-partial-ast
   	 
