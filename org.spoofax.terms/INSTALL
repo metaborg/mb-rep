@@ -1,9 +1,0 @@
-
-To build the binary jar file into target/:
-
- # ant -f build.ant.xml jar
-
-To build the source tarball into target/:
-
- # ant -f build.ant.xml dist
-
