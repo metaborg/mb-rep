@@ -172,11 +172,13 @@ public class SemanticIndex implements ISemanticIndex {
 	}
 	
 	public Collection<SemanticIndexEntry> getEntries(IStrategoAppl template) {
-		return getCollection(entries.get(factory.createURIFromTemplate(template)));
+	  SemanticIndexURI uri = factory.createURIFromTemplate(template);
+		return getCollection(entries.get(uri));
 	}
 
 	public Collection<SemanticIndexEntry> getEntryChildTerms(IStrategoAppl template) {
-		return getCollection(childs.get(factory.createURIFromTemplate(template)));
+	  SemanticIndexURI uri = factory.createURIFromTemplate(template);
+		return getCollection(childs.get(uri));
 	}
 	
 	public Collection<SemanticIndexEntry> getEntriesInFile(SemanticIndexFileDescriptor fileDescriptor) {
