@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
@@ -17,7 +16,7 @@ import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.BenchmarkRule;
 import com.carrotsearch.junitbenchmarks.Clock;
 
-@BenchmarkOptions(benchmarkRounds = 25, warmupRounds = 5, callgc = true, clock = Clock.CPU_TIME)
+@BenchmarkOptions(benchmarkRounds = 10, warmupRounds = 3, callgc = true, clock = Clock.CPU_TIME)
 @RunWith(value = Parameterized.class)
 public class SemanticIndexRemoveFilePerformanceTest extends
     SemanticIndexPerformanceTest {
@@ -60,14 +59,8 @@ public class SemanticIndexRemoveFilePerformanceTest extends
       benchmarkRun = new BenchmarkRule(new CSVResultsConsumer(
           (this.numItemsPerFile * 5) + "," + this.numFiles, new FileWriter("remove.csv", true)));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
-  }
-
-  @Before
-  public void setUp() {
-    super.setUp();
     
     for(int f = 0; f < numFiles; ++f) {
       for (int i = 0; i < numItemsPerFile; ++i) {

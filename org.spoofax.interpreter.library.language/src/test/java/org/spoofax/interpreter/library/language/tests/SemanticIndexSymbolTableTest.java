@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.spoofax.interpreter.library.language.SemanticIndexEntry;
 import org.spoofax.interpreter.library.language.SemanticIndexFile;
@@ -17,6 +18,12 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 public class SemanticIndexSymbolTableTest extends SemanticIndexTest {
+  @Before
+  public void setUp()
+  {
+    index.clear();
+  }
+  
   @Test
   public void files() {
     IStrategoTerm fileTerm1 = file("a/b/c");

@@ -17,8 +17,13 @@ public class CSVResultsConsumer implements IResultsConsumer {
   }
 
   public void accept(Result result) throws IOException {
-    String line = String.format(Locale.ROOT, "%s,%f,%f%n", prefixCSV,
-        result.roundAverage.avg, result.roundAverage.stddev);
+    String line = String.format(Locale.ROOT,
+        "%s,%f,%f,%f,%f,%d,%d,%d,%d,%d,%d%n", prefixCSV,
+        result.roundAverage.avg, result.roundAverage.stddev,
+        result.gcAverage.avg, result.gcAverage.stddev,
+        result.gcInfo.accumulatedInvocations(),
+        result.gcInfo.accumulatedTime(), result.benchmarkRounds,
+        result.benchmarkTime, result.warmupRounds, result.warmupTime);
     System.out.print(line);
     writer.write(line);
     writer.flush();

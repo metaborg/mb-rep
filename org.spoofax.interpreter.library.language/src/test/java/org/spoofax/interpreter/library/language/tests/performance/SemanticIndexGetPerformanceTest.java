@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
@@ -19,16 +18,18 @@ import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.BenchmarkRule;
 import com.carrotsearch.junitbenchmarks.Clock;
 
-@BenchmarkOptions(benchmarkRounds = 25, warmupRounds = 5, callgc = true, clock = Clock.CPU_TIME)
+@BenchmarkOptions(benchmarkRounds = 10, warmupRounds = 3, callgc = true, clock = Clock.CPU_TIME)
 @RunWith(value = Parameterized.class)
 public class SemanticIndexGetPerformanceTest extends
     SemanticIndexPerformanceTest {
   @Rule
   public MethodRule benchmarkRun;
-
+  
+  private static int NUM_GET = 100000;
+  
   private int numItems;
   private int numFiles;
-  
+
   @Parameters
   public static List<Object[]> data() {
     Object[][] data = new Object[][] { 
@@ -71,27 +72,21 @@ public class SemanticIndexGetPerformanceTest extends
     } catch (IOException e) {
       e.printStackTrace();
     }
-  }
 
-  @Before
-  public void setUp()
-  {
-    super.setUp();
-    
-    for (int i = 0; i < numItems; ++i) {
-      index.add(def1, getFile(numFiles));
-      index.add(def2, getFile(numFiles));
-      index.add(def3, getFile(numFiles));
-      index.add(use1, getFile(numFiles));
-      index.add(type1, getFile(numFiles));
+    for(int i = 0; i < this.numItems; ++i) {
+      index.add(def1, getFile(this.numFiles));
+      index.add(def2, getFile(this.numFiles));
+      index.add(def3, getFile(this.numFiles));
+      index.add(use1, getFile(this.numFiles));
+      index.add(type1, getFile(this.numFiles));
     }
   }
-  
+
   @Test
   public void get() {
     @SuppressWarnings("unused")
     Collection<SemanticIndexEntry> ret;
-    for(int i = 0; i < numItems; ++i) {
+    for(int i = 0; i < NUM_GET; ++i) {
       ret = index.getEntries(def1);
       ret = index.getEntries(def2);
       ret = index.getEntries(def3);

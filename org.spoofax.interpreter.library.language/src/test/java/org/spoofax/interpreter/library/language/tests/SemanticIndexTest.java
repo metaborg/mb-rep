@@ -30,10 +30,10 @@ public class SemanticIndexTest {
   protected static IStrategoString projectPath;
   protected static IStrategoTerm fileTerm;
 
-  protected SemanticIndexManager indexManager;
-  protected SemanticIndexFileDescriptor project;
-  protected SemanticIndexFileDescriptor file;
-  protected ISemanticIndex index;
+  protected static SemanticIndexManager indexManager;
+  protected static SemanticIndexFileDescriptor project;
+  protected static SemanticIndexFileDescriptor file;
+  protected static ISemanticIndex index;
 
   @BeforeClass
   public static void setUpOnce() {
@@ -44,28 +44,22 @@ public class SemanticIndexTest {
     language = str("TestLanguage");
     projectPath = str("TestPath");
     fileTerm = file("TestFile");
-  }
-  
-  @Before
-  public void setUp() {
+    
     project = SemanticIndexFileDescriptor.fromTerm(agent, projectPath);
     indexManager = new SemanticIndexManager();
     indexManager.loadIndex(asJavaString(language), project.getURI(), factory, agent);
     index = indexManager.getCurrent();
     index.initialize(factory, agent);
     file = setupIndex(fileTerm);
-  }
-
-  @After
-  public void tearDown() {
-    index.clear();
-    index = null;
-    indexManager = null;
-    project = null;
+    
   }
   
   @AfterClass
   public static void tearDownOnce() {
+    index.clear();
+    index = null;
+    indexManager = null;
+    project = null;
     language = null;
     projectPath = null;
     fileTerm = null;
@@ -75,17 +69,17 @@ public class SemanticIndexTest {
     agent = null;
   }
   
-  public SemanticIndexFileDescriptor setupIndex(IStrategoTerm fileTerm) {
+  public static SemanticIndexFileDescriptor setupIndex(IStrategoTerm fileTerm) {
     SemanticIndexFileDescriptor file = getFile(fileTerm);
     indexManager.setCurrentFile(file);
     return file;
   }
 
-  public void setupIndex(SemanticIndexFileDescriptor file) {
+  public static void setupIndex(SemanticIndexFileDescriptor file) {
     indexManager.setCurrentFile(file);
   }
 
-  public SemanticIndexFileDescriptor getFile(IStrategoTerm fileTerm) {
+  public static SemanticIndexFileDescriptor getFile(IStrategoTerm fileTerm) {
     return index.getFileDescriptor(fileTerm);
   }
   
