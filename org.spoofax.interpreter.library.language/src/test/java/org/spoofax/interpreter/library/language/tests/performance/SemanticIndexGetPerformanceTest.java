@@ -1,63 +1,25 @@
-package org.spoofax.interpreter.library.language;
+package org.spoofax.interpreter.library.language.tests.performance;
 
 import java.util.Collection;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
-import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.library.language.SemanticIndexEntry;
 
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.BenchmarkRule;
 import com.carrotsearch.junitbenchmarks.Clock;
 
 @BenchmarkOptions(benchmarkRounds = 25, warmupRounds = 5, callgc = true, clock = Clock.CPU_TIME)
-public class SemanticIndexPerformanceTest extends SemanticIndexTest {
+public class SemanticIndexGetPerformanceTest extends SemanticIndexPerformanceTest {
   @Rule
   public MethodRule benchmarkRun = new BenchmarkRule();
   
-  private static int NUM_FILES = 100;
-  
-  private static IStrategoAppl def1;
-  private static IStrategoAppl def2;
-  private static IStrategoAppl def3;
-  private static IStrategoAppl use1;
-  private static IStrategoAppl type1;
-  private static IStrategoAppl typeTemplate1;
-  private static SemanticIndexFileDescriptor[] files;
-  private static int fileIndex;
-  
-  @BeforeClass
-  public static void setUpOnce()
-  {
-    SemanticIndexTest.setUpOnce();
-    def1 = def("Class", "java", "lang", "String");
-    def2 = def("Method", "java", "lang", "System", "out", "println");
-    def3 = def("Field", "java", "lang", "array", "Length");
-    use1 = use("Class", "java", "lang", "System");
-    type1 = type(constructor("Type", str("String")), "Method", "java", "lang", "Object", "toString");
-    typeTemplate1 = type(tuple(), "Method", "java", "lang", "Object", "toString");
-  }
-  
-  @Before
-  public void setUp()
-  {
-    super.setUp();
-    
-    files = new SemanticIndexFileDescriptor[NUM_FILES];
-    for(int i = 0; i < NUM_FILES; ++i)
-    {
-      files[i] = setupIndex(file("File" + i));
-    }
-    
-    fileIndex = -1;
-  }
   
   /// Get tests with 1 file.
   @Test 
-  public void get_500_1()
+  public void get500_1()
   {
     get(100, 1);
   }
@@ -107,7 +69,7 @@ public class SemanticIndexPerformanceTest extends SemanticIndexTest {
   
   /// Get tests with 10 files.
   @Test
-  public void get_500_10()
+  public void get500_10()
   {
     get(100, 10);
   }
@@ -157,7 +119,7 @@ public class SemanticIndexPerformanceTest extends SemanticIndexTest {
   
   /// Get tests with 100 files.
   @Test
-  public void get_500_100()
+  public void get500_100()
   {
     get(100, 100);
   }
@@ -227,13 +189,5 @@ public class SemanticIndexPerformanceTest extends SemanticIndexTest {
       ret = index.getEntries(use1);
       ret = index.getEntries(typeTemplate1);
     }
-  }
-  
-  public static SemanticIndexFileDescriptor getFile(int numFiles)
-  {
-    SemanticIndexFileDescriptor file = files[++fileIndex];
-    if(fileIndex == numFiles - 1)
-      fileIndex = -1;
-    return file;
   }
 }

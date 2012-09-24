@@ -1,4 +1,4 @@
-package org.spoofax.interpreter.library.language;
+package org.spoofax.interpreter.library.language.tests;
 
 import static org.spoofax.interpreter.core.Tools.asJavaString;
 
@@ -10,6 +10,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.spoofax.interpreter.core.Interpreter;
 import org.spoofax.interpreter.library.IOAgent;
+import org.spoofax.interpreter.library.language.ISemanticIndex;
+import org.spoofax.interpreter.library.language.SemanticIndexEntry;
+import org.spoofax.interpreter.library.language.SemanticIndexFileDescriptor;
+import org.spoofax.interpreter.library.language.SemanticIndexManager;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;

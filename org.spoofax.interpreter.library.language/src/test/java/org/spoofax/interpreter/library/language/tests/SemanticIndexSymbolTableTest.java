@@ -1,4 +1,4 @@
-package org.spoofax.interpreter.library.language;
+package org.spoofax.interpreter.library.language.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -9,6 +9,9 @@ import static org.junit.Assert.assertTrue;
 import java.util.Collection;
 
 import org.junit.Test;
+import org.spoofax.interpreter.library.language.SemanticIndexEntry;
+import org.spoofax.interpreter.library.language.SemanticIndexFile;
+import org.spoofax.interpreter.library.language.SemanticIndexFileDescriptor;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
