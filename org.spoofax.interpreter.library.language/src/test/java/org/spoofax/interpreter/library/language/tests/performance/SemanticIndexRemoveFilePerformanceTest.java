@@ -16,7 +16,7 @@ import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.BenchmarkRule;
 import com.carrotsearch.junitbenchmarks.Clock;
 
-@BenchmarkOptions(benchmarkRounds = 15, warmupRounds = 5, callgc = true, clock = Clock.CPU_TIME)
+@BenchmarkOptions(benchmarkRounds = 1, warmupRounds = 0, callgc = true, clock = Clock.CPU_TIME)
 @RunWith(value = Parameterized.class)
 public class SemanticIndexRemoveFilePerformanceTest extends
     SemanticIndexPerformanceTest {
@@ -25,35 +25,47 @@ public class SemanticIndexRemoveFilePerformanceTest extends
 
   private int numItemsPerFile;
   private int numFiles;
-  private boolean deleteAll;
   
   @Parameters
   public static List<Object[]> data() {
     Object[][] data = new Object[][] { 
-      { 20 , 1   , false }
-    , { 100, 1   , false }
-    , { 500, 1   , false }
-    , { 20 , 10  , false }
-    , { 100, 10  , false }
-    , { 500, 10  , false }
-    , { 20 , 100 , false }
-    , { 100, 100 , false }
-    , { 500, 100 , false }
-    , { 20 , 500 , false }
-    , { 100, 500 , false }
-    , { 500, 500 , false }
-    , { 20 , 1000, false }
-    , { 100, 1000, false }
-    , { 500, 1000, false }
+      { 20 , 1    }
+    , { 100, 1    }
+    , { 200, 1    }
+    , { 300, 1    }
+    , { 400, 1    }
+    , { 500, 1    }
+    , { 20 , 10   }
+    , { 100, 10   }
+    , { 200, 10   }
+    , { 300, 10   }
+    , { 400, 10   }
+    , { 500, 10   }
+    , { 20 , 100  }
+    , { 100, 100  }
+    , { 200, 100  }
+    , { 300, 100  }
+    , { 400, 100  }
+    , { 500, 100  }
+    , { 20 , 500  }
+    , { 100, 500  }
+    , { 200, 500  }
+    , { 300, 500  }
+    , { 400, 500  }
+    , { 500, 500  }
+    , { 20 , 1000 }
+    , { 100, 1000 }
+    , { 200, 1000 }
+    , { 300, 1000 }
+    , { 400, 1000 }
+    , { 500, 1000 }
     };
     return Arrays.asList(data);
   }
   
-  public SemanticIndexRemoveFilePerformanceTest(int numItemsPerFile, int numFiles, 
-      boolean deleteAll) {
+  public SemanticIndexRemoveFilePerformanceTest(int numItemsPerFile, int numFiles) {
     this.numItemsPerFile = numItemsPerFile;
     this.numFiles = numFiles;
-    this.deleteAll = deleteAll;
 
     try {
       benchmarkRun = new BenchmarkRule(new CSVResultsConsumer(
@@ -77,12 +89,8 @@ public class SemanticIndexRemoveFilePerformanceTest extends
   
   @Test
   public void removeFile() {
-    if(deleteAll) {
-      for(int i = 0; i < this.numFiles; ++i) {
-        index.removeFile(files[i]);
-      }
-    } else {
-      index.removeFile(files[1]);
+    for(int i = 0; i < this.numFiles; ++i) {
+      index.removeFile(files[i]);
     }
   }
 }

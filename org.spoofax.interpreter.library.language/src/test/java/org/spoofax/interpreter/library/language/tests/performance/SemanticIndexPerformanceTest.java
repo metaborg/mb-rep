@@ -1,5 +1,6 @@
 package org.spoofax.interpreter.library.language.tests.performance;
 
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.spoofax.interpreter.library.language.SemanticIndexFileDescriptor;
 import org.spoofax.interpreter.library.language.tests.SemanticIndexTest;
@@ -35,6 +36,11 @@ public class SemanticIndexPerformanceTest extends SemanticIndexTest {
       files[i] = SemanticIndexFileDescriptor.fromTerm(agent, file("File" + i));
     }
 
+    fileIndex = -1;
+  }
+  
+  @Before
+  public void setUp() {
     fileIndex = -1;
   }
 
