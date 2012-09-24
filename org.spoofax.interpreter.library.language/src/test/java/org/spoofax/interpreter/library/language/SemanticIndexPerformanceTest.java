@@ -155,7 +155,7 @@ public class SemanticIndexPerformanceTest extends SemanticIndexTest {
   }
   
   
-/// Get tests with 100 files.
+  /// Get tests with 100 files.
   @Test
   public void get_500_100()
   {

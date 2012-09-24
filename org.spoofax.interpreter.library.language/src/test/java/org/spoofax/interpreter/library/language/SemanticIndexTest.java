@@ -4,6 +4,10 @@ import static org.spoofax.interpreter.core.Tools.asJavaString;
 
 import java.util.Collection;
 
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.spoofax.interpreter.core.Interpreter;
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -13,77 +17,96 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 
-import junit.framework.TestCase;
+public class SemanticIndexTest {
+  protected static Interpreter interpreter;
+  protected static ITermFactory factory;
+  protected static IOAgent agent;
 
-public class SemanticIndexTestCase extends TestCase {
-  protected Interpreter interpreter;
-  protected ITermFactory factory;
-  protected IOAgent agent;
-
-  protected IStrategoString language;
-  protected IStrategoString projectPath;
-  protected IStrategoTerm fileTerm;
+  protected static IStrategoString language;
+  protected static IStrategoString projectPath;
+  protected static IStrategoTerm fileTerm;
 
   protected SemanticIndexManager indexManager;
   protected SemanticIndexFileDescriptor project;
+  protected SemanticIndexFileDescriptor file;
   protected ISemanticIndex index;
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
-
+  @BeforeClass
+  public static void setUpOnce() {
     interpreter = new Interpreter();
     factory = interpreter.getFactory();
     agent = interpreter.getIOAgent();
 
     language = str("TestLanguage");
     projectPath = str("TestPath");
+    fileTerm = file("TestFile");
+  }
+  
+  @Before
+  public void setUp() {
     project = SemanticIndexFileDescriptor.fromTerm(agent, projectPath);
-
     indexManager = new SemanticIndexManager();
-    indexManager.loadIndex(asJavaString(language), project.getURI(), factory,
-        agent);
+    indexManager.loadIndex(asJavaString(language), project.getURI(), factory, agent);
     index = indexManager.getCurrent();
     index.initialize(factory, agent);
+    file = setupIndex(fileTerm);
   }
 
-  @Override
-  protected void tearDown() throws Exception {
+  @After
+  public void tearDown() {
     index.clear();
     index = null;
     indexManager = null;
-
+    project = null;
+  }
+  
+  @AfterClass
+  public static void tearDownOnce() {
     language = null;
     projectPath = null;
     fileTerm = null;
-    project = null;
-
     interpreter.shutdown();
     interpreter = null;
     factory = null;
     agent = null;
-
-    super.tearDown();
+  }
+  
+  public SemanticIndexFileDescriptor setupIndex(IStrategoTerm fileTerm) {
+    SemanticIndexFileDescriptor file = getFile(fileTerm);
+    indexManager.setCurrentFile(file);
+    return file;
   }
 
-  public IStrategoString str(String str) {
+  public void setupIndex(SemanticIndexFileDescriptor file) {
+    indexManager.setCurrentFile(file);
+  }
+
+  public SemanticIndexFileDescriptor getFile(IStrategoTerm fileTerm) {
+    return index.getFileDescriptor(fileTerm);
+  }
+  
+  public static IStrategoString str(String str) {
     return factory.makeString(str);
   }
 
-  public IStrategoAppl constructor(String constructor, IStrategoTerm... terms) {
+  public static IStrategoAppl constructor(String constructor, IStrategoTerm... terms) {
     return factory.makeAppl(factory.makeConstructor(constructor, terms.length),
         terms);
   }
+  
+  public static IStrategoTuple tuple(IStrategoTerm... terms) {
+    return factory.makeTuple(terms);
+  }
 
-  public IStrategoString file(String file) {
+  public static IStrategoString file(String file) {
     return str(file);
   }
 
-  public IStrategoTuple file(String file, String namespace, String... path) {
+  public static IStrategoTuple file(String file, String namespace, String... path) {
     return factory.makeTuple(str(file), uri(namespace, path));
   }
 
-  public IStrategoList path(String... path) {
+  public static IStrategoList path(String... path) {
     IStrategoString[] strategoPath = new IStrategoString[path.length];
     for (int i = 0; i < path.length; ++i)
       // Paths are reversed in Stratego for easy appending of new names.
@@ -91,37 +114,37 @@ public class SemanticIndexTestCase extends TestCase {
     return factory.makeList(strategoPath);
   }
 
-  public IStrategoList uri(String namespace, String... path) {
+  public static IStrategoList uri(String namespace, String... path) {
     return factory.makeListCons(constructor(namespace), path(path));
   }
 
-  public IStrategoAppl def(String namespace, String... path) {
+  public static IStrategoAppl def(String namespace, String... path) {
     return factory.makeAppl(factory.makeConstructor("Def", 1),
         uri(namespace, path));
   }
 
-  public IStrategoAppl use(String namespace, String... path) {
+  public static IStrategoAppl use(String namespace, String... path) {
     return factory.makeAppl(factory.makeConstructor("Use", 1),
         uri(namespace, path));
   }
 
-  public IStrategoAppl read(String namespace, String... path) {
+  public static IStrategoAppl read(String namespace, String... path) {
     return factory.makeAppl(factory.makeConstructor("Read", 1),
         uri(namespace, path));
   }
 
-  public IStrategoAppl readAll(String prefix, String namespace, String... path) {
+  public static IStrategoAppl readAll(String prefix, String namespace, String... path) {
     return factory.makeAppl(factory.makeConstructor("ReadAll", 2),
         uri(namespace, path), str(prefix));
   }
 
-  public IStrategoAppl type(IStrategoTerm type, String namespace,
+  public static IStrategoAppl type(IStrategoTerm type, String namespace,
       String... path) {
-    return factory.makeAppl(factory.makeConstructor("ReadAll", 2),
+    return factory.makeAppl(factory.makeConstructor("Type", 2),
         uri(namespace, path), type);
   }
 
-  public boolean contains(Collection<SemanticIndexEntry> entries,
+  public static boolean contains(Collection<SemanticIndexEntry> entries,
       IStrategoTerm term) {
     boolean found = false;
     for (SemanticIndexEntry entry : entries)
@@ -129,7 +152,7 @@ public class SemanticIndexTestCase extends TestCase {
     return found;
   }
 
-  public boolean matchAll(Collection<SemanticIndexEntry> entries,
+  public static boolean matchAll(Collection<SemanticIndexEntry> entries,
       IStrategoTerm term) {
     if (entries.size() == 0)
       return false;

@@ -1,29 +1,21 @@
 package org.spoofax.interpreter.library.language;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Collection;
 
+import org.junit.Test;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-public class SemanticIndexSymbolTableTests extends SemanticIndexTestCase {
-  protected SemanticIndexFileDescriptor setupIndex(IStrategoTerm fileTerm) {
-    SemanticIndexFileDescriptor file = getFile(fileTerm);
-    indexManager.setCurrentFile(file);
-    return file;
-  }
-
-  protected void setupIndex(SemanticIndexFileDescriptor file) {
-    indexManager.setCurrentFile(file);
-  }
-
-  protected SemanticIndexFileDescriptor getFile(IStrategoTerm fileTerm) {
-    return index.getFileDescriptor(fileTerm);
-  }
-
-  public void testFiles() {
-    index.clear();
-
+public class SemanticIndexSymbolTableTest extends SemanticIndexTest {
+  @Test
+  public void files() {
     IStrategoTerm fileTerm1 = file("a/b/c");
     IStrategoTerm fileTerm2 = file("a/b/c", "some", "element");
 
@@ -59,10 +51,8 @@ public class SemanticIndexSymbolTableTests extends SemanticIndexTestCase {
     assertTrue(all2.contains(ret2));
   }
 
-  public void testGetEntries() {
-    SemanticIndexFileDescriptor file = setupIndex(file("TestFile"));
-    index.clear();
-
+  @Test
+  public void getEntries() {
     IStrategoAppl def = def("Class", "java", "lang", "String");
     IStrategoAppl type = type(constructor("Type", str("String")), "Class",
         "java", "lang", "String");
@@ -82,10 +72,8 @@ public class SemanticIndexSymbolTableTests extends SemanticIndexTestCase {
     assertFalse(matchAll(ret2, def));
   }
 
-  public void testDuplicateAddAndGetEntries() {
-    SemanticIndexFileDescriptor file = setupIndex(file("TestFile"));
-    index.clear();
-
+  @Test
+  public void duplicateAddAndGetEntries() {
     IStrategoAppl def = def("Entity", "CRM", "Person");
     IStrategoAppl read = read("Function", "CRM", "Person", "GetName");
 
@@ -121,10 +109,8 @@ public class SemanticIndexSymbolTableTests extends SemanticIndexTestCase {
     assertFalse(matchAll(ret3, def));
   }
 
-  public void testAddAllAndGetAllEntries() {
-    SemanticIndexFileDescriptor file = setupIndex(file("TestFile"));
-    index.clear();
-
+  @Test
+  public void addAllAndGetAllEntries() {
     IStrategoAppl def = def("Class", "java", "lang", "String");
     IStrategoAppl type = type(constructor("Type", str("String")), "Class",
         "java", "lang", "String");
@@ -142,10 +128,8 @@ public class SemanticIndexSymbolTableTests extends SemanticIndexTestCase {
     assertFalse(contains(ret, all));
   }
 
-  public void testGetChildEntries() {
-    SemanticIndexFileDescriptor file = setupIndex(file("TestFile"));
-    index.clear();
-
+  @Test
+  public void getChildEntries() {
     IStrategoAppl classDef = def("Class", "java", "lang", "String");
     IStrategoAppl methodDef1 = def("Method", "java", "lang", "String", "charAt");
     IStrategoAppl methodDef2 = def("Method", "java", "lang", "String",
@@ -186,12 +170,12 @@ public class SemanticIndexSymbolTableTests extends SemanticIndexTestCase {
     assertFalse(contains(ret2, classDef));
   }
 
-  public void testGetEntriesInFileAndRemoveFile() {
+  @Test
+  public void getEntriesInFileAndRemoveFile() {
     IStrategoTerm fileTerm1 = file("TestFile", "Partition", "1");
     SemanticIndexFileDescriptor file1 = setupIndex(fileTerm1);
     SemanticIndexFileDescriptor file2 = setupIndex(file("TestFile",
         "Partition", "2"));
-    index.clear();
 
     IStrategoAppl def1 = def("Entity", "CRM", "Person");
     IStrategoAppl read = read("Function", "CRM", "Person", "GetName");
@@ -245,7 +229,8 @@ public class SemanticIndexSymbolTableTests extends SemanticIndexTestCase {
     assertEquals(index.getEntriesInFile(file2).size(), 0);
   }
 
-  public void testClear() {
+  @Test
+  public void clear() {
     SemanticIndexFileDescriptor file1 = setupIndex(file("TestFile",
         "Partition", "1"));
     SemanticIndexFileDescriptor file2 = setupIndex(file("TestFile",
