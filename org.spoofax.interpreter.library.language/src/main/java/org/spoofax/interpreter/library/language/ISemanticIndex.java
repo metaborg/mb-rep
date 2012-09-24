@@ -15,9 +15,6 @@ public interface ISemanticIndex {
 
 	/**
 	 * Initializes this semantic index.
-	 * 
-	 * @param revisionProvider  An atomic revision number provider, should be shared between copies
-	 *                          of the same index.
 	 */
 	public abstract void initialize(ITermFactory factory, IOAgent agent);
 

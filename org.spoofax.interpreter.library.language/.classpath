@@ -9,5 +9,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/org.spoofax.interpreter.library.language/lib/guava-11.0.1-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/junit-benchmarks-0.4.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
