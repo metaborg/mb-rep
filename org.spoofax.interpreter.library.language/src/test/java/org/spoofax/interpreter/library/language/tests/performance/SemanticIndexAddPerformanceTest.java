@@ -1,173 +1,78 @@
 package org.spoofax.interpreter.library.language.tests.performance;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.BenchmarkRule;
 import com.carrotsearch.junitbenchmarks.Clock;
 
 @BenchmarkOptions(benchmarkRounds = 25, warmupRounds = 5, callgc = true, clock = Clock.CPU_TIME)
-public class SemanticIndexAddPerformanceTest extends SemanticIndexPerformanceTest {
+@RunWith(value = Parameterized.class)
+public class SemanticIndexAddPerformanceTest extends
+    SemanticIndexPerformanceTest {
   @Rule
-  public MethodRule benchmarkRun = new BenchmarkRule();
+  public MethodRule benchmarkRun;
   
+  private int numItems;
+  private int numFiles;
   
-  /// Add tests with 1 file.
-  @Test 
-  public void add500_1()
-  {
-    add(100, 1);
+  @Parameters
+  public static List<Object[]> data() {
+    Object[][] data = new Object[][] { 
+      { 100   , 1    }
+    , { 1000  , 1    }
+    , { 10000 , 1    }
+    , { 100000, 1    }
+    , { 200000, 1    }
+    , { 100   , 10   }
+    , { 1000  , 10   }
+    , { 10000 , 10   }
+    , { 100000, 10   }
+    , { 200000, 10   }
+    , { 100   , 100  }
+    , { 1000  , 100  }
+    , { 10000 , 100  }
+    , { 100000, 100  }
+    , { 200000, 100  }
+    , { 100   , 500  }
+    , { 1000  , 500  }
+    , { 10000 , 500  }
+    , { 100000, 500  }
+    , { 200000, 500  }
+    , { 100   , 1000 }
+    , { 1000  , 1000 }
+    , { 10000 , 1000 }
+    , { 100000, 1000 }
+    , { 200000, 1000 }
+    };
+    return Arrays.asList(data);
   }
   
+  public SemanticIndexAddPerformanceTest(int numItems, int numFiles) {
+    this.numItems = numItems;
+    this.numFiles = numFiles;
+    
+    try {
+      benchmarkRun = new BenchmarkRule(new CSVResultsConsumer(
+          (this.numItems * 5) + "," + this.numFiles, new FileWriter("add.csv", true)));
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
   @Test
-  public void add5000_1()
-  {
-    add(1000, 1);
-  }
-  
-  @Test
-  public void add50000_1()
-  {
-    add(10000, 1);
-  }
-  
-  @Test
-  public void add500000_1()
-  {
-    add(100000, 1);
-  }
-  
-  @Test
-  public void add1000000_1()
-  {
-    add(200000, 1);
-  }
-  
-  @Test
-  public void add2500000_1()
-  {
-    add(500000, 1);
-  }
-  
-  @Test
-  public void add5000000_1()
-  {
-    add(1000000, 1);
-  }
-  
-  @Test
-  public void add10000000_1()
-  {
-    add(2000000, 1);
-  }
-  
-  
-  /// Add tests with 10 files.
-  @Test
-  public void add500_10()
-  {
-    add(100, 10);
-  }
-  
-  @Test
-  public void add5000_10()
-  {
-    add(1000, 10);
-  }
-  
-  @Test
-  public void add50000_10()
-  {
-    add(10000, 10);
-  }
-  
-  @Test
-  public void add500000_10()
-  {
-    add(100000, 10);
-  }
-  
-  @Test
-  public void add1000000_10()
-  {
-    add(200000, 10);
-  }
-  
-  @Test
-  public void add2500000_10()
-  {
-    add(500000, 10);
-  }
-  
-  @Test
-  public void add5000000_10()
-  {
-    add(1000000, 10);
-  }
-  
-  @Test
-  public void add10000000_10()
-  {
-    add(2000000, 10);
-  }
-  
-  
-  /// Add tests with 100 files.
-  @Test
-  public void add500_100()
-  {
-    add(100, 100);
-  }
-  
-  @Test
-  public void add5000_100()
-  {
-    add(1000, 100);
-  }
-  
-  @Test
-  public void add50000_100()
-  {
-    add(10000, 100);
-  }
-  
-  @Test
-  public void add500000_100()
-  {
-    add(100000, 100);
-  }
-  
-  @Test
-  public void add1000000_100()
-  {
-    add(200000, 100);
-  }
-  
-  @Test
-  public void add2500000_100()
-  {
-    add(500000, 100);
-  }
-  
-  @Test
-  public void add5000000_100()
-  {
-    add(1000000, 100);
-  }
-  
-  @Test
-  public void add10000000_100()
-  {
-    add(2000000, 100);
-  }
-  
-  
-  public void add(int numItems, int numFiles)
-  {
-    for(int i = 0; i < numItems; ++i)
-    {
+  public void add() {
+    for (int i = 0; i < numItems; ++i) {
       index.add(def1, getFile(numFiles));
       index.add(def2, getFile(numFiles));
       index.add(def3, getFile(numFiles));
