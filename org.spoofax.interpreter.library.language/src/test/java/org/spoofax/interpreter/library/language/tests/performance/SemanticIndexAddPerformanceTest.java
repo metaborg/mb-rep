@@ -16,7 +16,7 @@ import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.BenchmarkRule;
 import com.carrotsearch.junitbenchmarks.Clock;
 
-@BenchmarkOptions(benchmarkRounds = 10, warmupRounds = 3, callgc = true, clock = Clock.CPU_TIME)
+@BenchmarkOptions(benchmarkRounds = 15, warmupRounds = 5, callgc = true, clock = Clock.CPU_TIME)
 @RunWith(value = Parameterized.class)
 public class SemanticIndexAddPerformanceTest extends
     SemanticIndexPerformanceTest {
@@ -68,6 +68,8 @@ public class SemanticIndexAddPerformanceTest extends
     } catch (IOException e) {
       e.printStackTrace();
     }
+    
+    index.clear();
   }
 
   @Test

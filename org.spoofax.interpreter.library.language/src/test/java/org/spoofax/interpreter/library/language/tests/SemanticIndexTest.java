@@ -4,9 +4,7 @@ import static org.spoofax.interpreter.core.Tools.asJavaString;
 
 import java.util.Collection;
 
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.spoofax.interpreter.core.Interpreter;
 import org.spoofax.interpreter.library.IOAgent;
@@ -51,7 +49,6 @@ public class SemanticIndexTest {
     index = indexManager.getCurrent();
     index.initialize(factory, agent);
     file = setupIndex(fileTerm);
-    
   }
   
   @AfterClass

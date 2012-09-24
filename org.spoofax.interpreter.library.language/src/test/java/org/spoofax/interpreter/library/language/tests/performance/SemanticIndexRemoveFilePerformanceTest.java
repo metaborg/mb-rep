@@ -16,7 +16,7 @@ import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.BenchmarkRule;
 import com.carrotsearch.junitbenchmarks.Clock;
 
-@BenchmarkOptions(benchmarkRounds = 10, warmupRounds = 3, callgc = true, clock = Clock.CPU_TIME)
+@BenchmarkOptions(benchmarkRounds = 15, warmupRounds = 5, callgc = true, clock = Clock.CPU_TIME)
 @RunWith(value = Parameterized.class)
 public class SemanticIndexRemoveFilePerformanceTest extends
     SemanticIndexPerformanceTest {
@@ -62,8 +62,10 @@ public class SemanticIndexRemoveFilePerformanceTest extends
       e.printStackTrace();
     }
     
-    for(int f = 0; f < numFiles; ++f) {
-      for (int i = 0; i < numItemsPerFile; ++i) {
+    index.clear();
+    
+    for(int f = 0; f < this.numFiles; ++f) {
+      for(int i = 0; i < this.numItemsPerFile; ++i) {
         index.add(def1, files[f]);
         index.add(def2, files[f]);
         index.add(def3, files[f]);
@@ -76,7 +78,7 @@ public class SemanticIndexRemoveFilePerformanceTest extends
   @Test
   public void removeFile() {
     if(deleteAll) {
-      for(int i = 0; i < numFiles; ++i) {
+      for(int i = 0; i < this.numFiles; ++i) {
         index.removeFile(files[i]);
       }
     } else {

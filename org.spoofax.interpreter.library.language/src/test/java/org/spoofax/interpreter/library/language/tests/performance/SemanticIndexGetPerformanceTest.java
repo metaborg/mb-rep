@@ -18,7 +18,7 @@ import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.BenchmarkRule;
 import com.carrotsearch.junitbenchmarks.Clock;
 
-@BenchmarkOptions(benchmarkRounds = 10, warmupRounds = 3, callgc = true, clock = Clock.CPU_TIME)
+@BenchmarkOptions(benchmarkRounds = 15, warmupRounds = 5, callgc = true, clock = Clock.CPU_TIME)
 @RunWith(value = Parameterized.class)
 public class SemanticIndexGetPerformanceTest extends
     SemanticIndexPerformanceTest {
@@ -72,6 +72,8 @@ public class SemanticIndexGetPerformanceTest extends
     } catch (IOException e) {
       e.printStackTrace();
     }
+    
+    index.clear();
 
     for(int i = 0; i < this.numItems; ++i) {
       index.add(def1, getFile(this.numFiles));
