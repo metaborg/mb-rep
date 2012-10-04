@@ -23,67 +23,75 @@ public class SemanticIndexRemoveFilePerformanceTest extends
   @Rule
   public MethodRule benchmarkRun;
 
-  private int numItemsPerFile;
+  private int numItems;
   private int numFiles;
   
   @Parameters
   public static List<Object[]> data() {
     Object[][] data = new Object[][] { 
-      { 20 , 1    }
-    , { 100, 1    }
-    , { 200, 1    }
-    , { 300, 1    }
-    , { 400, 1    }
-    , { 500, 1    }
-    , { 20 , 10   }
-    , { 100, 10   }
-    , { 200, 10   }
-    , { 300, 10   }
-    , { 400, 10   }
-    , { 500, 10   }
-    , { 20 , 100  }
-    , { 100, 100  }
-    , { 200, 100  }
-    , { 300, 100  }
-    , { 400, 100  }
-    , { 500, 100  }
-    , { 20 , 500  }
-    , { 100, 500  }
-    , { 200, 500  }
-    , { 300, 500  }
-    , { 400, 500  }
-    , { 500, 500  }
-    , { 20 , 1000 }
-    , { 100, 1000 }
-    , { 200, 1000 }
-    , { 300, 1000 }
-    , { 400, 1000 }
-    , { 500, 1000 }
-    };
+        { 100   , 1    }
+      , { 1000  , 1    }
+      , { 10000 , 1    }
+      , { 20000 , 1    }
+      , { 50000 , 1    }
+      , { 100000, 1    }
+      , { 150000, 1    }
+      , { 200000, 1    }
+      , { 100   , 10   }
+      , { 1000  , 10   }
+      , { 10000 , 10   }
+      , { 20000 , 10   }
+      , { 50000 , 10   }
+      , { 100000, 10   }
+      , { 150000, 10   }
+      , { 200000, 10   }
+      , { 100   , 100  }
+      , { 1000  , 100  }
+      , { 10000 , 100  }
+      , { 20000 , 100  }
+      , { 50000 , 100  }
+      , { 100000, 100  }
+      , { 150000, 100  }
+      , { 200000, 100  }
+      , { 100   , 500  }
+      , { 1000  , 500  }
+      , { 10000 , 500  }
+      , { 20000 , 500  }
+      , { 50000 , 500  }
+      , { 100000, 500  }
+      , { 150000, 500  }
+      , { 200000, 500  }
+      , { 100   , 1000 }
+      , { 1000  , 1000 }
+      , { 10000 , 1000 }
+      , { 20000 , 1000 }
+      , { 50000 , 1000 }
+      , { 100000, 1000 }
+      , { 150000, 1000 }
+      , { 200000, 1000 }
+      };
     return Arrays.asList(data);
   }
   
   public SemanticIndexRemoveFilePerformanceTest(int numItemsPerFile, int numFiles) {
-    this.numItemsPerFile = numItemsPerFile;
+    this.numItems = numItemsPerFile;
     this.numFiles = numFiles;
 
     try {
       benchmarkRun = new BenchmarkRule(new CSVResultsConsumer(
-          (this.numItemsPerFile * 5) + "," + this.numFiles, new FileWriter("remove.csv", true)));
+          (this.numItems * 5) + "," + this.numFiles, new FileWriter("remove.csv", true)));
     } catch (IOException e) {
       e.printStackTrace();
     }
     
     index.clear();
     
-    for(int f = 0; f < this.numFiles; ++f) {
-      for(int i = 0; i < this.numItemsPerFile; ++i) {
-        index.add(def1, files[f]);
-        index.add(def2, files[f]);
-        index.add(def3, files[f]);
-        index.add(use1, files[f]);
-        index.add(type1, files[f]);
-      }
+    for(int i = 0; i < this.numItems; ++i) {
+      index.add(def1, getFile(this.numFiles));
+      index.add(def2, getFile(this.numFiles));
+      index.add(def3, getFile(this.numFiles));
+      index.add(use1, getFile(this.numFiles));
+      index.add(type1, getFile(this.numFiles));
     }
   }
   
