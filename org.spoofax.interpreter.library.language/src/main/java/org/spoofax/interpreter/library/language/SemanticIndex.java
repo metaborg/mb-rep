@@ -26,9 +26,6 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 
-/**
- * @author Gabriel Konat
- */
 public class SemanticIndex implements ISemanticIndex {
 	public static final boolean DEBUG_ENABLED = SemanticIndex.class.desiredAssertionStatus();
 	
@@ -141,6 +138,21 @@ public class SemanticIndex implements ISemanticIndex {
 			entries = entries.tail();
 		}
 	}
+
+  public void remove(IStrategoAppl template, SemanticIndexFileDescriptor fileDescriptor) {
+    SemanticIndexURI uri = factory.createURIFromTemplate(template);
+    Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry> entryValues = entries.get(uri);
+    Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry> childValues = childs.get(uri.getParent());
+    Collection<SemanticIndexEntry> removedEntries = entryValues.removeAll(fileDescriptor);
+    
+    for(SemanticIndexEntry entry : removedEntries)
+    {
+      childValues.remove(fileDescriptor, entry);
+      entriesPerFileDescriptor.remove(fileDescriptor, entry);
+      entriesPerURI.remove(fileDescriptor.getURI(), entry);
+      entriesPerSubfile.remove(fileDescriptor.getSubfile(), entry);
+    }
+  }
 	
 	public Collection<SemanticIndexEntry> getEntries(IStrategoAppl template) {
 	  SemanticIndexURI uri = factory.createURIFromTemplate(template);
@@ -198,8 +210,12 @@ public class SemanticIndex implements ISemanticIndex {
 	private void clearFile(SemanticIndexFileDescriptor fileDescriptor) {
 	  assert fileDescriptor.getSubfile() != null || fileDescriptor.getURI() != null;
 	  
-	  Collection<Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry>> values = entries.values();
-    for(Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry> map : values)
+	  Collection<Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry>> entryValues = entries.values();
+    for(Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry> map : entryValues)
+      map.removeAll(fileDescriptor);
+    
+    Collection<Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry>> childValues = childs.values();
+    for(Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry> map : childValues)
       map.removeAll(fileDescriptor);
     
     if(fileDescriptor.getSubfile() == null)

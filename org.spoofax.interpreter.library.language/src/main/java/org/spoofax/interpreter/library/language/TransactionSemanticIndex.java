@@ -16,6 +16,7 @@ public class TransactionSemanticIndex implements ISemanticIndex {
 	private ISemanticIndex transactionIndex;
 	private SemanticIndexFileDescriptor currentFile;
 	private boolean clearedCurrentFile = false;
+	private List<TemplateWithFileDescriptor> removedEntries = new ArrayList<TemplateWithFileDescriptor>();
 	
 	public TransactionSemanticIndex(ISemanticIndex index, ISemanticIndex transactionIndex, 
 			SemanticIndexFileDescriptor currentFile) {
@@ -40,6 +41,10 @@ public class TransactionSemanticIndex implements ISemanticIndex {
 		return currentFile;
 	}
 	
+	public Collection<TemplateWithFileDescriptor> getRemovedEntries() {
+		return removedEntries;
+	}
+	
 	public void initialize(ITermFactory factory, IOAgent agent) {
 		// Should not be called, both the index and transaction index should already be initialized.
 		assert false;
@@ -59,6 +64,11 @@ public class TransactionSemanticIndex implements ISemanticIndex {
 
 	public void addAll(IStrategoList entries, SemanticIndexFileDescriptor fileDescriptor) {
 		transactionIndex.addAll(entries, fileDescriptor);
+	}
+	
+	public void remove(IStrategoAppl template, SemanticIndexFileDescriptor fileDescriptor) {
+		transactionIndex.remove(template, fileDescriptor);
+		removedEntries.add(new TemplateWithFileDescriptor(template, fileDescriptor));
 	}
 
 	public Collection<SemanticIndexEntry> getEntries(IStrategoAppl template) {

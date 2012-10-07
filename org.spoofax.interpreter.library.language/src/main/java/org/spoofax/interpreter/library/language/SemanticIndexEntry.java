@@ -9,9 +9,6 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 
-/**
- * @author Lennart Kats <lennart add lclnet.nl>
- */
 public class SemanticIndexEntry implements Serializable {
 
   private static final long serialVersionUID = -1073077973341978805L;

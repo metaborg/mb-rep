@@ -8,9 +8,6 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
-/**
- * @author Gabriel Konat
- */
 public interface ISemanticIndex {
 
 	/**
@@ -45,6 +42,15 @@ public interface ISemanticIndex {
 	 * @param fileDescriptor	The file to associate the entries with.
 	 */
 	public abstract void addAll(IStrategoList entries, SemanticIndexFileDescriptor fileDescriptor);
+	
+	/**
+	 * Removes all entries that match given template and are from given file.
+	 * Warning: VERY SLOW!
+	 * 
+	 * @param template			The template to match entries against.
+	 * @param fileDescriptor	The file entries must be from.
+	 */
+	public abstract void remove(IStrategoAppl template, SemanticIndexFileDescriptor fileDescriptor);
 	
 	/**
 	 * Gets all entries that match given template.

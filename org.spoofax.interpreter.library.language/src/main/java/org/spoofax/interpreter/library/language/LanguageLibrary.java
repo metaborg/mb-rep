@@ -15,6 +15,7 @@ public class LanguageLibrary extends AbstractStrategoOperatorRegistry {
 		
 		SemanticIndexManager index = new SemanticIndexManager();
 		add(new LANG_index_add(index));
+		add(new LANG_index_remove(index));
 		add(new LANG_index_clear_all(index));
 		add(new LANG_index_clear_file(index));
 		add(new LANG_index_get_all_files(index));

@@ -5,11 +5,6 @@ import java.util.Date;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
-/**
- * A URI/time stamp container. Only one SemanticIndexFile may exist per URI/descriptor.
- * 
- * @author Lennart Kats <lennart add lclnet.nl>
- */
 public class SemanticIndexFile {
 	private final SemanticIndexFileDescriptor descriptor;
 	

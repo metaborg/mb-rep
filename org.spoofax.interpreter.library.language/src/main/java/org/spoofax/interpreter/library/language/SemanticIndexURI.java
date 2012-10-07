@@ -8,9 +8,6 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
-/**
- * @author Gabri�l Konat
- */
 public class SemanticIndexURI implements Serializable {
 
   private static final long serialVersionUID = 1619836759792533807L;
