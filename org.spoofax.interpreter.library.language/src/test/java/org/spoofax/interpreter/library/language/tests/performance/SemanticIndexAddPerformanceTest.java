@@ -16,7 +16,7 @@ import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.BenchmarkRule;
 import com.carrotsearch.junitbenchmarks.Clock;
 
-@BenchmarkOptions(benchmarkRounds = 15, warmupRounds = 5, callgc = true, clock = Clock.CPU_TIME)
+@BenchmarkOptions(benchmarkRounds = 5, warmupRounds = 3, callgc = true, clock = Clock.CPU_TIME)
 @RunWith(value = Parameterized.class)
 public class SemanticIndexAddPerformanceTest extends
     SemanticIndexPerformanceTest {
@@ -79,7 +79,7 @@ public class SemanticIndexAddPerformanceTest extends
     
     try {
       benchmarkRun = new BenchmarkRule(new CSVResultsConsumer(
-          (this.numItems * 5) + "," + this.numFiles, new FileWriter("add.csv", true)));
+          (this.numItems * 5) + "," + this.numFiles, new FileWriter("add_" + this.numFiles + ".csv", true)));
     } catch (IOException e) {
       e.printStackTrace();
     }

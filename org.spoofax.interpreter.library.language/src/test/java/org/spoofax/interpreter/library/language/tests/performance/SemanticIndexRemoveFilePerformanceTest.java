@@ -79,7 +79,7 @@ public class SemanticIndexRemoveFilePerformanceTest extends
 
     try {
       benchmarkRun = new BenchmarkRule(new CSVResultsConsumer(
-          (this.numItems * 5) + "," + this.numFiles, new FileWriter("remove.csv", true)));
+          (this.numItems * 5) + "," + this.numFiles, new FileWriter("remove_" + this.numFiles + ".csv", true)));
     } catch (IOException e) {
       e.printStackTrace();
     }

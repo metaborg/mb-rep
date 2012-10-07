@@ -15,6 +15,11 @@ public class SemanticIndexPerformanceTest extends SemanticIndexTest {
   public static IStrategoAppl use1;
   public static IStrategoAppl type1;
   public static IStrategoAppl typeTemplate1;
+  public static IStrategoAppl def1Parent;
+  public static IStrategoAppl def2Parent;
+  public static IStrategoAppl def3Parent;
+  public static IStrategoAppl use1Parent;
+  public static IStrategoAppl typeTemplate1Parent;
   public static SemanticIndexFileDescriptor[] files;
   public static int fileIndex;
 
@@ -23,13 +28,18 @@ public class SemanticIndexPerformanceTest extends SemanticIndexTest {
     SemanticIndexTest.setUpOnce();
 
     def1 = def("Class", "java", "lang", "String");
+    def1Parent = def("Class", "java", "lang");
     def2 = def("Method", "java", "lang", "System", "out", "println");
+    def2Parent = def("Method", "java", "lang", "System", "out");
     def3 = def("Field", "java", "lang", "array", "Length");
+    def3Parent = def("Field", "java", "lang", "array");
     use1 = use("Class", "java", "lang", "System");
+    use1Parent = use("Class", "java", "lang");
     type1 = type(constructor("Type", str("String")), "Method", "java", "lang",
         "Object", "toString");
     typeTemplate1 = type(tuple(), "Method", "java", "lang", "Object",
         "toString");
+    typeTemplate1Parent = type(tuple(), "Method", "java", "lang", "Object");
 
     files = new SemanticIndexFileDescriptor[MAX_NUM_FILES];
     for (int i = 0; i < MAX_NUM_FILES; ++i) {
