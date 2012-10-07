@@ -4,6 +4,7 @@ import static org.spoofax.interpreter.core.Tools.asJavaString;
 import static org.spoofax.interpreter.core.Tools.isTermTuple;
 
 import java.io.File;
+import java.io.Serializable;
 import java.net.URI;
 
 import org.spoofax.interpreter.library.IOAgent;
@@ -12,8 +13,11 @@ import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
-public class SemanticIndexFileDescriptor {
-	private final URI uri;
+public class SemanticIndexFileDescriptor implements Serializable {
+
+  private static final long serialVersionUID = -5167366407344668956L;
+
+  private final URI uri;
 	
 	private final IStrategoList subfile;
 	

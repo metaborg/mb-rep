@@ -1,5 +1,7 @@
 package org.spoofax.interpreter.library.language;
 
+import java.io.Serializable;
+
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -9,8 +11,11 @@ import org.spoofax.interpreter.terms.ITermFactory;
 /**
  * @author Gabri�l Konat
  */
-public class SemanticIndexURI {
-	private IStrategoConstructor constructor;
+public class SemanticIndexURI implements Serializable {
+
+  private static final long serialVersionUID = 1619836759792533807L;
+
+  private IStrategoConstructor constructor;
 
 	private IStrategoTerm namespace;
 
