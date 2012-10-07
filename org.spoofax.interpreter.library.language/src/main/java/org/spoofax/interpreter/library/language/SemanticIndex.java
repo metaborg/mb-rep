@@ -6,11 +6,10 @@ import static org.spoofax.terms.Term.tryGetConstructor;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +23,7 @@ import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.attachments.TermAttachmentSerializer;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 
 /**
@@ -32,16 +32,20 @@ import com.google.common.collect.Multimap;
 public class SemanticIndex implements ISemanticIndex {
 	public static final boolean DEBUG_ENABLED = SemanticIndex.class.desiredAssertionStatus();
 	
-	private final Multimap<SemanticIndexURI, SemanticIndexEntry> entries = 
-			ArrayListMultimap.create();
-	private final Multimap<SemanticIndexURI, SemanticIndexEntry> childs = 
-			ArrayListMultimap.create();
+	//private static final int expectedDistinctKeys = 50000;
+	private static final int expectedDistinctPartitions = 100;
+	private static final int expectedValuesPerPartition = 1000;
+	
+	private final Map<SemanticIndexURI, Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry>> entries = 
+	    new HashMap<SemanticIndexURI, Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry>>();
+	private final Map<SemanticIndexURI, Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry>> childs = 
+	    new HashMap<SemanticIndexURI, Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry>>();
 	private final Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry> entriesPerFileDescriptor = 
-			ArrayListMultimap.create();
+	    LinkedHashMultimap.create();
 	private final Multimap<URI, SemanticIndexEntry> entriesPerURI = 
-			ArrayListMultimap.create();
+	    LinkedHashMultimap.create();
 	private final Multimap<IStrategoList, SemanticIndexEntry> entriesPerSubfile = 
-			ArrayListMultimap.create();
+	    LinkedHashMultimap.create();
 	private final Map<SemanticIndexFileDescriptor, SemanticIndexFile> files =
 			new HashMap<SemanticIndexFileDescriptor, SemanticIndexFile>();
 	
@@ -67,6 +71,36 @@ public class SemanticIndex implements ISemanticIndex {
 		return factory;
 	}
 	
+  private Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry> innerEntries(
+      SemanticIndexURI uri)
+  {
+    Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry> innerMap = 
+        entries.get(uri);
+    
+    if(innerMap != null)
+      return innerMap;
+    
+    innerMap = ArrayListMultimap.create(expectedDistinctPartitions, 
+        expectedValuesPerPartition);
+    entries.put(uri, innerMap);
+    return innerMap;
+  }
+  
+  private Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry> innerChildEntries(
+      SemanticIndexURI uri)
+  {
+    Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry> innerMap = 
+        childs.get(uri);
+    
+    if(innerMap != null)
+      return innerMap;
+    
+    innerMap = ArrayListMultimap.create(expectedDistinctPartitions, 
+        expectedValuesPerPartition);
+    childs.put(uri, innerMap);
+    return innerMap;
+  } 
+	
 	public void add(IStrategoAppl entry, SemanticIndexFileDescriptor fileDescriptor) {
 		ensureInitialized();
 		
@@ -83,19 +117,22 @@ public class SemanticIndex implements ISemanticIndex {
 	}
 
 	public void add(SemanticIndexEntry entry) {
-		addOrGetFile(entry.getFileDescriptor());
+	  final SemanticIndexFileDescriptor file = entry.getFileDescriptor();
+	  final SemanticIndexURI uri = entry.getURI();
+	  
+		addOrGetFile(file);
 		
-		entries.put(entry.getURI(), entry);
+		innerEntries(uri).put(file, entry);
 		
 		// Add entry to childs.
-		SemanticIndexURI parent = entry.getURI().getParent();
+		SemanticIndexURI parent = uri.getParent();
 		if(parent != null)
-			childs.put(entry.getURI().getParent(), entry);
+		  innerChildEntries(parent).put(file, entry);
 
 		// Add entry to files.
-		entriesPerFileDescriptor.put(entry.getFileDescriptor(), entry);
-		entriesPerURI.put(entry.getFileDescriptor().getURI(), entry);
-		entriesPerSubfile.put(entry.getFileDescriptor().getSubfile(), entry);
+		entriesPerFileDescriptor.put(file, entry);
+		entriesPerURI.put(file.getURI(), entry);
+		entriesPerSubfile.put(file.getSubfile(), entry);
 	}
 	
 	public void addAll(IStrategoList entries, SemanticIndexFileDescriptor fileDescriptor) {
@@ -105,80 +142,14 @@ public class SemanticIndex implements ISemanticIndex {
 		}
 	}
 	
-	public void remove(IStrategoAppl template, SemanticIndexFileDescriptor fileDescriptor) {
-		SemanticIndexURI uri = factory.createURIFromTemplate(template);
-		Collection<SemanticIndexEntry> candidateEntries = entries.get(uri);
-		SemanticIndexEntry[] copy = candidateEntries.toArray(new SemanticIndexEntry[candidateEntries.size()]);
-		List<SemanticIndexEntry> entriesToRemove = new ArrayList<SemanticIndexEntry>();
-		for(SemanticIndexEntry entry : copy) {
-			if(entry.getFileDescriptor().equals(fileDescriptor)) {
-				entriesToRemove.add(entry);
-				entries.remove(uri, entry);
-			}
-		}
-		
-		removeFinal(entriesToRemove);
-	}
-	
-	/**
-	 * Removes a single entry.
-	 * 
-	 * @param entry	The entry to remove.
-	 */
-	@SuppressWarnings("unused")
-	private void remove(SemanticIndexEntry entry) {
-		boolean removed = entries.remove(entry.getURI(), entry);
-		
-		if(removed)
-			removeFinal(Arrays.asList(new SemanticIndexEntry[]{entry}));
-	}
-	
-	/**
-	 * Removes entries.
-	 * 
-	 * @param entriesToRemove	The entries to remove.
-	 */
-	private void remove(Collection<SemanticIndexEntry> entriesToRemove) {
-		List<SemanticIndexEntry> removedEntries = new ArrayList<SemanticIndexEntry>(entriesToRemove.size());
-		for(SemanticIndexEntry entry : entriesToRemove) {
-			if(entries.remove(entry.getURI(), entry))
-				removedEntries.add(entry);
-		}
-
-		removeFinal(removedEntries);
-	}
-	
-	/**
-	 * Removes given entries from the childs multimap and file lists. The given entries
-	 * should already be removed from the entries multimap.
-	 * 
-	 * @param removedEntries	The removed entries.
-	 */
-	private void removeFinal(Collection<SemanticIndexEntry> removedEntries) {
-		for(SemanticIndexEntry entry : removedEntries) {
-			// Remove entry from childs.
-			// TODO: Linear run-time (because of for loop), can be improved with an inverse childs map?
-			childs.remove(entry.getURI().getParent(), entry);
-			
-			// Remove entry from files.
-			SemanticIndexFileDescriptor fileDescriptor = entry.getFileDescriptor();
-			if (fileDescriptor != null)
-			{
-				entriesPerFileDescriptor.remove(fileDescriptor, entry);
-				entriesPerURI.remove(fileDescriptor.getURI(), entry);
-				entriesPerSubfile.remove(fileDescriptor.getSubfile(), entry);
-			}
-		}
-	}
-	
 	public Collection<SemanticIndexEntry> getEntries(IStrategoAppl template) {
 	  SemanticIndexURI uri = factory.createURIFromTemplate(template);
-		return getCollection(entries.get(uri));
+		return getCollection(innerEntries(uri).values());
 	}
 
 	public Collection<SemanticIndexEntry> getEntryChildTerms(IStrategoAppl template) {
 	  SemanticIndexURI uri = factory.createURIFromTemplate(template);
-		return getCollection(childs.get(uri));
+		return getCollection(innerChildEntries(uri).values());
 	}
 	
 	public Collection<SemanticIndexEntry> getEntriesInFile(SemanticIndexFileDescriptor fileDescriptor) {
@@ -191,7 +162,12 @@ public class SemanticIndex implements ISemanticIndex {
 	}
 	
 	public Collection<SemanticIndexEntry> getAllEntries() {
-		return getCollection(entries.values());
+	  List<SemanticIndexEntry> allEntries = new LinkedList<SemanticIndexEntry>();
+		Collection<Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry>> values = entries.values();
+		for(Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry> map : values)
+		  allEntries.addAll(map.values());
+		
+		return allEntries;
 	}
 	
 	public SemanticIndexFile getFile(SemanticIndexFileDescriptor fileDescriptor) {
@@ -220,14 +196,23 @@ public class SemanticIndex implements ISemanticIndex {
 	}
 	
 	private void clearFile(SemanticIndexFileDescriptor fileDescriptor) {
-		Collection<SemanticIndexEntry> fileEntries = getEntriesInFile(fileDescriptor);
-		if (fileEntries.isEmpty()) 
-			return;
-		
-		// Remove every entry in this file from the index.
-		SemanticIndexEntry[] copy = fileEntries.toArray(new SemanticIndexEntry[0]);
-		remove(Arrays.asList(copy));
-
+	  assert fileDescriptor.getSubfile() != null || fileDescriptor.getURI() != null;
+	  
+	  Collection<Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry>> values = entries.values();
+    for(Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry> map : values)
+      map.removeAll(fileDescriptor);
+    
+    if(fileDescriptor.getSubfile() == null)
+      entriesPerURI.removeAll(fileDescriptor.getURI());
+    else if(fileDescriptor.getURI() == null)
+      entriesPerSubfile.removeAll(fileDescriptor.getSubfile());
+    else
+    {
+      entriesPerFileDescriptor.removeAll(fileDescriptor);
+      clearFile(new SemanticIndexFileDescriptor(fileDescriptor.getURI(), null));
+      clearFile(new SemanticIndexFileDescriptor(null, fileDescriptor.getSubfile()));
+    }
+    
 		assert getEntriesInFile(fileDescriptor).isEmpty();
 	}
 	

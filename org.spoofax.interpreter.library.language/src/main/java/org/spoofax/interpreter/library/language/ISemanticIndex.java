@@ -47,14 +47,6 @@ public interface ISemanticIndex {
 	public abstract void addAll(IStrategoList entries, SemanticIndexFileDescriptor fileDescriptor);
 	
 	/**
-	 * Removes all entries that match given template and are from given file.
-	 * 
-	 * @param template			The template to match entries against.
-	 * @param fileDescriptor	The file entries must be from.
-	 */
-	public abstract void remove(IStrategoAppl template, SemanticIndexFileDescriptor fileDescriptor);
-	
-	/**
 	 * Gets all entries that match given template.
 	 * 
 	 * @param template	The template to match entries against.
