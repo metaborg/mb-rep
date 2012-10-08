@@ -29,7 +29,6 @@ import com.google.common.collect.Multimap;
 public class SemanticIndex implements ISemanticIndex {
 	public static final boolean DEBUG_ENABLED = SemanticIndex.class.desiredAssertionStatus();
 	
-	//private static final int expectedDistinctKeys = 50000;
 	private static final int expectedDistinctPartitions = 100;
 	private static final int expectedValuesPerPartition = 1000;
 	
@@ -171,6 +170,12 @@ public class SemanticIndex implements ISemanticIndex {
 			return getCollection(entriesPerSubfile.get(fileDescriptor.getSubfile()));
 		else
 			return getCollection(entriesPerFileDescriptor.get(fileDescriptor));
+	}
+	
+	public Collection<SemanticIndexFileDescriptor> getFilesOf(IStrategoAppl template)
+	{
+	  SemanticIndexURI uri = factory.createURIFromTemplate(template);
+	  return getCollection(innerEntries(uri).keySet());
 	}
 	
 	public Collection<SemanticIndexEntry> getAllEntries() {

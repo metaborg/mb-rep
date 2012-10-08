@@ -3,7 +3,6 @@ package org.spoofax.interpreter.library.language.tests.performance;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
@@ -13,7 +12,6 @@ import org.junit.rules.MethodRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.spoofax.interpreter.library.language.SemanticIndexEntry;
 import org.spoofax.interpreter.library.language.SemanticIndexFileDescriptor;
 
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
@@ -101,27 +99,11 @@ public class SemanticIndexGetKeyPartitionsPerformanceTest extends
 
   @Test
   public void getKeyPartitions() {
-    Collection<SemanticIndexEntry> ret;
     HashSet<SemanticIndexFileDescriptor> files = new HashSet<SemanticIndexFileDescriptor>();
-    ret = index.getEntries(def1);
-    for(SemanticIndexEntry entry : ret) {
-      files.add(entry.getFileDescriptor());
-    }
-    ret = index.getEntries(def2);
-    for(SemanticIndexEntry entry : ret) {
-      files.add(entry.getFileDescriptor());
-    }
-    ret = index.getEntries(def3);
-    for(SemanticIndexEntry entry : ret) {
-      files.add(entry.getFileDescriptor());
-    }
-    ret = index.getEntries(use1);
-    for(SemanticIndexEntry entry : ret) {
-      files.add(entry.getFileDescriptor());
-    }
-    ret = index.getEntries(typeTemplate1);
-    for(SemanticIndexEntry entry : ret) {
-      files.add(entry.getFileDescriptor());
-    }
+    files.addAll(index.getFilesOf(def1));
+    files.addAll(index.getFilesOf(def2));
+    files.addAll(index.getFilesOf(def3));
+    files.addAll(index.getFilesOf(use1));
+    files.addAll(index.getFilesOf(typeTemplate1));
   }
 }

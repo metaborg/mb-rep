@@ -78,6 +78,14 @@ public interface ISemanticIndex {
 	 */
 	public abstract Collection<SemanticIndexEntry> getEntriesInFile(SemanticIndexFileDescriptor fileDescriptor);
 
+  /**
+   * Gets all files that contain entries that match given template.
+   * Returned collection is a set of files, it does not contain duplicates.
+   * 
+   * @param template  The template to match entries against.
+   */
+	public abstract Collection<SemanticIndexFileDescriptor> getFilesOf(IStrategoAppl template);
+	
 	/**
 	 * Gets a semantic index file for given file descriptor.
 	 * 

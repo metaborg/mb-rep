@@ -121,6 +121,19 @@ public class TransactionSemanticIndex implements ISemanticIndex {
 		}
 	}
 	
+  public Collection<SemanticIndexFileDescriptor> getFilesOf(IStrategoAppl template)
+  {
+    Collection<SemanticIndexFileDescriptor> entries1 = transactionIndex.getFilesOf(template);
+    getReadLock().lock();
+    try {
+      // TODO: Need to filter hidden entries here?
+      Collection<SemanticIndexFileDescriptor> entries2 = index.getFilesOf(template);
+      return concat(entries1, entries2);
+    } finally {
+      getReadLock().unlock();
+    }
+  }
+	
 	public SemanticIndexFile getFile(SemanticIndexFileDescriptor fileDescriptor) {
 		// Need a write lock here because getFile can add a new file.
 		getWriteLock().lock();
