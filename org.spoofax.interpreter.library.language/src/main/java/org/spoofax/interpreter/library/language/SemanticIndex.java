@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -32,10 +33,10 @@ public class SemanticIndex implements ISemanticIndex {
 	private static final int expectedDistinctPartitions = 100;
 	private static final int expectedValuesPerPartition = 1000;
 	
-	private final Map<SemanticIndexURI, Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry>> entries = 
-	    new HashMap<SemanticIndexURI, Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry>>();
-	private final Map<SemanticIndexURI, Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry>> childs = 
-	    new HashMap<SemanticIndexURI, Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry>>();
+	private final ConcurrentHashMap<SemanticIndexURI, Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry>> entries = 
+	    new ConcurrentHashMap<SemanticIndexURI, Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry>>();
+	private final ConcurrentHashMap<SemanticIndexURI, Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry>> childs = 
+	    new ConcurrentHashMap<SemanticIndexURI, Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry>>();
 	private final Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry> entriesPerFileDescriptor = 
 	    LinkedHashMultimap.create();
 	private final Multimap<URI, SemanticIndexEntry> entriesPerURI = 
@@ -71,30 +72,26 @@ public class SemanticIndex implements ISemanticIndex {
       SemanticIndexURI uri)
   {
     Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry> innerMap = 
-        entries.get(uri);
-    
-    if(innerMap != null)
-      return innerMap;
-    
-    innerMap = ArrayListMultimap.create(expectedDistinctPartitions, 
-        expectedValuesPerPartition);
-    entries.put(uri, innerMap);
-    return innerMap;
+        ArrayListMultimap.create(expectedDistinctPartitions, 
+            expectedValuesPerPartition);
+   
+    Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry> ret = entries.putIfAbsent(uri, innerMap);
+    if(ret == null)
+      ret = innerMap;
+    return ret;
   }
   
   private Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry> innerChildEntries(
       SemanticIndexURI uri)
   {
     Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry> innerMap = 
-        childs.get(uri);
-    
-    if(innerMap != null)
-      return innerMap;
-    
-    innerMap = ArrayListMultimap.create(expectedDistinctPartitions, 
-        expectedValuesPerPartition);
-    childs.put(uri, innerMap);
-    return innerMap;
+        ArrayListMultimap.create(expectedDistinctPartitions, 
+            expectedValuesPerPartition);
+   
+    Multimap<SemanticIndexFileDescriptor, SemanticIndexEntry> ret = childs.putIfAbsent(uri, innerMap);
+    if(ret == null)
+      ret = innerMap;
+    return ret;
   } 
 	
 	public void add(IStrategoAppl entry, SemanticIndexFileDescriptor fileDescriptor) {
