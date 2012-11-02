@@ -72,6 +72,8 @@ public class SpxPersistenceManager implements ISpxPersistenceManager {
 		//setting properties of RecordManager
 		options.put(RecordManagerOptions.INDEX_RELATIVE_PATH_OPTION, spxSemanticIndexFacade.getProjectPath()+ "/" + SpxIndexConfiguration.SPX_INDEX_DIRECTORY+ "/" );
 		options.put(RecordManagerOptions.CACHE_TYPE, "soft");
+		// TODO : TEST Cache Size
+		//options.put(RecordManagerOptions.CACHE_SIZE, "10000");
 		options.put(RecordManagerOptions.DISABLE_TRANSACTIONS, "true");
 		
 		tryInitRecordManager(spxSemanticIndexFacade,options);

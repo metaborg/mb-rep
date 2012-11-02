@@ -138,6 +138,12 @@ public class SpxSemanticIndexFacade {
 	synchronized void onIndexUpatingCompleted(){
 		ISpxPersistenceManager manager = this.getPersistenceManager();
 		manager.spxSymbolTable().setIndexUpdatedOn(this._currentIndexUpdatingStartedOn);
+		
+		try {
+			SpxIndexUtils.printSymbolTable(this, SpxIndexConfiguration.shouldLogSymbols(), "index updated completed");
+		} catch (IOException e) {
+			// do nothing
+		}
 	}
 	
 	synchronized void onInitCodeGeneration(){
@@ -1096,9 +1102,15 @@ public class SpxSemanticIndexFacade {
 	 * @throws IOException
 	 */
 	public void commitChanges() throws IOException {
+		
+		System.out.println("Inside Commit changes. Writing to csv file :  " + SpxIndexConfiguration.shouldLogSymbols() );
+		
+		SpxIndexUtils.printSymbolTable(this, SpxIndexConfiguration.shouldLogSymbols(), "commit");
+		
 		ISpxPersistenceManager persistenceManager = this.getPersistenceManager();
 		persistenceManager.commit();
-//		SpxIndexUtils.printSymbolTable(this, SpxIndexConfiguration.shouldLogSymbols(), "commit");
+		
+		
 	}	
 
 	

@@ -62,4 +62,12 @@ public final class ModuleNamespace extends BaseNamespace
 	public String getAbosoluteFilePath(){  
 		return moduleFilePath;
 	}
+	
+	
+	@Override
+	public String getFormattedName(){
+		return  "Module/" + this.namespaceUri().getFormattedStringID();
+		
+	}
+	
 }

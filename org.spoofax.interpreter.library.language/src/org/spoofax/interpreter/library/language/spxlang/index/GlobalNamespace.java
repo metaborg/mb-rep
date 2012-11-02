@@ -4,7 +4,6 @@ import org.spoofax.interpreter.library.language.spxlang.index.data.NamespaceUri;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
 public final class GlobalNamespace extends BaseNamespace {
@@ -44,5 +43,11 @@ public final class GlobalNamespace extends BaseNamespace {
 		ITermFactory termFactory = facade.getTermFactory();
 		
 		return termFactory.makeList(facade.getCons().getGlobalNamespaceTypeCon());
+	}
+	
+	
+	public String getFormattedName(){
+		return  "Global";
+		
 	}
 }

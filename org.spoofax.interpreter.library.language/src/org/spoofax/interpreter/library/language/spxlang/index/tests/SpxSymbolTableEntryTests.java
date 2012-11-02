@@ -1,6 +1,8 @@
 package org.spoofax.interpreter.library.language.spxlang.index.tests;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.spoofax.interpreter.core.Interpreter;
 import org.spoofax.interpreter.library.IOAgent;
@@ -59,5 +61,90 @@ public class SpxSymbolTableEntryTests extends SpxIndexBaseTestCase{
 		return pQnameAppl;
 	}
 
+	
+	public void testSpoofaxSymbolTableEntryBuilder2() {
+		
+		
+		SpxKey k1 = (SpxKey) new SpxOverloadedKey("Test" ,1);
+		SpxKey k2 = (SpxKey) new SpxOverloadedKey("Test" ,2);
+		
+		Map<SpxKey, SpxKey> symbols = new HashMap<SpxKey, SpxKey>();
+	
+		symbols.put(k1, k1);
+		symbols.put(k2, k2);
+		
+		SpxKey k3 = symbols.get(new SpxKey("Test"));
+		
+		
+		System.out.println(k3);
+	}
+
+	
+	
+	
+}
+
+class SpxOverloadedKey extends SpxKey{
+	int value;
+	
+	public SpxOverloadedKey(String s){
+		super(s);
+	}
+	public SpxOverloadedKey(String s, int value){
+		this(s);
+		this.value = value;
+	}
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		return super.hashCode();
+	}
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		return super.equals(obj);
+	}
+}
+
+class SpxKey{
+	
+	String test;
+	public SpxKey( String s){
+		test = s;
+	}
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((test == null) ? 0 : test.hashCode());
+		return result;
+	}
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof SpxKey))
+			return false;
+		
+		SpxKey other = (SpxKey) obj;
+		if (test == null) {
+			if (other.test != null)
+				return false;
+		} else if (!test.equals(other.test))
+			return false;
+		return true;
+	}
 	
 }

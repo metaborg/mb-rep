@@ -55,7 +55,6 @@ public class SpxSemanticIndexFacadeRegistry
 				fac = newFacade( projectPath, termFactory, agent);
 			}	
 		}
-	
 		return fac;
 	}
 	private SpxSemanticIndexFacade newFacade ( IStrategoTerm projectPath, ITermFactory termFactory , IOAgent agent ) throws Exception{

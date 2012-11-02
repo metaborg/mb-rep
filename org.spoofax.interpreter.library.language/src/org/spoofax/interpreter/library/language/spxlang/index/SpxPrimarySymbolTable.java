@@ -186,23 +186,31 @@ public class SpxPrimarySymbolTable implements INamespaceResolver , IPackageDecla
 	 * @throws SpxSymbolTableException 
 	 */
 	public void printSymbols(SpxSemanticIndexFacade f, String state , String projectPath , String indexId) throws IOException, SpxSymbolTableException{
+		// setting up directory + log file
 		new File(projectPath +"/"+SpxIndexConfiguration.SPX_INDEX_DIRECTORY+ "/.log").mkdirs();
-		
-		FileWriter fstream = new FileWriter(projectPath +"/"+ SpxIndexConfiguration.SPX_INDEX_DIRECTORY+ "/.log/"+indexId+"_symbols_"+SpxIndexUtils.now("yyyy-MM-dd HH.mm.ss.SSS")+".csv" , true);
-		BufferedWriter out = new BufferedWriter(fstream);
-		out.write(", , ,------------- Logging [" +state+ "] state of Symbol-Table at :" + SpxIndexUtils.now("yyyy-MM-dd HH.mm.ss")+"-------------\n");
-		try
-		{	
-			if(namespaces != null){
-				for(INamespace ns : namespaces.values()){
-					out.write("\n, --- "+ SpxIndexUtils.getCsvFormatted(ns.toString()) +"--- \n");
-					SpxIndexUtils.logEntries(f, ns,out) ;
+		String filepath = projectPath +"/"+ SpxIndexConfiguration.SPX_INDEX_DIRECTORY+ "/.log/"+indexId+"_symbols_"+SpxIndexUtils.now("yyyy-MM-dd HH.mm")+".csv";
+
+		if (!new File(filepath).exists()){
+
+			FileWriter fstream = new FileWriter(filepath, true);
+			BufferedWriter out = new BufferedWriter(fstream);
+			out.write("Namespace, Key, Type , Symbol\n");
+			try
+			{	
+				if(namespaces != null){
+					for(INamespace ns : namespaces.values()){
+						SpxIndexUtils.logEntries(f, ns,out) ;
+					}
 				}
+
+				// logging context
+				out.write("\n, ,#Logging Context#  ");
+				out.write(", ,#Logging [" +state+ "] state of Symbol-Table at :" + SpxIndexUtils.now("yyyy-MM-dd HH.mm.ss")+"#\n");
+			}catch(IOException ex){
+				//ignore 
 			}
-		}catch(IOException ex){ //ignore 
-			
+			finally{out.close();}
 		}
-		finally{out.close();}
 	}
 	
 	public INamespace resolveNamespace(IStrategoList id){

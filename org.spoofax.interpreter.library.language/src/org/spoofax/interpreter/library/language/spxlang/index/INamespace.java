@@ -43,4 +43,6 @@ public interface INamespace extends Serializable {
 	IStrategoAppl toTypedQualifiedName(SpxSemanticIndexFacade facade);
 
 	void clear();	
+	
+	String getFormattedName();
 }

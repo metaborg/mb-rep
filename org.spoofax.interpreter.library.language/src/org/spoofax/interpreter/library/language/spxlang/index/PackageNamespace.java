@@ -365,4 +365,10 @@ public final class PackageNamespace  extends BaseNamespace {
 	public IStrategoAppl toTypedQualifiedName(SpxSemanticIndexFacade facade) {
 		return PackageDeclaration.toPackageQNameAppl(facade, this.namespaceUri().strategoID(facade.getTermFactory()));
 	}
+	
+	@Override
+	public String getFormattedName(){
+		return  "Package/" + this.namespaceUri().getFormattedStringID();
+		
+	}
 }

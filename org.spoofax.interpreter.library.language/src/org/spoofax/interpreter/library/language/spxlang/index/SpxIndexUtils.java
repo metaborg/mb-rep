@@ -24,6 +24,10 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.StrategoListIterator;
 import org.spoofax.terms.attachments.TermAttachmentSerializer;
 
+/**
+ * @author Md. Adil Akhter
+ * Created On : Jul 23, 2012
+ */
 public final class SpxIndexUtils {
 	private SpxIndexUtils() {
 		
@@ -148,48 +152,69 @@ public final class SpxIndexUtils {
 		return text.replace(",", SpxIndexConfiguration.getCSVDelimiter() );
 	}
 	
+	
+	
 	static  void logEntries(SpxSemanticIndexFacade f,  INamespace namespace , BufferedWriter logger) throws IOException, SpxSymbolTableException{
 		Map<SpxSymbolKey , List<SpxSymbol>> members = namespace.getMembers();
 		if( namespace instanceof PackageNamespace){
 			PackageNamespace ns = (PackageNamespace)namespace;
 			ns.ensureEnclosedNamespaceUrisLoaded(f);
 			ns.ensureImportedNamespaceUrisLoaded(f);
-			
-			logger.write("Enclosed Namespace Uris:\n");
+
 			for(NamespaceUri uri : ns.enclosedNamespaceUris ){
-				logger.write( SpxIndexUtils.getCsvFormatted(uri.toString()) +"\n");
+				logger.write(
+						namespace.namespaceUri().getFormattedStringID()  
+						+ ","
+						+ namespace.getFormattedName()
+						+ ",EnclosedNamespace,");
+				logger.write( uri.getFormattedStringID() +"\n");
 			}
 			logger.write("\n");
-			
-				
-			logger.write("Imported Namespace Uris:\n");
+
+
+
 			for(NamespaceUri uri : ns.importedNamespaceUris ){
-				logger.write(SpxIndexUtils.getCsvFormatted(uri.toString())+"\n");
+				logger.write(
+						namespace.namespaceUri().getFormattedStringID()  
+						+ ","
+						+ namespace.getFormattedName()
+						+ ",ImportedNamespace,");
+				logger.write(uri.getFormattedStringID()+"\n");
 			}
-			
+
 			logger.write("\n");
 		}
-		
-		
+
+
 		if( namespace instanceof ModuleNamespace){
-			logger.write("Parent Namespace = "+ ((ModuleNamespace) namespace).enclosingNamespaceUri()+"\n" );
+			logger.write(
+					namespace.namespaceUri().getFormattedStringID()
+					+ ","
+					+ namespace.getFormattedName()
+					+ ",ParentNamespace,"
+					+ ((ModuleNamespace) namespace).enclosingNamespaceUri()
+					.getFormattedStringID() + "\n");
 		}
-		
-		logger.write("\n");
-		if(members.keySet().size() >0)
-		{	
-			logger.write("Key, Type , Symbol\n");
-			for( SpxSymbolKey k : members.keySet()) {
-				for( SpxSymbol s : members.get(k) ){
-					logger.write(SpxIndexUtils.getCsvFormatted(k.printSymbolKey())+ ",");
-					logger.write( s.printSymbol(f) + "\n");
-				}
+
+		int symbolCount = 0;
+		for( SpxSymbolKey k : members.keySet()) {
+			for( SpxSymbol s : members.get(k) ){
+				symbolCount = symbolCount  + 1; 
+				logger.write(namespace.namespaceUri()
+						.getFormattedStringID()
+						+ ","
+						+ SpxIndexUtils.getCsvFormatted(k.printSymbolKey())
+						+ ",");
+				logger.write( s.printSymbol(f) + "\n");
 			}
 		}
-		else
-			logger.write("No Symbols\n");
+		logger.write(namespace.namespaceUri().getFormattedStringID() + ","
+				+ namespace.getFormattedName() + ",SymbolCount,"
+				+ symbolCount  + "\n");
 		
 		logger.write("\n");
+		
+		
 	}
 	
 	static void printSymbolTable(SpxSemanticIndexFacade f, boolean printIfDebug, String stageName) throws IOException {

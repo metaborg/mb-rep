@@ -209,7 +209,7 @@ public class SpxIndexManager implements IIndexManageCommand
 				SpxSemanticIndexFacade idxFacade = getSpxIndexFacade(idx, projectPath);
 				if(idxFacade!= null){
 					System.out.println("Closing Index for "+ projectPath );
-					idxFacade.close(false); // Also committing if the persistence manager is still open
+					idxFacade.close(true); // true => committing if the persistence manager is still open
 				}else
 					System.out.println("Index already closed for "+projectPath );
 			}

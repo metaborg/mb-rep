@@ -1566,7 +1566,7 @@ public class SpxPrimarySymbolTableTest extends SpxIndexBaseTestCase{
 		Iterable<String> uris = symbol_table.getAllNamespaceSpxId();
 		
 		for(String uri : uris){
-			NamespaceUri i = new NamespaceUri(uri);
+			NamespaceUri i = new NamespaceUri(NamespaceUri.toStrategoID(termFactory(), uri));
 			
 			if ( i.equalSpoofaxId(this.termFactory() , GlobalNamespace.getGlobalNamespaceId(_facade)))
 				noOfGlobalNamespace = noOfGlobalNamespace  +1 ;

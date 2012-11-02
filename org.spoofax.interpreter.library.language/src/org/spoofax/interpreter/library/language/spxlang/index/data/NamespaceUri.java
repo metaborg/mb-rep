@@ -18,15 +18,13 @@ public class NamespaceUri implements Serializable, Comparable<NamespaceUri>
 	private static final long serialVersionUID = 7219193145612008432L;
 	private transient IStrategoList _id;
 	private final String _spxID;
+	private final String _formattedStringID;
 	
 	
 	public NamespaceUri(IStrategoList id){
-		this(toSpxID(id) );
-		_id = id ; 
-	}
-	
-	public NamespaceUri(String spxId){
-		_spxID = spxId.trim();
+		_id = id ;
+		_spxID = toSpxID(_id).trim(); // TODO : consider using formatted String ID 
+		_formattedStringID = SpxIndexUtils.listToString(id, ".");
 	}
 	
 	
@@ -100,5 +98,13 @@ public class NamespaceUri implements Serializable, Comparable<NamespaceUri>
 
 	public static IStrategoList toStrategoID(ITermFactory termFactory , String spxID) {
 		return (IStrategoList) SpxIndexUtils.stringToTerm(termFactory, spxID);
+	}
+
+
+	/**
+	 * @return the formattedStringID
+	 */
+	public String getFormattedStringID() {
+		return _formattedStringID;
 	}
 }

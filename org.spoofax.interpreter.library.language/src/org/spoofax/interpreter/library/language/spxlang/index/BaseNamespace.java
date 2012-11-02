@@ -52,7 +52,7 @@ public abstract class BaseNamespace implements INamespace {
 		_currentNamespaceId = currentNamespace;
 		_enclosingNamespaceId = enclosingNamespace; 
 		
-		src = (_enclosingNamespaceId!= null) ? type.getName() + _currentNamespaceId.id() :  type.getName()   ; 
+		src = (_enclosingNamespaceId != null) ? type.getName() + _currentNamespaceId.id() :  type.getName(); 
 			
 		symbols = new HashMap<SpxSymbolKey, List<SpxSymbol>>();
 	}
@@ -86,7 +86,7 @@ public abstract class BaseNamespace implements INamespace {
 			if( entry.key.isOverridable())
 				values.add(entry.value);
 			else{
-				assert values.size() == 1;
+				assert values.size() == 1; // verifies following : STEs with an overload = false consist of only one entity.
 				values.set(0, entry.value);
 			}
 		}
@@ -282,7 +282,12 @@ public abstract class BaseNamespace implements INamespace {
 		return "Namespace { "+ src + "}";
 	}
 	
+	public abstract String getFormattedName();
+	
+	
 	public String getAbosoluteFilePath(){
 		return null;
 	}
+	
+	
 }

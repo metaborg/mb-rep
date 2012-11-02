@@ -52,4 +52,10 @@ public final class LocalNamespace extends BaseNamespace{
 	public String getAbosoluteFilePath(){
 		return super.getAbosoluteFilePath();
 	}
+	
+	@Override
+	public String getFormattedName(){
+		return  "Local/" + this.namespaceUri().getFormattedStringID();
+		
+	}
 }

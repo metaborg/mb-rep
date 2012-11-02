@@ -32,6 +32,7 @@ import jdbm.helper.RecordManagerImpl;
  *
  * @author <a href="mailto:boisvert@intalio.com">Alex Boisvert</a>
  * @author <a href="cg@cdegroot.com">Cees de Groot</a>
+ * @author <a href="md.adilakhter@gmail.com">Cees de Groot</a>
  * @version $Id: CacheRecordManager.java,v 1.9 2005/06/25 23:12:32 doomdark Exp $
  */
 public class CacheRecordManager extends RecordManagerImpl
@@ -495,11 +496,11 @@ public class CacheRecordManager extends RecordManagerImpl
 		public void run() {
 			while(true)try{
 
-				//collect next item from cache,
-				//limit 10000 ms is to keep periodically checking if recman was GCed 
+				// collect next item from cache,
+				// limit 10000 ms is to keep periodically checking if recman was GCed 
 				SoftCacheEntry e = (SoftCacheEntry) entryQueue.remove(10000);
 
-				//check if  recman was GCed, cancel in that case
+				// check if  recman was GCed, cancel in that case
 				CacheRecordManager recman = recman2.get();
 				if(recman == null) 
 					return;
