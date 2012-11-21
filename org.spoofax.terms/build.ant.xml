@@ -32,12 +32,15 @@
        <gzip zipfile="${build.dir}/${jarname}-${version}.tar.gz" src="${build.dir}/${jarname}-${version}.tar"/>
    </target>
 
-   <target name="bindist" depends="jar" description="--> create the binary dist tarball">
+   <target name="bindist" depends="dist,jar" description="--> create the binary dist tarball">
+       <javadoc sourcepath="src/" destdir="target/doc"/>
+       <jar destfile="${build.dir}/${jarname}-${version}-javadoc.jar" basedir="${build.dir}/doc" />
        <jar destfile="${build.dir}/${jarname}-${version}-sources.jar" basedir="src/" />
        <tar destfile="${build.dir}/${jarname}-${version}-bin.tar">
            <tarfileset prefix="${jarname}-${version}/" dir="${build.dir}" includes="${jarname}-${version}.jar"/>
            <tarfileset prefix="${jarname}-${version}/" dir="${build.dir}" includes="${jarname}-${version}-sources.jar"/>
-           <tarfileset prefix="${jarname}-${version}/" dir="." includes="INSTALL AUTHORS"/>
+           <tarfileset prefix="${jarname}-${version}/" dir="${build.dir}" includes="${jarname}-${version}-javadoc.jar"/>
+           <tarfileset prefix="${jarname}-${version}/" dir="." includes="INSTALL AUTHORS README LICENSE"/>
        </tar>
        <gzip zipfile="${build.dir}/${jarname}-${version}-bin.tar.gz" src="${build.dir}/${jarname}-${version}-bin.tar"/>
    </target>
