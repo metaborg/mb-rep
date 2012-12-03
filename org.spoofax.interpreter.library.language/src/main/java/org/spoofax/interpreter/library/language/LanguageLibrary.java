@@ -1,7 +1,31 @@
 package org.spoofax.interpreter.library.language;
 
 import org.spoofax.interpreter.library.AbstractStrategoOperatorRegistry;
-import org.spoofax.interpreter.library.language.spxlang.*;
+import org.spoofax.interpreter.library.language.spxlang.SPX_exec_index_manage_command;
+import org.spoofax.interpreter.library.language.spxlang.SPX_index_compilation_unit;
+import org.spoofax.interpreter.library.language.spxlang.SPX_index_equal_resource_uri;
+import org.spoofax.interpreter.library.language.spxlang.SPX_index_get_compilation_unit;
+import org.spoofax.interpreter.library.language.spxlang.SPX_index_get_imported_to_references;
+import org.spoofax.interpreter.library.language.spxlang.SPX_index_get_imports;
+import org.spoofax.interpreter.library.language.spxlang.SPX_index_get_language_descriptor;
+import org.spoofax.interpreter.library.language.spxlang.SPX_index_get_module_declaration;
+import org.spoofax.interpreter.library.language.spxlang.SPX_index_get_module_declarations_of;
+import org.spoofax.interpreter.library.language.spxlang.SPX_index_get_module_definition;
+import org.spoofax.interpreter.library.language.spxlang.SPX_index_get_package_declaration;
+import org.spoofax.interpreter.library.language.spxlang.SPX_index_get_package_declarations_by_LanguageName;
+import org.spoofax.interpreter.library.language.spxlang.SPX_index_get_package_declarations_of;
+import org.spoofax.interpreter.library.language.spxlang.SPX_index_get_related_files_of_packages;
+import org.spoofax.interpreter.library.language.spxlang.SPX_index_import_references;
+import org.spoofax.interpreter.library.language.spxlang.SPX_index_language_descriptor;
+import org.spoofax.interpreter.library.language.spxlang.SPX_index_module_definition;
+import org.spoofax.interpreter.library.language.spxlang.SPX_index_package_declaration;
+import org.spoofax.interpreter.library.language.spxlang.SPX_symtab_define_symbol;
+import org.spoofax.interpreter.library.language.spxlang.SPX_symtab_destroy_scope;
+import org.spoofax.interpreter.library.language.spxlang.SPX_symtab_new_scope;
+import org.spoofax.interpreter.library.language.spxlang.SPX_symtab_resolve_symbols;
+import org.spoofax.interpreter.library.language.spxlang.SPX_symtab_undefine_symbols;
+import org.spoofax.interpreter.library.language.spxlang.SPX_symtab_verify_symbol_exists;
+import org.spoofax.interpreter.library.language.spxlang.SPX_symtab_verify_symbols_have_equal_origin;
 import org.spoofax.interpreter.library.language.spxlang.index.SpxSemanticIndex;
 
 /**
@@ -11,26 +35,6 @@ public class LanguageLibrary extends AbstractStrategoOperatorRegistry {
     public static final String REGISTRY_NAME = "LANGUAGE";
 
     public LanguageLibrary() {
-        IndexManager index = new IndexManager();
-        add(new LANG_index_add(index));
-        add(new LANG_index_remove(index));
-        add(new LANG_index_clear_all(index));
-        add(new LANG_index_clear_file(index));
-        add(new LANG_index_get_all_files(index));
-        add(new LANG_index_get_all_in_file(index));
-        add(new LANG_index_get_children(index));
-        add(new LANG_index_get_files_of(index));
-        add(new LANG_index_get(index));
-        add(new LANG_index_setup(index));
-        add(new LANG_index_commit(index));
-        add(new LANG_index_get_files_newer_than(index));
-        add(new LANG_index_get_current_file(index));
-        add(new LANG_index_start_transaction(index));
-        add(new LANG_index_end_transaction(index));
-        add(new LANG_index_get_file_revision(index));
-        add(new LANG_index_set_current_file(index));
-        add(new LANG_index_reload(index));
-
         addSpxIndexPrimitives();
     }
 
