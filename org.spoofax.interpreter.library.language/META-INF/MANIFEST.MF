@@ -11,6 +11,4 @@ Require-Bundle: org.junit,
  org.spoofax.jsglr;bundle-version="0.3.0"
 Export-Package: org.spoofax.interpreter.library.language,
  org.spoofax.interpreter.library.language.spxlang
-Bundle-ClassPath: lib/guava-11.0.2.jar,
- lib/junit-benchmarks-0.4.0.jar,
- .
+Bundle-ClassPath: .

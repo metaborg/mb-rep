@@ -35,13 +35,6 @@ public class LanguageLibrary extends AbstractStrategoOperatorRegistry {
     public static final String REGISTRY_NAME = "LANGUAGE";
 
     public LanguageLibrary() {
-        addSpxIndexPrimitives();
-    }
-
-    /**
-     * Primitives related to the Symbol-Table and Index of Spoofax-lang
-     */
-    private void addSpxIndexPrimitives() {
         SpxSemanticIndex spxIndex = new SpxSemanticIndex();
         add(new SPX_exec_index_manage_command(spxIndex));
 

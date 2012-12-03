@@ -7,7 +7,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.runners.Parameterized.Parameters;
 import org.spoofax.interpreter.library.index.IndexPartitionDescriptor;
-import org.spoofax.interpreter.library.language.tests.IndexTest;
+import org.spoofax.interpreter.library.index.tests.IndexTest;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 
 public class IndexPerformanceTest extends IndexTest {

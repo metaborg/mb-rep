@@ -12,3 +12,4 @@ Require-Bundle: org.junit,
 Bundle-ClassPath: lib/guava-11.0.2.jar,
  lib/junit-benchmarks-0.4.0.jar,
  .
+Export-Package: org.spoofax.interpreter.library.index
