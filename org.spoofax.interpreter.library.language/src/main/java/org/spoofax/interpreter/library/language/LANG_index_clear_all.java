@@ -9,19 +9,18 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 public class LANG_index_clear_all extends AbstractPrimitive {
+    private static String NAME = "LANG_index_clear_all";
 
-	private static String NAME = "LANG_index_clear_all";
-	
-	private final SemanticIndexManager index;
-	
-	public LANG_index_clear_all(SemanticIndexManager index) {
-		super(NAME, 0, 0);
-		this.index = index;
-	}
+    private final IndexManager index;
 
-	@Override
-	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
-		index.getCurrent().clear();
-		return true;
-	}
+    public LANG_index_clear_all(IndexManager index) {
+        super(NAME, 0, 0);
+        this.index = index;
+    }
+
+    @Override
+    public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
+        index.getCurrent().clear();
+        return true;
+    }
 }

@@ -14,26 +14,25 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 public class LANG_index_remove extends AbstractPrimitive {
+    private static String NAME = "LANG_index_remove";
 
-	private static String NAME = "LANG_index_remove";
-	
-	private final SemanticIndexManager index;
-	
-	public LANG_index_remove(SemanticIndexManager index) {
-		super(NAME, 0, 2);
-		this.index = index;
-	}
+    private final IndexManager index;
 
-	@Override
-	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
-		if (isTermAppl(tvars[0]) && (isTermTuple(tvars[1]) || isTermString(tvars[1]))) {
-			IStrategoAppl template = (IStrategoAppl) tvars[0];
-			ISemanticIndex ind = index.getCurrent();
-			SemanticIndexFileDescriptor fileDescriptor = ind.getFileDescriptor(tvars[1]);
-			ind.remove(template, fileDescriptor);
-			return true;
-		} else {
-			return false;
-		}
-	}
+    public LANG_index_remove(IndexManager index) {
+        super(NAME, 0, 2);
+        this.index = index;
+    }
+
+    @Override
+    public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
+        if(isTermAppl(tvars[0]) && (isTermTuple(tvars[1]) || isTermString(tvars[1]))) {
+            IStrategoAppl template = (IStrategoAppl) tvars[0];
+            IIndex ind = index.getCurrent();
+            IndexPartitionDescriptor partitionDescriptor = ind.getPartitionDescriptor(tvars[1]);
+            ind.remove(template, partitionDescriptor);
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

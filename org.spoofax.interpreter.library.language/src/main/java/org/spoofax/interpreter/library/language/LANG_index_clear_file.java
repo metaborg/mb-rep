@@ -12,24 +12,23 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 public class LANG_index_clear_file extends AbstractPrimitive {
+    private static String NAME = "LANG_index_clear_file";
 
-	private static String NAME = "LANG_index_clear_file";
-	
-	private final SemanticIndexManager index;
-	
-	public LANG_index_clear_file(SemanticIndexManager index) {
-		super(NAME, 0, 1);
-		this.index = index;
-	}
+    private final IndexManager index;
 
-	@Override
-	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
-		if (isTermString(tvars[0]) || isTermTuple(tvars[0])) {
-			ISemanticIndex ind = index.getCurrent();
-			ind.removeFile(tvars[0]);
-			return true;
-		} else {
-			return false;
-		}
-	}
+    public LANG_index_clear_file(IndexManager index) {
+        super(NAME, 0, 1);
+        this.index = index;
+    }
+
+    @Override
+    public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
+        if(isTermString(tvars[0]) || isTermTuple(tvars[0])) {
+            IIndex ind = index.getCurrent();
+            ind.removePartition(tvars[0]);
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

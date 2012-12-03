@@ -15,34 +15,33 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 public class LANG_index_get_files_of extends AbstractPrimitive {
+    private static String NAME = "LANG_index_get_files_of";
 
-	private static String NAME = "LANG_index_get_files_of";
-	
-	private final SemanticIndexManager index;
-	
-	public LANG_index_get_files_of(SemanticIndexManager index) {
-		super(NAME, 0, 1);
-		this.index = index;
-	}
+    private final IndexManager index;
 
-	/**
-	 * Returns [] if URI not in index.
-	 */
-	@Override
-	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
-		if (isTermAppl(tvars[0])) {
-			IStrategoAppl template = (IStrategoAppl) tvars[0];
-			ISemanticIndex ind = index.getCurrent();
-			Collection<SemanticIndexEntry> entries = ind.getEntries(template);
-			IStrategoList files = env.getFactory().makeList();
-			for(SemanticIndexEntry entry : entries) {
-				IStrategoTerm file = entry.getFileDescriptor().toTerm(env.getFactory());
-				files = env.getFactory().makeListCons(file, files);
-			}
-			env.setCurrent(files);
-			return true;
-		} else {
-			return false;
-		}
-	}
+    public LANG_index_get_files_of(IndexManager index) {
+        super(NAME, 0, 1);
+        this.index = index;
+    }
+
+    /**
+     * Returns [] if URI not in index.
+     */
+    @Override
+    public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
+        if(isTermAppl(tvars[0])) {
+            IStrategoAppl template = (IStrategoAppl) tvars[0];
+            IIndex ind = index.getCurrent();
+            Collection<IndexEntry> entries = ind.getEntries(template);
+            IStrategoList partitions = env.getFactory().makeList();
+            for(IndexEntry entry : entries) {
+                IStrategoTerm partition = entry.getPartitionDescriptor().toTerm(env.getFactory());
+                partitions = env.getFactory().makeListCons(partition, partitions);
+            }
+            env.setCurrent(partitions);
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

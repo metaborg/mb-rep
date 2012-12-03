@@ -11,23 +11,22 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 public class LANG_index_commit extends AbstractPrimitive {
+    private static String NAME = "LANG_index_commit";
 
-	private static String NAME = "LANG_index_commit";
-	
-	private final SemanticIndexManager index;
-	
-	public LANG_index_commit(SemanticIndexManager index) {
-		super(NAME, 0, 0);
-		this.index = index;
-	}
+    private final IndexManager index;
 
-	@Override
-	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
-		try {
-			index.storeCurrent();
-		} catch (IOException e) {
-			e.printStackTrace(); // ignore
-		}
-		return true;
-	}
+    public LANG_index_commit(IndexManager index) {
+        super(NAME, 0, 0);
+        this.index = index;
+    }
+
+    @Override
+    public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
+        try {
+            index.storeCurrent();
+        } catch(IOException e) {
+            e.printStackTrace(); // ignore
+        }
+        return true;
+    }
 }

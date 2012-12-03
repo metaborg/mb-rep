@@ -15,116 +15,111 @@ import org.spoofax.interpreter.library.language.INotificationService.FileSubfile
  */
 public class NotificationCenter {
 
-	private static Map<ObserverDescription, INotificationService> asyncObservers =
-			new HashMap<ObserverDescription, INotificationService>();
-	
-	/**
-	 * Notify listeners of a added/removed/changed file.
-	 *
-	 * @param file      The URI of the file
-	 * @param subfile   The subfilename, or null if not applicable
-	 */
-	public synchronized static void notifyFileChanges(URI file, String subfile) {
-		assert file.isAbsolute();
-		for (INotificationService observer : asyncObservers.values()) {
-			observer.notifyFileChanges(file, subfile);
-		}
-	}
-	
-	/**
-	 * Notify listeners of multiple added/removed/changed files.
-	 *
-	 * @param files		The changed files
-	 */
-	public synchronized static void notifyFileChanges(FileSubfile[] files) {
-		if(files.length == 1)
-		{
-			FileSubfile file = files[0];
-			notifyFileChanges(file.file, file.subfile);
-			return;
-		}
-		
-		for(FileSubfile file : files) {
-			assert file.file.isAbsolute();
-		}
-		
-		for (INotificationService observer : asyncObservers.values()) {
-			observer.notifyFileChanges(files);
-		}
-	}
+    private static Map<ObserverDescription, INotificationService> asyncObservers =
+        new HashMap<ObserverDescription, INotificationService>();
 
-	/**
-	 * Notify listener of a new project.
-	 * All files in it should be compared to the
-	 * timestamps or other metadata stored about them.
-	 */
-	public synchronized static void notifyNewProject(URI project) {
-		for (INotificationService observer : asyncObservers.values()) {
-			observer.notifyNewProject(project);
-		}
-	}
-	
-	/**
-	 * Registers an observer. Only one observer is stored at a time for a language/serviceName combination.
-	 * 
-	 * @param language     The language for this observer, may be null.
-	 * @param serviceName  The name of the service represented by this observer, may be null.
-	 */
-	public synchronized static void putObserver(String language, String serviceName, INotificationService service) {
-		asyncObservers.put(new ObserverDescription(language, serviceName), service);
-	}
-	
-	public synchronized static boolean removeObserver(String language, String service) {
-		return asyncObservers.remove(new ObserverDescription(language, service)) != null;
-	}
-	
-	/**
-	 * An observer. A wannabe case class.
-	 * 
-	 * @author Lennart Kats <lennart add lclnet.nl>
-	 */
-	private static class ObserverDescription {
-		final String language;
-		
-		final String service;
+    /**
+     * Notify listeners of a added/removed/changed file.
+     * 
+     * @param file The URI of the file
+     * @param subfile The subfilename, or null if not applicable
+     */
+    public synchronized static void notifyFileChanges(URI file, String subfile) {
+        assert file.isAbsolute();
+        for(INotificationService observer : asyncObservers.values()) {
+            observer.notifyFileChanges(file, subfile);
+        }
+    }
 
-		public ObserverDescription(String language, String service) {
-			this.language = language;
-			this.service = service;
-		}
+    /**
+     * Notify listeners of multiple added/removed/changed files.
+     * 
+     * @param files The changed files
+     */
+    public synchronized static void notifyFileChanges(FileSubfile[] files) {
+        if(files.length == 1) {
+            FileSubfile file = files[0];
+            notifyFileChanges(file.file, file.subfile);
+            return;
+        }
 
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result
-					+ ((language == null) ? 0 : language.hashCode());
-			result = prime * result
-					+ ((service == null) ? 0 : service.hashCode());
-			return result;
-		}
+        for(FileSubfile file : files) {
+            assert file.file.isAbsolute();
+        }
 
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (!(obj instanceof ObserverDescription))
-				return false;
-			ObserverDescription other = (ObserverDescription) obj;
-			if (language == null) {
-				if (other.language != null)
-					return false;
-			} else if (!language.equals(other.language))
-				return false;
-			if (service == null) {
-				if (other.service != null)
-					return false;
-			} else if (!service.equals(other.service))
-				return false;
-			return true;
-		}
-		
-	}
+        for(INotificationService observer : asyncObservers.values()) {
+            observer.notifyFileChanges(files);
+        }
+    }
+
+    /**
+     * Notify listener of a new project. All files in it should be compared to the timestamps or other metadata stored
+     * about them.
+     */
+    public synchronized static void notifyNewProject(URI project) {
+        for(INotificationService observer : asyncObservers.values()) {
+            observer.notifyNewProject(project);
+        }
+    }
+
+    /**
+     * Registers an observer. Only one observer is stored at a time for a language/serviceName combination.
+     * 
+     * @param language The language for this observer, may be null.
+     * @param serviceName The name of the service represented by this observer, may be null.
+     */
+    public synchronized static void putObserver(String language, String serviceName, INotificationService service) {
+        asyncObservers.put(new ObserverDescription(language, serviceName), service);
+    }
+
+    public synchronized static boolean removeObserver(String language, String service) {
+        return asyncObservers.remove(new ObserverDescription(language, service)) != null;
+    }
+
+    /**
+     * An observer. A wannabe case class.
+     * 
+     * @author Lennart Kats <lennart add lclnet.nl>
+     */
+    private static class ObserverDescription {
+        final String language;
+        final String service;
+
+        public ObserverDescription(String language, String service) {
+            this.language = language;
+            this.service = service;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((language == null) ? 0 : language.hashCode());
+            result = prime * result + ((service == null) ? 0 : service.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if(this == obj)
+                return true;
+            if(obj == null)
+                return false;
+            if(!(obj instanceof ObserverDescription))
+                return false;
+            ObserverDescription other = (ObserverDescription) obj;
+            if(language == null) {
+                if(other.language != null)
+                    return false;
+            } else if(!language.equals(other.language))
+                return false;
+            if(service == null) {
+                if(other.service != null)
+                    return false;
+            } else if(!service.equals(other.service))
+                return false;
+            return true;
+        }
+
+    }
 }

@@ -16,30 +16,29 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 public class LANG_index_setup extends AbstractPrimitive {
+    private static String NAME = "LANG_index_setup";
 
-	private static String NAME = "LANG_index_setup";
-	
-	private final SemanticIndexManager index;
-	
-	public LANG_index_setup(SemanticIndexManager index) {
-		super(NAME, 0, 3);
-		this.index = index;
-	}
+    private final IndexManager index;
 
-	@Override
-	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
-		IStrategoString language = (IStrategoString) tvars[0];
-		IStrategoList projectPaths = (IStrategoList) tvars[1];
-		IStrategoTerm fileTerm = tvars[2];
-		if (projectPaths.size() != 1) {
-			throw new NotImplementedException("Multiple project paths");
-		}
-		IOAgent agent = SSLLibrary.instance(env).getIOAgent();
-		SemanticIndexFileDescriptor project = SemanticIndexFileDescriptor.fromTerm(agent, projectPaths.head());
-		SemanticIndexFileDescriptor file = SemanticIndexFileDescriptor.fromTerm(agent, fileTerm);
-		index.loadIndex(asJavaString(language), project.getURI(), env.getFactory(), agent);
-		index.setCurrentFile(file);
-		index.getCurrent().initialize(env.getFactory(), agent);
-		return true;
-	}
+    public LANG_index_setup(IndexManager index) {
+        super(NAME, 0, 3);
+        this.index = index;
+    }
+
+    @Override
+    public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
+        IStrategoString language = (IStrategoString) tvars[0];
+        IStrategoList projectPaths = (IStrategoList) tvars[1];
+        IStrategoTerm partitionTerm = tvars[2];
+        if(projectPaths.size() != 1) {
+            throw new NotImplementedException("Multiple project paths");
+        }
+        IOAgent agent = SSLLibrary.instance(env).getIOAgent();
+        IndexPartitionDescriptor project = IndexPartitionDescriptor.fromTerm(agent, projectPaths.head());
+        IndexPartitionDescriptor partition = IndexPartitionDescriptor.fromTerm(agent, partitionTerm);
+        index.loadIndex(asJavaString(language), project.getURI(), env.getFactory(), agent);
+        index.setCurrentPartition(partition);
+        index.getCurrent().initialize(env.getFactory(), agent);
+        return true;
+    }
 }

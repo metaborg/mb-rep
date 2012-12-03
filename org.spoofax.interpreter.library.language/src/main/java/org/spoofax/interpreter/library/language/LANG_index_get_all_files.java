@@ -10,31 +10,30 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
 public class LANG_index_get_all_files extends AbstractPrimitive {
+    private static String NAME = "LANG_index_all_files";
 
-	private static String NAME = "LANG_index_all_files";
-	
-	private final SemanticIndexManager index;
-	
-	public LANG_index_get_all_files(SemanticIndexManager index) {
-		super(NAME, 0, 0);
-		this.index = index;
-	}
+    private final IndexManager index;
 
-	@Override
-	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
-		ITermFactory factory = env.getFactory();
-		IStrategoList results = getAllFiles(index.getCurrent(), factory);
-		System.out.println(results.toString());
-		env.setCurrent(results);
-		return true;
-	}
+    public LANG_index_get_all_files(IndexManager index) {
+        super(NAME, 0, 0);
+        this.index = index;
+    }
 
-	public static IStrategoList getAllFiles(ISemanticIndex index, ITermFactory factory) {
-		Collection<SemanticIndexFileDescriptor> allFileDescriptors = index.getAllFileDescriptors();
-		IStrategoList results = factory.makeList();
-		for (SemanticIndexFileDescriptor fileDescriptor : allFileDescriptors) {
-			results = factory.makeListCons(fileDescriptor.toTerm(factory), results);
-		}
-		return results;
-	}
+    @Override
+    public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
+        ITermFactory factory = env.getFactory();
+        IStrategoList results = getAllPartitions(index.getCurrent(), factory);
+        System.out.println(results.toString());
+        env.setCurrent(results);
+        return true;
+    }
+
+    public static IStrategoList getAllPartitions(IIndex index, ITermFactory factory) {
+        Collection<IndexPartitionDescriptor> allPartitionDescriptors = index.getAllPartitionDescriptors();
+        IStrategoList results = factory.makeList();
+        for(IndexPartitionDescriptor partitionDescriptor : allPartitionDescriptors) {
+            results = factory.makeListCons(partitionDescriptor.toTerm(factory), results);
+        }
+        return results;
+    }
 }
