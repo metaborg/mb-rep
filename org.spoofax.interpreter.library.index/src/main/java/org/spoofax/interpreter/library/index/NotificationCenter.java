@@ -21,11 +21,12 @@ public class NotificationCenter {
      * 
      * @param file The URI of the file
      * @param partition The partition, or null if not applicable.
+     * @param triggerOnSave If the on save handler of changed file should be called.
      */
-    public synchronized static void notifyFileChanges(URI file, String partition) {
+    public synchronized static void notifyFileChanges(URI file, String partition, boolean triggerOnSave) {
         assert file.isAbsolute();
         for(INotificationService observer : asyncObservers.values()) {
-            observer.notifyChanges(file, partition);
+            observer.notifyChanges(file, partition, triggerOnSave);
         }
     }
 
@@ -33,11 +34,12 @@ public class NotificationCenter {
      * Notify listeners of multiple added/removed/moved/modified files with optional partitions.
      * 
      * @param files The changed files.
+     * @param triggerOnSave If the on save handler of changed file should be called.
      */
-    public synchronized static void notifyFileChanges(FilePartition[] files) {
+    public synchronized static void notifyFileChanges(FilePartition[] files, boolean triggerOnSave) {
         if(files.length == 1) {
             FilePartition file = files[0];
-            notifyFileChanges(file.file, file.partition);
+            notifyFileChanges(file.file, file.partition, triggerOnSave);
             return;
         }
 
@@ -46,7 +48,7 @@ public class NotificationCenter {
         }
 
         for(INotificationService observer : asyncObservers.values()) {
-            observer.notifyChanges(files);
+            observer.notifyChanges(files, triggerOnSave);
         }
     }
 
