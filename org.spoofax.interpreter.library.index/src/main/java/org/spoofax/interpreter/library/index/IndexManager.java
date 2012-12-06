@@ -150,7 +150,7 @@ public class IndexManager {
         try {
             IStrategoTerm term = new TermReader(factory).parseFromFile(file.toString());
             return Index.fromTerm(term, factory, agent, true); // TODO: Move to other class
-        } catch(IOException e) {
+        } catch(Exception e) {
             return null;
         }
     }
