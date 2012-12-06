@@ -7,31 +7,24 @@ import java.net.URI;
  */
 public interface INotificationService {
     /**
-     * Notify listener of a added/removed/changed file.
+     * Notify listener of a added/removed/changed file with optional partition.
+     * 
+     * @param file The URI of the file
+     * @param partition The partition, or null if not applicable.
      */
-    void notifyFileChanges(URI file, String subfile);
+    void notifyChanges(URI file, String partition);
 
     /**
-     * Notify listeners of multiple added/removed/changed files.
+     * Notify listeners of multiple added/removed/changed files with optional partitions.
+     * 
+     * @param files The changed files.
      */
-    void notifyFileChanges(FileSubfile[] files);
+    void notifyChanges(FilePartition[] files);
 
     /**
-     * Notify listener of a new project. All files in it should be compared to the timestamps or other metadata stored
-     * about them.
+     * Notify listener of a new project.
+     * 
+     * @param project The new project.
      */
     void notifyNewProject(URI project);
-
-    /**
-     * Container for file URI and subfile name.
-     */
-    public class FileSubfile {
-        public FileSubfile(URI file, String subfile) {
-            this.file = file;
-            this.subfile = subfile;
-        }
-
-        public URI file;
-        public String subfile;
-    }
 }

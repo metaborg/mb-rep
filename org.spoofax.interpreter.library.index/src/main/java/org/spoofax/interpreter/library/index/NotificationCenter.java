@@ -4,8 +4,6 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.spoofax.interpreter.library.index.INotificationService.FileSubfile;
-
 /**
  * A central, static go-to point for file system notifications.
  * 
@@ -19,42 +17,43 @@ public class NotificationCenter {
         new HashMap<ObserverDescription, INotificationService>();
 
     /**
-     * Notify listeners of a added/removed/changed file.
+     * Notify listeners of an added/removed/moved/modified file with optional partition.
      * 
      * @param file The URI of the file
-     * @param subfile The subfilename, or null if not applicable
+     * @param partition The partition, or null if not applicable.
      */
-    public synchronized static void notifyFileChanges(URI file, String subfile) {
+    public synchronized static void notifyFileChanges(URI file, String partition) {
         assert file.isAbsolute();
         for(INotificationService observer : asyncObservers.values()) {
-            observer.notifyFileChanges(file, subfile);
+            observer.notifyChanges(file, partition);
         }
     }
 
     /**
-     * Notify listeners of multiple added/removed/changed files.
+     * Notify listeners of multiple added/removed/moved/modified files with optional partitions.
      * 
-     * @param files The changed files
+     * @param files The changed files.
      */
-    public synchronized static void notifyFileChanges(FileSubfile[] files) {
+    public synchronized static void notifyFileChanges(FilePartition[] files) {
         if(files.length == 1) {
-            FileSubfile file = files[0];
-            notifyFileChanges(file.file, file.subfile);
+            FilePartition file = files[0];
+            notifyFileChanges(file.file, file.partition);
             return;
         }
 
-        for(FileSubfile file : files) {
+        for(FilePartition file : files) {
             assert file.file.isAbsolute();
         }
 
         for(INotificationService observer : asyncObservers.values()) {
-            observer.notifyFileChanges(files);
+            observer.notifyChanges(files);
         }
     }
 
     /**
-     * Notify listener of a new project. All files in it should be compared to the timestamps or other metadata stored
-     * about them.
+     * Notify listener of a new project.
+     * 
+     * @param project The new project.
      */
     public synchronized static void notifyNewProject(URI project) {
         for(INotificationService observer : asyncObservers.values()) {
