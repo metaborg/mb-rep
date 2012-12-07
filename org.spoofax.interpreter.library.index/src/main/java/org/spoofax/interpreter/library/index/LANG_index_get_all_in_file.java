@@ -28,7 +28,7 @@ public class LANG_index_get_all_in_file extends AbstractPrimitive {
         if(isTermTuple(tvars[0]) || isTermString(tvars[0])) {
             IIndex ind = index.getCurrent();
             IndexPartitionDescriptor partitionDescriptor = ind.getPartitionDescriptor(tvars[0]);
-            Collection<IndexEntry> results = ind.getEntriesInPartition(partitionDescriptor);
+            Collection<IndexEntry> results = ind.getInPartition(partitionDescriptor);
             env.setCurrent(IndexEntry.toTerms(env.getFactory(), results));
             return true;
         } else {

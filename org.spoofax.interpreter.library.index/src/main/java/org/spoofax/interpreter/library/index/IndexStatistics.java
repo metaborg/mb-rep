@@ -36,7 +36,7 @@ public class IndexStatistics {
     private Collection<IndexEntry> elements() {
         List<IndexEntry> entries = new ArrayList<IndexEntry>();
         for(IndexPartitionDescriptor partitionDescriptor : index.getAllPartitionDescriptors()) {
-            entries.addAll(index.getEntriesInPartition(partitionDescriptor));
+            entries.addAll(index.getInPartition(partitionDescriptor));
         }
 
         return entries;

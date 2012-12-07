@@ -50,7 +50,7 @@ public class IndexPersistPerformanceTest extends IndexPerformanceTest {
     @Test
     public void persist() throws IOException {
         ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream("persist.dat", false));
-        outputStream.writeObject(index.getAllEntries().toArray());
+        outputStream.writeObject(index.getAll().toArray());
         outputStream.flush();
         outputStream.close();
     }

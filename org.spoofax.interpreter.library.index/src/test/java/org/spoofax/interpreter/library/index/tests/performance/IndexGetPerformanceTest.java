@@ -54,11 +54,11 @@ public class IndexGetPerformanceTest extends IndexPerformanceTest {
         @SuppressWarnings("unused")
         Collection<IndexEntry> ret;
         for(int i = 0; i < NUM_GET; ++i) {
-            ret = index.getEntries(def1);
-            ret = index.getEntries(def2);
-            ret = index.getEntries(def3);
-            ret = index.getEntries(use1);
-            ret = index.getEntries(typeTemplate1);
+            ret = index.get(def1);
+            ret = index.get(def2);
+            ret = index.get(def3);
+            ret = index.get(use1);
+            ret = index.get(typeTemplate1);
         }
     }
 }

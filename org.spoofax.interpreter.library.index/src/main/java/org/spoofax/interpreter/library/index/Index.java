@@ -143,17 +143,17 @@ public class Index implements IIndex {
         }
     }
 
-    public Collection<IndexEntry> getEntries(IStrategoAppl template) {
+    public Collection<IndexEntry> get(IStrategoAppl template) {
         IndexURI uri = factory.createURIFromTemplate(template);
         return getCollection(innerEntries(uri).values());
     }
 
-    public Collection<IndexEntry> getEntryChildTerms(IStrategoAppl template) {
+    public Collection<IndexEntry> getChildren(IStrategoAppl template) {
         IndexURI uri = factory.createURIFromTemplate(template);
         return getCollection(innerChildEntries(uri).values());
     }
 
-    public Collection<IndexEntry> getEntriesInPartition(IndexPartitionDescriptor partitionDescriptor) {
+    public Collection<IndexEntry> getInPartition(IndexPartitionDescriptor partitionDescriptor) {
         if(partitionDescriptor.getPartition() == null)
             return getCollection(entriesPerFile.get(partitionDescriptor.getURI()));
         else if(partitionDescriptor.getURI() == null)
@@ -167,7 +167,7 @@ public class Index implements IIndex {
         return getCollection(innerEntries(uri).keySet());
     }
 
-    public Collection<IndexEntry> getAllEntries() {
+    public Collection<IndexEntry> getAll() {
         List<IndexEntry> allEntries = new LinkedList<IndexEntry>();
         Collection<Multimap<IndexPartitionDescriptor, IndexEntry>> values = entries.values();
         for(Multimap<IndexPartitionDescriptor, IndexEntry> map : values)
@@ -222,7 +222,7 @@ public class Index implements IIndex {
             clearPartition(new IndexPartitionDescriptor(null, partitionDescriptor.getPartition()));
         }
 
-        assert getEntriesInPartition(partitionDescriptor).isEmpty();
+        assert getInPartition(partitionDescriptor).isEmpty();
     }
 
     public Collection<IndexPartition> getAllPartitions() {

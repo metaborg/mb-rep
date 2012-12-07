@@ -59,26 +59,26 @@ public interface IIndex {
      * 
      * @param template The template to match entries against.
      */
-    public abstract Collection<IndexEntry> getEntries(IStrategoAppl template);
+    public abstract Collection<IndexEntry> get(IStrategoAppl template);
 
     /**
      * Gets all entries.
      */
-    public abstract Collection<IndexEntry> getAllEntries();
+    public abstract Collection<IndexEntry> getAll();
 
     /**
      * Gets all child entries for URI in given template.
      * 
      * @param template The template to match entries against.
      */
-    public abstract Collection<IndexEntry> getEntryChildTerms(IStrategoAppl template);
+    public abstract Collection<IndexEntry> getChildren(IStrategoAppl template);
 
     /**
      * Gets all entries for given partition descriptor.
      * 
      * @param partitionDescriptor The partition descriptor to match entries against.
      */
-    public abstract Collection<IndexEntry> getEntriesInPartition(IndexPartitionDescriptor partitionDescriptor);
+    public abstract Collection<IndexEntry> getInPartition(IndexPartitionDescriptor partitionDescriptor);
 
     /**
      * Gets all partitions that contain entries that match given template. Returned collection is a set of partitions,

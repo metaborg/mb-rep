@@ -6,6 +6,7 @@ import static org.spoofax.interpreter.core.Tools.isTermTuple;
 import java.io.File;
 import java.io.Serializable;
 import java.net.URI;
+import java.util.Collection;
 
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -43,6 +44,9 @@ public class IndexPartitionDescriptor implements Serializable {
         return partition;
     }
 
+    /**
+     * Returns the term representation.
+     */
     public IStrategoTerm toTerm(ITermFactory factory) {
         if(cachedTerm != null)
             return cachedTerm;
@@ -51,6 +55,18 @@ public class IndexPartitionDescriptor implements Serializable {
         cachedTerm = factory.makeTuple(uriString, partition == null ? factory.makeList() : partition);
 
         return cachedTerm;
+    }
+
+    /**
+     * Returns a list with term representations of given partition descriptors.
+     */
+    public static IStrategoList
+        toTerms(ITermFactory factory, Collection<IndexPartitionDescriptor> partitionDescriptors) {
+        IStrategoList results = factory.makeList();
+        for(IndexPartitionDescriptor entry : partitionDescriptors) {
+            results = factory.makeListCons(entry.toTerm(factory), results);
+        }
+        return results;
     }
 
     /**

@@ -54,11 +54,11 @@ public class IndexGetChildsPerformanceTest extends IndexPerformanceTest {
         @SuppressWarnings("unused")
         Collection<IndexEntry> ret;
         for(int i = 0; i < NUM_GET; ++i) {
-            ret = index.getEntryChildTerms(def1Parent);
-            ret = index.getEntryChildTerms(def2Parent);
-            ret = index.getEntryChildTerms(def3Parent);
-            ret = index.getEntryChildTerms(use1Parent);
-            ret = index.getEntryChildTerms(typeTemplate1Parent);
+            ret = index.getChildren(def1Parent);
+            ret = index.getChildren(def2Parent);
+            ret = index.getChildren(def3Parent);
+            ret = index.getChildren(use1Parent);
+            ret = index.getChildren(typeTemplate1Parent);
         }
     }
 }

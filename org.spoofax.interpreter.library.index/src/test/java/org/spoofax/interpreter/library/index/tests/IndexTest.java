@@ -141,10 +141,18 @@ public class IndexTest {
         return factory.makeAppl(factory.makeConstructor("LongTerm", 4), uri(namespace, path), t1, t2, t3);
     }
 
-    public static boolean contains(Collection<IndexEntry> entries, IStrategoTerm term) {
+    public static boolean containsEntry(Collection<IndexEntry> entries, IStrategoTerm term) {
         boolean found = false;
         for(IndexEntry entry : entries)
             found = found || entry.toTerm(factory).match(term);
+        return found;
+    }
+
+    public static boolean containsPartitionDescriptor(Collection<IndexPartitionDescriptor> partitionDescriptors,
+        IndexPartitionDescriptor partition) {
+        boolean found = false;
+        for(IndexPartitionDescriptor partitionDescriptor : partitionDescriptors)
+            found = found || partitionDescriptor.equals(partition);
         return found;
     }
 

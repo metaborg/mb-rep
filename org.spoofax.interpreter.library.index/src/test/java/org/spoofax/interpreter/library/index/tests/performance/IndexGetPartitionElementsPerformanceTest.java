@@ -52,7 +52,7 @@ public class IndexGetPartitionElementsPerformanceTest extends IndexPerformanceTe
         @SuppressWarnings("unused")
         Collection<IndexEntry> ret;
         for(int i = 0; i < this.numFiles; ++i) {
-            ret = index.getEntriesInPartition(files[i]);
+            ret = index.getInPartition(files[i]);
         }
     }
 }

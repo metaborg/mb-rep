@@ -28,7 +28,7 @@ public class LANG_index_get_children extends AbstractPrimitive {
         if(isTermAppl(tvars[0])) {
             IStrategoAppl template = (IStrategoAppl) tvars[0];
             IIndex ind = index.getCurrent();
-            Collection<IndexEntry> entries = ind.getEntryChildTerms(template);
+            Collection<IndexEntry> entries = ind.getChildren(template);
             env.setCurrent(IndexEntry.toTerms(env.getFactory(), entries));
             return true;
         } else {

@@ -98,7 +98,7 @@ public class IndexManager {
             for(TemplateWithPartitionDescriptor entry : currentIndex.getRemovedEntries())
                 index.remove(entry.getTemplate(), entry.getPartitionDescriptor());
 
-            for(IndexEntry entry : transactionIndex.getAllEntries())
+            for(IndexEntry entry : transactionIndex.getAll())
                 index.add(entry);
         } finally {
             transactionLock.writeLock().unlock();

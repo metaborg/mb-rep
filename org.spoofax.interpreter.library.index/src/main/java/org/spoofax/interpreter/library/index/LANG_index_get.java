@@ -28,7 +28,7 @@ public class LANG_index_get extends AbstractPrimitive {
         if(isTermAppl(tvars[0])) {
             IStrategoAppl template = (IStrategoAppl) tvars[0];
             IIndex ind = index.getCurrent();
-            Collection<IndexEntry> entries = ind.getEntries(template);
+            Collection<IndexEntry> entries = ind.get(template);
             env.setCurrent(IndexEntry.toTerms(env.getFactory(), entries));
             return true;
         } else {

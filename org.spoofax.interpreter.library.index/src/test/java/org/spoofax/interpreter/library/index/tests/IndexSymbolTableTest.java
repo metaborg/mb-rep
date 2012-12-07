@@ -64,17 +64,17 @@ public class IndexSymbolTableTest extends IndexTest {
         IStrategoAppl type = type(constructor("Type", str("String")), "Class", "java", "lang", "String");
         IStrategoAppl defData = defData(constructor("Type"), str("String"), "Class", "java", "lang", "String");
 
-        assertEquals(index.getEntries(def).size(), 0);
-        assertEquals(index.getEntries(type).size(), 0);
-        assertEquals(index.getEntries(defData).size(), 0);
+        assertEquals(index.get(def).size(), 0);
+        assertEquals(index.get(type).size(), 0);
+        assertEquals(index.get(defData).size(), 0);
 
         index.add(def, file);
         index.add(type, file);
         index.add(defData, file);
 
-        Collection<IndexEntry> ret1 = index.getEntries(def);
-        Collection<IndexEntry> ret2 = index.getEntries(type);
-        Collection<IndexEntry> ret3 = index.getEntries(defData);
+        Collection<IndexEntry> ret1 = index.get(def);
+        Collection<IndexEntry> ret2 = index.get(type);
+        Collection<IndexEntry> ret3 = index.get(defData);
 
         assertTrue(matchAll(ret1, def));
         assertTrue(matchAll(ret2, type));
@@ -94,9 +94,9 @@ public class IndexSymbolTableTest extends IndexTest {
         IStrategoAppl longTerm =
             longTerm(str("Entity"), str("CRM"), str("Person"), "Function", "CRM", "Person", "GetName");
 
-        assertEquals(index.getEntries(def).size(), 0);
-        assertEquals(index.getEntries(read).size(), 0);
-        assertEquals(index.getEntries(longTerm).size(), 0);
+        assertEquals(index.get(def).size(), 0);
+        assertEquals(index.get(read).size(), 0);
+        assertEquals(index.get(longTerm).size(), 0);
 
         index.add(def, file);
         index.add(def, file);
@@ -105,9 +105,9 @@ public class IndexSymbolTableTest extends IndexTest {
         index.add(read, file);
         index.add(longTerm, file);
 
-        Collection<IndexEntry> ret1 = index.getEntries(def);
-        Collection<IndexEntry> ret2 = index.getEntries(read);
-        Collection<IndexEntry> ret3 = index.getEntries(longTerm);
+        Collection<IndexEntry> ret1 = index.get(def);
+        Collection<IndexEntry> ret2 = index.get(read);
+        Collection<IndexEntry> ret3 = index.get(longTerm);
 
         assertEquals(ret1.size(), 3);
         assertEquals(ret2.size(), 2);
@@ -129,7 +129,7 @@ public class IndexSymbolTableTest extends IndexTest {
         for(IndexEntry entry : ret2.toArray(new IndexEntry[0]))
             index.add(entry);
 
-        Collection<IndexEntry> ret4 = index.getEntries(read);
+        Collection<IndexEntry> ret4 = index.get(read);
         assertEquals(ret2.size(), 4);
         assertTrue(matchAll(ret4, read));
         assertFalse(matchAll(ret4, def));
@@ -143,22 +143,22 @@ public class IndexSymbolTableTest extends IndexTest {
         IStrategoAppl defData = defData(constructor("Type"), str("String"), "Class", "java", "lang", "String");
         IStrategoList all = factory.makeList(def, type, defData);
 
-        assertEquals(index.getEntries(def).size(), 0);
-        assertEquals(index.getEntries(type).size(), 0);
-        assertEquals(index.getEntries(defData).size(), 0);
+        assertEquals(index.get(def).size(), 0);
+        assertEquals(index.get(type).size(), 0);
+        assertEquals(index.get(defData).size(), 0);
 
         index.addAll(all, file);
 
-        Collection<IndexEntry> ret = index.getAllEntries();
+        Collection<IndexEntry> ret = index.getAll();
 
-        assertTrue(contains(ret, def));
-        assertTrue(contains(ret, type));
-        assertTrue(contains(ret, defData));
-        assertFalse(contains(ret, all));
+        assertTrue(containsEntry(ret, def));
+        assertTrue(containsEntry(ret, type));
+        assertTrue(containsEntry(ret, defData));
+        assertFalse(containsEntry(ret, all));
     }
 
     @Test
-    public void getChildEntries() {
+    public void getChildrenEntries() {
         IStrategoAppl classDef = def("Class", "java", "lang", "String");
         IStrategoAppl methodDef1 = def("Method", "java", "lang", "String", "charAt");
         IStrategoAppl methodDef2 = def("Method", "java", "lang", "String", "getBytes");
@@ -167,33 +167,33 @@ public class IndexSymbolTableTest extends IndexTest {
         IStrategoAppl methodsTemplate = def("Method", "java", "lang", "String");
         IStrategoAppl fieldsTemplate = def("Field", "java", "lang", "String");
 
-        assertEquals(index.getEntries(classDef).size(), 0);
-        assertEquals(index.getEntries(methodDef1).size(), 0);
-        assertEquals(index.getEntries(methodDef2).size(), 0);
-        assertEquals(index.getEntries(fieldDef).size(), 0);
-        assertEquals(index.getEntryChildTerms(methodsTemplate).size(), 0);
-        assertEquals(index.getEntryChildTerms(fieldsTemplate).size(), 0);
+        assertEquals(index.get(classDef).size(), 0);
+        assertEquals(index.get(methodDef1).size(), 0);
+        assertEquals(index.get(methodDef2).size(), 0);
+        assertEquals(index.get(fieldDef).size(), 0);
+        assertEquals(index.getChildren(methodsTemplate).size(), 0);
+        assertEquals(index.getChildren(fieldsTemplate).size(), 0);
 
         index.add(classDef, file);
         index.add(methodDef1, file);
         index.add(methodDef2, file);
         index.add(fieldDef, file);
 
-        Collection<IndexEntry> ret1 = index.getEntryChildTerms(methodsTemplate);
-        Collection<IndexEntry> ret2 = index.getEntryChildTerms(fieldsTemplate);
+        Collection<IndexEntry> ret1 = index.getChildren(methodsTemplate);
+        Collection<IndexEntry> ret2 = index.getChildren(fieldsTemplate);
 
         assertEquals(ret1.size(), 2);
         assertEquals(ret2.size(), 1);
 
-        assertTrue(contains(ret1, methodDef1));
-        assertTrue(contains(ret1, methodDef2));
-        assertFalse(contains(ret1, fieldDef));
-        assertFalse(contains(ret1, classDef));
+        assertTrue(containsEntry(ret1, methodDef1));
+        assertTrue(containsEntry(ret1, methodDef2));
+        assertFalse(containsEntry(ret1, fieldDef));
+        assertFalse(containsEntry(ret1, classDef));
 
-        assertFalse(contains(ret2, methodDef1));
-        assertFalse(contains(ret2, methodDef2));
-        assertTrue(contains(ret2, fieldDef));
-        assertFalse(contains(ret2, classDef));
+        assertFalse(containsEntry(ret2, methodDef1));
+        assertFalse(containsEntry(ret2, methodDef2));
+        assertTrue(containsEntry(ret2, fieldDef));
+        assertFalse(containsEntry(ret2, classDef));
     }
 
     @Test
@@ -208,33 +208,33 @@ public class IndexSymbolTableTest extends IndexTest {
         IStrategoAppl def2 = def("Class", "java", "lang", "String");
         IStrategoAppl type = type(constructor("Type", str("String")), "Class", "java", "lang", "String");
 
-        assertEquals(index.getEntries(def1).size(), 0);
-        assertEquals(index.getEntries(read).size(), 0);
-        assertEquals(index.getEntries(def2).size(), 0);
-        assertEquals(index.getEntries(type).size(), 0);
-        assertEquals(index.getEntriesInPartition(file1).size(), 0);
-        assertEquals(index.getEntriesInPartition(file2).size(), 0);
+        assertEquals(index.get(def1).size(), 0);
+        assertEquals(index.get(read).size(), 0);
+        assertEquals(index.get(def2).size(), 0);
+        assertEquals(index.get(type).size(), 0);
+        assertEquals(index.getInPartition(file1).size(), 0);
+        assertEquals(index.getInPartition(file2).size(), 0);
 
         index.add(def1, file1);
         index.add(read, file1);
         index.add(def2, file2);
         index.add(type, file2);
 
-        Collection<IndexEntry> ret1 = index.getEntriesInPartition(file1);
-        Collection<IndexEntry> ret2 = index.getEntriesInPartition(file2);
+        Collection<IndexEntry> ret1 = index.getInPartition(file1);
+        Collection<IndexEntry> ret2 = index.getInPartition(file2);
 
         assertEquals(ret1.size(), 2);
         assertEquals(ret2.size(), 2);
 
-        assertTrue(contains(ret1, def1));
-        assertTrue(contains(ret1, read));
-        assertFalse(contains(ret1, def2));
-        assertFalse(contains(ret1, type));
+        assertTrue(containsEntry(ret1, def1));
+        assertTrue(containsEntry(ret1, read));
+        assertFalse(containsEntry(ret1, def2));
+        assertFalse(containsEntry(ret1, type));
 
-        assertFalse(contains(ret2, def1));
-        assertFalse(contains(ret2, read));
-        assertTrue(contains(ret2, def2));
-        assertTrue(contains(ret2, type));
+        assertFalse(containsEntry(ret2, def1));
+        assertFalse(containsEntry(ret2, read));
+        assertTrue(containsEntry(ret2, def2));
+        assertTrue(containsEntry(ret2, type));
 
         for(IndexEntry entry : ret1) {
             assertSame(entry.getPartition(), file1);
@@ -246,11 +246,52 @@ public class IndexSymbolTableTest extends IndexTest {
         }
 
         index.removePartition(fileTerm1);
-        assertEquals(index.getEntriesInPartition(file1).size(), 0);
-        assertEquals(index.getEntriesInPartition(file2).size(), 2);
+        assertEquals(index.getInPartition(file1).size(), 0);
+        assertEquals(index.getInPartition(file2).size(), 2);
 
         index.removePartition(file2);
-        assertEquals(index.getEntriesInPartition(file2).size(), 0);
+        assertEquals(index.getInPartition(file2).size(), 0);
+    }
+    
+    @Test
+    public void getPartitionsOf() {
+        IStrategoTerm fileTerm1 = file("TestFile", "Partition", "1");
+        IndexPartitionDescriptor file1 = setupIndex(fileTerm1);
+        IndexPartitionDescriptor file2 = setupIndex(file("TestFile", "Partition", "2"));
+        
+        IStrategoAppl def = def("Entity", "CRM", "Person");
+        IStrategoAppl read = read("Function", "CRM", "Person", "GetName");
+        IStrategoAppl longTerm =
+            longTerm(str("Entity"), str("CRM"), str("Person"), "Function", "CRM", "Person", "GetName");
+        IStrategoAppl defData = defData(constructor("Type"), str("String"), "Class", "java", "lang", "String");
+
+        assertEquals(index.get(def).size(), 0);
+        assertEquals(index.get(read).size(), 0);
+        assertEquals(index.get(longTerm).size(), 0);
+        assertEquals(index.get(defData).size(), 0);
+        assertEquals(index.getInPartition(file1).size(), 0);
+        assertEquals(index.getInPartition(file2).size(), 0);
+        
+        index.add(def, file1);
+        index.add(def, file2);
+        index.add(def, file1);
+        index.add(read, file2);
+        index.add(read, file2);
+        index.add(longTerm, file1);
+        
+        Collection<IndexPartitionDescriptor> ret1 = index.getPartitionsOf(def);
+        Collection<IndexPartitionDescriptor> ret2 = index.getPartitionsOf(read);
+        Collection<IndexPartitionDescriptor> ret3 = index.getPartitionsOf(longTerm);
+        Collection<IndexPartitionDescriptor> ret4 = index.getPartitionsOf(defData);
+        
+        assertTrue(containsPartitionDescriptor(ret1, file1));
+        assertTrue(containsPartitionDescriptor(ret1, file2));
+        assertFalse(containsPartitionDescriptor(ret2, file1));
+        assertTrue(containsPartitionDescriptor(ret2, file2));
+        assertTrue(containsPartitionDescriptor(ret3, file1));
+        assertFalse(containsPartitionDescriptor(ret3, file2));
+        assertFalse(containsPartitionDescriptor(ret4, file1));
+        assertFalse(containsPartitionDescriptor(ret4, file2));
     }
 
     @Test
@@ -260,15 +301,15 @@ public class IndexSymbolTableTest extends IndexTest {
 
         IStrategoAppl readAll = readAll("Str", "Class", "java", "lang");
 
-        assertEquals(index.getAllEntries().size(), 0);
+        assertEquals(index.getAll().size(), 0);
 
         index.add(readAll, file1);
         index.add(readAll, file2);
 
-        assertEquals(index.getAllEntries().size(), 2);
+        assertEquals(index.getAll().size(), 2);
 
         index.clear();
 
-        assertEquals(index.getAllEntries().size(), 0);
+        assertEquals(index.getAll().size(), 0);
     }
 }

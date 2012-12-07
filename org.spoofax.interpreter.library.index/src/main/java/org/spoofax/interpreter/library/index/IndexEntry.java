@@ -45,7 +45,7 @@ public class IndexEntry implements Serializable {
     }
 
     /**
-     * Returns a term representation of this entry.
+     * Returns the term representation.
      */
     public IStrategoAppl toTerm(ITermFactory factory) {
         if(cachedTerm != null)
@@ -57,7 +57,7 @@ public class IndexEntry implements Serializable {
     }
 
     /**
-     * Returns a list with representations of given entries.
+     * Returns a list with term representations of given entries.
      */
     public static IStrategoList toTerms(ITermFactory factory, Collection<IndexEntry> entries) {
         IStrategoList results = factory.makeList();

@@ -73,48 +73,48 @@ public class TransactionIndex implements IIndex {
         removedEntries.add(new TemplateWithPartitionDescriptor(template, partitionDescriptor));
     }
 
-    public Collection<IndexEntry> getEntries(IStrategoAppl template) {
-        Collection<IndexEntry> entries1 = transactionIndex.getEntries(template);
+    public Collection<IndexEntry> get(IStrategoAppl template) {
+        Collection<IndexEntry> entries1 = transactionIndex.get(template);
         getReadLock().lock();
         try {
-            Collection<IndexEntry> entries2 = filterInvisibleEntries(index.getEntries(template));
+            Collection<IndexEntry> entries2 = filterInvisibleEntries(index.get(template));
             return concat(entries1, entries2);
         } finally {
             getReadLock().unlock();
         }
     }
 
-    public Collection<IndexEntry> getAllEntries() {
-        Collection<IndexEntry> entries1 = transactionIndex.getAllEntries();
+    public Collection<IndexEntry> getAll() {
+        Collection<IndexEntry> entries1 = transactionIndex.getAll();
         getReadLock().lock();
         try {
-            Collection<IndexEntry> entries2 = filterInvisibleEntries(index.getAllEntries());
+            Collection<IndexEntry> entries2 = filterInvisibleEntries(index.getAll());
             return concat(entries1, entries2);
         } finally {
             getReadLock().unlock();
         }
     }
 
-    public Collection<IndexEntry> getEntryChildTerms(IStrategoAppl template) {
-        Collection<IndexEntry> entries1 = transactionIndex.getEntryChildTerms(template);
+    public Collection<IndexEntry> getChildren(IStrategoAppl template) {
+        Collection<IndexEntry> entries1 = transactionIndex.getChildren(template);
         getReadLock().lock();
         try {
-            Collection<IndexEntry> entries2 = filterInvisibleEntries(index.getEntryChildTerms(template));
+            Collection<IndexEntry> entries2 = filterInvisibleEntries(index.getChildren(template));
             return concat(entries1, entries2);
         } finally {
             getReadLock().unlock();
         }
     }
 
-    public Collection<IndexEntry> getEntriesInPartition(IndexPartitionDescriptor partitionDescriptor) {
-        Collection<IndexEntry> entries1 = transactionIndex.getEntriesInPartition(partitionDescriptor);
+    public Collection<IndexEntry> getInPartition(IndexPartitionDescriptor partitionDescriptor) {
+        Collection<IndexEntry> entries1 = transactionIndex.getInPartition(partitionDescriptor);
 
         if(isCurrentPartition(partitionDescriptor) && clearedCurrentPartition)
             return entries1; // Current partition has been cleared, entries from index should not be visible.
 
         getReadLock().lock();
         try {
-            Collection<IndexEntry> entries2 = index.getEntriesInPartition(partitionDescriptor);
+            Collection<IndexEntry> entries2 = index.getInPartition(partitionDescriptor);
             return concat(entries1, entries2);
         } finally {
             getReadLock().unlock();
