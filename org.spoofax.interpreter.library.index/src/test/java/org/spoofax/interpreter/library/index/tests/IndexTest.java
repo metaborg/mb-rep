@@ -2,10 +2,13 @@ package org.spoofax.interpreter.library.index.tests;
 
 import static org.spoofax.interpreter.core.Tools.asJavaString;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.runners.Parameterized.Parameters;
 import org.spoofax.interpreter.core.Interpreter;
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.library.index.IIndex;
@@ -32,6 +35,12 @@ public class IndexTest {
     protected static IndexPartitionDescriptor project;
     protected static IndexPartitionDescriptor file;
     protected static IIndex index;
+
+    @Parameters
+    public static List<Object[]> data() {
+        Object[][] data = new Object[][] { { false }, { true } };
+        return Arrays.asList(data);
+    }
 
     @BeforeClass
     public static void setUpOnce() {
@@ -74,6 +83,16 @@ public class IndexTest {
 
     public static void setupIndex(IndexPartitionDescriptor file) {
         indexManager.setCurrentPartition(file);
+    }
+
+    public static void doStartTransaction() {
+        indexManager.startTransaction(factory, agent);
+        index = indexManager.getCurrent();
+    }
+
+    public static void doEndTransaction() {
+        indexManager.endTransaction();
+        index = indexManager.getCurrent();
     }
 
     public static IndexPartitionDescriptor getFile(IStrategoTerm fileTerm) {

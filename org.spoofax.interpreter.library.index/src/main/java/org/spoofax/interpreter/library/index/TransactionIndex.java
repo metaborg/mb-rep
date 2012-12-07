@@ -183,8 +183,11 @@ public class TransactionIndex implements IIndex {
     }
 
     public void clear() {
-        // Should not be called on transaction index, index cannot be cleared.
-        assert false;
+        transactionIndex.clear();
+
+        getWriteLock().lock();
+        index.clear();
+        getWriteLock().unlock();
     }
 
     public IStrategoTerm toTerm(boolean includePositions) {

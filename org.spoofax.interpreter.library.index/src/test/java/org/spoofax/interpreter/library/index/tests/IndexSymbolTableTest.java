@@ -10,6 +10,8 @@ import java.util.Collection;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.spoofax.interpreter.library.index.IndexEntry;
 import org.spoofax.interpreter.library.index.IndexPartition;
 import org.spoofax.interpreter.library.index.IndexPartitionDescriptor;
@@ -17,7 +19,24 @@ import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
+@RunWith(value = Parameterized.class)
 public class IndexSymbolTableTest extends IndexTest {
+    private boolean startTransaction;
+
+    public IndexSymbolTableTest(boolean startTransaction) {
+        this.startTransaction = startTransaction;
+    }
+
+    private void startTransaction() {
+        if(startTransaction)
+            doStartTransaction();
+    }
+
+    private void endTransaction() {
+        if(startTransaction)
+            doEndTransaction();
+    }
+
     @Before
     public void setUp() {
         index.clear();
@@ -27,6 +46,8 @@ public class IndexSymbolTableTest extends IndexTest {
     public void files() {
         IStrategoTerm fileTerm1 = file("a/b/c");
         IStrategoTerm fileTerm2 = file("a/b/c", "some", "element");
+
+        startTransaction();
 
         IndexPartitionDescriptor file1 = setupIndex(fileTerm1);
         IndexPartitionDescriptor file2 = setupIndex(fileTerm2);
@@ -56,6 +77,8 @@ public class IndexSymbolTableTest extends IndexTest {
         Collection<IndexPartitionDescriptor> all2 = index.getAllPartitionDescriptors();
         assertTrue(all2.contains(ret1));
         assertTrue(all2.contains(ret2));
+
+        endTransaction();
     }
 
     @Test
@@ -63,6 +86,8 @@ public class IndexSymbolTableTest extends IndexTest {
         IStrategoAppl def = def("Class", "java", "lang", "String");
         IStrategoAppl type = type(constructor("Type", str("String")), "Class", "java", "lang", "String");
         IStrategoAppl defData = defData(constructor("Type"), str("String"), "Class", "java", "lang", "String");
+
+        startTransaction();
 
         assertEquals(index.get(def).size(), 0);
         assertEquals(index.get(type).size(), 0);
@@ -75,6 +100,8 @@ public class IndexSymbolTableTest extends IndexTest {
         Collection<IndexEntry> ret1 = index.get(def);
         Collection<IndexEntry> ret2 = index.get(type);
         Collection<IndexEntry> ret3 = index.get(defData);
+
+        endTransaction();
 
         assertTrue(matchAll(ret1, def));
         assertTrue(matchAll(ret2, type));
@@ -93,6 +120,8 @@ public class IndexSymbolTableTest extends IndexTest {
         IStrategoAppl read = read("Function", "CRM", "Person", "GetName");
         IStrategoAppl longTerm =
             longTerm(str("Entity"), str("CRM"), str("Person"), "Function", "CRM", "Person", "GetName");
+
+        startTransaction();
 
         assertEquals(index.get(def).size(), 0);
         assertEquals(index.get(read).size(), 0);
@@ -130,10 +159,12 @@ public class IndexSymbolTableTest extends IndexTest {
             index.add(entry);
 
         Collection<IndexEntry> ret4 = index.get(read);
-        assertEquals(ret2.size(), 4);
+        assertEquals(ret4.size(), 4);
         assertTrue(matchAll(ret4, read));
         assertFalse(matchAll(ret4, def));
         assertFalse(matchAll(ret4, longTerm));
+
+        endTransaction();
     }
 
     @Test
@@ -143,6 +174,8 @@ public class IndexSymbolTableTest extends IndexTest {
         IStrategoAppl defData = defData(constructor("Type"), str("String"), "Class", "java", "lang", "String");
         IStrategoList all = factory.makeList(def, type, defData);
 
+        startTransaction();
+
         assertEquals(index.get(def).size(), 0);
         assertEquals(index.get(type).size(), 0);
         assertEquals(index.get(defData).size(), 0);
@@ -150,6 +183,8 @@ public class IndexSymbolTableTest extends IndexTest {
         index.addAll(all, file);
 
         Collection<IndexEntry> ret = index.getAll();
+
+        endTransaction();
 
         assertTrue(containsEntry(ret, def));
         assertTrue(containsEntry(ret, type));
@@ -167,6 +202,8 @@ public class IndexSymbolTableTest extends IndexTest {
         IStrategoAppl methodsTemplate = def("Method", "java", "lang", "String");
         IStrategoAppl fieldsTemplate = def("Field", "java", "lang", "String");
 
+        startTransaction();
+
         assertEquals(index.get(classDef).size(), 0);
         assertEquals(index.get(methodDef1).size(), 0);
         assertEquals(index.get(methodDef2).size(), 0);
@@ -181,6 +218,8 @@ public class IndexSymbolTableTest extends IndexTest {
 
         Collection<IndexEntry> ret1 = index.getChildren(methodsTemplate);
         Collection<IndexEntry> ret2 = index.getChildren(fieldsTemplate);
+
+        endTransaction();
 
         assertEquals(ret1.size(), 2);
         assertEquals(ret2.size(), 1);
@@ -207,6 +246,8 @@ public class IndexSymbolTableTest extends IndexTest {
 
         IStrategoAppl def2 = def("Class", "java", "lang", "String");
         IStrategoAppl type = type(constructor("Type", str("String")), "Class", "java", "lang", "String");
+
+        startTransaction();
 
         assertEquals(index.get(def1).size(), 0);
         assertEquals(index.get(read).size(), 0);
@@ -251,19 +292,23 @@ public class IndexSymbolTableTest extends IndexTest {
 
         index.removePartition(file2);
         assertEquals(index.getInPartition(file2).size(), 0);
+
+        endTransaction();
     }
-    
+
     @Test
     public void getPartitionsOf() {
         IStrategoTerm fileTerm1 = file("TestFile", "Partition", "1");
         IndexPartitionDescriptor file1 = setupIndex(fileTerm1);
         IndexPartitionDescriptor file2 = setupIndex(file("TestFile", "Partition", "2"));
-        
+
         IStrategoAppl def = def("Entity", "CRM", "Person");
         IStrategoAppl read = read("Function", "CRM", "Person", "GetName");
         IStrategoAppl longTerm =
             longTerm(str("Entity"), str("CRM"), str("Person"), "Function", "CRM", "Person", "GetName");
         IStrategoAppl defData = defData(constructor("Type"), str("String"), "Class", "java", "lang", "String");
+
+        startTransaction();
 
         assertEquals(index.get(def).size(), 0);
         assertEquals(index.get(read).size(), 0);
@@ -271,19 +316,21 @@ public class IndexSymbolTableTest extends IndexTest {
         assertEquals(index.get(defData).size(), 0);
         assertEquals(index.getInPartition(file1).size(), 0);
         assertEquals(index.getInPartition(file2).size(), 0);
-        
+
         index.add(def, file1);
         index.add(def, file2);
         index.add(def, file1);
         index.add(read, file2);
         index.add(read, file2);
         index.add(longTerm, file1);
-        
+
         Collection<IndexPartitionDescriptor> ret1 = index.getPartitionsOf(def);
         Collection<IndexPartitionDescriptor> ret2 = index.getPartitionsOf(read);
         Collection<IndexPartitionDescriptor> ret3 = index.getPartitionsOf(longTerm);
         Collection<IndexPartitionDescriptor> ret4 = index.getPartitionsOf(defData);
-        
+
+        endTransaction();
+
         assertTrue(containsPartitionDescriptor(ret1, file1));
         assertTrue(containsPartitionDescriptor(ret1, file2));
         assertFalse(containsPartitionDescriptor(ret2, file1));
@@ -301,6 +348,8 @@ public class IndexSymbolTableTest extends IndexTest {
 
         IStrategoAppl readAll = readAll("Str", "Class", "java", "lang");
 
+        startTransaction();
+
         assertEquals(index.getAll().size(), 0);
 
         index.add(readAll, file1);
@@ -311,5 +360,7 @@ public class IndexSymbolTableTest extends IndexTest {
         index.clear();
 
         assertEquals(index.getAll().size(), 0);
+
+        endTransaction();
     }
 }
