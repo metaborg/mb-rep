@@ -81,7 +81,7 @@ public class IndexPartitionDescriptor implements Serializable {
             return cachedString;
 
         cachedString =
-            "partition".equals(uri.getScheme()) ? new File(uri).getAbsolutePath().replace("\\", "/") : uri.toString();
+            "file".equals(uri.getScheme()) ? new File(uri).getAbsolutePath().replace("\\", "/") : uri.toString();
 
         return cachedString;
     }
