@@ -35,7 +35,7 @@ public class LANG_index_get_files_of extends AbstractPrimitive {
             Collection<IndexEntry> entries = ind.getEntries(template);
             IStrategoList partitions = env.getFactory().makeList();
             for(IndexEntry entry : entries) {
-                IStrategoTerm partition = entry.getPartitionDescriptor().toTerm(env.getFactory());
+                IStrategoTerm partition = entry.getPartition().toTerm(env.getFactory());
                 partitions = env.getFactory().makeListCons(partition, partitions);
             }
             env.setCurrent(partitions);

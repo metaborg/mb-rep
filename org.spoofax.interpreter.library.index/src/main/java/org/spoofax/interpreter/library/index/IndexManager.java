@@ -21,7 +21,7 @@ import org.spoofax.terms.io.binary.TermReader;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
- * @author Gabriël Konat
+ * @author GabriÃ«l Konat
  */
 public class IndexManager {
     private final static AtomicLong revisionProvider = new AtomicLong();

@@ -28,7 +28,7 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 
 /**
- * @author Gabriël Konat
+ * @author GabriÃ«l Konat
  */
 public class Index implements IIndex {
     public static final boolean DEBUG_ENABLED = Index.class.desiredAssertionStatus();
@@ -44,8 +44,8 @@ public class Index implements IIndex {
         new ConcurrentHashMap<IndexURI, Multimap<IndexPartitionDescriptor, IndexEntry>>();
     private final Multimap<IndexPartitionDescriptor, IndexEntry> entriesPerPartitionDescriptor = LinkedHashMultimap
         .create();
-    private final Multimap<URI, IndexEntry> entriesPerURI = LinkedHashMultimap.create();
-    private final Multimap<IStrategoList, IndexEntry> entriesPerSubpartition = LinkedHashMultimap.create();
+    private final Multimap<URI, IndexEntry> entriesPerFile = LinkedHashMultimap.create();
+    private final Multimap<IStrategoList, IndexEntry> entriesPerPartition = LinkedHashMultimap.create();
     private final Map<IndexPartitionDescriptor, IndexPartition> partitions =
         new HashMap<IndexPartitionDescriptor, IndexPartition>();
 
@@ -59,7 +59,7 @@ public class Index implements IIndex {
         this.termFactory = factory;
     }
 
-    public void ensureInitialized() {
+    private void ensureInitialized() {
         if(factory == null)
             throw new IllegalStateException("Index not initialized");
     }
@@ -92,20 +92,20 @@ public class Index implements IIndex {
         ensureInitialized();
 
         IStrategoConstructor constructor = entry.getConstructor();
-        IStrategoTerm contentsType = factory.getEntryContentsType(entry);
-        IStrategoList id = factory.getEntryId(entry);
+        IStrategoTerm contentsType = factory.getEntryType(entry);
+        IStrategoList path = factory.getEntryPath(entry);
         IStrategoTerm namespace = factory.getEntryNamespace(entry);
-        IStrategoTerm contents = factory.getEntryContents(entry);
+        IStrategoTerm value = factory.getEntryValue(entry);
 
         IndexEntry newEntry =
-            factory.createEntry(constructor, namespace, id, contentsType, contents, partitionDescriptor);
+            factory.createEntry(constructor, namespace, path, contentsType, value, partitionDescriptor);
 
         add(newEntry);
     }
 
     public void add(IndexEntry entry) {
-        final IndexPartitionDescriptor partition = entry.getPartitionDescriptor();
-        final IndexURI uri = entry.getURI();
+        final IndexPartitionDescriptor partition = entry.getPartition();
+        final IndexURI uri = entry.getKey();
 
         addOrGetPartition(partition);
 
@@ -118,8 +118,8 @@ public class Index implements IIndex {
 
         // Add entry to partitions.
         entriesPerPartitionDescriptor.put(partition, entry);
-        entriesPerURI.put(partition.getURI(), entry);
-        entriesPerSubpartition.put(partition.getPartition(), entry);
+        entriesPerFile.put(partition.getURI(), entry);
+        entriesPerPartition.put(partition.getPartition(), entry);
     }
 
     public void addAll(IStrategoList entries, IndexPartitionDescriptor partitionDescriptor) {
@@ -138,8 +138,8 @@ public class Index implements IIndex {
         for(IndexEntry entry : removedEntries) {
             childValues.remove(partitionDescriptor, entry);
             entriesPerPartitionDescriptor.remove(partitionDescriptor, entry);
-            entriesPerURI.remove(partitionDescriptor.getURI(), entry);
-            entriesPerSubpartition.remove(partitionDescriptor.getPartition(), entry);
+            entriesPerFile.remove(partitionDescriptor.getURI(), entry);
+            entriesPerPartition.remove(partitionDescriptor.getPartition(), entry);
         }
     }
 
@@ -155,9 +155,9 @@ public class Index implements IIndex {
 
     public Collection<IndexEntry> getEntriesInPartition(IndexPartitionDescriptor partitionDescriptor) {
         if(partitionDescriptor.getPartition() == null)
-            return getCollection(entriesPerURI.get(partitionDescriptor.getURI()));
+            return getCollection(entriesPerFile.get(partitionDescriptor.getURI()));
         else if(partitionDescriptor.getURI() == null)
-            return getCollection(entriesPerSubpartition.get(partitionDescriptor.getPartition()));
+            return getCollection(entriesPerPartition.get(partitionDescriptor.getPartition()));
         else
             return getCollection(entriesPerPartitionDescriptor.get(partitionDescriptor));
     }
@@ -213,9 +213,9 @@ public class Index implements IIndex {
             map.removeAll(partitionDescriptor);
 
         if(partitionDescriptor.getPartition() == null)
-            entriesPerURI.removeAll(partitionDescriptor.getURI());
+            entriesPerFile.removeAll(partitionDescriptor.getURI());
         else if(partitionDescriptor.getURI() == null)
-            entriesPerSubpartition.removeAll(partitionDescriptor.getPartition());
+            entriesPerPartition.removeAll(partitionDescriptor.getPartition());
         else {
             entriesPerPartitionDescriptor.removeAll(partitionDescriptor);
             clearPartition(new IndexPartitionDescriptor(partitionDescriptor.getURI(), null));
@@ -237,8 +237,8 @@ public class Index implements IIndex {
         entries.clear();
         childs.clear();
         entriesPerPartitionDescriptor.clear();
-        entriesPerURI.clear();
-        entriesPerSubpartition.clear();
+        entriesPerFile.clear();
+        entriesPerPartition.clear();
         partitions.clear();
     }
 

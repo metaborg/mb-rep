@@ -4,6 +4,7 @@ import java.net.URI;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
+ * @author Gabriël Konat
  */
 public interface INotificationService {
     /**

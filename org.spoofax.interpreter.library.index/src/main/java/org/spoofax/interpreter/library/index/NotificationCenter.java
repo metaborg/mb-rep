@@ -6,7 +6,6 @@ import java.util.Map;
 
 /**
  * A central, static go-to point for file system notifications.
- * 
  * Notifications are sent when files are added, deleted, renamed, or modified.
  * 
  * @author Lennart Kats <lennart add lclnet.nl>

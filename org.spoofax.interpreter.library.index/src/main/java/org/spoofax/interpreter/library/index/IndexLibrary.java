@@ -3,7 +3,7 @@ package org.spoofax.interpreter.library.index;
 import org.spoofax.interpreter.library.AbstractStrategoOperatorRegistry;
 
 /**
- * @author Gabriël Konat
+ * @author GabriÃ«l Konat
  */
 public class IndexLibrary extends AbstractStrategoOperatorRegistry {
     public static final String REGISTRY_NAME = "INDEX";

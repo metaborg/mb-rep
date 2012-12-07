@@ -132,6 +132,15 @@ public class IndexTest {
         return factory.makeAppl(factory.makeConstructor("Type", 2), uri(namespace, path), type);
     }
 
+    public static IStrategoAppl defData(IStrategoTerm type, IStrategoTerm value, String namespace, String... path) {
+        return factory.makeAppl(factory.makeConstructor("DefData", 3), uri(namespace, path), type, value);
+    }
+
+    public static IStrategoAppl longTerm(IStrategoTerm t1, IStrategoTerm t2, IStrategoTerm t3, String namespace,
+        String... path) {
+        return factory.makeAppl(factory.makeConstructor("LongTerm", 4), uri(namespace, path), t1, t2, t3);
+    }
+
     public static boolean contains(Collection<IndexEntry> entries, IStrategoTerm term) {
         boolean found = false;
         for(IndexEntry entry : entries)

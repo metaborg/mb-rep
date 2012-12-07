@@ -11,6 +11,9 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
+/**
+ * @author Gabriël Konat
+ */
 public class TransactionIndex implements IIndex {
     private IIndex index;
     private IIndex transactionIndex;
@@ -209,7 +212,7 @@ public class TransactionIndex implements IIndex {
      * @return True if given entry should be visible, false otherwise.
      */
     private boolean isEntryVisible(IndexEntry entry) {
-        return !(clearedCurrentPartition && isCurrentPartition(entry.getPartitionDescriptor()));
+        return !(clearedCurrentPartition && isCurrentPartition(entry.getPartition()));
     }
 
     /**

@@ -6,34 +6,36 @@ import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 
 /**
- * @author Gabriël Konat
+ * The key to used to map {@link IndexEntry}.
+ * Consists of a constructor, namespace, path and optional type.
+ *  
+ * @author GabriÃ«l Konat
  */
 public class IndexURI implements Serializable {
     private static final long serialVersionUID = 1619836759792533807L;
 
-    private IStrategoConstructor constructor;
-    private IStrategoTerm namespace;
-    private IStrategoList id;
-    private IStrategoTerm contentsType;
+    private final IStrategoConstructor constructor;
+    private final IStrategoTerm namespace;
+    private final IStrategoList path;
+    private final IStrategoTerm type;
 
-    private transient IStrategoAppl term;
+    private transient IStrategoAppl cachedTerm;
 
     /**
-     * @param namespace The namespace of the entry, e.g., 'Foo()'
-     * @param id The identifier of the entry, e.g., '["foo", Foo()]'
+     * Use {@link IndexEntryFactory#createURI}.
      */
-    protected IndexURI(IStrategoConstructor constructor, IStrategoTerm namespace, IStrategoList id,
-        IStrategoTerm contentsType) {
+    protected IndexURI(IStrategoConstructor constructor, IStrategoTerm namespace, IStrategoList path,
+        IStrategoTerm type) {
         this.constructor = constructor;
-        this.id = id;
+        this.path = path;
         this.namespace = namespace;
-        this.contentsType = contentsType;
+        this.type = type;
 
-        assert constructor != null && id != null && namespace != null;
-        assert contentsType == null || "DefData".equals(constructor.getName()) : "Contents type only expected for DefData";
+        assert constructor != null && path != null && namespace != null;
     }
 
     public IStrategoConstructor getConstructor() {
@@ -44,45 +46,55 @@ public class IndexURI implements Serializable {
         return namespace;
     }
 
-    public IStrategoList getId() {
-        return id;
+    public IStrategoList getPath() {
+        return path;
     }
 
     public IStrategoTerm getType() {
-        return contentsType;
+        return type;
     }
 
+    /**
+     * Returns a parent URI by taking the tail of the path. If the path has no tail, null is returned.
+     */
     public IndexURI getParent() {
-        if(id.size() > 0)
-            return new IndexURI(constructor, namespace, id.tail(), contentsType);
+        if(path.size() > 0)
+            return new IndexURI(constructor, namespace, path.tail(), type);
         else
             return null;
     }
 
     /**
-     * Returns a term representation of this entry.
+     * Returns the term representation of this entry.
      */
-    public IStrategoAppl toTerm(ITermFactory factory, IStrategoTerm contents) {
-        if(term != null)
-            return term;
+    public IStrategoAppl toTerm(ITermFactory factory, IStrategoTerm value) {
+        if(cachedTerm != null)
+            return cachedTerm;
 
-        IStrategoList namespaceId = factory.makeListCons(namespace, id);
-        if(constructor.getArity() == 3) {
-            term = factory.makeAppl(constructor, namespaceId, contentsType, contents);
+        IStrategoList uri = factory.makeListCons(namespace, path);
+        
+        if(IndexEntryFactory.isDefData(constructor)) {
+            cachedTerm = factory.makeAppl(constructor, uri, type, value);
         } else if(constructor.getArity() == 2) {
-            term = factory.makeAppl(constructor, namespaceId, contents);
+            cachedTerm = factory.makeAppl(constructor, uri, value);
+        } else if(constructor.getArity() == 1) {
+            cachedTerm = factory.makeAppl(constructor, uri);
         } else {
-            term = factory.makeAppl(constructor, namespaceId);
+            IStrategoTerm[] terms = new IStrategoTerm[constructor.getArity()];
+            terms[0] = uri;
+            IStrategoTuple values = (IStrategoTuple) value;
+            System.arraycopy(values.getAllSubterms(), 0, terms, 1, values.getSubtermCount());
+            cachedTerm = factory.makeAppl(constructor, terms);
         }
 
-        return term;
+        return cachedTerm;
     }
 
     @Override
     public String toString() {
-        String result = constructor.getName() + "([" + namespace + "|" + id + "]";
-        if(contentsType != null)
-            result += "," + contentsType;
+        String result = constructor.getName() + "([" + namespace + "|" + path + "]";
+        if(type != null)
+            result += "," + type;
         return result;
     }
 
@@ -91,9 +103,9 @@ public class IndexURI implements Serializable {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((constructor == null) ? 0 : constructor.hashCode());
-        result = prime * result + ((contentsType == null) ? 0 : contentsType.hashCode());
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
         result = prime * result + ((namespace == null) ? 0 : namespace.hashCode());
+        result = prime * result + ((path == null) ? 0 : path.hashCode());
+        result = prime * result + ((type == null) ? 0 : type.hashCode());
         return result;
     }
 
@@ -105,27 +117,33 @@ public class IndexURI implements Serializable {
             return false;
         if(!(obj instanceof IndexURI))
             return false;
+
         IndexURI other = (IndexURI) obj;
+
         if(constructor == null) {
             if(other.constructor != null)
                 return false;
         } else if(!constructor.equals(other.constructor))
             return false;
-        if(contentsType == null) {
-            if(other.contentsType != null)
-                return false;
-        } else if(!contentsType.equals(other.contentsType))
-            return false;
-        if(id == null) {
-            if(other.id != null)
-                return false;
-        } else if(!id.equals(other.id))
-            return false;
+
         if(namespace == null) {
             if(other.namespace != null)
                 return false;
         } else if(!namespace.equals(other.namespace))
             return false;
+
+        if(path == null) {
+            if(other.path != null)
+                return false;
+        } else if(!path.equals(other.path))
+            return false;
+
+        if(type == null) {
+            if(other.type != null)
+                return false;
+        } else if(!type.equals(other.type))
+            return false;
+
         return true;
     }
 }

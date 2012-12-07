@@ -13,4 +13,12 @@ public class FilePartition {
         this.file = file;
         this.partition = partition;
     }
+
+    @Override
+    public String toString() {
+        String result = file.toString();
+        if(partition != null)
+            result += "," + partition;
+        return result + ")";
+    }
 }

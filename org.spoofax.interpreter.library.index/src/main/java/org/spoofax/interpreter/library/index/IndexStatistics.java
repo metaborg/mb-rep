@@ -11,7 +11,9 @@ import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 /**
- * @author Gabriël Konat
+ * @author GabriÃ«l Konat
+ * 
+ * Collects and prints statistics about an {@link IIndex}.
  */
 public class IndexStatistics {
     private class Data {
@@ -49,7 +51,7 @@ public class IndexStatistics {
         data.entriesPerConstructor = new HashMap<IStrategoConstructor, Integer>();
         data.entriesPerNamespace = new HashMap<IStrategoTerm, Integer>();
         for(IndexEntry entry : data.entries) {
-            IndexURI uri = entry.getURI();
+            IndexURI uri = entry.getKey();
             Integer constructorCount = data.entriesPerConstructor.get(uri.getConstructor());
             if(constructorCount == null)
                 data.entriesPerConstructor.put(uri.getConstructor(), 1);

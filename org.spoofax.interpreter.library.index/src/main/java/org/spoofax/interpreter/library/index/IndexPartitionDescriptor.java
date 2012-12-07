@@ -14,7 +14,9 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
 /**
- * @author Gabriël Konat
+ * Describes a partition consisting of a file URI and an optional partition identifier.
+ * 
+ * @author GabriÃ«l Konat
  */
 public class IndexPartitionDescriptor implements Serializable {
     private static final long serialVersionUID = -5167366407344668956L;
@@ -25,20 +27,20 @@ public class IndexPartitionDescriptor implements Serializable {
     private transient IStrategoTerm cachedTerm;
     private transient String cachedString;
 
-    public URI getURI() {
-        return uri;
-    }
-
-    public IStrategoList getPartition() {
-        return partition;
-    }
-
     public IndexPartitionDescriptor(URI uri, IStrategoList subpartition) {
         this.uri = uri;
         if(subpartition == null || subpartition.isEmpty())
             this.partition = null;
         else
             this.partition = subpartition;
+    }
+
+    public URI getURI() {
+        return uri;
+    }
+
+    public IStrategoList getPartition() {
+        return partition;
     }
 
     public IStrategoTerm toTerm(ITermFactory factory) {
@@ -52,12 +54,12 @@ public class IndexPartitionDescriptor implements Serializable {
     }
 
     /**
-     * Converts a term partition representation to a SemanticIndexPartition, using the {@link IOAgent} to create an
+     * Converts a term partition representation to a IndexPartitionDescriptor, using the {@link IOAgent} to create an
      * absolute path.
      * 
      * @param agent The agent that provides the current path and partition system access, or null if the path should be
      *            used as-is.
-     * @param term A string or (string, string) tuple with the partitionname or the partitionname and subpartitionname
+     * @param term A string or (string, string) tuple with the file name or the file name and partition identifier.
      */
     public static IndexPartitionDescriptor fromTerm(IOAgent agent, IStrategoTerm term) {
         String name;

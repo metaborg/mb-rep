@@ -10,35 +10,38 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 
 /**
- * @author Gabriël Konat
+ * A key-value pair that can be stored in an {@link IIndex}, partitioned by a {@link IndexPartitionDescriptor}.
+ * 
+ * @author GabriÃ«l Konat
  */
 public class IndexEntry implements Serializable {
     private static final long serialVersionUID = -1073077973341978805L;
 
-    private IStrategoTerm contents;
-    private IndexURI uri;
-    private IndexPartitionDescriptor partitionDescriptor;
+    private final IndexURI key;
+    private final IStrategoTerm value;
+    private final IndexPartitionDescriptor partition;
 
     private transient IStrategoAppl cachedTerm;
 
-    protected IndexEntry(IStrategoTerm contents, IndexURI uri, IndexPartitionDescriptor partitionDescriptor) {
-        this.contents = contents;
-        this.uri = uri;
-        this.partitionDescriptor = partitionDescriptor;
-
-        assert contents != null || uri.getConstructor().getArity() < 2 : "Contents can't be null for Use/2 or DefData/3";
+    /**
+     * Use {@link IndexEntryFactory#createEntry}.
+     */
+    protected IndexEntry(IndexURI key, IStrategoTerm value, IndexPartitionDescriptor partition) {
+        this.key = key;
+        this.value = value;
+        this.partition = partition;
     }
 
-    public IStrategoTerm getContents() {
-        return contents;
+    public IndexURI getKey() {
+        return key;
+    }
+    
+    public IStrategoTerm getValue() {
+        return value;
     }
 
-    public IndexURI getURI() {
-        return uri;
-    }
-
-    public IndexPartitionDescriptor getPartitionDescriptor() {
-        return partitionDescriptor;
+    public IndexPartitionDescriptor getPartition() {
+        return partition;
     }
 
     /**
@@ -48,7 +51,7 @@ public class IndexEntry implements Serializable {
         if(cachedTerm != null)
             return cachedTerm;
 
-        cachedTerm = uri.toTerm(factory, contents);
+        cachedTerm = key.toTerm(factory, value);
 
         return forceImploderAttachment(cachedTerm);
     }
@@ -69,12 +72,12 @@ public class IndexEntry implements Serializable {
      * sure that origin info is not added to the term. (The latter would be bad since we cache in {@link #cachedTerm}.)
      */
     private IStrategoAppl forceImploderAttachment(IStrategoAppl term) {
-        ImploderAttachment attach = ImploderAttachment.get(uri.getId());
+        ImploderAttachment attach = ImploderAttachment.get(key.getPath());
         if(attach != null) {
             ImploderAttachment.putImploderAttachment(term, false, attach.getSort(), attach.getLeftToken(),
                 attach.getRightToken());
         } else {
-            String fn = partitionDescriptor == null ? null : partitionDescriptor.getURI().getPath();
+            String fn = partition == null ? null : partition.getURI().getPath();
             attach = ImploderAttachment.createCompactPositionAttachment(fn, 0, 0, 0, -1);
             term.putAttachment(attach);
         }
@@ -83,9 +86,9 @@ public class IndexEntry implements Serializable {
 
     @Override
     public String toString() {
-        String result = uri.toString();
-        if(contents != null)
-            result += "," + contents;
+        String result = key.toString();
+        if(value != null)
+            result += "," + value;
         return result + ")";
     }
 
@@ -93,10 +96,9 @@ public class IndexEntry implements Serializable {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((contents == null) ? 0 : contents.hashCode());
-        result = prime * result + ((partitionDescriptor == null) ? 0 : partitionDescriptor.hashCode());
-        result = prime * result + ((cachedTerm == null) ? 0 : cachedTerm.hashCode());
-        result = prime * result + ((uri == null) ? 0 : uri.hashCode());
+        result = prime * result + ((key == null) ? 0 : key.hashCode());
+        result = prime * result + ((value == null) ? 0 : value.hashCode());
+        result = prime * result + ((partition == null) ? 0 : partition.hashCode());
         return result;
     }
 
@@ -108,27 +110,27 @@ public class IndexEntry implements Serializable {
             return false;
         if(!(obj instanceof IndexEntry))
             return false;
+        
         IndexEntry other = (IndexEntry) obj;
-        if(contents == null) {
-            if(other.contents != null)
+        
+        if(key == null) {
+            if(other.key != null)
                 return false;
-        } else if(!contents.equals(other.contents))
+        } else if(!key.equals(other.key))
             return false;
-        if(partitionDescriptor == null) {
-            if(other.partitionDescriptor != null)
+        
+        if(value == null) {
+            if(other.value != null)
                 return false;
-        } else if(!partitionDescriptor.equals(other.partitionDescriptor))
+        } else if(!value.equals(other.value))
             return false;
-        if(cachedTerm == null) {
-            if(other.cachedTerm != null)
+        
+        if(partition == null) {
+            if(other.partition != null)
                 return false;
-        } else if(!cachedTerm.equals(other.cachedTerm))
+        } else if(!partition.equals(other.partition))
             return false;
-        if(uri == null) {
-            if(other.uri != null)
-                return false;
-        } else if(!uri.equals(other.uri))
-            return false;
+        
         return true;
     }
 }

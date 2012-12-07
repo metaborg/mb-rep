@@ -62,46 +62,66 @@ public class IndexSymbolTableTest extends IndexTest {
     public void getEntries() {
         IStrategoAppl def = def("Class", "java", "lang", "String");
         IStrategoAppl type = type(constructor("Type", str("String")), "Class", "java", "lang", "String");
+        IStrategoAppl defData = defData(constructor("Type"), str("String"), "Class", "java", "lang", "String");
 
         assertEquals(index.getEntries(def).size(), 0);
         assertEquals(index.getEntries(type).size(), 0);
+        assertEquals(index.getEntries(defData).size(), 0);
 
         index.add(def, file);
         index.add(type, file);
+        index.add(defData, file);
 
         Collection<IndexEntry> ret1 = index.getEntries(def);
         Collection<IndexEntry> ret2 = index.getEntries(type);
+        Collection<IndexEntry> ret3 = index.getEntries(defData);
 
         assertTrue(matchAll(ret1, def));
         assertTrue(matchAll(ret2, type));
+        assertTrue(matchAll(ret3, defData));
         assertFalse(matchAll(ret1, type));
+        assertFalse(matchAll(ret1, defData));
         assertFalse(matchAll(ret2, def));
+        assertFalse(matchAll(ret2, defData));
+        assertFalse(matchAll(ret3, def));
+        assertFalse(matchAll(ret3, type));
     }
 
     @Test
     public void duplicateAddAndGetEntries() {
         IStrategoAppl def = def("Entity", "CRM", "Person");
         IStrategoAppl read = read("Function", "CRM", "Person", "GetName");
+        IStrategoAppl longTerm =
+            longTerm(str("Entity"), str("CRM"), str("Person"), "Function", "CRM", "Person", "GetName");
 
         assertEquals(index.getEntries(def).size(), 0);
         assertEquals(index.getEntries(read).size(), 0);
+        assertEquals(index.getEntries(longTerm).size(), 0);
 
         index.add(def, file);
         index.add(def, file);
         index.add(def, file);
         index.add(read, file);
         index.add(read, file);
+        index.add(longTerm, file);
 
         Collection<IndexEntry> ret1 = index.getEntries(def);
         Collection<IndexEntry> ret2 = index.getEntries(read);
+        Collection<IndexEntry> ret3 = index.getEntries(longTerm);
 
         assertEquals(ret1.size(), 3);
         assertEquals(ret2.size(), 2);
+        assertEquals(ret3.size(), 1);
 
         assertTrue(matchAll(ret1, def));
         assertTrue(matchAll(ret2, read));
+        assertTrue(matchAll(ret3, longTerm));
         assertFalse(matchAll(ret1, read));
+        assertFalse(matchAll(ret1, longTerm));
         assertFalse(matchAll(ret2, def));
+        assertFalse(matchAll(ret2, longTerm));
+        assertFalse(matchAll(ret3, def));
+        assertFalse(matchAll(ret3, read));
 
         // Add entries from ret2 again using the other add function.
         // Need to make a copy of ret2, because ret2 is a view over the index and
@@ -109,20 +129,23 @@ public class IndexSymbolTableTest extends IndexTest {
         for(IndexEntry entry : ret2.toArray(new IndexEntry[0]))
             index.add(entry);
 
-        Collection<IndexEntry> ret3 = index.getEntries(read);
+        Collection<IndexEntry> ret4 = index.getEntries(read);
         assertEquals(ret2.size(), 4);
-        assertTrue(matchAll(ret3, read));
-        assertFalse(matchAll(ret3, def));
+        assertTrue(matchAll(ret4, read));
+        assertFalse(matchAll(ret4, def));
+        assertFalse(matchAll(ret4, longTerm));
     }
 
     @Test
     public void addAllAndGetAllEntries() {
         IStrategoAppl def = def("Class", "java", "lang", "String");
         IStrategoAppl type = type(constructor("Type", str("String")), "Class", "java", "lang", "String");
-        IStrategoList all = factory.makeList(def, type);
+        IStrategoAppl defData = defData(constructor("Type"), str("String"), "Class", "java", "lang", "String");
+        IStrategoList all = factory.makeList(def, type, defData);
 
         assertEquals(index.getEntries(def).size(), 0);
         assertEquals(index.getEntries(type).size(), 0);
+        assertEquals(index.getEntries(defData).size(), 0);
 
         index.addAll(all, file);
 
@@ -130,6 +153,7 @@ public class IndexSymbolTableTest extends IndexTest {
 
         assertTrue(contains(ret, def));
         assertTrue(contains(ret, type));
+        assertTrue(contains(ret, defData));
         assertFalse(contains(ret, all));
     }
 
@@ -213,12 +237,12 @@ public class IndexSymbolTableTest extends IndexTest {
         assertTrue(contains(ret2, type));
 
         for(IndexEntry entry : ret1) {
-            assertSame(entry.getPartitionDescriptor(), file1);
-            assertNotSame(entry.getPartitionDescriptor(), file2);
+            assertSame(entry.getPartition(), file1);
+            assertNotSame(entry.getPartition(), file2);
         }
         for(IndexEntry entry : ret2) {
-            assertNotSame(entry.getPartitionDescriptor(), file1);
-            assertSame(entry.getPartitionDescriptor(), file2);
+            assertNotSame(entry.getPartition(), file1);
+            assertSame(entry.getPartition(), file2);
         }
 
         index.removePartition(fileTerm1);

@@ -6,7 +6,10 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
 /**
- * @author Gabriël Konat
+ * A partition in an {@link IIndex} that partitions {@link IndexEntry}.
+ * Contains a revision number representing a revision from a transaction, and the date it was last modified.
+ * 
+ * @author GabriÃ«l Konat
  */
 public class IndexPartition {
     private final IndexPartitionDescriptor descriptor;

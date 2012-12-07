@@ -9,7 +9,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
 /**
- * @author Gabriël Konat
+ * @author GabriÃ«l Konat
  */
 public interface IIndex {
     /**
@@ -139,6 +139,4 @@ public interface IIndex {
      * @param includePositions
      */
     public abstract IStrategoTerm toTerm(boolean includePositions);
-
-    public abstract String toString();
 }
