@@ -23,17 +23,13 @@ public class IndexGetPerformanceTest extends IndexPerformanceTest {
 
     private static int NUM_GET = 200000;
 
-    private int numItems;
-    private int numFiles;
-
-    public IndexGetPerformanceTest(int numItems, int numFiles) {
-        this.numItems = numItems;
-        this.numFiles = numFiles;
+    public IndexGetPerformanceTest(int numItems, int numFiles, boolean startTransaction) {
+        super(numItems, numFiles, startTransaction);
 
         try {
             benchmarkRun =
                 new BenchmarkRule(new CSVResultsConsumer((this.numItems * 5) + "," + this.numFiles, new FileWriter(
-                    "get_" + this.numFiles + ".csv", true)));
+                    "get_" + this.numFiles + "_" + indexTypeString() + ".csv", true)));
         } catch(IOException e) {
             e.printStackTrace();
         }
@@ -41,16 +37,18 @@ public class IndexGetPerformanceTest extends IndexPerformanceTest {
         index.clearAll();
 
         for(int i = 0; i < this.numItems; ++i) {
-            index.add(def1, getFile(this.numFiles));
-            index.add(def2, getFile(this.numFiles));
-            index.add(def3, getFile(this.numFiles));
-            index.add(use1, getFile(this.numFiles));
-            index.add(type1, getFile(this.numFiles));
+            index.add(def1, getNextFile());
+            index.add(def2, getNextFile());
+            index.add(def3, getNextFile());
+            index.add(use1, getNextFile());
+            index.add(type1, getNextFile());
         }
     }
 
     @Test
     public void get() {
+        startTransaction();
+        
         @SuppressWarnings("unused")
         Collection<IndexEntry> ret;
         for(int i = 0; i < NUM_GET; ++i) {
@@ -60,5 +58,7 @@ public class IndexGetPerformanceTest extends IndexPerformanceTest {
             ret = index.get(use1);
             ret = index.get(typeTemplate1);
         }
+        
+        endTransaction();
     }
 }
