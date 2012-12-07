@@ -93,7 +93,7 @@ public class IndexManager {
         transactionLock.writeLock().lock();
         try {
             if(currentIndex.hasClearedCurrentPartition())
-                index.removePartition(currentIndex.getCurrentPartition());
+                index.clearPartition(currentIndex.getCurrentPartition());
 
             for(TemplateWithPartitionDescriptor entry : currentIndex.getRemovedEntries())
                 index.remove(entry.getTemplate(), entry.getPartitionDescriptor());

@@ -25,7 +25,7 @@ public class LANG_index_clear_file extends AbstractPrimitive {
     public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
         if(isTermString(tvars[0]) || isTermTuple(tvars[0])) {
             IIndex ind = index.getCurrent();
-            ind.removePartition(tvars[0]);
+            ind.clearPartition(tvars[0]);
             return true;
         } else {
             return false;

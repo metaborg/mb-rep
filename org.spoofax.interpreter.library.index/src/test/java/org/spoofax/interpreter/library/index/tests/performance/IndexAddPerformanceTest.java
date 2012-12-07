@@ -34,7 +34,7 @@ public class IndexAddPerformanceTest extends IndexPerformanceTest {
             e.printStackTrace();
         }
 
-        index.clear();
+        index.clearAll();
     }
 
     @Test

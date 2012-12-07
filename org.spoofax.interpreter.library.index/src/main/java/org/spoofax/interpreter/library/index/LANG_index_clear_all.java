@@ -20,7 +20,7 @@ public class LANG_index_clear_all extends AbstractPrimitive {
 
     @Override
     public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
-        index.getCurrent().clear();
+        index.getCurrent().clearAll();
         return true;
     }
 }

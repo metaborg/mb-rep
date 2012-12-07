@@ -104,21 +104,6 @@ public interface IIndex {
     public abstract IndexPartitionDescriptor getPartitionDescriptor(IStrategoTerm partitionTerm);
 
     /**
-     * Removes all entries in given partition term and removes the partition itself.
-     * 
-     * @param partitionTerm A string or (string, string) tuple with a file name or the file name and partition
-     *            identifier.
-     */
-    public abstract void removePartition(IStrategoTerm partitionTerm);
-
-    /**
-     * Removes all entries for given partition and removes the partition itself.
-     * 
-     * @param partitionDescriptor A partition descriptor.
-     */
-    public abstract void removePartition(IndexPartitionDescriptor partitionDescriptor);
-
-    /**
      * Gets all partitions that are in the index.
      */
     public abstract Collection<IndexPartition> getAllPartitions();
@@ -127,11 +112,26 @@ public interface IIndex {
      * Gets all partition descriptors that are in the index.
      */
     public abstract Collection<IndexPartitionDescriptor> getAllPartitionDescriptors();
+    
+    /**
+     * Removes all entries in given partition term and removes the partition itself.
+     * 
+     * @param partitionTerm A string or (string, string) tuple with a file name or the file name and partition
+     *            identifier.
+     */
+    public abstract void clearPartition(IStrategoTerm partitionTerm);
+
+    /**
+     * Removes all entries for given partition and removes the partition itself.
+     * 
+     * @param partitionDescriptor A partition descriptor.
+     */
+    public abstract void clearPartition(IndexPartitionDescriptor partitionDescriptor);
 
     /**
      * Clears the entire index.
      */
-    public abstract void clear();
+    public abstract void clearAll();
 
     /**
      * Returns the index as a Stratego term.

@@ -147,15 +147,15 @@ public class TransactionIndex implements IIndex {
         return index.getPartitionDescriptor(partitionTerm);
     }
 
-    public void removePartition(IStrategoTerm partitionTerm) {
-        removePartition(transactionIndex.getPartitionDescriptor(partitionTerm));
+    public void clearPartition(IStrategoTerm partitionTerm) {
+        clearPartition(transactionIndex.getPartitionDescriptor(partitionTerm));
     }
 
-    public void removePartition(IndexPartitionDescriptor partitionDescriptor) {
+    public void clearPartition(IndexPartitionDescriptor partitionDescriptor) {
         assert isCurrentPartition(partitionDescriptor); // May only clear current partition.
 
         clearedCurrentPartition = true;
-        transactionIndex.removePartition(partitionDescriptor);
+        transactionIndex.clearPartition(partitionDescriptor);
     }
 
     public Collection<IndexPartition> getAllPartitions() {
@@ -182,11 +182,11 @@ public class TransactionIndex implements IIndex {
         }
     }
 
-    public void clear() {
-        transactionIndex.clear();
+    public void clearAll() {
+        transactionIndex.clearAll();
 
         getWriteLock().lock();
-        index.clear();
+        index.clearAll();
         getWriteLock().unlock();
     }
 

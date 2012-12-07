@@ -193,15 +193,15 @@ public class Index implements IIndex {
         return IndexPartitionDescriptor.fromTerm(agent, partitionTerm);
     }
 
-    public void removePartition(IStrategoTerm partitionTerm) {
-        removePartition(getPartitionDescriptor(partitionTerm));
+    public void clearPartition(IStrategoTerm partitionTerm) {
+        clearPartitionInternal(getPartitionDescriptor(partitionTerm));
     }
 
-    public void removePartition(IndexPartitionDescriptor partitionDescriptor) {
-        clearPartition(partitionDescriptor);
+    public void clearPartition(IndexPartitionDescriptor partitionDescriptor) {
+        clearPartitionInternal(partitionDescriptor);
     }
 
-    private void clearPartition(IndexPartitionDescriptor partitionDescriptor) {
+    private void clearPartitionInternal(IndexPartitionDescriptor partitionDescriptor) {
         assert partitionDescriptor.getPartition() != null || partitionDescriptor.getURI() != null;
 
         Collection<Multimap<IndexPartitionDescriptor, IndexEntry>> entryValues = entries.values();
@@ -233,7 +233,7 @@ public class Index implements IIndex {
         return getCollection(partitions.keySet());
     }
 
-    public void clear() {
+    public void clearAll() {
         entries.clear();
         childs.clear();
         entriesPerPartitionDescriptor.clear();

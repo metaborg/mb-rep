@@ -36,7 +36,7 @@ public class IndexPersistPerformanceTest extends IndexPerformanceTest {
             e.printStackTrace();
         }
 
-        index.clear();
+        index.clearAll();
 
         for(int i = 0; i < this.numItems; ++i) {
             index.add(def1, getFile(this.numFiles));

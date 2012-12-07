@@ -62,7 +62,7 @@ public class IndexTest {
 
     @AfterClass
     public static void tearDownOnce() {
-        index.clear();
+        index.clearAll();
         index = null;
         indexManager = null;
         project = null;
