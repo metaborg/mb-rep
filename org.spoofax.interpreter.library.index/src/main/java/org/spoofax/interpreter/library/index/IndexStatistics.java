@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.spoofax.interpreter.terms.IStrategoConstructor;
-import org.spoofax.interpreter.terms.IStrategoTerm;
 
 /**
  * @author Gabriël Konat
@@ -20,7 +19,6 @@ public class IndexStatistics {
         public Collection<IndexPartitionDescriptor> partitions;
         public Collection<IndexEntry> entries;
         public Map<IStrategoConstructor, Integer> entriesPerConstructor;
-        public Map<IStrategoTerm, Integer> entriesPerNamespace;
     }
 
     private IIndex index;
@@ -47,9 +45,8 @@ public class IndexStatistics {
         data.partitions = partitions();
         data.entries = elements();
 
-        // Divide types by constructor and namespace
+        // Divide types by constructor
         data.entriesPerConstructor = new HashMap<IStrategoConstructor, Integer>();
-        data.entriesPerNamespace = new HashMap<IStrategoTerm, Integer>();
         for(IndexEntry entry : data.entries) {
             IndexURI uri = entry.getKey();
             Integer constructorCount = data.entriesPerConstructor.get(uri.getConstructor());
@@ -57,12 +54,6 @@ public class IndexStatistics {
                 data.entriesPerConstructor.put(uri.getConstructor(), 1);
             else
                 data.entriesPerConstructor.put(uri.getConstructor(), constructorCount + 1);
-
-            Integer namespaceCount = data.entriesPerNamespace.get(uri.getNamespace());
-            if(namespaceCount == null)
-                data.entriesPerNamespace.put(uri.getNamespace(), 1);
-            else
-                data.entriesPerNamespace.put(uri.getNamespace(), namespaceCount + 1);
         }
 
         return data;
@@ -76,9 +67,6 @@ public class IndexStatistics {
         b.append("* Number of elements: " + data.entries.size() + "\n");
         b.append("* Elements per constructor: \n");
         for(Entry<IStrategoConstructor, Integer> pair : data.entriesPerConstructor.entrySet())
-            b.append("  - " + pair.getKey() + ": " + pair.getValue() + "\n");
-        b.append("* Elements per namespace: \n");
-        for(Entry<IStrategoTerm, Integer> pair : data.entriesPerNamespace.entrySet())
             b.append("  - " + pair.getKey() + ": " + pair.getValue() + "\n");
 
         return b.toString();

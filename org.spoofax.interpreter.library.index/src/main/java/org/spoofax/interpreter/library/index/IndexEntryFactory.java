@@ -32,25 +32,20 @@ public class IndexEntryFactory {
         return termFactory;
     }
 
-    public IndexURI createURI(IStrategoConstructor constructor, IStrategoTerm namespace, IStrategoList path,
-        IStrategoTerm type) {
+    public IndexURI createURI(IStrategoConstructor constructor, IStrategoList path, IStrategoTerm type) {
         ImploderAttachment idAttachment = ImploderAttachment.getCompactPositionAttachment(path, true);
         type = stripper.strip(type);
-        assert namespace == stripper.strip(namespace);
-
         path.putAttachment(idAttachment);
-
-        return new IndexURI(constructor, namespace, path, type);
+        return new IndexURI(constructor, path, type);
     }
 
     public IndexURI createURIFromTemplate(IStrategoAppl template) {
-        return createURI(template.getConstructor(), getEntryNamespace(template), getEntryPath(template),
-            getEntryType(template));
+        return createURI(template.getConstructor(), getEntryPath(template), getEntryType(template));
     }
 
-    public IndexEntry createEntry(IStrategoConstructor constructor, IStrategoTerm namespace, IStrategoList path,
+    public IndexEntry createEntry(IStrategoConstructor constructor, IStrategoList path,
         IStrategoTerm type, IStrategoTerm value, IndexPartitionDescriptor partition) {
-        return createEntry(value, createURI(constructor, namespace, path, type), partition);
+        return createEntry(value, createURI(constructor, path, type), partition);
     }
 
     public IndexEntry createEntry(IStrategoTerm value, IndexURI key, IndexPartitionDescriptor partition) {
@@ -86,19 +81,8 @@ public class IndexEntryFactory {
     public IStrategoList getEntryPath(IStrategoAppl entry) {
         IStrategoTerm result = entry.getSubterm(0);
         if(isURI(result)) {
-            IStrategoList full = (IStrategoList) result;
-            return full.isEmpty() ? full : full.tail();
-        } else {
-            throw new IllegalArgumentException("Illegal index entry: " + entry
-                + ". First subterm should be a list representing the key of the entry.");
-        }
-    }
-
-    public IStrategoTerm getEntryNamespace(IStrategoAppl entry) {
-        IStrategoTerm result = entry.getSubterm(0);
-        if(isURI(result)) {
-            IStrategoList full = (IStrategoList) result;
-            return stripper.strip(full.isEmpty() ? full : full.head());
+            IStrategoList list = (IStrategoList) result;
+            return list;
         } else {
             throw new IllegalArgumentException("Illegal index entry: " + entry
                 + ". First subterm should be a list representing the key of the entry.");

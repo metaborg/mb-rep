@@ -92,13 +92,12 @@ public class Index implements IIndex {
         ensureInitialized();
 
         IStrategoConstructor constructor = entry.getConstructor();
-        IStrategoTerm contentsType = factory.getEntryType(entry);
+        IStrategoTerm type = factory.getEntryType(entry);
         IStrategoList path = factory.getEntryPath(entry);
-        IStrategoTerm namespace = factory.getEntryNamespace(entry);
         IStrategoTerm value = factory.getEntryValue(entry);
 
         IndexEntry newEntry =
-            factory.createEntry(constructor, namespace, path, contentsType, value, partitionDescriptor);
+            factory.createEntry(constructor, path, type, value, partitionDescriptor);
 
         add(newEntry);
     }
@@ -112,7 +111,7 @@ public class Index implements IIndex {
         innerEntries(uri).put(partition, entry);
 
         // Add entry to children.
-        IndexURI parent = uri.getParent();
+        IndexURI parent = uri.getParent(termFactory);
         if(parent != null)
             innerChildEntries(parent).put(partition, entry);
 
@@ -132,7 +131,7 @@ public class Index implements IIndex {
     public void remove(IStrategoAppl template, IndexPartitionDescriptor partitionDescriptor) {
         IndexURI uri = factory.createURIFromTemplate(template);
         Multimap<IndexPartitionDescriptor, IndexEntry> entryValues = entries.get(uri);
-        Multimap<IndexPartitionDescriptor, IndexEntry> childValues = childs.get(uri.getParent());
+        Multimap<IndexPartitionDescriptor, IndexEntry> childValues = childs.get(uri.getParent(termFactory));
         Collection<IndexEntry> removedEntries = entryValues.removeAll(partitionDescriptor);
 
         for(IndexEntry entry : removedEntries) {

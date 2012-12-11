@@ -19,7 +19,6 @@ public class IndexURI implements Serializable {
     private static final long serialVersionUID = 1619836759792533807L;
 
     private final IStrategoConstructor constructor;
-    private final IStrategoTerm namespace;
     private final IStrategoList path;
     private final IStrategoTerm type;
 
@@ -28,22 +27,16 @@ public class IndexURI implements Serializable {
     /**
      * Use {@link IndexEntryFactory#createURI}.
      */
-    protected IndexURI(IStrategoConstructor constructor, IStrategoTerm namespace, IStrategoList path,
-        IStrategoTerm type) {
+    protected IndexURI(IStrategoConstructor constructor, IStrategoList path, IStrategoTerm type) {
         this.constructor = constructor;
         this.path = path;
-        this.namespace = namespace;
         this.type = type;
 
-        assert constructor != null && path != null && namespace != null;
+        assert constructor != null && path != null;
     }
 
     public IStrategoConstructor getConstructor() {
         return constructor;
-    }
-
-    public IStrategoTerm getNamespace() {
-        return namespace;
     }
 
     public IStrategoList getPath() {
@@ -57,9 +50,15 @@ public class IndexURI implements Serializable {
     /**
      * Returns a parent URI by taking the tail of the path. If the path has no tail, null is returned.
      */
-    public IndexURI getParent() {
-        if(path.size() > 0)
-            return new IndexURI(constructor, namespace, path.tail(), type);
+    public IndexURI getParent(ITermFactory factory) {
+        if(path.size() > 1) {
+            IStrategoTerm head = path.head();
+            if(head.getTermType() == IStrategoTerm.APPL && head.getSubtermCount() == 0)
+                // Retain the head of the path if it is a namespace (APPL with 0 subterms).
+                return new IndexURI(constructor, factory.makeListCons(head, path.tail().tail()), type);
+            else
+                return new IndexURI(constructor, path.tail(), type);
+        }
         else
             return null;
     }
@@ -70,18 +69,16 @@ public class IndexURI implements Serializable {
     public IStrategoAppl toTerm(ITermFactory factory, IStrategoTerm value) {
         if(cachedTerm != null)
             return cachedTerm;
-
-        IStrategoList uri = factory.makeListCons(namespace, path);
         
         if(IndexEntryFactory.isDefData(constructor)) {
-            cachedTerm = factory.makeAppl(constructor, uri, type, value);
+            cachedTerm = factory.makeAppl(constructor, path, type, value);
         } else if(constructor.getArity() == 2) {
-            cachedTerm = factory.makeAppl(constructor, uri, value);
+            cachedTerm = factory.makeAppl(constructor, path, value);
         } else if(constructor.getArity() == 1) {
-            cachedTerm = factory.makeAppl(constructor, uri);
+            cachedTerm = factory.makeAppl(constructor, path);
         } else {
             IStrategoTerm[] terms = new IStrategoTerm[constructor.getArity()];
-            terms[0] = uri;
+            terms[0] = path;
             IStrategoTuple values = (IStrategoTuple) value;
             System.arraycopy(values.getAllSubterms(), 0, terms, 1, values.getSubtermCount());
             cachedTerm = factory.makeAppl(constructor, terms);
@@ -92,7 +89,7 @@ public class IndexURI implements Serializable {
 
     @Override
     public String toString() {
-        String result = constructor.getName() + "([" + namespace + "|" + path + "]";
+        String result = constructor.getName() + "(" + path + ")";
         if(type != null)
             result += "," + type;
         return result;
@@ -103,7 +100,6 @@ public class IndexURI implements Serializable {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((constructor == null) ? 0 : constructor.hashCode());
-        result = prime * result + ((namespace == null) ? 0 : namespace.hashCode());
         result = prime * result + ((path == null) ? 0 : path.hashCode());
         result = prime * result + ((type == null) ? 0 : type.hashCode());
         return result;
@@ -124,12 +120,6 @@ public class IndexURI implements Serializable {
             if(other.constructor != null)
                 return false;
         } else if(!constructor.equals(other.constructor))
-            return false;
-
-        if(namespace == null) {
-            if(other.namespace != null)
-                return false;
-        } else if(!namespace.equals(other.namespace))
             return false;
 
         if(path == null) {
