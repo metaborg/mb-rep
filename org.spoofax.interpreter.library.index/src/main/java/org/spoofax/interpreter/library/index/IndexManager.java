@@ -26,7 +26,8 @@ import org.spoofax.terms.io.binary.TermReader;
 public class IndexManager {
     private final static AtomicLong revisionProvider = new AtomicLong();
     private final static ReadWriteLock transactionLock = new ReentrantReadWriteLock();
-
+    private final static IndexFactory indexFactory = new IndexFactory();
+    
     /**
      * Indices by language and project. Access requires a lock on {@link #getSyncRoot}
      */
@@ -147,17 +148,19 @@ public class IndexManager {
     }
 
     public IIndex tryReadFromFile(File file, ITermFactory factory, IOAgent agent) {
+        IIndex index = new Index(); // TODO: Don't create concrete implementation here.
+        index.initialize(factory, agent);
         try {
             IStrategoTerm term = new TermReader(factory).parseFromFile(file.toString());
-            return Index.fromTerm(term, factory, agent, true); // TODO: Move to other class
+            return indexFactory.indexFromTerms(index, term, factory, true);
         } catch(Exception e) {
             return null;
         }
     }
 
-    public void storeCurrent() throws IOException {
+    public void storeCurrent(ITermFactory factory) throws IOException {
         File file = getIndexFile(currentProject.get(), currentLanguage.get());
-        IStrategoTerm stored = getCurrent().toTerm(true);
+        IStrategoTerm stored = indexFactory.toTerm(getCurrent(), factory, true);
         Writer writer = new BufferedWriter(new FileWriter(file));
         try {
             stored.writeAsString(writer, IStrategoTerm.INFINITE);

@@ -189,11 +189,7 @@ public class TransactionIndex implements IIndex {
         index.clearAll();
         getWriteLock().unlock();
     }
-
-    public IStrategoTerm toTerm(boolean includePositions) {
-        return index.toTerm(includePositions);
-    }
-
+    
     /**
      * Queries if given partition descriptor equals the current partition; the partition this transaction index has been
      * created for.

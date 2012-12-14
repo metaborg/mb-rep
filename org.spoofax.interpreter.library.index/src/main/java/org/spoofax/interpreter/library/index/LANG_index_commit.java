@@ -23,7 +23,7 @@ public class LANG_index_commit extends AbstractPrimitive {
     @Override
     public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
         try {
-            index.storeCurrent();
+            index.storeCurrent(env.getFactory());
         } catch(IOException e) {
             e.printStackTrace(); // ignore
         }

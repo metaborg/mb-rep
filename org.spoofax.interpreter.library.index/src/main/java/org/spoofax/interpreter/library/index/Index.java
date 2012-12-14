@@ -1,10 +1,5 @@
 package org.spoofax.interpreter.library.index;
 
-import static org.spoofax.interpreter.core.Tools.isTermList;
-import static org.spoofax.terms.Term.termAt;
-import static org.spoofax.terms.Term.tryGetConstructor;
-
-import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
@@ -20,8 +15,6 @@ import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
-import org.spoofax.terms.TermFactory;
-import org.spoofax.terms.attachments.TermAttachmentSerializer;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.LinkedHashMultimap;
@@ -35,8 +28,6 @@ public class Index implements IIndex {
 
     private static final int EXPECTED_DISTINCT_PARTITIONS = 100;
     private static final int EXPECTED_VALUES_PER_PARTITION = 1000;
-    private static final IStrategoConstructor FILE_ENTRIES_CON = new TermFactory().makeConstructor("PartitionEntries",
-        2);
 
     private final ConcurrentHashMap<IndexURI, Multimap<IndexPartitionDescriptor, IndexEntry>> entries =
         new ConcurrentHashMap<IndexURI, Multimap<IndexPartitionDescriptor, IndexEntry>>();
@@ -239,60 +230,6 @@ public class Index implements IIndex {
         entriesPerFile.clear();
         entriesPerPartition.clear();
         partitions.clear();
-    }
-
-    public IStrategoTerm toTerm(boolean includePositions) {
-        IStrategoList results = termFactory.makeList();
-        for(IndexPartitionDescriptor partitionDescriptor : partitions.keySet()) {
-            IStrategoList partitionResults =
-                IndexEntry.toTerms(termFactory, entriesPerPartitionDescriptor.get(partitionDescriptor));
-            // TODO: include time stamp for partition
-            IStrategoTerm result =
-                termFactory.makeAppl(FILE_ENTRIES_CON, partitionDescriptor.toTerm(termFactory), partitionResults);
-            results = termFactory.makeListCons(result, results);
-        }
-
-        if(includePositions) {
-            // TODO: optimize -- store more compact attachments for positions
-            TermFactory simpleFactory = new TermFactory();
-            TermAttachmentSerializer serializer = new TermAttachmentSerializer(simpleFactory);
-            results = (IStrategoList) serializer.toAnnotations(results);
-        }
-
-        return results;
-    }
-
-    public static Index fromTerm(IStrategoTerm term, ITermFactory factory, IOAgent agent, boolean extractPositions)
-        throws IOException {
-        if(extractPositions) {
-            TermAttachmentSerializer serializer = new TermAttachmentSerializer(factory);
-            term = (IStrategoList) serializer.fromAnnotations(term, false);
-        }
-
-        if(isTermList(term)) {
-            Index result = new Index();
-            result.initialize(factory, agent);
-            for(IStrategoList list = (IStrategoList) term; !list.isEmpty(); list = list.tail()) {
-                result.loadPartitionEntriesTerm(list.head());
-            }
-            return result;
-        } else {
-            throw new IOException("Expected list of " + FILE_ENTRIES_CON.getName());
-        }
-    }
-
-    private void loadPartitionEntriesTerm(IStrategoTerm partitionEntries) throws IOException {
-        if(tryGetConstructor(partitionEntries) == FILE_ENTRIES_CON) {
-            try {
-                addAll((IStrategoList) termAt(partitionEntries, 1), getPartitionDescriptor(termAt(partitionEntries, 0)));
-            } catch(IllegalStateException e) {
-                throw new IllegalStateException(e);
-            } catch(RuntimeException e) { // HACK: catch all runtime exceptions
-                throw new IOException("Unexpected exception reading index: " + e);
-            }
-        } else {
-            throw new IOException("Illegal index entry: " + partitionEntries);
-        }
     }
 
     /**

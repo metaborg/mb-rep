@@ -132,11 +132,4 @@ public interface IIndex {
      * Clears the entire index.
      */
     public abstract void clearAll();
-
-    /**
-     * Returns the index as a Stratego term.
-     * 
-     * @param includePositions
-     */
-    public abstract IStrategoTerm toTerm(boolean includePositions);
 }
