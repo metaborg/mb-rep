@@ -1,3 +1,5 @@
+//@author Richard Vogelij
+
 package org.spoofax.terms.convert;
 
 import java.util.HashMap;
