@@ -84,11 +84,11 @@ public class Index implements IIndex {
 
         IStrategoConstructor constructor = entry.getConstructor();
         IStrategoTerm type = factory.getEntryType(entry);
-        IStrategoList path = factory.getEntryPath(entry);
+        IStrategoTerm identifier = factory.getEntryIdentifier(entry);
         IStrategoTerm value = factory.getEntryValue(entry);
 
         IndexEntry newEntry =
-            factory.createEntry(constructor, path, type, value, partitionDescriptor);
+            factory.createEntry(constructor, identifier, type, value, partitionDescriptor);
 
         add(newEntry);
     }

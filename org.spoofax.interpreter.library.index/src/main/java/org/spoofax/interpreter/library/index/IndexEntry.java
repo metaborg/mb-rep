@@ -72,7 +72,7 @@ public class IndexEntry implements Serializable {
      * sure that origin info is not added to the term. (The latter would be bad since we cache in {@link #cachedTerm}.)
      */
     private IStrategoAppl forceImploderAttachment(IStrategoAppl term) {
-        ImploderAttachment attach = ImploderAttachment.get(key.getPath());
+        ImploderAttachment attach = ImploderAttachment.get(key.getIdentifier());
         if(attach != null) {
             ImploderAttachment.putImploderAttachment(term, false, attach.getSort(), attach.getLeftToken(),
                 attach.getRightToken());

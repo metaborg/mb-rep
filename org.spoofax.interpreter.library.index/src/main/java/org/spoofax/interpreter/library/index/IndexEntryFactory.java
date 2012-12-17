@@ -1,10 +1,10 @@
 package org.spoofax.interpreter.library.index;
 
+import static org.spoofax.interpreter.core.Tools.isTermAppl;
 import static org.spoofax.interpreter.core.Tools.isTermList;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
-import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
@@ -32,20 +32,20 @@ public class IndexEntryFactory {
         return termFactory;
     }
 
-    public IndexURI createURI(IStrategoConstructor constructor, IStrategoList path, IStrategoTerm type) {
-        ImploderAttachment idAttachment = ImploderAttachment.getCompactPositionAttachment(path, true);
+    public IndexURI createURI(IStrategoConstructor constructor, IStrategoTerm identifier, IStrategoTerm type) {
+        ImploderAttachment idAttachment = ImploderAttachment.getCompactPositionAttachment(identifier, true);
         type = stripper.strip(type);
-        path.putAttachment(idAttachment);
-        return new IndexURI(constructor, path, type);
+        identifier.putAttachment(idAttachment);
+        return new IndexURI(constructor, identifier, type);
     }
 
     public IndexURI createURIFromTemplate(IStrategoAppl template) {
-        return createURI(template.getConstructor(), getEntryPath(template), getEntryType(template));
+        return createURI(template.getConstructor(), getEntryIdentifier(template), getEntryType(template));
     }
 
-    public IndexEntry createEntry(IStrategoConstructor constructor, IStrategoList path,
-        IStrategoTerm type, IStrategoTerm value, IndexPartitionDescriptor partition) {
-        return createEntry(value, createURI(constructor, path, type), partition);
+    public IndexEntry createEntry(IStrategoConstructor constructor, IStrategoTerm identifier, IStrategoTerm type,
+        IStrategoTerm value, IndexPartitionDescriptor partition) {
+        return createEntry(value, createURI(constructor, identifier, type), partition);
     }
 
     public IndexEntry createEntry(IStrategoTerm value, IndexURI key, IndexPartitionDescriptor partition) {
@@ -59,13 +59,21 @@ public class IndexEntryFactory {
     }
 
     public static boolean isURI(IStrategoTerm term) {
-        return isTermList(term);
+        if(isTermList(term)) {
+            return true;
+        } else if(isTermAppl(term)) {
+            for(int i = 0; i < term.getSubtermCount(); ++i) {
+                if(isTermList(term.getSubterm(i)))
+                    return true;
+            }
+        }
+        return false;
     }
 
     public static boolean isDefData(IStrategoAppl term) {
         return isDefData(term.getConstructor());
     }
-    
+
     public static boolean isDefData(IStrategoConstructor constructor) {
         return constructor.equals(DEFDATA_CONSTRUCTOR);
     }
@@ -78,14 +86,14 @@ public class IndexEntryFactory {
         }
     }
 
-    public IStrategoList getEntryPath(IStrategoAppl entry) {
+    public IStrategoTerm getEntryIdentifier(IStrategoAppl entry) {
         IStrategoTerm result = entry.getSubterm(0);
         if(isURI(result)) {
-            IStrategoList list = (IStrategoList) result;
-            return list;
+            return result;
         } else {
             throw new IllegalArgumentException("Illegal index entry: " + entry
-                + ". First subterm should be a list representing the key of the entry.");
+                + ". First subterm should be a list representing the key of the entry"
+                + ", or an application containing a list.");
         }
     }
 

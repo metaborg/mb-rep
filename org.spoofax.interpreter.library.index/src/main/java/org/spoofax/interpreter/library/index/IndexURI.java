@@ -1,5 +1,8 @@
 package org.spoofax.interpreter.library.index;
 
+import static org.spoofax.interpreter.core.Tools.isTermAppl;
+import static org.spoofax.interpreter.core.Tools.isTermList;
+
 import java.io.Serializable;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -10,16 +13,15 @@ import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 
 /**
- * The key to used to map {@link IndexEntry}.
- * Consists of a constructor, namespace, path and optional type.
- *  
+ * The key to used to map {@link IndexEntry}. Consists of a constructor, namespace, path and optional type.
+ * 
  * @author Gabriël Konat
  */
 public class IndexURI implements Serializable {
     private static final long serialVersionUID = 1619836759792533807L;
 
     private final IStrategoConstructor constructor;
-    private final IStrategoList path;
+    private final IStrategoTerm identifier;
     private final IStrategoTerm type;
 
     private transient IStrategoAppl cachedTerm;
@@ -27,20 +29,20 @@ public class IndexURI implements Serializable {
     /**
      * Use {@link IndexEntryFactory#createURI}.
      */
-    protected IndexURI(IStrategoConstructor constructor, IStrategoList path, IStrategoTerm type) {
+    protected IndexURI(IStrategoConstructor constructor, IStrategoTerm identifier, IStrategoTerm type) {
         this.constructor = constructor;
-        this.path = path;
+        this.identifier = identifier;
         this.type = type;
 
-        assert constructor != null && path != null;
+        assert constructor != null && identifier != null;
     }
 
     public IStrategoConstructor getConstructor() {
         return constructor;
     }
 
-    public IStrategoList getPath() {
-        return path;
+    public IStrategoTerm getIdentifier() {
+        return identifier;
     }
 
     public IStrategoTerm getType() {
@@ -51,16 +53,36 @@ public class IndexURI implements Serializable {
      * Returns a parent URI by taking the tail of the path. If the path has no tail, null is returned.
      */
     public IndexURI getParent(ITermFactory factory) {
+        // TODO: Maybe this should be performed by a user-defined strategy?
+        if(isTermList(identifier)) {
+            IStrategoList parentPath = getParentPath((IStrategoList) identifier, factory);
+            if(parentPath == null)
+                return null;
+            return new IndexURI(constructor, parentPath, type);
+        } else if(isTermAppl(identifier)) {
+            IStrategoAppl appl = (IStrategoAppl) identifier;
+            for(int i = 0; i < identifier.getSubtermCount(); ++i) {
+                if(isTermList(identifier.getSubterm(i))) {
+                    IStrategoList parentPath = getParentPath((IStrategoList) identifier.getSubterm(i), factory);
+                    IStrategoTerm[] subterms = identifier.getAllSubterms();
+                    subterms[i] = parentPath;
+                    return new IndexURI(constructor, factory.makeAppl(appl.getConstructor(), subterms), type);
+                }
+            }
+        }
+        return null;
+    }
+    
+    private IStrategoList getParentPath(IStrategoList path, ITermFactory factory) {
         if(path.size() > 1) {
             IStrategoTerm head = path.head();
             if(head.getTermType() == IStrategoTerm.APPL && head.getSubtermCount() == 0)
                 // Retain the head of the path if it is a namespace (APPL with 0 subterms).
-                return new IndexURI(constructor, factory.makeListCons(head, path.tail().tail()), type);
+                return factory.makeListCons(head, path.tail().tail());
             else
-                return new IndexURI(constructor, path.tail(), type);
+                return path.tail();
         }
-        else
-            return null;
+        return null;
     }
 
     /**
@@ -69,16 +91,16 @@ public class IndexURI implements Serializable {
     public IStrategoAppl toTerm(ITermFactory factory, IStrategoTerm value) {
         if(cachedTerm != null)
             return cachedTerm;
-        
+
         if(IndexEntryFactory.isDefData(constructor)) {
-            cachedTerm = factory.makeAppl(constructor, path, type, value);
+            cachedTerm = factory.makeAppl(constructor, identifier, type, value);
         } else if(constructor.getArity() == 2) {
-            cachedTerm = factory.makeAppl(constructor, path, value);
+            cachedTerm = factory.makeAppl(constructor, identifier, value);
         } else if(constructor.getArity() == 1) {
-            cachedTerm = factory.makeAppl(constructor, path);
+            cachedTerm = factory.makeAppl(constructor, identifier);
         } else {
             IStrategoTerm[] terms = new IStrategoTerm[constructor.getArity()];
-            terms[0] = path;
+            terms[0] = identifier;
             IStrategoTuple values = (IStrategoTuple) value;
             System.arraycopy(values.getAllSubterms(), 0, terms, 1, values.getSubtermCount());
             cachedTerm = factory.makeAppl(constructor, terms);
@@ -89,7 +111,7 @@ public class IndexURI implements Serializable {
 
     @Override
     public String toString() {
-        String result = constructor.getName() + "(" + path + ")";
+        String result = constructor.getName() + "(" + identifier + ")";
         if(type != null)
             result += "," + type;
         return result;
@@ -100,7 +122,7 @@ public class IndexURI implements Serializable {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((constructor == null) ? 0 : constructor.hashCode());
-        result = prime * result + ((path == null) ? 0 : path.hashCode());
+        result = prime * result + ((identifier == null) ? 0 : identifier.hashCode());
         result = prime * result + ((type == null) ? 0 : type.hashCode());
         return result;
     }
@@ -122,10 +144,10 @@ public class IndexURI implements Serializable {
         } else if(!constructor.equals(other.constructor))
             return false;
 
-        if(path == null) {
-            if(other.path != null)
+        if(identifier == null) {
+            if(other.identifier != null)
                 return false;
-        } else if(!path.equals(other.path))
+        } else if(!identifier.equals(other.identifier))
             return false;
 
         if(type == null) {
