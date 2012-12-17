@@ -27,16 +27,14 @@ public class IndexManager {
     private final static AtomicLong revisionProvider = new AtomicLong();
     private final static ReadWriteLock transactionLock = new ReentrantReadWriteLock();
     private final static IndexFactory indexFactory = new IndexFactory();
-    
+
     /**
      * Indices by language and project. Access requires a lock on {@link #getSyncRoot}
      */
-    private static Map<String, Map<URI, WeakReference<IIndex>>> asyncIndexCache =
-        new HashMap<String, Map<URI, WeakReference<IIndex>>>();
+    private static Map<URI, WeakReference<IIndex>> indexCache = new HashMap<URI, WeakReference<IIndex>>();
 
     private ThreadLocal<IIndex> current = new ThreadLocal<IIndex>();
     private ThreadLocal<URI> currentProject = new ThreadLocal<URI>();
-    private ThreadLocal<String> currentLanguage = new ThreadLocal<String>();
     private ThreadLocal<IndexPartitionDescriptor> currentPartition = new ThreadLocal<IndexPartitionDescriptor>();
 
     public static ReadWriteLock getTransactionLock() {
@@ -44,31 +42,22 @@ public class IndexManager {
     }
 
     public IIndex getCurrent() {
-        if(!isInitialized())
-            throw new IllegalStateException(
-                "Index has not been set-up, use index-setup(|language, project-paths) to set up the index before use.");
-
+        ensureInitialized();
         return current.get();
     }
 
-    public IndexPartitionDescriptor getCurrentPartition() {
-        if(!isInitialized())
-            throw new IllegalStateException(
-                "Index has not been set-up, use index-setup(|language, project-paths) to set up the index before use.");
+    public URI getCurrentProject() {
+        ensureInitialized();
+        return currentProject.get();
+    }
 
+    public IndexPartitionDescriptor getCurrentPartition() {
+        ensureInitialized();
         return currentPartition.get();
     }
 
     public void setCurrentPartition(IndexPartitionDescriptor currentPartition) {
         this.currentPartition.set(currentPartition);
-    }
-
-    public URI getCurrentProject() {
-        if(!isInitialized())
-            throw new IllegalStateException(
-                "Index has not been set-up, use index-setup(|language, project-paths) to set up the index before use.");
-
-        return currentProject.get();
     }
 
     public long startTransaction(ITermFactory factory, IOAgent agent) {
@@ -118,31 +107,31 @@ public class IndexManager {
         return current.get() != null;
     }
 
+    private void ensureInitialized() {
+        if(!isInitialized())
+            throw new IllegalStateException(
+                "Index has not been set-up, use index-setup(|language, project-paths) to set up the index before use.");
+    }
+
     public static boolean isKnownIndexingLanguage(String language) {
         synchronized(getSyncRoot()) {
-            return asyncIndexCache.containsKey(language);
+            return indexCache.containsKey(language);
         }
     }
 
-    public void loadIndex(String language, URI project, ITermFactory factory, IOAgent agent) {
+    public void loadIndex(URI project, ITermFactory factory, IOAgent agent) {
         synchronized(getSyncRoot()) {
-            Map<URI, WeakReference<IIndex>> indicesByProject = asyncIndexCache.get(language);
-            if(indicesByProject == null) {
-                indicesByProject = new HashMap<URI, WeakReference<IIndex>>();
-                asyncIndexCache.put(language, indicesByProject);
-            }
-            WeakReference<IIndex> indexRef = indicesByProject.get(project);
+            WeakReference<IIndex> indexRef = indexCache.get(project);
             IIndex index = indexRef == null ? null : indexRef.get();
             if(index == null) {
-                index = tryReadFromFile(getIndexFile(project, language), factory, agent);
+                index = tryReadFromFile(getIndexFile(project), factory, agent);
             }
             if(index == null) {
                 index = new Index();
                 NotificationCenter.notifyNewProject(project);
             }
-            indicesByProject.put(project, new WeakReference<IIndex>(index));
+            indexCache.put(project, new WeakReference<IIndex>(index));
             current.set(index);
-            currentLanguage.set(language);
             currentProject.set(project);
         }
     }
@@ -159,7 +148,7 @@ public class IndexManager {
     }
 
     public void storeCurrent(ITermFactory factory) throws IOException {
-        File file = getIndexFile(currentProject.get(), currentLanguage.get());
+        File file = getIndexFile(currentProject.get());
         IStrategoTerm stored = indexFactory.toTerm(getCurrent(), factory, true);
         Writer writer = new BufferedWriter(new FileWriter(file));
         try {
@@ -169,9 +158,9 @@ public class IndexManager {
         }
     }
 
-    private File getIndexFile(URI project, String language) {
+    private File getIndexFile(URI project) {
         File container = new File(new File(project), ".cache");
         container.mkdirs();
-        return new File(container, language + ".idx");
+        return new File(container, "index.idx");
     }
 }
