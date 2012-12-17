@@ -1,8 +1,5 @@
 package org.spoofax.interpreter.library.index;
 
-import static org.spoofax.interpreter.core.Tools.isTermAppl;
-import static org.spoofax.interpreter.core.Tools.isTermList;
-
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -58,18 +55,6 @@ public class IndexEntryFactory {
         return new IndexEntry(key, value, partition);
     }
 
-    public static boolean isURI(IStrategoTerm term) {
-        if(isTermList(term)) {
-            return true;
-        } else if(isTermAppl(term)) {
-            for(int i = 0; i < term.getSubtermCount(); ++i) {
-                if(isTermList(term.getSubterm(i)))
-                    return true;
-            }
-        }
-        return false;
-    }
-
     public static boolean isDefData(IStrategoAppl term) {
         return isDefData(term.getConstructor());
     }
@@ -87,13 +72,11 @@ public class IndexEntryFactory {
     }
 
     public IStrategoTerm getEntryIdentifier(IStrategoAppl entry) {
-        IStrategoTerm result = entry.getSubterm(0);
-        if(isURI(result)) {
-            return result;
+        if(entry.getSubtermCount() > 0) {
+            return entry.getSubterm(0);
         } else {
             throw new IllegalArgumentException("Illegal index entry: " + entry
-                + ". First subterm should be a list representing the key of the entry"
-                + ", or an application containing a list.");
+                + ". Entry should contain at least one subterm that identifiers the entry.");
         }
     }
 

@@ -121,12 +121,16 @@ public class Index implements IIndex {
 
     public void remove(IStrategoAppl template, IndexPartitionDescriptor partitionDescriptor) {
         IndexURI uri = factory.createURIFromTemplate(template);
+        IndexURI parentURI = uri.getParent(termFactory);
         Multimap<IndexPartitionDescriptor, IndexEntry> entryValues = entries.get(uri);
-        Multimap<IndexPartitionDescriptor, IndexEntry> childValues = childs.get(uri.getParent(termFactory));
+        Multimap<IndexPartitionDescriptor, IndexEntry> childValues = null;
+        if(parentURI != null)
+            childValues = childs.get(uri.getParent(termFactory));
         Collection<IndexEntry> removedEntries = entryValues.removeAll(partitionDescriptor);
 
         for(IndexEntry entry : removedEntries) {
-            childValues.remove(partitionDescriptor, entry);
+            if(parentURI != null)
+                childValues.remove(partitionDescriptor, entry);
             entriesPerPartitionDescriptor.remove(partitionDescriptor, entry);
             entriesPerFile.remove(partitionDescriptor.getURI(), entry);
             entriesPerPartition.remove(partitionDescriptor.getPartition(), entry);
