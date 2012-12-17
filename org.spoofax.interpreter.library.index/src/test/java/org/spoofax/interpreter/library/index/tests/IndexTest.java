@@ -1,7 +1,5 @@
 package org.spoofax.interpreter.library.index.tests;
 
-import static org.spoofax.interpreter.core.Tools.asJavaString;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -54,7 +52,7 @@ public class IndexTest {
 
         project = IndexPartitionDescriptor.fromTerm(agent, projectPath);
         indexManager = new IndexManager();
-        indexManager.loadIndex(asJavaString(language), project.getURI(), factory, agent);
+        indexManager.loadIndex(project.getURI(), factory, agent);
         index = indexManager.getCurrent();
         index.initialize(factory, agent);
         file = setupIndex(fileTerm);
