@@ -64,6 +64,8 @@ public class IndexURI implements Serializable {
             for(int i = 0; i < identifier.getSubtermCount(); ++i) {
                 if(isTermList(identifier.getSubterm(i))) {
                     IStrategoList parentPath = getParentPath((IStrategoList) identifier.getSubterm(i), factory);
+                    if(parentPath == null)
+                        return null;
                     IStrategoTerm[] subterms = identifier.getAllSubterms();
                     subterms[i] = parentPath;
                     return new IndexURI(constructor, factory.makeAppl(appl.getConstructor(), subterms), type);
