@@ -1,0 +1,207 @@
+module tests
+
+imports
+  
+  lib/index-library
+  lib/analysis-library
+  lib/analysis-library-internal
+  
+signature
+
+  constructors
+    
+    Class    : Namespace
+    Method   : Namespace
+    Field    : Namespace
+    
+    Entity   : Namespace
+    Function : Namespace
+    
+    Type     : DefDataType
+    
+    Type     : URI * Type         -> Entry
+    Long     : URI * T1 * T2 * T3 -> Entry
+    
+strategies
+  
+  test-project-path = !"tests"
+  test-path =         !"path.test"
+  test-partition =    !$[[<test-project-path>]/[<test-path>]]
+  test-language =     !"TestLang"
+  
+  test-setup-index = 
+      index-setup(|<test-language>, [<test-project-path>], <test-partition>)
+    ; <index-clear-file> <test-partition>
+ 
+strategies
+  
+  test-assert-true(s|i) =
+    with(s|$[[i]: Expected success.])
+    
+  test-assert-false(s|i) =
+    with(not(s)|$[[i]: Expected failure.])
+  
+  test-assert-equals(|i) =
+      ?(x, y)
+    ; with(eq|$[[i]: Expected [x], found [y].])
+  
+rules
+      
+  test-index = 
+      <debug> "Testing test-index-get"
+    ; test-index-get
+    ; <debug> "Testing test-index-get-duplicates"
+    ; test-index-get-duplicates
+    ; <debug> "Testing test-index-get-children"
+    ; test-index-get-children
+    ; <debug> "Testing test-index-clear"
+    ; test-index-clear
+    ; <debug> "All tests completed! ☻☺☻☺"
+    ; !None()
+      
+  test-index-get:
+    x -> x
+    with
+        test-setup-index
+      ; deff := Def([Class(), "String", "lang", "java"])
+      ; type := Type([Class(), "String", "lang", "java"], "String")
+      ; data := DefData([Class(), "String", "lang", "java"], Type(), "String")
+        
+      ; <test-assert-equals(|1)> (0, <length> <index-get-all> deff)
+      ; <test-assert-equals(|2)> (0, <length> <index-get-all> type)
+      ; <test-assert-equals(|3)> (0, <length> <index-get-all> data)
+        
+      ; <index-add(|<test-partition>)> deff
+      ; <index-add(|<test-partition>)> type
+      ; <index-add(|<test-partition>)> data
+        
+      ; ret1 := <index-get-all> deff
+      ; ret2 := <index-get-all> type
+      ; ret3 := <index-get-all> data
+        
+      ; <test-assert-equals(|4)> (1, <length> ret1)
+      ; <test-assert-equals(|5)> (1, <length> ret2)
+      ; <test-assert-equals(|6)> (1, <length> ret3)
+        
+      ; <test-assert-true (all(?deff)|7)> ret1
+      ; <test-assert-true (all(?type)|8)> ret2
+      ; <test-assert-true (all(?data)|9)> ret3
+        
+      ; <test-assert-false(all(?deff)|10)> ret2
+      ; <test-assert-false(all(?deff)|11)> ret3
+        
+      ; <test-assert-false(all(?type)|12)> ret1
+      ; <test-assert-false(all(?type)|13)> ret3
+        
+      ; <test-assert-false(all(?data)|14)> ret1
+      ; <test-assert-false(all(?data)|15)> ret2
+        
+        
+  test-index-get-duplicates:
+    x -> x
+    with
+        test-setup-index
+      ; deff := Def([Entity(), "Person", "CRM"])
+      ; read := Read([Function(), "GetName", "Person", "CRM"])
+      ; long := Long([Function(), "GetName", "Person", "CRM"], "Data1", 2, None())
+        
+      ; <test-assert-equals(|1)> (0, <length> <index-get-all> deff)
+      ; <test-assert-equals(|2)> (0, <length> <index-get-all> read)
+      ; <test-assert-equals(|3)> (0, <length> <index-get-all> long)
+        
+      ; <index-add(|<test-partition>)> deff
+      ; <index-add(|<test-partition>)> deff
+      ; <index-add(|<test-partition>)> deff
+      ; <index-add(|<test-partition>)> read
+      ; <index-add(|<test-partition>)> read
+      ; <index-add(|<test-partition>)> long
+        
+      ; ret1 := <index-get-all> deff
+      ; ret2 := <index-get-all> read
+      ; ret3 := <index-get-all> long
+        
+      ; <test-assert-equals(|4)> (3, <length> ret1)
+      ; <test-assert-equals(|5)> (2, <length> ret2)
+      ; <test-assert-equals(|6)> (1, <length> ret3)
+        
+      ; <test-assert-true (all(?deff)|7)> ret1
+      ; <test-assert-true (all(?read)|8)> ret2
+      ; <test-assert-true (all(?long)|9)> ret3
+        
+      ; <test-assert-false(all(?deff)|10)> ret2
+      ; <test-assert-false(all(?deff)|11)> ret3
+        
+      ; <test-assert-false(all(?read)|12)> ret1
+      ; <test-assert-false(all(?read)|13)> ret3
+        
+      ; <test-assert-false(all(?long)|14)> ret1
+      ; <test-assert-false(all(?long)|15)> ret2
+      
+        
+      ; <index-add-all(|<test-partition>)> ret2
+        
+      ; ret4 := <index-get-all> read
+        
+      ; <test-assert-equals(|16)> (4, <length> ret4)
+      ; <test-assert-true (all(?read)|17)> ret4
+      ; <test-assert-false(all(?deff)|18)> ret4
+      ; <test-assert-false(all(?long)|19)> ret4
+        
+        
+  test-index-get-children:
+    x -> x
+    with
+        test-setup-index
+      ; cldef := Def([Class(), "String", "lang", "java"])
+      ; mdef1 := Def([Method(), "charAt", "String", "lang", "java"])
+      ; mdef2 := Def([Method(), "getBytes", "String", "lang", "java"])
+      ; fldef := Def([Field(), "length", "String", "lang", "java"])
+      
+      ; mtemplate := Def([Method(), "String", "lang", "java"]) 
+      ; ftemplate := Def([Field(), "String", "lang", "java"])
+        
+      ; <test-assert-equals(|1)> (0, <length> <index-get-all> cldef)
+      ; <test-assert-equals(|2)> (0, <length> <index-get-all> mdef1)
+      ; <test-assert-equals(|3)> (0, <length> <index-get-all> mdef2)
+      ; <test-assert-equals(|4)> (0, <length> <index-get-all> fldef)
+      ; <test-assert-equals(|5)> (0, <length> <index-get-children(|Method())> mtemplate)
+      ; <test-assert-equals(|6)> (0, <length> <index-get-children(|Field())> ftemplate)
+        
+      ; <index-add(|<test-partition>)> cldef
+      ; <index-add(|<test-partition>)> mdef1
+      ; <index-add(|<test-partition>)> mdef2
+      ; <index-add(|<test-partition>)> fldef
+        
+      ; ret1 := <index-get-children(|Method())> mtemplate
+      ; ret2 := <index-get-children(|Field())> ftemplate
+        
+      ; <test-assert-equals(|7)> (2, <length> ret1)
+      ; <test-assert-equals(|8)> (1, <length> ret2)   
+        
+      ; <test-assert-true (one(?mdef1)|9)> ret1
+      ; <test-assert-true (one(?mdef2)|10)> ret1
+      ; <test-assert-false(one(?cldef)|11)> ret1
+      ; <test-assert-false(one(?fldef)|12)> ret1
+        
+      ; <test-assert-false(one(?mdef1)|13)> ret2
+      ; <test-assert-false(one(?mdef2)|14)> ret2
+      ; <test-assert-true (one(?fldef)|15)> ret2
+      ; <test-assert-false(one(?cldef)|16)> ret2
+        
+  test-index-clear:
+  	x -> x
+  	with
+  		  test-setup-index
+  		; deff := Def([Class(), "String", "lang", "java"])
+  		  
+  		; <test-assert-equals(|1)> (0, <length> <index-get-all> deff)
+  		  
+  		; <index-add-all(|<test-partition>)> [deff, deff, deff]
+  		
+  		; ret1 := <index-get-all> deff
+  		; <test-assert-equals(|2)> (3, <length> ret1)
+  		  
+  		; index-clear
+  		  
+  		; ret2 := <index-get-all> deff
+  		; <test-assert-equals(|3)> (0, <length> ret2)
