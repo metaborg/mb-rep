@@ -189,19 +189,19 @@ rules
       ; <test-assert-false(one(?cldef)|16)> ret2
         
   test-index-clear:
-  	x -> x
-  	with
-  		  test-setup-index
-  		; deff := Def([Class(), "String", "lang", "java"])
-  		  
-  		; <test-assert-equals(|1)> (0, <length> <index-get-all> deff)
-  		  
-  		; <index-add-all(|<test-partition>)> [deff, deff, deff]
-  		
-  		; ret1 := <index-get-all> deff
-  		; <test-assert-equals(|2)> (3, <length> ret1)
-  		  
-  		; index-clear
-  		  
-  		; ret2 := <index-get-all> deff
-  		; <test-assert-equals(|3)> (0, <length> ret2)
+    x -> x
+    with
+        test-setup-index
+      ; deff := Def([Class(), "String", "lang", "java"])
+        
+      ; <test-assert-equals(|1)> (0, <length> <index-get-all> deff)
+        
+      ; <index-add-all(|<test-partition>)> [deff, deff, deff]
+      
+      ; ret1 := <index-get-all> deff
+      ; <test-assert-equals(|2)> (3, <length> ret1)
+        
+      ; index-clear
+        
+      ; ret2 := <index-get-all> deff
+      ; <test-assert-equals(|3)> (0, <length> ret2)
