@@ -76,7 +76,7 @@ public class IndexURI implements Serializable {
     }
     
     private IStrategoList getParentPath(IStrategoList path, ITermFactory factory) {
-        if(path.size() > 1) {
+        if(path.size() > 0) {
             IStrategoTerm head = path.head();
             if(head.getTermType() == IStrategoTerm.APPL && head.getSubtermCount() == 0)
                 // Retain the head of the path if it is a namespace (APPL with 0 subterms).
