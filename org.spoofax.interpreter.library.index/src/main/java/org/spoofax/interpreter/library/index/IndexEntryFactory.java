@@ -13,9 +13,10 @@ import org.spoofax.terms.attachments.TermAttachmentStripper;
  * @author Gabriël Konat
  */
 public class IndexEntryFactory {
-    private static final int DEFDATA_TYPE = 1;
-    private static final int DEFDATA_VALUE = 2;
+    private static final int DATA_TYPE_POS = 1;
+    private static final int DATA_VALUE_POS = 2;
     private static final IStrategoConstructor DEFDATA_CONSTRUCTOR = new TermFactory().makeConstructor("DefData", 3);
+    private static final IStrategoConstructor PROP_CONSTRUCTOR = new TermFactory().makeConstructor("Prop", 3);
 
     private final ITermFactory termFactory;
     private final TermAttachmentStripper stripper;
@@ -55,17 +56,17 @@ public class IndexEntryFactory {
         return new IndexEntry(key, value, partition);
     }
 
-    public static boolean isDefData(IStrategoAppl term) {
-        return isDefData(term.getConstructor());
+    public static boolean isData(IStrategoAppl term) {
+        return isData(term.getConstructor());
     }
 
-    public static boolean isDefData(IStrategoConstructor constructor) {
-        return constructor.equals(DEFDATA_CONSTRUCTOR);
+    public static boolean isData(IStrategoConstructor constructor) {
+        return constructor.equals(DEFDATA_CONSTRUCTOR) || constructor.equals(PROP_CONSTRUCTOR);
     }
 
     public IStrategoTerm getEntryType(IStrategoAppl entry) {
-        if(isDefData(entry)) {
-            return entry.getSubterm(DEFDATA_TYPE);
+        if(isData(entry)) {
+            return entry.getSubterm(DATA_TYPE_POS);
         } else {
             return null;
         }
@@ -81,8 +82,8 @@ public class IndexEntryFactory {
     }
 
     public IStrategoTerm getEntryValue(IStrategoAppl entry) {
-        if(isDefData(entry)) {
-            return entry.getSubterm(DEFDATA_VALUE);
+        if(isData(entry)) {
+            return entry.getSubterm(DATA_VALUE_POS);
         } else if(entry.getSubtermCount() == 2) {
             return entry.getSubterm(1);
         } else if(entry.getSubtermCount() == 1) {

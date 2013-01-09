@@ -78,7 +78,7 @@ public class IndexURI implements Serializable {
     private IStrategoList getParentPath(IStrategoList path, ITermFactory factory) {
         if(path.size() > 0) {
             IStrategoTerm head = path.head();
-            if(head.getTermType() == IStrategoTerm.APPL && head.getSubtermCount() == 0)
+            if(head.getTermType() == IStrategoTerm.APPL && head.getSubtermCount() == 0 && path.size() > 2)
                 // Retain the head of the path if it is a namespace (APPL with 0 subterms).
                 return factory.makeListCons(head, path.tail().tail());
             else
@@ -94,7 +94,7 @@ public class IndexURI implements Serializable {
         if(cachedTerm != null)
             return cachedTerm;
 
-        if(IndexEntryFactory.isDefData(constructor)) {
+        if(IndexEntryFactory.isData(constructor)) {
             cachedTerm = factory.makeAppl(constructor, identifier, type, value);
         } else if(constructor.getArity() == 2) {
             cachedTerm = factory.makeAppl(constructor, identifier, value);
