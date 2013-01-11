@@ -90,6 +90,8 @@ public class IndexManager {
 
             for(IndexEntry entry : transactionIndex.getAll())
                 index.add(entry);
+            
+            transactionIndex.clearAll();
         } finally {
             transactionLock.writeLock().unlock();
         }

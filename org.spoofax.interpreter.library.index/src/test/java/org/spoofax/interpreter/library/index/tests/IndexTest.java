@@ -10,6 +10,7 @@ import org.junit.runners.Parameterized.Parameters;
 import org.spoofax.interpreter.core.Interpreter;
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.library.index.IIndex;
+import org.spoofax.interpreter.library.index.IIndexEntryIterable;
 import org.spoofax.interpreter.library.index.IndexEntry;
 import org.spoofax.interpreter.library.index.IndexManager;
 import org.spoofax.interpreter.library.index.IndexPartitionDescriptor;
@@ -158,7 +159,7 @@ public class IndexTest {
         return factory.makeAppl(factory.makeConstructor("LongTerm", 4), uri(namespace, path), t1, t2, t3);
     }
 
-    public static boolean containsEntry(Collection<IndexEntry> entries, IStrategoTerm term) {
+    public static boolean containsEntry(IIndexEntryIterable entries, IStrategoTerm term) {
         boolean found = false;
         for(IndexEntry entry : entries)
             found = found || entry.toTerm(factory).match(term);
@@ -173,12 +174,19 @@ public class IndexTest {
         return found;
     }
 
-    public static boolean matchAll(Collection<IndexEntry> entries, IStrategoTerm term) {
-        if(entries.size() == 0)
+    public static boolean matchAll(IIndexEntryIterable entries, IStrategoTerm term) {
+        if(!entries.iterator().hasNext())
             return false;
         boolean matchAll = true;
         for(IndexEntry entry : entries)
             matchAll = matchAll && entry.toTerm(factory).match(term);
         return matchAll;
+    }
+    
+    public static int size(IIndexEntryIterable entries) {
+        int size = 0;
+        for(@SuppressWarnings("unused") IndexEntry entry : entries)
+            ++size;
+        return size;
     }
 }

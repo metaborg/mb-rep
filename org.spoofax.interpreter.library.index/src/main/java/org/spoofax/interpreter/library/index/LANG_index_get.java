@@ -2,8 +2,6 @@ package org.spoofax.interpreter.library.index;
 
 import static org.spoofax.interpreter.core.Tools.isTermAppl;
 
-import java.util.Collection;
-
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.library.AbstractPrimitive;
 import org.spoofax.interpreter.stratego.Strategy;
@@ -28,7 +26,7 @@ public class LANG_index_get extends AbstractPrimitive {
         if(isTermAppl(tvars[0])) {
             IStrategoAppl template = (IStrategoAppl) tvars[0];
             IIndex ind = index.getCurrent();
-            Collection<IndexEntry> entries = ind.get(template);
+            IIndexEntryIterable entries = ind.get(template);
             env.setCurrent(IndexEntry.toTerms(env.getFactory(), entries));
             return true;
         } else {

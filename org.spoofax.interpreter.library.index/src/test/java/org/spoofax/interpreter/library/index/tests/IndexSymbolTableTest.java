@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.spoofax.interpreter.library.index.IIndexEntryIterable;
 import org.spoofax.interpreter.library.index.IndexEntry;
 import org.spoofax.interpreter.library.index.IndexPartition;
 import org.spoofax.interpreter.library.index.IndexPartitionDescriptor;
@@ -89,29 +90,39 @@ public class IndexSymbolTableTest extends IndexTest {
 
         startTransaction();
 
-        assertEquals(0, index.get(def).size());
-        assertEquals(0, index.get(type).size());
-        assertEquals(0, index.get(defData).size());
+        assertEquals(0, size(index.get(def)));
+        assertEquals(0, size(index.get(type)));
+        assertEquals(0, size(index.get(defData)));
 
         index.add(def, file);
         index.add(type, file);
         index.add(defData, file);
 
-        Collection<IndexEntry> ret1 = index.get(def);
-        Collection<IndexEntry> ret2 = index.get(type);
-        Collection<IndexEntry> ret3 = index.get(defData);
+        IIndexEntryIterable ret1 = index.get(def);
+        IIndexEntryIterable ret2 = index.get(type);
+        IIndexEntryIterable ret3 = index.get(defData);
+
+        try {
+            ret1.lock();
+            ret2.lock();
+            ret3.lock();
+
+            assertTrue(matchAll(ret1, def));
+            assertTrue(matchAll(ret2, type));
+            assertTrue(matchAll(ret3, defData));
+            assertFalse(matchAll(ret1, type));
+            assertFalse(matchAll(ret1, defData));
+            assertFalse(matchAll(ret2, def));
+            assertFalse(matchAll(ret2, defData));
+            assertFalse(matchAll(ret3, def));
+            assertFalse(matchAll(ret3, type));
+        } finally {
+            ret1.unlock();
+            ret2.unlock();
+            ret3.unlock();
+        }
 
         endTransaction();
-
-        assertTrue(matchAll(ret1, def));
-        assertTrue(matchAll(ret2, type));
-        assertTrue(matchAll(ret3, defData));
-        assertFalse(matchAll(ret1, type));
-        assertFalse(matchAll(ret1, defData));
-        assertFalse(matchAll(ret2, def));
-        assertFalse(matchAll(ret2, defData));
-        assertFalse(matchAll(ret3, def));
-        assertFalse(matchAll(ret3, type));
     }
 
     @Test
@@ -123,9 +134,9 @@ public class IndexSymbolTableTest extends IndexTest {
 
         startTransaction();
 
-        assertEquals(0, index.get(def).size());
-        assertEquals(0, index.get(read).size());
-        assertEquals(0, index.get(longTerm).size());
+        assertEquals(0, size(index.get(def)));
+        assertEquals(0, size(index.get(read)));
+        assertEquals(0, size(index.get(longTerm)));
 
         index.add(def, file);
         index.add(def, file);
@@ -134,38 +145,59 @@ public class IndexSymbolTableTest extends IndexTest {
         index.add(read, file);
         index.add(longTerm, file);
 
-        Collection<IndexEntry> ret1 = index.get(def);
-        Collection<IndexEntry> ret2 = index.get(read);
-        Collection<IndexEntry> ret3 = index.get(longTerm);
+        IIndexEntryIterable ret1 = index.get(def);
+        IIndexEntryIterable ret2 = index.get(read);
+        IIndexEntryIterable ret3 = index.get(longTerm);
 
-        assertEquals(3, ret1.size());
-        assertEquals(2, ret2.size());
-        assertEquals(1, ret3.size());
+        try {
+            ret1.lock();
+            ret2.lock();
+            ret3.lock();
+            assertEquals(3, size(ret1));
+            assertEquals(2, size(ret2));
+            assertEquals(1, size(ret3));
 
-        assertTrue(matchAll(ret1, def));
-        assertTrue(matchAll(ret2, read));
-        assertTrue(matchAll(ret3, longTerm));
-        assertFalse(matchAll(ret1, read));
-        assertFalse(matchAll(ret1, longTerm));
-        assertFalse(matchAll(ret2, def));
-        assertFalse(matchAll(ret2, longTerm));
-        assertFalse(matchAll(ret3, def));
-        assertFalse(matchAll(ret3, read));
-
-        // Add entries from ret2 again using the other add function.
-        // Need to make a copy of ret2, because ret2 is a view over the index and
-        // could cause a ConcurrentModificationException
-        for(IndexEntry entry : ret2.toArray(new IndexEntry[0]))
-            index.add(entry);
-
-        Collection<IndexEntry> ret4 = index.get(read);
+            assertTrue(matchAll(ret1, def));
+            assertTrue(matchAll(ret2, read));
+            assertTrue(matchAll(ret3, longTerm));
+            assertFalse(matchAll(ret1, read));
+            assertFalse(matchAll(ret1, longTerm));
+            assertFalse(matchAll(ret2, def));
+            assertFalse(matchAll(ret2, longTerm));
+            assertFalse(matchAll(ret3, def));
+            assertFalse(matchAll(ret3, read));
+        } finally {
+            ret1.unlock();
+            ret2.unlock();
+            ret3.unlock();
+        }
 
         endTransaction();
 
-        assertEquals(4, ret4.size());
-        assertTrue(matchAll(ret4, read));
-        assertFalse(matchAll(ret4, def));
-        assertFalse(matchAll(ret4, longTerm));
+        startTransaction();
+
+        try {
+            ret2.lock();
+            for(IndexEntry entry : ret2.toArray())
+                index.add(entry);
+        } finally {
+            ret2.unlock();
+        }
+
+        IIndexEntryIterable ret4 = index.get(read);
+
+        try {
+            ret4.lock();
+
+            assertEquals(4, size(ret4));
+            assertTrue(matchAll(ret4, read));
+            assertFalse(matchAll(ret4, def));
+            assertFalse(matchAll(ret4, longTerm));
+        } finally {
+            ret4.unlock();
+        }
+
+        endTransaction();
     }
 
     @Test
@@ -177,20 +209,26 @@ public class IndexSymbolTableTest extends IndexTest {
 
         startTransaction();
 
-        assertEquals(0, index.get(def).size());
-        assertEquals(0, index.get(type).size());
-        assertEquals(0, index.get(defData).size());
+        assertEquals(0, size(index.get(def)));
+        assertEquals(0, size(index.get(type)));
+        assertEquals(0, size(index.get(defData)));
 
         index.addAll(all, file);
 
-        Collection<IndexEntry> ret = index.getAll();
+        IIndexEntryIterable ret = index.getAll();
+
+        try {
+            ret.lock();
+
+            assertTrue(containsEntry(ret, def));
+            assertTrue(containsEntry(ret, type));
+            assertTrue(containsEntry(ret, defData));
+            assertFalse(containsEntry(ret, all));
+        } finally {
+            ret.unlock();
+        }
 
         endTransaction();
-
-        assertTrue(containsEntry(ret, def));
-        assertTrue(containsEntry(ret, type));
-        assertTrue(containsEntry(ret, defData));
-        assertFalse(containsEntry(ret, all));
     }
 
     @Test
@@ -205,35 +243,43 @@ public class IndexSymbolTableTest extends IndexTest {
 
         startTransaction();
 
-        assertEquals(0, index.get(classDef).size());
-        assertEquals(0, index.get(methodDef1).size());
-        assertEquals(0, index.get(methodDef2).size());
-        assertEquals(0, index.get(fieldDef).size());
-        assertEquals(0, index.getChildren(methodsTemplate).size());
-        assertEquals(0, index.getChildren(fieldsTemplate).size());
+        assertEquals(0, size(index.get(classDef)));
+        assertEquals(0, size(index.get(methodDef1)));
+        assertEquals(0, size(index.get(methodDef2)));
+        assertEquals(0, size(index.get(fieldDef)));
+        assertEquals(0, size(index.getChildren(methodsTemplate)));
+        assertEquals(0, size(index.getChildren(fieldsTemplate)));
 
         index.add(classDef, file);
         index.add(methodDef1, file);
         index.add(methodDef2, file);
         index.add(fieldDef, file);
 
-        Collection<IndexEntry> ret1 = index.getChildren(methodsTemplate);
-        Collection<IndexEntry> ret2 = index.getChildren(fieldsTemplate);
+        IIndexEntryIterable ret1 = index.getChildren(methodsTemplate);
+        IIndexEntryIterable ret2 = index.getChildren(fieldsTemplate);
+
+        try {
+            ret1.lock();
+            ret2.lock();
+
+            assertEquals(2, size(ret1));
+            assertEquals(1, size(ret2));
+
+            assertTrue(containsEntry(ret1, methodDef1));
+            assertTrue(containsEntry(ret1, methodDef2));
+            assertFalse(containsEntry(ret1, fieldDef));
+            assertFalse(containsEntry(ret1, classDef));
+
+            assertFalse(containsEntry(ret2, methodDef1));
+            assertFalse(containsEntry(ret2, methodDef2));
+            assertTrue(containsEntry(ret2, fieldDef));
+            assertFalse(containsEntry(ret2, classDef));
+        } finally {
+            ret2.unlock();
+            ret1.unlock();
+        }
 
         endTransaction();
-
-        assertEquals(2, ret1.size());
-        assertEquals(1, ret2.size());
-
-        assertTrue(containsEntry(ret1, methodDef1));
-        assertTrue(containsEntry(ret1, methodDef2));
-        assertFalse(containsEntry(ret1, fieldDef));
-        assertFalse(containsEntry(ret1, classDef));
-
-        assertFalse(containsEntry(ret2, methodDef1));
-        assertFalse(containsEntry(ret2, methodDef2));
-        assertTrue(containsEntry(ret2, fieldDef));
-        assertFalse(containsEntry(ret2, classDef));
     }
 
     @Test
@@ -250,49 +296,57 @@ public class IndexSymbolTableTest extends IndexTest {
 
         startTransaction();
 
-        assertEquals(0, index.get(def1).size());
-        assertEquals(0, index.get(read).size());
-        assertEquals(0, index.get(def2).size());
-        assertEquals(0, index.get(type).size());
-        assertEquals(0, index.getInPartition(file1).size());
-        assertEquals(0, index.getInPartition(file2).size());
+        assertEquals(0, size(index.get(def1)));
+        assertEquals(0, size(index.get(read)));
+        assertEquals(0, size(index.get(def2)));
+        assertEquals(0, size(index.get(type)));
+        assertEquals(0, size(index.getInPartition(file1)));
+        assertEquals(0, size(index.getInPartition(file2)));
 
         index.add(def1, file1);
         index.add(read, file1);
         index.add(def2, file2);
         index.add(type, file2);
 
-        Collection<IndexEntry> ret1 = index.getInPartition(file1);
-        Collection<IndexEntry> ret2 = index.getInPartition(file2);
+        IIndexEntryIterable ret1 = index.getInPartition(file1);
+        IIndexEntryIterable ret2 = index.getInPartition(file2);
 
-        assertEquals(2, ret1.size());
-        assertEquals(2, ret2.size());
+        try {
+            ret1.lock();
+            ret2.lock();
 
-        assertTrue(containsEntry(ret1, def1));
-        assertTrue(containsEntry(ret1, read));
-        assertFalse(containsEntry(ret1, def2));
-        assertFalse(containsEntry(ret1, type));
+            assertEquals(2, size(ret1));
+            assertEquals(2, size(ret2));
 
-        assertFalse(containsEntry(ret2, def1));
-        assertFalse(containsEntry(ret2, read));
-        assertTrue(containsEntry(ret2, def2));
-        assertTrue(containsEntry(ret2, type));
+            assertTrue(containsEntry(ret1, def1));
+            assertTrue(containsEntry(ret1, read));
+            assertFalse(containsEntry(ret1, def2));
+            assertFalse(containsEntry(ret1, type));
 
-        for(IndexEntry entry : ret1) {
-            assertSame(entry.getPartition(), file1);
-            assertNotSame(entry.getPartition(), file2);
+            assertFalse(containsEntry(ret2, def1));
+            assertFalse(containsEntry(ret2, read));
+            assertTrue(containsEntry(ret2, def2));
+            assertTrue(containsEntry(ret2, type));
+
+            for(IndexEntry entry : ret1) {
+                assertSame(entry.getPartition(), file1);
+                assertNotSame(entry.getPartition(), file2);
+            }
+            for(IndexEntry entry : ret2) {
+                assertNotSame(entry.getPartition(), file1);
+                assertSame(entry.getPartition(), file2);
+            }
+
+            index.clearPartition(fileTerm1);
+            assertEquals(0, size(ret1));
+            assertEquals(2, size(ret2));
+
+            index.clearPartition(file2);
+            assertEquals(0, size(ret2));
+        } finally {
+            ret1.unlock();
+            ret2.unlock();
         }
-        for(IndexEntry entry : ret2) {
-            assertNotSame(entry.getPartition(), file1);
-            assertSame(entry.getPartition(), file2);
-        }
-
-        index.clearPartition(fileTerm1);
-        assertEquals(0, index.getInPartition(file1).size());
-        assertEquals(2, index.getInPartition(file2).size());
-
-        index.clearPartition(file2);
-        assertEquals(0, index.getInPartition(file2).size());
 
         endTransaction();
     }
@@ -311,12 +365,12 @@ public class IndexSymbolTableTest extends IndexTest {
 
         startTransaction();
 
-        assertEquals(0, index.get(def).size());
-        assertEquals(0, index.get(read).size());
-        assertEquals(0, index.get(longTerm).size());
-        assertEquals(0, index.get(defData).size());
-        assertEquals(0, index.getInPartition(file1).size());
-        assertEquals(0, index.getInPartition(file2).size());
+        assertEquals(0, size(index.get(def)));
+        assertEquals(0, size(index.get(read)));
+        assertEquals(0, size(index.get(longTerm)));
+        assertEquals(0, size(index.get(defData)));
+        assertEquals(0, size(index.getInPartition(file1)));
+        assertEquals(0, size(index.getInPartition(file2)));
 
         index.add(def, file1);
         index.add(def, file2);
@@ -330,8 +384,6 @@ public class IndexSymbolTableTest extends IndexTest {
         Collection<IndexPartitionDescriptor> ret3 = index.getPartitionsOf(longTerm);
         Collection<IndexPartitionDescriptor> ret4 = index.getPartitionsOf(defData);
 
-        endTransaction();
-
         assertTrue(containsPartitionDescriptor(ret1, file1));
         assertTrue(containsPartitionDescriptor(ret1, file2));
         assertFalse(containsPartitionDescriptor(ret2, file1));
@@ -340,6 +392,8 @@ public class IndexSymbolTableTest extends IndexTest {
         assertFalse(containsPartitionDescriptor(ret3, file2));
         assertFalse(containsPartitionDescriptor(ret4, file1));
         assertFalse(containsPartitionDescriptor(ret4, file2));
+        
+        endTransaction();
     }
 
     @Test
@@ -351,16 +405,16 @@ public class IndexSymbolTableTest extends IndexTest {
 
         startTransaction();
 
-        assertEquals(0, index.getAll().size());
+        assertEquals(0, size(index.getAll()));
 
         index.add(readAll, file1);
         index.add(readAll, file2);
 
-        assertEquals(2, index.getAll().size());
+        assertEquals(2, size(index.getAll()));
 
         index.clearAll();
 
-        assertEquals(0, index.getAll().size());
+        assertEquals(0, size(index.getAll()));
 
         endTransaction();
     }

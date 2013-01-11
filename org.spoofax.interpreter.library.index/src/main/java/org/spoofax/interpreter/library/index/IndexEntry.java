@@ -35,7 +35,7 @@ public class IndexEntry implements Serializable {
     public IndexURI getKey() {
         return key;
     }
-    
+
     public IStrategoTerm getValue() {
         return value;
     }
@@ -63,6 +63,22 @@ public class IndexEntry implements Serializable {
         IStrategoList results = factory.makeList();
         for(IndexEntry entry : entries) {
             results = factory.makeListCons(entry.toTerm(factory), results);
+        }
+        return results;
+    }
+
+    /**
+     * Returns a list with term representations of given entries.
+     */
+    public static IStrategoList toTerms(ITermFactory factory, IIndexEntryIterable entries) {
+        IStrategoList results = factory.makeList();
+        try {
+            entries.lock();
+            for(IndexEntry entry : entries) {
+                results = factory.makeListCons(entry.toTerm(factory), results);
+            }
+        } finally {
+            entries.unlock();
         }
         return results;
     }
@@ -110,27 +126,27 @@ public class IndexEntry implements Serializable {
             return false;
         if(!(obj instanceof IndexEntry))
             return false;
-        
+
         IndexEntry other = (IndexEntry) obj;
-        
+
         if(key == null) {
             if(other.key != null)
                 return false;
         } else if(!key.equals(other.key))
             return false;
-        
+
         if(value == null) {
             if(other.value != null)
                 return false;
         } else if(!value.equals(other.value))
             return false;
-        
+
         if(partition == null) {
             if(other.partition != null)
                 return false;
         } else if(!partition.equals(other.partition))
             return false;
-        
+
         return true;
     }
 }

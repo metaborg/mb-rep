@@ -2,6 +2,7 @@ package org.spoofax.interpreter.library.index;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 
@@ -73,52 +74,49 @@ public class TransactionIndex implements IIndex {
         removedEntries.add(new TemplateWithPartitionDescriptor(template, partitionDescriptor));
     }
 
-    public Collection<IndexEntry> get(IStrategoAppl template) {
-        Collection<IndexEntry> entries1 = transactionIndex.get(template);
-        getReadLock().lock();
-        try {
-            Collection<IndexEntry> entries2 = filterInvisibleEntries(index.get(template));
-            return concat(entries1, entries2);
-        } finally {
-            getReadLock().unlock();
-        }
+    public IIndexEntryIterable get(final IStrategoAppl template) {
+        return new AbstractIndexEntryIterable(getReadLock()) {
+            @Override
+            public Iterator<IndexEntry> iterator() {
+                return new TransactionIndexEntryIterator(clearedCurrentPartition, currentPartition, transactionIndex
+                    .get(template).iterator(), index.get(template).iterator());
+            }
+        };
     }
 
-    public Collection<IndexEntry> getAll() {
-        Collection<IndexEntry> entries1 = transactionIndex.getAll();
-        getReadLock().lock();
-        try {
-            Collection<IndexEntry> entries2 = filterInvisibleEntries(index.getAll());
-            return concat(entries1, entries2);
-        } finally {
-            getReadLock().unlock();
-        }
+    public IIndexEntryIterable getAll() {
+        return new AbstractIndexEntryIterable(getReadLock()) {
+            @Override
+            public Iterator<IndexEntry> iterator() {
+                return new TransactionIndexEntryIterator(clearedCurrentPartition, currentPartition, transactionIndex
+                    .getAll().iterator(), index.getAll().iterator());
+            }
+        };
     }
 
-    public Collection<IndexEntry> getChildren(IStrategoAppl template) {
-        Collection<IndexEntry> entries1 = transactionIndex.getChildren(template);
-        getReadLock().lock();
-        try {
-            Collection<IndexEntry> entries2 = filterInvisibleEntries(index.getChildren(template));
-            return concat(entries1, entries2);
-        } finally {
-            getReadLock().unlock();
-        }
+    public IIndexEntryIterable getChildren(final IStrategoAppl template) {
+        return new AbstractIndexEntryIterable(getReadLock()) {
+            @Override
+            public Iterator<IndexEntry> iterator() {
+                return new TransactionIndexEntryIterator(clearedCurrentPartition, currentPartition, transactionIndex
+                    .getChildren(template).iterator(), index.getChildren(template).iterator());
+            }
+        };
     }
 
-    public Collection<IndexEntry> getInPartition(IndexPartitionDescriptor partitionDescriptor) {
-        Collection<IndexEntry> entries1 = transactionIndex.getInPartition(partitionDescriptor);
-
+    public IIndexEntryIterable getInPartition(final IndexPartitionDescriptor partitionDescriptor) {
         if(isCurrentPartition(partitionDescriptor) && clearedCurrentPartition)
-            return entries1; // Current partition has been cleared, entries from index should not be visible.
+            // Current partition has been cleared, entries from index should not be visible.
+            return transactionIndex.getInPartition(partitionDescriptor);
 
-        getReadLock().lock();
-        try {
-            Collection<IndexEntry> entries2 = index.getInPartition(partitionDescriptor);
-            return concat(entries1, entries2);
-        } finally {
-            getReadLock().unlock();
-        }
+        return new AbstractIndexEntryIterable(getReadLock()) {
+            @Override
+            public Iterator<IndexEntry> iterator() {
+                return new TransactionIndexEntryIterator(clearedCurrentPartition, currentPartition, transactionIndex
+                    .getInPartition(partitionDescriptor).iterator(), index.getInPartition(partitionDescriptor)
+                    .iterator());
+            }
+        };
     }
 
     public Collection<IndexPartitionDescriptor> getPartitionsOf(IStrategoAppl template) {
@@ -189,7 +187,7 @@ public class TransactionIndex implements IIndex {
         index.clearAll();
         getWriteLock().unlock();
     }
-    
+
     /**
      * Queries if given partition descriptor equals the current partition; the partition this transaction index has been
      * created for.
@@ -200,37 +198,6 @@ public class TransactionIndex implements IIndex {
     private boolean isCurrentPartition(IndexPartitionDescriptor partitionDescriptor) {
         return partitionDescriptor.equals(currentPartition)
             || partitionDescriptor.getURI().equals(currentPartition.getURI());
-    }
-
-    /**
-     * Query if given entry should be visible. Entries are invisible if the current partition is cleared and the
-     * partition descriptor of the entry equals the current partition descriptor. Invisible entries from the global
-     * index should not be returned.
-     * 
-     * @param entry The entry to check.
-     * @return True if given entry should be visible, false otherwise.
-     */
-    private boolean isEntryVisible(IndexEntry entry) {
-        return !(clearedCurrentPartition && isCurrentPartition(entry.getPartition()));
-    }
-
-    /**
-     * Given a collection of entries, filters out all invisible entries.
-     * 
-     * @see #isEntryVisible
-     * @param entries The collection of entries to filter.
-     * @return Filtered collection of entries.
-     */
-    private Collection<IndexEntry> filterInvisibleEntries(Collection<IndexEntry> entries) {
-        if(!clearedCurrentPartition)
-            return entries;
-
-        List<IndexEntry> l = new ArrayList<IndexEntry>(entries.size());
-        for(IndexEntry entry : entries) {
-            if(isEntryVisible(entry))
-                l.add(entry);
-        }
-        return l;
     }
 
     private <T> Collection<T> concat(Collection<T> c1, Collection<T> c2) {

@@ -3,8 +3,6 @@ package org.spoofax.interpreter.library.index;
 import static org.spoofax.interpreter.core.Tools.isTermString;
 import static org.spoofax.interpreter.core.Tools.isTermTuple;
 
-import java.util.Collection;
-
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.library.AbstractPrimitive;
 import org.spoofax.interpreter.stratego.Strategy;
@@ -28,7 +26,7 @@ public class LANG_index_get_all_in_file extends AbstractPrimitive {
         if(isTermTuple(tvars[0]) || isTermString(tvars[0])) {
             IIndex ind = index.getCurrent();
             IndexPartitionDescriptor partitionDescriptor = ind.getPartitionDescriptor(tvars[0]);
-            Collection<IndexEntry> results = ind.getInPartition(partitionDescriptor);
+            IIndexEntryIterable results = ind.getInPartition(partitionDescriptor);
             env.setCurrent(IndexEntry.toTerms(env.getFactory(), results));
             return true;
         } else {

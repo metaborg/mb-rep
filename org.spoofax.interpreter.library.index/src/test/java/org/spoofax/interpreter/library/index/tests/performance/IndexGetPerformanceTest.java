@@ -2,14 +2,13 @@ package org.spoofax.interpreter.library.index.tests.performance;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Collection;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.spoofax.interpreter.library.index.IndexEntry;
+import org.spoofax.interpreter.library.index.IIndexEntryIterable;
 
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.BenchmarkRule;
@@ -48,17 +47,21 @@ public class IndexGetPerformanceTest extends IndexPerformanceTest {
     @Test
     public void get() {
         startTransaction();
-        
-        @SuppressWarnings("unused")
-        Collection<IndexEntry> ret;
+
+        IIndexEntryIterable ret;
         for(int i = 0; i < NUM_GET; ++i) {
             ret = index.get(def1);
+            ret.iterator();
             ret = index.get(def2);
+            ret.iterator();
             ret = index.get(def3);
+            ret.iterator();
             ret = index.get(use1);
+            ret.iterator();
             ret = index.get(typeTemplate1);
+            ret.iterator();
         }
-        
+
         endTransaction();
     }
 }
