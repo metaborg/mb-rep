@@ -9,7 +9,9 @@ import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -32,6 +34,7 @@ public class IndexManager {
      * Indices by language and project. Access requires a lock on {@link #getSyncRoot}
      */
     private static Map<URI, WeakReference<IIndex>> indexCache = new HashMap<URI, WeakReference<IIndex>>();
+    private static Set<String> indexedLanguages = new HashSet<String>();
 
     private ThreadLocal<IIndex> current = new ThreadLocal<IIndex>();
     private ThreadLocal<URI> currentProject = new ThreadLocal<URI>();
@@ -117,12 +120,13 @@ public class IndexManager {
 
     public static boolean isKnownIndexingLanguage(String language) {
         synchronized(getSyncRoot()) {
-            return indexCache.containsKey(language);
+            return indexedLanguages.contains(language);
         }
     }
 
-    public void loadIndex(URI project, ITermFactory factory, IOAgent agent) {
+    public void loadIndex(URI project, String language, ITermFactory factory, IOAgent agent) {
         synchronized(getSyncRoot()) {
+        	indexedLanguages.add(language);
             WeakReference<IIndex> indexRef = indexCache.get(project);
             IIndex index = indexRef == null ? null : indexRef.get();
             if(index == null) {
