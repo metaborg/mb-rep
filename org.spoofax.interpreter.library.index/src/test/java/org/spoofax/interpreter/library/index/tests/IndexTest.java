@@ -53,7 +53,7 @@ public class IndexTest {
 
         project = IndexPartitionDescriptor.fromTerm(agent, projectPath);
         indexManager = new IndexManager();
-        indexManager.loadIndex(project.getURI(), factory, agent);
+        indexManager.loadIndex(project.getURI(), language.stringValue(), factory, agent);
         index = indexManager.getCurrent();
         index.initialize(factory, agent);
         file = setupIndex(fileTerm);
