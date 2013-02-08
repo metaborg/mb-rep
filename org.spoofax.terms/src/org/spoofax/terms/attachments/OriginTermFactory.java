@@ -94,9 +94,7 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 			} else {
 				return term;
 			}
-		} else if (
-			haveSameSignature(term, origin)
-		) {
+		} else if (haveSameSignature(term, origin)) {
 			ensureChildLinks(term.getAllSubterms(), origin);
 			return ensureLink(term, origin, false);
 		} else {
@@ -135,7 +133,7 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 			StrategoWrapped result = new StrategoWrapped(term);
 			setOrigin(result, origin);
 			return result;
-			*/
+			*/			
 		}
 		return term;
 	}
@@ -174,26 +172,17 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 	 * May add origin tracking information to list Cons nodes.
 	 */
 	private IStrategoList makeListLink(IStrategoList terms, IStrategoList old) {
-		if (terms.isEmpty()) {
-			assert old.isEmpty();
-			// We don't bother linking empty lists
-			return terms;
-		} else {
-			IStrategoTerm head = terms.head();
-			IStrategoList tail = terms.tail();
-			IStrategoTerm newHead = ensureLink(head, old.head(), false);
-			IStrategoList newTail = makeListLink(tail, old.tail());
-			
-			/* UNDONE: Origin tracking for Cons nodes
-			           (relatively expensive, and who cares about them?)
-			if (old instanceof WrappedAstNodeList) {
-				WrappedAstNodeList oldList = (WrappedAstNodeList) old;
-				return new WrappedAstNodeList(oldList.getNode(), oldList.getOffset(), head, tail, terms.getAnnotations());
-			}
-			*/
-			if (head == newHead && tail == newTail) return terms;
-			return makeListCons(newHead, newTail, terms.getAnnotations());
+		IStrategoList results = terms;
+		assert terms.size() == old.size();
+		while (!terms.isEmpty()) {
+			IStrategoTerm term = terms.head();
+			IStrategoTerm oldTerm = old.head();
+			IStrategoTerm newTerm = ensureLink(term, oldTerm, false);
+			assert newTerm == term : "We assume mutable operations for origins";
+			terms = terms.tail();
+			old = old.tail();
 		}
+		return results;
 	}
 	
 	protected IStrategoTerm[] ensureChildLinks(IStrategoTerm[] kids, IStrategoTerm old) {
@@ -221,7 +210,7 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 		}		
 		if(assignDesugaredOrigins){
 			//do not trust child link heuristic
-			if(!isChildLink) DesugaredOriginAttachment.setDesugaredOrigin(term, term);
+			if(!isChildLink) makeLinkDesugared(term, term);
 		} 
 		else {
 			IStrategoTerm desugared = DesugaredOriginAttachment.getDesugaredOrigin(old);

@@ -1,3 +1,6 @@
+/*
+ * Licensed under the GNU Lesser General Public License, v2.1 
+ */
 package org.spoofax.terms.io.binary;
 
 import java.io.FileInputStream;
@@ -14,20 +17,18 @@ import java.nio.channels.FileChannel;
  * 
  * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4715154 
  * 
- * @author karltk
+ * @author Karl Trygve Kalleberg <karltk near strategoxt dot org>
  */
 @Deprecated
 public class MemoryMappedBitStream extends BitStream {
 
 	private FileChannel channel; 
 	private MappedByteBuffer byteBuffer;
-	private int offset;
 	
 	public MemoryMappedBitStream(FileInputStream inputStream) throws IOException {
 		super(inputStream);
 		this.channel = inputStream.getChannel();
 		byteBuffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
-		offset = 0;
 	}
 	
     @Override
@@ -41,7 +42,6 @@ public class MemoryMappedBitStream extends BitStream {
         byte[] b = new byte[l];
         //byteBuffer.position(offset);
         byteBuffer.get(b);
-        offset += l;
         return new String(b);
     }
 }

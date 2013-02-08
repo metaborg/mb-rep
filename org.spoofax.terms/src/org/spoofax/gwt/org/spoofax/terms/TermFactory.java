@@ -8,6 +8,7 @@ import static org.spoofax.interpreter.terms.IStrategoTerm.STRING;
 
 import java.util.HashMap;
 
+import org.spoofax.NotImplementedException;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoInt;
@@ -48,6 +49,7 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
 	new StrategoList(null, null, null, MAXIMALLY_SHARED);
 
     // StrategoXT/801: must use weak keys and values, and must maintain maximal sharing to avoid early collection
+    // TODO: FIXME FIXME FIXME you can't keep strings around like this
     private static final HashMap<String, StrategoString> asyncStringPool =
         new HashMap<String, StrategoString>();
 
@@ -142,7 +144,7 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
 			// Reallocation should be safe either way
 			int type = isTermSharingAllowed() ? STRING_POOL_STORAGE_TYPE : MUTABLE;
 				result = new StrategoString(s, null, type);
-			asyncStringPool.put(s, result);
+			//asyncStringPool.put(s, result);
 		} else if (result.getStorageType() == MUTABLE || !isTermSharingAllowed()) {
 			// We cannot reuse the existing string,
 			// but to satisfy the tryMakeUniqueString() contract
@@ -155,7 +157,9 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
     }
 
     public IStrategoString tryMakeUniqueString(String name) {
-        synchronized (TermFactory.class) {
+    	throw new NotImplementedException();
+        /*
+    	synchronized (TermFactory.class) {
 		if (asyncStringPool.containsKey(name)) {
 			return null;
 		} else if (name.length() > MAX_POOLED_STRING_LENGTH) {
@@ -165,7 +169,7 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
 			asyncStringPool.put(name, result);
 			return result;
 		}
-        }
+        */
     }
 
     @Override

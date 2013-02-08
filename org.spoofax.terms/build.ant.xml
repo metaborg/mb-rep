@@ -1,0 +1,55 @@
+<project name="spoofax-terms" default="jar">
+	
+    <property name="build.dir" value="target" />
+    <property name="src.dir" value="src" />
+
+    <property file="version.properties" />
+
+    <target name="compile" description="--> compile the project">
+        <mkdir dir="${build.dir}/classes" />
+        <javac srcdir="${src.dir}" destdir="${build.dir}/classes">
+            <exclude name="org/spoofax/gwt/**" />
+        </javac>
+    </target>
+
+   <target name="install" depends="jar" description="--> install the project into prefix">
+        <mkdir dir="${prefix}/bin" />
+        <mkdir dir="${prefix}/share/java" />
+
+        <copy file="${build.dir}/${jarname}-${version}.jar" todir="${prefix}/share/java" />
+   </target>
+
+   <target name="dist" description="--> create the source dist tarball">
+       <tar destfile="${build.dir}/${jarname}-${version}.tar">
+           <tarfileset prefix="${jarname}-${version}/" dir="." includes="src/"/>
+           <tarfileset prefix="${jarname}-${version}/" dir=".">
+             <include name="*.xml" />
+             <include name="*.properties" />
+           </tarfileset>
+           <tarfileset prefix="${jarname}-${version}/" dir="." includes="INSTALL AUTHORS"/>
+           <tarfileset prefix="${jarname}-${version}/" dir="." includes="META-INF/" />
+       </tar>
+       <gzip zipfile="${build.dir}/${jarname}-${version}.tar.gz" src="${build.dir}/${jarname}-${version}.tar"/>
+   </target>
+
+   <target name="bindist" depends="dist,jar" description="--> create the binary dist tarball">
+       <javadoc sourcepath="src/" destdir="target/doc"/>
+       <jar destfile="${build.dir}/${jarname}-${version}-javadoc.jar" basedir="${build.dir}/doc" />
+       <jar destfile="${build.dir}/${jarname}-${version}-sources.jar" basedir="src/" />
+       <tar destfile="${build.dir}/${jarname}-${version}-bin.tar">
+           <tarfileset prefix="${jarname}-${version}/" dir="${build.dir}" includes="${jarname}-${version}.jar"/>
+           <tarfileset prefix="${jarname}-${version}/" dir="${build.dir}" includes="${jarname}-${version}-sources.jar"/>
+           <tarfileset prefix="${jarname}-${version}/" dir="${build.dir}" includes="${jarname}-${version}-javadoc.jar"/>
+           <tarfileset prefix="${jarname}-${version}/" dir="." includes="INSTALL AUTHORS README LICENSE"/>
+       </tar>
+       <gzip zipfile="${build.dir}/${jarname}-${version}-bin.tar.gz" src="${build.dir}/${jarname}-${version}-bin.tar"/>
+   </target>
+
+   <target name="jar" depends="compile">
+        <jar destfile="${build.dir}/${jarname}-${version}.jar" basedir="${build.dir}/classes" />
+    </target>
+
+   <target name="check" depends="jar" />
+   <target name="bundle-ctree" />
+
+</project>

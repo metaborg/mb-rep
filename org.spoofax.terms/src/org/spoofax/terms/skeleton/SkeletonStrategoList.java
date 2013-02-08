@@ -15,6 +15,8 @@ import org.spoofax.interpreter.terms.ITermPrinter;
 import org.spoofax.terms.StrategoListIterator;
 import org.spoofax.terms.StrategoTerm;
 import org.spoofax.terms.TermFactory;
+import org.spoofax.terms.attachments.ITermAttachment;
+import org.spoofax.terms.attachments.TermAttachmentType;
 
 public abstract class SkeletonStrategoList extends StrategoTerm implements IStrategoList, Iterable<IStrategoTerm> {
 
@@ -35,15 +37,16 @@ public abstract class SkeletonStrategoList extends StrategoTerm implements IStra
      *
      * @see #prepend(IStrategoTerm) Adds a new head element to a list.
      */
-    public SkeletonStrategoList(IStrategoList annotations, int storageType) {
+    protected SkeletonStrategoList(IStrategoList annotations, int storageType) {
         super(annotations, storageType);
     }
 
     @Deprecated
-    public IStrategoList prepend(IStrategoTerm prefix) {
+    public final IStrategoList prepend(IStrategoTerm prefix) {
         throw new NotImplementedException();
     }
 
+    @Deprecated
     public final IStrategoTerm get(int index) {
         throw new NotImplementedException();
     }
@@ -114,7 +117,7 @@ public abstract class SkeletonStrategoList extends StrategoTerm implements IStra
                 kids[0].writeAsString(output, maxDepth - 1);
                 for(int i = 1; i < kids.length; i++) {
                     output.append(',');
-                    kids[0].writeAsString(output, maxDepth - 1);
+                    kids[i].writeAsString(output, maxDepth - 1);
                 }
             }
         }
@@ -145,5 +148,26 @@ public abstract class SkeletonStrategoList extends StrategoTerm implements IStra
     @Override
     public final String toString(int maxDepth) {
     	return super.toString(maxDepth);
+    }
+    
+    @Override
+    public final <T extends ITermAttachment> T getAttachment(
+    		TermAttachmentType<T> type) {
+    	return super.getAttachment(type);
+    }
+    
+    @Override
+    public final void putAttachment(ITermAttachment attachment) {
+    	super.putAttachment(attachment);
+    }
+    
+    @Override
+    public final ITermAttachment removeAttachment(TermAttachmentType<?> type) {
+    	return super.removeAttachment(type);
+    }
+    
+    @Override
+    protected final void clearAttachments() {
+    	super.clearAttachments();
     }
 }
