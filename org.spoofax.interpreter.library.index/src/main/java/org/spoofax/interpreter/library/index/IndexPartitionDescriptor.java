@@ -2,6 +2,7 @@ package org.spoofax.interpreter.library.index;
 
 import static org.spoofax.interpreter.core.Tools.asJavaString;
 import static org.spoofax.interpreter.core.Tools.isTermTuple;
+import static org.spoofax.interpreter.core.Tools.isTermList;
 
 import java.io.File;
 import java.io.Serializable;
@@ -30,7 +31,7 @@ public class IndexPartitionDescriptor implements Serializable {
 
     public IndexPartitionDescriptor(URI uri, IStrategoTerm subpartition) {
         this.uri = uri;
-        if(subpartition == null)
+        if(subpartition == null || (isTermList(subpartition) && ((IStrategoList)subpartition).isEmpty()))
             this.partition = null;
         else
             this.partition = subpartition;
