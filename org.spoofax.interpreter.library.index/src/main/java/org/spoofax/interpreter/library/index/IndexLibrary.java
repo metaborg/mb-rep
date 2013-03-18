@@ -20,6 +20,7 @@ public class IndexLibrary extends AbstractStrategoOperatorRegistry {
         add(new LANG_index_get_children(index));
         add(new LANG_index_get_files_of(index));
         add(new LANG_index_get(index));
+        add(new LANG_index_get_with_partitions(index));
         add(new LANG_index_setup(index));
         add(new LANG_index_commit(index));
         add(new LANG_index_get_files_newer_than(index));

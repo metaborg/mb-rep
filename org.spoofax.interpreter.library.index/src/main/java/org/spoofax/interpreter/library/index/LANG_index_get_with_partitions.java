@@ -11,12 +11,12 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-public class LANG_index_remove_all extends AbstractPrimitive {
-    private static String NAME = "LANG_index_remove_all";
+public class LANG_index_get_with_partitions extends AbstractPrimitive {
+    private static String NAME = "LANG_index_get_with_partitions";
 
     private final IndexManager index;
 
-    public LANG_index_remove_all(IndexManager index) {
+    public LANG_index_get_with_partitions(IndexManager index) {
         super(NAME, 0, 1);
         this.index = index;
     }
@@ -26,7 +26,8 @@ public class LANG_index_remove_all extends AbstractPrimitive {
         if(isTermAppl(tvars[0])) {
             IStrategoAppl template = (IStrategoAppl) tvars[0];
             IIndex ind = index.getCurrent();
-            ind.removeAll(template);
+            IIndexEntryIterable entries = ind.get(template);
+            env.setCurrent(IndexEntry.toTermsWithPartition(env.getFactory(), entries));
             return true;
         } else {
             return false;

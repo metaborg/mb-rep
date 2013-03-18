@@ -82,6 +82,22 @@ public class IndexEntry implements Serializable {
         }
         return results;
     }
+    
+    /**
+     * Returns a list with tuples of term representations of given entries with their partitions.
+     */
+    public static IStrategoList toTermsWithPartition(ITermFactory factory, IIndexEntryIterable entries) {
+        IStrategoList results = factory.makeList();
+        try {
+            entries.lock();
+            for(IndexEntry entry : entries) {
+                results = factory.makeListCons(factory.makeTuple(entry.getPartition().toTerm(factory), entry.toTerm(factory)), results);
+            }
+        } finally {
+            entries.unlock();
+        }
+        return results;
+    }
 
     /**
      * Force an imploder attachment for a term. This ensures that there is always some form of position info, and makes

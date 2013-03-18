@@ -23,14 +23,14 @@ public class IndexPartitionDescriptor implements Serializable {
     private static final long serialVersionUID = -5167366407344668956L;
 
     private final URI uri;
-    private final IStrategoList partition;
+    private final IStrategoTerm partition;
 
     private transient IStrategoTerm cachedTerm;
     private transient String cachedString;
 
-    public IndexPartitionDescriptor(URI uri, IStrategoList subpartition) {
+    public IndexPartitionDescriptor(URI uri, IStrategoTerm subpartition) {
         this.uri = uri;
-        if(subpartition == null || subpartition.isEmpty())
+        if(subpartition == null)
             this.partition = null;
         else
             this.partition = subpartition;
@@ -40,7 +40,7 @@ public class IndexPartitionDescriptor implements Serializable {
         return uri;
     }
 
-    public IStrategoList getPartition() {
+    public IStrategoTerm getPartition() {
         return partition;
     }
 
@@ -79,10 +79,10 @@ public class IndexPartitionDescriptor implements Serializable {
      */
     public static IndexPartitionDescriptor fromTerm(IOAgent agent, IStrategoTerm term) {
         String name;
-        IStrategoList subpartition;
+        IStrategoTerm subpartition;
         if(isTermTuple(term)) {
             name = asJavaString(term.getSubterm(0));
-            subpartition = (IStrategoList) term.getSubterm(1);
+            subpartition = term.getSubterm(1);
         } else {
             name = asJavaString(term);
             subpartition = null;

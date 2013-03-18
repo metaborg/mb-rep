@@ -36,7 +36,7 @@ public class Index implements IIndex {
     private final Multimap<IndexPartitionDescriptor, IndexEntry> entriesPerPartitionDescriptor = LinkedHashMultimap
         .create();
     private final Multimap<URI, IndexEntry> entriesPerFile = LinkedHashMultimap.create();
-    private final Multimap<IStrategoList, IndexEntry> entriesPerPartition = LinkedHashMultimap.create();
+    private final Multimap<IStrategoTerm, IndexEntry> entriesPerPartition = LinkedHashMultimap.create();
     private final Map<IndexPartitionDescriptor, IndexPartition> partitions =
         new HashMap<IndexPartitionDescriptor, IndexPartition>();
 
