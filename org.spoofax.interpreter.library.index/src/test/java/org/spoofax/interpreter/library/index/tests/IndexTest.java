@@ -165,6 +165,14 @@ public class IndexTest {
             found = found || entry.toTerm(factory).match(term);
         return found;
     }
+    
+    public static boolean containsEntry(IIndexEntryIterable entries, IndexPartitionDescriptor partition, 
+        IStrategoTerm term) {
+        boolean found = false;
+        for(IndexEntry entry : entries)
+            found = found || (entry.getPartition().equals(partition) && entry.toTerm(factory).match(term));
+        return found;
+    }
 
     public static boolean containsPartitionDescriptor(Collection<IndexPartitionDescriptor> partitionDescriptors,
         IndexPartitionDescriptor partition) {

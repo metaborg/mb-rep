@@ -21,6 +21,7 @@ public class TransactionIndex implements IIndex {
     private IndexPartitionDescriptor currentPartition;
     private boolean clearedCurrentPartition = false;
     private List<TemplateWithPartitionDescriptor> removedEntries = new ArrayList<TemplateWithPartitionDescriptor>();
+    private List<IStrategoAppl> removedAllEntries = new ArrayList<IStrategoAppl>();
 
     public TransactionIndex(IIndex index, IIndex transactionIndex, IndexPartitionDescriptor currentPartition) {
         this.index = index;
@@ -47,6 +48,10 @@ public class TransactionIndex implements IIndex {
     public Collection<TemplateWithPartitionDescriptor> getRemovedEntries() {
         return removedEntries;
     }
+    
+    public Collection<IStrategoAppl> getRemovedAllEntries() {
+        return removedAllEntries;
+    }
 
     public void initialize(ITermFactory factory, IOAgent agent) {
         // Should not be called, both the index and transaction index should already be initialized.
@@ -69,9 +74,16 @@ public class TransactionIndex implements IIndex {
         transactionIndex.addAll(entries, partitionDescriptor);
     }
 
-    public void remove(IStrategoAppl template, IndexPartitionDescriptor partitionDescriptor) {
-        transactionIndex.remove(template, partitionDescriptor);
+    public Collection<IndexEntry> remove(IStrategoAppl template, IndexPartitionDescriptor partitionDescriptor) {
+        Collection<IndexEntry> removed = transactionIndex.remove(template, partitionDescriptor);
         removedEntries.add(new TemplateWithPartitionDescriptor(template, partitionDescriptor));
+        return removed;
+    }
+    
+    public Collection<IndexEntry> removeAll(IStrategoAppl template) {
+        Collection<IndexEntry> removed = transactionIndex.removeAll(template);
+        removedAllEntries.add(template);
+        return removed;
     }
 
     public IIndexEntryIterable get(final IStrategoAppl template) {

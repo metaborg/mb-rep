@@ -52,7 +52,15 @@ public interface IIndex {
      * @param template The template to match entries against.
      * @param partitionDescriptor The partition entries will be removed from.
      */
-    public abstract void remove(IStrategoAppl template, IndexPartitionDescriptor partitionDescriptor);
+    public abstract Collection<IndexEntry> remove(IStrategoAppl template, IndexPartitionDescriptor partitionDescriptor);
+    
+    /**
+     * Removes all entries that match given template (from all partitions).
+     * Warning: Quite slow!
+     * 
+     * @param template The template to match entries against.
+     */
+    public abstract Collection<IndexEntry> removeAll(IStrategoAppl template);
 
     /**
      * Gets all entries that match given template.

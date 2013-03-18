@@ -12,6 +12,7 @@ public class IndexLibrary extends AbstractStrategoOperatorRegistry {
         IndexManager index = new IndexManager();
         add(new LANG_index_add(index));
         add(new LANG_index_remove(index));
+        add(new LANG_index_remove_all(index));
         add(new LANG_index_clear_all(index));
         add(new LANG_index_clear_file(index));
         add(new LANG_index_get_all_files(index));

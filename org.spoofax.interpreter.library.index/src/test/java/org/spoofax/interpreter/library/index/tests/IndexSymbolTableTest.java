@@ -285,8 +285,9 @@ public class IndexSymbolTableTest extends IndexTest {
     @Test
     public void getEntriesInFileAndRemoveFile() {
         IStrategoTerm fileTerm1 = file("TestFile", "Partition", "1");
+        IStrategoTerm fileTerm2 = file("TestFile", "Partition", "2");
         IndexPartitionDescriptor file1 = setupIndex(fileTerm1);
-        IndexPartitionDescriptor file2 = setupIndex(file("TestFile", "Partition", "2"));
+        IndexPartitionDescriptor file2 = setupIndex(fileTerm2);
 
         IStrategoAppl def1 = def("Entity", "CRM", "Person");
         IStrategoAppl read = read("Function", "CRM", "Person", "GetName");
@@ -396,6 +397,88 @@ public class IndexSymbolTableTest extends IndexTest {
         endTransaction();
     }
 
+    @Test
+    public void remove() {
+        IStrategoTerm fileTerm1 = file("TestFile", "Partition", "1");
+        IStrategoTerm fileTerm2 = file("TestFile", "Partition", "2");
+        IndexPartitionDescriptor file1 = setupIndex(fileTerm1);
+        IndexPartitionDescriptor file2 = setupIndex(fileTerm2);
+
+        IStrategoAppl def1 = def("Entity", "CRM", "Person");
+        IStrategoAppl def2 = def("Class", "java", "lang", "String");
+
+        startTransaction();
+
+        assertEquals(0, size(index.get(def1)));
+        assertEquals(0, size(index.get(def2)));
+        assertEquals(0, size(index.getInPartition(file1)));
+        assertEquals(0, size(index.getInPartition(file2)));
+
+        index.add(def1, file1);
+        index.add(def1, file2);
+        index.add(def2, file1);
+        index.add(def2, file2);
+        
+        index.remove(def1, file1);
+        
+        IIndexEntryIterable ret1 = index.getInPartition(file1);
+        IIndexEntryIterable ret2 = index.getInPartition(file2);
+
+        try {
+            ret1.lock();
+            ret2.lock();
+
+            assertFalse(containsEntry(ret1, def1));
+            assertTrue(containsEntry(ret2, def1));
+            assertTrue(containsEntry(ret1, def2));
+            assertTrue(containsEntry(ret2, def2));
+        } finally {
+            ret1.unlock();
+            ret2.unlock();
+        }
+    }
+    
+    @Test
+    public void removeAll() {
+        IStrategoTerm fileTerm1 = file("TestFile", "Partition", "1");
+        IStrategoTerm fileTerm2 = file("TestFile", "Partition", "2");
+        IndexPartitionDescriptor file1 = setupIndex(fileTerm1);
+        IndexPartitionDescriptor file2 = setupIndex(fileTerm2);
+
+        IStrategoAppl def1 = def("Entity", "CRM", "Person");
+        IStrategoAppl def2 = def("Class", "java", "lang", "String");
+
+        startTransaction();
+
+        assertEquals(0, size(index.get(def1)));
+        assertEquals(0, size(index.get(def2)));
+        assertEquals(0, size(index.getInPartition(file1)));
+        assertEquals(0, size(index.getInPartition(file2)));
+
+        index.add(def1, file1);
+        index.add(def1, file2);
+        index.add(def2, file1);
+        index.add(def2, file2);
+        
+        index.removeAll(def1);
+        
+        IIndexEntryIterable ret1 = index.getInPartition(file1);
+        IIndexEntryIterable ret2 = index.getInPartition(file2);
+
+        try {
+            ret1.lock();
+            ret2.lock();
+
+            assertFalse(containsEntry(ret1, def1));
+            assertFalse(containsEntry(ret2, def1));
+            assertTrue(containsEntry(ret1, def2));
+            assertTrue(containsEntry(ret2, def2));
+        } finally {
+            ret1.unlock();
+            ret2.unlock();
+        }
+    }
+    
     @Test
     public void clear() {
         IndexPartitionDescriptor file1 = setupIndex(file("TestFile", "Partition", "1"));

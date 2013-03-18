@@ -119,13 +119,14 @@ public class Index implements IIndex {
         }
     }
 
-    public void remove(IStrategoAppl template, IndexPartitionDescriptor partitionDescriptor) {
+    public Collection<IndexEntry> remove(IStrategoAppl template, IndexPartitionDescriptor partitionDescriptor) {
         IndexURI uri = factory.createURIFromTemplate(template);
         IndexURI parentURI = uri.getParent(termFactory);
+        // TODO: Should this use innerEntries()/innerChildEntries()?
         Multimap<IndexPartitionDescriptor, IndexEntry> entryValues = entries.get(uri);
         Multimap<IndexPartitionDescriptor, IndexEntry> childValues = null;
         if(parentURI != null)
-            childValues = childs.get(uri.getParent(termFactory));
+            childValues = childs.get(parentURI);
         Collection<IndexEntry> removedEntries = entryValues.removeAll(partitionDescriptor);
 
         for(IndexEntry entry : removedEntries) {
@@ -135,7 +136,31 @@ public class Index implements IIndex {
             entriesPerFile.remove(partitionDescriptor.getURI(), entry);
             entriesPerPartition.remove(partitionDescriptor.getPartition(), entry);
         }
+        
+        return removedEntries;
     }
+    
+    public Collection<IndexEntry> removeAll(IStrategoAppl template) {
+        IndexURI uri = factory.createURIFromTemplate(template);
+        IndexURI parentURI = uri.getParent(termFactory);
+        Multimap<IndexPartitionDescriptor, IndexEntry> entryValues = innerEntries(uri);
+        Multimap<IndexPartitionDescriptor, IndexEntry> childValues = null;
+        if(parentURI != null)
+            childValues = innerChildEntries(uri.getParent(termFactory));
+        Collection<IndexEntry> removedEntries = entryValues.values();
+        entries.remove(uri);
+
+        for(IndexEntry entry : removedEntries) {
+            if(parentURI != null)
+                childValues.remove(entry.getPartition(), entry);
+            entriesPerPartitionDescriptor.remove(entry.getPartition(), entry);
+            entriesPerFile.remove(entry.getPartition().getURI(), entry);
+            entriesPerPartition.remove(entry.getPartition().getPartition(), entry);
+        }
+        
+        return removedEntries;
+    }
+
 
     public IIndexEntryIterable get(IStrategoAppl template) {
         IndexURI uri = factory.createURIFromTemplate(template);

@@ -17,6 +17,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.spoofax.interpreter.library.IOAgent;
+import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.io.binary.TermReader;
@@ -90,6 +91,9 @@ public class IndexManager {
 
             for(TemplateWithPartitionDescriptor entry : currentIndex.getRemovedEntries())
                 index.remove(entry.getTemplate(), entry.getPartitionDescriptor());
+            
+            for(IStrategoAppl template : currentIndex.getRemovedAllEntries())
+                index.removeAll(template);
 
             for(IndexEntry entry : transactionIndex.getAll())
                 index.add(entry);
