@@ -1,6 +1,5 @@
 package org.spoofax.interpreter.library.index;
 
-import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,8 +34,6 @@ public class Index implements IIndex {
         new ConcurrentHashMap<IndexURI, Multimap<IndexPartitionDescriptor, IndexEntry>>();
     private final Multimap<IndexPartitionDescriptor, IndexEntry> entriesPerPartitionDescriptor = LinkedHashMultimap
         .create();
-    private final Multimap<URI, IndexEntry> entriesPerFile = LinkedHashMultimap.create();
-    private final Multimap<IStrategoTerm, IndexEntry> entriesPerPartition = LinkedHashMultimap.create();
     private final Map<IndexPartitionDescriptor, IndexPartition> partitions =
         new HashMap<IndexPartitionDescriptor, IndexPartition>();
 
@@ -108,8 +105,6 @@ public class Index implements IIndex {
 
         // Add entry to partitions.
         entriesPerPartitionDescriptor.put(partition, entry);
-        entriesPerFile.put(partition.getURI(), entry);
-        entriesPerPartition.put(partition.getPartition(), entry);
     }
 
     public void addAll(IStrategoList entries, IndexPartitionDescriptor partitionDescriptor) {
@@ -133,8 +128,6 @@ public class Index implements IIndex {
             if(parentURI != null)
                 childValues.remove(partitionDescriptor, entry);
             entriesPerPartitionDescriptor.remove(partitionDescriptor, entry);
-            entriesPerFile.remove(partitionDescriptor.getURI(), entry);
-            entriesPerPartition.remove(partitionDescriptor.getPartition(), entry);
         }
         
         return removedEntries;
@@ -154,13 +147,10 @@ public class Index implements IIndex {
             if(parentURI != null)
                 childValues.remove(entry.getPartition(), entry);
             entriesPerPartitionDescriptor.remove(entry.getPartition(), entry);
-            entriesPerFile.remove(entry.getPartition().getURI(), entry);
-            entriesPerPartition.remove(entry.getPartition().getPartition(), entry);
         }
         
         return removedEntries;
     }
-
 
     public IIndexEntryIterable get(IStrategoAppl template) {
         IndexURI uri = factory.createURIFromTemplate(template);
@@ -173,12 +163,7 @@ public class Index implements IIndex {
     }
 
     public IIndexEntryIterable getInPartition(IndexPartitionDescriptor partitionDescriptor) {
-        if(partitionDescriptor.getPartition() == null)
-            return getEntryIterable(entriesPerFile.get(partitionDescriptor.getURI()));
-        else if(partitionDescriptor.getURI() == null)
-            return getEntryIterable(entriesPerPartition.get(partitionDescriptor.getPartition()));
-        else
-            return getEntryIterable(entriesPerPartitionDescriptor.get(partitionDescriptor));
+        return getEntryIterable(entriesPerPartitionDescriptor.get(partitionDescriptor));
     }
 
     public Collection<IndexPartitionDescriptor> getPartitionsOf(IStrategoAppl template) {
@@ -231,16 +216,8 @@ public class Index implements IIndex {
         for(Multimap<IndexPartitionDescriptor, IndexEntry> map : childValues)
             map.removeAll(partitionDescriptor);
 
-        if(partitionDescriptor.getPartition() == null)
-            entriesPerFile.removeAll(partitionDescriptor.getURI());
-        else if(partitionDescriptor.getURI() == null)
-            entriesPerPartition.removeAll(partitionDescriptor.getPartition());
-        else {
-            entriesPerPartitionDescriptor.removeAll(partitionDescriptor);
-            clearPartition(new IndexPartitionDescriptor(partitionDescriptor.getURI(), null));
-            clearPartition(new IndexPartitionDescriptor(null, partitionDescriptor.getPartition()));
-        }
-
+        entriesPerPartitionDescriptor.removeAll(partitionDescriptor);
+        
         assert !getInPartition(partitionDescriptor).iterator().hasNext();
     }
 
@@ -256,8 +233,6 @@ public class Index implements IIndex {
         entries.clear();
         childs.clear();
         entriesPerPartitionDescriptor.clear();
-        entriesPerFile.clear();
-        entriesPerPartition.clear();
         partitions.clear();
     }
 
