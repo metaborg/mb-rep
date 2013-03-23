@@ -117,11 +117,12 @@ public class Index implements IIndex {
     public Collection<IndexEntry> remove(IStrategoAppl template, IndexPartitionDescriptor partitionDescriptor) {
         IndexURI uri = factory.createURIFromTemplate(template);
         IndexURI parentURI = uri.getParent(termFactory);
-        // TODO: Should this use innerEntries()/innerChildEntries()?
-        Multimap<IndexPartitionDescriptor, IndexEntry> entryValues = entries.get(uri);
+        
+        Multimap<IndexPartitionDescriptor, IndexEntry> entryValues = innerEntries(uri);
         Multimap<IndexPartitionDescriptor, IndexEntry> childValues = null;
         if(parentURI != null)
-            childValues = childs.get(parentURI);
+            childValues = innerChildEntries(uri.getParent(termFactory));
+        
         Collection<IndexEntry> removedEntries = entryValues.removeAll(partitionDescriptor);
 
         for(IndexEntry entry : removedEntries) {
@@ -136,10 +137,12 @@ public class Index implements IIndex {
     public Collection<IndexEntry> removeAll(IStrategoAppl template) {
         IndexURI uri = factory.createURIFromTemplate(template);
         IndexURI parentURI = uri.getParent(termFactory);
+        
         Multimap<IndexPartitionDescriptor, IndexEntry> entryValues = innerEntries(uri);
         Multimap<IndexPartitionDescriptor, IndexEntry> childValues = null;
         if(parentURI != null)
             childValues = innerChildEntries(uri.getParent(termFactory));
+        
         Collection<IndexEntry> removedEntries = entryValues.values();
         entries.remove(uri);
 
