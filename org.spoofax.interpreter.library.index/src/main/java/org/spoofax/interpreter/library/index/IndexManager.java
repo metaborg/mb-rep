@@ -91,13 +91,13 @@ public class IndexManager {
 
             for(TemplateWithPartitionDescriptor entry : currentIndex.getRemovedEntries())
                 index.remove(entry.getTemplate(), entry.getPartitionDescriptor());
-            
+
             for(IStrategoAppl template : currentIndex.getRemovedAllEntries())
                 index.removeAll(template);
 
             for(IndexEntry entry : transactionIndex.getAll())
                 index.add(entry);
-            
+
             transactionIndex.clearAll();
         } finally {
             transactionLock.writeLock().unlock();
@@ -130,7 +130,7 @@ public class IndexManager {
 
     public void loadIndex(URI project, String language, ITermFactory factory, IOAgent agent) {
         synchronized(getSyncRoot()) {
-        	indexedLanguages.add(language);
+            indexedLanguages.add(language);
             WeakReference<IIndex> indexRef = indexCache.get(project);
             IIndex index = indexRef == null ? null : indexRef.get();
             if(index == null) {
@@ -143,6 +143,21 @@ public class IndexManager {
             indexCache.put(project, new WeakReference<IIndex>(index));
             current.set(index);
             currentProject.set(project);
+        }
+    }
+
+    public void unloadIndex(URI removedProject) {
+        WeakReference<IIndex> removedIndex = indexCache.remove(removedProject);
+
+        IIndex index = current.get();
+        if(index != null && index == removedIndex.get()) {
+            current.set(null);
+            currentPartition.set(null);
+        }
+
+        URI project = currentProject.get();
+        if(project != null && project.equals(removedProject)) {
+            currentProject.set(null);
         }
     }
 

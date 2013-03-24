@@ -30,6 +30,7 @@ public class IndexLibrary extends AbstractStrategoOperatorRegistry {
         add(new LANG_index_get_file_revision(index));
         add(new LANG_index_set_current_file(index));
         add(new LANG_index_reload(index));
+        add(new LANG_index_unload(index));
     }
 
     public String getOperatorRegistryName() {
