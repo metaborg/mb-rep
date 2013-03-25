@@ -480,6 +480,66 @@ public class IndexSymbolTableTest extends IndexTest {
     }
     
     @Test
+    public void removeOne() {
+        IStrategoTerm fileTerm1 = file("TestFile", "Partition", "1");
+        IStrategoTerm fileTerm2 = file("TestFile", "Partition", "2");
+        IndexPartitionDescriptor file1 = setupIndex(fileTerm1);
+        IndexPartitionDescriptor file2 = setupIndex(fileTerm2);
+
+        IStrategoAppl def = def("Entity", "CRM", "Person");
+        IStrategoAppl defData = defData(constructor("Type"), constructor("Type", str("String")) ,"Class", "java", "lang", "String");
+        IStrategoAppl defDataTemplate = defData(constructor("Type"), tuple() ,"Class", "java", "lang", "String");
+
+        startTransaction();
+
+        assertEquals(0, size(index.get(def)));
+        assertEquals(0, size(index.get(defData)));
+        assertEquals(0, size(index.getInPartition(file1)));
+        assertEquals(0, size(index.getInPartition(file2)));
+
+        index.add(def, file1);
+        index.add(def, file2);
+        index.add(defData, file1);
+        index.add(defData, file2);
+        
+        index.removeOne(defDataTemplate);
+        
+        IIndexEntryIterable ret1 = index.getInPartition(file1);
+        IIndexEntryIterable ret2 = index.getInPartition(file2);
+
+        try {
+            ret1.lock();
+            ret2.lock();
+
+            assertTrue(containsEntry(ret1, def));
+            assertTrue(containsEntry(ret2, def));
+            assertTrue(containsEntry(ret1, defData));
+            assertTrue(containsEntry(ret2, defData));
+        } finally {
+            ret1.unlock();
+            ret2.unlock();
+        }
+        
+        index.removeOne(defData);
+        
+        IIndexEntryIterable ret3 = index.getInPartition(file1);
+        IIndexEntryIterable ret4 = index.getInPartition(file2);
+
+        try {
+            ret3.lock();
+            ret4.lock();
+
+            assertTrue(containsEntry(ret3, def));
+            assertTrue(containsEntry(ret4, def));
+            assertFalse(containsEntry(ret3, defData));
+            assertFalse(containsEntry(ret4, defData));
+        } finally {
+            ret3.unlock();
+            ret4.unlock();
+        }
+    }
+    
+    @Test
     public void clear() {
         IndexPartitionDescriptor file1 = setupIndex(file("TestFile", "Partition", "1"));
         IndexPartitionDescriptor file2 = setupIndex(file("TestFile", "Partition", "2"));

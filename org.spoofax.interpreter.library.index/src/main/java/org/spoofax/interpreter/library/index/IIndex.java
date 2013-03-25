@@ -61,6 +61,14 @@ public interface IIndex {
      * @param template The template to match entries against.
      */
     public abstract Collection<IndexEntry> removeAll(IStrategoAppl template);
+    
+    /**
+     * Removes one given entry. Compares both the URI and value of the entry.
+     * Warning: VERY SLOW!
+     * 
+     * @param entryTerm The term representing the entry to remove.
+     */
+    public abstract Collection<IndexEntry> removeOne(IStrategoAppl entryTerm);
 
     /**
      * Gets all entries that match given template.

@@ -85,6 +85,12 @@ public class TransactionIndex implements IIndex {
         removedAllEntries.add(template);
         return removed;
     }
+    
+    public Collection<IndexEntry> removeOne(IStrategoAppl entryTerm) {
+        Collection<IndexEntry> removed = transactionIndex.removeOne(entryTerm);
+        removedAllEntries.add(entryTerm);
+        return removed;  
+    }
 
     public IIndexEntryIterable get(final IStrategoAppl template) {
         return new AbstractIndexEntryIterable(getReadLock()) {

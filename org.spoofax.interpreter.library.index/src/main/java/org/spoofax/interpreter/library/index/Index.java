@@ -1,5 +1,6 @@
 package org.spoofax.interpreter.library.index;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -76,7 +77,7 @@ public class Index implements IIndex {
         return ret;
     }
 
-    public void add(IStrategoAppl entry, IndexPartitionDescriptor partitionDescriptor) {
+    private IndexEntry createEntry(IStrategoAppl entry, IndexPartitionDescriptor partitionDescriptor) {
         ensureInitialized();
 
         IStrategoConstructor constructor = entry.getConstructor();
@@ -84,10 +85,11 @@ public class Index implements IIndex {
         IStrategoTerm identifier = factory.getEntryIdentifier(entry);
         IStrategoTerm value = factory.getEntryValue(entry);
 
-        IndexEntry newEntry =
-            factory.createEntry(constructor, identifier, type, value, partitionDescriptor);
-
-        add(newEntry);
+        return factory.createEntry(constructor, identifier, type, value, partitionDescriptor);
+    }
+    
+    public void add(IStrategoAppl entry, IndexPartitionDescriptor partitionDescriptor) {
+        add(createEntry(entry, partitionDescriptor));
     }
 
     public void add(IndexEntry entry) {
@@ -146,6 +148,32 @@ public class Index implements IIndex {
         Collection<IndexEntry> removedEntries = entryValues.values();
         entries.remove(uri);
 
+        for(IndexEntry entry : removedEntries) {
+            if(parentURI != null)
+                childValues.remove(entry.getPartition(), entry);
+            entriesPerPartitionDescriptor.remove(entry.getPartition(), entry);
+        }
+        
+        return removedEntries;
+    }
+    
+    public Collection<IndexEntry> removeOne(IStrategoAppl entryTerm) {
+        IndexURI uri = factory.createURIFromTemplate(entryTerm);
+        IndexURI parentURI = uri.getParent(termFactory);
+        
+        Multimap<IndexPartitionDescriptor, IndexEntry> entryValues = innerEntries(uri);
+        Multimap<IndexPartitionDescriptor, IndexEntry> childValues = null;
+        if(parentURI != null)
+            childValues = innerChildEntries(uri.getParent(termFactory));
+        
+        Collection<IndexEntry> removedEntries = new ArrayList<IndexEntry>(); 
+        IndexPartitionDescriptor[] partitions = entryValues.keySet().toArray(new IndexPartitionDescriptor[0]);
+        for(IndexPartitionDescriptor partition : partitions) {
+            IndexEntry entry = createEntry(entryTerm, partition);
+            if(entryValues.remove(partition, entry))
+                removedEntries.add(entry);
+        }
+        
         for(IndexEntry entry : removedEntries) {
             if(parentURI != null)
                 childValues.remove(entry.getPartition(), entry);
