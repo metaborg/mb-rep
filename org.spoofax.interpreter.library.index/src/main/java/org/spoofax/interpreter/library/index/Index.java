@@ -19,7 +19,6 @@ import org.spoofax.interpreter.terms.ITermFactory;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashMultiset;
-import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Multisets;
@@ -37,7 +36,7 @@ public class Index implements IIndex {
 		new ConcurrentHashMap<IndexURI, Multimap<IndexPartitionDescriptor, IndexEntry>>();
 	private final ConcurrentHashMap<IndexURI, Multimap<IndexPartitionDescriptor, IndexEntry>> childs =
 		new ConcurrentHashMap<IndexURI, Multimap<IndexPartitionDescriptor, IndexEntry>>();
-	private final Multimap<IndexPartitionDescriptor, IndexEntry> entriesPerPartitionDescriptor = LinkedHashMultimap
+	private final Multimap<IndexPartitionDescriptor, IndexEntry> entriesPerPartitionDescriptor = ArrayListMultimap
 		.create();
 	private final Map<IndexPartitionDescriptor, IndexPartition> partitions =
 		new HashMap<IndexPartitionDescriptor, IndexPartition>();
@@ -100,6 +99,7 @@ public class Index implements IIndex {
 	public void startCollection(IndexPartitionDescriptor partitionDescriptor) {
 		addedEntries.clear();
 		removedEntries.clear();
+		oldEntries.clear();
 		removedEntries.addAll(entriesPerPartitionDescriptor.get(partitionDescriptor));
 		oldEntries.addAll(entriesPerPartitionDescriptor.get(partitionDescriptor));
 		clearPartition(partitionDescriptor);
@@ -296,6 +296,7 @@ public class Index implements IIndex {
 		childs.clear();
 		entriesPerPartitionDescriptor.clear();
 		partitions.clear();
+		inCollection = false;
 	}
 
 	private static final IIndexEntryIterable getEntryIterable(Collection<IndexEntry> collection) {

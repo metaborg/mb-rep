@@ -7,7 +7,7 @@ import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 public class LANG_index_stop_collection extends AbstractPrimitive {
-	private static String NAME = "LANG_index_start_collection";
+	private static String NAME = "LANG_index_stop_collection";
 
 	private final IndexManager index;
 
