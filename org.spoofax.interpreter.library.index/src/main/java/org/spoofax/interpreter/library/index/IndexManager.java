@@ -1,11 +1,8 @@
 package org.spoofax.interpreter.library.index;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
 import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.util.Date;
