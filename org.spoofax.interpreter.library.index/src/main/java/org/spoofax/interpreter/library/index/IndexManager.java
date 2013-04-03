@@ -177,12 +177,6 @@ public class IndexManager {
 	public void storeCurrent(ITermFactory factory) throws IOException {
 		 File file = getIndexFile(currentProject.get());
 		 IStrategoTerm stored = indexFactory.toTerm(getCurrent(), factory, true);
-		// Writer writer = new BufferedWriter(new FileWriter(file));
-		// try {
-		// stored.writeAsString(writer, IStrategoTerm.INFINITE);
-		// } finally {
-		// writer.close();
-		// }
 		file.createNewFile();
 		FileOutputStream fos = new FileOutputStream(file);
 		try{
