@@ -46,7 +46,10 @@ public class StrategoList extends StrategoTerm implements IStrategoList, Iterabl
         this.head = head;
         this.tail = tail;
         
-        if (storageType != MUTABLE) initImmutableHashCode();
+        if (storageType != MUTABLE) { 
+        	initImmutableHashCode();
+        	size = calculateSize();
+    	}
     }
     
     public IStrategoTerm head() {
@@ -89,6 +92,10 @@ public class StrategoList extends StrategoTerm implements IStrategoList, Iterabl
     public final int size() {
         return getSubtermCount();
     }
+    
+    protected int calculateSize() {
+    	return (head == null ? 0 : 1) + (tail == null ? 0 : tail.size());
+    }
 
     public IStrategoTerm getSubterm(int index) {
         IStrategoList list = this;
@@ -101,16 +108,10 @@ public class StrategoList extends StrategoTerm implements IStrategoList, Iterabl
     }
 
     public int getSubtermCount() {
-    	int result = size;
-		if (result == UNKNOWN_SIZE) {
-    		result = 0;
-    		for (IStrategoList cur = this; !cur.isEmpty(); cur = cur.tail())
-    			result++;
-    		if (getStorageType() != MUTABLE)
-    			size = result;
-    		return result;
+		if (size == UNKNOWN_SIZE) {
+    		return calculateSize();
     	} else {
-    		return result;
+    		return size;
     	}
     }
 
