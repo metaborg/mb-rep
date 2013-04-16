@@ -18,12 +18,10 @@ import org.spoofax.interpreter.terms.ITermPrinter;
 /**
  * A basic stratego list implementation using a linked-list data structure.
  */
-public class StrategoList extends StrategoTerm implements IStrategoList, Iterable<IStrategoTerm> {
+public class StrategoList extends StrategoTerm implements IStrategoList {
 	
 	private static final long serialVersionUID = 624120573663698628L;
 
-	private static final int UNKNOWN_SIZE = -1;
-    
     /**
      * @see #hashFunction()
      * @see TermFactory#EMPTY_LIST  The singleton maximally shared empty list instance.
@@ -34,7 +32,7 @@ public class StrategoList extends StrategoTerm implements IStrategoList, Iterabl
     
     private IStrategoList tail;
     
-    private int size = UNKNOWN_SIZE;
+    private final int size;
 
     /**
      * Creates a new list.
@@ -46,10 +44,9 @@ public class StrategoList extends StrategoTerm implements IStrategoList, Iterabl
         this.head = head;
         this.tail = tail;
         
-        if (storageType != MUTABLE) { 
-        	initImmutableHashCode();
-        	size = calculateSize();
-    	}
+        if (storageType != MUTABLE) initImmutableHashCode();
+        
+        this.size = (head == null ? 0 : 1) + (tail == null ? 0 : tail.size());
     }
     
     public IStrategoTerm head() {
@@ -90,11 +87,7 @@ public class StrategoList extends StrategoTerm implements IStrategoList, Iterabl
 
     
     public final int size() {
-        return getSubtermCount();
-    }
-    
-    protected int calculateSize() {
-    	return (head == null ? 0 : 1) + (tail == null ? 0 : tail.size());
+        return size;
     }
 
     public IStrategoTerm getSubterm(int index) {
@@ -108,11 +101,7 @@ public class StrategoList extends StrategoTerm implements IStrategoList, Iterabl
     }
 
     public int getSubtermCount() {
-		if (size == UNKNOWN_SIZE) {
-    		return calculateSize();
-    	} else {
-    		return size;
-    	}
+    	return size;
     }
 
     public int getTermType() {
