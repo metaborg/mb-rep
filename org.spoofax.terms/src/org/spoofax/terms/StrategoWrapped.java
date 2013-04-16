@@ -1,6 +1,7 @@
 package org.spoofax.terms;
 
 import java.io.IOException;
+import java.util.Iterator;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
@@ -177,6 +178,10 @@ public class StrategoWrapped extends StrategoTerm implements IStrategoAppl, IStr
 		if (getTermType() != STRING)
 			throw new TermWrapperException("Called stringValue() on a term that is not of type STRING");
 		return ((IStrategoString) wrapped).stringValue();
+	}
+
+	public Iterator<IStrategoTerm> iterator() {
+		return wrapped.iterator();
 	}
 
 }

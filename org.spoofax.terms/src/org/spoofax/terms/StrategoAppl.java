@@ -8,7 +8,9 @@
 package org.spoofax.terms;
 
 import java.io.IOException;
+import java.util.Iterator;
 
+import org.spoofax.ArrayIterator;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -147,5 +149,8 @@ public class StrategoAppl extends StrategoTerm implements IStrategoAppl {
         }
         return (int)(r >> 12);
     }
-    
+
+	public Iterator<IStrategoTerm> iterator() {
+		return new ArrayIterator<IStrategoTerm>(kids);
+	}
 }
