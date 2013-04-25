@@ -6,7 +6,6 @@ import java.util.Collection;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.MethodRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.spoofax.interpreter.library.index.IndexPartition;
@@ -19,7 +18,7 @@ import com.carrotsearch.junitbenchmarks.Clock;
 @RunWith(value = Parameterized.class)
 public class IndexGetPartitionsPerformanceTest extends IndexPerformanceTest {
     @Rule
-    public MethodRule benchmarkRun;
+    public BenchmarkRule benchmarkRun;
 
     private static int NUM_GET = 200000;
 

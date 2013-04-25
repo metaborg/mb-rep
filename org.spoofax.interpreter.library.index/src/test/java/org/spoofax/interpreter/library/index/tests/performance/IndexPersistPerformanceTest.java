@@ -7,7 +7,6 @@ import java.io.ObjectOutputStream;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.MethodRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -19,7 +18,7 @@ import com.carrotsearch.junitbenchmarks.Clock;
 @RunWith(value = Parameterized.class)
 public class IndexPersistPerformanceTest extends IndexPerformanceTest {
     @Rule
-    public MethodRule benchmarkRun;
+    public BenchmarkRule benchmarkRun;
 
     public IndexPersistPerformanceTest(int numItems, int numFiles, boolean startTransaction) {
         super(numItems, numFiles, startTransaction);
