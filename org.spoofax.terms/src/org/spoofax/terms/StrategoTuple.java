@@ -36,8 +36,7 @@ public class StrategoTuple extends StrategoTerm implements IStrategoTuple {
 
     public IStrategoTerm[] getAllSubterms() {
         IStrategoTerm[] r = new IStrategoTerm[kids.length];
-        for(int i=0; i<kids.length; i++)
-            r[i] = kids[i];
+        System.arraycopy(kids, 0, r, 0, kids.length);
         return r;
     }
     
