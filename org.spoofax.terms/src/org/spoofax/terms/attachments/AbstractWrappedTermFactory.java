@@ -1,5 +1,7 @@
 package org.spoofax.terms.attachments;
 
+import java.util.Collection;
+
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoInt;
@@ -11,18 +13,47 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.AbstractTermFactory;
+import org.spoofax.terms.ParseError;
 
-/** 
+/**
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 public abstract class AbstractWrappedTermFactory extends AbstractTermFactory {
-	
-	private final ITermFactory baseFactory;
-	
+
+	private ITermFactory baseFactory;
+
 	public AbstractWrappedTermFactory(int storageType, ITermFactory baseFactory) {
 		super(storageType);
-		this.baseFactory = baseFactory.getFactoryWithStorageType(storageType);
-		assert checkStorageType(this.baseFactory, storageType);
+		replaceBaseFactory(baseFactory);
+	}
+
+	/**
+	 * Shallow operation of {@link #replaceBaseFactory(ITermFactory, boolean)}
+	 * 
+	 */
+	public ITermFactory replaceBaseFactory(ITermFactory baseFactory) {
+		return replaceBaseFactory(baseFactory, false);
+	}
+
+	/**
+	 * Replace the deepest base factory with the given one returning the replaced base factory/
+	 * 
+	 * @param baseFactory
+	 *            The new base factory
+	 * @param deep
+	 *            If <code>true</code> then the deepest possible base factory will be replaced. If
+	 *            <code>false</code> then the immediate base factory will be replaced
+	 * 
+	 * @return The replaced base factory
+	 */
+	public ITermFactory replaceBaseFactory(ITermFactory baseFactory, boolean deep) {
+		if (deep && this.baseFactory instanceof AbstractWrappedTermFactory) {
+			return ((AbstractWrappedTermFactory) this.baseFactory).replaceBaseFactory(baseFactory);
+		}
+		ITermFactory oldFactory = this.baseFactory;
+		this.baseFactory = baseFactory;
+		assert checkStorageType(this.baseFactory, getDefaultStorageType());
+		return oldFactory;
 	}
 
 	public IStrategoPlaceholder makePlaceholder(IStrategoTerm template) {
@@ -46,7 +77,46 @@ public abstract class AbstractWrappedTermFactory extends AbstractTermFactory {
 	}
 
 	@Override
-	public IStrategoAppl makeAppl(IStrategoConstructor constructor, IStrategoTerm[] kids, IStrategoList annotations) {
+	public IStrategoList makeListCons(IStrategoTerm head, IStrategoList tail, IStrategoList annos) {
+		return baseFactory.makeListCons(head, tail, annos);
+	}
+
+	public IStrategoString tryMakeUniqueString(String name) {
+		return baseFactory.tryMakeUniqueString(name);
+	}
+
+	@Override
+	public IStrategoTerm replaceTerm(IStrategoTerm term, IStrategoTerm old) {
+		return baseFactory.replaceTerm(term, old);
+	}
+
+	/**
+	 * Shallow operation of {@link #getWrappedFactory(boolean)}
+	 * 
+	 * @return
+	 */
+	public ITermFactory getWrappedFactory() {
+		return getWrappedFactory(false);
+	}
+
+	/**
+	 * Returns the wrapped factory. If the argument is <code>true</code> then an attempt is made to
+	 * return the deepest base factory.
+	 * 
+	 * @param deep
+	 *            <code>true</code> if the deepest base factory should be returned
+	 * @return
+	 */
+	public ITermFactory getWrappedFactory(boolean deep) {
+		if (deep && this.baseFactory instanceof AbstractWrappedTermFactory) {
+			return ((AbstractWrappedTermFactory) this.baseFactory).getWrappedFactory(true);
+		}
+		return baseFactory;
+	}
+
+	@Override
+	public IStrategoAppl makeAppl(IStrategoConstructor constructor, IStrategoTerm[] kids,
+			IStrategoList annotations) {
 		return baseFactory.makeAppl(constructor, kids, annotations);
 	}
 
@@ -61,16 +131,44 @@ public abstract class AbstractWrappedTermFactory extends AbstractTermFactory {
 	}
 
 	@Override
-	public IStrategoList makeListCons(IStrategoTerm head, IStrategoList tail, IStrategoList annos) {
-		return baseFactory.makeListCons(head, tail, annos);
+	public IStrategoAppl replaceAppl(IStrategoConstructor constructor, IStrategoTerm[] kids,
+			IStrategoAppl old) {
+		return baseFactory.replaceAppl(constructor, kids, old);
 	}
 
-	public IStrategoString tryMakeUniqueString(String name) {
-		return baseFactory.tryMakeUniqueString(name);
-	}
-	
 	@Override
-	public IStrategoTerm replaceTerm(IStrategoTerm term, IStrategoTerm old) {
-		return baseFactory.replaceTerm(term, old);
+	public IStrategoTuple replaceTuple(IStrategoTerm[] kids, IStrategoTuple old) {
+		return baseFactory.replaceTuple(kids, old);
+	}
+
+	@Override
+	public IStrategoList replaceList(IStrategoTerm[] kids, IStrategoList old) {
+		return baseFactory.replaceList(kids, old);
+	}
+
+	@Override
+	public IStrategoList replaceListCons(IStrategoTerm head, IStrategoList tail,
+			IStrategoTerm oldHead, IStrategoList oldTail) {
+		return baseFactory.replaceListCons(head, tail, oldHead, oldTail);
+	}
+
+	@Override
+	public IStrategoList makeList() {
+		return baseFactory.makeList();
+	}
+
+	@Override
+	public IStrategoList makeList(Collection<? extends IStrategoTerm> terms) {
+		return baseFactory.makeList(terms);
+	}
+
+	@Override
+	public IStrategoTerm parseFromString(String text) throws ParseError {
+		return baseFactory.parseFromString(text);
+	}
+
+	@Override
+	public IStrategoTerm copyAttachments(IStrategoTerm from, IStrategoTerm to) {
+		return baseFactory.copyAttachments(from, to);
 	}
 }
