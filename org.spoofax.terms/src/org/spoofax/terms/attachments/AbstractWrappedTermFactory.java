@@ -56,6 +56,19 @@ public abstract class AbstractWrappedTermFactory extends AbstractTermFactory {
 		return oldFactory;
 	}
 
+	/**
+	 * Tests whether this factory is or wraps a factory of the given type.
+	 */
+	public boolean hasBaseFactory(Class<? extends ITermFactory> type) {
+		if (type.isAssignableFrom(this.getClass())) {
+			return true;
+		}
+		if (this.baseFactory instanceof AbstractWrappedTermFactory) {
+			return ((AbstractWrappedTermFactory) baseFactory).hasBaseFactory(type);
+		}
+		return false;
+	}
+	
 	public IStrategoPlaceholder makePlaceholder(IStrategoTerm template) {
 		return baseFactory.makePlaceholder(template);
 	}
