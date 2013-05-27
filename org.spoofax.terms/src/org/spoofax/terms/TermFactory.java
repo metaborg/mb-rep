@@ -52,7 +52,7 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
         new WeakHashMap<String, WeakReference<StrategoString>>();
     
     public TermFactory() {
-    	super(SHARABLE);
+    	super(MUTABLE);
     }
     
     public ITermFactory getFactoryWithStorageType(int storageType) {
