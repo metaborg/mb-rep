@@ -44,7 +44,7 @@ public class StrategoList extends StrategoTerm implements IStrategoList {
         this.head = head;
         this.tail = tail;
         
-        if (storageType != MUTABLE) initImmutableHashCode();
+        /*if (storageType != MUTABLE)*/ initImmutableHashCode();
         
         this.size = (head == null ? 0 : 1) + (tail == null ? 0 : tail.size());
     }
