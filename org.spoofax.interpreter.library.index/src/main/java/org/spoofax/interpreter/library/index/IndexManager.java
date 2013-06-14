@@ -14,6 +14,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import javax.management.RuntimeErrorException;
+
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -23,7 +25,6 @@ import org.spoofax.terms.io.binary.TermReader;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
- * @author Gabri��l Konat
  */
 public class IndexManager {
 	private final static AtomicLong revisionProvider = new AtomicLong();
@@ -31,7 +32,8 @@ public class IndexManager {
 	private final static IndexFactory indexFactory = new IndexFactory();
 
 	/**
-	 * Indices by language and project. Access requires a lock on {@link #getSyncRoot}
+	 * Indices by language and project. Access requires a lock on
+	 * {@link #getSyncRoot}
 	 */
 	private static Map<URI, WeakReference<IIndex>> indexCache = new HashMap<URI, WeakReference<IIndex>>();
 	private static Set<String> indexedLanguages = new HashSet<String>();
@@ -66,13 +68,15 @@ public class IndexManager {
 	public long startTransaction(ITermFactory factory, IOAgent agent) {
 		long rev = revisionProvider.getAndIncrement();
 		IIndex currentIndex = current.get();
-		currentIndex.getPartition(currentPartition.get()).setRevisionTime(rev, new Date());
+		currentIndex.getPartition(currentPartition.get()).setRevisionTime(rev,
+				new Date());
 
 		assert currentIndex instanceof Index; // Prevent multiple transactions.
 
 		IIndex transactionIndex = new Index();
 		transactionIndex.initialize(factory, agent);
-		current.set(new TransactionIndex(currentIndex, transactionIndex, currentPartition.get()));
+		current.set(new TransactionIndex(currentIndex, transactionIndex,
+				currentPartition.get()));
 
 		return rev;
 	}
@@ -88,8 +92,10 @@ public class IndexManager {
 			if (currentIndex.hasClearedCurrentPartition())
 				index.clearPartition(currentIndex.getCurrentPartition());
 
-			for (TemplateWithPartitionDescriptor entry : currentIndex.getRemovedEntries())
-				index.remove(entry.getTemplate(), entry.getPartitionDescriptor());
+			for (TemplateWithPartitionDescriptor entry : currentIndex
+					.getRemovedEntries())
+				index.remove(entry.getTemplate(),
+						entry.getPartitionDescriptor());
 
 			for (IStrategoAppl template : currentIndex.getRemovedAllEntries())
 				index.removeAll(template);
@@ -127,7 +133,8 @@ public class IndexManager {
 		}
 	}
 
-	public void loadIndex(URI project, String language, ITermFactory factory, IOAgent agent) {
+	public void loadIndex(URI project, String language, ITermFactory factory,
+			IOAgent agent) {
 		synchronized (getSyncRoot()) {
 			indexedLanguages.add(language);
 			WeakReference<IIndex> indexRef = indexCache.get(project);
@@ -161,22 +168,24 @@ public class IndexManager {
 	}
 
 	public IIndex tryReadFromFile(File file, ITermFactory factory, IOAgent agent) {
-		IIndex index = new Index(); // TODO: Don't create concrete implementation here.
+		IIndex index = new Index(); // TODO: Don't create concrete
+									// implementation here.
 		index.initialize(factory, agent);
 		try {
-			IStrategoTerm term = new TermReader(factory).parseFromFile(file.toString());
+			IStrategoTerm term = new TermReader(factory).parseFromFile(file
+					.toString());
 			return indexFactory.indexFromTerms(index, term, factory, true);
 		} catch (Exception e) {
-			return null;
+			throw new RuntimeException("CUCU", e);
 		}
 	}
 
 	public void storeCurrent(ITermFactory factory) throws IOException {
-		 File file = getIndexFile(currentProject.get());
-		 IStrategoTerm stored = indexFactory.toTerm(getCurrent(), factory, true);
+		File file = getIndexFile(currentProject.get());
+		IStrategoTerm stored = indexFactory.toTerm(getCurrent(), factory, true);
 		file.createNewFile();
 		FileOutputStream fos = new FileOutputStream(file);
-		try{
+		try {
 			SAFWriter.writeTermToSAFStream(stored, fos);
 			fos.flush();
 		} finally {
