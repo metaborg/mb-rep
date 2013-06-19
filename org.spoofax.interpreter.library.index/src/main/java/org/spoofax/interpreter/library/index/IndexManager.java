@@ -21,11 +21,8 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.io.binary.SAFWriter;
 import org.spoofax.terms.io.binary.TermReader;
 import org.strategoxt.imp.runtime.stratego.NotificationCenter;
+import org.strategoxt.imp.runtime.stratego.QueueAnalysisService;
 
-/**
- * @author Lennart Kats <lennart add lclnet.nl>
- * @author Gabri��l Konat
- */
 public class IndexManager {
 	private final static AtomicLong revisionProvider = new AtomicLong();
 	private final static ReadWriteLock transactionLock = new ReentrantReadWriteLock();
@@ -35,7 +32,6 @@ public class IndexManager {
 	 * Indices by language and project. Access requires a lock on {@link #getSyncRoot}
 	 */
 	private static Map<URI, WeakReference<IIndex>> indexCache = new HashMap<URI, WeakReference<IIndex>>();
-	private static Set<String> indexedLanguages = new HashSet<String>();
 
 	private ThreadLocal<IIndex> current = new ThreadLocal<IIndex>();
 	private ThreadLocal<URI> currentProject = new ThreadLocal<URI>();
@@ -122,15 +118,9 @@ public class IndexManager {
 					"Index has not been set-up, use index-setup(|language, project-paths) to set up the index before use.");
 	}
 
-	public static boolean isKnownIndexingLanguage(String language) {
-		synchronized (getSyncRoot()) {
-			return indexedLanguages.contains(language);
-		}
-	}
-
 	public void loadIndex(URI project, String language, ITermFactory factory, IOAgent agent) {
 		synchronized (getSyncRoot()) {
-			indexedLanguages.add(language);
+			QueueAnalysisService.addIndexedLanguage(language);
 			WeakReference<IIndex> indexRef = indexCache.get(project);
 			IIndex index = indexRef == null ? null : indexRef.get();
 			if (index == null) {
