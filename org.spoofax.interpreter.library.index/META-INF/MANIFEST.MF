@@ -4,11 +4,9 @@ Bundle-Name: org.spoofax.interpreter.library.index
 Bundle-SymbolicName: org.spoofax.interpreter.library.index
 Bundle-Version: 1.0.0.qualifier
 Require-Bundle: org.spoofax.interpreter.core,
- org.spoofax.terms,
- org.spoofax.jsglr,
+ org.spoofax.terms;bundle-version="1.0.0",
+ org.spoofax.jsglr;bundle-version="0.3.0",
  org.spoofax.interpreter.externaldeps,
- org.strategoxt.imp.runtime,
  org.junit4
 Bundle-ClassPath: .
-Export-Package: org.spoofax.interpreter.library.index
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: org.spoofax.interpreter.library.index;uses:="org.spoofax.interpreter.core,org.spoofax.interpreter.terms,org.spoofax.interpreter.library"

@@ -20,7 +20,6 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.io.binary.SAFWriter;
 import org.spoofax.terms.io.binary.TermReader;
-import org.strategoxt.imp.runtime.stratego.NotificationCenter;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>

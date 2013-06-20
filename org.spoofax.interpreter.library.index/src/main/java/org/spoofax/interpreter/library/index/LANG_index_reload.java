@@ -4,7 +4,6 @@ import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.library.AbstractPrimitive;
 import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.strategoxt.imp.runtime.stratego.NotificationCenter;
 
 public class LANG_index_reload extends AbstractPrimitive {
     private static String NAME = "LANG_index_reload";
