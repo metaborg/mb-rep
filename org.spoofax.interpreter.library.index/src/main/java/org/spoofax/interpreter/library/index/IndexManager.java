@@ -185,14 +185,14 @@ public class IndexManager {
 		}
 	}
 
-	private URI getProjectURI(String projectPath, IOAgent agent) {
+	public URI getProjectURI(String projectPath, IOAgent agent) {
 		File file = new File(projectPath);
 		if(!file.isAbsolute())
 			file = new File(agent.getWorkingDir(), projectPath);
 		return file.toURI();
 	}
 
-	private URI getProjectURIFromAbsolute(String projectPath) {
+	public URI getProjectURIFromAbsolute(String projectPath) {
 		File file = new File(projectPath);
 		if(!file.isAbsolute())
 			throw new RuntimeException("Project path is not absolute.");
