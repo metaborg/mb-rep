@@ -11,25 +11,21 @@ import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 public class LANG_index_unload extends AbstractPrimitive {
-    private static String NAME = "LANG_index_unload";
+	private static String NAME = "LANG_index_unload";
 
-    private final IndexManager index;
+	public LANG_index_unload() {
+		super(NAME, 0, 1);
+	}
 
-    public LANG_index_unload(IndexManager index) {
-        super(NAME, 0, 1);
-        this.index = index;
-    }
-
-    @Override
-    public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
-        if(isTermString(tvars[0])) {
-            IStrategoString projectPath = (IStrategoString) tvars[0];
-            IOAgent agent = SSLLibrary.instance(env).getIOAgent();
-            IndexPartitionDescriptor project = IndexPartitionDescriptor.fromTerm(agent, projectPath);
-            index.unloadIndex(project.getURI());
-            return true;
-        } else {
-            return false;
-        }
-    }
+	@Override
+	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
+		if(isTermString(tvars[0])) {
+			IStrategoString projectPath = (IStrategoString) tvars[0];
+			IOAgent agent = SSLLibrary.instance(env).getIOAgent();
+			IndexManager.getInstance().unloadIndex(projectPath.stringValue(), agent);
+			return true;
+		} else {
+			return false;
+		}
+	}
 }

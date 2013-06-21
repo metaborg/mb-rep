@@ -9,20 +9,17 @@ import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 public class LANG_index_start_transaction extends AbstractPrimitive {
-    private static String NAME = "LANG_index_start_transaction";
+	private static String NAME = "LANG_index_start_transaction";
 
-    private final IndexManager index;
+	public LANG_index_start_transaction() {
+		super(NAME, 0, 0);
+	}
 
-    public LANG_index_start_transaction(IndexManager index) {
-        super(NAME, 0, 0);
-        this.index = index;
-    }
-
-    @Override
-    public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) throws InterpreterException {
-        IOAgent agent = SSLLibrary.instance(env).getIOAgent();
-        long newRev = index.startTransaction(env.getFactory(), agent);
-        env.setCurrent(env.getFactory().makeInt((int) newRev));
-        return true;
-    }
+	@Override
+	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) throws InterpreterException {
+		IOAgent agent = SSLLibrary.instance(env).getIOAgent();
+		long newRev = IndexManager.getInstance().startTransaction(env.getFactory(), agent);
+		env.setCurrent(env.getFactory().makeInt((int) newRev));
+		return true;
+	}
 }

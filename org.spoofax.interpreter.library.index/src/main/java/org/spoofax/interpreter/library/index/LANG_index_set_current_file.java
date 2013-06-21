@@ -9,24 +9,22 @@ import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 public class LANG_index_set_current_file extends AbstractPrimitive {
-    private static String NAME = "LANG_index_set_current_file";
+	private static String NAME = "LANG_index_set_current_file";
 
-    private final IndexManager index;
+	public LANG_index_set_current_file() {
+		super(NAME, 0, 1);
+	}
 
-    public LANG_index_set_current_file(IndexManager index) {
-        super(NAME, 0, 1);
-        this.index = index;
-    }
-
-    @Override
-    public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
-        if(isTermTuple(tvars[0]) || isTermString(tvars[0])) {
-            IIndex ind = index.getCurrent();
-            IndexPartitionDescriptor partitionDescriptor = ind.getPartitionDescriptor(tvars[0]);
-            index.setCurrentPartition(partitionDescriptor);
-            return true;
-        } else {
-            return false;
-        }
-    }
+	@Override
+	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
+		if(isTermTuple(tvars[0]) || isTermString(tvars[0])) {
+			final IndexManager indexManager = IndexManager.getInstance();
+			IIndex ind = indexManager.getCurrent();
+			IndexPartitionDescriptor partitionDescriptor = ind.getPartitionDescriptor(tvars[0]);
+			indexManager.setCurrentPartition(partitionDescriptor);
+			return true;
+		} else {
+			return false;
+		}
+	}
 }

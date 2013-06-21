@@ -31,7 +31,6 @@ public class IndexTest {
     protected static IStrategoTerm fileTerm;
 
     protected static IndexManager indexManager;
-    protected static IndexPartitionDescriptor project;
     protected static IndexPartitionDescriptor file;
     protected static IIndex index;
 
@@ -51,9 +50,8 @@ public class IndexTest {
         projectPath = str("TestPath");
         fileTerm = file("TestFile");
 
-        project = IndexPartitionDescriptor.fromTerm(agent, projectPath);
-        indexManager = new IndexManager();
-        indexManager.loadIndex(project.getURI(), language.stringValue(), factory, agent);
+        indexManager = IndexManager.getInstance();
+        indexManager.loadIndex(projectPath.stringValue(), language.stringValue(), factory, agent);
         index = indexManager.getCurrent();
         index.initialize(factory, agent);
         file = setupIndex(fileTerm);
@@ -64,7 +62,6 @@ public class IndexTest {
         index.clearAll();
         index = null;
         indexManager = null;
-        project = null;
         language = null;
         projectPath = null;
         fileTerm = null;

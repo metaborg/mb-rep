@@ -12,19 +12,16 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 public class LANG_index_start_collection extends AbstractPrimitive {
 	private static String NAME = "LANG_index_start_collection";
 
-	private final IndexManager index;
-
-	public LANG_index_start_collection(IndexManager index) {
+	public LANG_index_start_collection() {
 		super(NAME, 0, 1);
-		this.index = index;
 	}
 
 	@Override
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) throws InterpreterException {
 		if(isTermTuple(tvars[0]) || isTermString(tvars[0])) {
-			IIndex ind = index.getCurrent();
+			IIndex ind = IndexManager.getInstance().getCurrent();
 			IndexPartitionDescriptor partitionDescriptor = ind.getPartitionDescriptor(tvars[0]);
-			index.getCurrent().startCollection(partitionDescriptor);
+			ind.startCollection(partitionDescriptor);
 			return true;
 		} else {
 			return false;
