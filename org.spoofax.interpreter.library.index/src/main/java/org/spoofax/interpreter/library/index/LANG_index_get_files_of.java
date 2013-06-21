@@ -8,17 +8,11 @@ import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-/**
- * @author Lennart Kats <lennart add lclnet.nl>
- */
 public class LANG_index_get_files_of extends AbstractPrimitive {
     private static String NAME = "LANG_index_get_files_of";
 
-    private final IndexManager manager;
-
-    public LANG_index_get_files_of(IndexManager index) {
+    public LANG_index_get_files_of() {
         super(NAME, 0, 1);
-        this.manager = index;
     }
 
     /**
@@ -28,7 +22,7 @@ public class LANG_index_get_files_of extends AbstractPrimitive {
     public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
         if(isTermAppl(tvars[0])) {
             IStrategoAppl template = (IStrategoAppl) tvars[0];
-            IIndex index = manager.getCurrent();
+            IIndex index = IndexManager.getInstance().getCurrent();
             env.setCurrent(IndexPartitionDescriptor.toTerms(env.getFactory(), index.getPartitionsOf(template)));
             return true;
         } else {

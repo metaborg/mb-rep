@@ -6,37 +6,36 @@ import org.spoofax.interpreter.library.AbstractPrimitive;
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.library.ssl.SSLLibrary;
 import org.spoofax.interpreter.stratego.Strategy;
-import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-/**
- * @author Lennart Kats <lennart add lclnet.nl>
- */
 public class LANG_index_setup extends AbstractPrimitive {
-    private static String NAME = "LANG_index_setup";
+	private static String NAME = "LANG_index_setup";
 
-    private final IndexManager index;
+	public LANG_index_setup() {
+		super(NAME, 0, 3);
+	}
 
-    public LANG_index_setup(IndexManager index) {
-        super(NAME, 0, 3);
-        this.index = index;
-    }
+	@Override
+	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
+		final IStrategoString language = (IStrategoString) tvars[0];
+		final IStrategoTerm projectPaths = tvars[1];
+		final IStrategoTerm partitionTerm = tvars[2];
 
-    @Override
-    public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
-    	IStrategoString language = (IStrategoString) tvars[0];
-        IStrategoList projectPaths = (IStrategoList) tvars[1];
-        IStrategoTerm partitionTerm = tvars[2];
-        if(projectPaths.size() != 1) {
-            throw new NotImplementedException("Multiple project paths");
-        }
-        IOAgent agent = SSLLibrary.instance(env).getIOAgent();
-        IndexPartitionDescriptor project = IndexPartitionDescriptor.fromTerm(agent, projectPaths.head());
-        IndexPartitionDescriptor partition = IndexPartitionDescriptor.fromTerm(agent, partitionTerm);
-        index.loadIndex(project.getURI(), language.stringValue(), env.getFactory(), agent);
-        index.setCurrentPartition(partition);
-        index.getCurrent().initialize(env.getFactory(), agent);
-        return true;
-    }
+		final String projectPath;
+		if(projectPaths.getSubtermCount() == 0) {
+			projectPath = ((IStrategoString) projectPaths).stringValue();
+		} else if(projectPaths.getSubtermCount() == 1) {
+			projectPath = ((IStrategoString) projectPaths.getSubterm(0)).stringValue();
+		} else {
+			throw new NotImplementedException("Multiple project paths");
+		}
+
+		final IOAgent agent = SSLLibrary.instance(env).getIOAgent();
+		final IndexPartitionDescriptor partition = IndexPartitionDescriptor.fromTerm(agent, partitionTerm);
+		final IndexManager indexManager = IndexManager.getInstance();
+		indexManager.loadIndex(projectPath, language.stringValue(), env.getFactory(), agent);
+		indexManager.setCurrentPartition(partition);
+		return true;
+	}
 }

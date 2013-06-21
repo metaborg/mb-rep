@@ -8,28 +8,22 @@ import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-/**
- * @author Lennart Kats <lennart add lclnet.nl>
- */
 public class LANG_index_remove_all extends AbstractPrimitive {
-    private static String NAME = "LANG_index_remove_all";
+	private static String NAME = "LANG_index_remove_all";
 
-    private final IndexManager index;
+	public LANG_index_remove_all() {
+		super(NAME, 0, 1);
+	}
 
-    public LANG_index_remove_all(IndexManager index) {
-        super(NAME, 0, 1);
-        this.index = index;
-    }
-
-    @Override
-    public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
-        if(isTermAppl(tvars[0])) {
-            IStrategoAppl template = (IStrategoAppl) tvars[0];
-            IIndex ind = index.getCurrent();
-            ind.removeAll(template);
-            return true;
-        } else {
-            return false;
-        }
-    }
+	@Override
+	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
+		if(isTermAppl(tvars[0])) {
+			IStrategoAppl template = (IStrategoAppl) tvars[0];
+			IIndex ind = IndexManager.getInstance().getCurrent();
+			ind.removeAll(template);
+			return true;
+		} else {
+			return false;
+		}
+	}
 }

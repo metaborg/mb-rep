@@ -8,24 +8,18 @@ import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-/**
- * @author Lennart Kats <lennart add lclnet.nl>
- */
 public class LANG_index_get_children extends AbstractPrimitive {
     private static String NAME = "LANG_index_get_children";
 
-    private final IndexManager index;
-
-    public LANG_index_get_children(IndexManager index) {
-        super(NAME, 0, 1);
-        this.index = index;
+    public LANG_index_get_children() {
+        super(NAME, 0, 1);        
     }
 
     @Override
     public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
         if(isTermAppl(tvars[0])) {
             IStrategoAppl template = (IStrategoAppl) tvars[0];
-            IIndex ind = index.getCurrent();
+            IIndex ind = IndexManager.getInstance().getCurrent();
             IIndexEntryIterable entries = ind.getChildren(template);
             env.setCurrent(IndexEntry.toTerms(env.getFactory(), entries));
             return true;

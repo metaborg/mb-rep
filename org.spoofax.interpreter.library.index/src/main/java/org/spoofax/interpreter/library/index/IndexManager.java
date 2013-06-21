@@ -21,14 +21,11 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.io.binary.SAFWriter;
 import org.spoofax.terms.io.binary.TermReader;
 
-/**
- * @author Lennart Kats <lennart add lclnet.nl>
- * @author Gabri��l Konat
- */
 public class IndexManager {
-	private final static AtomicLong revisionProvider = new AtomicLong();
-	private final static ReadWriteLock transactionLock = new ReentrantReadWriteLock();
-	private final static IndexFactory indexFactory = new IndexFactory();
+	private static final IndexManager INSTANCE = new IndexManager();
+	private static final AtomicLong revisionProvider = new AtomicLong();
+	private static final ReadWriteLock transactionLock = new ReentrantReadWriteLock();
+	private static final IndexFactory indexFactory = new IndexFactory();
 
 	/**
 	 * Indices by language and project. Access requires a lock on {@link #getSyncRoot}
@@ -40,8 +37,12 @@ public class IndexManager {
 	private ThreadLocal<URI> currentProject = new ThreadLocal<URI>();
 	private ThreadLocal<IndexPartitionDescriptor> currentPartition = new ThreadLocal<IndexPartitionDescriptor>();
 
-	public static ReadWriteLock getTransactionLock() {
-		return transactionLock;
+	private IndexManager() {
+		// use getInstance()
+	}
+
+	public static IndexManager getInstance() {
+		return INSTANCE;
 	}
 
 	public IIndex getCurrent() {
@@ -57,6 +58,20 @@ public class IndexManager {
 	public IndexPartitionDescriptor getCurrentPartition() {
 		ensureInitialized();
 		return currentPartition.get();
+	}
+
+	public boolean isInitialized() {
+		return current.get() != null;
+	}
+
+	private void ensureInitialized() {
+		if(!isInitialized())
+			throw new IllegalStateException(
+				"Index has not been set-up, use index-setup(|language, project-paths) to set up the index before use.");
+	}
+
+	public static ReadWriteLock getTransactionLock() {
+		return transactionLock;
 	}
 
 	public void setCurrentPartition(IndexPartitionDescriptor currentPartition) {
@@ -85,16 +100,16 @@ public class IndexManager {
 
 		transactionLock.writeLock().lock();
 		try {
-			if (currentIndex.hasClearedCurrentPartition())
+			if(currentIndex.hasClearedCurrentPartition())
 				index.clearPartition(currentIndex.getCurrentPartition());
 
-			for (TemplateWithPartitionDescriptor entry : currentIndex.getRemovedEntries())
+			for(TemplateWithPartitionDescriptor entry : currentIndex.getRemovedEntries())
 				index.remove(entry.getTemplate(), entry.getPartitionDescriptor());
 
-			for (IStrategoAppl template : currentIndex.getRemovedAllEntries())
+			for(IStrategoAppl template : currentIndex.getRemovedAllEntries())
 				index.removeAll(template);
 
-			for (IndexEntry entry : transactionIndex.getAll())
+			for(IndexEntry entry : transactionIndex.getAll())
 				index.add(entry);
 
 			transactionIndex.clearAll();
@@ -111,72 +126,95 @@ public class IndexManager {
 		return revisionProvider;
 	}
 
-	public boolean isInitialized() {
-		return current.get() != null;
-	}
-
-	private void ensureInitialized() {
-		if (!isInitialized())
-			throw new IllegalStateException(
-					"Index has not been set-up, use index-setup(|language, project-paths) to set up the index before use.");
-	}
-
 	public static boolean isKnownIndexingLanguage(String language) {
-		synchronized (getSyncRoot()) {
+		synchronized(getSyncRoot()) {
 			return indexedLanguages.contains(language);
 		}
 	}
 
-	public void loadIndex(URI project, String language, ITermFactory factory, IOAgent agent) {
-		synchronized (getSyncRoot()) {
+	public IIndex createIndex(ITermFactory factory, IOAgent agent) {
+		IIndex index = new Index();
+		index.initialize(factory, agent);
+		return index;
+	}
+
+	public IIndex getIndex(String absoluteProjectPath) {
+		URI project = getProjectURIFromAbsolute(absoluteProjectPath);
+		WeakReference<IIndex> indexRef = indexCache.get(project);
+		IIndex index = indexRef == null ? null : indexRef.get();
+		return index;
+	}
+
+	public IIndex loadIndex(String projectPath, String language, ITermFactory factory, IOAgent agent) {
+		URI project = getProjectURI(projectPath, agent);
+		synchronized(getSyncRoot()) {
 			indexedLanguages.add(language);
 			WeakReference<IIndex> indexRef = indexCache.get(project);
 			IIndex index = indexRef == null ? null : indexRef.get();
-			if (index == null) {
-				index = tryReadFromFile(getIndexFile(project), factory, agent);
+			if(index == null) {
+				File indexFile = getFile(project);
+				if(indexFile.exists())
+					index = tryReadFromFile(getFile(project), factory, agent);
 			}
-			if (index == null) {
-				index = new Index();
+			if(index == null) {
+				index = createIndex(factory, agent);
 				NotificationCenter.notifyNewProject(project);
 			}
 			indexCache.put(project, new WeakReference<IIndex>(index));
 			current.set(index);
 			currentProject.set(project);
+			return index;
 		}
 	}
 
-	public void unloadIndex(URI removedProject) {
-		WeakReference<IIndex> removedIndex = indexCache.remove(removedProject);
+	public void unloadIndex(String removedProjectPath, IOAgent agent) {
+		URI removedProject = getProjectURI(removedProjectPath, agent);
+		synchronized(getSyncRoot()) {
+			WeakReference<IIndex> removedIndex = indexCache.remove(removedProject);
 
-		IIndex index = current.get();
-		if (index != null && index == removedIndex.get()) {
-			current.set(null);
-			currentPartition.set(null);
-		}
+			IIndex index = current.get();
+			if(index != null && index == removedIndex.get()) {
+				current.set(null);
+				currentPartition.set(null);
+			}
 
-		URI project = currentProject.get();
-		if (project != null && project.equals(removedProject)) {
-			currentProject.set(null);
+			URI project = currentProject.get();
+			if(project != null && project.equals(removedProject)) {
+				currentProject.set(null);
+			}
 		}
+	}
+
+	private URI getProjectURI(String projectPath, IOAgent agent) {
+		File file = new File(projectPath);
+		if(!file.isAbsolute())
+			file = new File(agent.getWorkingDir(), projectPath);
+		return file.toURI();
+	}
+
+	private URI getProjectURIFromAbsolute(String projectPath) {
+		File file = new File(projectPath);
+		if(!file.isAbsolute())
+			throw new RuntimeException("Project path is not absolute.");
+		return file.toURI();
 	}
 
 	public IIndex tryReadFromFile(File file, ITermFactory factory, IOAgent agent) {
-		IIndex index = new Index(); // TODO: Don't create concrete implementation here.
-		index.initialize(factory, agent);
 		try {
+			IIndex index = createIndex(factory, agent);
 			IStrategoTerm term = new TermReader(factory).parseFromFile(file.toString());
 			return indexFactory.indexFromTerms(index, term, factory, true);
-		} catch (Exception e) {
-			return null;
+		} catch(Exception e) {
+			throw new RuntimeException("Failed to load index from " + file.getName(), e);
 		}
 	}
 
 	public void storeCurrent(ITermFactory factory) throws IOException {
-		 File file = getIndexFile(currentProject.get());
-		 IStrategoTerm stored = indexFactory.toTerm(getCurrent(), factory, true);
+		File file = getFile(currentProject.get());
+		IStrategoTerm stored = indexFactory.toTerm(getCurrent(), factory, true);
 		file.createNewFile();
 		FileOutputStream fos = new FileOutputStream(file);
-		try{
+		try {
 			SAFWriter.writeTermToSAFStream(stored, fos);
 			fos.flush();
 		} finally {
@@ -184,7 +222,7 @@ public class IndexManager {
 		}
 	}
 
-	private File getIndexFile(URI project) {
+	private File getFile(URI project) {
 		File container = new File(new File(project), ".cache");
 		container.mkdirs();
 		return new File(container, "index.idx");

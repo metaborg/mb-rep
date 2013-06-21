@@ -7,26 +7,20 @@ import org.spoofax.interpreter.library.AbstractPrimitive;
 import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-/**
- * @author Lennart Kats <lennart add lclnet.nl>
- */
 public class LANG_index_commit extends AbstractPrimitive {
-    private static String NAME = "LANG_index_commit";
+	private static String NAME = "LANG_index_commit";
 
-    private final IndexManager index;
+	public LANG_index_commit() {
+		super(NAME, 0, 0);
+	}
 
-    public LANG_index_commit(IndexManager index) {
-        super(NAME, 0, 0);
-        this.index = index;
-    }
-
-    @Override
-    public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
-        try {
-            index.storeCurrent(env.getFactory());
-        } catch(IOException e) {
-            e.printStackTrace(); // ignore
-        }
-        return true;
-    }
+	@Override
+	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
+		try {
+			IndexManager.getInstance().storeCurrent(env.getFactory());
+		} catch(IOException e) {
+			throw new RuntimeException("Failed to store index.", e);
+		}
+		return true;
+	}
 }

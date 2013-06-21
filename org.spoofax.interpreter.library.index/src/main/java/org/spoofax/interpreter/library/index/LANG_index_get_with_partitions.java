@@ -8,29 +8,23 @@ import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-/**
- * @author Lennart Kats <lennart add lclnet.nl>
- */
 public class LANG_index_get_with_partitions extends AbstractPrimitive {
-    private static String NAME = "LANG_index_get_with_partitions";
+	private static String NAME = "LANG_index_get_with_partitions";
 
-    private final IndexManager index;
+	public LANG_index_get_with_partitions() {
+		super(NAME, 0, 1);
+	}
 
-    public LANG_index_get_with_partitions(IndexManager index) {
-        super(NAME, 0, 1);
-        this.index = index;
-    }
-
-    @Override
-    public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
-        if(isTermAppl(tvars[0])) {
-            IStrategoAppl template = (IStrategoAppl) tvars[0];
-            IIndex ind = index.getCurrent();
-            IIndexEntryIterable entries = ind.get(template);
-            env.setCurrent(IndexEntry.toTermsWithPartition(env.getFactory(), entries));
-            return true;
-        } else {
-            return false;
-        }
-    }
+	@Override
+	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
+		if(isTermAppl(tvars[0])) {
+			IStrategoAppl template = (IStrategoAppl) tvars[0];
+			IIndex ind = IndexManager.getInstance().getCurrent();
+			IIndexEntryIterable entries = ind.get(template);
+			env.setCurrent(IndexEntry.toTermsWithPartition(env.getFactory(), entries));
+			return true;
+		} else {
+			return false;
+		}
+	}
 }
