@@ -10,7 +10,7 @@ public class LANG_index_stop_collection extends AbstractPrimitive {
 	private static String NAME = "LANG_index_stop_collection";
 
 	public LANG_index_stop_collection() {
-		super(NAME, 0, 1);
+		super(NAME, 0, 0);
 	}
 
 	@Override
