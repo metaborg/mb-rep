@@ -1,0 +1,11 @@
+bin
+.cache
+include
+.settings
+utils
+lib
+lib-refactoring
+editor/java/trans
+editor/*.generated.esv
+syntax/*.generated.esv
+
