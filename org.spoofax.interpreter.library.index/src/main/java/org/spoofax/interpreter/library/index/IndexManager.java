@@ -205,7 +205,12 @@ public class IndexManager {
 			IStrategoTerm term = new TermReader(factory).parseFromFile(file.toString());
 			return indexFactory.indexFromTerms(index, term, factory, true);
 		} catch(Exception e) {
-			throw new RuntimeException("Failed to load index from " + file.getName(), e);
+			if(!file.delete())
+				throw new RuntimeException("Failed to load index from " + file.getName()
+					+ ". The file could not be deleted, please manually delete the file and restart analysis.", e);
+			else
+				throw new RuntimeException("Failed to load index from " + file.getName()
+					+ ". The file has been deleted, a new index will be created on the next analysis.", e);
 		}
 	}
 
