@@ -1,4 +1,4 @@
-package org.spoofax.interpreter.library.index;
+package org.spoofax.interpreter.library.index.notification;
 
 import java.net.URI;
 

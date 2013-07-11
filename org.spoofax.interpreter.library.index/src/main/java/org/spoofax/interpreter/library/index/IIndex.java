@@ -1,7 +1,5 @@
 package org.spoofax.interpreter.library.index;
 
-import java.util.Collection;
-
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -9,9 +7,6 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 
-/**
- * @author Gabriël Konat
- */
 public interface IIndex {
 	/**
 	 * Initializes this index.
@@ -61,52 +56,30 @@ public interface IIndex {
 	public abstract void addAll(IStrategoList entries, IndexPartitionDescriptor partitionDescriptor);
 
 	/**
-	 * Removes all entries that match given template and are from given partition. Warning: VERY SLOW!
-	 * 
-	 * @param template The template to match entries against.
-	 * @param partitionDescriptor The partition entries will be removed from.
-	 */
-	public abstract Collection<IndexEntry> remove(IStrategoAppl template, IndexPartitionDescriptor partitionDescriptor);
-
-	/**
-	 * Removes all entries that match given template (from all partitions). Warning: Quite slow!
-	 * 
-	 * @param template The template to match entries against.
-	 */
-	public abstract Collection<IndexEntry> removeAll(IStrategoAppl template);
-
-	/**
-	 * Removes one given entry. Compares both the URI and value of the entry. Warning: VERY SLOW!
-	 * 
-	 * @param entryTerm The term representing the entry to remove.
-	 */
-	public abstract Collection<IndexEntry> removeOne(IStrategoAppl entryTerm);
-
-	/**
 	 * Gets all entries that match given template.
 	 * 
 	 * @param template The template to match entries against.
 	 */
-	public abstract IIndexEntryIterable get(IStrategoAppl template);
+	public abstract Iterable<IndexEntry> get(IStrategoAppl template);
 
 	/**
 	 * Gets all entries.
 	 */
-	public abstract IIndexEntryIterable getAll();
+	public abstract Iterable<IndexEntry> getAll();
 
 	/**
 	 * Gets all child entries for URI in given template.
 	 * 
 	 * @param template The template to match entries against.
 	 */
-	public abstract IIndexEntryIterable getChildren(IStrategoAppl template);
+	public abstract Iterable<IndexEntry> getChildren(IStrategoAppl template);
 
 	/**
 	 * Gets all entries for given partition descriptor.
 	 * 
 	 * @param partitionDescriptor The partition descriptor to match entries against.
 	 */
-	public abstract IIndexEntryIterable getInPartition(IndexPartitionDescriptor partitionDescriptor);
+	public abstract Iterable<IndexEntry> getInPartition(IndexPartitionDescriptor partitionDescriptor);
 
 	/**
 	 * Gets all partitions that contain entries that match given template. Returned collection is a set of partitions,
@@ -114,7 +87,7 @@ public interface IIndex {
 	 * 
 	 * @param template The template to match entries against.
 	 */
-	public abstract Collection<IndexPartitionDescriptor> getPartitionsOf(IStrategoAppl template);
+	public abstract Iterable<IndexPartitionDescriptor> getPartitionsOf(IStrategoAppl template);
 
 	/**
 	 * Gets an index partition for given partition descriptor.
@@ -134,12 +107,12 @@ public interface IIndex {
 	/**
 	 * Gets all partitions that are in the index.
 	 */
-	public abstract Collection<IndexPartition> getAllPartitions();
+	public abstract Iterable<IndexPartition> getAllPartitions();
 
 	/**
 	 * Gets all partition descriptors that are in the index.
 	 */
-	public abstract Collection<IndexPartitionDescriptor> getAllPartitionDescriptors();
+	public abstract Iterable<IndexPartitionDescriptor> getAllPartitionDescriptors();
 
 	/**
 	 * Removes all entries in given partition term and removes the partition itself.

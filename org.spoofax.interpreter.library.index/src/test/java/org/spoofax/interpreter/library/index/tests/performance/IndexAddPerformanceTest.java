@@ -18,13 +18,13 @@ public class IndexAddPerformanceTest extends IndexPerformanceTest {
     @Rule
     public BenchmarkRule benchmarkRun;
 
-    public IndexAddPerformanceTest(int numItems, int numFiles, boolean startTransaction) {
-        super(numItems, numFiles, startTransaction);
+    public IndexAddPerformanceTest(int numItems, int numFiles) {
+        super(numItems, numFiles);
         
         try {
             benchmarkRun =
                 new BenchmarkRule(new CSVResultsConsumer((this.numItems * 5) + "," + this.numFiles, new FileWriter(
-                    "add_" + this.numFiles + "_" + indexTypeString() + ".csv", true)));
+                    "add_" + this.numFiles + ".csv", true)));
         } catch(IOException e) {
             e.printStackTrace();
         }
@@ -34,8 +34,6 @@ public class IndexAddPerformanceTest extends IndexPerformanceTest {
 
     @Test
     public void add() {
-        startTransaction();
-        
         for(int i = 0; i < numItems; ++i) {
             index.add(def1, getNextFile());
             index.add(def2, getNextFile());
@@ -43,7 +41,5 @@ public class IndexAddPerformanceTest extends IndexPerformanceTest {
             index.add(use1, getNextFile());
             index.add(type1, getNextFile());
         }
-        
-        endTransaction();
     }
 }

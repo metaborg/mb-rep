@@ -29,7 +29,6 @@ public class IndexPerformanceTest extends IndexTest {
     
     protected int numItems;
     protected int numFiles;
-    protected boolean startTransaction;
     
     @Parameters
     public static List<Object[]> data() {
@@ -118,10 +117,9 @@ public class IndexPerformanceTest extends IndexTest {
         return Arrays.asList(data);
     }
 
-    public IndexPerformanceTest(int numItems, int numFiles, boolean startTransaction) {
+    public IndexPerformanceTest(int numItems, int numFiles) {
         this.numItems = numItems;
         this.numFiles = numFiles;
-        this.startTransaction = startTransaction;
     }
     
     @BeforeClass
@@ -151,20 +149,6 @@ public class IndexPerformanceTest extends IndexTest {
     @Before
     public void setUp() {
         fileIndex = -1;
-    }
-
-    protected void startTransaction() {
-        if(this.startTransaction)
-            doStartTransaction();
-    }
-
-    protected void endTransaction() {
-        if(this.startTransaction)
-            doEndTransaction();
-    }
-    
-    protected String indexTypeString() {
-        return this.startTransaction ? "TransactionIndex" : "Index";
     }
     
     protected IndexPartitionDescriptor getNextFile() {

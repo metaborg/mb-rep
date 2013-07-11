@@ -8,35 +8,16 @@ import org.spoofax.interpreter.terms.ITermFactory;
 /**
  * A partition in an {@link IIndex} that partitions {@link IndexEntry}.
  * Contains a revision number representing a revision from a transaction, and the date it was last modified.
- * 
- * @author Gabriël Konat
  */
 public class IndexPartition {
     private final IndexPartitionDescriptor descriptor;
 
-    private long revision;
-    private Date time;
-
     protected IndexPartition(IndexPartitionDescriptor descriptor, Date time) {
         this.descriptor = descriptor;
-        this.time = time;
     }
 
     public IndexPartitionDescriptor getDescriptor() {
         return descriptor;
-    }
-
-    public long getRevision() {
-        return revision;
-    }
-
-    public Date getTime() {
-        return time;
-    }
-
-    public void setRevisionTime(long revision, Date time) {
-        this.time = time;
-        this.revision = revision;
     }
 
     public IStrategoTerm toTerm(ITermFactory factory) {

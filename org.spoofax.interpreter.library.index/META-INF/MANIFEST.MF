@@ -9,4 +9,6 @@ Require-Bundle: org.spoofax.interpreter.core,
  org.spoofax.interpreter.externaldeps,
  org.junit
 Bundle-ClassPath: .
-Export-Package: org.spoofax.interpreter.library.index;uses:="org.spoofax.interpreter.core,org.spoofax.interpreter.terms,org.spoofax.interpreter.library"
+Export-Package: org.spoofax.interpreter.library.index;uses:="org.spoofax.interpreter.core,org.spoofax.interpreter.terms,org.spoofax.interpreter.library",
+ org.spoofax.interpreter.library.index.notification,
+ org.spoofax.interpreter.library.index.primitives

@@ -14,8 +14,6 @@ import org.spoofax.interpreter.terms.ITermFactory;
 
 /**
  * The key to used to map {@link IndexEntry}. Consists of a constructor, namespace, path and optional type.
- * 
- * @author Gabriël Konat
  */
 public class IndexURI implements Serializable {
     private static final long serialVersionUID = 1619836759792533807L;
@@ -53,7 +51,6 @@ public class IndexURI implements Serializable {
      * Returns a parent URI by taking the tail of the path. If the path has no tail, null is returned.
      */
     public IndexURI getParent(ITermFactory factory) {
-        // TODO: Maybe this should be performed by a user-defined strategy?
         if(isTermList(identifier)) {
             IStrategoList parentPath = getParentPath((IStrategoList) identifier, factory);
             if(parentPath == null)

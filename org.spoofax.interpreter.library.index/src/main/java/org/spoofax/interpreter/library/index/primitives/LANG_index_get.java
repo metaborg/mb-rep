@@ -1,16 +1,16 @@
-package org.spoofax.interpreter.library.index;
+package org.spoofax.interpreter.library.index.primitives;
 
 import static org.spoofax.interpreter.core.Tools.isTermAppl;
 
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.library.AbstractPrimitive;
+import org.spoofax.interpreter.library.index.IIndex;
+import org.spoofax.interpreter.library.index.IndexEntry;
+import org.spoofax.interpreter.library.index.IndexManager;
 import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-/**
- * @author Lennart Kats <lennart add lclnet.nl>
- */
 public class LANG_index_get extends AbstractPrimitive {
 	private static String NAME = "LANG_index_get";
 
@@ -21,9 +21,9 @@ public class LANG_index_get extends AbstractPrimitive {
 	@Override
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
 		if(isTermAppl(tvars[0])) {
-			IStrategoAppl template = (IStrategoAppl) tvars[0];
-			IIndex ind = IndexManager.getInstance().getCurrent();
-			IIndexEntryIterable entries = ind.get(template);
+			final IIndex ind = IndexManager.getInstance().getCurrent();
+			final IStrategoAppl template = (IStrategoAppl) tvars[0];
+			final Iterable<IndexEntry> entries = ind.get(template);
 			env.setCurrent(IndexEntry.toTerms(env.getFactory(), entries));
 			return true;
 		} else {

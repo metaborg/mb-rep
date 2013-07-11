@@ -8,10 +8,6 @@ import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.attachments.TermAttachmentStripper;
 
-/**
- * @author Lennart Kats <lennart add lclnet.nl>
- * @author Gabriël Konat
- */
 public class IndexEntryFactory {
     private static final int DATA_TYPE_POS = 1;
     private static final int DATA_VALUE_POS = 2;

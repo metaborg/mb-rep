@@ -1,11 +1,7 @@
-package org.spoofax.interpreter.library.index;
+package org.spoofax.interpreter.library.index.notification;
 
 import java.net.URI;
 
-/**
- * @author Lennart Kats <lennart add lclnet.nl>
- * @author Gabriël Konat
- */
 public interface INotificationService {
     /**
      * Notify listener of a added/removed/changed file with optional partition.

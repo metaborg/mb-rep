@@ -5,17 +5,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.URI;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.spoofax.interpreter.library.IOAgent;
-import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.library.index.notification.NotificationCenter;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.io.binary.SAFWriter;
@@ -23,8 +19,6 @@ import org.spoofax.terms.io.binary.TermReader;
 
 public class IndexManager {
 	private static final IndexManager INSTANCE = new IndexManager();
-	private static final AtomicLong revisionProvider = new AtomicLong();
-	private static final ReadWriteLock transactionLock = new ReentrantReadWriteLock();
 	private static final IndexFactory indexFactory = new IndexFactory();
 
 	/**
@@ -70,60 +64,12 @@ public class IndexManager {
 				"Index has not been set-up, use index-setup(|language, project-paths) to set up the index before use.");
 	}
 
-	public static ReadWriteLock getTransactionLock() {
-		return transactionLock;
-	}
-
 	public void setCurrentPartition(IndexPartitionDescriptor currentPartition) {
 		this.currentPartition.set(currentPartition);
 	}
 
-	public long startTransaction(ITermFactory factory, IOAgent agent) {
-		long rev = revisionProvider.getAndIncrement();
-		IIndex currentIndex = current.get();
-		currentIndex.getPartition(currentPartition.get()).setRevisionTime(rev, new Date());
-
-		assert currentIndex instanceof Index; // Prevent multiple transactions.
-
-		IIndex transactionIndex = new Index();
-		transactionIndex.initialize(factory, agent);
-		current.set(new TransactionIndex(currentIndex, transactionIndex, currentPartition.get()));
-
-		return rev;
-	}
-
-	public void endTransaction() {
-		TransactionIndex currentIndex = (TransactionIndex) current.get();
-		IIndex index = currentIndex.getIndex();
-		IIndex transactionIndex = currentIndex.getTransactionIndex();
-		current.set(index);
-
-		transactionLock.writeLock().lock();
-		try {
-			if(currentIndex.hasClearedCurrentPartition())
-				index.clearPartition(currentIndex.getCurrentPartition());
-
-			for(TemplateWithPartitionDescriptor entry : currentIndex.getRemovedEntries())
-				index.remove(entry.getTemplate(), entry.getPartitionDescriptor());
-
-			for(IStrategoAppl template : currentIndex.getRemovedAllEntries())
-				index.removeAll(template);
-
-			for(IndexEntry entry : transactionIndex.getAll())
-				index.add(entry);
-
-			transactionIndex.clearAll();
-		} finally {
-			transactionLock.writeLock().unlock();
-		}
-	}
-
 	private static Object getSyncRoot() {
 		return IndexManager.class;
-	}
-
-	public AtomicLong getRevisionProvider() {
-		return revisionProvider;
 	}
 
 	public static boolean isKnownIndexingLanguage(String language) {

@@ -1,10 +1,11 @@
-package org.spoofax.interpreter.library.index;
+package org.spoofax.interpreter.library.index.primitives;
 
 import static org.spoofax.interpreter.core.Tools.isTermString;
 
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.library.AbstractPrimitive;
 import org.spoofax.interpreter.library.IOAgent;
+import org.spoofax.interpreter.library.index.IndexManager;
 import org.spoofax.interpreter.library.ssl.SSLLibrary;
 import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoString;
@@ -20,8 +21,8 @@ public class LANG_index_unload extends AbstractPrimitive {
 	@Override
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
 		if(isTermString(tvars[0])) {
-			IStrategoString projectPath = (IStrategoString) tvars[0];
-			IOAgent agent = SSLLibrary.instance(env).getIOAgent();
+			final IOAgent agent = SSLLibrary.instance(env).getIOAgent();
+			final IStrategoString projectPath = (IStrategoString) tvars[0];
 			IndexManager.getInstance().unloadIndex(projectPath.stringValue(), agent);
 			return true;
 		} else {

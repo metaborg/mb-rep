@@ -23,9 +23,6 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Multisets;
 
-/**
- * @author Gabriël Konat
- */
 public class Index implements IIndex {
 	public static final boolean DEBUG_ENABLED = Index.class.desiredAssertionStatus();
 
@@ -214,32 +211,32 @@ public class Index implements IIndex {
 		return removedEntries;
 	}
 
-	public IIndexEntryIterable get(IStrategoAppl template) {
+	public Iterable<IndexEntry> get(IStrategoAppl template) {
 		IndexURI uri = factory.createURIFromTemplate(template);
-		return getEntryIterable(innerEntries(uri).values());
+		return innerEntries(uri).values();
 	}
 
-	public IIndexEntryIterable getChildren(IStrategoAppl template) {
+	public Iterable<IndexEntry> getChildren(IStrategoAppl template) {
 		IndexURI uri = factory.createURIFromTemplate(template);
-		return getEntryIterable(innerChildEntries(uri).values());
+		return innerChildEntries(uri).values();
 	}
 
-	public IIndexEntryIterable getInPartition(IndexPartitionDescriptor partitionDescriptor) {
-		return getEntryIterable(entriesPerPartitionDescriptor.get(partitionDescriptor));
+	public Iterable<IndexEntry> getInPartition(IndexPartitionDescriptor partitionDescriptor) {
+		return entriesPerPartitionDescriptor.get(partitionDescriptor);
 	}
 
-	public Collection<IndexPartitionDescriptor> getPartitionsOf(IStrategoAppl template) {
+	public Iterable<IndexPartitionDescriptor> getPartitionsOf(IStrategoAppl template) {
 		IndexURI uri = factory.createURIFromTemplate(template);
-		return getCollection(innerEntries(uri).keySet());
+		return innerEntries(uri).keySet();
 	}
 
-	public IIndexEntryIterable getAll() {
+	public Iterable<IndexEntry> getAll() {
 		List<IndexEntry> allEntries = new LinkedList<IndexEntry>();
 		Collection<Multimap<IndexPartitionDescriptor, IndexEntry>> values = entries.values();
 		for(Multimap<IndexPartitionDescriptor, IndexEntry> map : values)
 			allEntries.addAll(map.values());
 
-		return getEntryIterable(allEntries);
+		return allEntries;
 	}
 
 	public IndexPartition getPartition(IndexPartitionDescriptor partitionDescriptor) {
@@ -297,10 +294,6 @@ public class Index implements IIndex {
 		entriesPerPartitionDescriptor.clear();
 		partitions.clear();
 		inCollection = false;
-	}
-
-	private static final IIndexEntryIterable getEntryIterable(Collection<IndexEntry> collection) {
-		return new IndexEntryIterable(collection, null);
 	}
 
 	/**
