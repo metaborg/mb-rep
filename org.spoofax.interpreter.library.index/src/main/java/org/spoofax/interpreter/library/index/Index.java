@@ -12,10 +12,7 @@ import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Multiset;
-import com.google.common.collect.Multisets;
 
 public class Index implements IIndex {
 	public static final boolean DEBUG_ENABLED = Index.class.desiredAssertionStatus();
@@ -30,10 +27,7 @@ public class Index implements IIndex {
 	private final Multimap<IndexPartition, IndexEntry> entriesPerpartition = ArrayListMultimap.create();
 	private final Set<IndexPartition> partitions = new HashSet<IndexPartition>();
 
-	private final Multiset<IndexEntry> addedEntries = HashMultiset.create();
-	private final Multiset<IndexEntry> removedEntries = HashMultiset.create();
-	private final Multiset<IndexEntry> oldEntries = HashMultiset.create();
-	private boolean inCollection = false;
+	private final IndexCollection collection = new IndexCollection();
 
 	private final ITermFactory termFactory;
 	private final IndexEntryFactory factory;
@@ -68,22 +62,12 @@ public class Index implements IIndex {
 	}
 
 	public void startCollection(IndexPartition partition) {
-		addedEntries.clear();
-		removedEntries.clear();
-		oldEntries.clear();
-		removedEntries.addAll(entriesPerpartition.get(partition));
-		oldEntries.addAll(entriesPerpartition.get(partition));
+		collection.start(getInPartition(partition));
 		clearPartition(partition);
-		inCollection = true;
 	}
 
 	public IStrategoTuple stopCollection() {
-		Multisets.removeOccurrences(addedEntries, oldEntries);
-		inCollection = false;
-
-		// TODO: Use an IStrategoList implementation that iterates over the collections instead of constructing it.
-		return termFactory.makeTuple(IndexEntry.toTerms(termFactory, removedEntries),
-			IndexEntry.toTerms(termFactory, addedEntries));
+		return collection.stop(termFactory);
 	}
 
 	public void add(IndexEntry entry) {
@@ -93,9 +77,8 @@ public class Index implements IIndex {
 		partitions.add(partition);
 
 		innerEntries(uri).put(partition, entry);
-		if(inCollection) {
-			addedEntries.add(entry);
-			removedEntries.remove(entry);
+		if(collection.inCollection()) {
+			collection.add(entry);
 		}
 
 		// Add entry to children.
@@ -161,6 +144,6 @@ public class Index implements IIndex {
 		childs.clear();
 		entriesPerpartition.clear();
 		partitions.clear();
-		inCollection = false;
+		collection.clear();
 	}
 }
