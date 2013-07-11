@@ -11,12 +11,13 @@ import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 
 public class Index implements IIndex {
-	public static final boolean DEBUG_ENABLED = Index.class.desiredAssertionStatus();
-
 	private static final int EXPECTED_DISTINCT_PARTITIONS = 100;
 	private static final int EXPECTED_VALUES_PER_PARTITION = 1000;
 
@@ -27,18 +28,32 @@ public class Index implements IIndex {
 	private final Multimap<IndexPartition, IndexEntry> entriesPerpartition = ArrayListMultimap.create();
 	private final Set<IndexPartition> partitions = new HashSet<IndexPartition>();
 
-	private final IndexCollection collection = new IndexCollection();
+	private final Set<IndexPartition> cleared = new HashSet<IndexPartition>();
+	private final Predicate<IndexEntry> visible;
 
+	private final IIndex parent;
+	private final IndexCollection collection = new IndexCollection();
 	private final ITermFactory termFactory;
 	private final IndexEntryFactory factory;
 
-	public Index(ITermFactory factory) {
+	public Index(IIndex parent, ITermFactory factory) {
+		this.parent = parent;
 		this.termFactory = factory;
 		this.factory = new IndexEntryFactory(factory);
+
+		this.visible = new Predicate<IndexEntry>() {
+			public boolean apply(IndexEntry entry) {
+				return parentEntryVisible(entry);
+			}
+		};
 	}
 
 	public IndexEntryFactory getFactory() {
 		return factory;
+	}
+
+	public IIndex getParent() {
+		return parent;
 	}
 
 	private Multimap<IndexPartition, IndexEntry> innerEntries(IndexURI uri) {
@@ -59,6 +74,10 @@ public class Index implements IIndex {
 		if(ret == null)
 			ret = innerMap;
 		return ret;
+	}
+
+	private boolean parentEntryVisible(IndexEntry entry) {
+		return !cleared.contains(entry.getPartition());
 	}
 
 	public void startCollection(IndexPartition partition) {
@@ -91,48 +110,66 @@ public class Index implements IIndex {
 	}
 
 	public Iterable<IndexEntry> get(IStrategoAppl template) {
-		IndexURI uri = factory.createURIFromTemplate(template);
-		return innerEntries(uri).values();
+		final IndexURI uri = factory.createURIFromTemplate(template);
+		final Iterable<IndexEntry> parentEntries = Iterables.filter(parent.get(template), visible);
+		final Iterable<IndexEntry> ownEntries = innerEntries(uri).values();
+		return Iterables.concat(parentEntries, ownEntries);
 	}
 
 	public Iterable<IndexEntry> getChildren(IStrategoAppl template) {
-		IndexURI uri = factory.createURIFromTemplate(template);
-		return innerChildEntries(uri).values();
+		final IndexURI uri = factory.createURIFromTemplate(template);
+		final Iterable<IndexEntry> parentChildren = Iterables.filter(parent.getChildren(template), visible);
+		final Iterable<IndexEntry> ownChildren = innerChildEntries(uri).values();
+		return Iterables.concat(parentChildren, ownChildren);
 	}
 
 	public Iterable<IndexEntry> getInPartition(IndexPartition partition) {
-		return entriesPerpartition.get(partition);
+		final Iterable<IndexEntry> parentEntries = Iterables.filter(parent.getInPartition(partition), visible);
+		final Iterable<IndexEntry> ownEntries = entriesPerpartition.get(partition);
+		return Iterables.concat(parentEntries, ownEntries);
 	}
 
-	public Iterable<IndexPartition> getPartitionsOf(IStrategoAppl template) {
-		IndexURI uri = factory.createURIFromTemplate(template);
-		return innerEntries(uri).keySet();
+	public Set<IndexPartition> getPartitionsOf(IStrategoAppl template) {
+		final IndexURI uri = factory.createURIFromTemplate(template);
+		final Set<IndexPartition> parentPartitions = parent.getPartitionsOf(template);
+		final Set<IndexPartition> ownPartitions = innerEntries(uri).keySet();
+		// Use own set as first set because it is usually faster, which results in improved performance.
+		return Sets.union(ownPartitions, parentPartitions);
 	}
 
 	public Iterable<IndexEntry> getAll() {
-		List<IndexEntry> allEntries = new LinkedList<IndexEntry>();
-		Collection<Multimap<IndexPartition, IndexEntry>> values = entries.values();
-		for(Multimap<IndexPartition, IndexEntry> map : values)
+		final List<IndexEntry> allEntries = new LinkedList<IndexEntry>();
+
+		final Iterable<IndexEntry> parentEntries = Iterables.filter(parent.getAll(), visible);
+		Iterables.addAll(allEntries, parentEntries);
+
+		final Collection<Multimap<IndexPartition, IndexEntry>> ownValues = entries.values();
+		for(Multimap<IndexPartition, IndexEntry> map : ownValues)
 			allEntries.addAll(map.values());
 
 		return allEntries;
 	}
 
-	public void clearPartition(IndexPartition partition) {
-		assert partition.getPartition() != null || partition.getURI() != null;
+	public Iterable<IndexEntry> getAllCurrent() {
+		final List<IndexEntry> allEntries = new LinkedList<IndexEntry>();
+		final Collection<Multimap<IndexPartition, IndexEntry>> ownValues = entries.values();
+		for(Multimap<IndexPartition, IndexEntry> map : ownValues)
+			allEntries.addAll(map.values());
+		return allEntries;
+	}
 
-		Collection<Multimap<IndexPartition, IndexEntry>> entryValues = entries.values();
+	public void clearPartition(IndexPartition partition) {
+		final Collection<Multimap<IndexPartition, IndexEntry>> entryValues = entries.values();
 		for(Multimap<IndexPartition, IndexEntry> map : entryValues)
 			map.removeAll(partition);
 
-		Collection<Multimap<IndexPartition, IndexEntry>> childValues = childs.values();
+		final Collection<Multimap<IndexPartition, IndexEntry>> childValues = childs.values();
 		for(Multimap<IndexPartition, IndexEntry> map : childValues)
 			map.removeAll(partition);
 
 		entriesPerpartition.removeAll(partition);
 		partitions.remove(partition);
-
-		assert !getInPartition(partition).iterator().hasNext();
+		cleared.add(partition);
 	}
 
 	public Iterable<IndexPartition> getAllPartitions() {
@@ -145,5 +182,6 @@ public class Index implements IIndex {
 		entriesPerpartition.clear();
 		partitions.clear();
 		collection.clear();
+		parent.clearAll();
 	}
 }

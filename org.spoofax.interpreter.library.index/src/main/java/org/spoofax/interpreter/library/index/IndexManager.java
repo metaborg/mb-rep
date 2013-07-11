@@ -79,7 +79,7 @@ public class IndexManager {
 	}
 
 	public IIndex createIndex(ITermFactory factory) {
-		IIndex index = new Index(factory);
+		IIndex index = new Index(new EmptyIndex(), factory);
 		return index;
 	}
 

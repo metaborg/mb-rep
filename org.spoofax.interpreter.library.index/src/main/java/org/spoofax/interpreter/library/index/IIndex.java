@@ -1,5 +1,7 @@
 package org.spoofax.interpreter.library.index;
 
+import java.util.Set;
+
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 
@@ -10,6 +12,11 @@ public interface IIndex {
 	 */
 	public abstract IndexEntryFactory getFactory();
 
+	/**
+	 * Returns the parent index or null if it does not have a parent.
+	 */
+	public abstract IIndex getParent();
+	
 	/**
 	 * Starts collection for given partition.
 	 * 
@@ -42,6 +49,11 @@ public interface IIndex {
 	 * Gets all entries.
 	 */
 	public abstract Iterable<IndexEntry> getAll();
+	
+	/**
+	 * Gets all entries, excluding entries from the parent index.
+	 */
+	public abstract Iterable<IndexEntry> getAllCurrent();
 
 	/**
 	 * Gets all child entries for URI in given template.
@@ -63,7 +75,7 @@ public interface IIndex {
 	 * 
 	 * @param template The template to match entries against.
 	 */
-	public abstract Iterable<IndexPartition> getPartitionsOf(IStrategoAppl template);
+	public abstract Set<IndexPartition> getPartitionsOf(IStrategoAppl template);
 
 	/**
 	 * Gets all partitions that are in the index.
