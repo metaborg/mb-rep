@@ -4,7 +4,6 @@ import static org.spoofax.interpreter.core.Tools.isTermString;
 import static org.spoofax.interpreter.core.Tools.isTermTuple;
 
 import org.spoofax.interpreter.core.IContext;
-import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.library.AbstractPrimitive;
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.library.index.IIndex;
@@ -26,7 +25,7 @@ public class LANG_index_clear_partition extends AbstractPrimitive {
 		if(isTermString(tvars[0]) || isTermTuple(tvars[0])) {
 			final IOAgent agent = SSLLibrary.instance(env).getIOAgent();
 			final IIndex ind = IndexManager.getInstance().getCurrent();
-			final IndexPartition partition = IndexPartition.fromTerm(agent, Tools.termAt(tvars[0], 0));
+			final IndexPartition partition = IndexPartition.fromTerm(agent, tvars[0]);
 			ind.clearPartition(partition);
 			return true;
 		} else {
