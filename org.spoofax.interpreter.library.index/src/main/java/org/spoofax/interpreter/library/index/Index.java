@@ -1,8 +1,6 @@
 package org.spoofax.interpreter.library.index;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -85,10 +83,10 @@ public class Index implements IIndex {
 	private IndexEntry createEntry(IStrategoAppl entry, IndexPartitionDescriptor partitionDescriptor) {
 		ensureInitialized();
 
-		IStrategoConstructor constructor = entry.getConstructor();
-		IStrategoTerm type = factory.getEntryType(entry);
-		IStrategoTerm identifier = factory.getEntryIdentifier(entry);
-		IStrategoTerm value = factory.getEntryValue(entry);
+		final IStrategoConstructor constructor = entry.getConstructor();
+		final IStrategoTerm type = factory.getEntryType(entry);
+		final IStrategoTerm identifier = factory.getEntryIdentifier(entry);
+		final IStrategoTerm value = factory.getEntryValue(entry);
 
 		return factory.createEntry(constructor, identifier, type, value, partitionDescriptor);
 	}
@@ -138,77 +136,9 @@ public class Index implements IIndex {
 	}
 
 	public void addAll(IStrategoList entries, IndexPartitionDescriptor partitionDescriptor) {
-		while(!entries.isEmpty()) {
-			add((IStrategoAppl) entries.head(), partitionDescriptor);
-			entries = entries.tail();
+		for(IStrategoTerm entry : entries) {
+			add((IStrategoAppl) entry, partitionDescriptor);
 		}
-	}
-
-	public Collection<IndexEntry> remove(IStrategoAppl template, IndexPartitionDescriptor partitionDescriptor) {
-		IndexURI uri = factory.createURIFromTemplate(template);
-		IndexURI parentURI = uri.getParent(termFactory);
-
-		Multimap<IndexPartitionDescriptor, IndexEntry> entryValues = innerEntries(uri);
-		Multimap<IndexPartitionDescriptor, IndexEntry> childValues = null;
-		if(parentURI != null)
-			childValues = innerChildEntries(uri.getParent(termFactory));
-
-		Collection<IndexEntry> removedEntries = entryValues.removeAll(partitionDescriptor);
-
-		for(IndexEntry entry : removedEntries) {
-			if(parentURI != null)
-				childValues.remove(partitionDescriptor, entry);
-			entriesPerPartitionDescriptor.remove(partitionDescriptor, entry);
-		}
-
-		return removedEntries;
-	}
-
-	public Collection<IndexEntry> removeAll(IStrategoAppl template) {
-		IndexURI uri = factory.createURIFromTemplate(template);
-		IndexURI parentURI = uri.getParent(termFactory);
-
-		Multimap<IndexPartitionDescriptor, IndexEntry> entryValues = innerEntries(uri);
-		Multimap<IndexPartitionDescriptor, IndexEntry> childValues = null;
-		if(parentURI != null)
-			childValues = innerChildEntries(uri.getParent(termFactory));
-
-		Collection<IndexEntry> removedEntries = entryValues.values();
-		entries.remove(uri);
-
-		for(IndexEntry entry : removedEntries) {
-			if(parentURI != null)
-				childValues.remove(entry.getPartition(), entry);
-			entriesPerPartitionDescriptor.remove(entry.getPartition(), entry);
-		}
-
-		return removedEntries;
-	}
-
-	public Collection<IndexEntry> removeOne(IStrategoAppl entryTerm) {
-		IndexURI uri = factory.createURIFromTemplate(entryTerm);
-		IndexURI parentURI = uri.getParent(termFactory);
-
-		Multimap<IndexPartitionDescriptor, IndexEntry> entryValues = innerEntries(uri);
-		Multimap<IndexPartitionDescriptor, IndexEntry> childValues = null;
-		if(parentURI != null)
-			childValues = innerChildEntries(uri.getParent(termFactory));
-
-		Collection<IndexEntry> removedEntries = new ArrayList<IndexEntry>();
-		IndexPartitionDescriptor[] partitions = entryValues.keySet().toArray(new IndexPartitionDescriptor[0]);
-		for(IndexPartitionDescriptor partition : partitions) {
-			IndexEntry entry = createEntry(entryTerm, partition);
-			if(entryValues.remove(partition, entry))
-				removedEntries.add(entry);
-		}
-
-		for(IndexEntry entry : removedEntries) {
-			if(parentURI != null)
-				childValues.remove(entry.getPartition(), entry);
-			entriesPerPartitionDescriptor.remove(entry.getPartition(), entry);
-		}
-
-		return removedEntries;
 	}
 
 	public Iterable<IndexEntry> get(IStrategoAppl template) {
@@ -280,12 +210,12 @@ public class Index implements IIndex {
 		assert !getInPartition(partitionDescriptor).iterator().hasNext();
 	}
 
-	public Collection<IndexPartition> getAllPartitions() {
-		return getCollection(partitions.values());
+	public Iterable<IndexPartition> getAllPartitions() {
+		return partitions.values();
 	}
 
-	public Collection<IndexPartitionDescriptor> getAllPartitionDescriptors() {
-		return getCollection(partitions.keySet());
+	public Iterable<IndexPartitionDescriptor> getAllPartitionDescriptors() {
+		return partitions.keySet();
 	}
 
 	public void clearAll() {
@@ -294,16 +224,5 @@ public class Index implements IIndex {
 		entriesPerPartitionDescriptor.clear();
 		partitions.clear();
 		inCollection = false;
-	}
-
-	/**
-	 * Returns an unmodifiable collection if in debug mode, or the collection if not.
-	 */
-	private static final <T> Collection<T> getCollection(Collection<T> collection) {
-		if(DEBUG_ENABLED) {
-			return Collections.unmodifiableCollection(collection);
-		} else {
-			return collection;
-		}
 	}
 }
