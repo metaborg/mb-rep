@@ -6,6 +6,7 @@ import static org.spoofax.terms.Term.tryGetConstructor;
 
 import java.io.IOException;
 
+import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -27,8 +28,7 @@ public class IndexFactory {
 	 * @param includePositions True to include position information.
 	 * @return A term representing given partition.
 	 */
-	public IStrategoTerm toTerm(IIndex index, IndexPartitionDescriptor partition, ITermFactory factory,
-		boolean includePositions) {
+	public IStrategoTerm toTerm(IIndex index, IndexPartition partition, ITermFactory factory, boolean includePositions) {
 		IStrategoList results = IndexEntry.toTerms(factory, index.getInPartition(partition));
 		// TODO: include time stamp & revision for partition
 		IStrategoTerm partitionResult =
@@ -52,7 +52,7 @@ public class IndexFactory {
 	 */
 	public IStrategoTerm toTerm(IIndex index, ITermFactory factory, boolean includePositions) {
 		IStrategoList results = factory.makeList();
-		for(IndexPartitionDescriptor partition : index.getAllPartitionDescriptors()) {
+		for(IndexPartition partition : index.getAllPartitions()) {
 			IStrategoTerm result = toTerm(index, partition, factory, false);
 			results = factory.makeListCons(result, results);
 		}
@@ -65,7 +65,7 @@ public class IndexFactory {
 		return results;
 	}
 
-	public IndexPartitionDescriptor partitionFromTerms(IIndex index, IStrategoTerm term, ITermFactory factory,
+	public IndexPartition partitionFromTerms(IIndex index, IOAgent agent, IStrategoTerm term, ITermFactory factory,
 		boolean extractPositions) throws IOException {
 		if(tryGetConstructor(term) == PARTITION_ENTRIES_CONSTRUCTOR) {
 			try {
@@ -74,7 +74,7 @@ public class IndexFactory {
 					term = serializer.fromAnnotations(term, false);
 				}
 
-				final IndexPartitionDescriptor partition = index.getPartitionDescriptor(termAt(term, 0));
+				final IndexPartition partition = IndexPartition.fromTerm(agent, termAt(term, 0));
 				for(IStrategoTerm entry : termAt(term, 1))
 					index.add(index.getFactory().createEntry((IStrategoAppl) entry, partition));
 				return partition;
@@ -99,8 +99,8 @@ public class IndexFactory {
 	 * @return
 	 * @throws IOException
 	 */
-	public IIndex indexFromTerms(IIndex index, IStrategoTerm term, ITermFactory factory, boolean extractPositions)
-		throws IOException {
+	public IIndex indexFromTerms(IIndex index, IOAgent agent, IStrategoTerm term, ITermFactory factory,
+		boolean extractPositions) throws IOException {
 		if(extractPositions) {
 			TermAttachmentSerializer serializer = new TermAttachmentSerializer(factory);
 			term = serializer.fromAnnotations(term, false);
@@ -108,7 +108,7 @@ public class IndexFactory {
 
 		if(isTermList(term)) {
 			for(IStrategoList list = (IStrategoList) term; !list.isEmpty(); list = list.tail()) {
-				partitionFromTerms(index, list.head(), factory, false);
+				partitionFromTerms(index, agent, list.head(), factory, false);
 			}
 			return index;
 		} else {

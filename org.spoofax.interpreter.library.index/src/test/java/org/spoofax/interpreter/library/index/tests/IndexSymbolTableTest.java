@@ -10,9 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.spoofax.interpreter.library.index.IndexEntry;
 import org.spoofax.interpreter.library.index.IndexPartition;
-import org.spoofax.interpreter.library.index.IndexPartitionDescriptor;
 import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.google.common.collect.Iterables;
@@ -28,37 +26,26 @@ public class IndexSymbolTableTest extends IndexTest {
 
 	@Test
 	public void files() {
-		IStrategoTerm fileTerm1 = file("a/b/c");
-		IStrategoTerm fileTerm2 = file("a/b/c", "some", "element");
+		IStrategoAppl def = def("Class", "java", "lang", "String");
 
-		IndexPartitionDescriptor file1 = setupIndex(fileTerm1);
-		IndexPartitionDescriptor file2 = setupIndex(fileTerm2);
+		IStrategoTerm fileTerm1 = partition("a/b/c");
+		IStrategoTerm fileTerm2 = partition("a/b/c", "some", "element");
 
-		IndexPartitionDescriptor ret1 = index.getPartitionDescriptor(fileTerm1);
-		IndexPartitionDescriptor ret2 = index.getPartitionDescriptor(fileTerm2);
+		IndexPartition file1 = setupIndex(fileTerm1);
+		IndexPartition file2 = setupIndex(fileTerm2);
 
 		// Files have not been added yet.
-		Iterable<IndexPartitionDescriptor> all1 = index.getAllPartitionDescriptors();
-		assertFalse(Iterables.contains(all1, ret1));
-		assertFalse(Iterables.contains(all1, ret2));
+		Iterable<IndexPartition> all1 = index.getAllPartitions();
+		assertFalse(Iterables.contains(all1, file1));
+		assertFalse(Iterables.contains(all1, file2));
 
-		assertEquals(ret1, file1);
-		assertEquals(ret1.toTerm(factory), file1.toTerm(factory));
-		assertEquals(ret2, file2);
-		assertEquals(ret2.toTerm(factory), file2.toTerm(factory));
-
-		IndexPartition retf1 = index.getPartition(file1);
-		IndexPartition retf2 = index.getPartition(file2);
-
-		assertEquals(ret1, retf1.getDescriptor());
-		assertEquals(retf1.toTerm(factory), file1.toTerm(factory));
-		assertEquals(ret2, retf2.getDescriptor());
-		assertEquals(retf2.toTerm(factory), file2.toTerm(factory));
+		add(def, file1);
+		add(def, file2);
 
 		// Files have been added by calling getFile.
-		Iterable<IndexPartitionDescriptor> all2 = index.getAllPartitionDescriptors();
-		assertTrue(Iterables.contains(all2, ret1));
-		assertTrue(Iterables.contains(all2, ret2));
+		Iterable<IndexPartition> all2 = index.getAllPartitions();
+		assertTrue(Iterables.contains(all2, file1));
+		assertTrue(Iterables.contains(all2, file2));
 	}
 
 	@Test
@@ -71,9 +58,9 @@ public class IndexSymbolTableTest extends IndexTest {
 		assertEquals(0, size(index.get(type)));
 		assertEquals(0, size(index.get(defData)));
 
-		index.add(def, file);
-		index.add(type, file);
-		index.add(defData, file);
+		add(def, file);
+		add(type, file);
+		add(defData, file);
 
 		Iterable<IndexEntry> ret1 = index.get(def);
 		Iterable<IndexEntry> ret2 = index.get(type);
@@ -101,12 +88,12 @@ public class IndexSymbolTableTest extends IndexTest {
 		assertEquals(0, size(index.get(read)));
 		assertEquals(0, size(index.get(longTerm)));
 
-		index.add(def, file);
-		index.add(def, file);
-		index.add(def, file);
-		index.add(read, file);
-		index.add(read, file);
-		index.add(longTerm, file);
+		add(def, file);
+		add(def, file);
+		add(def, file);
+		add(read, file);
+		add(read, file);
+		add(longTerm, file);
 
 		Iterable<IndexEntry> ret1 = index.get(def);
 		Iterable<IndexEntry> ret2 = index.get(read);
@@ -138,27 +125,6 @@ public class IndexSymbolTableTest extends IndexTest {
 	}
 
 	@Test
-	public void addAllAndGetAllEntries() {
-		IStrategoAppl def = def("Class", "java", "lang", "String");
-		IStrategoAppl type = type(constructor("Type", str("String")), "Class", "java", "lang", "String");
-		IStrategoAppl defData = defData(constructor("Type"), str("String"), "Class", "java", "lang", "String");
-		IStrategoList all = factory.makeList(def, type, defData);
-
-		assertEquals(0, size(index.get(def)));
-		assertEquals(0, size(index.get(type)));
-		assertEquals(0, size(index.get(defData)));
-
-		index.addAll(all, file);
-
-		Iterable<IndexEntry> ret = index.getAll();
-
-		assertTrue(containsEntry(ret, def));
-		assertTrue(containsEntry(ret, type));
-		assertTrue(containsEntry(ret, defData));
-		assertFalse(containsEntry(ret, all));
-	}
-
-	@Test
 	public void getChildrenEntries() {
 		IStrategoAppl classDef = def("Class", "java", "lang", "String");
 		IStrategoAppl methodDef1 = def("Method", "java", "lang", "String", "charAt");
@@ -175,10 +141,10 @@ public class IndexSymbolTableTest extends IndexTest {
 		assertEquals(0, size(index.getChildren(methodsTemplate)));
 		assertEquals(0, size(index.getChildren(fieldsTemplate)));
 
-		index.add(classDef, file);
-		index.add(methodDef1, file);
-		index.add(methodDef2, file);
-		index.add(fieldDef, file);
+		add(classDef, file);
+		add(methodDef1, file);
+		add(methodDef2, file);
+		add(fieldDef, file);
 
 		Iterable<IndexEntry> ret1 = index.getChildren(methodsTemplate);
 		Iterable<IndexEntry> ret2 = index.getChildren(fieldsTemplate);
@@ -199,10 +165,10 @@ public class IndexSymbolTableTest extends IndexTest {
 
 	@Test
 	public void getEntriesInFileAndRemoveFile() {
-		IStrategoTerm fileTerm1 = file("TestFile", "Partition", "1");
-		IStrategoTerm fileTerm2 = file("TestFile", "Partition", "2");
-		IndexPartitionDescriptor file1 = setupIndex(fileTerm1);
-		IndexPartitionDescriptor file2 = setupIndex(fileTerm2);
+		IStrategoTerm fileTerm1 = partition("TestFile", "Partition", "1");
+		IStrategoTerm fileTerm2 = partition("TestFile", "Partition", "2");
+		IndexPartition file1 = setupIndex(fileTerm1);
+		IndexPartition file2 = setupIndex(fileTerm2);
 
 		IStrategoAppl def1 = def("Entity", "CRM", "Person");
 		IStrategoAppl read = read("Function", "CRM", "Person", "GetName");
@@ -217,10 +183,10 @@ public class IndexSymbolTableTest extends IndexTest {
 		assertEquals(0, size(index.getInPartition(file1)));
 		assertEquals(0, size(index.getInPartition(file2)));
 
-		index.add(def1, file1);
-		index.add(read, file1);
-		index.add(def2, file2);
-		index.add(type, file2);
+		add(def1, file1);
+		add(read, file1);
+		add(def2, file2);
+		add(type, file2);
 
 		Iterable<IndexEntry> ret1 = index.getInPartition(file1);
 		Iterable<IndexEntry> ret2 = index.getInPartition(file2);
@@ -247,7 +213,7 @@ public class IndexSymbolTableTest extends IndexTest {
 			assertSame(entry.getPartition(), file2);
 		}
 
-		index.clearPartition(fileTerm1);
+		index.clearPartition(file1);
 		assertEquals(0, size(ret1));
 		assertEquals(2, size(ret2));
 
@@ -257,9 +223,9 @@ public class IndexSymbolTableTest extends IndexTest {
 
 	@Test
 	public void getPartitionsOf() {
-		IStrategoTerm fileTerm1 = file("TestFile", "Partition", "1");
-		IndexPartitionDescriptor file1 = setupIndex(fileTerm1);
-		IndexPartitionDescriptor file2 = setupIndex(file("TestFile", "Partition", "2"));
+		IStrategoTerm fileTerm1 = partition("TestFile", "Partition", "1");
+		IndexPartition file1 = setupIndex(fileTerm1);
+		IndexPartition file2 = setupIndex(partition("TestFile", "Partition", "2"));
 
 		IStrategoAppl def = def("Entity", "CRM", "Person");
 		IStrategoAppl read = read("Function", "CRM", "Person", "GetName");
@@ -274,39 +240,39 @@ public class IndexSymbolTableTest extends IndexTest {
 		assertEquals(0, size(index.getInPartition(file1)));
 		assertEquals(0, size(index.getInPartition(file2)));
 
-		index.add(def, file1);
-		index.add(def, file2);
-		index.add(def, file1);
-		index.add(read, file2);
-		index.add(read, file2);
-		index.add(longTerm, file1);
+		add(def, file1);
+		add(def, file2);
+		add(def, file1);
+		add(read, file2);
+		add(read, file2);
+		add(longTerm, file1);
 
-		Iterable<IndexPartitionDescriptor> ret1 = index.getPartitionsOf(def);
-		Iterable<IndexPartitionDescriptor> ret2 = index.getPartitionsOf(read);
-		Iterable<IndexPartitionDescriptor> ret3 = index.getPartitionsOf(longTerm);
-		Iterable<IndexPartitionDescriptor> ret4 = index.getPartitionsOf(defData);
+		Iterable<IndexPartition> ret1 = index.getPartitionsOf(def);
+		Iterable<IndexPartition> ret2 = index.getPartitionsOf(read);
+		Iterable<IndexPartition> ret3 = index.getPartitionsOf(longTerm);
+		Iterable<IndexPartition> ret4 = index.getPartitionsOf(defData);
 
-		assertTrue(containsPartitionDescriptor(ret1, file1));
-		assertTrue(containsPartitionDescriptor(ret1, file2));
-		assertFalse(containsPartitionDescriptor(ret2, file1));
-		assertTrue(containsPartitionDescriptor(ret2, file2));
-		assertTrue(containsPartitionDescriptor(ret3, file1));
-		assertFalse(containsPartitionDescriptor(ret3, file2));
-		assertFalse(containsPartitionDescriptor(ret4, file1));
-		assertFalse(containsPartitionDescriptor(ret4, file2));
+		assertTrue(containsPartition(ret1, file1));
+		assertTrue(containsPartition(ret1, file2));
+		assertFalse(containsPartition(ret2, file1));
+		assertTrue(containsPartition(ret2, file2));
+		assertTrue(containsPartition(ret3, file1));
+		assertFalse(containsPartition(ret3, file2));
+		assertFalse(containsPartition(ret4, file1));
+		assertFalse(containsPartition(ret4, file2));
 	}
 
 	@Test
 	public void clear() {
-		IndexPartitionDescriptor file1 = setupIndex(file("TestFile", "Partition", "1"));
-		IndexPartitionDescriptor file2 = setupIndex(file("TestFile", "Partition", "2"));
+		IndexPartition file1 = setupIndex(partition("TestFile", "Partition", "1"));
+		IndexPartition file2 = setupIndex(partition("TestFile", "Partition", "2"));
 
 		IStrategoAppl readAll = readAll("Str", "Class", "java", "lang");
 
 		assertEquals(0, size(index.getAll()));
 
-		index.add(readAll, file1);
-		index.add(readAll, file2);
+		add(readAll, file1);
+		add(readAll, file2);
 
 		assertEquals(2, size(index.getAll()));
 

@@ -11,7 +11,7 @@ import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.library.index.IIndex;
 import org.spoofax.interpreter.library.index.IndexEntry;
 import org.spoofax.interpreter.library.index.IndexManager;
-import org.spoofax.interpreter.library.index.IndexPartitionDescriptor;
+import org.spoofax.interpreter.library.index.IndexPartition;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
@@ -29,12 +29,12 @@ public class IndexTest {
 	protected static IStrategoTerm fileTerm;
 
 	protected static IndexManager indexManager;
-	protected static IndexPartitionDescriptor file;
+	protected static IndexPartition file;
 	protected static IIndex index;
 
 	@Parameters
 	public static List<Object[]> data() {
-		Object[][] data = new Object[][] { };
+		Object[][] data = new Object[][] {};
 		return Arrays.asList(data);
 	}
 
@@ -46,12 +46,11 @@ public class IndexTest {
 
 		language = str("TestLanguage");
 		projectPath = str("TestPath");
-		fileTerm = file("TestFile");
+		fileTerm = partition("TestFile");
 
 		indexManager = IndexManager.getInstance();
 		indexManager.loadIndex(projectPath.stringValue(), language.stringValue(), factory, agent);
 		index = indexManager.getCurrent();
-		index.initialize(factory, agent);
 		file = setupIndex(fileTerm);
 	}
 
@@ -69,18 +68,30 @@ public class IndexTest {
 		agent = null;
 	}
 
-	public static IndexPartitionDescriptor setupIndex(IStrategoTerm fileTerm) {
-		IndexPartitionDescriptor file = getFile(fileTerm);
-		indexManager.setCurrentPartition(file);
-		return file;
+	public static IndexPartition setupIndex(IStrategoTerm fileTerm) {
+		IndexPartition partition = getPartition(fileTerm);
+		indexManager.setCurrentPartition(partition);
+		return partition;
 	}
 
-	public static void setupIndex(IndexPartitionDescriptor file) {
+	public static void setupIndex(IndexPartition file) {
 		indexManager.setCurrentPartition(file);
 	}
 
-	public static IndexPartitionDescriptor getFile(IStrategoTerm fileTerm) {
-		return index.getPartitionDescriptor(fileTerm);
+	public static IndexEntry add(IStrategoAppl entryTerm, IStrategoTerm partitionTerm) {
+		final IndexEntry entry = index.getFactory().createEntry(entryTerm, getPartition(partitionTerm));
+		index.add(entry);
+		return entry;
+	}
+
+	public static IndexEntry add(IStrategoAppl entryTerm, IndexPartition partition) {
+		final IndexEntry entry = index.getFactory().createEntry(entryTerm, partition);
+		index.add(entry);
+		return entry;
+	}
+
+	public static IndexPartition getPartition(IStrategoTerm filePartition) {
+		return IndexPartition.fromTerm(agent, filePartition);
 	}
 
 	public static IStrategoString str(String str) {
@@ -95,11 +106,11 @@ public class IndexTest {
 		return factory.makeTuple(terms);
 	}
 
-	public static IStrategoString file(String file) {
+	public static IStrategoString partition(String file) {
 		return str(file);
 	}
 
-	public static IStrategoTuple file(String file, String namespace, String... path) {
+	public static IStrategoTuple partition(String file, String namespace, String... path) {
 		return factory.makeTuple(str(file), uri(namespace, path));
 	}
 
@@ -151,19 +162,17 @@ public class IndexTest {
 		return found;
 	}
 
-	public static boolean containsEntry(Iterable<IndexEntry> entries, IndexPartitionDescriptor partition,
-		IStrategoTerm term) {
+	public static boolean containsEntry(Iterable<IndexEntry> entries, IndexPartition partition, IStrategoTerm term) {
 		boolean found = false;
 		for(IndexEntry entry : entries)
 			found = found || (entry.getPartition().equals(partition) && entry.toTerm(factory).match(term));
 		return found;
 	}
 
-	public static boolean containsPartitionDescriptor(Iterable<IndexPartitionDescriptor> partitionDescriptors,
-		IndexPartitionDescriptor partition) {
+	public static boolean containsPartition(Iterable<IndexPartition> partitions, IndexPartition partition) {
 		boolean found = false;
-		for(IndexPartitionDescriptor partitionDescriptor : partitionDescriptors)
-			found = found || partitionDescriptor.equals(partition);
+		for(IndexPartition searchPartition : partitions)
+			found = found || searchPartition.equals(partition);
 		return found;
 	}
 

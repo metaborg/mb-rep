@@ -10,21 +10,21 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 
 /**
- * A key-value pair that can be stored in an {@link IIndex}, partitioned by a {@link IndexPartitionDescriptor}.
+ * A key-value pair that can be stored in an {@link IIndex}, partitioned by a {@link IndexPartition}.
  */
 public class IndexEntry implements Serializable {
 	private static final long serialVersionUID = -1073077973341978805L;
 
 	private final IndexURI key;
 	private final IStrategoTerm value;
-	private final IndexPartitionDescriptor partition;
+	private final IndexPartition partition;
 
 	private transient IStrategoAppl cachedTerm;
 
 	/**
 	 * Use {@link IndexEntryFactory#createEntry}.
 	 */
-	protected IndexEntry(IndexURI key, IStrategoTerm value, IndexPartitionDescriptor partition) {
+	protected IndexEntry(IndexURI key, IStrategoTerm value, IndexPartition partition) {
 		this.key = key;
 		this.value = value;
 		this.partition = partition;
@@ -38,7 +38,7 @@ public class IndexEntry implements Serializable {
 		return value;
 	}
 
-	public IndexPartitionDescriptor getPartition() {
+	public IndexPartition getPartition() {
 		return partition;
 	}
 

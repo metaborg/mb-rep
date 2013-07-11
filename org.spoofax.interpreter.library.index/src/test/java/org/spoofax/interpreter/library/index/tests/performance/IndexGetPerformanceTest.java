@@ -35,11 +35,11 @@ public class IndexGetPerformanceTest extends IndexPerformanceTest {
 		index.clearAll();
 
 		for(int i = 0; i < this.numItems; ++i) {
-			index.add(def1, getNextFile());
-			index.add(def2, getNextFile());
-			index.add(def3, getNextFile());
-			index.add(use1, getNextFile());
-			index.add(type1, getNextFile());
+			add(def1, getNextFile());
+			add(def2, getNextFile());
+			add(def3, getNextFile());
+			add(use1, getNextFile());
+			add(type1, getNextFile());
 		}
 	}
 

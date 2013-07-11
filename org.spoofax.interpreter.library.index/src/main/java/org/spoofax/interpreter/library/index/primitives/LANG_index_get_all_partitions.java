@@ -4,7 +4,7 @@ import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.library.AbstractPrimitive;
 import org.spoofax.interpreter.library.index.IIndex;
 import org.spoofax.interpreter.library.index.IndexManager;
-import org.spoofax.interpreter.library.index.IndexPartitionDescriptor;
+import org.spoofax.interpreter.library.index.IndexPartition;
 import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -26,10 +26,10 @@ public class LANG_index_get_all_partitions extends AbstractPrimitive {
 	}
 
 	public static IStrategoList getAllPartitions(IIndex index, ITermFactory factory) {
-		final Iterable<IndexPartitionDescriptor> allPartitionDescriptors = index.getAllPartitionDescriptors();
+		final Iterable<IndexPartition> allpartitions = index.getAllPartitions();
 		IStrategoList results = factory.makeList();
-		for(IndexPartitionDescriptor partitionDescriptor : allPartitionDescriptors) {
-			results = factory.makeListCons(partitionDescriptor.toTerm(factory), results);
+		for(IndexPartition partition : allpartitions) {
+			results = factory.makeListCons(partition.toTerm(factory), results);
 		}
 		return results;
 	}

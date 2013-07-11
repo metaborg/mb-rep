@@ -38,11 +38,11 @@ public class IndexEntryFactory {
     }
 
     public IndexEntry createEntry(IStrategoConstructor constructor, IStrategoTerm identifier, IStrategoTerm type,
-        IStrategoTerm value, IndexPartitionDescriptor partition) {
+        IStrategoTerm value, IndexPartition partition) {
         return createEntry(value, createURI(constructor, identifier, type), partition);
     }
 
-    public IndexEntry createEntry(IStrategoTerm value, IndexURI key, IndexPartitionDescriptor partition) {
+    public IndexEntry createEntry(IStrategoTerm value, IndexURI key, IndexPartition partition) {
         ImploderAttachment dataAttachment =
             value == null ? null : ImploderAttachment.getCompactPositionAttachment(value, false);
         value = stripper.strip(value);
@@ -52,13 +52,13 @@ public class IndexEntryFactory {
         return new IndexEntry(key, value, partition);
     }
     
-	public IndexEntry createEntry(IStrategoAppl entry, IndexPartitionDescriptor partitionDescriptor) {
+	public IndexEntry createEntry(IStrategoAppl entry, IndexPartition partition) {
 		final IStrategoConstructor constructor = entry.getConstructor();
 		final IStrategoTerm type = getEntryType(entry);
 		final IStrategoTerm identifier = getEntryIdentifier(entry);
 		final IStrategoTerm value = getEntryValue(entry);
 
-		return createEntry(constructor, identifier, type, value, partitionDescriptor);
+		return createEntry(constructor, identifier, type, value, partition);
 	}
 
     public static boolean isData(IStrategoAppl term) {

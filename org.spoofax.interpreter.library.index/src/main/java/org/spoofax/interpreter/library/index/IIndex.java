@@ -1,16 +1,9 @@
 package org.spoofax.interpreter.library.index;
 
-import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
-import org.spoofax.interpreter.terms.ITermFactory;
 
 public interface IIndex {
-	/**
-	 * Initializes this index.
-	 */
-	public abstract void initialize(ITermFactory factory, IOAgent agent);
 
 	/**
 	 * Gets the entry factory used by this index.
@@ -20,9 +13,9 @@ public interface IIndex {
 	/**
 	 * Starts collection for given partition.
 	 * 
-	 * @param partitionDescriptor
+	 * @param partition
 	 */
-	public abstract void startCollection(IndexPartitionDescriptor partitionDescriptor);
+	public abstract void startCollection(IndexPartition partition);
 
 	/**
 	 * Stops collection for given partition, returning the entries that were removed and added during collection.
@@ -60,9 +53,9 @@ public interface IIndex {
 	/**
 	 * Gets all entries for given partition descriptor.
 	 * 
-	 * @param partitionDescriptor The partition descriptor to match entries against.
+	 * @param partition The partition descriptor to match entries against.
 	 */
-	public abstract Iterable<IndexEntry> getInPartition(IndexPartitionDescriptor partitionDescriptor);
+	public abstract Iterable<IndexEntry> getInPartition(IndexPartition partition);
 
 	/**
 	 * Gets all partitions that contain entries that match given template. Returned collection is a set of partitions,
@@ -70,22 +63,7 @@ public interface IIndex {
 	 * 
 	 * @param template The template to match entries against.
 	 */
-	public abstract Iterable<IndexPartitionDescriptor> getPartitionsOf(IStrategoAppl template);
-
-	/**
-	 * Gets an index partition for given partition descriptor.
-	 * 
-	 * @param partitionDescriptor A partition descriptor.
-	 */
-	public abstract IndexPartition getPartition(IndexPartitionDescriptor partitionDescriptor);
-
-	/**
-	 * Gets an index partition descriptor for given partition term.
-	 * 
-	 * @param partitionTerm A string or (string, string) tuple with a file name or the file name and partition
-	 *            identifier.
-	 */
-	public abstract IndexPartitionDescriptor getPartitionDescriptor(IStrategoTerm partitionTerm);
+	public abstract Iterable<IndexPartition> getPartitionsOf(IStrategoAppl template);
 
 	/**
 	 * Gets all partitions that are in the index.
@@ -93,24 +71,11 @@ public interface IIndex {
 	public abstract Iterable<IndexPartition> getAllPartitions();
 
 	/**
-	 * Gets all partition descriptors that are in the index.
-	 */
-	public abstract Iterable<IndexPartitionDescriptor> getAllPartitionDescriptors();
-
-	/**
-	 * Removes all entries in given partition term and removes the partition itself.
-	 * 
-	 * @param partitionTerm A string or (string, string) tuple with a file name or the file name and partition
-	 *            identifier.
-	 */
-	public abstract void clearPartition(IStrategoTerm partitionTerm);
-
-	/**
 	 * Removes all entries for given partition and removes the partition itself.
 	 * 
-	 * @param partitionDescriptor A partition descriptor.
+	 * @param partition A partition descriptor.
 	 */
-	public abstract void clearPartition(IndexPartitionDescriptor partitionDescriptor);
+	public abstract void clearPartition(IndexPartition partition);
 
 	/**
 	 * Clears the entire index.

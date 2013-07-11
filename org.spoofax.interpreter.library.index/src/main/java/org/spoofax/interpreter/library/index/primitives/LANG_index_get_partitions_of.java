@@ -6,7 +6,7 @@ import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.library.AbstractPrimitive;
 import org.spoofax.interpreter.library.index.IIndex;
 import org.spoofax.interpreter.library.index.IndexManager;
-import org.spoofax.interpreter.library.index.IndexPartitionDescriptor;
+import org.spoofax.interpreter.library.index.IndexPartition;
 import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -26,7 +26,7 @@ public class LANG_index_get_partitions_of extends AbstractPrimitive {
         if(isTermAppl(tvars[0])) {
         	final IIndex index = IndexManager.getInstance().getCurrent();
             final IStrategoAppl template = (IStrategoAppl) tvars[0];
-            env.setCurrent(IndexPartitionDescriptor.toTerms(env.getFactory(), index.getPartitionsOf(template)));
+            env.setCurrent(IndexPartition.toTerms(env.getFactory(), index.getPartitionsOf(template)));
             return true;
         } else {
             return false;

@@ -40,11 +40,11 @@ public class IndexClearPerformanceTest extends IndexPerformanceTest {
         // This results in the time taken to add entries being added.
         index.clearAll();
         for(int i = 0; i < this.numItems; ++i) {
-            index.add(def1, getNextFile());
-            index.add(def2, getNextFile());
-            index.add(def3, getNextFile());
-            index.add(use1, getNextFile());
-            index.add(type1, getNextFile());
+            add(def1, getNextFile());
+            add(def2, getNextFile());
+            add(def3, getNextFile());
+            add(use1, getNextFile());
+            add(type1, getNextFile());
         }
 
         // Clear one file in the middle.

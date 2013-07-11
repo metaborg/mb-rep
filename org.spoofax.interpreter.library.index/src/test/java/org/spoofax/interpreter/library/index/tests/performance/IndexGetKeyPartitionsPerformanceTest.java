@@ -8,7 +8,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.spoofax.interpreter.library.index.IndexPartitionDescriptor;
+import org.spoofax.interpreter.library.index.IndexPartition;
 
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.BenchmarkRule;
@@ -35,17 +35,17 @@ public class IndexGetKeyPartitionsPerformanceTest extends IndexPerformanceTest {
         index.clearAll();
 
         for(int i = 0; i < this.numItems; ++i) {
-            index.add(def1, getNextFile());
-            index.add(def2, getNextFile());
-            index.add(def3, getNextFile());
-            index.add(use1, getNextFile());
-            index.add(type1, getNextFile());
+            add(def1, getNextFile());
+            add(def2, getNextFile());
+            add(def3, getNextFile());
+            add(use1, getNextFile());
+            add(type1, getNextFile());
         }
     }
 
     @Test
     public void getKeyPartitions() {
-        HashSet<IndexPartitionDescriptor> files = new HashSet<IndexPartitionDescriptor>();
+        HashSet<IndexPartition> files = new HashSet<IndexPartition>();
         Iterables.addAll(files, index.getPartitionsOf(def1));
         Iterables.addAll(files, index.getPartitionsOf(def2));
         Iterables.addAll(files, index.getPartitionsOf(def3));

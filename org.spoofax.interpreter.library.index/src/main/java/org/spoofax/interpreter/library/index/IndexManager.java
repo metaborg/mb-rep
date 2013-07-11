@@ -29,7 +29,7 @@ public class IndexManager {
 
 	private ThreadLocal<IIndex> current = new ThreadLocal<IIndex>();
 	private ThreadLocal<URI> currentProject = new ThreadLocal<URI>();
-	private ThreadLocal<IndexPartitionDescriptor> currentPartition = new ThreadLocal<IndexPartitionDescriptor>();
+	private ThreadLocal<IndexPartition> currentPartition = new ThreadLocal<IndexPartition>();
 
 	private IndexManager() {
 		// use getInstance()
@@ -49,7 +49,7 @@ public class IndexManager {
 		return currentProject.get();
 	}
 
-	public IndexPartitionDescriptor getCurrentPartition() {
+	public IndexPartition getCurrentPartition() {
 		ensureInitialized();
 		return currentPartition.get();
 	}
@@ -64,7 +64,7 @@ public class IndexManager {
 				"Index has not been set-up, use index-setup(|language, project-paths) to set up the index before use.");
 	}
 
-	public void setCurrentPartition(IndexPartitionDescriptor currentPartition) {
+	public void setCurrentPartition(IndexPartition currentPartition) {
 		this.currentPartition.set(currentPartition);
 	}
 
@@ -78,9 +78,8 @@ public class IndexManager {
 		}
 	}
 
-	public IIndex createIndex(ITermFactory factory, IOAgent agent) {
-		IIndex index = new Index();
-		index.initialize(factory, agent);
+	public IIndex createIndex(ITermFactory factory) {
+		IIndex index = new Index(factory);
 		return index;
 	}
 
@@ -103,7 +102,7 @@ public class IndexManager {
 					index = tryReadFromFile(getFile(project), factory, agent);
 			}
 			if(index == null) {
-				index = createIndex(factory, agent);
+				index = createIndex(factory);
 				NotificationCenter.notifyNewProject(project);
 			}
 			indexCache.put(project, new WeakReference<IIndex>(index));
@@ -147,9 +146,9 @@ public class IndexManager {
 
 	public IIndex tryReadFromFile(File file, ITermFactory factory, IOAgent agent) {
 		try {
-			IIndex index = createIndex(factory, agent);
+			IIndex index = createIndex(factory);
 			IStrategoTerm term = new TermReader(factory).parseFromFile(file.toString());
-			return indexFactory.indexFromTerms(index, term, factory, true);
+			return indexFactory.indexFromTerms(index, agent, term, factory, true);
 		} catch(Exception e) {
 			if(!file.delete())
 				throw new RuntimeException("Failed to load index from " + file.getName()
