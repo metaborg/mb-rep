@@ -9,8 +9,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoConstructor;
-import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
@@ -51,11 +49,6 @@ public class Index implements IIndex {
 		this.termFactory = factory;
 	}
 
-	private void ensureInitialized() {
-		if(factory == null)
-			throw new IllegalStateException("Index not initialized");
-	}
-
 	public IndexEntryFactory getFactory() {
 		return factory;
 	}
@@ -80,17 +73,6 @@ public class Index implements IIndex {
 		return ret;
 	}
 
-	private IndexEntry createEntry(IStrategoAppl entry, IndexPartitionDescriptor partitionDescriptor) {
-		ensureInitialized();
-
-		final IStrategoConstructor constructor = entry.getConstructor();
-		final IStrategoTerm type = factory.getEntryType(entry);
-		final IStrategoTerm identifier = factory.getEntryIdentifier(entry);
-		final IStrategoTerm value = factory.getEntryValue(entry);
-
-		return factory.createEntry(constructor, identifier, type, value, partitionDescriptor);
-	}
-
 	public void startCollection(IndexPartitionDescriptor partitionDescriptor) {
 		addedEntries.clear();
 		removedEntries.clear();
@@ -108,10 +90,6 @@ public class Index implements IIndex {
 		// TODO: Use an IStrategoList implementation that iterates over the collections instead of constructing it.
 		return termFactory.makeTuple(IndexEntry.toTerms(termFactory, removedEntries),
 			IndexEntry.toTerms(termFactory, addedEntries));
-	}
-
-	public void add(IStrategoAppl entry, IndexPartitionDescriptor partitionDescriptor) {
-		add(createEntry(entry, partitionDescriptor));
 	}
 
 	public void add(IndexEntry entry) {
@@ -133,12 +111,6 @@ public class Index implements IIndex {
 
 		// Add entry to partitions.
 		entriesPerPartitionDescriptor.put(partition, entry);
-	}
-
-	public void addAll(IStrategoList entries, IndexPartitionDescriptor partitionDescriptor) {
-		for(IStrategoTerm entry : entries) {
-			add((IStrategoAppl) entry, partitionDescriptor);
-		}
 	}
 
 	public Iterable<IndexEntry> get(IStrategoAppl template) {

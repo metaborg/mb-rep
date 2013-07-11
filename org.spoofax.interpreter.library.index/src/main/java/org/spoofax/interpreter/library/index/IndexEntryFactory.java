@@ -51,6 +51,15 @@ public class IndexEntryFactory {
 
         return new IndexEntry(key, value, partition);
     }
+    
+	public IndexEntry createEntry(IStrategoAppl entry, IndexPartitionDescriptor partitionDescriptor) {
+		final IStrategoConstructor constructor = entry.getConstructor();
+		final IStrategoTerm type = getEntryType(entry);
+		final IStrategoTerm identifier = getEntryIdentifier(entry);
+		final IStrategoTerm value = getEntryValue(entry);
+
+		return createEntry(constructor, identifier, type, value, partitionDescriptor);
+	}
 
     public static boolean isData(IStrategoAppl term) {
         return isData(term.getConstructor());

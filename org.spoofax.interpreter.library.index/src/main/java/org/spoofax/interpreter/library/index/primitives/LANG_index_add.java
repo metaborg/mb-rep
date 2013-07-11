@@ -7,6 +7,7 @@ import static org.spoofax.interpreter.core.Tools.isTermTuple;
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.library.AbstractPrimitive;
 import org.spoofax.interpreter.library.index.IIndex;
+import org.spoofax.interpreter.library.index.IndexEntry;
 import org.spoofax.interpreter.library.index.IndexManager;
 import org.spoofax.interpreter.library.index.IndexPartitionDescriptor;
 import org.spoofax.interpreter.stratego.Strategy;
@@ -24,9 +25,10 @@ public class LANG_index_add extends AbstractPrimitive {
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
 		if(isTermAppl(tvars[0]) && (isTermTuple(tvars[1]) || isTermString(tvars[1]))) {
 			final IIndex ind = IndexManager.getInstance().getCurrent();
-			final IStrategoAppl entry = (IStrategoAppl) tvars[0];
+			final IStrategoAppl entryTerm = (IStrategoAppl) tvars[0];
 			final IndexPartitionDescriptor partitionDescriptor = ind.getPartitionDescriptor(tvars[1]);
-			ind.add(entry, partitionDescriptor);
+			final IndexEntry entry = ind.getFactory().createEntry(entryTerm, partitionDescriptor);
+			ind.add(entry);
 			return true;
 		} else {
 			return false;

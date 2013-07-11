@@ -2,7 +2,6 @@ package org.spoofax.interpreter.library.index;
 
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
@@ -36,24 +35,8 @@ public interface IIndex {
 	 * Adds a new entry to the index.
 	 * 
 	 * @param entry The entry to add.
-	 * @param partitionDescriptor The partition to associate the entry with.
-	 */
-	public abstract void add(IStrategoAppl entry, IndexPartitionDescriptor partitionDescriptor);
-
-	/**
-	 * Adds a new entry to the index.
-	 * 
-	 * @param entry The entry to add.
 	 */
 	public abstract void add(IndexEntry entry);
-
-	/**
-	 * Adds a list of entries to the index.
-	 * 
-	 * @param entries The entries to add.
-	 * @param partitionDescriptor The partition to associate the entries with.
-	 */
-	public abstract void addAll(IStrategoList entries, IndexPartitionDescriptor partitionDescriptor);
 
 	/**
 	 * Gets all entries that match given template.
