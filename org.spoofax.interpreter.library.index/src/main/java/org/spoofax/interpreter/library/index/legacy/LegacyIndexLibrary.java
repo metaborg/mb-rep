@@ -18,5 +18,13 @@ public class LegacyIndexLibrary extends IndexLibrary {
 		add(new RedirectAbstractPrimitive("LANG_index_get_files_of", new LANG_index_get_partitions_of()));
 		add(new RedirectAbstractPrimitive("LANG_index_get_current_file", new LANG_index_get_current_partition()));
 		add(new RedirectAbstractPrimitive("LANG_index_set_current_file", new LANG_index_set_current_partition()));
+		
+		add(new NoopAbstractPrimitive("LANG_index_remove", 0, 2));
+		add(new NoopAbstractPrimitive("LANG_index_remove_one", 0, 1));
+		add(new NoopAbstractPrimitive("LANG_index_remove_all", 0, 1));
+		add(new NoopAbstractPrimitive("LANG_index_start_transaction", 0, 0));
+		add(new NoopAbstractPrimitive("LANG_index_end_transaction", 0, 0));
+		add(new NoopAbstractPrimitive("LANG_index_get_file_revision", 0, 1));
+		add(new NoopAbstractPrimitive("LANG_index_get_files_newer_than", 0, 1));
 	}
 }
