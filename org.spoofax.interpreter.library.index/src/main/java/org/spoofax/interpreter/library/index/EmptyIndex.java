@@ -60,6 +60,10 @@ public class EmptyIndex implements IIndex {
 	public Iterable<IndexPartition> getAllPartitions() {
 		return new EmptyIterable<IndexPartition>();
 	}
+	
+	public Iterable<IndexPartition> getClearedPartitions() {
+		return new EmptyIterable<IndexPartition>();
+	}
 
 	public void clearPartition(IndexPartition partition) {
 

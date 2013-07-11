@@ -63,6 +63,38 @@ public class IndexManager {
 			throw new IllegalStateException(
 				"Index has not been set-up, use index-setup(|language, project-paths) to set up the index before use.");
 	}
+	
+	public IIndex pushIndex(ITermFactory factory) {
+		final IIndex currentIndex = current.get();
+		final IIndex newIndex = createIndex(currentIndex, factory);
+		current.set(newIndex);
+		return newIndex;
+	}
+	
+	public IIndex popIndex() {
+		final IIndex currentIndex = current.get();
+		final IIndex parentIndex = currentIndex.getParent();
+		if(parentIndex == null || parentIndex instanceof EmptyIndex)
+			throw new RuntimeException("Cannot pop the root index.");
+		current.set(parentIndex);
+		return parentIndex;
+	}
+	
+	public IIndex mergeIndex() {
+		final IIndex currentIndex = current.get();
+		final IIndex parentIndex = currentIndex.getParent();
+		if(parentIndex == null || parentIndex instanceof EmptyIndex)
+			throw new RuntimeException("Cannot merge the root index.");
+		
+		for(IndexPartition partition : currentIndex.getClearedPartitions())
+			parentIndex.clearPartition(partition);
+		
+		for(IndexEntry entry : currentIndex.getAllCurrent())
+			parentIndex.add(entry);
+		
+		current.set(parentIndex);
+		return parentIndex;
+	}
 
 	public void setCurrentPartition(IndexPartition currentPartition) {
 		this.currentPartition.set(currentPartition);
@@ -80,6 +112,11 @@ public class IndexManager {
 
 	public IIndex createIndex(ITermFactory factory) {
 		IIndex index = new Index(new EmptyIndex(), factory);
+		return index;
+	}
+	
+	public IIndex createIndex(IIndex parent, ITermFactory factory) {
+		IIndex index = new Index(parent, factory);
 		return index;
 	}
 

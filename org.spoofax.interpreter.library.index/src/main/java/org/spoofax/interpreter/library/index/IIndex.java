@@ -81,6 +81,11 @@ public interface IIndex {
 	 * Gets all partitions that are in the index.
 	 */
 	public abstract Iterable<IndexPartition> getAllPartitions();
+	
+	/**
+	 * Gets partitions that have been cleared.
+	 */
+	public abstract Iterable<IndexPartition> getClearedPartitions();
 
 	/**
 	 * Removes all entries for given partition and removes the partition itself.

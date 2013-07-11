@@ -175,6 +175,10 @@ public class Index implements IIndex {
 	public Iterable<IndexPartition> getAllPartitions() {
 		return partitions;
 	}
+	
+	public Iterable<IndexPartition> getClearedPartitions() {
+		return cleared;
+	}
 
 	public void clearAll() {
 		entries.clear();
