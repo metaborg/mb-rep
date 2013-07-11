@@ -1,4 +1,4 @@
-package org.spoofax.intepreter.library.index.legacy;
+package org.spoofax.interpreter.library.index.legacy;
 
 import org.spoofax.interpreter.library.index.primitives.IndexLibrary;
 import org.spoofax.interpreter.library.index.primitives.LANG_index_clear_partition;

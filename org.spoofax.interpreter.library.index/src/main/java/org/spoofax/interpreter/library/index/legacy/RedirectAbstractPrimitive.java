@@ -1,4 +1,4 @@
-package org.spoofax.intepreter.library.index.legacy;
+package org.spoofax.interpreter.library.index.legacy;
 
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.core.InterpreterException;
