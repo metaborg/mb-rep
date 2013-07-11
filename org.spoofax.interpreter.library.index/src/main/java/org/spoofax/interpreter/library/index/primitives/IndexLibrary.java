@@ -14,7 +14,6 @@ public class IndexLibrary extends AbstractStrategoOperatorRegistry {
         add(new LANG_index_get_children());
         add(new LANG_index_get_partitions_of());
         add(new LANG_index_get());
-        add(new LANG_index_get_with_partitions());
         add(new LANG_index_setup());
         add(new LANG_index_persist());
         add(new LANG_index_get_current_partition());

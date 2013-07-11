@@ -26,5 +26,6 @@ public class LegacyIndexLibrary extends IndexLibrary {
 		add(new NoopAbstractPrimitive("LANG_index_end_transaction", 0, 0));
 		add(new NoopAbstractPrimitive("LANG_index_get_file_revision", 0, 1));
 		add(new NoopAbstractPrimitive("LANG_index_get_files_newer_than", 0, 1));
+		add(new NoopAbstractPrimitive("LANG_index_get_with_partitions", 0, 1));
 	}
 }
