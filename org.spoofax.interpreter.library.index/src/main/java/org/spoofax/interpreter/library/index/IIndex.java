@@ -1,22 +1,11 @@
 package org.spoofax.interpreter.library.index;
 
-import java.util.Collection;
+import java.util.Set;
 
-import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
-import org.spoofax.interpreter.terms.ITermFactory;
 
-/**
- * @author Gabriël Konat
- */
 public interface IIndex {
-	/**
-	 * Initializes this index.
-	 */
-	public abstract void initialize(ITermFactory factory, IOAgent agent);
 
 	/**
 	 * Gets the entry factory used by this index.
@@ -24,11 +13,16 @@ public interface IIndex {
 	public abstract IndexEntryFactory getFactory();
 
 	/**
+	 * Returns the parent index or null if it does not have a parent.
+	 */
+	public abstract IIndex getParent();
+	
+	/**
 	 * Starts collection for given partition.
 	 * 
-	 * @param partitionDescriptor
+	 * @param partition
 	 */
-	public abstract void startCollection(IndexPartitionDescriptor partitionDescriptor);
+	public abstract void startCollection(IndexPartition partition);
 
 	/**
 	 * Stops collection for given partition, returning the entries that were removed and added during collection.
@@ -41,72 +35,39 @@ public interface IIndex {
 	 * Adds a new entry to the index.
 	 * 
 	 * @param entry The entry to add.
-	 * @param partitionDescriptor The partition to associate the entry with.
-	 */
-	public abstract void add(IStrategoAppl entry, IndexPartitionDescriptor partitionDescriptor);
-
-	/**
-	 * Adds a new entry to the index.
-	 * 
-	 * @param entry The entry to add.
 	 */
 	public abstract void add(IndexEntry entry);
-
-	/**
-	 * Adds a list of entries to the index.
-	 * 
-	 * @param entries The entries to add.
-	 * @param partitionDescriptor The partition to associate the entries with.
-	 */
-	public abstract void addAll(IStrategoList entries, IndexPartitionDescriptor partitionDescriptor);
-
-	/**
-	 * Removes all entries that match given template and are from given partition. Warning: VERY SLOW!
-	 * 
-	 * @param template The template to match entries against.
-	 * @param partitionDescriptor The partition entries will be removed from.
-	 */
-	public abstract Collection<IndexEntry> remove(IStrategoAppl template, IndexPartitionDescriptor partitionDescriptor);
-
-	/**
-	 * Removes all entries that match given template (from all partitions). Warning: Quite slow!
-	 * 
-	 * @param template The template to match entries against.
-	 */
-	public abstract Collection<IndexEntry> removeAll(IStrategoAppl template);
-
-	/**
-	 * Removes one given entry. Compares both the URI and value of the entry. Warning: VERY SLOW!
-	 * 
-	 * @param entryTerm The term representing the entry to remove.
-	 */
-	public abstract Collection<IndexEntry> removeOne(IStrategoAppl entryTerm);
 
 	/**
 	 * Gets all entries that match given template.
 	 * 
 	 * @param template The template to match entries against.
 	 */
-	public abstract IIndexEntryIterable get(IStrategoAppl template);
+	public abstract Iterable<IndexEntry> get(IStrategoAppl template);
 
 	/**
 	 * Gets all entries.
 	 */
-	public abstract IIndexEntryIterable getAll();
+	public abstract Iterable<IndexEntry> getAll();
+	
+	/**
+	 * Gets all entries, excluding entries from the parent index.
+	 */
+	public abstract Iterable<IndexEntry> getAllCurrent();
 
 	/**
 	 * Gets all child entries for URI in given template.
 	 * 
 	 * @param template The template to match entries against.
 	 */
-	public abstract IIndexEntryIterable getChildren(IStrategoAppl template);
+	public abstract Iterable<IndexEntry> getChildren(IStrategoAppl template);
 
 	/**
 	 * Gets all entries for given partition descriptor.
 	 * 
-	 * @param partitionDescriptor The partition descriptor to match entries against.
+	 * @param partition The partition descriptor to match entries against.
 	 */
-	public abstract IIndexEntryIterable getInPartition(IndexPartitionDescriptor partitionDescriptor);
+	public abstract Iterable<IndexEntry> getInPartition(IndexPartition partition);
 
 	/**
 	 * Gets all partitions that contain entries that match given template. Returned collection is a set of partitions,
@@ -114,47 +75,24 @@ public interface IIndex {
 	 * 
 	 * @param template The template to match entries against.
 	 */
-	public abstract Collection<IndexPartitionDescriptor> getPartitionsOf(IStrategoAppl template);
-
-	/**
-	 * Gets an index partition for given partition descriptor.
-	 * 
-	 * @param partitionDescriptor A partition descriptor.
-	 */
-	public abstract IndexPartition getPartition(IndexPartitionDescriptor partitionDescriptor);
-
-	/**
-	 * Gets an index partition descriptor for given partition term.
-	 * 
-	 * @param partitionTerm A string or (string, string) tuple with a file name or the file name and partition
-	 *            identifier.
-	 */
-	public abstract IndexPartitionDescriptor getPartitionDescriptor(IStrategoTerm partitionTerm);
+	public abstract Set<IndexPartition> getPartitionsOf(IStrategoAppl template);
 
 	/**
 	 * Gets all partitions that are in the index.
 	 */
-	public abstract Collection<IndexPartition> getAllPartitions();
-
+	public abstract Iterable<IndexPartition> getAllPartitions();
+	
 	/**
-	 * Gets all partition descriptors that are in the index.
+	 * Gets partitions that have been cleared.
 	 */
-	public abstract Collection<IndexPartitionDescriptor> getAllPartitionDescriptors();
-
-	/**
-	 * Removes all entries in given partition term and removes the partition itself.
-	 * 
-	 * @param partitionTerm A string or (string, string) tuple with a file name or the file name and partition
-	 *            identifier.
-	 */
-	public abstract void clearPartition(IStrategoTerm partitionTerm);
+	public abstract Iterable<IndexPartition> getClearedPartitions();
 
 	/**
 	 * Removes all entries for given partition and removes the partition itself.
 	 * 
-	 * @param partitionDescriptor A partition descriptor.
+	 * @param partition A partition descriptor.
 	 */
-	public abstract void clearPartition(IndexPartitionDescriptor partitionDescriptor);
+	public abstract void clearPartition(IndexPartition partition);
 
 	/**
 	 * Clears the entire index.

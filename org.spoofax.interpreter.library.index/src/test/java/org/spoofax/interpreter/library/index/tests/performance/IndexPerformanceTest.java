@@ -6,7 +6,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.runners.Parameterized.Parameters;
-import org.spoofax.interpreter.library.index.IndexPartitionDescriptor;
+import org.spoofax.interpreter.library.index.IndexPartition;
 import org.spoofax.interpreter.library.index.tests.IndexTest;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 
@@ -24,12 +24,11 @@ public class IndexPerformanceTest extends IndexTest {
     public static IStrategoAppl def3Parent;
     public static IStrategoAppl use1Parent;
     public static IStrategoAppl typeTemplate1Parent;
-    public static IndexPartitionDescriptor[] files;
+    public static IndexPartition[] files;
     public static int fileIndex;
     
     protected int numItems;
     protected int numFiles;
-    protected boolean startTransaction;
     
     @Parameters
     public static List<Object[]> data() {
@@ -118,10 +117,9 @@ public class IndexPerformanceTest extends IndexTest {
         return Arrays.asList(data);
     }
 
-    public IndexPerformanceTest(int numItems, int numFiles, boolean startTransaction) {
+    public IndexPerformanceTest(int numItems, int numFiles) {
         this.numItems = numItems;
         this.numFiles = numFiles;
-        this.startTransaction = startTransaction;
     }
     
     @BeforeClass
@@ -140,9 +138,9 @@ public class IndexPerformanceTest extends IndexTest {
         typeTemplate1 = type(tuple(), "Method", "java", "lang", "Object", "toString");
         typeTemplate1Parent = type(tuple(), "Method", "java", "lang", "Object");
 
-        files = new IndexPartitionDescriptor[MAX_NUM_FILES];
+        files = new IndexPartition[MAX_NUM_FILES];
         for(int i = 0; i < MAX_NUM_FILES; ++i) {
-            files[i] = IndexPartitionDescriptor.fromTerm(agent, file("File" + i));
+            files[i] = IndexPartition.fromTerm(agent, partition("File" + i));
         }
 
         fileIndex = -1;
@@ -152,23 +150,9 @@ public class IndexPerformanceTest extends IndexTest {
     public void setUp() {
         fileIndex = -1;
     }
-
-    protected void startTransaction() {
-        if(this.startTransaction)
-            doStartTransaction();
-    }
-
-    protected void endTransaction() {
-        if(this.startTransaction)
-            doEndTransaction();
-    }
     
-    protected String indexTypeString() {
-        return this.startTransaction ? "TransactionIndex" : "Index";
-    }
-    
-    protected IndexPartitionDescriptor getNextFile() {
-        IndexPartitionDescriptor file = files[++fileIndex];
+    protected IndexPartition getNextFile() {
+        IndexPartition file = files[++fileIndex];
         if(fileIndex == this.numFiles - 1)
             fileIndex = -1;
         return file;

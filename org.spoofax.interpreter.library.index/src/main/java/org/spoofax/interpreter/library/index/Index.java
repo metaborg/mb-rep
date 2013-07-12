@@ -1,134 +1,103 @@
 package org.spoofax.interpreter.library.index;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoConstructor;
-import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Multiset;
-import com.google.common.collect.Multisets;
+import com.google.common.collect.Sets;
 
-/**
- * @author Gabriël Konat
- */
 public class Index implements IIndex {
-	public static final boolean DEBUG_ENABLED = Index.class.desiredAssertionStatus();
-
 	private static final int EXPECTED_DISTINCT_PARTITIONS = 100;
 	private static final int EXPECTED_VALUES_PER_PARTITION = 1000;
 
-	private final ConcurrentHashMap<IndexURI, Multimap<IndexPartitionDescriptor, IndexEntry>> entries =
-		new ConcurrentHashMap<IndexURI, Multimap<IndexPartitionDescriptor, IndexEntry>>();
-	private final ConcurrentHashMap<IndexURI, Multimap<IndexPartitionDescriptor, IndexEntry>> childs =
-		new ConcurrentHashMap<IndexURI, Multimap<IndexPartitionDescriptor, IndexEntry>>();
-	private final Multimap<IndexPartitionDescriptor, IndexEntry> entriesPerPartitionDescriptor = ArrayListMultimap
-		.create();
-	private final Map<IndexPartitionDescriptor, IndexPartition> partitions =
-		new HashMap<IndexPartitionDescriptor, IndexPartition>();
+	private final ConcurrentHashMap<IndexURI, Multimap<IndexPartition, IndexEntry>> entries =
+		new ConcurrentHashMap<IndexURI, Multimap<IndexPartition, IndexEntry>>();
+	private final ConcurrentHashMap<IndexURI, Multimap<IndexPartition, IndexEntry>> childs =
+		new ConcurrentHashMap<IndexURI, Multimap<IndexPartition, IndexEntry>>();
+	private final Multimap<IndexPartition, IndexEntry> entriesPerpartition = ArrayListMultimap.create();
+	private final Set<IndexPartition> partitions = new HashSet<IndexPartition>();
 
-	private final Multiset<IndexEntry> addedEntries = HashMultiset.create();
-	private final Multiset<IndexEntry> removedEntries = HashMultiset.create();
-	private final Multiset<IndexEntry> oldEntries = HashMultiset.create();
-	private boolean inCollection = false;
+	private final Set<IndexPartition> cleared = new HashSet<IndexPartition>();
+	private final Predicate<IndexEntry> visible;
 
-	private IOAgent agent;
-	private ITermFactory termFactory;
-	private IndexEntryFactory factory;
+	private final IIndex parent;
+	private final IndexCollection collection = new IndexCollection();
+	private final ITermFactory termFactory;
+	private final IndexEntryFactory factory;
 
-	public void initialize(ITermFactory factory, IOAgent agent) {
-		this.agent = agent;
-		this.factory = new IndexEntryFactory(factory);
+	public Index(IIndex parent, ITermFactory factory) {
+		this.parent = parent;
 		this.termFactory = factory;
-	}
+		this.factory = new IndexEntryFactory(factory);
 
-	private void ensureInitialized() {
-		if(factory == null)
-			throw new IllegalStateException("Index not initialized");
+		this.visible = new Predicate<IndexEntry>() {
+			public boolean apply(IndexEntry entry) {
+				return parentEntryVisible(entry);
+			}
+		};
 	}
 
 	public IndexEntryFactory getFactory() {
 		return factory;
 	}
 
-	private Multimap<IndexPartitionDescriptor, IndexEntry> innerEntries(IndexURI uri) {
-		Multimap<IndexPartitionDescriptor, IndexEntry> innerMap =
+	public IIndex getParent() {
+		return parent;
+	}
+
+	private Multimap<IndexPartition, IndexEntry> innerEntries(IndexURI uri) {
+		Multimap<IndexPartition, IndexEntry> innerMap =
 			ArrayListMultimap.create(EXPECTED_DISTINCT_PARTITIONS, EXPECTED_VALUES_PER_PARTITION);
 
-		Multimap<IndexPartitionDescriptor, IndexEntry> ret = entries.putIfAbsent(uri, innerMap);
+		Multimap<IndexPartition, IndexEntry> ret = entries.putIfAbsent(uri, innerMap);
 		if(ret == null)
 			ret = innerMap;
 		return ret;
 	}
 
-	private Multimap<IndexPartitionDescriptor, IndexEntry> innerChildEntries(IndexURI uri) {
-		Multimap<IndexPartitionDescriptor, IndexEntry> innerMap =
+	private Multimap<IndexPartition, IndexEntry> innerChildEntries(IndexURI uri) {
+		Multimap<IndexPartition, IndexEntry> innerMap =
 			ArrayListMultimap.create(EXPECTED_DISTINCT_PARTITIONS, EXPECTED_VALUES_PER_PARTITION);
 
-		Multimap<IndexPartitionDescriptor, IndexEntry> ret = childs.putIfAbsent(uri, innerMap);
+		Multimap<IndexPartition, IndexEntry> ret = childs.putIfAbsent(uri, innerMap);
 		if(ret == null)
 			ret = innerMap;
 		return ret;
 	}
 
-	private IndexEntry createEntry(IStrategoAppl entry, IndexPartitionDescriptor partitionDescriptor) {
-		ensureInitialized();
-
-		IStrategoConstructor constructor = entry.getConstructor();
-		IStrategoTerm type = factory.getEntryType(entry);
-		IStrategoTerm identifier = factory.getEntryIdentifier(entry);
-		IStrategoTerm value = factory.getEntryValue(entry);
-
-		return factory.createEntry(constructor, identifier, type, value, partitionDescriptor);
+	private boolean parentEntryVisible(IndexEntry entry) {
+		return !cleared.contains(entry.getPartition());
 	}
 
-	public void startCollection(IndexPartitionDescriptor partitionDescriptor) {
-		addedEntries.clear();
-		removedEntries.clear();
-		oldEntries.clear();
-		removedEntries.addAll(entriesPerPartitionDescriptor.get(partitionDescriptor));
-		oldEntries.addAll(entriesPerPartitionDescriptor.get(partitionDescriptor));
-		clearPartition(partitionDescriptor);
-		inCollection = true;
+	public void startCollection(IndexPartition partition) {
+		collection.start(getInPartition(partition));
+		clearPartition(partition);
 	}
 
 	public IStrategoTuple stopCollection() {
-		Multisets.removeOccurrences(addedEntries, oldEntries);
-		inCollection = false;
-
-		// TODO: Use an IStrategoList implementation that iterates over the collections instead of constructing it.
-		return termFactory.makeTuple(IndexEntry.toTerms(termFactory, removedEntries),
-			IndexEntry.toTerms(termFactory, addedEntries));
-	}
-
-	public void add(IStrategoAppl entry, IndexPartitionDescriptor partitionDescriptor) {
-		add(createEntry(entry, partitionDescriptor));
+		return collection.stop(termFactory);
 	}
 
 	public void add(IndexEntry entry) {
-		final IndexPartitionDescriptor partition = entry.getPartition();
+		final IndexPartition partition = entry.getPartition();
 		final IndexURI uri = entry.getKey();
 
-		addOrGetPartition(partition);
+		partitions.add(partition);
 
 		innerEntries(uri).put(partition, entry);
-		if(inCollection) {
-			addedEntries.add(entry);
-			removedEntries.remove(entry);
+		if(collection.inCollection()) {
+			collection.add(entry);
 		}
 
 		// Add entry to children.
@@ -137,180 +106,86 @@ public class Index implements IIndex {
 			innerChildEntries(parent).put(partition, entry);
 
 		// Add entry to partitions.
-		entriesPerPartitionDescriptor.put(partition, entry);
+		entriesPerpartition.put(partition, entry);
 	}
 
-	public void addAll(IStrategoList entries, IndexPartitionDescriptor partitionDescriptor) {
-		while(!entries.isEmpty()) {
-			add((IStrategoAppl) entries.head(), partitionDescriptor);
-			entries = entries.tail();
-		}
+	public Iterable<IndexEntry> get(IStrategoAppl template) {
+		final IndexURI uri = factory.createURIFromTemplate(template);
+		final Iterable<IndexEntry> parentEntries = Iterables.filter(parent.get(template), visible);
+		final Iterable<IndexEntry> ownEntries = innerEntries(uri).values();
+		return Iterables.concat(parentEntries, ownEntries);
 	}
 
-	public Collection<IndexEntry> remove(IStrategoAppl template, IndexPartitionDescriptor partitionDescriptor) {
-		IndexURI uri = factory.createURIFromTemplate(template);
-		IndexURI parentURI = uri.getParent(termFactory);
-
-		Multimap<IndexPartitionDescriptor, IndexEntry> entryValues = innerEntries(uri);
-		Multimap<IndexPartitionDescriptor, IndexEntry> childValues = null;
-		if(parentURI != null)
-			childValues = innerChildEntries(uri.getParent(termFactory));
-
-		Collection<IndexEntry> removedEntries = entryValues.removeAll(partitionDescriptor);
-
-		for(IndexEntry entry : removedEntries) {
-			if(parentURI != null)
-				childValues.remove(partitionDescriptor, entry);
-			entriesPerPartitionDescriptor.remove(partitionDescriptor, entry);
-		}
-
-		return removedEntries;
+	public Iterable<IndexEntry> getChildren(IStrategoAppl template) {
+		final IndexURI uri = factory.createURIFromTemplate(template);
+		final Iterable<IndexEntry> parentChildren = Iterables.filter(parent.getChildren(template), visible);
+		final Iterable<IndexEntry> ownChildren = innerChildEntries(uri).values();
+		return Iterables.concat(parentChildren, ownChildren);
 	}
 
-	public Collection<IndexEntry> removeAll(IStrategoAppl template) {
-		IndexURI uri = factory.createURIFromTemplate(template);
-		IndexURI parentURI = uri.getParent(termFactory);
-
-		Multimap<IndexPartitionDescriptor, IndexEntry> entryValues = innerEntries(uri);
-		Multimap<IndexPartitionDescriptor, IndexEntry> childValues = null;
-		if(parentURI != null)
-			childValues = innerChildEntries(uri.getParent(termFactory));
-
-		Collection<IndexEntry> removedEntries = entryValues.values();
-		entries.remove(uri);
-
-		for(IndexEntry entry : removedEntries) {
-			if(parentURI != null)
-				childValues.remove(entry.getPartition(), entry);
-			entriesPerPartitionDescriptor.remove(entry.getPartition(), entry);
-		}
-
-		return removedEntries;
+	public Iterable<IndexEntry> getInPartition(IndexPartition partition) {
+		final Iterable<IndexEntry> parentEntries = Iterables.filter(parent.getInPartition(partition), visible);
+		final Iterable<IndexEntry> ownEntries = entriesPerpartition.get(partition);
+		return Iterables.concat(parentEntries, ownEntries);
 	}
 
-	public Collection<IndexEntry> removeOne(IStrategoAppl entryTerm) {
-		IndexURI uri = factory.createURIFromTemplate(entryTerm);
-		IndexURI parentURI = uri.getParent(termFactory);
-
-		Multimap<IndexPartitionDescriptor, IndexEntry> entryValues = innerEntries(uri);
-		Multimap<IndexPartitionDescriptor, IndexEntry> childValues = null;
-		if(parentURI != null)
-			childValues = innerChildEntries(uri.getParent(termFactory));
-
-		Collection<IndexEntry> removedEntries = new ArrayList<IndexEntry>();
-		IndexPartitionDescriptor[] partitions = entryValues.keySet().toArray(new IndexPartitionDescriptor[0]);
-		for(IndexPartitionDescriptor partition : partitions) {
-			IndexEntry entry = createEntry(entryTerm, partition);
-			if(entryValues.remove(partition, entry))
-				removedEntries.add(entry);
-		}
-
-		for(IndexEntry entry : removedEntries) {
-			if(parentURI != null)
-				childValues.remove(entry.getPartition(), entry);
-			entriesPerPartitionDescriptor.remove(entry.getPartition(), entry);
-		}
-
-		return removedEntries;
+	public Set<IndexPartition> getPartitionsOf(IStrategoAppl template) {
+		final IndexURI uri = factory.createURIFromTemplate(template);
+		final Set<IndexPartition> parentPartitions = parent.getPartitionsOf(template);
+		final Set<IndexPartition> ownPartitions = innerEntries(uri).keySet();
+		// Use own set as first set because it is usually faster, which results in improved performance.
+		return Sets.union(ownPartitions, parentPartitions);
 	}
 
-	public IIndexEntryIterable get(IStrategoAppl template) {
-		IndexURI uri = factory.createURIFromTemplate(template);
-		return getEntryIterable(innerEntries(uri).values());
-	}
+	public Iterable<IndexEntry> getAll() {
+		final List<IndexEntry> allEntries = new LinkedList<IndexEntry>();
 
-	public IIndexEntryIterable getChildren(IStrategoAppl template) {
-		IndexURI uri = factory.createURIFromTemplate(template);
-		return getEntryIterable(innerChildEntries(uri).values());
-	}
+		final Iterable<IndexEntry> parentEntries = Iterables.filter(parent.getAll(), visible);
+		Iterables.addAll(allEntries, parentEntries);
 
-	public IIndexEntryIterable getInPartition(IndexPartitionDescriptor partitionDescriptor) {
-		return getEntryIterable(entriesPerPartitionDescriptor.get(partitionDescriptor));
-	}
-
-	public Collection<IndexPartitionDescriptor> getPartitionsOf(IStrategoAppl template) {
-		IndexURI uri = factory.createURIFromTemplate(template);
-		return getCollection(innerEntries(uri).keySet());
-	}
-
-	public IIndexEntryIterable getAll() {
-		List<IndexEntry> allEntries = new LinkedList<IndexEntry>();
-		Collection<Multimap<IndexPartitionDescriptor, IndexEntry>> values = entries.values();
-		for(Multimap<IndexPartitionDescriptor, IndexEntry> map : values)
+		final Collection<Multimap<IndexPartition, IndexEntry>> ownValues = entries.values();
+		for(Multimap<IndexPartition, IndexEntry> map : ownValues)
 			allEntries.addAll(map.values());
 
-		return getEntryIterable(allEntries);
+		return allEntries;
 	}
 
-	public IndexPartition getPartition(IndexPartitionDescriptor partitionDescriptor) {
-		return addOrGetPartition(partitionDescriptor);
+	public Iterable<IndexEntry> getAllCurrent() {
+		final List<IndexEntry> allEntries = new LinkedList<IndexEntry>();
+		final Collection<Multimap<IndexPartition, IndexEntry>> ownValues = entries.values();
+		for(Multimap<IndexPartition, IndexEntry> map : ownValues)
+			allEntries.addAll(map.values());
+		return allEntries;
 	}
 
-	private IndexPartition addOrGetPartition(IndexPartitionDescriptor partitionDescriptor) {
-		IndexPartition partition = partitions.get(partitionDescriptor);
-		if(partition == null) {
-			partition = new IndexPartition(partitionDescriptor, null);
-			partitions.put(partitionDescriptor, partition);
-		}
-		return partition;
+	public void clearPartition(IndexPartition partition) {
+		final Collection<Multimap<IndexPartition, IndexEntry>> entryValues = entries.values();
+		for(Multimap<IndexPartition, IndexEntry> map : entryValues)
+			map.removeAll(partition);
+
+		final Collection<Multimap<IndexPartition, IndexEntry>> childValues = childs.values();
+		for(Multimap<IndexPartition, IndexEntry> map : childValues)
+			map.removeAll(partition);
+
+		entriesPerpartition.removeAll(partition);
+		partitions.remove(partition);
+		cleared.add(partition);
 	}
 
-	public IndexPartitionDescriptor getPartitionDescriptor(IStrategoTerm partitionTerm) {
-		return IndexPartitionDescriptor.fromTerm(agent, partitionTerm);
+	public Iterable<IndexPartition> getAllPartitions() {
+		return partitions;
 	}
-
-	public void clearPartition(IStrategoTerm partitionTerm) {
-		clearPartitionInternal(getPartitionDescriptor(partitionTerm));
-	}
-
-	public void clearPartition(IndexPartitionDescriptor partitionDescriptor) {
-		clearPartitionInternal(partitionDescriptor);
-	}
-
-	private void clearPartitionInternal(IndexPartitionDescriptor partitionDescriptor) {
-		assert partitionDescriptor.getPartition() != null || partitionDescriptor.getURI() != null;
-
-		Collection<Multimap<IndexPartitionDescriptor, IndexEntry>> entryValues = entries.values();
-		for(Multimap<IndexPartitionDescriptor, IndexEntry> map : entryValues)
-			map.removeAll(partitionDescriptor);
-
-		Collection<Multimap<IndexPartitionDescriptor, IndexEntry>> childValues = childs.values();
-		for(Multimap<IndexPartitionDescriptor, IndexEntry> map : childValues)
-			map.removeAll(partitionDescriptor);
-
-		entriesPerPartitionDescriptor.removeAll(partitionDescriptor);
-
-		assert !getInPartition(partitionDescriptor).iterator().hasNext();
-	}
-
-	public Collection<IndexPartition> getAllPartitions() {
-		return getCollection(partitions.values());
-	}
-
-	public Collection<IndexPartitionDescriptor> getAllPartitionDescriptors() {
-		return getCollection(partitions.keySet());
+	
+	public Iterable<IndexPartition> getClearedPartitions() {
+		return cleared;
 	}
 
 	public void clearAll() {
 		entries.clear();
 		childs.clear();
-		entriesPerPartitionDescriptor.clear();
+		entriesPerpartition.clear();
 		partitions.clear();
-		inCollection = false;
-	}
-
-	private static final IIndexEntryIterable getEntryIterable(Collection<IndexEntry> collection) {
-		return new IndexEntryIterable(collection, null);
-	}
-
-	/**
-	 * Returns an unmodifiable collection if in debug mode, or the collection if not.
-	 */
-	private static final <T> Collection<T> getCollection(Collection<T> collection) {
-		if(DEBUG_ENABLED) {
-			return Collections.unmodifiableCollection(collection);
-		} else {
-			return collection;
-		}
+		collection.clear();
+		parent.clearAll();
 	}
 }

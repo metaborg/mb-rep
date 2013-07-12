@@ -5,17 +5,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.URI;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.spoofax.interpreter.library.IOAgent;
-import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.library.index.notification.NotificationCenter;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.io.binary.SAFWriter;
@@ -23,8 +19,6 @@ import org.spoofax.terms.io.binary.TermReader;
 
 public class IndexManager {
 	private static final IndexManager INSTANCE = new IndexManager();
-	private static final AtomicLong revisionProvider = new AtomicLong();
-	private static final ReadWriteLock transactionLock = new ReentrantReadWriteLock();
 	private static final IndexFactory indexFactory = new IndexFactory();
 
 	/**
@@ -35,7 +29,7 @@ public class IndexManager {
 
 	private ThreadLocal<IIndex> current = new ThreadLocal<IIndex>();
 	private ThreadLocal<URI> currentProject = new ThreadLocal<URI>();
-	private ThreadLocal<IndexPartitionDescriptor> currentPartition = new ThreadLocal<IndexPartitionDescriptor>();
+	private ThreadLocal<IndexPartition> currentPartition = new ThreadLocal<IndexPartition>();
 
 	private IndexManager() {
 		// use getInstance()
@@ -55,7 +49,7 @@ public class IndexManager {
 		return currentProject.get();
 	}
 
-	public IndexPartitionDescriptor getCurrentPartition() {
+	public IndexPartition getCurrentPartition() {
 		ensureInitialized();
 		return currentPartition.get();
 	}
@@ -69,61 +63,45 @@ public class IndexManager {
 			throw new IllegalStateException(
 				"Index has not been set-up, use index-setup(|language, project-paths) to set up the index before use.");
 	}
-
-	public static ReadWriteLock getTransactionLock() {
-		return transactionLock;
+	
+	public IIndex pushIndex(ITermFactory factory) {
+		final IIndex currentIndex = current.get();
+		final IIndex newIndex = createIndex(currentIndex, factory);
+		current.set(newIndex);
+		return newIndex;
+	}
+	
+	public IIndex popIndex() {
+		final IIndex currentIndex = current.get();
+		final IIndex parentIndex = currentIndex.getParent();
+		if(parentIndex == null || parentIndex instanceof EmptyIndex)
+			throw new RuntimeException("Cannot pop the root index.");
+		current.set(parentIndex);
+		return parentIndex;
+	}
+	
+	public IIndex mergeIndex() {
+		final IIndex currentIndex = current.get();
+		final IIndex parentIndex = currentIndex.getParent();
+		if(parentIndex == null || parentIndex instanceof EmptyIndex)
+			throw new RuntimeException("Cannot merge the root index.");
+		
+		for(IndexPartition partition : currentIndex.getClearedPartitions())
+			parentIndex.clearPartition(partition);
+		
+		for(IndexEntry entry : currentIndex.getAllCurrent())
+			parentIndex.add(entry);
+		
+		current.set(parentIndex);
+		return parentIndex;
 	}
 
-	public void setCurrentPartition(IndexPartitionDescriptor currentPartition) {
+	public void setCurrentPartition(IndexPartition currentPartition) {
 		this.currentPartition.set(currentPartition);
-	}
-
-	public long startTransaction(ITermFactory factory, IOAgent agent) {
-		long rev = revisionProvider.getAndIncrement();
-		IIndex currentIndex = current.get();
-		currentIndex.getPartition(currentPartition.get()).setRevisionTime(rev, new Date());
-
-		assert currentIndex instanceof Index; // Prevent multiple transactions.
-
-		IIndex transactionIndex = new Index();
-		transactionIndex.initialize(factory, agent);
-		current.set(new TransactionIndex(currentIndex, transactionIndex, currentPartition.get()));
-
-		return rev;
-	}
-
-	public void endTransaction() {
-		TransactionIndex currentIndex = (TransactionIndex) current.get();
-		IIndex index = currentIndex.getIndex();
-		IIndex transactionIndex = currentIndex.getTransactionIndex();
-		current.set(index);
-
-		transactionLock.writeLock().lock();
-		try {
-			if(currentIndex.hasClearedCurrentPartition())
-				index.clearPartition(currentIndex.getCurrentPartition());
-
-			for(TemplateWithPartitionDescriptor entry : currentIndex.getRemovedEntries())
-				index.remove(entry.getTemplate(), entry.getPartitionDescriptor());
-
-			for(IStrategoAppl template : currentIndex.getRemovedAllEntries())
-				index.removeAll(template);
-
-			for(IndexEntry entry : transactionIndex.getAll())
-				index.add(entry);
-
-			transactionIndex.clearAll();
-		} finally {
-			transactionLock.writeLock().unlock();
-		}
 	}
 
 	private static Object getSyncRoot() {
 		return IndexManager.class;
-	}
-
-	public AtomicLong getRevisionProvider() {
-		return revisionProvider;
 	}
 
 	public static boolean isKnownIndexingLanguage(String language) {
@@ -132,9 +110,13 @@ public class IndexManager {
 		}
 	}
 
-	public IIndex createIndex(ITermFactory factory, IOAgent agent) {
-		IIndex index = new Index();
-		index.initialize(factory, agent);
+	public IIndex createIndex(ITermFactory factory) {
+		IIndex index = new Index(new EmptyIndex(), factory);
+		return index;
+	}
+	
+	public IIndex createIndex(IIndex parent, ITermFactory factory) {
+		IIndex index = new Index(parent, factory);
 		return index;
 	}
 
@@ -157,7 +139,7 @@ public class IndexManager {
 					index = tryReadFromFile(getFile(project), factory, agent);
 			}
 			if(index == null) {
-				index = createIndex(factory, agent);
+				index = createIndex(factory);
 				NotificationCenter.notifyNewProject(project);
 			}
 			indexCache.put(project, new WeakReference<IIndex>(index));
@@ -201,9 +183,9 @@ public class IndexManager {
 
 	public IIndex tryReadFromFile(File file, ITermFactory factory, IOAgent agent) {
 		try {
-			IIndex index = createIndex(factory, agent);
+			IIndex index = createIndex(factory);
 			IStrategoTerm term = new TermReader(factory).parseFromFile(file.toString());
-			return indexFactory.indexFromTerms(index, term, factory, true);
+			return indexFactory.indexFromTerms(index, agent, term, factory, true);
 		} catch(Exception e) {
 			if(!file.delete())
 				throw new RuntimeException("Failed to load index from " + file.getName()
