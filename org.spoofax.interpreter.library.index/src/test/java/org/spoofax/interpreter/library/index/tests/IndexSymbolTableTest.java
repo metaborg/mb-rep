@@ -31,8 +31,8 @@ public class IndexSymbolTableTest extends IndexTest {
 		IStrategoTerm fileTerm1 = partition("a/b/c");
 		IStrategoTerm fileTerm2 = partition("a/b/c", "some", "element");
 
-		IndexPartition file1 = setupIndex(fileTerm1);
-		IndexPartition file2 = setupIndex(fileTerm2);
+		IndexPartition file1 = getPartition(fileTerm1);
+		IndexPartition file2 = getPartition(fileTerm2);
 
 		// Files have not been added yet.
 		Iterable<IndexPartition> all1 = index.getAllPartitions();
@@ -167,8 +167,8 @@ public class IndexSymbolTableTest extends IndexTest {
 	public void getEntriesInFileAndRemoveFile() {
 		IStrategoTerm fileTerm1 = partition("TestFile", "Partition", "1");
 		IStrategoTerm fileTerm2 = partition("TestFile", "Partition", "2");
-		IndexPartition file1 = setupIndex(fileTerm1);
-		IndexPartition file2 = setupIndex(fileTerm2);
+		IndexPartition file1 = getPartition(fileTerm1);
+		IndexPartition file2 = getPartition(fileTerm2);
 
 		IStrategoAppl def1 = def("Entity", "CRM", "Person");
 		IStrategoAppl read = read("Function", "CRM", "Person", "GetName");
@@ -224,8 +224,8 @@ public class IndexSymbolTableTest extends IndexTest {
 	@Test
 	public void getPartitionsOf() {
 		IStrategoTerm fileTerm1 = partition("TestFile", "Partition", "1");
-		IndexPartition file1 = setupIndex(fileTerm1);
-		IndexPartition file2 = setupIndex(partition("TestFile", "Partition", "2"));
+		IndexPartition file1 = getPartition(fileTerm1);
+		IndexPartition file2 = getPartition(partition("TestFile", "Partition", "2"));
 
 		IStrategoAppl def = def("Entity", "CRM", "Person");
 		IStrategoAppl read = read("Function", "CRM", "Person", "GetName");
@@ -264,8 +264,8 @@ public class IndexSymbolTableTest extends IndexTest {
 
 	@Test
 	public void clear() {
-		IndexPartition file1 = setupIndex(partition("TestFile", "Partition", "1"));
-		IndexPartition file2 = setupIndex(partition("TestFile", "Partition", "2"));
+		IndexPartition file1 = getPartition(partition("TestFile", "Partition", "1"));
+		IndexPartition file2 = getPartition(partition("TestFile", "Partition", "2"));
 
 		IStrategoAppl readAll = readAll("Str", "Class", "java", "lang");
 

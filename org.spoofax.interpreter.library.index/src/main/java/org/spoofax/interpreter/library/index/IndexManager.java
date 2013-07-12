@@ -29,7 +29,6 @@ public class IndexManager {
 
 	private ThreadLocal<IIndex> current = new ThreadLocal<IIndex>();
 	private ThreadLocal<URI> currentProject = new ThreadLocal<URI>();
-	private ThreadLocal<IndexPartition> currentPartition = new ThreadLocal<IndexPartition>();
 
 	private IndexManager() {
 		// use getInstance()
@@ -47,11 +46,6 @@ public class IndexManager {
 	public URI getCurrentProject() {
 		ensureInitialized();
 		return currentProject.get();
-	}
-
-	public IndexPartition getCurrentPartition() {
-		ensureInitialized();
-		return currentPartition.get();
 	}
 
 	public boolean isInitialized() {
@@ -95,11 +89,7 @@ public class IndexManager {
 		current.set(parentIndex);
 		return parentIndex;
 	}
-
-	public void setCurrentPartition(IndexPartition currentPartition) {
-		this.currentPartition.set(currentPartition);
-	}
-
+	
 	private static Object getSyncRoot() {
 		return IndexManager.class;
 	}
@@ -157,7 +147,6 @@ public class IndexManager {
 			IIndex index = current.get();
 			if(index != null && index == removedIndex.get()) {
 				current.set(null);
-				currentPartition.set(null);
 			}
 
 			URI project = currentProject.get();

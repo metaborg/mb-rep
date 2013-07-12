@@ -5,7 +5,6 @@ import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.library.AbstractPrimitive;
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.library.index.IndexManager;
-import org.spoofax.interpreter.library.index.IndexPartition;
 import org.spoofax.interpreter.library.ssl.SSLLibrary;
 import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoString;
@@ -26,15 +25,12 @@ public class LANG_legacy_index_setup extends AbstractPrimitive {
 		final IStrategoTerm projectPaths = tvars[1];
 		IStrategoString projectPath;
 		if(Tools.isTermList(projectPaths)) {
-			projectPath = (IStrategoString)projectPaths.getSubterm(0);
+			projectPath = (IStrategoString) projectPaths.getSubterm(0);
 		} else {
-			projectPath = (IStrategoString)projectPaths;
+			projectPath = (IStrategoString) projectPaths;
 		}
-		final IStrategoTerm partitionTerm = tvars[2];
-		final IndexPartition partition = IndexPartition.fromTerm(agent, partitionTerm);
-		
+
 		indexManager.loadIndex(projectPath.stringValue(), language.stringValue(), env.getFactory(), agent);
-		indexManager.setCurrentPartition(partition);
 		return true;
 	}
 }

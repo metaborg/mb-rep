@@ -51,7 +51,6 @@ public class IndexTest {
 		indexManager = IndexManager.getInstance();
 		indexManager.loadIndex(projectPath.stringValue(), language.stringValue(), factory, agent);
 		index = indexManager.getCurrent();
-		file = setupIndex(fileTerm);
 	}
 
 	@AfterClass
@@ -66,16 +65,6 @@ public class IndexTest {
 		interpreter = null;
 		factory = null;
 		agent = null;
-	}
-
-	public static IndexPartition setupIndex(IStrategoTerm fileTerm) {
-		IndexPartition partition = getPartition(fileTerm);
-		indexManager.setCurrentPartition(partition);
-		return partition;
-	}
-
-	public static void setupIndex(IndexPartition file) {
-		indexManager.setCurrentPartition(file);
 	}
 
 	public static IndexEntry add(IStrategoAppl entryTerm, IStrategoTerm partitionTerm) {
