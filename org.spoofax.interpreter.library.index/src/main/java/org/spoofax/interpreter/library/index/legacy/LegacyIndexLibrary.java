@@ -12,6 +12,8 @@ public class LegacyIndexLibrary extends IndexLibrary {
 	public LegacyIndexLibrary() {
 		super();
 		
+		add(new LANG_legacy_index_setup());
+		
 		add(new RedirectAbstractPrimitive("LANG_index_clear_file", new LANG_index_clear_partition()));
 		add(new RedirectAbstractPrimitive("LANG_index_get_all_files", new LANG_index_get_all_partitions()));
 		add(new RedirectAbstractPrimitive("LANG_index_get_all_in_file", new LANG_index_get_all_in_partition()));
