@@ -10,7 +10,7 @@ import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 public class LANG_index_setup extends AbstractPrimitive {
-	private static String NAME = "LANG_index_setup";
+	private static String NAME = "LANG_index_setup_new";
 
 	public LANG_index_setup() {
 		super(NAME, 0, 2);
