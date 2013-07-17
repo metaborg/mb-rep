@@ -26,10 +26,10 @@ public class IndexTest {
 
 	protected static IStrategoString language;
 	protected static IStrategoString projectPath;
-	protected static IStrategoTerm fileTerm;
+	protected static IStrategoTerm partitionTerm;
 
 	protected static IndexManager indexManager;
-	protected static IndexPartition file;
+	protected static IndexPartition partition;
 	protected static IIndex index;
 
 	@Parameters
@@ -46,7 +46,7 @@ public class IndexTest {
 
 		language = str("TestLanguage");
 		projectPath = str("TestPath");
-		fileTerm = partition("TestFile");
+		partitionTerm = partition("TestFile");
 
 		indexManager = IndexManager.getInstance();
 		indexManager.loadIndex(projectPath.stringValue(), language.stringValue(), factory, agent);
@@ -60,20 +60,20 @@ public class IndexTest {
 		indexManager = null;
 		language = null;
 		projectPath = null;
-		fileTerm = null;
+		partitionTerm = null;
 		interpreter.shutdown();
 		interpreter = null;
 		factory = null;
 		agent = null;
 	}
-
-	public static IndexEntry add(IStrategoAppl entryTerm, IStrategoTerm partitionTerm) {
-		final IndexEntry entry = index.getFactory().createEntry(entryTerm, getPartition(partitionTerm));
+	
+	public static IndexEntry add(IStrategoAppl entryTerm, IndexPartition partition) {
+		final IndexEntry entry = index.getFactory().createEntry(entryTerm, partition);
 		index.add(entry);
 		return entry;
 	}
-
-	public static IndexEntry add(IStrategoAppl entryTerm, IndexPartition partition) {
+	
+	public static IndexEntry add(IIndex index, IStrategoAppl entryTerm, IndexPartition partition) {
 		final IndexEntry entry = index.getFactory().createEntry(entryTerm, partition);
 		index.add(entry);
 		return entry;

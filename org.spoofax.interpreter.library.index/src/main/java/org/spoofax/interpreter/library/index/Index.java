@@ -79,6 +79,10 @@ public class Index implements IIndex {
 	private boolean parentEntryVisible(IndexEntry entry) {
 		return !cleared.contains(entry.getPartition());
 	}
+	
+	private Iterable<IndexEntry> parentInvisibleFilter(Iterable<IndexEntry> entries) {
+		 return Iterables.filter(entries, visible);
+	}
 
 	public void startCollection(IndexPartition partition) {
 		collection.start(getInPartition(partition));
@@ -111,20 +115,20 @@ public class Index implements IIndex {
 
 	public Iterable<IndexEntry> get(IStrategoAppl template) {
 		final IndexURI uri = factory.createURIFromTemplate(template);
-		final Iterable<IndexEntry> parentEntries = Iterables.filter(parent.get(template), visible);
+		final Iterable<IndexEntry> parentEntries = parentInvisibleFilter(parent.get(template));
 		final Iterable<IndexEntry> ownEntries = innerEntries(uri).values();
 		return Iterables.concat(parentEntries, ownEntries);
 	}
 
 	public Iterable<IndexEntry> getChildren(IStrategoAppl template) {
 		final IndexURI uri = factory.createURIFromTemplate(template);
-		final Iterable<IndexEntry> parentChildren = Iterables.filter(parent.getChildren(template), visible);
+		final Iterable<IndexEntry> parentChildren = parentInvisibleFilter(parent.getChildren(template));
 		final Iterable<IndexEntry> ownChildren = innerChildEntries(uri).values();
 		return Iterables.concat(parentChildren, ownChildren);
 	}
 
 	public Iterable<IndexEntry> getInPartition(IndexPartition partition) {
-		final Iterable<IndexEntry> parentEntries = Iterables.filter(parent.getInPartition(partition), visible);
+		final Iterable<IndexEntry> parentEntries = parentInvisibleFilter(parent.getInPartition(partition));
 		final Iterable<IndexEntry> ownEntries = entriesPerpartition.get(partition);
 		return Iterables.concat(parentEntries, ownEntries);
 	}
@@ -140,7 +144,7 @@ public class Index implements IIndex {
 	public Iterable<IndexEntry> getAll() {
 		final List<IndexEntry> allEntries = new LinkedList<IndexEntry>();
 
-		final Iterable<IndexEntry> parentEntries = Iterables.filter(parent.getAll(), visible);
+		final Iterable<IndexEntry> parentEntries = parentInvisibleFilter(parent.getAll());
 		Iterables.addAll(allEntries, parentEntries);
 
 		final Collection<Multimap<IndexPartition, IndexEntry>> ownValues = entries.values();

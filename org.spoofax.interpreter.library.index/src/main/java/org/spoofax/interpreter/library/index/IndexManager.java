@@ -101,13 +101,17 @@ public class IndexManager {
 	}
 
 	public IIndex createIndex(ITermFactory factory) {
-		IIndex index = new Index(new EmptyIndex(), factory);
+		IIndex index = new Index(createEmptyIndex(), factory);
 		return index;
 	}
 	
 	public IIndex createIndex(IIndex parent, ITermFactory factory) {
 		IIndex index = new Index(parent, factory);
 		return index;
+	}
+	
+	public IIndex createEmptyIndex() {
+		return new EmptyIndex();
 	}
 
 	public IIndex getIndex(String absoluteProjectPath) {
