@@ -43,6 +43,15 @@ public class IndexManager {
 		return current.get();
 	}
 
+	private void setCurrent(URI project, IIndex index) {
+		current.set(index);
+		indexCache.put(project, new WeakReference<IIndex>(index));
+	}
+
+	private void setCurrent(IIndex taskEngine) {
+		setCurrent(currentProject.get(), taskEngine);
+	}
+	
 	public URI getCurrentProject() {
 		ensureInitialized();
 		return currentProject.get();
@@ -57,39 +66,39 @@ public class IndexManager {
 			throw new IllegalStateException(
 				"Index has not been set-up, use index-setup(|language, project-paths) to set up the index before use.");
 	}
-	
+
 	public IIndex pushIndex(ITermFactory factory) {
 		final IIndex currentIndex = current.get();
 		final IIndex newIndex = createIndex(currentIndex, factory);
-		current.set(newIndex);
+		setCurrent(newIndex);
 		return newIndex;
 	}
-	
+
 	public IIndex popIndex() {
 		final IIndex currentIndex = current.get();
 		final IIndex parentIndex = currentIndex.getParent();
 		if(parentIndex == null || parentIndex instanceof EmptyIndex)
 			throw new RuntimeException("Cannot pop the root index.");
-		current.set(parentIndex);
+		setCurrent(parentIndex);
 		return parentIndex;
 	}
-	
+
 	public IIndex mergeIndex() {
 		final IIndex currentIndex = current.get();
 		final IIndex parentIndex = currentIndex.getParent();
 		if(parentIndex == null || parentIndex instanceof EmptyIndex)
 			throw new RuntimeException("Cannot merge the root index.");
-		
+
 		for(IndexPartition partition : currentIndex.getClearedPartitions())
 			parentIndex.clearPartition(partition);
-		
+
 		for(IndexEntry entry : currentIndex.getAllCurrent())
 			parentIndex.add(entry);
-		
-		current.set(parentIndex);
+
+		setCurrent(parentIndex);
 		return parentIndex;
 	}
-	
+
 	private static Object getSyncRoot() {
 		return IndexManager.class;
 	}
@@ -104,12 +113,12 @@ public class IndexManager {
 		IIndex index = new Index(createEmptyIndex(), factory);
 		return index;
 	}
-	
+
 	public IIndex createIndex(IIndex parent, ITermFactory factory) {
 		IIndex index = new Index(parent, factory);
 		return index;
 	}
-	
+
 	public IIndex createEmptyIndex() {
 		return new EmptyIndex();
 	}
@@ -136,8 +145,7 @@ public class IndexManager {
 				index = createIndex(factory);
 				NotificationCenter.notifyNewProject(project);
 			}
-			indexCache.put(project, new WeakReference<IIndex>(index));
-			current.set(index);
+			setCurrent(project, index);
 			currentProject.set(project);
 			return index;
 		}
