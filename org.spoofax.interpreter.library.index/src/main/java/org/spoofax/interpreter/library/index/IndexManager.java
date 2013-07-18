@@ -51,7 +51,7 @@ public class IndexManager {
 	private void setCurrent(IIndex taskEngine) {
 		setCurrent(currentProject.get(), taskEngine);
 	}
-	
+
 	public URI getCurrentProject() {
 		ensureInitialized();
 		return currentProject.get();
@@ -81,6 +81,15 @@ public class IndexManager {
 			throw new RuntimeException("Cannot pop the root index.");
 		setCurrent(parentIndex);
 		return parentIndex;
+	}
+
+	public IIndex popToRootIndex() {
+		final IIndex currentIndex = current.get();
+		final IIndex parentIndex = currentIndex.getParent();
+		if(parentIndex == null || parentIndex instanceof EmptyIndex)
+			return currentIndex;
+		setCurrent(parentIndex);
+		return popToRootIndex();
 	}
 
 	public IIndex mergeIndex() {
