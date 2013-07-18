@@ -20,6 +20,7 @@ public class IndexLibrary extends AbstractStrategoOperatorRegistry {
         add(new LANG_index_setup());
         add(new LANG_index_persist());
         
+        add(new LANG_index_recover());
         add(new LANG_index_reload());
         add(new LANG_index_unload());
         
