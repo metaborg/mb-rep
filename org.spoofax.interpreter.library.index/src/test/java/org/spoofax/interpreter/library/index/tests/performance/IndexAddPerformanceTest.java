@@ -29,7 +29,7 @@ public class IndexAddPerformanceTest extends IndexPerformanceTest {
             e.printStackTrace();
         }
 
-        index.clearAll();
+        index.reset();
     }
 
     @Test

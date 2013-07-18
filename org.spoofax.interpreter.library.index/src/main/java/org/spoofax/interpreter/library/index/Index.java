@@ -184,12 +184,12 @@ public class Index implements IIndex {
 		return cleared;
 	}
 
-	public void clearAll() {
+	public void reset() {
 		entries.clear();
 		childs.clear();
 		entriesPerpartition.clear();
 		partitions.clear();
 		collection.clear();
-		parent.clearAll();
+		parent.reset();
 	}
 }

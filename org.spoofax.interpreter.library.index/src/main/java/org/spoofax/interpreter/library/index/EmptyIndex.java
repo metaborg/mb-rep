@@ -69,7 +69,7 @@ public class EmptyIndex implements IIndex {
 
 	}
 
-	public void clearAll() {
+	public void reset() {
 
 	}
 }

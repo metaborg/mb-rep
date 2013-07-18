@@ -1,6 +1,7 @@
 package org.spoofax.interpreter.library.index.legacy;
 
 import org.spoofax.interpreter.library.index.primitives.IndexLibrary;
+import org.spoofax.interpreter.library.index.primitives.LANG_index_reset;
 import org.spoofax.interpreter.library.index.primitives.LANG_index_clear_partition;
 import org.spoofax.interpreter.library.index.primitives.LANG_index_get_all_in_partition;
 import org.spoofax.interpreter.library.index.primitives.LANG_index_get_all_partitions;
@@ -15,6 +16,7 @@ public class LegacyIndexLibrary extends IndexLibrary {
 
 		add(new RedirectAbstractPrimitive("LANG_index_commit", new LANG_index_persist()));
 		add(new RedirectAbstractPrimitive("LANG_index_clear_file", new LANG_index_clear_partition()));
+		add(new RedirectAbstractPrimitive("LANG_index_clear_all", new LANG_index_reset()));
 		add(new RedirectAbstractPrimitive("LANG_index_get_all_files", new LANG_index_get_all_partitions()));
 		add(new RedirectAbstractPrimitive("LANG_index_get_all_in_file", new LANG_index_get_all_in_partition()));
 		add(new RedirectAbstractPrimitive("LANG_index_get_files_of", new LANG_index_get_partitions_of()));

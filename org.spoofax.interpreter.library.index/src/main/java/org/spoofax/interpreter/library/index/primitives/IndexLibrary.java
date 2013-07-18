@@ -8,7 +8,7 @@ public class IndexLibrary extends AbstractStrategoOperatorRegistry {
     public IndexLibrary() {
         add(new LANG_index_add());
         
-        add(new LANG_index_clear_all());
+        add(new LANG_index_reset());
         add(new LANG_index_clear_partition());
         
         add(new LANG_index_get_all_partitions());

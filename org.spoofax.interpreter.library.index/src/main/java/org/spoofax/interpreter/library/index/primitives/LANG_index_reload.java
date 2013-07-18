@@ -17,7 +17,7 @@ public class LANG_index_reload extends AbstractPrimitive {
 	@Override
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
 		final IndexManager indexManager = IndexManager.getInstance();
-		indexManager.getCurrent().clearAll();
+		indexManager.getCurrent().reset();
 		NotificationCenter.notifyNewProject(indexManager.getCurrentProject());
 		return true;
 	}

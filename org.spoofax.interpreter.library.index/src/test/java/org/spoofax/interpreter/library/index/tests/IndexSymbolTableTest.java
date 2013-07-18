@@ -22,7 +22,7 @@ public class IndexSymbolTableTest extends IndexTest {
 
 	@Before
 	public void setUp() {
-		index.clearAll();
+		index.reset();
 	}
 
 	@Test
@@ -277,7 +277,7 @@ public class IndexSymbolTableTest extends IndexTest {
 
 		assertEquals(2, size(index.getAll()));
 
-		index.clearAll();
+		index.reset();
 
 		assertEquals(0, size(index.getAll()));
 	}

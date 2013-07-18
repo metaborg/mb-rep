@@ -30,7 +30,7 @@ public class IndexGetPartitionElementsPerformanceTest extends IndexPerformanceTe
 			e.printStackTrace();
 		}
 
-		index.clearAll();
+		index.reset();
 
 		for(int i = 0; i < this.numItems; ++i) {
 			add(def1, getNextFile());

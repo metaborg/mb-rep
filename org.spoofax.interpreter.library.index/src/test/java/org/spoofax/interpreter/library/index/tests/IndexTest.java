@@ -55,7 +55,7 @@ public class IndexTest {
 
 	@AfterClass
 	public static void tearDownOnce() {
-		index.clearAll();
+		index.reset();
 		index = null;
 		indexManager = null;
 		language = null;

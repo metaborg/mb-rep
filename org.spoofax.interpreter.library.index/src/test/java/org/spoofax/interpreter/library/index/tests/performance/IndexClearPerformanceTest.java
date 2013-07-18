@@ -38,7 +38,7 @@ public class IndexClearPerformanceTest extends IndexPerformanceTest {
     public void clear() {
         // Have to add items here, otherwise index will be empty after first round.
         // This results in the time taken to add entries being added.
-        index.clearAll();
+        index.reset();
         for(int i = 0; i < this.numItems; ++i) {
             add(def1, getNextFile());
             add(def2, getNextFile());

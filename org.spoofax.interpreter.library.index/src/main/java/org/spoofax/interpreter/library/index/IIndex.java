@@ -95,7 +95,7 @@ public interface IIndex {
 	public abstract void clearPartition(IndexPartition partition);
 
 	/**
-	 * Clears the entire index.
+	 * Resets the index to the initial state.
 	 */
-	public abstract void clearAll();
+	public abstract void reset();
 }
