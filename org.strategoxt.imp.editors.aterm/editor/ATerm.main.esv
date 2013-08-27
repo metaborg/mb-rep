@@ -1,6 +1,6 @@
 module ATerm.main
 
-imports ATerm-Builders ATerm-Colorer ATerm-Folding ATerm-Outliner ATerm-References ATerm-Syntax
+imports ATerm-Builders ATerm-Colorer ATerm-Folding ATerm-References ATerm-Syntax
 
 language General properties
                   
