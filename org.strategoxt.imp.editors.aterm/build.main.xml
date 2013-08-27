@@ -37,5 +37,5 @@
         <import file="build.generated.xml"/>
     
         <!-- Main target -->
-        <target name="all" depends="utils-files,sdf2table,sdf2imp,java.jar,stratego.jar.helper,refresh,sdf2imp.eclipse.load"/>
+        <target name="all" depends="utils-files,sdf2table,sdf2imp"/>
     </project>

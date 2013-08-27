@@ -4,4 +4,5 @@ imports ATerm-Builders.generated
 
 builders
                                                                              
-  provider : include/aterm.jar
+  // This file can be used for custom analysis and builder rules.            
+  // See the imported file for a brief introduction and examples.        
