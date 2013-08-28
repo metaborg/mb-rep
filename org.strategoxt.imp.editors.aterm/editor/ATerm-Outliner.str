@@ -7,7 +7,7 @@ imports
 rules
   
   outline = custom-label-outline(to-outline-label, to-outline-node)
-  outline-expand-to-level = !-1
+  outline-expand-to-level = !5
   
   to-outline-label:
     appl(fun, args) -> fun{"icons/application.gif"}
