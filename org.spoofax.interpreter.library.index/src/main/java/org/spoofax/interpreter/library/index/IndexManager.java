@@ -74,34 +74,39 @@ public class IndexManager {
 		return newIndex;
 	}
 
+	private boolean isHierarchicalIndex(IIndex index) {
+		return index instanceof IHierarchicalIndex;
+	}
+
 	public IIndex popIndex() {
-		final IHierarchicalIndex currentIndex = (IHierarchicalIndex)current.get();
-		final IIndex parentIndex = currentIndex.getParent();
-		if(parentIndex == null || parentIndex instanceof EmptyIndex)
+		final IIndex currentIndex = current.get();
+		if(!isHierarchicalIndex(currentIndex))
 			throw new RuntimeException("Cannot pop the root index.");
+		final IIndex parentIndex = ((IHierarchicalIndex) currentIndex).getParent();
 		setCurrent(parentIndex);
 		return parentIndex;
 	}
 
 	public IIndex popToRootIndex() {
-		final IHierarchicalIndex currentIndex = (IHierarchicalIndex)current.get();
-		final IIndex parentIndex = currentIndex.getParent();
-		if(parentIndex == null || parentIndex instanceof EmptyIndex)
+		final IIndex currentIndex = current.get();
+		if(!isHierarchicalIndex(currentIndex))
 			return currentIndex;
+		final IIndex parentIndex = ((IHierarchicalIndex) currentIndex).getParent();
 		setCurrent(parentIndex);
 		return popToRootIndex();
 	}
 
 	public IIndex mergeIndex() {
-		final IHierarchicalIndex currentIndex = (IHierarchicalIndex)current.get();
-		final IIndex parentIndex = currentIndex.getParent();
-		if(parentIndex == null || parentIndex instanceof EmptyIndex)
-			throw new RuntimeException("Cannot merge the root index.");
+		final IIndex currentIndex = current.get();
+		if(!isHierarchicalIndex(currentIndex))
+			throw new RuntimeException("Cannot merge from the root index.");
+		final IHierarchicalIndex currentHierarchicalIndex = (IHierarchicalIndex) currentIndex;
+		final IIndex parentIndex = currentHierarchicalIndex.getParent();
 
-		for(IndexPartition partition : currentIndex.getClearedPartitions())
+		for(IndexPartition partition : currentHierarchicalIndex.getClearedPartitions())
 			parentIndex.clearPartition(partition);
 
-		for(IndexEntry entry : currentIndex.getAllCurrent())
+		for(IndexEntry entry : currentHierarchicalIndex.getAllCurrent())
 			parentIndex.add(entry);
 
 		setCurrent(parentIndex);
@@ -119,17 +124,11 @@ public class IndexManager {
 	}
 
 	public IIndex createIndex(ITermFactory factory) {
-		final IIndex index = new HierarchicalIndex(new Index(factory), createEmptyIndex(), factory);
-		return index;
+		return new Index(factory);
 	}
 
 	public IIndex createIndex(IIndex parent, ITermFactory factory) {
-		final IIndex index = new HierarchicalIndex(new Index(factory), parent, factory);
-		return index;
-	}
-
-	public IIndex createEmptyIndex() {
-		return new EmptyIndex();
+		return new HierarchicalIndex(new Index(factory), parent, factory);
 	}
 
 	public IIndex getIndex(String absoluteProjectPath) {
