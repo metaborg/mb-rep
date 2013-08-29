@@ -75,7 +75,7 @@ public class IndexManager {
 	}
 
 	public IIndex popIndex() {
-		final IIndex currentIndex = current.get();
+		final IHierarchicalIndex currentIndex = (IHierarchicalIndex)current.get();
 		final IIndex parentIndex = currentIndex.getParent();
 		if(parentIndex == null || parentIndex instanceof EmptyIndex)
 			throw new RuntimeException("Cannot pop the root index.");
@@ -84,7 +84,7 @@ public class IndexManager {
 	}
 
 	public IIndex popToRootIndex() {
-		final IIndex currentIndex = current.get();
+		final IHierarchicalIndex currentIndex = (IHierarchicalIndex)current.get();
 		final IIndex parentIndex = currentIndex.getParent();
 		if(parentIndex == null || parentIndex instanceof EmptyIndex)
 			return currentIndex;
@@ -93,7 +93,7 @@ public class IndexManager {
 	}
 
 	public IIndex mergeIndex() {
-		final IIndex currentIndex = current.get();
+		final IHierarchicalIndex currentIndex = (IHierarchicalIndex)current.get();
 		final IIndex parentIndex = currentIndex.getParent();
 		if(parentIndex == null || parentIndex instanceof EmptyIndex)
 			throw new RuntimeException("Cannot merge the root index.");
@@ -119,12 +119,12 @@ public class IndexManager {
 	}
 
 	public IIndex createIndex(ITermFactory factory) {
-		IIndex index = new Index(createEmptyIndex(), factory);
+		final IIndex index = new HierarchicalIndex(new Index(factory), createEmptyIndex(), factory);
 		return index;
 	}
 
 	public IIndex createIndex(IIndex parent, ITermFactory factory) {
-		IIndex index = new Index(parent, factory);
+		final IIndex index = new HierarchicalIndex(new Index(factory), parent, factory);
 		return index;
 	}
 

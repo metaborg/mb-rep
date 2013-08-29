@@ -13,11 +13,6 @@ public interface IIndex {
 	public abstract IndexEntryFactory getFactory();
 
 	/**
-	 * Returns the parent index or null if it does not have a parent.
-	 */
-	public abstract IIndex getParent();
-	
-	/**
 	 * Starts collection for given partition.
 	 * 
 	 * @param partition
@@ -49,11 +44,6 @@ public interface IIndex {
 	 * Gets all entries.
 	 */
 	public abstract Iterable<IndexEntry> getAll();
-	
-	/**
-	 * Gets all entries, excluding entries from the parent index.
-	 */
-	public abstract Iterable<IndexEntry> getAllCurrent();
 
 	/**
 	 * Gets all child entries for URI in given template.
@@ -81,11 +71,6 @@ public interface IIndex {
 	 * Gets all partitions that are in the index.
 	 */
 	public abstract Iterable<IndexPartition> getAllPartitions();
-	
-	/**
-	 * Gets partitions that have been cleared.
-	 */
-	public abstract Iterable<IndexPartition> getClearedPartitions();
 
 	/**
 	 * Removes all entries for given partition and removes the partition itself.

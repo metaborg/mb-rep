@@ -11,11 +11,8 @@ import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
 
 public class Index implements IIndex {
 	private static final int EXPECTED_DISTINCT_PARTITIONS = 100;
@@ -28,32 +25,17 @@ public class Index implements IIndex {
 	private final Multimap<IndexPartition, IndexEntry> entriesPerpartition = ArrayListMultimap.create();
 	private final Set<IndexPartition> partitions = new HashSet<IndexPartition>();
 
-	private final Set<IndexPartition> cleared = new HashSet<IndexPartition>();
-	private final Predicate<IndexEntry> visible;
-
-	private final IIndex parent;
 	private final IndexCollection collection = new IndexCollection();
 	private final ITermFactory termFactory;
 	private final IndexEntryFactory factory;
 
-	public Index(IIndex parent, ITermFactory factory) {
-		this.parent = parent;
+	public Index(ITermFactory factory) {
 		this.termFactory = factory;
 		this.factory = new IndexEntryFactory(factory);
-
-		this.visible = new Predicate<IndexEntry>() {
-			public boolean apply(IndexEntry entry) {
-				return parentEntryVisible(entry);
-			}
-		};
 	}
 
 	public IndexEntryFactory getFactory() {
 		return factory;
-	}
-
-	public IIndex getParent() {
-		return parent;
 	}
 
 	private Multimap<IndexPartition, IndexEntry> innerEntries(IndexURI uri) {
@@ -74,14 +56,6 @@ public class Index implements IIndex {
 		if(ret == null)
 			ret = innerMap;
 		return ret;
-	}
-
-	private boolean parentEntryVisible(IndexEntry entry) {
-		return !cleared.contains(entry.getPartition());
-	}
-	
-	private Iterable<IndexEntry> parentInvisibleFilter(Iterable<IndexEntry> entries) {
-		 return Iterables.filter(entries, visible);
 	}
 
 	public void startCollection(IndexPartition partition) {
@@ -115,50 +89,28 @@ public class Index implements IIndex {
 
 	public Iterable<IndexEntry> get(IStrategoAppl template) {
 		final IndexURI uri = factory.createURIFromTemplate(template);
-		final Iterable<IndexEntry> parentEntries = parentInvisibleFilter(parent.get(template));
-		final Iterable<IndexEntry> ownEntries = innerEntries(uri).values();
-		return Iterables.concat(parentEntries, ownEntries);
+		return innerEntries(uri).values();
 	}
 
 	public Iterable<IndexEntry> getChildren(IStrategoAppl template) {
 		final IndexURI uri = factory.createURIFromTemplate(template);
-		final Iterable<IndexEntry> parentChildren = parentInvisibleFilter(parent.getChildren(template));
-		final Iterable<IndexEntry> ownChildren = innerChildEntries(uri).values();
-		return Iterables.concat(parentChildren, ownChildren);
+		return innerChildEntries(uri).values();
 	}
 
 	public Iterable<IndexEntry> getInPartition(IndexPartition partition) {
-		final Iterable<IndexEntry> parentEntries = parentInvisibleFilter(parent.getInPartition(partition));
-		final Iterable<IndexEntry> ownEntries = entriesPerpartition.get(partition);
-		return Iterables.concat(parentEntries, ownEntries);
+		return entriesPerpartition.get(partition);
 	}
 
 	public Set<IndexPartition> getPartitionsOf(IStrategoAppl template) {
 		final IndexURI uri = factory.createURIFromTemplate(template);
-		final Set<IndexPartition> parentPartitions = parent.getPartitionsOf(template);
-		final Set<IndexPartition> ownPartitions = innerEntries(uri).keySet();
-		// Use own set as first set because it is usually faster, which results in improved performance.
-		return Sets.union(ownPartitions, parentPartitions);
+		return innerEntries(uri).keySet();
 	}
 
 	public Iterable<IndexEntry> getAll() {
 		final List<IndexEntry> allEntries = new LinkedList<IndexEntry>();
-
-		final Iterable<IndexEntry> parentEntries = parentInvisibleFilter(parent.getAll());
-		Iterables.addAll(allEntries, parentEntries);
-
-		final Collection<Multimap<IndexPartition, IndexEntry>> ownValues = entries.values();
-		for(Multimap<IndexPartition, IndexEntry> map : ownValues)
+		for(Multimap<IndexPartition, IndexEntry> map : entries.values())
 			allEntries.addAll(map.values());
 
-		return allEntries;
-	}
-
-	public Iterable<IndexEntry> getAllCurrent() {
-		final List<IndexEntry> allEntries = new LinkedList<IndexEntry>();
-		final Collection<Multimap<IndexPartition, IndexEntry>> ownValues = entries.values();
-		for(Multimap<IndexPartition, IndexEntry> map : ownValues)
-			allEntries.addAll(map.values());
 		return allEntries;
 	}
 
@@ -173,15 +125,10 @@ public class Index implements IIndex {
 
 		entriesPerpartition.removeAll(partition);
 		partitions.remove(partition);
-		cleared.add(partition);
 	}
 
 	public Iterable<IndexPartition> getAllPartitions() {
 		return partitions;
-	}
-	
-	public Iterable<IndexPartition> getClearedPartitions() {
-		return cleared;
 	}
 
 	public void reset() {
@@ -190,6 +137,5 @@ public class Index implements IIndex {
 		entriesPerpartition.clear();
 		partitions.clear();
 		collection.clear();
-		parent.reset();
 	}
 }
