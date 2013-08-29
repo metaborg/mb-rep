@@ -7,5 +7,6 @@ lib
 lib-refactoring
 editor/java/trans
 editor/*.generated.esv
+editor/*.generated.str
 syntax/*.generated.esv
 
