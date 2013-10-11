@@ -20,9 +20,17 @@ public interface INotificationService {
 	void notifyChanges(Iterable<URI> files, boolean triggerOnSave);
 
     /**
-     * Notify listener of a new project.
-     *
-     * @param project The new project.
-     */
-    void notifyNewProject(URI project);
+	 * Notify listener of a new language in a project.
+	 *
+	 * @param projectPath The project path the language was found in.
+	 * @param language The name of the language.
+	 */
+	void notifyNewProjectLanguage(URI projectPath, String language);
+
+	/**
+	 * Notify listener of a new project.
+	 *
+	 * @param projectPath The project path.
+	 */
+	void notifyNewProject(URI projectPath);
 }

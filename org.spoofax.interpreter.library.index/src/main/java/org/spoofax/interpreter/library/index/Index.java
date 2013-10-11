@@ -24,6 +24,7 @@ public class Index implements IIndex {
 		new ConcurrentHashMap<IndexURI, Multimap<IndexPartition, IndexEntry>>();
 	private final Multimap<IndexPartition, IndexEntry> entriesPerpartition = ArrayListMultimap.create();
 	private final Set<IndexPartition> partitions = new HashSet<IndexPartition>();
+	private final Set<String> languages = new HashSet<String>();
 
 	private final IndexCollection collection = new IndexCollection();
 	private final ITermFactory termFactory;
@@ -34,6 +35,7 @@ public class Index implements IIndex {
 		this.factory = new IndexEntryFactory(factory);
 	}
 
+	@Override
 	public IndexEntryFactory getFactory() {
 		return factory;
 	}
@@ -58,15 +60,18 @@ public class Index implements IIndex {
 		return ret;
 	}
 
+	@Override
 	public void startCollection(IndexPartition partition) {
 		collection.start(getInPartition(partition));
 		clearPartition(partition);
 	}
 
+	@Override
 	public IStrategoTuple stopCollection() {
 		return collection.stop(termFactory);
 	}
 
+	@Override
 	public void add(IndexEntry entry) {
 		final IndexPartition partition = entry.getPartition();
 		final IndexURI uri = entry.getKey();
@@ -87,25 +92,30 @@ public class Index implements IIndex {
 		entriesPerpartition.put(partition, entry);
 	}
 
+	@Override
 	public Iterable<IndexEntry> get(IStrategoAppl template) {
 		final IndexURI uri = factory.createURIFromTemplate(template);
 		return innerEntries(uri).values();
 	}
 
+	@Override
 	public Iterable<IndexEntry> getChildren(IStrategoAppl template) {
 		final IndexURI uri = factory.createURIFromTemplate(template);
 		return innerChildEntries(uri).values();
 	}
 
+	@Override
 	public Iterable<IndexEntry> getInPartition(IndexPartition partition) {
 		return entriesPerpartition.get(partition);
 	}
 
+	@Override
 	public Set<IndexPartition> getPartitionsOf(IStrategoAppl template) {
 		final IndexURI uri = factory.createURIFromTemplate(template);
 		return innerEntries(uri).keySet();
 	}
 
+	@Override
 	public Iterable<IndexEntry> getAll() {
 		final List<IndexEntry> allEntries = new LinkedList<IndexEntry>();
 		for(Multimap<IndexPartition, IndexEntry> map : entries.values())
@@ -114,6 +124,7 @@ public class Index implements IIndex {
 		return allEntries;
 	}
 
+	@Override
 	public void clearPartition(IndexPartition partition) {
 		final Collection<Multimap<IndexPartition, IndexEntry>> entryValues = entries.values();
 		for(Multimap<IndexPartition, IndexEntry> map : entryValues)
@@ -127,15 +138,33 @@ public class Index implements IIndex {
 		partitions.remove(partition);
 	}
 
+	@Override
 	public Iterable<IndexPartition> getAllPartitions() {
 		return partitions;
 	}
 
+	@Override
+	public Iterable<String> getAllLanguages() {
+		return languages;
+	}
+
+	@Override
+	public boolean hasLanguage(String language) {
+		return languages.contains(language);
+	}
+
+	@Override
+	public boolean addLanguage(String language) {
+		return languages.add(language);
+	}
+
+	@Override
 	public void reset() {
 		entries.clear();
 		childs.clear();
 		entriesPerpartition.clear();
 		partitions.clear();
+		languages.clear();
 		collection.clear();
 	}
 }

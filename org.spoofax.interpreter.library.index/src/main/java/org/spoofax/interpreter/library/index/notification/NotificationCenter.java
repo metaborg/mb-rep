@@ -14,10 +14,7 @@ public class NotificationCenter {
 		new HashMap<ObserverDescription, INotificationService>();
 
 	/**
-	 * Notify listeners of an added/removed/moved/modified file.
-	 *
-	 * @param file The URI of the file
-	 * @param triggerOnSave If the on save handler of changed file should be called.
+	 * @see INotificationService#notifyChanges(URI, boolean)
 	 */
 	public synchronized static void notifyFileChanges(URI file, boolean triggerOnSave) {
 		assert file.isAbsolute();
@@ -27,10 +24,7 @@ public class NotificationCenter {
 	}
 
 	/**
-	 * Notify listeners of multiple added/removed/moved/modified files.
-	 *
-	 * @param files The changed files.
-	 * @param triggerOnSave If the on save handler of changed file should be called.
+	 * @see INotificationService#notifyChanges(Iterable, boolean)
 	 */
 	public synchronized static void notifyFileChanges(Iterable<URI> files, boolean triggerOnSave) {
 		final Iterator<URI> filesIterator = files.iterator();
@@ -52,14 +46,22 @@ public class NotificationCenter {
 		}
 	}
 
+
 	/**
-	 * Notify listener of a new project.
-	 *
-	 * @param project The new project.
+	 * @see INotificationService#notifyNewProjectLanguage(URI, String)
 	 */
-	public synchronized static void notifyNewProject(URI project) {
+	public synchronized static void notifyNewProjectLanguage(URI projectPath, String language) {
 		for(INotificationService observer : asyncObservers.values()) {
-			observer.notifyNewProject(project);
+			observer.notifyNewProjectLanguage(projectPath, language);
+		}
+	}
+
+	/**
+	 * @see INotificationService#notifyNewProjectLanguage(URI, String)
+	 */
+	public synchronized static void notifyNewProject(URI projectPath) {
+		for(INotificationService observer : asyncObservers.values()) {
+			observer.notifyNewProject(projectPath);
 		}
 	}
 
@@ -73,14 +75,18 @@ public class NotificationCenter {
 		asyncObservers.put(new ObserverDescription(language, serviceName), service);
 	}
 
+	/**
+	 * Removes an observer. Only one observer is stored at a time for a language/serviceName combination.
+	 *
+	 * @param language The language for this observer, may be null.
+	 * @param serviceName The name of the service represented by this observer, may be null.
+	 */
 	public synchronized static boolean removeObserver(String language, String service) {
 		return asyncObservers.remove(new ObserverDescription(language, service)) != null;
 	}
 
 	/**
 	 * An observer. A wannabe case class.
-	 *
-	 * @author Lennart Kats <lennart add lclnet.nl>
 	 */
 	private static class ObserverDescription {
 		final String language;

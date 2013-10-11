@@ -16,7 +16,7 @@ public class HierarchicalIndex implements IHierarchicalIndex {
 	private final IIndex parent;
 	private final Set<IndexPartition> cleared = new HashSet<IndexPartition>();
 	private final Predicate<IndexEntry> visible;
-	
+
 	private final IndexCollection collection = new IndexCollection();
 	private final ITermFactory termFactory;
 
@@ -26,6 +26,7 @@ public class HierarchicalIndex implements IHierarchicalIndex {
 		this.termFactory = termFactory;
 
 		this.visible = new Predicate<IndexEntry>() {
+			@Override
 			public boolean apply(IndexEntry entry) {
 				return parentEntryVisible(entry);
 			}
@@ -100,6 +101,23 @@ public class HierarchicalIndex implements IHierarchicalIndex {
 	public void clearPartition(IndexPartition partition) {
 		current.clearPartition(partition);
 		cleared.add(partition);
+	}
+
+	@Override
+	public Iterable<String> getAllLanguages() {
+		final Iterable<String> parentLanguages = parent.getAllLanguages();
+		final Iterable<String> currentLanguages = current.getAllLanguages();
+		return Iterables.concat(parentLanguages, currentLanguages); // TODO: should this be a set?
+	}
+
+	@Override
+	public boolean hasLanguage(String language) {
+		return parent.hasLanguage(language) || current.hasLanguage(language);
+	}
+
+	@Override
+	public boolean addLanguage(String language) {
+		return current.addLanguage(language) && parent.hasLanguage(language);
 	}
 
 	@Override

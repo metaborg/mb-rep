@@ -19,16 +19,21 @@ import org.spoofax.terms.io.binary.TermReader;
 
 public class IndexManager {
 	private static final IndexManager INSTANCE = new IndexManager();
-	private static final IndexFactory indexFactory = new IndexFactory();
 
-	/**
-	 * Indices by language and project. Access requires a lock on {@link #getSyncRoot}
-	 */
-	private static Map<URI, WeakReference<IIndex>> indexCache = new HashMap<URI, WeakReference<IIndex>>();
-	private static Set<String> indexedLanguages = new HashSet<String>();
+	private final IndexFactory indexFactory = new IndexFactory();
 
-	private ThreadLocal<IIndex> current = new ThreadLocal<IIndex>();
-	private ThreadLocal<URI> currentProject = new ThreadLocal<URI>();
+	/** Map from project path to index. Access requires a lock on {@link #getSyncRoot} */
+	private final Map<URI, WeakReference<IIndex>> indexes = new HashMap<URI, WeakReference<IIndex>>();
+
+	/** Set of all languages that are being indexed. */
+	private final Set<String> indexedLanguages = new HashSet<String>();
+
+	/** The current index in the current thread. */
+	private final ThreadLocal<IIndex> current = new ThreadLocal<IIndex>();
+
+	/** The current project in the current thread. */
+	private final ThreadLocal<URI> currentProject = new ThreadLocal<URI>();
+
 
 	private IndexManager() {
 		// use getInstance()
@@ -45,7 +50,7 @@ public class IndexManager {
 
 	private void setCurrent(URI project, IIndex index) {
 		current.set(index);
-		indexCache.put(project, new WeakReference<IIndex>(index));
+		indexes.put(project, new WeakReference<IIndex>(index));
 	}
 
 	private void setCurrent(IIndex taskEngine) {
@@ -117,7 +122,7 @@ public class IndexManager {
 		return IndexManager.class;
 	}
 
-	public static boolean isKnownIndexingLanguage(String language) {
+	public boolean isKnownIndexingLanguage(String language) {
 		synchronized(getSyncRoot()) {
 			return indexedLanguages.contains(language);
 		}
@@ -133,7 +138,7 @@ public class IndexManager {
 
 	public IIndex getIndex(String absoluteProjectPath) {
 		URI project = getProjectURIFromAbsolute(absoluteProjectPath);
-		WeakReference<IIndex> indexRef = indexCache.get(project);
+		WeakReference<IIndex> indexRef = indexes.get(project);
 		IIndex index = indexRef == null ? null : indexRef.get();
 		return index;
 	}
@@ -142,7 +147,7 @@ public class IndexManager {
 		URI project = getProjectURI(projectPath, agent);
 		synchronized(getSyncRoot()) {
 			indexedLanguages.add(language);
-			WeakReference<IIndex> indexRef = indexCache.get(project);
+			final WeakReference<IIndex> indexRef = indexes.get(project);
 			IIndex index = indexRef == null ? null : indexRef.get();
 			if(index == null) {
 				File indexFile = getFile(project);
@@ -151,7 +156,11 @@ public class IndexManager {
 			}
 			if(index == null) {
 				index = createIndex(factory);
+				for(String indexedLanguage : indexedLanguages)
+					index.addLanguage(indexedLanguage);
 				NotificationCenter.notifyNewProject(project);
+			} else if(index.addLanguage(language)) {
+				NotificationCenter.notifyNewProjectLanguage(project, language);
 			}
 			setCurrent(project, index);
 			currentProject.set(project);
@@ -162,7 +171,7 @@ public class IndexManager {
 	public void unloadIndex(String removedProjectPath, IOAgent agent) {
 		URI removedProject = getProjectURI(removedProjectPath, agent);
 		synchronized(getSyncRoot()) {
-			WeakReference<IIndex> removedIndex = indexCache.remove(removedProject);
+			WeakReference<IIndex> removedIndex = indexes.remove(removedProject);
 
 			IIndex index = current.get();
 			if(index != null && index == removedIndex.get()) {
@@ -198,10 +207,10 @@ public class IndexManager {
 		} catch(Exception e) {
 			if(!file.delete())
 				throw new RuntimeException("Failed to load index from " + file.getName()
-					+ ". The file could not be deleted, please manually delete the file and restart analysis.", e);
+					+ ". The index file could not be deleted, please manually delete the file and restart analysis.", e);
 			else
 				throw new RuntimeException("Failed to load index from " + file.getName()
-					+ ". The file has been deleted, a new index will be created on the next analysis.", e);
+					+ ". The index file has been deleted, a new index will be created on the next analysis.", e);
 		}
 	}
 

@@ -14,28 +14,28 @@ public interface IIndex {
 
 	/**
 	 * Starts collection for given partition.
-	 * 
+	 *
 	 * @param partition
 	 */
 	public abstract void startCollection(IndexPartition partition);
 
 	/**
 	 * Stops collection for given partition, returning the entries that were removed and added during collection.
-	 * 
+	 *
 	 * @return The removed and added entries as a Stratego tuple.
 	 */
 	public abstract IStrategoTuple stopCollection();
 
 	/**
 	 * Adds a new entry to the index.
-	 * 
+	 *
 	 * @param entry The entry to add.
 	 */
 	public abstract void add(IndexEntry entry);
 
 	/**
 	 * Gets all entries that match given template.
-	 * 
+	 *
 	 * @param template The template to match entries against.
 	 */
 	public abstract Iterable<IndexEntry> get(IStrategoAppl template);
@@ -47,14 +47,14 @@ public interface IIndex {
 
 	/**
 	 * Gets all child entries for URI in given template.
-	 * 
+	 *
 	 * @param template The template to match entries against.
 	 */
 	public abstract Iterable<IndexEntry> getChildren(IStrategoAppl template);
 
 	/**
 	 * Gets all entries for given partition descriptor.
-	 * 
+	 *
 	 * @param partition The partition descriptor to match entries against.
 	 */
 	public abstract Iterable<IndexEntry> getInPartition(IndexPartition partition);
@@ -62,7 +62,7 @@ public interface IIndex {
 	/**
 	 * Gets all partitions that contain entries that match given template. Returned collection is a set of partitions,
 	 * it does not contain duplicates.
-	 * 
+	 *
 	 * @param template The template to match entries against.
 	 */
 	public abstract Set<IndexPartition> getPartitionsOf(IStrategoAppl template);
@@ -74,10 +74,29 @@ public interface IIndex {
 
 	/**
 	 * Removes all entries for given partition and removes the partition itself.
-	 * 
+	 *
 	 * @param partition A partition descriptor.
 	 */
 	public abstract void clearPartition(IndexPartition partition);
+
+	/**
+	 * Gets names of all languages that are being indexed.
+	 */
+	public abstract Iterable<String> getAllLanguages();
+
+	/**
+	 * Query if a language is being indexed.
+	 *
+	 * @param language Name of the language
+	 */
+	public abstract boolean hasLanguage(String language);
+
+	/**
+	 * Add an indexed language. Returns true if language was not being indexed before.
+	 * 
+	 * @param language Name of the language.
+	 */
+	public abstract boolean addLanguage(String language);
 
 	/**
 	 * Resets the index to the initial state.
