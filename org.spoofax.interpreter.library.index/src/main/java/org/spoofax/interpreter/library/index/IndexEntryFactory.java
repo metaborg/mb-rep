@@ -11,8 +11,8 @@ import org.spoofax.terms.attachments.TermAttachmentStripper;
 public class IndexEntryFactory {
     private static final int DATA_TYPE_POS = 1;
     private static final int DATA_VALUE_POS = 2;
-    private static final IStrategoConstructor DEFDATA_CONSTRUCTOR = new TermFactory().makeConstructor("DefData", 3);
     private static final IStrategoConstructor PROP_CONSTRUCTOR = new TermFactory().makeConstructor("Prop", 3);
+	private static final IStrategoConstructor RELTUPLE_CONSTRUCTOR = new TermFactory().makeConstructor("RelTuple", 3);
 
     private final ITermFactory termFactory;
     private final TermAttachmentStripper stripper;
@@ -51,7 +51,7 @@ public class IndexEntryFactory {
 
         return new IndexEntry(key, value, partition);
     }
-    
+
 	public IndexEntry createEntry(IStrategoAppl entry, IndexPartition partition) {
 		final IStrategoConstructor constructor = entry.getConstructor();
 		final IStrategoTerm type = getEntryType(entry);
@@ -66,7 +66,7 @@ public class IndexEntryFactory {
     }
 
     public static boolean isData(IStrategoConstructor constructor) {
-        return constructor.equals(DEFDATA_CONSTRUCTOR) || constructor.equals(PROP_CONSTRUCTOR);
+		return constructor.equals(PROP_CONSTRUCTOR) || constructor.equals(RELTUPLE_CONSTRUCTOR);
     }
 
     public IStrategoTerm getEntryType(IStrategoAppl entry) {
