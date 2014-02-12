@@ -1,0 +1,5 @@
+module typesmart
+
+imports
+	gen/-
+
