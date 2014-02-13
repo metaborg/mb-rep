@@ -19,10 +19,13 @@ rules
         ; where(((collect-one(?"module"#([unparameterized(mainmod), _, _]))
                  ; ?"module"#([_, <collect-all(?unparameterized(<id>) + ?parameterized(<id>,_))>, _])) + ![]) => imps)
         ; gen-syntax-constructors-from-module
+        // ; !Module(mainmod,
+        //           [Imports([ Import("Runtime")
+        //                    , Import("libstrc")
+        //                    | <map(!Import(<id>))> imps]) | <id>])
         ; !Module(mainmod,
                   [Imports([ Import("Runtime")
-                           , Import("libstrc")
-                           | <map(!Import(<id>))> imps]) | <id>])
+                           , Import("libstrc")]) | <id>])
         ; pp-stratego-stream(|out)
         else
           !""
