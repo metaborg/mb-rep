@@ -203,7 +203,7 @@ public class IndexManager {
 		try {
 			IIndex index = createIndex(factory);
 			IStrategoTerm term = new TermReader(factory).parseFromFile(file.toString());
-			return indexFactory.indexFromTerms(index, agent, term, factory, true);
+			return indexFactory.indexFromTerm(index, agent, term, factory, true);
 		} catch(Exception e) {
 			if(!file.delete())
 				throw new RuntimeException("Failed to load index from " + file.getName()
@@ -216,7 +216,7 @@ public class IndexManager {
 
 	public void storeCurrent(ITermFactory factory) throws IOException {
 		File file = getFile(currentProject.get());
-		IStrategoTerm stored = indexFactory.toTerm(getCurrent(), factory, true);
+		IStrategoTerm stored = indexFactory.indexToTerm(getCurrent(), factory, true);
 		file.createNewFile();
 		FileOutputStream fos = new FileOutputStream(file);
 		try {

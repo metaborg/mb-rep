@@ -11,27 +11,6 @@ import org.spoofax.terms.attachments.TermAttachmentSerializer;
 
 public class IndexFactory {
 	/**
-	 * Creates a term representation of given partition.
-	 *
-	 * @param index The index that contains the partition.
-	 * @param partition The partition to create a term representation of.
-	 * @param factory A term factory.
-	 * @param includePositions True to include position information.
-	 * @return A term representing given partition.
-	 */
-	public IStrategoTerm toTerm(IIndex index, IndexPartition partition, ITermFactory factory, boolean includePositions) {
-		final IStrategoList entriesTerm = IndexEntry.toTerms(factory, index.getInPartition(partition));
-		IStrategoTerm partitionTerm = factory.makeTuple(partition.toTerm(factory), entriesTerm);
-
-		if(includePositions) {
-			final TermAttachmentSerializer serializer = new TermAttachmentSerializer(factory);
-			partitionTerm = serializer.toAnnotations(partitionTerm);
-		}
-
-		return partitionTerm;
-	}
-
-	/**
 	 * Creates a term representation of given index.
 	 *
 	 * @param index The index to create a term representation of.
@@ -39,10 +18,10 @@ public class IndexFactory {
 	 * @param includePositions True to include position information.
 	 * @return A term representing given index.
 	 */
-	public IStrategoTerm toTerm(IIndex index, ITermFactory factory, boolean includePositions) {
+	public IStrategoTerm indexToTerm(IIndex index, ITermFactory factory, boolean includePositions) {
 		IStrategoList partitionsTerm = factory.makeList();
 		for(IndexPartition partition : index.getAllPartitions()) {
-			final IStrategoTerm partitionTerm = toTerm(index, partition, factory, false);
+			final IStrategoTerm partitionTerm = partitionToTerm(index, partition, factory);
 			partitionsTerm = factory.makeListCons(partitionTerm, partitionsTerm);
 		}
 
@@ -57,36 +36,26 @@ public class IndexFactory {
 			languagesTerm = factory.makeListCons(languageTerm, languagesTerm);
 		}
 
-
 		return factory.makeTuple(partitionsTerm, languagesTerm);
 	}
 
-	public IndexPartition partitionFromTerms(IIndex index, IOAgent agent, IStrategoTerm term, ITermFactory factory,
-		boolean extractPositions) {
-		if(!Tools.isTermTuple(term))
-			throw new RuntimeException("Cannot read index: Partition term is not a tuple.");
-
-		if(extractPositions) {
-			final TermAttachmentSerializer serializer = new TermAttachmentSerializer(factory);
-			term = serializer.fromAnnotations(term, false);
-		}
-
-		final IndexPartition partition = IndexPartition.fromTerm(agent, term.getSubterm(0));
-		for(IStrategoTerm entry : term.getSubterm(1))
-			index.add(index.getFactory().createEntry((IStrategoAppl) entry, partition));
-		return partition;
+	private IStrategoTerm partitionToTerm(IIndex index, IndexPartition partition, ITermFactory factory) {
+		final IStrategoList entriesTerm = IndexEntry.toTerms(factory, index.getInPartition(partition));
+		IStrategoTerm partitionTerm = factory.makeTuple(partition.toTerm(factory), entriesTerm);
+		return partitionTerm;
 	}
+
 
 	/**
 	 * Populates an index from a term representation of an index created with
-	 * {@link #toTerm(IIndex, ITermFactory, boolean)}.
+	 * {@link #indexToTerm(IIndex, ITermFactory, boolean)}.
 	 *
 	 * @param index The index to populate.
 	 * @param term A term representation of an index.
 	 * @param factory A term factory.
 	 * @param extractPositions True to also extract position information.
 	 */
-	public IIndex indexFromTerms(IIndex index, IOAgent agent, IStrategoTerm term, ITermFactory factory,
+	public IIndex indexFromTerm(IIndex index, IOAgent agent, IStrategoTerm term, ITermFactory factory,
 		boolean extractPositions) {
 		if(!Tools.isTermTuple(term))
 			throw new RuntimeException("Cannot read index: Root term is not a tuple.");
@@ -97,12 +66,23 @@ public class IndexFactory {
 			partitionsTerm = serializer.fromAnnotations(partitionsTerm, false);
 		}
 		for(IStrategoTerm partitionTerm : partitionsTerm)
-			partitionFromTerms(index, agent, partitionTerm, factory, false);
+			partitionFromTerm(index, agent, partitionTerm);
 
 		final IStrategoTerm languagesTerm = term.getSubterm(1);
 		for(IStrategoTerm languageTerm : languagesTerm)
 			index.addLanguage(((IStrategoString) languageTerm).stringValue());
 
 		return index;
+	}
+
+	private IndexPartition partitionFromTerm(IIndex index, IOAgent agent, IStrategoTerm term) {
+		if(!Tools.isTermTuple(term))
+			throw new RuntimeException("Cannot read index: Partition term is not a tuple.");
+
+		final IndexPartition partition = IndexPartition.fromTerm(agent, term.getSubterm(0));
+		for(IStrategoTerm entry : term.getSubterm(1)) {
+			index.add(index.getFactory().createEntry((IStrategoAppl) entry, partition));
+		}
+		return partition;
 	}
 }
