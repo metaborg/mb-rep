@@ -193,18 +193,22 @@ public class StrategoList extends StrategoTerm implements IStrategoList {
 
     @Override
     public int hashFunction() {
-    	/* UNDONE: BasicStrategoTerm hash; should use cons/nil hash instead
-        long hc = 4787;
-        for (IStrategoList cur = this; !cur.isEmpty(); cur = cur.tail()) {
-            hc *= cur.head().hashCode();
-        }
-        return (int)(hc >> 2);
-        */
-		final int prime = 71;
-		int result = 1;
-		result = prime * result + ((head == null) ? 0 : head.hashCode());
-		result = prime * result + ((tail == null) ? 0 : tail.hashCode());
-		return result;
+    	if(head == null)
+    		return 1;
+    	
+    	final int prime = 31;
+    	int result = prime * head.hashCode();
+    	
+    	if(tail == null)
+    		return result;
+    	
+    	IStrategoList tail = this.tail;
+    	while(!tail.isEmpty()) {
+    		result = prime * result + tail.head().hashCode();
+    		tail = tail.tail();
+    	}
+    	
+    	return result;
     }
 
 	public Iterator<IStrategoTerm> iterator() {
