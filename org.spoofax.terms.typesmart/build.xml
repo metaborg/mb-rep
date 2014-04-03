@@ -7,7 +7,7 @@
 	<property name="src.gen.dir" value="${gen.dir}/src" />
 	<property name="bin.dir" value="${gen.dir}/bin" />
 	<property name="lib.dir" value="lib" />
-	<property name="install.location" value="dist" />
+	<property name="install-prefix" value="dist" />
 
 	<property name="src.gen.pkg.dir" value="org/spoofax/terms/typesmart/generator" />
 	<property name="src.gen.pkg" value="org.spoofax.terms.typesmart.generator" />
@@ -78,14 +78,14 @@
 	</target>
 
 	<target name="install" depends="jar">
-		<mkdir dir="${install.location}" />
-		<copy file="${bin.dir}/${jar.file}" todir="${install.location}" />
+		<mkdir dir="${install-prefix}" />
+		<copy file="${bin.dir}/${jar.file}" todir="${install-prefix}" />
 	</target>
 
 	<target name="clean">
 		<delete>
 			<fileset dir="${src.gen.dir}/${src.gen.pkg.dir}" includes="**/*.java, **/*.dep" />
-			<fileset dir="${install.location}" includes="${jar.file}" />
+			<fileset dir="${install-prefix}" includes="${jar.file}" />
 		</delete>
 	</target>
 
