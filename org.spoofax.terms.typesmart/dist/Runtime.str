@@ -36,7 +36,7 @@ rules
   push-subsort-stack =
       where(
         strip-annos => pair
-      ; (<not(elem)> (pair, <Subsort-Stack>) <+ debug(!"detected loop: "); fail)
+      ; (<not(elem)> (pair, <Subsort-Stack>) <+ fatal-err-msg(|"detected loop: "); fail)
       ; rules( Subsort-Stack := [pair | <Subsort-Stack>] ))
   pop-subsort-stack =
     where(rules( Subsort-Stack := <Subsort-Stack; ?[_|<id>]> ))
@@ -111,7 +111,7 @@ rules
   log-mismatching-sort-error(|cons) =
     (not(get-syntax-sort), id);
     Swap;
-    debug(<conc-strings> ("Argument of constructor ", cons, " lacks sort annotation, expected: "))
+    fatal-err-msg(|<conc-strings> ("Argument of constructor ", cons, " lacks sort annotation, expected: ", <write-to-string>))
   
   log-mismatching-sort-error(|cons) =
     (get-syntax-sort, id);
@@ -120,4 +120,4 @@ rules
             ("Mismatching argument sort for constructor '", cons, "'.",
              " Was ", <write-to-string> was, ",",
              " expected ", <write-to-string> exp) => s);
-    <debug(!s)> "."
+    <fatal-err-msg(|<conc-strings> (s, <write-to-string>))> "."
