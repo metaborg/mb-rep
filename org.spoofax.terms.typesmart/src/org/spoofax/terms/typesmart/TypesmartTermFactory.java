@@ -124,10 +124,9 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
 
 			return appl;
 		} catch (InterpreterException e) {
-			String[] trace = context.getStackTracer().getTrace(true);
-			String cause = trace.length > 0 ? trace[0] : "UNKNOWN";
+			String trace = context.getStackTracer().getTraceString();
 			throw new StrategoException("Type-unsafe constructor application "
-					+ ctr + " in strategy " + cause, e);
+					+ ctr + ", strategy trace: " + trace, e);
 		}
 	}
 
