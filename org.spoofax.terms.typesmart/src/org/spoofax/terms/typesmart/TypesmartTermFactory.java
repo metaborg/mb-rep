@@ -62,6 +62,7 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
 	@Override
 	public IStrategoAppl makeAppl(IStrategoConstructor ctr,
 			IStrategoTerm[] kids, IStrategoList annotations) {
+		IContext context = runtime.getContext();
 		try {
 			CallT smartCall = tryGetTypesmartConstructorCall(ctr, kids);
 			// no check defined
@@ -72,7 +73,6 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
 
 			// apply smart constructor to argument terms
 			rebuildEmptyLists(kids);
-			IContext context = runtime.getContext();
 			IStrategoTerm currentWas = context.current();
 			IStrategoTerm t;
 			try {
@@ -124,8 +124,10 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
 
 			return appl;
 		} catch (InterpreterException e) {
+			String[] trace = context.getStackTracer().getTrace(true);
+			String cause = trace.length > 0 ? trace[0] : "UNKNOWN";
 			throw new StrategoException("Type-unsafe constructor application "
-					+ ctr, e);
+					+ ctr + " in strategy " + cause, e);
 		}
 	}
 
