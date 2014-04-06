@@ -77,7 +77,7 @@ rules
       // ; <debug-analysis(!"inject: ")> (unrenamed-arg-sort, res-sort) 
       ; <has-subsort-of> (term, unrenamed-arg-sort)
 
-  sort-match = structurally-equal
+  sort-match = equal
   sort-match =
       ?(Sort("List", [xsort]), Sort("List", [xsort2]))
     ; <sort-match> (xsort, xsort2)

@@ -42,5 +42,3 @@ rules
   	  + ?[<id>]
   	    < one1
   	    + ?[x|xs]; <cons> (x, <myfoldr1(nil, one1, cons)> xs)
-  
-  structurally-equal = ?(c#(xs),d#(ys)); <equal> (c,d); <zip(structurally-equal)> (xs, ys)

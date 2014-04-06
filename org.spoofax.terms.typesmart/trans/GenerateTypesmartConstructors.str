@@ -116,7 +116,7 @@ rules
     ; <not(find-cons-attribute)> attrs
     ; <filter(get-symbol-sort)> lhs => [arg-sort]
     ; <get-symbol-sort> rhs => res-sort
-    ; <not(structurally-equal)> (arg-sort, res-sort)
+    ; <not(equal)> (arg-sort, res-sort)
     ; body := CallT(SVar("has-subsort-of-inject"), []
                   , [ <trm-explode> arg-sort, <trm-explode> res-sort])
 
@@ -201,8 +201,8 @@ rules
 
   merge-same-cons-prods =
       ?(prod(lhs1, rhs1, attrs1), prod(lhs2, rhs2, attrs2))
-    ; <(find-cons-attribute,find-cons-attribute); structurally-equal> (attrs1, attrs2)
-    ; <(filter(get-symbol-sort),filter(get-symbol-sort)); structurally-equal> (lhs1,lhs2)
+    ; <(find-cons-attribute,find-cons-attribute); equal> (attrs1, attrs2)
+    ; <(filter(get-symbol-sort),filter(get-symbol-sort)); equal> (lhs1,lhs2)
     ; !prod(lhs1, alt(rhs1, rhs2), attrs1)
    
   merge-same-cons-prods-list =
@@ -217,7 +217,7 @@ rules
   mk-alt-rhs =
   	  ?prod(lhs, rhs, attrs)
   	; <flatten-alt> rhs => rhs-list
-  	; <foldr(![], union(structurally-equal), ![<id>])> rhs-list => nubbed
+  	; <foldr(![], union(equal), ![<id>])> rhs-list => nubbed
   	; <foldl1(\(x,y) -> alt(x,y)\)> nubbed => rhs-res
   	; !prod(lhs, rhs-res, attrs)
   
