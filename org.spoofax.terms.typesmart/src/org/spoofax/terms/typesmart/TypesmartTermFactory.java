@@ -133,7 +133,7 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
 	protected CallT tryGetTypesmartConstructorCall(IStrategoConstructor ctr,
 			IStrategoTerm[] kids) throws InterpreterException {
 		String smartCtrName = "smart-" + ctr.getName();
-		smartCtrName = smartCtrName.replace("-", "_") + "_0_" + kids.length;
+		smartCtrName = smartCtrName.replace("_","__").replace("-", "_") + "_0_" + kids.length;
 		SDefT sdef = runtime.getContext().lookupSVar(smartCtrName);
 		if (sdef == null)
 			return null;
