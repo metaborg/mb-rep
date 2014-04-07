@@ -108,16 +108,33 @@ signature constructors
   EmptyCollection : Sdf2Sort
 
 rules
+  compute-syntax-sort = get-syntax-sort <+ (debug(!"no sort attachment: "); fail)
+  compute-syntax-sort = (?[] + ?[_|_]); !Sort("List", <map(compute-syntax-sort <+ "?")>)
+  compute-syntax-sort = ?""#(<id>); !Sort("Tuple", <map(compute-syntax-sort <+ "?")>)
+  compute-syntax-sort = ?None(); !Sort("Option", ["?"])
+  compute-syntax-sort = ?Some(<id>); !Sort("Option", [<compute-syntax-sort <+ "?">])
+
+rules
   log-mismatching-sort-error(|cons) =
-    (not(get-syntax-sort), id);
-    Swap;
-    fatal-err-msg(|<conc-strings> ("Argument of constructor ", cons, " lacks sort annotation, expected: ", <write-to-string>))
+  	?(arg, exp);
+    (not(debug; compute-syntax-sort), id);
+    fatal-err-msg(|<conc-strings> ("Argument of constructor ", cons, " lacks sort annotation",
+                                   "\n    expected ", <write-to-string> exp,
+                                   "\n    in argument ", <write-to-string> arg))
   
   log-mismatching-sort-error(|cons) =
-    (get-syntax-sort, id);
+  	?(arg, _);
+    (compute-syntax-sort, id);
     ?(was, exp);
     where(<conc-strings> 
             ("Mismatching argument sort for constructor '", cons, "'.",
-             " Was ", <write-to-string> was, ",",
-             " expected ", <write-to-string> exp) => s);
+             "\n    Argument ", <write-to-string> arg, " has sort ", <write-to-string> was, ",",
+             "\n    but expected ", <write-to-string> exp) => s);
     <fatal-err-msg(|<conc-strings> (s, <write-to-string>))> "."
+
+
+
+rules // temporary fix
+	smart-ALOAD-0 = smart-ALOAD_0
+	
+	
