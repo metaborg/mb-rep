@@ -5,6 +5,8 @@ imports
   libstratego-lib
   Common
   
+signature constructors
+
 rules
   // redefined in Stratego
   // smart-Some(|arg) =
@@ -45,6 +47,9 @@ rules
       ?(xs, Sort("List", [xsort]))
     ; <map(!(<id>, xsort); has-subsort-of)> xs
   has-subsort-of-refl =
+      ?(xs, Sort("List", [xsort]))
+    ; <map(!(<id>, xsort); has-subsort-of)> xs
+  has-subsort-of-refl =
       ?(""#(xs), Sort("Tuple", xsorts))
     ; <equal> (<length> xs, <length> xsorts)
     ; <zip> (xs, xsorts)
@@ -72,9 +77,10 @@ rules
   has-subsort-of-inject(|arg-sort,res-sort) =
   	  ?(term,sup-sort)
       // result to argument
+      // ; <debug(!"subsort: ")> (sup-sort, res-sort) 
       ; <sort-match> (sup-sort, res-sort)
       ; where(<repeat(unrename-sort)> arg-sort => unrenamed-arg-sort)
-      // ; <debug-analysis(!"inject: ")> (unrenamed-arg-sort, res-sort) 
+      // ; <debug(!"inject: ")> (unrenamed-arg-sort, res-sort) 
       ; <has-subsort-of> (term, unrenamed-arg-sort)
 
   sort-match = equal
@@ -115,14 +121,15 @@ rules
   compute-syntax-sort = ?Some(<id>); !Sort("Option", [<compute-syntax-sort <+ "?">])
 
 rules
-  log-mismatching-sort-error(|cons) =
+  log-mismatching-sort-error(|cons) = where (
   	?(arg, exp);
-    (not(debug; compute-syntax-sort), id);
-    fatal-err-msg(|<conc-strings> ("Argument of constructor ", cons, " lacks sort annotation",
+    (not(compute-syntax-sort), id);
+    log(|Error(), <conc-strings> ("Argument of constructor ", cons, " lacks sort annotation",
                                    "\n    expected ", <write-to-string> exp,
                                    "\n    in argument ", <write-to-string> arg))
+    )
   
-  log-mismatching-sort-error(|cons) =
+  log-mismatching-sort-error(|cons) = where (
   	?(arg, _);
     (compute-syntax-sort, id);
     ?(was, exp);
@@ -130,11 +137,5 @@ rules
             ("Mismatching argument sort for constructor '", cons, "'.",
              "\n    Argument ", <write-to-string> arg, " has sort ", <write-to-string> was, ",",
              "\n    but expected ", <write-to-string> exp) => s);
-    <fatal-err-msg(|<conc-strings> (s, <write-to-string>))> "."
-
-
-
-rules // temporary fix
-	smart-ALOAD-0 = smart-ALOAD_0
-	
-	
+    <log(|Error(), <conc-strings> (s, <write-to-string>))> "."
+    )
