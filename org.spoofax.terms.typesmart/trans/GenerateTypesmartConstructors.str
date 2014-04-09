@@ -148,8 +148,7 @@ rules
     (arg, arg-sort) -> 
     Where(BA(LChoice(
         CallNoArgs(SVar("has-sort"))
-      , Seq(CallT(SVar("log-mismatching-sort-error"), [], [<trm-explode> cons])
-        , Fail()))
+      , CallT(SVar("log-mismatching-sort-error"), [], [<trm-explode> cons]))
     , NoAnnoList(Tuple([Var(arg), <trm-explode> arg-sort]))))
 
 rules
