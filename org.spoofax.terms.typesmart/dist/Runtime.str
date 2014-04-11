@@ -115,27 +115,25 @@ signature constructors
 
 rules
   compute-syntax-sort = get-syntax-sort <+ (debug(!"no sort attachment: "); fail)
-  compute-syntax-sort = (?[] + ?[_|_]); !Sort("List", <map(compute-syntax-sort <+ "?")>)
+  compute-syntax-sort = (?[] + ?[_|_]); map(compute-syntax-sort <+ "?")
   compute-syntax-sort = ?""#(<id>); !Sort("Tuple", <map(compute-syntax-sort <+ "?")>)
   compute-syntax-sort = ?None(); !Sort("Option", ["?"])
   compute-syntax-sort = ?Some(<id>); !Sort("Option", [<compute-syntax-sort <+ "?">])
 
 rules
-  log-mismatching-sort-error(|cons) = where (
+  log-mismatching-sort-error(|cons) =
   	?(arg, exp);
-    (not(compute-syntax-sort), id);
-    log(|Error(), <conc-strings> ("Argument of constructor ", cons, " lacks sort annotation",
+    not(<compute-syntax-sort> arg);
+    where (s := <conc-strings> ("Argument of constructor ", cons, " lacks sort annotation",
                                    "\n    expected ", <write-to-string> exp,
-                                   "\n    in argument ", <write-to-string> arg))
-    )
+                                   "\n    in argument ", <write-to-string> arg));
+    <debug> s
   
-  log-mismatching-sort-error(|cons) = where (
-  	?(arg, _);
-    (compute-syntax-sort, id);
-    ?(was, exp);
-    where(<conc-strings> 
+  log-mismatching-sort-error(|cons) =
+  	?(arg, exp);
+    (<compute-syntax-sort> arg => was);
+    where(s := <conc-strings> 
             ("Mismatching argument sort for constructor '", cons, "'.",
              "\n    Argument ", <write-to-string> arg, " has sort ", <write-to-string> was, ",",
-             "\n    but expected ", <write-to-string> exp) => s);
-    <log(|Error(), <conc-strings> (s, <write-to-string>))> "."
-    )
+             "\n    but expected ", <write-to-string> exp));
+    <debug> s

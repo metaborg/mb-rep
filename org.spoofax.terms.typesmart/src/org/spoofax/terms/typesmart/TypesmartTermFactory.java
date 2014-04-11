@@ -80,8 +80,7 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
 
 				smartCalls++;
 				long start = System.currentTimeMillis();
-				boolean smartOk = smartCall.evaluateWithArgs(context,
-						new Strategy[0], kids);
+				boolean smartOk = smartCall.evaluateWithArgs(context, new Strategy[0], kids);
 				long end = System.currentTimeMillis();
 				totalTimeMillis = totalTimeMillis.add(BigInteger.valueOf(end
 						- start));
@@ -91,9 +90,7 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
 				// }
 
 				if (!smartOk) {
-					IStrategoTerm failedTerm = makeUnsafeAppl(ctr, kids,
-							annotations);
-					System.err.println("*****FAIL " + failedTerm);
+					IStrategoTerm failedTerm = makeUnsafeAppl(ctr, kids, annotations);
 					throw new StrategoException(
 							"Smart constructor failed for: "
 									+ annotateTerm(failedTerm, makeList()));
