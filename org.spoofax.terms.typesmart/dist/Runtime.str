@@ -127,7 +127,7 @@ rules
     where (s := <conc-strings> ("Argument of constructor ", cons, " lacks sort annotation",
                                    "\n    expected ", <write-to-string> exp,
                                    "\n    in argument ", <write-to-string> arg));
-    <debug> s
+    !s
   
   log-mismatching-sort-error(|cons) =
   	?(arg, exp);
@@ -136,4 +136,4 @@ rules
             ("Mismatching argument sort for constructor '", cons, "'.",
              "\n    Argument ", <write-to-string> arg, " has sort ", <write-to-string> was, ",",
              "\n    but expected ", <write-to-string> exp));
-    <debug> s
+    !s

@@ -12,10 +12,11 @@ import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.terms.StrategoString;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.attachments.AbstractWrappedTermFactory;
 import org.strategoxt.HybridInterpreter;
-import org.strategoxt.lang.Context;
+import org.strategoxt.imp.runtime.Environment;
 import org.strategoxt.lang.StrategoException;
 
 /**
@@ -95,8 +96,16 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
 							"Smart constructor failed for: "
 									+ annotateTerm(failedTerm, makeList()));
 				}
-
+				
 				t = context.current();
+				if (smartOk && t instanceof StrategoString) {
+					String msg = ((StrategoString) t).stringValue();
+					IStrategoTerm failedTerm = makeUnsafeAppl(ctr, kids, annotations);
+					Environment.logWarning("Smart constructor failed : " + msg);
+					t = failedTerm;
+					// TODO set error marker
+				}
+
 			} finally {
 				context.setFactory(this);
 				context.setCurrent(currentWas);
