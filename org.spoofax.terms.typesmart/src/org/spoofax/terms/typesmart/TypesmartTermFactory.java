@@ -97,6 +97,8 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
 				}
 				
 				t = context.current();
+				System.out.println("smartOK=" + smartOk + ", t=" + t);
+				System.err.println("ERROR smartOK=" + smartOk + ", t=" + t);
 				if (smartOk && t instanceof StrategoString) {
 					String msg = ((StrategoString) t).stringValue();
 					IStrategoTerm failedTerm = makeUnsafeAppl(ctr, kids, annotations);
