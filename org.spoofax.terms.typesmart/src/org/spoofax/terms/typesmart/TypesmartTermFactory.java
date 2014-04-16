@@ -16,7 +16,6 @@ import org.spoofax.terms.StrategoString;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.attachments.AbstractWrappedTermFactory;
 import org.strategoxt.HybridInterpreter;
-import org.strategoxt.imp.runtime.Environment;
 import org.strategoxt.lang.StrategoException;
 
 /**
@@ -101,7 +100,7 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
 				if (smartOk && t instanceof StrategoString) {
 					String msg = ((StrategoString) t).stringValue();
 					IStrategoTerm failedTerm = makeUnsafeAppl(ctr, kids, annotations);
-					Environment.logWarning("Smart constructor failed : " + msg);
+					logWarning("Smart constructor failed : " + msg);
 					t = failedTerm;
 					// TODO set error marker
 				}
@@ -134,6 +133,11 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
 			throw new StrategoException("Type-unsafe constructor application "
 					+ ctr + ", strategy trace: " + trace, e);
 		}
+	}
+	
+	private void logWarning(String message) {
+		System.err.println("Warning: " + message);
+		runtime.getIOAgent().printError(message);
 	}
 
 	protected CallT tryGetTypesmartConstructorCall(IStrategoConstructor ctr,
