@@ -106,8 +106,9 @@ rules
     ; <get-symbol-sort> rhs => res-sort
     
     ; <make-arg-list(|1)> arg-sorts => args
+    ; <trm-explode> res-sort => res-sort-term
     ; <zip; 
-        foldr(!CallT(SVar("add-sort"), [], [<trm-explode> res-sort]), 
+        foldr(!CallT(SVar("add-sort"), [], [res-sort-term]), 
               \((arg,arg-sort),rest) -> <gen-arg-check(|cons, rest)> (arg,arg-sort)\)
       > (args, arg-sorts) => args-check
 
@@ -151,13 +152,12 @@ rules
 
   gen-arg-check(|cons, rest-check) :
     (arg, arg-sort) -> 
-    CondChoice(
-        BA(CallNoArgs(SVar("has-sort")), arg-term)
-      , rest-check
-      , CallT(SVar("add-error"), [], [error-message]))
+    Seq(LChoice(
+          Where(BA(CallNoArgs(SVar("has-sort")), arg-term))
+        , CallT(SVar("add-error"), [], [<trm-explode> cons, arg-term]))
+      , rest-check)
   where
       arg-term := NoAnnoList(Tuple([Var(arg), <trm-explode> arg-sort]))
-    ; error-message := BA(CallT(SVar("log-mismatching-sort-error"), [], [<trm-explode> cons]), arg-term)
 
 rules
   same-smart-constructor-data(|data) =
@@ -171,22 +171,21 @@ rules
     ; init := Build(NoAnnoList(Tuple([NoAnnoList(List([])), NoAnnoList(List([]))])))
 
     ; <map(\(_,_,con) -> con\)> datas => conds
-    ; <myfoldr1(id, \(x,y) -> Seq(x,y)\)> conds => testa
+    ; <myfoldr1(id, \(x,y) -> CallT(SVar("merge-results"), [x,y], [])\)> conds => testa
     
     ; <map(!Var(<id>)); !NoAnnoList(List(<id>))> args => args-term
     ; <map(!DefaultVarDec(<id>))> args => var-decs
 
     ; !Match(NoAnnoList(Tuple([Var("res-sorts"), Var("res-errors")]))) => match-sorts
-	; !BA(Not(Match(NoAnnoList(List([])))), Var("res-sorts")) => has-sorts
 
   	; !BA(Prim("\"SUGARJ_unsafe_build\"", [NoAnnoList(Str(cons))]), args-term) => build
-    ; !CallT(SVar("put-syntax-sort"), [], [App(CallT(SVar("build-alt-sort-or-fail"), [], []), NoAnnoList(Var("res-sorts")))]) => put-res
+    ; !CallT(SVar("put-syntax-sort"), [], [App(CallT(SVar("build-alt-sort-or-fail"), [], []), NoAnnoList(Var("res-sorts")))]) => put-sort
       
-    ; !Seq(match-sorts, CondChoice(has-sorts, Seq(build, put-res), Build(Var("res-errors")))) => compute-result
+	; !CallT(SVar("return-with-errors"), [], [Var("res-errors")]) => result
 
-    ; body := Seq(init, Seq(testa, compute-result))
+    ; body := [init, testa, match-sorts, build, put-sort, result]
 
-  	; !SDefT(smart-cons, [], var-decs, body)
+  	; !SDefT(smart-cons, [], var-decs, <myfoldr1(id, \(x,y)->Seq(x,y)\)> body)
   
   make-merged-smart-constructors =
   	  ?[]

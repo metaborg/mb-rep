@@ -123,20 +123,43 @@ rules
 rules
   add-sort(|sort) : (sortz,errors) -> ([sort|sortz],errors)
   add-error(|err) : (sortz,errors) -> (sortz,[err|errors])
+  add-error(|cons, arg-term) : (sortz,errors) -> (sortz,[<log-mismatching-sort-error(|cons)> arg-term | errors])
+  
+  merge-results(s1, s2) =
+  	  ?t
+  	; <s1> t => (sortz1,errors1)
+  	; <s2> t => (sortz2,errors2)
+  	; if <?[]> errors1
+  	    then if <?[]> errors2
+  	           then !(<conc> (sortz1,sortz2), [])
+  	           else !(sortz1, [])
+  	         end
+  	    else if <?[]> errors2
+  	           then !(sortz2, [])
+  	           else !(<conc> (sortz1,sortz2), <conc> (errors1,errors2))
+  	         end
+  	  end
+  
+  return-with-errors(|errors) : t -> (t, errors) where <not(?[])> errors
+  return-with-errors(|errors) : t -> t where <?[]> errors
+ 
   
   log-mismatching-sort-error(|cons) =
-  	?(arg, exp);
+  	?(arg, sort);
     not(<compute-syntax-sort> arg);
-    where (s := <conc-strings> ("Argument of constructor ", cons, " lacks sort annotation",
-                                   "\n    expected ", <write-to-string> exp,
-                                   "\n    in argument ", <write-to-string> arg));
+    where (s := <conc-strings> ("Argument lacks sort annotation:",
+                                   "\n    constructor ", cons,
+                                   "\n    expected ", <write-to-string> sort,
+                                   "\n    in argument ", <strip-annos;write-to-string> arg));
     !s
   
   log-mismatching-sort-error(|cons) =
-  	?(arg, exp);
+  	?(arg, sort);
     (<compute-syntax-sort> arg => was);
     where(s := <conc-strings> 
-            ("Mismatching argument sort for constructor '", cons, "'.",
-             "\n    Argument ", <write-to-string> arg, " has sort ", <write-to-string> was, ",",
-             "\n    but expected ", <write-to-string> exp));
+            ("Mismatching argument sort",
+             "\n    Constructor ", cons,
+             "\n    argument ", <strip-annos;write-to-string> arg, 
+             "\n    has sort ", <write-to-string> was,
+             "\n    but expected ", <write-to-string> sort));
     !s

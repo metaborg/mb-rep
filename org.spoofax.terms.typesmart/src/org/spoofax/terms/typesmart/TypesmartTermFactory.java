@@ -1,8 +1,6 @@
 package org.spoofax.terms.typesmart;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.concurrent.Callable;
 
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.core.InterpreterException;
@@ -16,7 +14,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.StrategoList;
 import org.spoofax.terms.StrategoString;
-import org.spoofax.terms.Term;
+import org.spoofax.terms.StrategoTuple;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.attachments.AbstractWrappedTermFactory;
 import org.strategoxt.HybridInterpreter;
@@ -103,9 +101,11 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
 				}
 				
 				t = context.current();
-				if (smartOk && t instanceof StrategoList) {
+				if (smartOk && t instanceof StrategoTuple && t.getSubterm(1) instanceof StrategoList) {
+					IStrategoTerm term = t.getSubterm(0);
+					IStrategoList errors = (IStrategoList) t.getSubterm(1);
 					StringBuilder builder = new StringBuilder();
-					for (IStrategoTerm msg : t.getAllSubterms()) {
+					for (IStrategoTerm msg : errors) {
 						if (msg instanceof StrategoString)
 							builder.append(((StrategoString) msg).stringValue());
 						else
@@ -113,9 +113,9 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
 						builder.append("\n");
 					}
 					
-					IStrategoTerm failedTerm = makeUnsafeAppl(ctr, kids, annotations);
 					logViolation("Smart constructor failed : " + builder.toString());
-					t = failedTerm;
+					
+					t = term;
 					// TODO set error marker
 				}
 				else if (DEBUG_TYPESMART && TypesmartSortAttachment.getSort(t) == null)
