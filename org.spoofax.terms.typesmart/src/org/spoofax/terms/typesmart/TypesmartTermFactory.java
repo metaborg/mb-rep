@@ -1,6 +1,8 @@
 package org.spoofax.terms.typesmart;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.concurrent.Callable;
 
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.core.InterpreterException;
@@ -12,7 +14,9 @@ import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.terms.StrategoList;
 import org.spoofax.terms.StrategoString;
+import org.spoofax.terms.Term;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.attachments.AbstractWrappedTermFactory;
 import org.strategoxt.HybridInterpreter;
@@ -37,17 +41,19 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
 	private final ITermFactory unsafeFactory;
 
 	private final HybridInterpreter runtime;
+	
+	private TypesmartLogger logger;
 
 	// public TypesmartTermFactory(Context context) {
 	// this(context, new TermFactory());
 	// }
 
-	public TypesmartTermFactory(HybridInterpreter runtime,
-			ITermFactory baseFactory) {
+	public TypesmartTermFactory(HybridInterpreter runtime, ITermFactory baseFactory, TypesmartLogger logger) {
 		super(baseFactory.getDefaultStorageType(), baseFactory);
 		assert baseFactory.getDefaultStorageType() == IStrategoTerm.MUTABLE : "Typesmart factory needs to have a factory with MUTABLE terms";
 		this.unsafeFactory = baseFactory;
 		this.runtime = runtime;
+		this.logger = logger;
 	}
 
 	public ITermFactory getUnsafeFactory() {
@@ -97,15 +103,26 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
 				}
 				
 				t = context.current();
-				System.out.println("smartOK=" + smartOk + ", t=" + t);
-				System.err.println("ERROR smartOK=" + smartOk + ", t=" + t);
-				if (smartOk && t instanceof StrategoString) {
-					String msg = ((StrategoString) t).stringValue();
+				if (smartOk && t instanceof StrategoList) {
+					StringBuilder builder = new StringBuilder();
+					for (IStrategoTerm msg : t.getAllSubterms()) {
+						if (msg instanceof StrategoString)
+							builder.append(((StrategoString) msg).stringValue());
+						else
+							builder.append(msg);
+						builder.append("\n");
+					}
+					
 					IStrategoTerm failedTerm = makeUnsafeAppl(ctr, kids, annotations);
-					logWarning("Smart constructor failed : " + msg);
+					logViolation("Smart constructor failed : " + builder.toString());
 					t = failedTerm;
 					// TODO set error marker
 				}
+				else if (DEBUG_TYPESMART && TypesmartSortAttachment.getSort(t) == null)
+					throw new StrategoException(
+							"Typesmart constructor failed to install syntax-sort attachment: " + t);
+
+
 
 			} finally {
 				context.setFactory(this);
@@ -123,12 +140,6 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
 						"Smart constructor should have returned an application term with constructor "
 								+ ctr + ", but was: " + t);
 
-			if (DEBUG_TYPESMART
-					&& TypesmartSortAttachment.getSort(appl) == null)
-				throw new StrategoException(
-						"Typesmart constructor failed to install syntax-sort attachment: "
-								+ t);
-
 			return appl;
 		} catch (InterpreterException e) {
 			String trace = context.getStackTracer().getTraceString();
@@ -137,9 +148,11 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
 		}
 	}
 	
-	private void logWarning(String message) {
-		System.err.println("Warning: " + message);
-		runtime.getIOAgent().printError(message);
+	private void logViolation(String message) {
+		if (logger != null)
+			logger.log(message);
+		else
+			runtime.getIOAgent().printError(message);
 	}
 
 	protected CallT tryGetTypesmartConstructorCall(IStrategoConstructor ctr,

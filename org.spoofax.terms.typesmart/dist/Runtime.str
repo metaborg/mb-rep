@@ -22,7 +22,7 @@ rules
 
 rules
   // has-sort = Swap; debug(!"has sort? "); fail
-  has-sort = try-init-subsort-stack; has-subsort-of
+  has-sort = where(try-init-subsort-stack; has-subsort-of)
   
   is-lexical-sort = fail
   
@@ -114,13 +114,16 @@ signature constructors
   EmptyCollection : Sdf2Sort
 
 rules
-  compute-syntax-sort = get-syntax-sort <+ (debug(!"no sort attachment: "); fail)
+  compute-syntax-sort = get-syntax-sort
   compute-syntax-sort = (?[] + ?[_|_]); map(compute-syntax-sort <+ "?")
   compute-syntax-sort = ?""#(<id>); !Sort("Tuple", <map(compute-syntax-sort <+ "?")>)
   compute-syntax-sort = ?None(); !Sort("Option", ["?"])
   compute-syntax-sort = ?Some(<id>); !Sort("Option", [<compute-syntax-sort <+ "?">])
 
 rules
+  add-sort(|sort) : (sortz,errors) -> ([sort|sortz],errors)
+  add-error(|err) : (sortz,errors) -> (sortz,[err|errors])
+  
   log-mismatching-sort-error(|cons) =
   	?(arg, exp);
     not(<compute-syntax-sort> arg);

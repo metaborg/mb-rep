@@ -26,6 +26,9 @@ rules
         ; !Module(mainmod,
                   [Imports([ Import("Runtime")
                            , Import("libstrc")]) | <id>])
+        ; where(bottomup(try(not(is-string) ; not(is-list) ; not(pp-stratego-string) ; debug(!"cannot pp "))))
+        // ; write-to-string
+        // ; <fputs> (<id>, out) 
         ; pp-stratego-stream(|out)
         else
           !""
@@ -103,10 +106,12 @@ rules
     ; <get-symbol-sort> rhs => res-sort
     
     ; <make-arg-list(|1)> arg-sorts => args
-    ; <zip; map(gen-arg-check(|cons))> (args, arg-sorts) => arg-checks
-    ; <myfoldr1(!Id(), id, \ (x,y) -> Seq(x,y) \)> arg-checks => cond
-    
-    ; !(cons, args, cond, res-sort) => smart-data
+    ; <zip; 
+        foldr(!CallT(SVar("add-sort"), [], [<trm-explode> res-sort]), 
+              \((arg,arg-sort),rest) -> <gen-arg-check(|cons, rest)> (arg,arg-sort)\)
+      > (args, arg-sorts) => args-check
+
+    ; !(cons, args, args-check) => smart-data
   
   gen-subsort-of-inject :
     prod ->
@@ -144,40 +149,42 @@ rules
     ; body := CallT(SVar("equal"), [], [<trm-explode> res-sort])
     ; !SDefT("is-lexical-sort", [], [], body) => strat
 
-  gen-arg-check(|cons) :
+  gen-arg-check(|cons, rest-check) :
     (arg, arg-sort) -> 
-    Where(BA(LChoice(
-        CallNoArgs(SVar("has-sort"))
-      , CallT(SVar("log-mismatching-sort-error"), [], [<trm-explode> cons]))
-    , NoAnnoList(Tuple([Var(arg), <trm-explode> arg-sort]))))
+    CondChoice(
+        BA(CallNoArgs(SVar("has-sort")), arg-term)
+      , rest-check
+      , CallT(SVar("add-error"), [], [error-message]))
+  where
+      arg-term := NoAnnoList(Tuple([Var(arg), <trm-explode> arg-sort]))
+    ; error-message := BA(CallT(SVar("log-mismatching-sort-error"), [], [<trm-explode> cons]), arg-term)
 
 rules
   same-smart-constructor-data(|data) =
-  	  ?(cons, args, _, _)
-  	; where(!data; ?(cons, args, _, _))
+  	  ?(cons, args, _)
+  	; where(!data; ?(cons, args, _))
   
   make-merged-smart-constructor =
-  	  ?datas@[(cons, args, _, _) | _]
+  	  ?datas@[(cons, args, _) | _]
     ; <conc-strings> ("smart-", cons) => smart-cons
 
-    ; init := Build(NoAnnoList(List([])))
+    ; init := Build(NoAnnoList(Tuple([NoAnnoList(List([])), NoAnnoList(List([]))])))
 
-    ; <map(\(_,_,con,res-sort) ->
-            Call(
-             SVar("try"),
-             [Seq(con,
-                  Build(NoAnnoList(ListTail([<trm-explode> res-sort], RootApp(Id())))))])
-           \)> datas => conds
-    ; <myfoldr1(id, \(x,y) -> Seq(x,y)\)> conds => cond
+    ; <map(\(_,_,con) -> con\)> datas => conds
+    ; <myfoldr1(id, \(x,y) -> Seq(x,y)\)> conds => testa
     
     ; <map(!Var(<id>)); !NoAnnoList(List(<id>))> args => args-term
     ; <map(!DefaultVarDec(<id>))> args => var-decs
 
-    ; !Match(NoAnnoList(Var("res-sorts"))) => match
+    ; !Match(NoAnnoList(Tuple([Var("res-sorts"), Var("res-errors")]))) => match-sorts
+	; !BA(Not(Match(NoAnnoList(List([])))), Var("res-sorts")) => has-sorts
+
   	; !BA(Prim("\"SUGARJ_unsafe_build\"", [NoAnnoList(Str(cons))]), args-term) => build
     ; !CallT(SVar("put-syntax-sort"), [], [App(CallT(SVar("build-alt-sort-or-fail"), [], []), NoAnnoList(Var("res-sorts")))]) => put-res
+      
+    ; !Seq(match-sorts, CondChoice(has-sorts, Seq(build, put-res), Build(Var("res-errors")))) => compute-result
 
-    ; body := Seq(init, Seq(cond, Seq(match, Seq(build, put-res))))
+    ; body := Seq(init, Seq(testa, compute-result))
 
   	; !SDefT(smart-cons, [], var-decs, body)
   
