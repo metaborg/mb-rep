@@ -152,7 +152,7 @@ public class IndexManager {
 			if(index == null) {
 				File indexFile = getFile(project);
 				if(indexFile.exists())
-					index = tryReadFromFile(getFile(project), factory, agent);
+					index = read(getFile(project), factory, agent);
 			}
 			if(index == null) {
 				index = createIndex(factory);
@@ -199,7 +199,7 @@ public class IndexManager {
 		return file.toURI();
 	}
 
-	public IIndex tryReadFromFile(File file, ITermFactory factory, IOAgent agent) {
+	public IIndex read(File file, ITermFactory factory, IOAgent agent) {
 		try {
 			IIndex index = createIndex(factory);
 			IStrategoTerm term = new TermReader(factory).parseFromFile(file.toString());
@@ -214,17 +214,20 @@ public class IndexManager {
 		}
 	}
 
-	public void storeCurrent(ITermFactory factory) throws IOException {
-		File file = getFile(currentProject.get());
-		IStrategoTerm stored = indexFactory.indexToTerm(getCurrent(), factory, true);
+	public void write(IIndex index, File file, ITermFactory factory) throws IOException {
+		final IStrategoTerm serialized = indexFactory.indexToTerm(index, factory, true);
 		file.createNewFile();
-		FileOutputStream fos = new FileOutputStream(file);
+		final FileOutputStream fos = new FileOutputStream(file);
 		try {
-			SAFWriter.writeTermToSAFStream(stored, fos);
+			SAFWriter.writeTermToSAFStream(serialized, fos);
 			fos.flush();
 		} finally {
 			fos.close();
 		}
+	}
+
+	public void storeCurrent(ITermFactory factory) throws IOException {
+		write(getCurrent(), getFile(getCurrentProject()), factory);
 	}
 
 	private File getFile(URI project) {
