@@ -43,6 +43,18 @@ public class IndexManager {
 		return INSTANCE;
 	}
 
+
+	public boolean isInitialized() {
+		return current.get() != null;
+	}
+
+	private void ensureInitialized() {
+		if(!isInitialized())
+			throw new IllegalStateException(
+				"Index has not been set-up, use index-setup(|language, project-paths) to set up the index before use.");
+	}
+
+
 	public IIndex getCurrent() {
 		ensureInitialized();
 		return current.get();
@@ -62,14 +74,15 @@ public class IndexManager {
 		return currentProject.get();
 	}
 
-	public boolean isInitialized() {
-		return current.get() != null;
+	public boolean isKnownIndexingLanguage(String language) {
+		synchronized(IndexManager.class) {
+			return indexedLanguages.contains(language);
+		}
 	}
 
-	private void ensureInitialized() {
-		if(!isInitialized())
-			throw new IllegalStateException(
-				"Index has not been set-up, use index-setup(|language, project-paths) to set up the index before use.");
+
+	private boolean isHierarchicalIndex(IIndex index) {
+		return index instanceof IHierarchicalIndex;
 	}
 
 	public IIndex pushIndex(ITermFactory factory) {
@@ -77,10 +90,6 @@ public class IndexManager {
 		final IIndex newIndex = createIndex(currentIndex, factory);
 		setCurrent(newIndex);
 		return newIndex;
-	}
-
-	private boolean isHierarchicalIndex(IIndex index) {
-		return index instanceof IHierarchicalIndex;
 	}
 
 	public IIndex popIndex() {
@@ -118,15 +127,6 @@ public class IndexManager {
 		return parentIndex;
 	}
 
-	private static Object getSyncRoot() {
-		return IndexManager.class;
-	}
-
-	public boolean isKnownIndexingLanguage(String language) {
-		synchronized(getSyncRoot()) {
-			return indexedLanguages.contains(language);
-		}
-	}
 
 	public IIndex createIndex(ITermFactory factory) {
 		return new Index(factory);
@@ -136,23 +136,17 @@ public class IndexManager {
 		return new HierarchicalIndex(new Index(factory), parent, factory);
 	}
 
-	public IIndex getIndex(String absoluteProjectPath) {
-		URI project = getProjectURIFromAbsolute(absoluteProjectPath);
-		WeakReference<IIndex> indexRef = indexes.get(project);
-		IIndex index = indexRef == null ? null : indexRef.get();
-		return index;
-	}
 
 	public IIndex loadIndex(String projectPath, String language, ITermFactory factory, IOAgent agent) {
 		URI project = getProjectURI(projectPath, agent);
-		synchronized(getSyncRoot()) {
+		synchronized(IndexManager.class) {
 			indexedLanguages.add(language);
 			final WeakReference<IIndex> indexRef = indexes.get(project);
 			IIndex index = indexRef == null ? null : indexRef.get();
 			if(index == null) {
-				File indexFile = getFile(project);
+				File indexFile = getIndexFile(project);
 				if(indexFile.exists())
-					index = read(getFile(project), factory, agent);
+					index = read(getIndexFile(project), factory, agent);
 			}
 			if(index == null) {
 				index = createIndex(factory);
@@ -168,9 +162,9 @@ public class IndexManager {
 		}
 	}
 
-	public void unloadIndex(String removedProjectPath, IOAgent agent) {
-		URI removedProject = getProjectURI(removedProjectPath, agent);
-		synchronized(getSyncRoot()) {
+	public void unloadIndex(String projectPath, IOAgent agent) {
+		URI removedProject = getProjectURI(projectPath, agent);
+		synchronized(IndexManager.class) {
 			WeakReference<IIndex> removedIndex = indexes.remove(removedProject);
 
 			IIndex index = current.get();
@@ -185,19 +179,6 @@ public class IndexManager {
 		}
 	}
 
-	public URI getProjectURI(String projectPath, IOAgent agent) {
-		File file = new File(projectPath);
-		if(!file.isAbsolute())
-			file = new File(agent.getWorkingDir(), projectPath);
-		return file.toURI();
-	}
-
-	public URI getProjectURIFromAbsolute(String projectPath) {
-		File file = new File(projectPath);
-		if(!file.isAbsolute())
-			throw new RuntimeException("Project path is not absolute.");
-		return file.toURI();
-	}
 
 	public IIndex read(File file, ITermFactory factory, IOAgent agent) {
 		try {
@@ -226,13 +207,29 @@ public class IndexManager {
 		}
 	}
 
-	public void storeCurrent(ITermFactory factory) throws IOException {
-		write(getCurrent(), getFile(getCurrentProject()), factory);
+	public void writeCurrent(ITermFactory factory) throws IOException {
+		write(getCurrent(), getIndexFile(getCurrentProject()), factory);
 	}
 
-	private File getFile(URI project) {
-		File container = new File(new File(project), ".cache");
-		container.mkdirs();
-		return new File(container, "index.idx");
+
+	public URI getProjectURI(String projectPath, IOAgent agent) {
+		File file = new File(projectPath);
+		if(!file.isAbsolute())
+			file = new File(agent.getWorkingDir(), projectPath);
+		return file.toURI();
+	}
+
+	public URI getProjectURIFromAbsolute(String projectPath) {
+		File file = new File(projectPath);
+		if(!file.isAbsolute())
+			throw new RuntimeException("Project path is not absolute.");
+		return file.toURI();
+	}
+
+
+	public File getIndexFile(URI projectPath) {
+		final File directory = new File(new File(projectPath), ".cache");
+		directory.mkdirs();
+		return new File(directory, "index.idx");
 	}
 }

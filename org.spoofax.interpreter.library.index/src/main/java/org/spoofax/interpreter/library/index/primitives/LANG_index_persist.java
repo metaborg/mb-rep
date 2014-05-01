@@ -18,7 +18,7 @@ public class LANG_index_persist extends AbstractPrimitive {
 	@Override
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
 		try {
-			IndexManager.getInstance().storeCurrent(env.getFactory());
+			IndexManager.getInstance().writeCurrent(env.getFactory());
 		} catch(IOException e) {
 			throw new RuntimeException("Failed to persist index.", e);
 		}
