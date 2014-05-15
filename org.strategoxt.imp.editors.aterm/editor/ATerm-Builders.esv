@@ -1,7 +1,0 @@
-module ATerm-Builders
-
-imports ATerm-Builders.generated
-
-builders
-                                                                             
-  provider : include/aterm.jar       

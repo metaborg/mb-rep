@@ -1,6 +1,6 @@
 module ATerm.main
 
-imports ATerm-Builders ATerm-Colorer ATerm-Folding ATerm-References ATerm-Syntax
+imports ATerm-Views ATerm-Colorer ATerm-Folding ATerm-References ATerm-Syntax
 
 language General properties
                   
@@ -14,3 +14,5 @@ language General properties
   extensions    : aterm,term,meta
   table         : include/ATerm.tbl
   start symbols : ATerm
+                                               
+  provider : include/aterm.jar
