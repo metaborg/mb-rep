@@ -2,54 +2,55 @@ package org.spoofax.interpreter.library.index.tests.performance;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.spoofax.interpreter.library.index.IndexPartition;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.BenchmarkRule;
 import com.carrotsearch.junitbenchmarks.Clock;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 
 @BenchmarkOptions(benchmarkRounds = 5, warmupRounds = 3, callgc = true, clock = Clock.CPU_TIME)
 @RunWith(value = Parameterized.class)
 public class IndexGetKeyPartitionsPerformanceTest extends IndexPerformanceTest {
-    @Rule
-    public BenchmarkRule benchmarkRun;
+	@Rule
+	public BenchmarkRule benchmarkRun;
 
-    public IndexGetKeyPartitionsPerformanceTest(int numItems, int numFiles) {
-        super(numItems, numFiles);
+	public IndexGetKeyPartitionsPerformanceTest(int numItems, int numFiles) {
+		super(numItems, numFiles);
 
-        try {
-            benchmarkRun =
-                new BenchmarkRule(new CSVResultsConsumer((this.numItems * 5) + "," + this.numFiles, new FileWriter(
-                    "get-key-partitions_" + this.numFiles + ".csv", true)));
-        } catch(IOException e) {
-            e.printStackTrace();
-        }
+		try {
+			benchmarkRun =
+				new BenchmarkRule(new CSVResultsConsumer((this.numItems * 5) + "," + this.numFiles, new FileWriter(
+					"get-key-partitions_" + this.numFiles + ".csv", true)));
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
 
-        index.reset();
+		index.reset();
 
-        for(int i = 0; i < this.numItems; ++i) {
-            collect(def1, getNextFile());
-            collect(def2, getNextFile());
-            collect(def3, getNextFile());
-            collect(use1, getNextFile());
-            collect(type1, getNextFile());
-        }
-    }
+		for(int i = 0; i < this.numItems; ++i) {
+			add(def1, getNextFile());
+			add(def2, getNextFile());
+			add(def3, getNextFile());
+			add(use1, getNextFile());
+			add(type1, getNextFile());
+		}
+	}
 
-    @Test
-    public void getKeyPartitions() {
-        HashSet<IndexPartition> files = new HashSet<IndexPartition>();
-        Iterables.addAll(files, index.getSourcesOf(def1));
-        Iterables.addAll(files, index.getSourcesOf(def2));
-        Iterables.addAll(files, index.getSourcesOf(def3));
-        Iterables.addAll(files, index.getSourcesOf(use1));
-        Iterables.addAll(files, index.getSourcesOf(typeTemplate1));
-    }
+	@Test
+	public void getKeyPartitions() {
+		Set<IStrategoTerm> sources = Sets.newHashSet();
+		Iterables.addAll(sources, index.getSourcesOf(def1));
+		Iterables.addAll(sources, index.getSourcesOf(def2));
+		Iterables.addAll(sources, index.getSourcesOf(def3));
+		Iterables.addAll(sources, index.getSourcesOf(use1));
+		Iterables.addAll(sources, index.getSourcesOf(typeTemplate1));
+	}
 }
