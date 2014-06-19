@@ -46,10 +46,10 @@ public class IndexGetKeyPartitionsPerformanceTest extends IndexPerformanceTest {
     @Test
     public void getKeyPartitions() {
         HashSet<IndexPartition> files = new HashSet<IndexPartition>();
-        Iterables.addAll(files, index.getPartitionsOf(def1));
-        Iterables.addAll(files, index.getPartitionsOf(def2));
-        Iterables.addAll(files, index.getPartitionsOf(def3));
-        Iterables.addAll(files, index.getPartitionsOf(use1));
-        Iterables.addAll(files, index.getPartitionsOf(typeTemplate1));
+        Iterables.addAll(files, index.getSourcesOf(def1));
+        Iterables.addAll(files, index.getSourcesOf(def2));
+        Iterables.addAll(files, index.getSourcesOf(def3));
+        Iterables.addAll(files, index.getSourcesOf(use1));
+        Iterables.addAll(files, index.getSourcesOf(typeTemplate1));
     }
 }

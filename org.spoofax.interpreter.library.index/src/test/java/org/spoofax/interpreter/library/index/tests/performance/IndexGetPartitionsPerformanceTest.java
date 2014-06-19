@@ -48,7 +48,7 @@ public class IndexGetPartitionsPerformanceTest extends IndexPerformanceTest {
 		@SuppressWarnings("unused")
 		Iterable<IndexPartition> ret;
 		for(int i = 0; i < NUM_GET; ++i) {
-			ret = index.getAllPartitions();
+			ret = index.getAllSources();
 		}
 	}
 }

@@ -5,8 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,16 +15,19 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.io.binary.SAFWriter;
 import org.spoofax.terms.io.binary.TermReader;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 public class IndexManager {
 	private static final IndexManager INSTANCE = new IndexManager();
 
-	private final IndexFactory indexFactory = new IndexFactory();
+	private IndexFactory indexFactory;
 
-	/** Map from project path to index. Access requires a lock on {@link #getSyncRoot} */
-	private final Map<URI, WeakReference<IIndex>> indexes = new HashMap<URI, WeakReference<IIndex>>();
+	/** Map from project path to index. */
+	private final Map<URI, WeakReference<IIndex>> indexes = Maps.newHashMap();
 
 	/** Set of all languages that are being indexed. */
-	private final Set<String> indexedLanguages = new HashSet<String>();
+	private final Set<String> indexedLanguages = Sets.newHashSet();
 
 	/** The current index in the current thread. */
 	private final ThreadLocal<IIndex> current = new ThreadLocal<IIndex>();
@@ -117,8 +118,8 @@ public class IndexManager {
 		final IHierarchicalIndex currentHierarchicalIndex = (IHierarchicalIndex) currentIndex;
 		final IIndex parentIndex = currentHierarchicalIndex.getParent();
 
-		for(IndexPartition partition : currentHierarchicalIndex.getClearedPartitions())
-			parentIndex.clearPartition(partition);
+		for(IStrategoTerm source : currentHierarchicalIndex.getClearedSources())
+			parentIndex.clearSource(source);
 
 		for(IndexEntry entry : currentHierarchicalIndex.getAllCurrent())
 			parentIndex.add(entry);
@@ -146,7 +147,7 @@ public class IndexManager {
 			if(index == null) {
 				File indexFile = getIndexFile(project);
 				if(indexFile.exists())
-					index = read(getIndexFile(project), factory, agent);
+					index = read(getIndexFile(project), factory);
 			}
 			if(index == null) {
 				index = createIndex(factory);
@@ -180,11 +181,12 @@ public class IndexManager {
 	}
 
 
-	public IIndex read(File file, ITermFactory factory, IOAgent agent) {
+	public IIndex read(File file, ITermFactory termFactory) {
+		instantiateIndexFactory(termFactory);
 		try {
-			IIndex index = createIndex(factory);
-			IStrategoTerm term = new TermReader(factory).parseFromFile(file.toString());
-			return indexFactory.indexFromTerm(index, agent, term, factory, true);
+			IIndex index = createIndex(termFactory);
+			IStrategoTerm term = new TermReader(termFactory).parseFromFile(file.toString());
+			return indexFactory.indexFromTerm(index, term);
 		} catch(Exception e) {
 			if(!file.delete())
 				throw new RuntimeException("Failed to load index from " + file.getName()
@@ -195,8 +197,10 @@ public class IndexManager {
 		}
 	}
 
-	public void write(IIndex index, File file, ITermFactory factory) throws IOException {
-		final IStrategoTerm serialized = indexFactory.indexToTerm(index, factory, true);
+	public void write(IIndex index, File file, ITermFactory termFactory) throws IOException {
+		instantiateIndexFactory(termFactory);
+
+		final IStrategoTerm serialized = indexFactory.indexToTerm(index);
 		file.createNewFile();
 		final FileOutputStream fos = new FileOutputStream(file);
 		try {
@@ -209,6 +213,11 @@ public class IndexManager {
 
 	public void writeCurrent(ITermFactory factory) throws IOException {
 		write(getCurrent(), getIndexFile(getCurrentProject()), factory);
+	}
+
+	private void instantiateIndexFactory(ITermFactory termFactory) {
+		if(indexFactory == null)
+			indexFactory = new IndexFactory(termFactory, new IndexEntryFactory(termFactory));
 	}
 
 

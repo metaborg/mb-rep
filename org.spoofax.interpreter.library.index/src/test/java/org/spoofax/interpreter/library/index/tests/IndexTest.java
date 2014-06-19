@@ -11,7 +11,6 @@ import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.library.index.IIndex;
 import org.spoofax.interpreter.library.index.IndexEntry;
 import org.spoofax.interpreter.library.index.IndexManager;
-import org.spoofax.interpreter.library.index.IndexPartition;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
@@ -26,10 +25,10 @@ public class IndexTest {
 
 	protected static IStrategoString language;
 	protected static IStrategoString projectPath;
-	protected static IStrategoTerm partitionTerm;
+	protected static IStrategoTerm sourceTerm;
 
 	protected static IndexManager indexManager;
-	protected static IndexPartition partition;
+	protected static IStrategoTerm source;
 	protected static IIndex index;
 
 	@Parameters
@@ -46,7 +45,7 @@ public class IndexTest {
 
 		language = str("TestLanguage");
 		projectPath = str("TestPath");
-		partitionTerm = partition("TestFile");
+		sourceTerm = source("TestFile");
 
 		indexManager = IndexManager.getInstance();
 		indexManager.loadIndex(projectPath.stringValue(), language.stringValue(), factory, agent);
@@ -60,27 +59,27 @@ public class IndexTest {
 		indexManager = null;
 		language = null;
 		projectPath = null;
-		partitionTerm = null;
+		sourceTerm = null;
 		interpreter.shutdown();
 		interpreter = null;
 		factory = null;
 		agent = null;
 	}
-	
-	public static IndexEntry add(IStrategoAppl entryTerm, IndexPartition partition) {
-		final IndexEntry entry = index.getFactory().createEntry(entryTerm, partition);
-		index.add(entry);
-		return entry;
-	}
-	
-	public static IndexEntry add(IIndex index, IStrategoAppl entryTerm, IndexPartition partition) {
-		final IndexEntry entry = index.getFactory().createEntry(entryTerm, partition);
+
+	public static IndexEntry add(IStrategoAppl entryTerm, IStrategoTerm source) {
+		final IndexEntry entry = index.getFactory().createEntry(entryTerm, source);
 		index.add(entry);
 		return entry;
 	}
 
-	public static IndexPartition getPartition(IStrategoTerm filePartition) {
-		return IndexPartition.fromTerm(agent, filePartition);
+	public static IndexEntry add(IIndex index, IStrategoAppl entryTerm, IStrategoTerm source) {
+		final IndexEntry entry = index.getFactory().createEntry(entryTerm, source);
+		index.add(entry);
+		return entry;
+	}
+
+	public static IStrategoTerm getSource(IStrategoTerm fileSource) {
+		return IStrategoTerm.fromTerm(agent, fileSource);
 	}
 
 	public static IStrategoString str(String str) {
@@ -95,11 +94,11 @@ public class IndexTest {
 		return factory.makeTuple(terms);
 	}
 
-	public static IStrategoString partition(String file) {
+	public static IStrategoString source(String file) {
 		return str(file);
 	}
 
-	public static IStrategoTuple partition(String file, String namespace, String... path) {
+	public static IStrategoTuple source(String file, String namespace, String... path) {
 		return factory.makeTuple(str(file), uri(namespace, path));
 	}
 
@@ -151,17 +150,17 @@ public class IndexTest {
 		return found;
 	}
 
-	public static boolean containsEntry(Iterable<IndexEntry> entries, IndexPartition partition, IStrategoTerm term) {
+	public static boolean containsEntry(Iterable<IndexEntry> entries, IStrategoTerm source, IStrategoTerm term) {
 		boolean found = false;
 		for(IndexEntry entry : entries)
-			found = found || (entry.getPartition().equals(partition) && entry.toTerm(factory).match(term));
+			found = found || (entry.source.equals(source) && entry.toTerm(factory).match(term));
 		return found;
 	}
 
-	public static boolean containsPartition(Iterable<IndexPartition> partitions, IndexPartition partition) {
+	public static boolean containsSource(Iterable<IStrategoTerm> sources, IStrategoTerm source) {
 		boolean found = false;
-		for(IndexPartition searchPartition : partitions)
-			found = found || searchPartition.equals(partition);
+		for(IStrategoTerm searchSource : sources)
+			found = found || searchSource.equals(source);
 		return found;
 	}
 

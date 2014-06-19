@@ -1,5 +1,6 @@
 package org.spoofax.interpreter.library.index;
 
+import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 
@@ -8,51 +9,60 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Multisets;
 
-public class IndexCollection {
+public class IndexCollector {
+	private final ITermFactory termFactory;
+	private final IndexEntryFactory entryFactory;
+
 	private final Multiset<IndexEntry> addedEntries = HashMultiset.create();
 	private final Multiset<IndexEntry> removedEntries = HashMultiset.create();
 	private final Multiset<IndexEntry> oldEntries = HashMultiset.create();
 
-	private boolean inCollection = false;
+	private IStrategoTerm sourceInCollection = null;
 
-	public IndexCollection() {
-
+	public IndexCollector(ITermFactory termFactory, IndexEntryFactory entryFactory) {
+		this.termFactory = termFactory;
+		this.entryFactory = entryFactory;
 	}
 
-	public void start(Iterable<IndexEntry> currentEntries) {
+	public void start(IStrategoTerm source, Iterable<IndexEntry> currentEntries) {
 		addedEntries.clear();
 		removedEntries.clear();
 		oldEntries.clear();
 		Iterables.addAll(removedEntries, currentEntries);
 		Iterables.addAll(oldEntries, currentEntries);
 
-		inCollection = true;
+		sourceInCollection = source;
 	}
 
-	public IStrategoTuple stop(ITermFactory factory) {
-		inCollection = false;
+	public IStrategoTuple stop() {
+		sourceInCollection = null;
 
 		Multisets.removeOccurrences(addedEntries, oldEntries);
 
 		// TODO: Use an IStrategoList implementation that iterates over the collections instead of constructing it.
-		return factory
-			.makeTuple(IndexEntry.toTerms(factory, removedEntries), IndexEntry.toTerms(factory, addedEntries));
+		return termFactory
+			.makeTuple(entryFactory.toValueTerms(removedEntries), entryFactory.toValueTerms(addedEntries));
 	}
 
-	public void add(IndexEntry entry) {
+	public void add(IStrategoTerm key, IStrategoTerm value) {
+		final IndexEntry entry = entryFactory.create(key, value, sourceInCollection);
 		addedEntries.add(entry);
 		removedEntries.remove(entry);
 	}
 
-	public boolean inCollection() {
-		return this.inCollection;
+	public Iterable<IndexEntry> getAddedEntries() {
+		return addedEntries;
 	}
 
-	public void clear() {
+	public boolean inCollection() {
+		return sourceInCollection != null;
+	}
+
+	public void reset() {
 		addedEntries.clear();
 		removedEntries.clear();
 		oldEntries.clear();
 
-		inCollection = false;
+		sourceInCollection = null;
 	}
 }

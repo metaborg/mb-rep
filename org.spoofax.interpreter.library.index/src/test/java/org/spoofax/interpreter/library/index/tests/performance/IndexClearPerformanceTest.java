@@ -48,6 +48,6 @@ public class IndexClearPerformanceTest extends IndexPerformanceTest {
         }
 
         // Clear one file in the middle.
-        index.clearPartition(files[fileIndexToClear]);
+        index.clearSource(files[fileIndexToClear]);
     }
 }

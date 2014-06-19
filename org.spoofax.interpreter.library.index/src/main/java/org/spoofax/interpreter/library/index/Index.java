@@ -1,146 +1,128 @@
 package org.spoofax.interpreter.library.index;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
-import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 
-import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 
 public class Index implements IIndex {
-	private static final int EXPECTED_DISTINCT_PARTITIONS = 100;
-	private static final int EXPECTED_VALUES_PER_PARTITION = 1000;
+	private final Multimap<IStrategoTerm, IndexEntry> entries = HashMultimap.create();
+	private final Multimap<IStrategoTerm, IndexEntry> childs = HashMultimap.create();
+	private final Multimap<IStrategoTerm, IndexEntry> entriesPerSource = HashMultimap.create();
 
-	private final ConcurrentHashMap<IndexURI, Multimap<IndexPartition, IndexEntry>> entries =
-		new ConcurrentHashMap<IndexURI, Multimap<IndexPartition, IndexEntry>>();
-	private final ConcurrentHashMap<IndexURI, Multimap<IndexPartition, IndexEntry>> childs =
-		new ConcurrentHashMap<IndexURI, Multimap<IndexPartition, IndexEntry>>();
-	private final Multimap<IndexPartition, IndexEntry> entriesPerpartition = ArrayListMultimap.create();
-	private final Set<IndexPartition> partitions = new HashSet<IndexPartition>();
-	private final Set<String> languages = new HashSet<String>();
+	private final Set<String> languages = Sets.newHashSet();
 
-	private final IndexCollection collection = new IndexCollection();
-	private final ITermFactory termFactory;
-	private final IndexEntryFactory factory;
+	private final IndexEntryFactory entryFactory;
+	private final IndexParentKeyFactory parentKeyFactory;
+	private final IndexCollector collector;
 
-	public Index(ITermFactory factory) {
-		this.termFactory = factory;
-		this.factory = new IndexEntryFactory(factory);
+	public Index(ITermFactory termFactory) {
+		this.entryFactory = new IndexEntryFactory(termFactory);
+		this.parentKeyFactory = new IndexParentKeyFactory(termFactory);
+		this.collector = new IndexCollector(termFactory, entryFactory);
 	}
 
 	@Override
-	public IndexEntryFactory getFactory() {
-		return factory;
-	}
-
-	private Multimap<IndexPartition, IndexEntry> innerEntries(IndexURI uri) {
-		Multimap<IndexPartition, IndexEntry> innerMap =
-			ArrayListMultimap.create(EXPECTED_DISTINCT_PARTITIONS, EXPECTED_VALUES_PER_PARTITION);
-
-		Multimap<IndexPartition, IndexEntry> ret = entries.putIfAbsent(uri, innerMap);
-		if(ret == null)
-			ret = innerMap;
-		return ret;
-	}
-
-	private Multimap<IndexPartition, IndexEntry> innerChildEntries(IndexURI uri) {
-		Multimap<IndexPartition, IndexEntry> innerMap =
-			ArrayListMultimap.create(EXPECTED_DISTINCT_PARTITIONS, EXPECTED_VALUES_PER_PARTITION);
-
-		Multimap<IndexPartition, IndexEntry> ret = childs.putIfAbsent(uri, innerMap);
-		if(ret == null)
-			ret = innerMap;
-		return ret;
+	public IndexEntryFactory entryFactory() {
+		return entryFactory;
 	}
 
 	@Override
-	public void startCollection(IndexPartition partition) {
-		collection.start(getInPartition(partition));
-		clearPartition(partition);
+	public IndexCollector collector() {
+		return collector;
 	}
 
 	@Override
-	public IStrategoTuple stopCollection() {
-		return collection.stop(termFactory);
+	public void startCollection(IStrategoTerm source) {
+		collector.start(source, getInSource(source));
+		// TODO: clear not required, can replace with new entries instead after collection.
+		clearSource(source);
+	}
+
+	@Override
+	public IStrategoTuple stopCollection(IStrategoTerm source) {
+		addAll(source, collector.getAddedEntries());
+		return collector.stop();
 	}
 
 	@Override
 	public void add(IndexEntry entry) {
-		final IndexPartition partition = entry.getPartition();
-		final IndexURI uri = entry.getKey();
+		entries.put(entry.key, entry);
 
-		partitions.add(partition);
-
-		innerEntries(uri).put(partition, entry);
-		if(collection.inCollection()) {
-			collection.add(entry);
+		final IStrategoTerm parentKey = parentKeyFactory.getParentKey(entry.key);
+		if(parentKey != null) {
+			childs.put(parentKey, entry);
 		}
 
-		// Add entry to children.
-		IndexURI parent = uri.getParent(termFactory);
-		if(parent != null)
-			innerChildEntries(parent).put(partition, entry);
-
-		// Add entry to partitions.
-		entriesPerpartition.put(partition, entry);
+		entriesPerSource.put(entry.source, entry);
 	}
 
 	@Override
-	public Iterable<IndexEntry> get(IStrategoAppl template) {
-		final IndexURI uri = factory.createURIFromTemplate(template);
-		return innerEntries(uri).values();
+	public void addAll(IStrategoTerm source, Iterable<IndexEntry> entriesToAdd) {
+		final Collection<IndexEntry> entriesInSource = entriesPerSource.get(source);
+		for(IndexEntry entry : entriesToAdd) {
+			entries.put(entry.key, entry);
+
+			final IStrategoTerm parentKey = parentKeyFactory.getParentKey(entry.key);
+			if(parentKey != null) {
+				childs.put(parentKey, entry);
+			}
+
+			entriesInSource.add(entry);
+		}
 	}
 
 	@Override
-	public Iterable<IndexEntry> getChildren(IStrategoAppl template) {
-		final IndexURI uri = factory.createURIFromTemplate(template);
-		return innerChildEntries(uri).values();
+	public Iterable<IndexEntry> get(IStrategoTerm key) {
+		return entries.get(key);
 	}
 
 	@Override
-	public Iterable<IndexEntry> getInPartition(IndexPartition partition) {
-		return entriesPerpartition.get(partition);
+	public Iterable<IndexEntry> getChilds(IStrategoTerm key) {
+		return childs.get(key);
 	}
 
 	@Override
-	public Set<IndexPartition> getPartitionsOf(IStrategoAppl template) {
-		final IndexURI uri = factory.createURIFromTemplate(template);
-		return innerEntries(uri).keySet();
+	public Iterable<IndexEntry> getInSource(IStrategoTerm source) {
+		return entriesPerSource.get(source);
+	}
+
+	@Override
+	public Set<IStrategoTerm> getSourcesOf(IStrategoTerm key) {
+		final Set<IStrategoTerm> sources = Sets.newHashSet();
+		for(IndexEntry entry : get(key)) {
+			sources.add(entry.source);
+		}
+		return sources;
 	}
 
 	@Override
 	public Iterable<IndexEntry> getAll() {
-		final List<IndexEntry> allEntries = new LinkedList<IndexEntry>();
-		for(Multimap<IndexPartition, IndexEntry> map : entries.values())
-			allEntries.addAll(map.values());
-
-		return allEntries;
+		return entries.values();
 	}
 
 	@Override
-	public void clearPartition(IndexPartition partition) {
-		final Collection<Multimap<IndexPartition, IndexEntry>> entryValues = entries.values();
-		for(Multimap<IndexPartition, IndexEntry> map : entryValues)
-			map.removeAll(partition);
+	public void clearSource(IStrategoTerm source) {
+		for(IndexEntry entry : getInSource(source)) {
+			entries.remove(entry.key, entry);
+			final IStrategoTerm parentKey = parentKeyFactory.getParentKey(entry.key);
+			if(parentKey != null) {
+				childs.remove(parentKey, entry);
+			}
+		}
 
-		final Collection<Multimap<IndexPartition, IndexEntry>> childValues = childs.values();
-		for(Multimap<IndexPartition, IndexEntry> map : childValues)
-			map.removeAll(partition);
-
-		entriesPerpartition.removeAll(partition);
-		partitions.remove(partition);
+		entriesPerSource.removeAll(source);
 	}
 
 	@Override
-	public Iterable<IndexPartition> getAllPartitions() {
-		return partitions;
+	public Iterable<IStrategoTerm> getAllSources() {
+		return entriesPerSource.keySet();
 	}
 
 	@Override
@@ -162,9 +144,8 @@ public class Index implements IIndex {
 	public void reset() {
 		entries.clear();
 		childs.clear();
-		entriesPerpartition.clear();
-		partitions.clear();
+		entriesPerSource.clear();
 		languages.clear();
-		collection.clear();
+		collector.reset();
 	}
 }

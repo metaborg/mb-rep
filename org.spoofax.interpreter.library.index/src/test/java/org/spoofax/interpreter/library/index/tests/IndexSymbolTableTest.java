@@ -36,7 +36,7 @@ public class IndexSymbolTableTest extends IndexTest {
 		IndexPartition partition2 = getPartition(partitionTerm2);
 
 		// Partitions have not been added yet.
-		Iterable<IndexPartition> all1 = index.getAllPartitions();
+		Iterable<IndexPartition> all1 = index.getAllSources();
 		assertFalse(Iterables.contains(all1, partition1));
 		assertFalse(Iterables.contains(all1, partition2));
 
@@ -44,7 +44,7 @@ public class IndexSymbolTableTest extends IndexTest {
 		add(def, partition2);
 
 		// Partitions have been added by calling getPartition.
-		Iterable<IndexPartition> all2 = index.getAllPartitions();
+		Iterable<IndexPartition> all2 = index.getAllSources();
 		assertTrue(Iterables.contains(all2, partition1));
 		assertTrue(Iterables.contains(all2, partition2));
 	}
@@ -139,16 +139,16 @@ public class IndexSymbolTableTest extends IndexTest {
 		assertEquals(0, size(index.get(methodDef1)));
 		assertEquals(0, size(index.get(methodDef2)));
 		assertEquals(0, size(index.get(fieldDef)));
-		assertEquals(0, size(index.getChildren(methodsTemplate)));
-		assertEquals(0, size(index.getChildren(fieldsTemplate)));
+		assertEquals(0, size(index.getChilds(methodsTemplate)));
+		assertEquals(0, size(index.getChilds(fieldsTemplate)));
 
 		add(classDef, partition);
 		add(methodDef1, partition);
 		add(methodDef2, partition);
 		add(fieldDef, partition);
 
-		Iterable<IndexEntry> ret1 = index.getChildren(methodsTemplate);
-		Iterable<IndexEntry> ret2 = index.getChildren(fieldsTemplate);
+		Iterable<IndexEntry> ret1 = index.getChilds(methodsTemplate);
+		Iterable<IndexEntry> ret2 = index.getChilds(fieldsTemplate);
 
 		assertEquals(2, size(ret1));
 		assertEquals(1, size(ret2));
@@ -181,16 +181,16 @@ public class IndexSymbolTableTest extends IndexTest {
 		assertEquals(0, size(index.get(read)));
 		assertEquals(0, size(index.get(def2)));
 		assertEquals(0, size(index.get(type)));
-		assertEquals(0, size(index.getInPartition(partition1)));
-		assertEquals(0, size(index.getInPartition(partition2)));
+		assertEquals(0, size(index.getInSource(partition1)));
+		assertEquals(0, size(index.getInSource(partition2)));
 
 		add(def1, partition1);
 		add(read, partition1);
 		add(def2, partition2);
 		add(type, partition2);
 
-		Iterable<IndexEntry> ret1 = index.getInPartition(partition1);
-		Iterable<IndexEntry> ret2 = index.getInPartition(partition2);
+		Iterable<IndexEntry> ret1 = index.getInSource(partition1);
+		Iterable<IndexEntry> ret2 = index.getInSource(partition2);
 
 		assertEquals(2, size(ret1));
 		assertEquals(2, size(ret2));
@@ -214,11 +214,11 @@ public class IndexSymbolTableTest extends IndexTest {
 			assertSame(entry.getPartition(), partition2);
 		}
 
-		index.clearPartition(partition1);
+		index.clearSource(partition1);
 		assertEquals(0, size(ret1));
 		assertEquals(2, size(ret2));
 
-		index.clearPartition(partition2);
+		index.clearSource(partition2);
 		assertEquals(0, size(ret2));
 	}
 
@@ -238,8 +238,8 @@ public class IndexSymbolTableTest extends IndexTest {
 		assertEquals(0, size(index.get(read)));
 		assertEquals(0, size(index.get(longTerm)));
 		assertEquals(0, size(index.get(defData)));
-		assertEquals(0, size(index.getInPartition(partition1)));
-		assertEquals(0, size(index.getInPartition(partition2)));
+		assertEquals(0, size(index.getInSource(partition1)));
+		assertEquals(0, size(index.getInSource(partition2)));
 
 		add(def, partition1);
 		add(def, partition2);
@@ -248,10 +248,10 @@ public class IndexSymbolTableTest extends IndexTest {
 		add(read, partition2);
 		add(longTerm, partition1);
 
-		Iterable<IndexPartition> ret1 = index.getPartitionsOf(def);
-		Iterable<IndexPartition> ret2 = index.getPartitionsOf(read);
-		Iterable<IndexPartition> ret3 = index.getPartitionsOf(longTerm);
-		Iterable<IndexPartition> ret4 = index.getPartitionsOf(defData);
+		Iterable<IndexPartition> ret1 = index.getSourcesOf(def);
+		Iterable<IndexPartition> ret2 = index.getSourcesOf(read);
+		Iterable<IndexPartition> ret3 = index.getSourcesOf(longTerm);
+		Iterable<IndexPartition> ret4 = index.getSourcesOf(defData);
 
 		assertTrue(containsPartition(ret1, partition1));
 		assertTrue(containsPartition(ret1, partition2));
@@ -421,7 +421,7 @@ public class IndexSymbolTableTest extends IndexTest {
 		assertEquals(1, size(current.get(type)));
 		assertEquals(1, size(current.get(defData)));
 		
-		current.clearPartition(partition);
+		current.clearSource(partition);
 		
 		assertEquals(0, size(current.get(def)));
 		assertEquals(0, size(current.get(type)));
@@ -465,7 +465,7 @@ public class IndexSymbolTableTest extends IndexTest {
 		
 		assertEquals(1, size(current.get(def)));
 		
-		current.clearPartition(partition2);
+		current.clearSource(partition2);
 		
 		assertEquals(0, size(current.get(type)));
 		
@@ -506,7 +506,7 @@ public class IndexSymbolTableTest extends IndexTest {
 		
 		assertEquals(1, size(current.get(def)));
 		
-		current.clearPartition(partition2);
+		current.clearSource(partition2);
 		
 		assertEquals(0, size(current.get(type)));
 		

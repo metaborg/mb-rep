@@ -1,9 +1,8 @@
 package org.spoofax.interpreter.library.index;
 
-import java.util.HashSet;
 import java.util.Set;
 
-import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 
@@ -14,16 +13,15 @@ import com.google.common.collect.Sets;
 public class HierarchicalIndex implements IHierarchicalIndex {
 	private final IIndex current;
 	private final IIndex parent;
-	private final Set<IndexPartition> cleared = new HashSet<IndexPartition>();
+	private final Set<IStrategoTerm> cleared = Sets.newHashSet();
 	private final Predicate<IndexEntry> visible;
 
-	private final IndexCollection collection = new IndexCollection();
-	private final ITermFactory termFactory;
+	private final IndexCollector collector;
 
 	public HierarchicalIndex(IIndex current, IIndex parent, ITermFactory termFactory) {
 		this.current = current;
 		this.parent = parent;
-		this.termFactory = termFactory;
+		this.collector = new IndexCollector(termFactory, current.entryFactory());
 
 		this.visible = new Predicate<IndexEntry>() {
 			@Override
@@ -34,19 +32,26 @@ public class HierarchicalIndex implements IHierarchicalIndex {
 	}
 
 	@Override
-	public IndexEntryFactory getFactory() {
-		return current.getFactory();
+	public IndexEntryFactory entryFactory() {
+		return current.entryFactory();
 	}
 
 	@Override
-	public void startCollection(IndexPartition partition) {
-		collection.start(getInPartition(partition));
-		clearPartition(partition);
+	public IndexCollector collector() {
+		return collector;
 	}
 
 	@Override
-	public IStrategoTuple stopCollection() {
-		return collection.stop(termFactory);
+	public void startCollection(IStrategoTerm source) {
+		collector.start(source, getInSource(source));
+		// TODO: clear not required, can replace with new entries instead after collection.
+		clearSource(source);
+	}
+
+	@Override
+	public IStrategoTuple stopCollection(IStrategoTerm source) {
+		addAll(source, collector.getAddedEntries());
+		return collector.stop();
 	}
 
 	@Override
@@ -55,9 +60,14 @@ public class HierarchicalIndex implements IHierarchicalIndex {
 	}
 
 	@Override
-	public Iterable<IndexEntry> get(IStrategoAppl template) {
-		final Iterable<IndexEntry> parentEntries = parentInvisibleFilter(parent.get(template));
-		final Iterable<IndexEntry> currentEntries = current.get(template);
+	public void addAll(IStrategoTerm source, Iterable<IndexEntry> entry) {
+		current.addAll(source, entry);
+	}
+
+	@Override
+	public Iterable<IndexEntry> get(IStrategoTerm key) {
+		final Iterable<IndexEntry> parentEntries = parentInvisibleFilter(parent.get(key));
+		final Iterable<IndexEntry> currentEntries = current.get(key);
 		return Iterables.concat(parentEntries, currentEntries);
 	}
 
@@ -69,38 +79,38 @@ public class HierarchicalIndex implements IHierarchicalIndex {
 	}
 
 	@Override
-	public Iterable<IndexEntry> getChildren(IStrategoAppl template) {
-		final Iterable<IndexEntry> parentEntries = parentInvisibleFilter(parent.getChildren(template));
-		final Iterable<IndexEntry> currentEntries = current.getChildren(template);
+	public Iterable<IndexEntry> getChilds(IStrategoTerm key) {
+		final Iterable<IndexEntry> parentEntries = parentInvisibleFilter(parent.getChilds(key));
+		final Iterable<IndexEntry> currentEntries = current.getChilds(key);
 		return Iterables.concat(parentEntries, currentEntries);
 	}
 
 	@Override
-	public Iterable<IndexEntry> getInPartition(IndexPartition partition) {
-		final Iterable<IndexEntry> parentEntries = parentInvisibleFilter(parent.getInPartition(partition));
-		final Iterable<IndexEntry> currentEntries = current.getInPartition(partition);
+	public Iterable<IndexEntry> getInSource(IStrategoTerm source) {
+		final Iterable<IndexEntry> parentEntries = parentInvisibleFilter(parent.getInSource(source));
+		final Iterable<IndexEntry> currentEntries = current.getInSource(source);
 		return Iterables.concat(parentEntries, currentEntries);
 	}
 
 	@Override
-	public Set<IndexPartition> getPartitionsOf(IStrategoAppl template) {
-		final Set<IndexPartition> parentPartitions = parent.getPartitionsOf(template);
-		final Set<IndexPartition> currentPartitions = current.getPartitionsOf(template);
+	public Set<IStrategoTerm> getSourcesOf(IStrategoTerm key) {
+		final Set<IStrategoTerm> parentSources = parent.getSourcesOf(key);
+		final Set<IStrategoTerm> currentSources = current.getSourcesOf(key);
 		// Use current set as first set because it is usually smaller, which results in improved performance.
-		return Sets.union(currentPartitions, parentPartitions);
+		return Sets.union(currentSources, parentSources);
 	}
 
 	@Override
-	public Iterable<IndexPartition> getAllPartitions() {
-		final Iterable<IndexPartition> parentPartitions = parent.getAllPartitions();
-		final Iterable<IndexPartition> currentPartitions = current.getAllPartitions();
-		return Iterables.concat(parentPartitions, currentPartitions); // TODO: should this be a set?
+	public Iterable<IStrategoTerm> getAllSources() {
+		final Iterable<IStrategoTerm> parentSources = parent.getAllSources();
+		final Iterable<IStrategoTerm> currentSources = current.getAllSources();
+		return Iterables.concat(parentSources, currentSources); // TODO: should this be a set?
 	}
 
 	@Override
-	public void clearPartition(IndexPartition partition) {
-		current.clearPartition(partition);
-		cleared.add(partition);
+	public void clearSource(IStrategoTerm source) {
+		current.clearSource(source);
+		cleared.add(source);
 	}
 
 	@Override
@@ -123,12 +133,13 @@ public class HierarchicalIndex implements IHierarchicalIndex {
 	@Override
 	public void reset() {
 		cleared.clear();
+		collector.reset();
 		current.reset();
 		parent.reset();
 	}
 
 	private boolean parentEntryVisible(IndexEntry entry) {
-		return !cleared.contains(entry.getPartition());
+		return !cleared.contains(entry.source);
 	}
 
 	private Iterable<IndexEntry> parentInvisibleFilter(Iterable<IndexEntry> entries) {
@@ -146,7 +157,7 @@ public class HierarchicalIndex implements IHierarchicalIndex {
 	}
 
 	@Override
-	public Iterable<IndexPartition> getClearedPartitions() {
+	public Iterable<IStrategoTerm> getClearedSources() {
 		return cleared;
 	}
 }
