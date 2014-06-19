@@ -19,7 +19,7 @@ public class LANG_index_collect extends AbstractPrimitive {
 		final IIndex index = IndexManager.getInstance().getCurrent();
 		final IStrategoTerm key = tvars[0];
 		final IStrategoTerm value = tvars[1];
-		index.collector().add(key, value);
+		index.collect(key, value);
 		return true;
 	}
 }

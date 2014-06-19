@@ -44,10 +44,11 @@ public class IndexCollector {
 			.makeTuple(entryFactory.toValueTerms(removedEntries), entryFactory.toValueTerms(addedEntries));
 	}
 
-	public void add(IStrategoTerm key, IStrategoTerm value) {
+	public IndexEntry add(IStrategoTerm key, IStrategoTerm value) {
 		final IndexEntry entry = entryFactory.create(key, value, sourceInCollection);
 		addedEntries.add(entry);
 		removedEntries.remove(entry);
+		return entry;
 	}
 
 	public Iterable<IndexEntry> getAddedEntries() {

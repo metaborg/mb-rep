@@ -6,14 +6,21 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 
 public interface IIndex {
+	/**
+	 * Gets the entry factory.
+	 */
 	public abstract IndexEntryFactory entryFactory();
 
-	public abstract IndexCollector collector();
 
 	/**
 	 * Starts collection for given source.
 	 */
 	public abstract void startCollection(IStrategoTerm source);
+
+	/**
+	 * Collects a new index entry, which will be added when collection is stopped.
+	 */
+	public abstract IndexEntry collect(IStrategoTerm key, IStrategoTerm value);
 
 	/**
 	 * Stops collection, returning the entries that were removed and added during collection.

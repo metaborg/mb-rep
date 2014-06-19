@@ -29,19 +29,18 @@ public class IndexEntry implements Serializable {
 
 	@Override
 	public String toString() {
-		String result = key.toString();
-		if(value != null)
-			result += "," + value;
-		return result + ")";
+		if(value == null)
+			return key.toString();
+		return key.toString() + " : " + value.toString();
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((key == null) ? 0 : key.hashCode());
+		result = prime * result + key.hashCode();
 		result = prime * result + ((value == null) ? 0 : value.hashCode());
-		result = prime * result + ((source == null) ? 0 : source.hashCode());
+		result = prime * result + source.hashCode();
 		// TODO: implement ImploderAttachment.hashCode()
 		result = prime * result + ((origin == null) ? 0 : origin.hashCode());
 		return result;
@@ -58,10 +57,7 @@ public class IndexEntry implements Serializable {
 
 		IndexEntry other = (IndexEntry) obj;
 
-		if(key == null) {
-			if(other.key != null)
-				return false;
-		} else if(!key.equals(other.key))
+		if(!key.equals(other.key))
 			return false;
 
 		if(value == null) {
@@ -70,10 +66,7 @@ public class IndexEntry implements Serializable {
 		} else if(!value.equals(other.value))
 			return false;
 
-		if(source == null) {
-			if(other.source != null)
-				return false;
-		} else if(!source.equals(other.source))
+		if(!source.equals(other.source))
 			return false;
 
 		// TODO: implement ImploderAttachment.equals()

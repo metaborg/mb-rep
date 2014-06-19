@@ -1,16 +1,11 @@
 package org.spoofax.interpreter.library.index.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.spoofax.interpreter.library.index.IIndex;
 import org.spoofax.interpreter.library.index.IndexEntry;
-import org.spoofax.interpreter.library.index.IndexPartition;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
@@ -26,27 +21,24 @@ public class IndexSymbolTableTest extends IndexTest {
 	}
 
 	@Test
-	public void partitions() {
+	public void sources() {
 		IStrategoAppl def = def("Class", "java", "lang", "String");
 
-		IStrategoTerm partitionTerm1 = partition("a/b/c");
-		IStrategoTerm partitionTerm2 = partition("a/b/c", "some", "element");
+		IStrategoTerm source1 = source("a/b/c");
+		IStrategoTerm source2 = source("a/b/c", "some", "element");
 
-		IndexPartition partition1 = getPartition(partitionTerm1);
-		IndexPartition partition2 = getPartition(partitionTerm2);
+		// Sources have not been added yet.
+		Iterable<IStrategoTerm> all1 = index.getAllSources();
+		assertFalse(Iterables.contains(all1, source1));
+		assertFalse(Iterables.contains(all1, source2));
 
-		// Partitions have not been added yet.
-		Iterable<IndexPartition> all1 = index.getAllSources();
-		assertFalse(Iterables.contains(all1, partition1));
-		assertFalse(Iterables.contains(all1, partition2));
+		add(def, source1);
+		add(def, source2);
 
-		add(def, partition1);
-		add(def, partition2);
-
-		// Partitions have been added by calling getPartition.
-		Iterable<IndexPartition> all2 = index.getAllSources();
-		assertTrue(Iterables.contains(all2, partition1));
-		assertTrue(Iterables.contains(all2, partition2));
+		// Sources have been added by calling getSource.
+		Iterable<IStrategoTerm> all2 = index.getAllSources();
+		assertTrue(Iterables.contains(all2, source1));
+		assertTrue(Iterables.contains(all2, source2));
 	}
 
 	@Test
@@ -59,9 +51,9 @@ public class IndexSymbolTableTest extends IndexTest {
 		assertEquals(0, size(index.get(type)));
 		assertEquals(0, size(index.get(defData)));
 
-		add(def, partition);
-		add(type, partition);
-		add(defData, partition);
+		add(def);
+		add(type);
+		add(defData);
 
 		Iterable<IndexEntry> ret1 = index.get(def);
 		Iterable<IndexEntry> ret2 = index.get(type);
@@ -89,19 +81,23 @@ public class IndexSymbolTableTest extends IndexTest {
 		assertEquals(0, size(index.get(read)));
 		assertEquals(0, size(index.get(longTerm)));
 
-		add(def, partition);
-		add(def, partition);
-		add(def, partition);
-		add(read, partition);
-		add(read, partition);
-		add(longTerm, partition);
+		startCollection();
+
+		collect(def);
+		collect(def);
+		collect(def);
+		collect(read);
+		collect(read);
+		collect(longTerm);
+
+		stopCollection();
 
 		Iterable<IndexEntry> ret1 = index.get(def);
 		Iterable<IndexEntry> ret2 = index.get(read);
 		Iterable<IndexEntry> ret3 = index.get(longTerm);
 
-		assertEquals(3, size(ret1));
-		assertEquals(2, size(ret2));
+		assertEquals(1, size(ret1));
+		assertEquals(1, size(ret2));
 		assertEquals(1, size(ret3));
 
 		assertTrue(matchAll(ret1, def));
@@ -119,7 +115,7 @@ public class IndexSymbolTableTest extends IndexTest {
 
 		Iterable<IndexEntry> ret4 = index.get(read);
 
-		assertEquals(4, size(ret4));
+		assertEquals(1, size(ret4));
 		assertTrue(matchAll(ret4, read));
 		assertFalse(matchAll(ret4, def));
 		assertFalse(matchAll(ret4, longTerm));
@@ -142,10 +138,14 @@ public class IndexSymbolTableTest extends IndexTest {
 		assertEquals(0, size(index.getChilds(methodsTemplate)));
 		assertEquals(0, size(index.getChilds(fieldsTemplate)));
 
-		add(classDef, partition);
-		add(methodDef1, partition);
-		add(methodDef2, partition);
-		add(fieldDef, partition);
+		startCollection();
+
+		collect(classDef);
+		collect(methodDef1);
+		collect(methodDef2);
+		collect(fieldDef);
+
+		stopCollection();
 
 		Iterable<IndexEntry> ret1 = index.getChilds(methodsTemplate);
 		Iterable<IndexEntry> ret2 = index.getChilds(fieldsTemplate);
@@ -165,11 +165,9 @@ public class IndexSymbolTableTest extends IndexTest {
 	}
 
 	@Test
-	public void getEntriesInPartitionAndRemovePartition() {
-		IStrategoTerm partitionTerm1 = partition("TestPartition", "Partition", "1");
-		IStrategoTerm partitionTerm2 = partition("TestPartition", "Partition", "2");
-		IndexPartition partition1 = getPartition(partitionTerm1);
-		IndexPartition partition2 = getPartition(partitionTerm2);
+	public void getEntriesInSourceAndRemoveSource() {
+		IStrategoTerm source1 = source("TestSource", "Source", "1");
+		IStrategoTerm source2 = source("TestSource", "Source", "2");
 
 		IStrategoAppl def1 = def("Entity", "CRM", "Person");
 		IStrategoAppl read = read("Function", "CRM", "Person", "GetName");
@@ -181,16 +179,20 @@ public class IndexSymbolTableTest extends IndexTest {
 		assertEquals(0, size(index.get(read)));
 		assertEquals(0, size(index.get(def2)));
 		assertEquals(0, size(index.get(type)));
-		assertEquals(0, size(index.getInSource(partition1)));
-		assertEquals(0, size(index.getInSource(partition2)));
+		assertEquals(0, size(index.getInSource(source1)));
+		assertEquals(0, size(index.getInSource(source2)));
 
-		add(def1, partition1);
-		add(read, partition1);
-		add(def2, partition2);
-		add(type, partition2);
+		startCollection(source1);
+		collect(def1);
+		collect(read);
+		stopCollection(source1);
+		startCollection(source2);
+		collect(def2);
+		collect(type);
+		stopCollection(source2);
 
-		Iterable<IndexEntry> ret1 = index.getInSource(partition1);
-		Iterable<IndexEntry> ret2 = index.getInSource(partition2);
+		Iterable<IndexEntry> ret1 = index.getInSource(source1);
+		Iterable<IndexEntry> ret2 = index.getInSource(source2);
 
 		assertEquals(2, size(ret1));
 		assertEquals(2, size(ret2));
@@ -206,27 +208,26 @@ public class IndexSymbolTableTest extends IndexTest {
 		assertTrue(containsEntry(ret2, type));
 
 		for(IndexEntry entry : ret1) {
-			assertSame(entry.getPartition(), partition1);
-			assertNotSame(entry.getPartition(), partition2);
+			assertSame(entry.source, source1);
+			assertNotSame(entry.source, source2);
 		}
 		for(IndexEntry entry : ret2) {
-			assertNotSame(entry.getPartition(), partition1);
-			assertSame(entry.getPartition(), partition2);
+			assertNotSame(entry.source, source1);
+			assertSame(entry.source, source2);
 		}
 
-		index.clearSource(partition1);
+		index.clearSource(source1);
 		assertEquals(0, size(ret1));
 		assertEquals(2, size(ret2));
 
-		index.clearSource(partition2);
+		index.clearSource(source2);
 		assertEquals(0, size(ret2));
 	}
 
 	@Test
-	public void getPartitionsOf() {
-		IStrategoTerm partitionTerm1 = partition("TestPartition", "Partition", "1");
-		IndexPartition partition1 = getPartition(partitionTerm1);
-		IndexPartition partition2 = getPartition(partition("TestPartition", "Partition", "2"));
+	public void getSourcesOf() {
+		IStrategoTerm source1 = source("TestSource", "Source", "1");
+		IStrategoTerm source2 = source("TestSource", "Source", "2");
 
 		IStrategoAppl def = def("Entity", "CRM", "Person");
 		IStrategoAppl read = read("Function", "CRM", "Person", "GetName");
@@ -238,42 +239,46 @@ public class IndexSymbolTableTest extends IndexTest {
 		assertEquals(0, size(index.get(read)));
 		assertEquals(0, size(index.get(longTerm)));
 		assertEquals(0, size(index.get(defData)));
-		assertEquals(0, size(index.getInSource(partition1)));
-		assertEquals(0, size(index.getInSource(partition2)));
+		assertEquals(0, size(index.getInSource(source1)));
+		assertEquals(0, size(index.getInSource(source2)));
 
-		add(def, partition1);
-		add(def, partition2);
-		add(def, partition1);
-		add(read, partition2);
-		add(read, partition2);
-		add(longTerm, partition1);
+		startCollection(source1);
+		collect(def);
+		collect(def);
+		collect(longTerm);
+		stopCollection(source1);
+		startCollection(source2);
+		collect(def);
+		collect(read);
+		collect(read);
+		stopCollection(source2);
 
-		Iterable<IndexPartition> ret1 = index.getSourcesOf(def);
-		Iterable<IndexPartition> ret2 = index.getSourcesOf(read);
-		Iterable<IndexPartition> ret3 = index.getSourcesOf(longTerm);
-		Iterable<IndexPartition> ret4 = index.getSourcesOf(defData);
+		Iterable<IStrategoTerm> ret1 = index.getSourcesOf(def);
+		Iterable<IStrategoTerm> ret2 = index.getSourcesOf(read);
+		Iterable<IStrategoTerm> ret3 = index.getSourcesOf(longTerm);
+		Iterable<IStrategoTerm> ret4 = index.getSourcesOf(defData);
 
-		assertTrue(containsPartition(ret1, partition1));
-		assertTrue(containsPartition(ret1, partition2));
-		assertFalse(containsPartition(ret2, partition1));
-		assertTrue(containsPartition(ret2, partition2));
-		assertTrue(containsPartition(ret3, partition1));
-		assertFalse(containsPartition(ret3, partition2));
-		assertFalse(containsPartition(ret4, partition1));
-		assertFalse(containsPartition(ret4, partition2));
+		assertTrue(containsSource(ret1, source1));
+		assertTrue(containsSource(ret1, source2));
+		assertFalse(containsSource(ret2, source1));
+		assertTrue(containsSource(ret2, source2));
+		assertTrue(containsSource(ret3, source1));
+		assertFalse(containsSource(ret3, source2));
+		assertFalse(containsSource(ret4, source1));
+		assertFalse(containsSource(ret4, source2));
 	}
 
 	@Test
 	public void clear() {
-		IndexPartition partition1 = getPartition(partition("TestPartition", "Partition", "1"));
-		IndexPartition partition2 = getPartition(partition("TestPartition", "Partition", "2"));
+		IStrategoTerm source1 = source("TestSource", "Source", "1");
+		IStrategoTerm source2 = source("TestSource", "Source", "2");
 
 		IStrategoAppl readAll = readAll("Str", "Class", "java", "lang");
 
 		assertEquals(0, size(index.getAll()));
 
-		add(readAll, partition1);
-		add(readAll, partition2);
+		add(readAll, source1);
+		add(readAll, source2);
 
 		assertEquals(2, size(index.getAll()));
 
@@ -281,239 +286,239 @@ public class IndexSymbolTableTest extends IndexTest {
 
 		assertEquals(0, size(index.getAll()));
 	}
-	
+
 	// Changes in current index are not visible in parent index.
 	@Test
 	public void testStackNoParentChange() {
 		final IIndex parent = index;
 		IIndex current = parent;
-		
+
 		final IStrategoAppl def = def("Class", "java", "lang", "String");
-		
+
 		assertEquals(0, size(current.get(def)));
-		
-		current.startCollection(partition);
-		add(current, def, partition);
-		current.stopCollection();
-		
+
+		startCollection(current);
+		collect(current, def);
+		stopCollection(current);
+
 		assertEquals(1, size(current.get(def)));
-		
+
 		current = indexManager.pushIndex(factory);
 		assertNotSame(parent, current);
-		
+
 		assertEquals(1, size(current.get(def)));
-		
+
 		final IStrategoAppl type = type(constructor("Type", str("String")), "Class", "java", "lang", "String");
 		final IStrategoAppl defData = defData(constructor("Type"), str("String"), "Class", "java", "lang", "String");
-		
+
 		assertEquals(0, size(current.get(type)));
 		assertEquals(0, size(current.get(defData)));
-		
-		current.startCollection(partition);
-		add(current, type, partition);
-		add(current, defData, partition);
-		current.stopCollection();
-		
+
+		startCollection(current);
+		collect(current, type);
+		collect(current, defData);
+		stopCollection(current);
+
 		assertEquals(0, size(current.get(def)));
 		assertEquals(1, size(current.get(type)));
 		assertEquals(1, size(current.get(defData)));
-		
+
 		assertEquals(1, size(parent.get(def)));
 		assertEquals(0, size(parent.get(type)));
 		assertEquals(0, size(parent.get(defData)));
-		
+
 		current = indexManager.popIndex();
 		assertSame(parent, current);
 	}
-	
+
 	// Changes in parent index are visible in current index.
 	@Test
 	public void testStackParentChangeVisible() {
 		final IIndex parent = index;
 		IIndex current = parent;
-		
+
 		final IStrategoAppl def = def("Class", "java", "lang", "String");
-		
+
 		assertEquals(0, size(current.get(def)));
-		
-		current.startCollection(partition);
-		add(current, def, partition);
-		current.stopCollection();
-		
+
+		startCollection(current);
+		collect(current, def);
+		stopCollection(current);
+
 		assertEquals(1, size(current.get(def)));
-		
+
 		current = indexManager.pushIndex(factory);
 		assertNotSame(parent, current);
-		
+
 		assertEquals(1, size(current.get(def)));
-		
+
 		final IStrategoAppl type = type(constructor("Type", str("String")), "Class", "java", "lang", "String");
 		final IStrategoAppl defData = defData(constructor("Type"), str("String"), "Class", "java", "lang", "String");
-		
+
 		assertEquals(0, size(current.get(type)));
 		assertEquals(0, size(current.get(defData)));
-		
-		current.startCollection(partition);
-		add(current, type, partition);
-		add(current, defData, partition);
-		current.stopCollection();
-		
+
+		startCollection(current);
+		collect(current, type);
+		collect(current, defData);
+		stopCollection(current);
+
 		assertEquals(0, size(current.get(def)));
 		assertEquals(1, size(current.get(type)));
 		assertEquals(1, size(current.get(defData)));
-		
+
 		assertEquals(1, size(parent.get(def)));
 		assertEquals(0, size(parent.get(type)));
 		assertEquals(0, size(parent.get(defData)));
-		
+
 		final IStrategoAppl read = read("Function", "CRM", "Person", "GetName");
-		
+
 		assertEquals(0, size(current.get(read)));
-		
+
 		// Change the parent while current is still the new index.
-		final IndexPartition partition2 = getPartition(partition("TestPartition", "Partition", "2"));
-		parent.startCollection(partition2);
-		add(parent, read, partition2);
-		parent.stopCollection();
-		
+		final IStrategoTerm source2 = source("TestSource", "Source", "2");
+		startCollection(parent, source2);
+		collect(parent, read);
+		stopCollection(parent, source2);
+
 		assertEquals(0, size(current.get(def)));
 		assertEquals(1, size(current.get(type)));
 		assertEquals(1, size(current.get(defData)));
 		assertEquals(1, size(current.get(read))); // Read is also visible in current.
-		
+
 		assertEquals(1, size(parent.get(def)));
 		assertEquals(0, size(parent.get(type)));
 		assertEquals(0, size(parent.get(defData)));
 		assertEquals(1, size(parent.get(read)));
-		
+
 		current = indexManager.popIndex();
 		assertSame(parent, current);
 	}
-	
-	// Clearing a partition from the current index makes it invisible in parent index.
+
+	// Clearing a source from the current index makes it invisible in parent index.
 	@Test
 	public void testStackClear() {
 		final IIndex parent = index;
 		IIndex current = parent;
-		
+
 		final IStrategoAppl def = def("Class", "java", "lang", "String");
 		final IStrategoAppl type = type(constructor("Type", str("String")), "Class", "java", "lang", "String");
 		final IStrategoAppl defData = defData(constructor("Type"), str("String"), "Class", "java", "lang", "String");
-		
+
 		assertEquals(0, size(current.get(def)));
 		assertEquals(0, size(current.get(type)));
 		assertEquals(0, size(current.get(defData)));
-		
-		current.startCollection(partition);
-		add(current, def, partition);
-		add(current, type, partition);
-		add(current, defData, partition);
-		current.stopCollection();
-		
+
+		startCollection(current);
+		collect(current, def);
+		collect(current, type);
+		collect(current, defData);
+		stopCollection(current);
+
 		assertEquals(1, size(current.get(def)));
 		assertEquals(1, size(current.get(type)));
 		assertEquals(1, size(current.get(defData)));
-		
+
 		current = indexManager.pushIndex(factory);
 		assertNotSame(parent, current);
-		
+
 		assertEquals(1, size(current.get(def)));
 		assertEquals(1, size(current.get(type)));
 		assertEquals(1, size(current.get(defData)));
-		
-		current.clearSource(partition);
-		
+
+		current.clearSource(source);
+
 		assertEquals(0, size(current.get(def)));
 		assertEquals(0, size(current.get(type)));
 		assertEquals(0, size(current.get(defData)));
-		
+
 		current = indexManager.popIndex();
 		assertSame(parent, current);
-		
+
 		assertEquals(1, size(current.get(def)));
 		assertEquals(1, size(current.get(type)));
 		assertEquals(1, size(current.get(defData)));
 	}
-	
+
 	// Popping an index discards all its changes.
 	@Test
 	public void testStackPop() {
 		final IIndex parent = index;
 		IIndex current = parent;
-		
+
 		final IStrategoAppl type = type(constructor("Type", str("String")), "Class", "java", "lang", "String");
-		
+
 		assertEquals(0, size(current.get(type)));
-		
-		final IndexPartition partition2 = getPartition(partition("TestPartition", "Partition", "2"));
-		current.startCollection(partition2);
-		add(current, type, partition2);
-		current.stopCollection();
-		
+
+		final IStrategoTerm source2 = source("TestSource", "Source", "2");
+		startCollection(current, source2);
+		collect(current, type);
+		stopCollection(current, source2);
+
 		assertEquals(1, size(current.get(type)));
-		
+
 		current = indexManager.pushIndex(factory);
 		assertNotSame(parent, current);
-		
+
 		final IStrategoAppl def = def("Class", "java", "lang", "String");
-		
+
 		assertEquals(0, size(current.get(def)));
-		
-		current.startCollection(partition);
-		add(current, def, partition);
-		current.stopCollection();
-		
+
+		startCollection(current);
+		collect(current, def);
+		stopCollection(current);
+
 		assertEquals(1, size(current.get(def)));
-		
-		current.clearSource(partition2);
-		
+
+		current.clearSource(source2);
+
 		assertEquals(0, size(current.get(type)));
-		
+
 		current = indexManager.popIndex();
 		assertSame(parent, current);
-		
+
 		assertEquals(1, size(current.get(type)));
 		assertEquals(0, size(current.get(def)));
 	}
-	
+
 	// Merging an index engine preserves all its changes.
 	@Test
 	public void testStackMerge() {
 		final IIndex parent = index;
 		IIndex current = parent;
-		
+
 		final IStrategoAppl type = type(constructor("Type", str("String")), "Class", "java", "lang", "String");
-		
+
 		assertEquals(0, size(current.get(type)));
-		
-		final IndexPartition partition2 = getPartition(partition("TestPartition", "Partition", "2"));
-		current.startCollection(partition2);
-		add(current, type, partition2);
-		current.stopCollection();
-		
+
+		final IStrategoTerm source2 = source("TestSource", "Source", "2");
+		startCollection(current, source2);
+		collect(current, type);
+		stopCollection(current, source2);
+
 		assertEquals(1, size(current.get(type)));
-		
+
 		current = indexManager.pushIndex(factory);
 		assertNotSame(parent, current);
-		
+
 		final IStrategoAppl def = def("Class", "java", "lang", "String");
-		
+
 		assertEquals(0, size(current.get(def)));
-		
-		current.startCollection(partition);
-		add(current, def, partition);
-		current.stopCollection();
-		
+
+		startCollection(current);
+		collect(current, def);
+		stopCollection(current);
+
 		assertEquals(1, size(current.get(def)));
-		
-		current.clearSource(partition2);
-		
+
+		current.clearSource(source2);
+
 		assertEquals(0, size(current.get(type)));
-		
+
 		current = indexManager.mergeIndex();
 		assertSame(parent, current);
-		
-		assertEquals(0, size(current.get(type))); // Partition2 was cleared.
+
+		assertEquals(0, size(current.get(type))); // Source2 was cleared.
 		assertEquals(1, size(current.get(def)));  // Def was added.
 	}
 }

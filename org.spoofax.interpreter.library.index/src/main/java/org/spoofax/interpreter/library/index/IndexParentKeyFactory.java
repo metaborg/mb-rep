@@ -2,6 +2,7 @@ package org.spoofax.interpreter.library.index;
 
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
@@ -9,10 +10,14 @@ import org.spoofax.terms.TermTransformer;
 
 public class IndexParentKeyFactory {
 	private class ParentURITransformer extends TermTransformer {
+		private final ITermFactory factory;
+		private final IStrategoConstructor uriConstructor;
 		public boolean transformed = false;
 
 		public ParentURITransformer(ITermFactory factory, boolean keepAttachments) {
 			super(factory, keepAttachments);
+			this.factory = factory;
+			this.uriConstructor = factory.makeConstructor("URI", 2);
 		}
 
 		@Override
@@ -28,18 +33,23 @@ public class IndexParentKeyFactory {
 			return term;
 		}
 
-		private IStrategoList getParentURI(IStrategoTerm uri) {
+		private IStrategoTerm getParentURI(IStrategoTerm uri) {
+			final IStrategoTerm language = uri.getSubterm(0);
 			final IStrategoList segments = (IStrategoList) uri.getSubterm(1);
 			if(segments.getSubtermCount() == 0)
 				return null;
-			return segments.tail();
+			return makeURI(language, segments.tail());
 		}
 
 		private boolean isURI(IStrategoTerm term) {
 			if(!Tools.isTermAppl(term))
 				return false;
 			final IStrategoAppl appl = (IStrategoAppl) term;
-			return Tools.hasConstructor(appl, "URI", 2);
+			return appl.getConstructor().equals(uriConstructor);
+		}
+
+		private IStrategoTerm makeURI(IStrategoTerm language, IStrategoList segments) {
+			return factory.makeAppl(uriConstructor, language, segments);
 		}
 	}
 

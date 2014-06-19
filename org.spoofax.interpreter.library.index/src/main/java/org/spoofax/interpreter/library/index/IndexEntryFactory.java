@@ -21,7 +21,7 @@ public class IndexEntryFactory {
 	}
 
 	public IndexEntry create(IStrategoTerm key, IStrategoTerm value, IStrategoTerm source) {
-		ImploderAttachment origin = ImploderAttachment.get(value);
+		ImploderAttachment origin = value != null ? ImploderAttachment.get(value) : null;
 
 		// TODO: what is the performance of attachment stripping operations?
 		key = stripper.strip(key);

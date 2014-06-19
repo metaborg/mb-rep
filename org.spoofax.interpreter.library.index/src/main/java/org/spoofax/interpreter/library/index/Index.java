@@ -34,15 +34,15 @@ public class Index implements IIndex {
 	}
 
 	@Override
-	public IndexCollector collector() {
-		return collector;
-	}
-
-	@Override
 	public void startCollection(IStrategoTerm source) {
 		collector.start(source, getInSource(source));
 		// TODO: clear not required, can replace with new entries instead after collection.
 		clearSource(source);
+	}
+
+	@Override
+	public IndexEntry collect(IStrategoTerm key, IStrategoTerm value) {
+		return collector.add(key, value);
 	}
 
 	@Override

@@ -25,7 +25,6 @@ public class IndexTest {
 
 	protected static IStrategoString language;
 	protected static IStrategoString projectPath;
-	protected static IStrategoTerm sourceTerm;
 
 	protected static IndexManager indexManager;
 	protected static IStrategoTerm source;
@@ -45,7 +44,7 @@ public class IndexTest {
 
 		language = str("TestLanguage");
 		projectPath = str("TestPath");
-		sourceTerm = source("TestFile");
+		source = source("TestFile");
 
 		indexManager = IndexManager.getInstance();
 		indexManager.loadIndex(projectPath.stringValue(), language.stringValue(), factory, agent);
@@ -59,28 +58,103 @@ public class IndexTest {
 		indexManager = null;
 		language = null;
 		projectPath = null;
-		sourceTerm = null;
+		source = null;
 		interpreter.shutdown();
 		interpreter = null;
 		factory = null;
 		agent = null;
 	}
 
-	public static IndexEntry add(IStrategoAppl entryTerm, IStrategoTerm source) {
-		final IndexEntry entry = index.getFactory().createEntry(entryTerm, source);
+	public static void startCollection(IIndex index, IStrategoTerm source) {
+		index.startCollection(source);
+	}
+
+	public static void startCollection(IStrategoTerm source) {
+		index.startCollection(source);
+	}
+
+	public static void startCollection(IIndex index) {
+		index.startCollection(source);
+	}
+
+	public static void startCollection() {
+		index.startCollection(source);
+	}
+
+	public static IStrategoTerm stopCollection(IIndex index, IStrategoTerm source) {
+		return index.stopCollection(source);
+	}
+
+	public static IStrategoTerm stopCollection(IStrategoTerm source) {
+		return index.stopCollection(source);
+	}
+
+	public static IStrategoTerm stopCollection(IIndex index) {
+		return index.stopCollection(source);
+	}
+
+	public static IStrategoTerm stopCollection() {
+		return index.stopCollection(source);
+	}
+
+
+	public static IndexEntry collect(IIndex index, IStrategoTerm key, IStrategoTerm value) {
+		final IndexEntry entry = index.collect(key, value);
+		return entry;
+	}
+
+	public static IndexEntry collect(IIndex index, IStrategoTerm key) {
+		final IndexEntry entry = index.collect(key, null);
+		return entry;
+	}
+
+	public static IndexEntry collect(IStrategoTerm key, IStrategoTerm value) {
+		final IndexEntry entry = index.collect(key, value);
+		return entry;
+	}
+
+	public static IndexEntry collect(IStrategoTerm key) {
+		final IndexEntry entry = index.collect(key, null);
+		return entry;
+	}
+
+
+	public static IndexEntry add(IIndex index, IStrategoTerm key, IStrategoTerm value, IStrategoTerm source) {
+		final IndexEntry entry = index.entryFactory().create(key, value, source);
 		index.add(entry);
 		return entry;
 	}
 
-	public static IndexEntry add(IIndex index, IStrategoAppl entryTerm, IStrategoTerm source) {
-		final IndexEntry entry = index.getFactory().createEntry(entryTerm, source);
+	public static IndexEntry add(IIndex index, IStrategoTerm key, IStrategoTerm source) {
+		final IndexEntry entry = index.entryFactory().create(key, null, source);
 		index.add(entry);
 		return entry;
 	}
 
-	public static IStrategoTerm getSource(IStrategoTerm fileSource) {
-		return IStrategoTerm.fromTerm(agent, fileSource);
+	public static IndexEntry add(IIndex index, IStrategoTerm key) {
+		final IndexEntry entry = index.entryFactory().create(key, null, source);
+		index.add(entry);
+		return entry;
 	}
+
+	public static IndexEntry add(IStrategoTerm key, IStrategoTerm value, IStrategoTerm source) {
+		final IndexEntry entry = index.entryFactory().create(key, value, source);
+		index.add(entry);
+		return entry;
+	}
+
+	public static IndexEntry add(IStrategoTerm key, IStrategoTerm source) {
+		final IndexEntry entry = index.entryFactory().create(key, null, source);
+		index.add(entry);
+		return entry;
+	}
+
+	public static IndexEntry add(IStrategoTerm key) {
+		final IndexEntry entry = index.entryFactory().create(key, null, source);
+		index.add(entry);
+		return entry;
+	}
+
 
 	public static IStrategoString str(String str) {
 		return factory.makeString(str);
@@ -94,6 +168,7 @@ public class IndexTest {
 		return factory.makeTuple(terms);
 	}
 
+
 	public static IStrategoString source(String file) {
 		return str(file);
 	}
@@ -102,17 +177,19 @@ public class IndexTest {
 		return factory.makeTuple(str(file), uri(namespace, path));
 	}
 
-	public static IStrategoList path(String... path) {
-		IStrategoString[] strategoPath = new IStrategoString[path.length];
-		for(int i = 0; i < path.length; ++i)
-			// Paths are reversed in Stratego for easy appending of new names.
-			strategoPath[i] = str(path[path.length - i - 1]);
-		return factory.makeList(strategoPath);
+	public static IStrategoTerm uri(String namespace, String... path) {
+		IStrategoList segments = factory.makeList();
+		for(String name : path) {
+			segments = factory.makeListCons(segment(namespace, name), segments);
+		}
+		return factory.makeAppl(factory.makeConstructor("URI", 2), language, segments);
 	}
 
-	public static IStrategoList uri(String namespace, String... path) {
-		return factory.makeListCons(constructor(namespace), path(path));
+	public static IStrategoTerm segment(String namespace, String name) {
+		return factory.makeAppl(factory.makeConstructor("ID", 2), factory.makeString(namespace),
+			factory.makeString(name));
 	}
+
 
 	public static IStrategoAppl def(String namespace, String... path) {
 		return factory.makeAppl(factory.makeConstructor("Def", 1), uri(namespace, path));
@@ -143,17 +220,18 @@ public class IndexTest {
 		return factory.makeAppl(factory.makeConstructor("LongTerm", 4), uri(namespace, path), t1, t2, t3);
 	}
 
-	public static boolean containsEntry(Iterable<IndexEntry> entries, IStrategoTerm term) {
+
+	public static boolean containsEntry(Iterable<IndexEntry> entries, IStrategoTerm source, IStrategoTerm value) {
 		boolean found = false;
 		for(IndexEntry entry : entries)
-			found = found || entry.toTerm(factory).match(term);
+			found = found || (entry.source.equals(source) && entry.getValue().match(value));
 		return found;
 	}
 
-	public static boolean containsEntry(Iterable<IndexEntry> entries, IStrategoTerm source, IStrategoTerm term) {
+	public static boolean containsEntry(Iterable<IndexEntry> entries, IStrategoTerm value) {
 		boolean found = false;
 		for(IndexEntry entry : entries)
-			found = found || (entry.source.equals(source) && entry.toTerm(factory).match(term));
+			found = found || entry.getValue().match(value);
 		return found;
 	}
 
@@ -164,12 +242,12 @@ public class IndexTest {
 		return found;
 	}
 
-	public static boolean matchAll(Iterable<IndexEntry> entries, IStrategoTerm term) {
+	public static boolean matchAll(Iterable<IndexEntry> entries, IStrategoTerm value) {
 		if(!entries.iterator().hasNext())
 			return false;
 		boolean matchAll = true;
 		for(IndexEntry entry : entries)
-			matchAll = matchAll && entry.toTerm(factory).match(term);
+			matchAll = matchAll && entry.getValue().match(value);
 		return matchAll;
 	}
 
