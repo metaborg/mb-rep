@@ -48,8 +48,11 @@ public class IndexEntryFactory {
 	}
 
 	public IStrategoTerm toTerm(IndexEntry entry) {
-		return factory.makeTuple(entry.key, entry.value, entry.source,
-			ImploderAttachment.TYPE.toTerm(factory, entry.origin));
+		if(entry.origin != null)
+			return factory.makeTuple(entry.key, entry.value, entry.source,
+				ImploderAttachment.TYPE.toTerm(factory, entry.origin));
+		else
+			return factory.makeTuple(entry.key, entry.value, entry.source);
 	}
 
 	public IStrategoList toValueTerms(Iterable<IndexEntry> entries) {
@@ -64,8 +67,9 @@ public class IndexEntryFactory {
 		final IStrategoTerm key = term.getSubterm(0);
 		final IStrategoTerm value = term.getSubterm(1);
 		final IStrategoTerm source = term.getSubterm(2);
+		if(term.getSubtermCount() == 3)
+			return new IndexEntry(key, value, source, null);
 		final ImploderAttachment origin = ImploderAttachment.TYPE.fromTerm((IStrategoAppl) term.getSubterm(3));
-
 		return new IndexEntry(key, value, source, origin);
 	}
 }
