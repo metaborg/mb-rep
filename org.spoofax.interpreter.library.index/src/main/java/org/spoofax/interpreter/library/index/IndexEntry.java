@@ -44,7 +44,6 @@ public class IndexEntry implements Serializable {
 		result = prime * result + key.hashCode();
 		result = prime * result + value.hashCode();
 		result = prime * result + source.hashCode();
-		// TODO: implement ImploderAttachment.hashCode()
 		result = prime * result + ((origin == null) ? 0 : origin.hashCode());
 		return result;
 	}
@@ -69,7 +68,6 @@ public class IndexEntry implements Serializable {
 		if(!source.equals(other.source))
 			return false;
 
-		// TODO: implement ImploderAttachment.equals()
 		if(origin == null) {
 			if(other.origin != null)
 				return false;
