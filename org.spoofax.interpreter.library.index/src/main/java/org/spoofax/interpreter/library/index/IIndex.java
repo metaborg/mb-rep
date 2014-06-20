@@ -23,6 +23,11 @@ public interface IIndex {
 	public abstract IndexEntry collect(IStrategoTerm key, IStrategoTerm value);
 
 	/**
+	 * Collects a new index entry, which will be added when collection is stopped.
+	 */
+	public abstract IndexEntry collect(IStrategoTerm key);
+
+	/**
 	 * Stops collection, returning the entries that were removed and added during collection.
 	 *
 	 * @return The removed and added entries as a tuple.

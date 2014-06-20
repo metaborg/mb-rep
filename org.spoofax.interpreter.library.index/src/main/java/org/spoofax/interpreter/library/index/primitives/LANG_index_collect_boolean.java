@@ -18,7 +18,7 @@ public class LANG_index_collect_boolean extends AbstractPrimitive {
 	public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) {
 		final IIndex index = IndexManager.getInstance().getCurrent();
 		final IStrategoTerm key = tvars[0];
-		index.collect(key, null);
+		index.collect(key);
 		return true;
 	}
 }

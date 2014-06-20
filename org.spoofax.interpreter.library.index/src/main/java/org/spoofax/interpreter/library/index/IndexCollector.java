@@ -45,7 +45,16 @@ public class IndexCollector {
 	}
 
 	public IndexEntry add(IStrategoTerm key, IStrategoTerm value) {
-		final IndexEntry entry = entryFactory.create(key, value, sourceInCollection);
+		return add(entryFactory.create(key, value, sourceInCollection));
+	}
+
+	public IndexEntry add(IStrategoTerm key) {
+		return add(entryFactory.create(key, sourceInCollection));
+	}
+
+	public IndexEntry add(IndexEntry entry) {
+		assert entry.source.match(sourceInCollection);
+
 		addedEntries.add(entry);
 		removedEntries.remove(entry);
 		return entry;

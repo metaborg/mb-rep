@@ -46,6 +46,11 @@ public class Index implements IIndex {
 	}
 
 	@Override
+	public IndexEntry collect(IStrategoTerm key) {
+		return collector.add(key);
+	}
+
+	@Override
 	public IStrategoTuple stopCollection(IStrategoTerm source) {
 		addAll(source, collector.getAddedEntries());
 		return collector.stop();

@@ -26,7 +26,7 @@ public class LANG_index_get_one extends AbstractPrimitive {
 		if(!entriesIterator.hasNext())
 			return false;
 		final IndexEntry entry = entriesIterator.next();
-		env.setCurrent(entry.getValue());
+		env.setCurrent(entry.value);
 		return true;
 	}
 }

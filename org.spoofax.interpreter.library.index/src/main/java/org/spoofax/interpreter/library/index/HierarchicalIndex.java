@@ -49,6 +49,11 @@ public class HierarchicalIndex implements IHierarchicalIndex {
 	}
 
 	@Override
+	public IndexEntry collect(IStrategoTerm key) {
+		return collector.add(key);
+	}
+
+	@Override
 	public IStrategoTuple stopCollection(IStrategoTerm source) {
 		addAll(source, collector.getAddedEntries());
 		return collector.stop();

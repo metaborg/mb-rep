@@ -19,7 +19,7 @@ public class LANG_index_add_boolean extends AbstractPrimitive {
 		final IIndex index = IndexManager.getInstance().getCurrent();
 		final IStrategoTerm key = tvars[0];
 		final IStrategoTerm source = tvars[1];
-		index.add(index.entryFactory().create(key, null, source));
+		index.add(index.entryFactory().create(key, source));
 		return true;
 	}
 }

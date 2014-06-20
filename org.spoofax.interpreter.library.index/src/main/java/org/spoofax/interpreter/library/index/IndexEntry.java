@@ -23,13 +23,16 @@ public class IndexEntry implements Serializable {
 		this.origin = origin;
 	}
 
-	public IStrategoTerm getValue() {
-		return value != null ? value : key;
+	public IndexEntry(IStrategoTerm key, IStrategoTerm source, ImploderAttachment origin) {
+		this.key = key;
+		this.value = key;
+		this.source = source;
+		this.origin = origin;
 	}
 
 	@Override
 	public String toString() {
-		if(value == null)
+		if(key.match(value))
 			return key.toString();
 		return key.toString() + " : " + value.toString();
 	}
@@ -39,7 +42,7 @@ public class IndexEntry implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + key.hashCode();
-		result = prime * result + ((value == null) ? 0 : value.hashCode());
+		result = prime * result + value.hashCode();
 		result = prime * result + source.hashCode();
 		// TODO: implement ImploderAttachment.hashCode()
 		result = prime * result + ((origin == null) ? 0 : origin.hashCode());
@@ -60,10 +63,7 @@ public class IndexEntry implements Serializable {
 		if(!key.equals(other.key))
 			return false;
 
-		if(value == null) {
-			if(other.value != null)
-				return false;
-		} else if(!value.equals(other.value))
+		if(!value.equals(other.value))
 			return false;
 
 		if(!source.equals(other.source))

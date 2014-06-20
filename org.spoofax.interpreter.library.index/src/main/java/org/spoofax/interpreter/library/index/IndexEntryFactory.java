@@ -21,13 +21,28 @@ public class IndexEntryFactory {
 	}
 
 	public IndexEntry create(IStrategoTerm key, IStrategoTerm value, IStrategoTerm source) {
-		ImploderAttachment origin = value != null ? ImploderAttachment.get(value) : null;
+		ImploderAttachment origin = ImploderAttachment.get(value);
 
 		// TODO: what is the performance of attachment stripping operations?
 		key = stripper.strip(key);
 		value = stripper.strip(value);
+		if(origin != null)
+			value.putAttachment(origin);
 
 		final IndexEntry entry = new IndexEntry(key, value, source, origin);
+
+		return entry;
+	}
+
+	public IndexEntry create(IStrategoTerm key, IStrategoTerm source) {
+		ImploderAttachment origin = ImploderAttachment.get(key);
+
+		// TODO: what is the performance of attachment stripping operations?
+		key = stripper.strip(key);
+		if(origin != null)
+			key.putAttachment(origin);
+
+		final IndexEntry entry = new IndexEntry(key, source, origin);
 
 		return entry;
 	}
@@ -40,7 +55,7 @@ public class IndexEntryFactory {
 	public IStrategoList toValueTerms(Iterable<IndexEntry> entries) {
 		IStrategoList list = factory.makeList();
 		for(IndexEntry entry : entries) {
-			list = factory.makeListCons(entry.getValue(), list);
+			list = factory.makeListCons(entry.value, list);
 		}
 		return list;
 	}
