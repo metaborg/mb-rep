@@ -39,7 +39,6 @@ public class HierarchicalIndex implements IHierarchicalIndex {
 	@Override
 	public void startCollection(IStrategoTerm source) {
 		collector.start(source, getInSource(source));
-		// TODO: clear not required, can replace with new entries instead after collection.
 		clearSource(source);
 	}
 

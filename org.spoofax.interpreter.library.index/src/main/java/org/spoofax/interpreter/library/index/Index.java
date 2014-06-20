@@ -36,7 +36,6 @@ public class Index implements IIndex {
 	@Override
 	public void startCollection(IStrategoTerm source) {
 		collector.start(source, getInSource(source));
-		// TODO: clear not required, can replace with new entries instead after collection.
 		clearSource(source);
 	}
 
@@ -71,7 +70,7 @@ public class Index implements IIndex {
 	@Override
 	public void addAll(IStrategoTerm source, Iterable<IndexEntry> entriesToAdd) {
 		final Collection<IndexEntry> entriesInSource = entriesPerSource.get(source);
-		for(IndexEntry entry : entriesToAdd) {
+		for(final IndexEntry entry : entriesToAdd) {
 			entries.put(entry.key, entry);
 
 			final IStrategoTerm parentKey = parentKeyFactory.getParentKey(entry.key);
@@ -101,7 +100,7 @@ public class Index implements IIndex {
 	@Override
 	public Set<IStrategoTerm> getSourcesOf(IStrategoTerm key) {
 		final Set<IStrategoTerm> sources = Sets.newHashSet();
-		for(IndexEntry entry : get(key)) {
+		for(final IndexEntry entry : get(key)) {
 			sources.add(entry.source);
 		}
 		return sources;
@@ -114,14 +113,13 @@ public class Index implements IIndex {
 
 	@Override
 	public void clearSource(IStrategoTerm source) {
-		for(IndexEntry entry : getInSource(source)) {
+		for(final IndexEntry entry : getInSource(source)) {
 			entries.remove(entry.key, entry);
 			final IStrategoTerm parentKey = parentKeyFactory.getParentKey(entry.key);
 			if(parentKey != null) {
 				childs.remove(parentKey, entry);
 			}
 		}
-
 		entriesPerSource.removeAll(source);
 	}
 
