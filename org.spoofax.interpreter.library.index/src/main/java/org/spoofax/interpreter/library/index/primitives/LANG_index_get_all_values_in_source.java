@@ -8,10 +8,10 @@ import org.spoofax.interpreter.library.index.IndexManager;
 import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-public class LANG_index_get_all_in_source extends AbstractPrimitive {
-	private static String NAME = "LANG_index_get_all_in_source";
+public class LANG_index_get_all_values_in_source extends AbstractPrimitive {
+	private static String NAME = "LANG_index_get_all_values_in_source";
 
-	public LANG_index_get_all_in_source() {
+	public LANG_index_get_all_values_in_source() {
 		super(NAME, 0, 1);
 	}
 

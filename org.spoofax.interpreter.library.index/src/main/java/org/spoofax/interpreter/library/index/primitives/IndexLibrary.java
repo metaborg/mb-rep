@@ -15,11 +15,13 @@ public class IndexLibrary extends AbstractStrategoOperatorRegistry {
         add(new LANG_index_clear_source());
 
         add(new LANG_index_get_all_sources());
-        add(new LANG_index_get_all_in_source());
+        add(new LANG_index_get_all_values_in_source());
         add(new LANG_index_get_all_childs());
         add(new LANG_index_get_all_sources_of());
-        add(new LANG_index_get_all());
-		add(new LANG_index_get_one());
+        add(new LANG_index_get_all_values());
+		add(new LANG_index_get_one_value());
+		add(new LANG_index_get_all_pairs());
+		add(new LANG_index_get_one_pair());
 
         add(new LANG_index_setup());
         add(new LANG_index_persist());

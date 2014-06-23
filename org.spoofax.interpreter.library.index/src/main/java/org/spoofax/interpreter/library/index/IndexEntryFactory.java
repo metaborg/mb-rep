@@ -54,6 +54,10 @@ public class IndexEntryFactory {
 		return ImploderAttachment.get(termWithImploder);
 	}
 
+	public IStrategoTerm toPair(IndexEntry entry) {
+		return factory.makeTuple(entry.key, entry.value);
+	}
+
 	public IStrategoTerm toTerm(IndexEntry entry) {
 		if(entry.origin != null)
 			return factory.makeTuple(entry.key, entry.value, entry.source,
@@ -66,6 +70,14 @@ public class IndexEntryFactory {
 		IStrategoList list = factory.makeList();
 		for(IndexEntry entry : entries) {
 			list = factory.makeListCons(entry.value, list);
+		}
+		return list;
+	}
+
+	public IStrategoList toPairTerms(Iterable<IndexEntry> entries) {
+		IStrategoList list = factory.makeList();
+		for(IndexEntry entry : entries) {
+			list = factory.makeListCons(toPair(entry), list);
 		}
 		return list;
 	}
