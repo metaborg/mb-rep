@@ -9,7 +9,7 @@ import org.spoofax.interpreter.stratego.Strategy;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 public class LANG_index_get_all_pairs extends AbstractPrimitive {
-	private static String NAME = "LANG_index_get_all_values";
+	private static String NAME = "LANG_index_get_all_pairs";
 
 	public LANG_index_get_all_pairs() {
 		super(NAME, 0, 1);
