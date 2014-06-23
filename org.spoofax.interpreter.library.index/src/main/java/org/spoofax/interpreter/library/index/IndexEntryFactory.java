@@ -21,7 +21,7 @@ public class IndexEntryFactory {
 	}
 
 	public IndexEntry create(IStrategoTerm key, IStrategoTerm value, IStrategoTerm source) {
-		ImploderAttachment origin = ImploderAttachment.get(value);
+		ImploderAttachment origin = getImploderAttachment(value);
 
 		// TODO: what is the performance of attachment stripping operations?
 		key = stripper.strip(key);
@@ -35,7 +35,7 @@ public class IndexEntryFactory {
 	}
 
 	public IndexEntry create(IStrategoTerm key, IStrategoTerm source) {
-		ImploderAttachment origin = ImploderAttachment.get(key);
+		ImploderAttachment origin = getImploderAttachment(key);
 
 		// TODO: what is the performance of attachment stripping operations?
 		key = stripper.strip(key);
@@ -45,6 +45,13 @@ public class IndexEntryFactory {
 		final IndexEntry entry = new IndexEntry(key, source, origin);
 
 		return entry;
+	}
+
+	private ImploderAttachment getImploderAttachment(IStrategoTerm term) {
+		final IStrategoTerm termWithImploder = ImploderAttachment.getImploderOrigin(term);
+		if(termWithImploder == null)
+			return null;
+		return ImploderAttachment.get(termWithImploder);
 	}
 
 	public IStrategoTerm toTerm(IndexEntry entry) {
