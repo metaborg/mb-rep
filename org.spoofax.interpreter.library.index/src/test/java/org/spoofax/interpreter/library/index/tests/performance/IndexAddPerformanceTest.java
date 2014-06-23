@@ -20,7 +20,7 @@ public class IndexAddPerformanceTest extends IndexPerformanceTest {
 
     public IndexAddPerformanceTest(int numItems, int numFiles) {
         super(numItems, numFiles);
-        
+
         try {
             benchmarkRun =
                 new BenchmarkRule(new CSVResultsConsumer((this.numItems * 5) + "," + this.numFiles, new FileWriter(
@@ -35,11 +35,11 @@ public class IndexAddPerformanceTest extends IndexPerformanceTest {
     @Test
     public void add() {
         for(int i = 0; i < numItems; ++i) {
-            add(def1, getNextFile());
-            add(def2, getNextFile());
-            add(def3, getNextFile());
-            add(use1, getNextFile());
-            add(type1, getNextFile());
+			add(def1, getNextFile());
+			add(def2, getNextFile());
+			add(def3, getNextFile());
+			add(use1, getNextFile());
+			add(type1, getNextFile());
         }
     }
 }

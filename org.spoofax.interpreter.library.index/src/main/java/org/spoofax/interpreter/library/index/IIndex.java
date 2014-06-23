@@ -2,82 +2,84 @@ package org.spoofax.interpreter.library.index;
 
 import java.util.Set;
 
-import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 
 public interface IIndex {
-
 	/**
-	 * Gets the entry factory used by this index.
+	 * Gets the entry factory.
 	 */
-	public abstract IndexEntryFactory getFactory();
+	public abstract IndexEntryFactory entryFactory();
+
 
 	/**
-	 * Starts collection for given partition.
+	 * Starts collection for given source.
+	 */
+	public abstract void startCollection(IStrategoTerm source);
+
+	/**
+	 * Collects a new index entry, which will be added when collection is stopped.
+	 */
+	public abstract IndexEntry collect(IStrategoTerm key, IStrategoTerm value);
+
+	/**
+	 * Collects a new index entry, which will be added when collection is stopped.
+	 */
+	public abstract IndexEntry collect(IStrategoTerm key);
+
+	/**
+	 * Stops collection, returning the entries that were removed and added during collection.
 	 *
-	 * @param partition
+	 * @return The removed and added entries as a tuple.
 	 */
-	public abstract void startCollection(IndexPartition partition);
+	public abstract IStrategoTuple stopCollection(IStrategoTerm source);
 
-	/**
-	 * Stops collection for given partition, returning the entries that were removed and added during collection.
-	 *
-	 * @return The removed and added entries as a Stratego tuple.
-	 */
-	public abstract IStrategoTuple stopCollection();
 
 	/**
 	 * Adds a new entry to the index.
-	 *
-	 * @param entry The entry to add.
 	 */
 	public abstract void add(IndexEntry entry);
 
+	public abstract void addAll(IStrategoTerm source, Iterable<IndexEntry> entry);
+
+
 	/**
 	 * Gets all entries that match given template.
-	 *
-	 * @param template The template to match entries against.
 	 */
-	public abstract Iterable<IndexEntry> get(IStrategoAppl template);
+	public abstract Iterable<IndexEntry> get(IStrategoTerm key);
+
+	/**
+	 * Gets all child entries for URI in given template.
+	 */
+	public abstract Iterable<IndexEntry> getChilds(IStrategoTerm key);
 
 	/**
 	 * Gets all entries.
 	 */
 	public abstract Iterable<IndexEntry> getAll();
 
-	/**
-	 * Gets all child entries for URI in given template.
-	 *
-	 * @param template The template to match entries against.
-	 */
-	public abstract Iterable<IndexEntry> getChildren(IStrategoAppl template);
 
 	/**
-	 * Gets all entries for given partition descriptor.
-	 *
-	 * @param partition The partition descriptor to match entries against.
+	 * Gets all entries for given source
 	 */
-	public abstract Iterable<IndexEntry> getInPartition(IndexPartition partition);
+	public abstract Iterable<IndexEntry> getInSource(IStrategoTerm source);
 
 	/**
-	 * Gets all partitions that contain entries that match given template. Returned collection is a set of partitions,
-	 * it does not contain duplicates.
-	 *
-	 * @param template The template to match entries against.
+	 * Gets all sources that contain given key. Returned collection is a set of partitions, it does not contain
+	 * duplicates.
 	 */
-	public abstract Set<IndexPartition> getPartitionsOf(IStrategoAppl template);
+	public abstract Set<IStrategoTerm> getSourcesOf(IStrategoTerm key);
 
 	/**
-	 * Gets all partitions that are in the index.
+	 * Gets all sources.
 	 */
-	public abstract Iterable<IndexPartition> getAllPartitions();
+	public abstract Iterable<IStrategoTerm> getAllSources();
 
 	/**
-	 * Removes all entries for given partition and removes the partition itself.
-	 *
-	 * @param partition A partition descriptor.
+	 * Removes all entries for given source and removes the source itself.
 	 */
-	public abstract void clearPartition(IndexPartition partition);
+	public abstract void clearSource(IStrategoTerm source);
+
 
 	/**
 	 * Gets names of all languages that are being indexed.
@@ -93,10 +95,11 @@ public interface IIndex {
 
 	/**
 	 * Add an indexed language. Returns true if language was not being indexed before.
-	 * 
+	 *
 	 * @param language Name of the language.
 	 */
 	public abstract boolean addLanguage(String language);
+
 
 	/**
 	 * Resets the index to the initial state.

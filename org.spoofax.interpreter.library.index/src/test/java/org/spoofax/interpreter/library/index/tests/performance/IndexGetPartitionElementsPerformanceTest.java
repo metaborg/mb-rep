@@ -45,7 +45,7 @@ public class IndexGetPartitionElementsPerformanceTest extends IndexPerformanceTe
 	public void getPartitionElements() {
 		Iterable<IndexEntry> ret;
 		for(int i = 0; i < this.numFiles; ++i) {
-			ret = index.getInPartition(files[i]);
+			ret = index.getInSource(files[i]);
 			ret.iterator();
 		}
 	}
