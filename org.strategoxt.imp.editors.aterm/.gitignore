@@ -1,4 +1,5 @@
 bin
+target
 .cache
 include
 .settings
@@ -9,4 +10,3 @@ editor/java/trans
 editor/*.generated.esv
 editor/*.generated.str
 syntax/*.generated.esv
-
