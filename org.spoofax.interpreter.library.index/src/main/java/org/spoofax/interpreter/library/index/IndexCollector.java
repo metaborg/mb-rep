@@ -40,8 +40,7 @@ public class IndexCollector {
 		Multisets.removeOccurrences(addedEntries, oldEntries);
 
 		// TODO: Use an IStrategoList implementation that iterates over the collections instead of constructing it.
-		return termFactory
-			.makeTuple(entryFactory.toValueTerms(removedEntries), entryFactory.toValueTerms(addedEntries));
+		return termFactory.makeTuple(entryFactory.toKeyTerms(removedEntries), entryFactory.toKeyTerms(addedEntries));
 	}
 
 	public IndexEntry add(IStrategoTerm key, IStrategoTerm value) {

@@ -66,6 +66,14 @@ public class IndexEntryFactory {
 			return factory.makeTuple(entry.key, entry.value, entry.source);
 	}
 
+	public IStrategoList toKeyTerms(Iterable<IndexEntry> entries) {
+		IStrategoList list = factory.makeList();
+		for(IndexEntry entry : entries) {
+			list = factory.makeListCons(entry.key, list);
+		}
+		return list;
+	}
+
 	public IStrategoList toValueTerms(Iterable<IndexEntry> entries) {
 		IStrategoList list = factory.makeList();
 		for(IndexEntry entry : entries) {
