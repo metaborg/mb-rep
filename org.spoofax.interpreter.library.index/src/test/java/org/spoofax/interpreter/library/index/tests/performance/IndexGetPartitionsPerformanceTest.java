@@ -7,7 +7,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.spoofax.interpreter.library.index.IndexPartition;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.BenchmarkRule;
@@ -46,9 +46,9 @@ public class IndexGetPartitionsPerformanceTest extends IndexPerformanceTest {
 	@Test
 	public void getPartitions() {
 		@SuppressWarnings("unused")
-		Iterable<IndexPartition> ret;
+		Iterable<IStrategoTerm> ret;
 		for(int i = 0; i < NUM_GET; ++i) {
-			ret = index.getAllPartitions();
+			ret = index.getAllSources();
 		}
 	}
 }

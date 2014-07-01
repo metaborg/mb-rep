@@ -6,33 +6,34 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.runners.Parameterized.Parameters;
-import org.spoofax.interpreter.library.index.IndexPartition;
 import org.spoofax.interpreter.library.index.tests.IndexTest;
 import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 
 public class IndexPerformanceTest extends IndexTest {
-    private static int MAX_NUM_FILES = 1000;
+	private static int MAX_NUM_FILES = 1000;
 
-    public static IStrategoAppl def1;
-    public static IStrategoAppl def2;
-    public static IStrategoAppl def3;
-    public static IStrategoAppl use1;
-    public static IStrategoAppl type1;
-    public static IStrategoAppl typeTemplate1;
-    public static IStrategoAppl def1Parent;
-    public static IStrategoAppl def2Parent;
-    public static IStrategoAppl def3Parent;
-    public static IStrategoAppl use1Parent;
-    public static IStrategoAppl typeTemplate1Parent;
-    public static IndexPartition[] files;
-    public static int fileIndex;
-    
-    protected int numItems;
-    protected int numFiles;
-    
+	public static IStrategoAppl def1;
+	public static IStrategoAppl def2;
+	public static IStrategoAppl def3;
+	public static IStrategoAppl use1;
+	public static IStrategoAppl type1;
+	public static IStrategoAppl typeTemplate1;
+	public static IStrategoAppl def1Parent;
+	public static IStrategoAppl def2Parent;
+	public static IStrategoAppl def3Parent;
+	public static IStrategoAppl use1Parent;
+	public static IStrategoAppl typeTemplate1Parent;
+	public static IStrategoTerm[] files;
+	public static int fileIndex;
+
+	protected int numItems;
+	protected int numFiles;
+
+	// @formatter:off
     @Parameters
     public static List<Object[]> data() {
-        Object[][] data = new Object[][] { 
+        Object[][] data = new Object[][] {
             { 100   , 1   , false }
           , { 100   , 10  , false }
           , { 100   , 100 , false }
@@ -116,45 +117,46 @@ public class IndexPerformanceTest extends IndexTest {
         };
         return Arrays.asList(data);
     }
+    // @formatter:on
 
-    public IndexPerformanceTest(int numItems, int numFiles) {
-        this.numItems = numItems;
-        this.numFiles = numFiles;
-    }
-    
-    @BeforeClass
-    public static void setUpOnce() {
-        IndexTest.setUpOnce();
+	public IndexPerformanceTest(int numItems, int numFiles) {
+		this.numItems = numItems;
+		this.numFiles = numFiles;
+	}
 
-        def1 = def("Class", "java", "lang", "String");
-        def1Parent = def("Class", "java", "lang");
-        def2 = def("Method", "java", "lang", "System", "out", "println");
-        def2Parent = def("Method", "java", "lang", "System", "out");
-        def3 = def("Field", "java", "lang", "array", "Length");
-        def3Parent = def("Field", "java", "lang", "array");
-        use1 = use("Class", "java", "lang", "System");
-        use1Parent = use("Class", "java", "lang");
-        type1 = type(constructor("Type", str("String")), "Method", "java", "lang", "Object", "toString");
-        typeTemplate1 = type(tuple(), "Method", "java", "lang", "Object", "toString");
-        typeTemplate1Parent = type(tuple(), "Method", "java", "lang", "Object");
+	@BeforeClass
+	public static void setUpOnce() {
+		IndexTest.setUpOnce();
 
-        files = new IndexPartition[MAX_NUM_FILES];
-        for(int i = 0; i < MAX_NUM_FILES; ++i) {
-            files[i] = IndexPartition.fromTerm(agent, partition("File" + i));
-        }
+		def1 = def("Class", "java", "lang", "String");
+		def1Parent = def("Class", "java", "lang");
+		def2 = def("Method", "java", "lang", "System", "out", "println");
+		def2Parent = def("Method", "java", "lang", "System", "out");
+		def3 = def("Field", "java", "lang", "array", "Length");
+		def3Parent = def("Field", "java", "lang", "array");
+		use1 = use("Class", "java", "lang", "System");
+		use1Parent = use("Class", "java", "lang");
+		type1 = type(constructor("Type", str("String")), "Method", "java", "lang", "Object", "toString");
+		typeTemplate1 = type(tuple(), "Method", "java", "lang", "Object", "toString");
+		typeTemplate1Parent = type(tuple(), "Method", "java", "lang", "Object");
 
-        fileIndex = -1;
-    }
+		files = new IStrategoTerm[MAX_NUM_FILES];
+		for(int i = 0; i < MAX_NUM_FILES; ++i) {
+			files[i] = source("Source" + i);
+		}
 
-    @Before
-    public void setUp() {
-        fileIndex = -1;
-    }
-    
-    protected IndexPartition getNextFile() {
-        IndexPartition file = files[++fileIndex];
-        if(fileIndex == this.numFiles - 1)
-            fileIndex = -1;
-        return file;
-    }
+		fileIndex = -1;
+	}
+
+	@Before
+	public void setUp() {
+		fileIndex = -1;
+	}
+
+	protected IStrategoTerm getNextFile() {
+		IStrategoTerm file = files[++fileIndex];
+		if(fileIndex == this.numFiles - 1)
+			fileIndex = -1;
+		return file;
+	}
 }

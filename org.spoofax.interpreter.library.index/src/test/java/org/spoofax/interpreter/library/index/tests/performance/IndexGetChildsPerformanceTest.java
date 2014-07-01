@@ -47,15 +47,15 @@ public class IndexGetChildsPerformanceTest extends IndexPerformanceTest {
 	public void getChilds() {
 		Iterable<IndexEntry> ret;
 		for(int i = 0; i < NUM_GET; ++i) {
-			ret = index.getChildren(def1Parent);
+			ret = index.getChilds(def1Parent);
 			ret.iterator();
-			ret = index.getChildren(def2Parent);
+			ret = index.getChilds(def2Parent);
 			ret.iterator();
-			ret = index.getChildren(def3Parent);
+			ret = index.getChilds(def3Parent);
 			ret.iterator();
-			ret = index.getChildren(use1Parent);
+			ret = index.getChilds(use1Parent);
 			ret.iterator();
-			ret = index.getChildren(typeTemplate1Parent);
+			ret = index.getChilds(typeTemplate1Parent);
 			ret.iterator();
 		}
 	}
