@@ -24,6 +24,7 @@
 
 	<build>
 		<sourceDirectory>src</sourceDirectory>
+
 		<plugins>
 			<!-- Use Java 7, exclude gwt stuff. -->
 			<plugin>
@@ -51,12 +52,10 @@
 						<!-- Fix names not to include the groupId. -->
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 						<Bundle-Name>${project.artifactId}</Bundle-Name>
-
 						<!-- Replace SNAPSHOT in the manifest version with given qualifier. -->
 						<Bundle-Version>$(replace;${project.version};-SNAPSHOT;.${forceContextQualifier})</Bundle-Version>
 					</instructions>
 				</configuration>
-
 				<!-- Hook in manifest generation into the process-classes phase, because
 					this is not automatically done for projects with 'jar' packaging. -->
 				<executions>
