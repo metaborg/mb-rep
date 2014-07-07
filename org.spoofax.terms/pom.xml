@@ -2,82 +2,28 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
 	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.metaborg</groupId>
 	<artifactId>org.spoofax.terms</artifactId>
 	<version>1.2.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<properties>
-		<manifest-location>META-INF</manifest-location>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<forceContextQualifier>qualifier</forceContextQualifier>
-	</properties>
-
-	<!--
-		<parent>
+	<parent>
 		<groupId>org.metaborg</groupId>
 		<artifactId>org.metaborg.maven.java.parent</artifactId>
 		<version>1.2.0-SNAPSHOT</version>
 		<relativePath>../../spoofax-deploy/org.metaborg.maven.java.parent</relativePath>
-		</parent>
-	-->
+	</parent>
 
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 
 		<plugins>
-			<!-- Use Java 7, exclude gwt stuff. -->
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
+				<version>${maven-compiler-version}</version>
 				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
 					<excludes>
 						<exclude>org/spoofax/gwt/**/*.java</exclude>
 					</excludes>
-				</configuration>
-			</plugin>
-
-			<!-- Generate MANIFEST.MF from project, to make project available to Eclipse
-				plugins. -->
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<version>2.3.7</version>
-				<extensions>true</extensions>
-				<configuration>
-					<manifestLocation>${manifest-location}</manifestLocation>
-					<instructions>
-						<!-- Fix names not to include the groupId. -->
-						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-						<Bundle-Name>${project.artifactId}</Bundle-Name>
-						<!-- Replace SNAPSHOT in the manifest version with given qualifier. -->
-						<Bundle-Version>$(replace;${project.version};-SNAPSHOT;.${forceContextQualifier})</Bundle-Version>
-					</instructions>
-				</configuration>
-				<!-- Hook in manifest generation into the process-classes phase, because
-					this is not automatically done for projects with 'jar' packaging. -->
-				<executions>
-					<execution>
-						<id>bundle-manifest</id>
-						<phase>process-classes</phase>
-						<goals>
-							<goal>manifest</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-
-			<!-- Make sure that the generated MANIFEST.MF is used in the resulting
-				JAR file. -->
-			<plugin>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.3.1</version>
-				<configuration>
-					<archive>
-						<manifestFile>${manifest-location}/MANIFEST.MF</manifestFile>
-					</archive>
 				</configuration>
 			</plugin>
 		</plugins>
