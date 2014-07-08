@@ -8,7 +8,6 @@ package org.spoofax.terms.skeleton;
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.spoofax.NotImplementedException;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
@@ -17,6 +16,7 @@ import org.spoofax.terms.StrategoTerm;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.attachments.ITermAttachment;
 import org.spoofax.terms.attachments.TermAttachmentType;
+import org.spoofax.terms.util.NotImplementedException;
 
 public abstract class SkeletonStrategoList extends StrategoTerm implements IStrategoList, Iterable<IStrategoTerm> {
 

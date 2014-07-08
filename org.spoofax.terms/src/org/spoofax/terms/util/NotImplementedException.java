@@ -5,7 +5,7 @@
  * 
  * Licensed under the GNU Lesser General Public License, v2.1
  */
-package org.spoofax;
+package org.spoofax.terms.util;
 
 public class NotImplementedException extends RuntimeException {
     

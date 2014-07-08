@@ -9,14 +9,14 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Iterator;
 
-import org.spoofax.EmptyIterator;
-import org.spoofax.NotImplementedException;
 import org.spoofax.interpreter.terms.IStrategoInt;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
 import org.spoofax.terms.StrategoTerm;
 import org.spoofax.terms.TermFactory;
+import org.spoofax.terms.util.EmptyIterator;
+import org.spoofax.terms.util.NotImplementedException;
 
 public class SkeletonStrategoInt extends StrategoTerm implements IStrategoInt {
 

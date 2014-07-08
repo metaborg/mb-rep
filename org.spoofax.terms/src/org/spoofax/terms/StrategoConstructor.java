@@ -10,13 +10,13 @@ package org.spoofax.terms;
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.spoofax.EmptyIterator;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.interpreter.terms.ITermPrinter;
+import org.spoofax.terms.util.EmptyIterator;
 
 public final class StrategoConstructor extends StrategoTerm implements IStrategoConstructor {
 

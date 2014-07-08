@@ -1,4 +1,4 @@
-package org.spoofax;
+package org.spoofax.terms.util;
 
 public class PushbackStringIterator {
 	

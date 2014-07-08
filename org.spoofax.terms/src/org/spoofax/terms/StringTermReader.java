@@ -11,11 +11,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.spoofax.NotImplementedException;
-import org.spoofax.PushbackStringIterator;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.terms.util.NotImplementedException;
+import org.spoofax.terms.util.PushbackStringIterator;
 
 /**
  * @author Karl T. Kalleberg <karltk add strategoxt.org>

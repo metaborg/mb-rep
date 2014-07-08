@@ -3,7 +3,6 @@ package org.spoofax.terms.attachments;
 import static org.spoofax.interpreter.terms.IStrategoTerm.MUTABLE;
 import static org.spoofax.terms.attachments.OriginAttachment.getOrigin;
 
-import org.spoofax.NotImplementedException;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -11,6 +10,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.StrategoAppl;
+import org.spoofax.terms.util.NotImplementedException;
 
 /**
  * A factory creating ATerms from AST nodes.
