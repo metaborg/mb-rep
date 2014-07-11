@@ -18,7 +18,6 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${maven-compiler-version}</version>
 				<configuration>
 					<excludes>
 						<exclude>org/spoofax/gwt/**/*.java</exclude>

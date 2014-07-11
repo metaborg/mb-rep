@@ -32,19 +32,16 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>${guava-version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>${junit-version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.carrotsearch</groupId>
 			<artifactId>junit-benchmarks</artifactId>
-			<version>${junit-benchmarks-version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -54,7 +51,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>${maven-surefire-version}</version>
 				<configuration>
 					<excludes>
 						<exclude>org/spoofax/interpreter/library/index/tests/performance/**</exclude>

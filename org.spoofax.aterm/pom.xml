@@ -9,12 +9,10 @@
 		<dependency>
 			<groupId>com.github.ansell.jjtraveler</groupId>
 			<artifactId>jjtraveler</artifactId>
-			<version>${jjtraveler-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.ansell.aterms</groupId>
 			<artifactId>shared-objects</artifactId>
-			<version>${shared-objects-version}</version>
 		</dependency>
 	</dependencies>
 
