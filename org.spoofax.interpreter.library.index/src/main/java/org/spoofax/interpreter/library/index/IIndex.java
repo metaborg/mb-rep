@@ -1,135 +1,108 @@
 package org.spoofax.interpreter.library.index;
 
-import java.util.Collection;
+import java.util.Set;
 
-import org.spoofax.interpreter.library.IOAgent;
-import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.interpreter.terms.IStrategoTuple;
 
-/**
- * @author Gabriël Konat
- */
 public interface IIndex {
-    /**
-     * Initializes this index.
-     */
-    public abstract void initialize(ITermFactory factory, IOAgent agent);
+	/**
+	 * Gets the entry factory.
+	 */
+	public abstract IndexEntryFactory entryFactory();
 
-    /**
-     * Gets the entry factory used by this index.
-     */
-    public abstract IndexEntryFactory getFactory();
 
-    /**
-     * Adds a new entry to the index.
-     * 
-     * @param entry The entry to add.
-     * @param partitionDescriptor The partition to associate the entry with.
-     */
-    public abstract void add(IStrategoAppl entry, IndexPartitionDescriptor partitionDescriptor);
+	/**
+	 * Starts collection for given source.
+	 */
+	public abstract void startCollection(IStrategoTerm source);
 
-    /**
-     * Adds a new entry to the index.
-     * 
-     * @param entry The entry to add.
-     */
-    public abstract void add(IndexEntry entry);
+	/**
+	 * Collects a new index entry, which will be added when collection is stopped.
+	 */
+	public abstract IndexEntry collect(IStrategoTerm key, IStrategoTerm value);
 
-    /**
-     * Adds a list of entries to the index.
-     * 
-     * @param entries The entries to add.
-     * @param partitionDescriptor The partition to associate the entries with.
-     */
-    public abstract void addAll(IStrategoList entries, IndexPartitionDescriptor partitionDescriptor);
+	/**
+	 * Collects a new index entry, which will be added when collection is stopped.
+	 */
+	public abstract IndexEntry collect(IStrategoTerm key);
 
-    /**
-     * Removes all entries that match given template and are from given partition. 
-     * Warning: VERY SLOW!
-     * 
-     * @param template The template to match entries against.
-     * @param partitionDescriptor The partition entries will be removed from.
-     */
-    public abstract void remove(IStrategoAppl template, IndexPartitionDescriptor partitionDescriptor);
+	/**
+	 * Stops collection, returning the entries that were removed and added during collection.
+	 *
+	 * @return The removed and added entries as a tuple.
+	 */
+	public abstract IStrategoTuple stopCollection(IStrategoTerm source);
 
-    /**
-     * Gets all entries that match given template.
-     * 
-     * @param template The template to match entries against.
-     */
-    public abstract IIndexEntryIterable get(IStrategoAppl template);
 
-    /**
-     * Gets all entries.
-     */
-    public abstract IIndexEntryIterable getAll();
+	/**
+	 * Adds a new entry to the index.
+	 */
+	public abstract void add(IndexEntry entry);
 
-    /**
-     * Gets all child entries for URI in given template.
-     * 
-     * @param template The template to match entries against.
-     */
-    public abstract IIndexEntryIterable getChildren(IStrategoAppl template);
+	public abstract void addAll(IStrategoTerm source, Iterable<IndexEntry> entry);
 
-    /**
-     * Gets all entries for given partition descriptor.
-     * 
-     * @param partitionDescriptor The partition descriptor to match entries against.
-     */
-    public abstract IIndexEntryIterable getInPartition(IndexPartitionDescriptor partitionDescriptor);
 
-    /**
-     * Gets all partitions that contain entries that match given template. Returned collection is a set of partitions,
-     * it does not contain duplicates.
-     * 
-     * @param template The template to match entries against.
-     */
-    public abstract Collection<IndexPartitionDescriptor> getPartitionsOf(IStrategoAppl template);
+	/**
+	 * Gets all entries that match given template.
+	 */
+	public abstract Iterable<IndexEntry> get(IStrategoTerm key);
 
-    /**
-     * Gets an index partition for given partition descriptor.
-     * 
-     * @param partitionDescriptor A partition descriptor.
-     */
-    public abstract IndexPartition getPartition(IndexPartitionDescriptor partitionDescriptor);
+	/**
+	 * Gets all child entries for URI in given template.
+	 */
+	public abstract Iterable<IndexEntry> getChilds(IStrategoTerm key);
 
-    /**
-     * Gets an index partition descriptor for given partition term.
-     * 
-     * @param partitionTerm A string or (string, string) tuple with a file name or the file name and partition
-     *            identifier.
-     */
-    public abstract IndexPartitionDescriptor getPartitionDescriptor(IStrategoTerm partitionTerm);
+	/**
+	 * Gets all entries.
+	 */
+	public abstract Iterable<IndexEntry> getAll();
 
-    /**
-     * Gets all partitions that are in the index.
-     */
-    public abstract Collection<IndexPartition> getAllPartitions();
 
-    /**
-     * Gets all partition descriptors that are in the index.
-     */
-    public abstract Collection<IndexPartitionDescriptor> getAllPartitionDescriptors();
-    
-    /**
-     * Removes all entries in given partition term and removes the partition itself.
-     * 
-     * @param partitionTerm A string or (string, string) tuple with a file name or the file name and partition
-     *            identifier.
-     */
-    public abstract void clearPartition(IStrategoTerm partitionTerm);
+	/**
+	 * Gets all entries for given source
+	 */
+	public abstract Iterable<IndexEntry> getInSource(IStrategoTerm source);
 
-    /**
-     * Removes all entries for given partition and removes the partition itself.
-     * 
-     * @param partitionDescriptor A partition descriptor.
-     */
-    public abstract void clearPartition(IndexPartitionDescriptor partitionDescriptor);
+	/**
+	 * Gets all sources that contain given key. Returned collection is a set of partitions, it does not contain
+	 * duplicates.
+	 */
+	public abstract Set<IStrategoTerm> getSourcesOf(IStrategoTerm key);
 
-    /**
-     * Clears the entire index.
-     */
-    public abstract void clearAll();
+	/**
+	 * Gets all sources.
+	 */
+	public abstract Iterable<IStrategoTerm> getAllSources();
+
+	/**
+	 * Removes all entries for given source and removes the source itself.
+	 */
+	public abstract void clearSource(IStrategoTerm source);
+
+
+	/**
+	 * Gets names of all languages that are being indexed.
+	 */
+	public abstract Iterable<String> getAllLanguages();
+
+	/**
+	 * Query if a language is being indexed.
+	 *
+	 * @param language Name of the language
+	 */
+	public abstract boolean hasLanguage(String language);
+
+	/**
+	 * Add an indexed language. Returns true if language was not being indexed before.
+	 *
+	 * @param language Name of the language.
+	 */
+	public abstract boolean addLanguage(String language);
+
+
+	/**
+	 * Resets the index to the initial state.
+	 */
+	public abstract void reset();
 }

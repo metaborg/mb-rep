@@ -1,14 +1,14 @@
 package org.spoofax.terms;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.spoofax.EmptyIterator;
 import org.spoofax.interpreter.terms.IStrategoInt;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
-import org.spoofax.terms.AbstractSimpleTerm;
-import org.spoofax.terms.TermFactory;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
@@ -88,6 +88,10 @@ public final class UniqueValueTerm extends AbstractSimpleTerm implements IStrate
 
 	public boolean isList() {
 		return false;
+	}
+
+	public Iterator<IStrategoTerm> iterator() {
+		return new EmptyIterator<IStrategoTerm>();
 	}
 	
 }

@@ -7,7 +7,9 @@ package org.spoofax.terms.skeleton;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Iterator;
 
+import org.spoofax.EmptyIterator;
 import org.spoofax.NotImplementedException;
 import org.spoofax.interpreter.terms.IStrategoInt;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -89,4 +91,8 @@ public class SkeletonStrategoInt extends StrategoTerm implements IStrategoInt {
     public int hashFunction() {
         return 449 * intValue() ^ 7841;
     }
+    
+	public Iterator<IStrategoTerm> iterator() {
+		return new EmptyIterator<IStrategoTerm>();
+	}
 }

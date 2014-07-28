@@ -8,7 +8,9 @@
 package org.spoofax.terms;
 
 import java.io.IOException;
+import java.util.Iterator;
 
+import org.spoofax.EmptyIterator;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -109,5 +111,8 @@ public class StrategoString extends StrategoTerm implements IStrategoString {
     public int hashFunction() {
         return stringValue().hashCode();
     }
-    
+
+	public Iterator<IStrategoTerm> iterator() {
+		return new EmptyIterator<IStrategoTerm>();
+	}
 }

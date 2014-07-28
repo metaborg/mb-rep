@@ -240,27 +240,30 @@ public class SAFWriter {
      */
     private IStrategoTerm getNextTerm() {
         IStrategoTerm next = null;
-
         // Make sure the stack remains large enough
         ensureStackCapacity();
 
         while (next == null && stackPosition > -1) {
             ATermMapping current = stack[stackPosition];
             IStrategoTerm term = current.term;
-
-            if (term.getSubtermCount() > current.subTermIndex + 1) {
+	    final boolean hasRemainigSubterms = current.subTermsAfter > 0
+		    || term.getSubtermCount() > current.subTermIndex + 1;
+	    if (hasRemainigSubterms) {
                 if (term.getTermType() != IStrategoTerm.LIST) {
                     next = term.getSubterm(++current.subTermIndex);
                 } else {
                     IStrategoList nextList = current.nextPartOfList;
                     next = nextList.head();
                     current.nextPartOfList = nextList.tail();
-
                     current.subTermIndex++;
+		    current.subTermsAfter--;
                 }
 
                 ATermMapping child = new ATermMapping();
                 child.term = next;
+		if (next.getTermType() == IStrategoTerm.LIST) {
+		    child.subTermsAfter = next.getSubtermCount();
+		}
                 stack[++stackPosition] = child;
             } else if (!current.annosDone && !term.getAnnotations().isEmpty()) {
                 next = term.getAnnotations();
@@ -315,6 +318,7 @@ public class SAFWriter {
         public IStrategoTerm term;
 
         public int subTermIndex = -1;
+	public int subTermsAfter = -1;
 
         public boolean annosDone = false;
 

@@ -5,7 +5,6 @@ import java.io.IOException;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.MethodRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -17,34 +16,30 @@ import com.carrotsearch.junitbenchmarks.Clock;
 @RunWith(value = Parameterized.class)
 public class IndexAddPerformanceTest extends IndexPerformanceTest {
     @Rule
-    public MethodRule benchmarkRun;
+    public BenchmarkRule benchmarkRun;
 
-    public IndexAddPerformanceTest(int numItems, int numFiles, boolean startTransaction) {
-        super(numItems, numFiles, startTransaction);
-        
+    public IndexAddPerformanceTest(int numItems, int numFiles) {
+        super(numItems, numFiles);
+
         try {
             benchmarkRun =
                 new BenchmarkRule(new CSVResultsConsumer((this.numItems * 5) + "," + this.numFiles, new FileWriter(
-                    "add_" + this.numFiles + "_" + indexTypeString() + ".csv", true)));
+                    "add_" + this.numFiles + ".csv", true)));
         } catch(IOException e) {
             e.printStackTrace();
         }
 
-        index.clearAll();
+        index.reset();
     }
 
     @Test
     public void add() {
-        startTransaction();
-        
         for(int i = 0; i < numItems; ++i) {
-            index.add(def1, getNextFile());
-            index.add(def2, getNextFile());
-            index.add(def3, getNextFile());
-            index.add(use1, getNextFile());
-            index.add(type1, getNextFile());
+			add(def1, getNextFile());
+			add(def2, getNextFile());
+			add(def3, getNextFile());
+			add(use1, getNextFile());
+			add(type1, getNextFile());
         }
-        
-        endTransaction();
     }
 }

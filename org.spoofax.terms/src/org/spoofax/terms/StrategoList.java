@@ -18,12 +18,10 @@ import org.spoofax.interpreter.terms.ITermPrinter;
 /**
  * A basic stratego list implementation using a linked-list data structure.
  */
-public class StrategoList extends StrategoTerm implements IStrategoList, Iterable<IStrategoTerm> {
+public class StrategoList extends StrategoTerm implements IStrategoList {
 	
 	private static final long serialVersionUID = 624120573663698628L;
 
-	private static final int UNKNOWN_SIZE = -1;
-    
     /**
      * @see #hashFunction()
      * @see TermFactory#EMPTY_LIST  The singleton maximally shared empty list instance.
@@ -34,7 +32,7 @@ public class StrategoList extends StrategoTerm implements IStrategoList, Iterabl
     
     private IStrategoList tail;
     
-    private int size = UNKNOWN_SIZE;
+    private final int size;
 
     /**
      * Creates a new list.
@@ -46,7 +44,9 @@ public class StrategoList extends StrategoTerm implements IStrategoList, Iterabl
         this.head = head;
         this.tail = tail;
         
-        if (storageType != MUTABLE) initImmutableHashCode();
+        //if (storageType != MUTABLE) initImmutableHashCode();
+        
+        this.size = (head == null ? 0 : 1) + (tail == null ? 0 : tail.size());
     }
     
     public IStrategoTerm head() {
@@ -87,7 +87,7 @@ public class StrategoList extends StrategoTerm implements IStrategoList, Iterabl
 
     
     public final int size() {
-        return getSubtermCount();
+        return size;
     }
 
     public IStrategoTerm getSubterm(int index) {
@@ -101,17 +101,7 @@ public class StrategoList extends StrategoTerm implements IStrategoList, Iterabl
     }
 
     public int getSubtermCount() {
-    	int result = size;
-		if (result == UNKNOWN_SIZE) {
-    		result = 0;
-    		for (IStrategoList cur = this; !cur.isEmpty(); cur = cur.tail())
-    			result++;
-    		if (getStorageType() != MUTABLE)
-    			size = result;
-    		return result;
-    	} else {
-    		return result;
-    	}
+    	return size;
     }
 
     public int getTermType() {
@@ -203,18 +193,22 @@ public class StrategoList extends StrategoTerm implements IStrategoList, Iterabl
 
     @Override
     public int hashFunction() {
-    	/* UNDONE: BasicStrategoTerm hash; should use cons/nil hash instead
-        long hc = 4787;
-        for (IStrategoList cur = this; !cur.isEmpty(); cur = cur.tail()) {
-            hc *= cur.head().hashCode();
-        }
-        return (int)(hc >> 2);
-        */
-		final int prime = 71;
-		int result = 1;
-		result = prime * result + ((head == null) ? 0 : head.hashCode());
-		result = prime * result + ((tail == null) ? 0 : tail.hashCode());
-		return result;
+    	if(head == null)
+    		return 1;
+    	
+    	final int prime = 31;
+    	int result = prime * head.hashCode();
+    	
+    	if(tail == null)
+    		return result;
+    	
+    	IStrategoList tail = this.tail;
+    	while(!tail.isEmpty()) {
+    		result = prime * result + tail.head().hashCode();
+    		tail = tail.tail();
+    	}
+    	
+    	return result;
     }
 
 	public Iterator<IStrategoTerm> iterator() {

@@ -1,7 +1,6 @@
 package org.spoofax.interpreter.library.index.tests;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 import org.junit.AfterClass;
@@ -10,10 +9,8 @@ import org.junit.runners.Parameterized.Parameters;
 import org.spoofax.interpreter.core.Interpreter;
 import org.spoofax.interpreter.library.IOAgent;
 import org.spoofax.interpreter.library.index.IIndex;
-import org.spoofax.interpreter.library.index.IIndexEntryIterable;
 import org.spoofax.interpreter.library.index.IndexEntry;
 import org.spoofax.interpreter.library.index.IndexManager;
-import org.spoofax.interpreter.library.index.IndexPartitionDescriptor;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
@@ -21,172 +18,243 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 
+import com.google.common.collect.Iterables;
+
 public class IndexTest {
-    protected static Interpreter interpreter;
-    protected static ITermFactory factory;
-    protected static IOAgent agent;
+	protected static Interpreter interpreter;
+	protected static ITermFactory factory;
+	protected static IOAgent agent;
 
-    protected static IStrategoString language;
-    protected static IStrategoString projectPath;
-    protected static IStrategoTerm fileTerm;
+	protected static IStrategoString language;
+	protected static IStrategoString projectPath;
 
-    protected static IndexManager indexManager;
-    protected static IndexPartitionDescriptor project;
-    protected static IndexPartitionDescriptor file;
-    protected static IIndex index;
+	protected static IndexManager indexManager;
+	protected static IStrategoTerm source;
+	protected static IIndex index;
 
-    @Parameters
-    public static List<Object[]> data() {
-        Object[][] data = new Object[][] { { false }, { true } };
-        return Arrays.asList(data);
-    }
+	@Parameters
+	public static List<Object[]> data() {
+		Object[][] data = new Object[][] {};
+		return Arrays.asList(data);
+	}
 
-    @BeforeClass
-    public static void setUpOnce() {
-        interpreter = new Interpreter();
-        factory = interpreter.getFactory();
-        agent = interpreter.getIOAgent();
+	@BeforeClass
+	public static void setUpOnce() {
+		interpreter = new Interpreter();
+		factory = interpreter.getFactory();
+		agent = interpreter.getIOAgent();
 
-        language = str("TestLanguage");
-        projectPath = str("TestPath");
-        fileTerm = file("TestFile");
+		language = str("TestLanguage");
+		projectPath = str("TestPath");
+		source = source("TestFile");
 
-        project = IndexPartitionDescriptor.fromTerm(agent, projectPath);
-        indexManager = new IndexManager();
-        indexManager.loadIndex(project.getURI(), language.stringValue(), factory, agent);
-        index = indexManager.getCurrent();
-        index.initialize(factory, agent);
-        file = setupIndex(fileTerm);
-    }
+		indexManager = IndexManager.getInstance();
+		indexManager.loadIndex(projectPath.stringValue(), language.stringValue(), factory, agent);
+		index = indexManager.getCurrent();
+	}
 
-    @AfterClass
-    public static void tearDownOnce() {
-        index.clearAll();
-        index = null;
-        indexManager = null;
-        project = null;
-        language = null;
-        projectPath = null;
-        fileTerm = null;
-        interpreter.shutdown();
-        interpreter = null;
-        factory = null;
-        agent = null;
-    }
+	@AfterClass
+	public static void tearDownOnce() {
+		index.reset();
+		index = null;
+		indexManager = null;
+		language = null;
+		projectPath = null;
+		source = null;
+		interpreter.shutdown();
+		interpreter = null;
+		factory = null;
+		agent = null;
+	}
 
-    public static IndexPartitionDescriptor setupIndex(IStrategoTerm fileTerm) {
-        IndexPartitionDescriptor file = getFile(fileTerm);
-        indexManager.setCurrentPartition(file);
-        return file;
-    }
 
-    public static void setupIndex(IndexPartitionDescriptor file) {
-        indexManager.setCurrentPartition(file);
-    }
+	public static void startCollection(IIndex index, IStrategoTerm source) {
+		index.startCollection(source);
+	}
 
-    public static void doStartTransaction() {
-        indexManager.startTransaction(factory, agent);
-        index = indexManager.getCurrent();
-    }
+	public static void startCollection(IStrategoTerm source) {
+		index.startCollection(source);
+	}
 
-    public static void doEndTransaction() {
-        indexManager.endTransaction();
-        index = indexManager.getCurrent();
-    }
+	public static void startCollection(IIndex index) {
+		index.startCollection(source);
+	}
 
-    public static IndexPartitionDescriptor getFile(IStrategoTerm fileTerm) {
-        return index.getPartitionDescriptor(fileTerm);
-    }
+	public static void startCollection() {
+		index.startCollection(source);
+	}
 
-    public static IStrategoString str(String str) {
-        return factory.makeString(str);
-    }
+	public static IStrategoTerm stopCollection(IIndex index, IStrategoTerm source) {
+		return index.stopCollection(source);
+	}
 
-    public static IStrategoAppl constructor(String constructor, IStrategoTerm... terms) {
-        return factory.makeAppl(factory.makeConstructor(constructor, terms.length), terms);
-    }
+	public static IStrategoTerm stopCollection(IStrategoTerm source) {
+		return index.stopCollection(source);
+	}
 
-    public static IStrategoTuple tuple(IStrategoTerm... terms) {
-        return factory.makeTuple(terms);
-    }
+	public static IStrategoTerm stopCollection(IIndex index) {
+		return index.stopCollection(source);
+	}
 
-    public static IStrategoString file(String file) {
-        return str(file);
-    }
+	public static IStrategoTerm stopCollection() {
+		return index.stopCollection(source);
+	}
 
-    public static IStrategoTuple file(String file, String namespace, String... path) {
-        return factory.makeTuple(str(file), uri(namespace, path));
-    }
 
-    public static IStrategoList path(String... path) {
-        IStrategoString[] strategoPath = new IStrategoString[path.length];
-        for(int i = 0; i < path.length; ++i)
-            // Paths are reversed in Stratego for easy appending of new names.
-            strategoPath[i] = str(path[path.length - i - 1]);
-        return factory.makeList(strategoPath);
-    }
+	public static IndexEntry collect(IIndex index, IStrategoTerm key, IStrategoTerm value) {
+		final IndexEntry entry = index.collect(key, value);
+		return entry;
+	}
 
-    public static IStrategoList uri(String namespace, String... path) {
-        return factory.makeListCons(constructor(namespace), path(path));
-    }
+	public static IndexEntry collect(IIndex index, IStrategoTerm key) {
+		final IndexEntry entry = index.collect(key);
+		return entry;
+	}
 
-    public static IStrategoAppl def(String namespace, String... path) {
-        return factory.makeAppl(factory.makeConstructor("Def", 1), uri(namespace, path));
-    }
+	public static IndexEntry collect(IStrategoTerm key, IStrategoTerm value) {
+		final IndexEntry entry = index.collect(key, value);
+		return entry;
+	}
 
-    public static IStrategoAppl use(String namespace, String... path) {
-        return factory.makeAppl(factory.makeConstructor("Use", 1), uri(namespace, path));
-    }
+	public static IndexEntry collect(IStrategoTerm key) {
+		final IndexEntry entry = index.collect(key);
+		return entry;
+	}
 
-    public static IStrategoAppl read(String namespace, String... path) {
-        return factory.makeAppl(factory.makeConstructor("Read", 1), uri(namespace, path));
-    }
 
-    public static IStrategoAppl readAll(String prefix, String namespace, String... path) {
-        return factory.makeAppl(factory.makeConstructor("ReadAll", 2), uri(namespace, path), str(prefix));
-    }
+	public static IndexEntry add(IIndex index, IStrategoTerm key, IStrategoTerm value, IStrategoTerm source) {
+		final IndexEntry entry = index.entryFactory().create(key, value, source);
+		index.add(entry);
+		return entry;
+	}
 
-    public static IStrategoAppl type(IStrategoTerm type, String namespace, String... path) {
-        return factory.makeAppl(factory.makeConstructor("Type", 2), uri(namespace, path), type);
-    }
+	public static IndexEntry add(IIndex index, IStrategoTerm key, IStrategoTerm source) {
+		final IndexEntry entry = index.entryFactory().create(key, source);
+		index.add(entry);
+		return entry;
+	}
 
-    public static IStrategoAppl defData(IStrategoTerm type, IStrategoTerm value, String namespace, String... path) {
-        return factory.makeAppl(factory.makeConstructor("DefData", 3), uri(namespace, path), type, value);
-    }
+	public static IndexEntry add(IIndex index, IStrategoTerm key) {
+		final IndexEntry entry = index.entryFactory().create(key, source);
+		index.add(entry);
+		return entry;
+	}
 
-    public static IStrategoAppl longTerm(IStrategoTerm t1, IStrategoTerm t2, IStrategoTerm t3, String namespace,
-        String... path) {
-        return factory.makeAppl(factory.makeConstructor("LongTerm", 4), uri(namespace, path), t1, t2, t3);
-    }
+	public static IndexEntry add(IStrategoTerm key, IStrategoTerm value, IStrategoTerm source) {
+		final IndexEntry entry = index.entryFactory().create(key, value, source);
+		index.add(entry);
+		return entry;
+	}
 
-    public static boolean containsEntry(IIndexEntryIterable entries, IStrategoTerm term) {
-        boolean found = false;
-        for(IndexEntry entry : entries)
-            found = found || entry.toTerm(factory).match(term);
-        return found;
-    }
+	public static IndexEntry add(IStrategoTerm key, IStrategoTerm source) {
+		final IndexEntry entry = index.entryFactory().create(key, source);
+		index.add(entry);
+		return entry;
+	}
 
-    public static boolean containsPartitionDescriptor(Collection<IndexPartitionDescriptor> partitionDescriptors,
-        IndexPartitionDescriptor partition) {
-        boolean found = false;
-        for(IndexPartitionDescriptor partitionDescriptor : partitionDescriptors)
-            found = found || partitionDescriptor.equals(partition);
-        return found;
-    }
+	public static IndexEntry add(IStrategoTerm key) {
+		final IndexEntry entry = index.entryFactory().create(key, source);
+		index.add(entry);
+		return entry;
+	}
 
-    public static boolean matchAll(IIndexEntryIterable entries, IStrategoTerm term) {
-        if(!entries.iterator().hasNext())
-            return false;
-        boolean matchAll = true;
-        for(IndexEntry entry : entries)
-            matchAll = matchAll && entry.toTerm(factory).match(term);
-        return matchAll;
-    }
-    
-    public static int size(IIndexEntryIterable entries) {
-        int size = 0;
-        for(@SuppressWarnings("unused") IndexEntry entry : entries)
-            ++size;
-        return size;
-    }
+
+	public static IStrategoString str(String str) {
+		return factory.makeString(str);
+	}
+
+	public static IStrategoAppl constructor(String constructor, IStrategoTerm... terms) {
+		return factory.makeAppl(factory.makeConstructor(constructor, terms.length), terms);
+	}
+
+	public static IStrategoTuple tuple(IStrategoTerm... terms) {
+		return factory.makeTuple(terms);
+	}
+
+
+	public static IStrategoString source(String file) {
+		return str(file);
+	}
+
+	public static IStrategoTuple source(String file, String namespace, String... path) {
+		return factory.makeTuple(str(file), uri(namespace, path));
+	}
+
+	public static IStrategoTerm uri(String namespace, String... path) {
+		IStrategoList segments = factory.makeList();
+		for(String name : path) {
+			segments = factory.makeListCons(segment(namespace, name), segments);
+		}
+		return factory.makeAppl(factory.makeConstructor("URI", 2), language, segments);
+	}
+
+	public static IStrategoTerm segment(String namespace, String name) {
+		return factory.makeAppl(factory.makeConstructor("ID", 2), factory.makeString(namespace),
+			factory.makeString(name));
+	}
+
+
+	public static IStrategoAppl def(String namespace, String... path) {
+		return factory.makeAppl(factory.makeConstructor("Def", 1), uri(namespace, path));
+	}
+
+	public static IStrategoAppl use(String namespace, String... path) {
+		return factory.makeAppl(factory.makeConstructor("Use", 1), uri(namespace, path));
+	}
+
+	public static IStrategoAppl read(String namespace, String... path) {
+		return factory.makeAppl(factory.makeConstructor("Read", 1), uri(namespace, path));
+	}
+
+	public static IStrategoAppl readAll(String prefix, String namespace, String... path) {
+		return factory.makeAppl(factory.makeConstructor("ReadAll", 2), uri(namespace, path), str(prefix));
+	}
+
+	public static IStrategoAppl type(IStrategoTerm type, String namespace, String... path) {
+		return factory.makeAppl(factory.makeConstructor("Type", 2), uri(namespace, path), type);
+	}
+
+	public static IStrategoAppl defData(IStrategoTerm type, IStrategoTerm value, String namespace, String... path) {
+		return factory.makeAppl(factory.makeConstructor("DefData", 3), uri(namespace, path), type, value);
+	}
+
+	public static IStrategoAppl longTerm(IStrategoTerm t1, IStrategoTerm t2, IStrategoTerm t3, String namespace,
+		String... path) {
+		return factory.makeAppl(factory.makeConstructor("LongTerm", 4), uri(namespace, path), t1, t2, t3);
+	}
+
+
+	public static boolean containsEntry(Iterable<IndexEntry> entries, IStrategoTerm source, IStrategoTerm value) {
+		boolean found = false;
+		for(IndexEntry entry : entries)
+			found = found || (entry.source.equals(source) && entry.value.match(value));
+		return found;
+	}
+
+	public static boolean containsEntry(Iterable<IndexEntry> entries, IStrategoTerm value) {
+		boolean found = false;
+		for(IndexEntry entry : entries)
+			found = found || entry.value.match(value);
+		return found;
+	}
+
+	public static boolean containsSource(Iterable<IStrategoTerm> sources, IStrategoTerm source) {
+		boolean found = false;
+		for(IStrategoTerm searchSource : sources)
+			found = found || searchSource.equals(source);
+		return found;
+	}
+
+	public static boolean matchAll(Iterable<IndexEntry> entries, IStrategoTerm value) {
+		if(!entries.iterator().hasNext())
+			return false;
+		boolean matchAll = true;
+		for(IndexEntry entry : entries)
+			matchAll = matchAll && entry.value.match(value);
+		return matchAll;
+	}
+
+	public static int size(Iterable<IndexEntry> entries) {
+		return Iterables.size(entries);
+	}
 }

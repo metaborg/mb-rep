@@ -120,9 +120,10 @@ public class TermAttachmentSerializer {
 			private List<IStrategoTerm> getNonAttachAnnotations(IStrategoList annotations) {
 				List<IStrategoTerm> newAnnos = null; 
 				while (!annotations.isEmpty()) {
-					if (getAttachmentType(tryGetConstructor(annotations.head())) == null) {
+					final IStrategoTerm annotation = annotations.head();
+					if (getAttachmentType(tryGetConstructor(annotation)) == null) {
 						if (newAnnos == null) newAnnos = new ArrayList<IStrategoTerm>(annotations.size());
-						newAnnos.add(annotations);
+						newAnnos.add(annotation);
 					}
 					annotations = annotations.tail();
 				}

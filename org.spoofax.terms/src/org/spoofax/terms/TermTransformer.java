@@ -58,7 +58,7 @@ public abstract class TermTransformer {
 						return null;
 					if (results == null)
 						results = inputs.clone();
-					results[i] = arg2;
+					results[i] = keepAttachments ? factory.copyAttachments(arg, arg2) : arg2;
 				}
 			}
 
@@ -93,7 +93,7 @@ public abstract class TermTransformer {
 					return null;
 				if (results == null)
 					results = inputs.clone();
-				results[i] = arg2;
+				results[i] = keepAttachments ? factory.copyAttachments(arg, arg2) : arg2;
 			}
 		}
 		

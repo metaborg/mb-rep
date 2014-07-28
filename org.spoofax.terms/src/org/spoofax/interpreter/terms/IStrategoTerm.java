@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.Writer;
 
-public interface IStrategoTerm extends ISimpleTerm, Serializable{
+public interface IStrategoTerm extends ISimpleTerm, Serializable, Iterable<IStrategoTerm> {
 
     public static final int APPL = 1;
     public static final int LIST = 2;

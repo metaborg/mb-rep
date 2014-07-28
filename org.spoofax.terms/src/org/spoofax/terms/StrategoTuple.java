@@ -8,7 +8,9 @@
 package org.spoofax.terms;
 
 import java.io.IOException;
+import java.util.Iterator;
 
+import org.spoofax.ArrayIterator;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
@@ -34,8 +36,7 @@ public class StrategoTuple extends StrategoTerm implements IStrategoTuple {
 
     public IStrategoTerm[] getAllSubterms() {
         IStrategoTerm[] r = new IStrategoTerm[kids.length];
-        for(int i=0; i<kids.length; i++)
-            r[i] = kids[i];
+        System.arraycopy(kids, 0, r, 0, kids.length);
         return r;
     }
     
@@ -144,4 +145,7 @@ public class StrategoTuple extends StrategoTerm implements IStrategoTuple {
         return (int)(hc >> 10);
     }
 
+	public Iterator<IStrategoTerm> iterator() {
+		return new ArrayIterator<IStrategoTerm>(kids);
+	}
 }

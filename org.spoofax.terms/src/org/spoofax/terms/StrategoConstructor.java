@@ -8,7 +8,9 @@
 package org.spoofax.terms;
 
 import java.io.IOException;
+import java.util.Iterator;
 
+import org.spoofax.EmptyIterator;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -100,5 +102,9 @@ public final class StrategoConstructor extends StrategoTerm implements IStratego
 	@Deprecated
 	public IStrategoAppl instantiate(ITermFactory factory, IStrategoList kids) {
 		throw new UnsupportedOperationException();
+	}
+
+	public Iterator<IStrategoTerm> iterator() {
+		return new EmptyIterator<IStrategoTerm>();
 	}
 }

@@ -2,8 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.spoofax.terms
 Bundle-SymbolicName: org.spoofax.terms
-Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-Version: 1.2.0.qualifier
 Export-Package: org.spoofax,
  org.spoofax.interpreter.terms,
  org.spoofax.terms,
@@ -11,3 +10,4 @@ Export-Package: org.spoofax,
  org.spoofax.terms.io,
  org.spoofax.terms.io.binary,
  org.spoofax.terms.skeleton
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
