@@ -4,6 +4,8 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>org.spoofax.aterm</artifactId>
 	<packaging>jar</packaging>
+	<description>Old abstract terms library</description>
+	<url>https://github.com/metaborg/mb-rep</url>
 
 	<dependencies>
 		<dependency>
@@ -26,4 +28,13 @@
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 	</build>
+
+	<developers>
+	</developers>
+
+	<scm>
+		<connection>scm:git:git@github.com:metaborg/mb-rep.git</connection>
+		<developerConnection>scm:git:git@github.com:metaborg/mb-rep.git</developerConnection>
+		<url>https://github.com/metaborg/mb-rep</url>
+	</scm>
 </project>
