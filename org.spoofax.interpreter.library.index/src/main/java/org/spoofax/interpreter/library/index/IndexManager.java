@@ -19,226 +19,237 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 public class IndexManager {
-	private static final IndexManager INSTANCE = new IndexManager();
+    private static final IndexManager INSTANCE = new IndexManager();
 
-	private IndexFactory indexFactory;
+    private IndexFactory indexFactory;
 
-	/** Map from project path to index. */
-	private final Map<URI, WeakReference<IIndex>> indexes = Maps.newHashMap();
+    /** Map from project path to index. */
+    private final Map<URI, WeakReference<IIndex>> indexes = Maps.newHashMap();
 
-	/** Set of all languages that are being indexed. */
-	private final Set<String> indexedLanguages = Sets.newHashSet();
+    /** Set of all languages that are being indexed. */
+    private final Set<String> indexedLanguages = Sets.newHashSet();
 
-	/** The current index in the current thread. */
-	private final ThreadLocal<IIndex> current = new ThreadLocal<IIndex>();
+    /** The current index in the current thread. */
+    private final ThreadLocal<IIndex> current = new ThreadLocal<IIndex>();
 
-	/** The current project in the current thread. */
-	private final ThreadLocal<URI> currentProject = new ThreadLocal<URI>();
-
-
-	private IndexManager() {
-		// use getInstance()
-	}
-
-	public static IndexManager getInstance() {
-		return INSTANCE;
-	}
+    /** The current project in the current thread. */
+    private final ThreadLocal<URI> currentProject = new ThreadLocal<URI>();
 
 
-	public boolean isInitialized() {
-		return current.get() != null;
-	}
+    private IndexManager() {
+        // use getInstance()
+    }
 
-	private void ensureInitialized() {
-		if(!isInitialized())
-			throw new IllegalStateException(
-				"Index has not been set-up, use index-setup(|language, project-paths) to set up the index before use.");
-	}
+    public static IndexManager getInstance() {
+        return INSTANCE;
+    }
 
 
-	public IIndex getCurrent() {
-		ensureInitialized();
-		return current.get();
-	}
+    public boolean isInitialized() {
+        return current.get() != null;
+    }
 
-	private void setCurrent(URI project, IIndex index) {
-		current.set(index);
-		indexes.put(project, new WeakReference<IIndex>(index));
-	}
-
-	private void setCurrent(IIndex taskEngine) {
-		setCurrent(currentProject.get(), taskEngine);
-	}
-
-	public URI getCurrentProject() {
-		ensureInitialized();
-		return currentProject.get();
-	}
-
-	public boolean isKnownIndexingLanguage(String language) {
-		synchronized(IndexManager.class) {
-			return indexedLanguages.contains(language);
-		}
-	}
+    private void ensureInitialized() {
+        if(!isInitialized())
+            throw new IllegalStateException(
+                "Index has not been set-up, use index-setup(|language, project-paths) to set up the index before use.");
+    }
 
 
-	private boolean isHierarchicalIndex(IIndex index) {
-		return index instanceof IHierarchicalIndex;
-	}
+    public IIndex getCurrent() {
+        ensureInitialized();
+        return current.get();
+    }
 
-	public IIndex pushIndex(ITermFactory factory) {
-		final IIndex currentIndex = current.get();
-		final IIndex newIndex = createIndex(currentIndex, factory);
-		setCurrent(newIndex);
-		return newIndex;
-	}
+    private void setCurrent(URI project, IIndex index) {
+        current.set(index);
+        indexes.put(project, new WeakReference<IIndex>(index));
+    }
 
-	public IIndex popIndex() {
-		final IIndex currentIndex = current.get();
-		if(!isHierarchicalIndex(currentIndex))
-			throw new RuntimeException("Cannot pop the root index.");
-		final IIndex parentIndex = ((IHierarchicalIndex) currentIndex).getParent();
-		setCurrent(parentIndex);
-		return parentIndex;
-	}
+    private void setCurrent(IIndex taskEngine) {
+        setCurrent(currentProject.get(), taskEngine);
+    }
 
-	public IIndex popToRootIndex() {
-		final IIndex currentIndex = current.get();
-		if(!isHierarchicalIndex(currentIndex))
-			return currentIndex;
-		final IIndex parentIndex = ((IHierarchicalIndex) currentIndex).getParent();
-		setCurrent(parentIndex);
-		return popToRootIndex();
-	}
+    public URI getCurrentProject() {
+        ensureInitialized();
+        return currentProject.get();
+    }
 
-	public IIndex mergeIndex() {
-		final IIndex currentIndex = current.get();
-		if(!isHierarchicalIndex(currentIndex))
-			throw new RuntimeException("Cannot merge from the root index.");
-		final IHierarchicalIndex currentHierarchicalIndex = (IHierarchicalIndex) currentIndex;
-		final IIndex parentIndex = currentHierarchicalIndex.getParent();
-
-		for(IStrategoTerm source : currentHierarchicalIndex.getClearedSources())
-			parentIndex.clearSource(source);
-
-		for(IndexEntry entry : currentHierarchicalIndex.getAllCurrent())
-			parentIndex.add(entry);
-
-		setCurrent(parentIndex);
-		return parentIndex;
-	}
+    public boolean isKnownIndexingLanguage(String language) {
+        synchronized(IndexManager.class) {
+            return indexedLanguages.contains(language);
+        }
+    }
 
 
-	public IIndex createIndex(ITermFactory factory) {
-		return new Index(factory);
-	}
+    private boolean isHierarchicalIndex(IIndex index) {
+        return index instanceof IHierarchicalIndex;
+    }
 
-	public IIndex createIndex(IIndex parent, ITermFactory factory) {
-		return new HierarchicalIndex(new Index(factory), parent, factory);
-	}
+    public IIndex pushIndex(ITermFactory factory) {
+        final IIndex currentIndex = current.get();
+        final IIndex newIndex = createIndex(currentIndex, factory);
+        setCurrent(newIndex);
+        return newIndex;
+    }
 
+    public IIndex popIndex() {
+        final IIndex currentIndex = current.get();
+        if(!isHierarchicalIndex(currentIndex))
+            throw new RuntimeException("Cannot pop the root index.");
+        final IIndex parentIndex = ((IHierarchicalIndex) currentIndex).getParent();
+        setCurrent(parentIndex);
+        return parentIndex;
+    }
 
-	public IIndex loadIndex(String projectPath, String language, ITermFactory factory, IOAgent agent) {
-		URI project = getProjectURI(projectPath, agent);
-		synchronized(IndexManager.class) {
-			indexedLanguages.add(language);
-			final WeakReference<IIndex> indexRef = indexes.get(project);
-			IIndex index = indexRef == null ? null : indexRef.get();
-			if(index == null) {
-				File indexFile = getIndexFile(project);
-				if(indexFile.exists())
-					index = read(getIndexFile(project), factory);
-			}
-			if(index == null) {
-				index = createIndex(factory);
-				for(String indexedLanguage : indexedLanguages)
-					index.addLanguage(indexedLanguage);
-				NotificationCenter.notifyNewProject(project);
-			} else if(index.addLanguage(language)) {
-				NotificationCenter.notifyNewProjectLanguage(project, language);
-			}
-			setCurrent(project, index);
-			currentProject.set(project);
-			return index;
-		}
-	}
+    public IIndex popToRootIndex() {
+        final IIndex currentIndex = current.get();
+        if(!isHierarchicalIndex(currentIndex))
+            return currentIndex;
+        final IIndex parentIndex = ((IHierarchicalIndex) currentIndex).getParent();
+        setCurrent(parentIndex);
+        return popToRootIndex();
+    }
 
-	public void unloadIndex(String projectPath, IOAgent agent) {
-		URI removedProject = getProjectURI(projectPath, agent);
-		synchronized(IndexManager.class) {
-			WeakReference<IIndex> removedIndex = indexes.remove(removedProject);
+    public IIndex mergeIndex() {
+        final IIndex currentIndex = current.get();
+        if(!isHierarchicalIndex(currentIndex))
+            throw new RuntimeException("Cannot merge from the root index.");
+        final IHierarchicalIndex currentHierarchicalIndex = (IHierarchicalIndex) currentIndex;
+        final IIndex parentIndex = currentHierarchicalIndex.getParent();
 
-			IIndex index = current.get();
-			if(index != null && index == removedIndex.get()) {
-				current.set(null);
-			}
+        for(IStrategoTerm source : currentHierarchicalIndex.getClearedSources())
+            parentIndex.clearSource(source);
 
-			URI project = currentProject.get();
-			if(project != null && project.equals(removedProject)) {
-				currentProject.set(null);
-			}
-		}
-	}
+        for(IndexEntry entry : currentHierarchicalIndex.getAllCurrent())
+            parentIndex.add(entry);
+
+        setCurrent(parentIndex);
+        return parentIndex;
+    }
 
 
-	public IIndex read(File file, ITermFactory termFactory) {
-		instantiateIndexFactory(termFactory);
-		try {
-			IIndex index = createIndex(termFactory);
-			IStrategoTerm term = new TermReader(termFactory).parseFromFile(file.toString());
-			return indexFactory.indexFromTerm(index, term);
-		} catch(Exception e) {
-			if(!file.delete())
-				throw new RuntimeException("Failed to load index from " + file.getName()
-					+ ". The index file could not be deleted, please manually delete the file and restart analysis.", e);
-			else
-				throw new RuntimeException("Failed to load index from " + file.getName()
-					+ ". The index file has been deleted, a new index will be created on the next analysis.", e);
-		}
-	}
+    public IIndex createIndex(ITermFactory factory) {
+        return new Index(factory);
+    }
 
-	public void write(IIndex index, File file, ITermFactory termFactory) throws IOException {
-		instantiateIndexFactory(termFactory);
-
-		final IStrategoTerm serialized = indexFactory.indexToTerm(index);
-		file.createNewFile();
-		final FileOutputStream fos = new FileOutputStream(file);
-		try {
-			SAFWriter.writeTermToSAFStream(serialized, fos);
-			fos.flush();
-		} finally {
-			fos.close();
-		}
-	}
-
-	public void writeCurrent(ITermFactory factory) throws IOException {
-		write(getCurrent(), getIndexFile(getCurrentProject()), factory);
-	}
-
-	private void instantiateIndexFactory(ITermFactory termFactory) {
-		if(indexFactory == null)
-			indexFactory = new IndexFactory(termFactory, new IndexEntryFactory(termFactory));
-	}
+    public IIndex createIndex(IIndex parent, ITermFactory factory) {
+        return new HierarchicalIndex(new Index(factory), parent, factory);
+    }
 
 
-	public URI getProjectURI(String projectPath, IOAgent agent) {
-		File file = new File(projectPath);
-		if(!file.isAbsolute())
-			file = new File(agent.getWorkingDir(), projectPath);
-		return file.toURI();
-	}
+    public IIndex loadIndex(String projectPath, String language, ITermFactory factory, IOAgent agent) {
+        final URI project = getProjectURI(projectPath, agent);
+        synchronized(IndexManager.class) {
+            indexedLanguages.add(language);
+            final WeakReference<IIndex> indexRef = indexes.get(project);
+            IIndex index = indexRef == null ? null : indexRef.get();
+            if(index == null) {
+                File indexFile = getIndexFile(project);
+                if(indexFile.exists())
+                    index = read(getIndexFile(project), factory);
+            }
+            if(index == null) {
+                index = createIndex(factory);
+                for(String indexedLanguage : indexedLanguages)
+                    index.addLanguage(indexedLanguage);
+                NotificationCenter.notifyNewProject(project);
+            } else if(index.addLanguage(language)) {
+                NotificationCenter.notifyNewProjectLanguage(project, language);
+            }
+            setCurrent(project, index);
+            currentProject.set(project);
+            return index;
+        }
+    }
 
-	public URI getProjectURIFromAbsolute(String projectPath) {
-		File file = new File(projectPath);
-		if(!file.isAbsolute())
-			throw new RuntimeException("Project path is not absolute.");
-		return file.toURI();
-	}
+    public void unloadIndex(String projectPath, IOAgent agent) {
+        final URI removedProject = getProjectURI(projectPath, agent);
+        synchronized(IndexManager.class) {
+            WeakReference<IIndex> removedIndex = indexes.remove(removedProject);
+
+            IIndex index = current.get();
+            if(index != null && index == removedIndex.get()) {
+                current.set(null);
+            }
+
+            URI project = currentProject.get();
+            if(project != null && project.equals(removedProject)) {
+                currentProject.set(null);
+            }
+        }
+    }
+
+    public void resetIndex(String projectPath, IOAgent agent) {
+        final URI project = getProjectURI(projectPath, agent);
+        synchronized(IndexManager.class) {
+            final WeakReference<IIndex> indexRef = indexes.get(project);
+            IIndex index = indexRef == null ? null : indexRef.get();
+            if(index == null)
+                return;
+            index.reset();
+        }
+    }
 
 
-	public File getIndexFile(URI projectPath) {
-		final File directory = new File(new File(projectPath), ".cache");
-		directory.mkdirs();
-		return new File(directory, "index.idx");
-	}
+    public IIndex read(File file, ITermFactory termFactory) {
+        instantiateIndexFactory(termFactory);
+        try {
+            IIndex index = createIndex(termFactory);
+            IStrategoTerm term = new TermReader(termFactory).parseFromFile(file.toString());
+            return indexFactory.indexFromTerm(index, term);
+        } catch(Exception e) {
+            if(!file.delete())
+                throw new RuntimeException("Failed to load index from " + file.getName()
+                    + ". The index file could not be deleted, please manually delete the file and restart analysis.", e);
+            else
+                throw new RuntimeException("Failed to load index from " + file.getName()
+                    + ". The index file has been deleted, a new index will be created on the next analysis.", e);
+        }
+    }
+
+    public void write(IIndex index, File file, ITermFactory termFactory) throws IOException {
+        instantiateIndexFactory(termFactory);
+
+        final IStrategoTerm serialized = indexFactory.indexToTerm(index);
+        file.createNewFile();
+        final FileOutputStream fos = new FileOutputStream(file);
+        try {
+            SAFWriter.writeTermToSAFStream(serialized, fos);
+            fos.flush();
+        } finally {
+            fos.close();
+        }
+    }
+
+    public void writeCurrent(ITermFactory factory) throws IOException {
+        write(getCurrent(), getIndexFile(getCurrentProject()), factory);
+    }
+
+    private void instantiateIndexFactory(ITermFactory termFactory) {
+        if(indexFactory == null)
+            indexFactory = new IndexFactory(termFactory, new IndexEntryFactory(termFactory));
+    }
+
+
+    public URI getProjectURI(String projectPath, IOAgent agent) {
+        File file = new File(projectPath);
+        if(!file.isAbsolute())
+            file = new File(agent.getWorkingDir(), projectPath);
+        return file.toURI();
+    }
+
+    public URI getProjectURIFromAbsolute(String projectPath) {
+        File file = new File(projectPath);
+        if(!file.isAbsolute())
+            throw new RuntimeException("Project path is not absolute.");
+        return file.toURI();
+    }
+
+
+    public File getIndexFile(URI projectPath) {
+        final File directory = new File(new File(projectPath), ".cache");
+        directory.mkdirs();
+        return new File(directory, "index.idx");
+    }
 }
