@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.spoofax.NotImplementedException;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
@@ -28,6 +27,7 @@ import org.spoofax.terms.AbstractTermFactory;
 import org.spoofax.terms.ParseError;
 import org.spoofax.terms.StringTermReader;
 import org.spoofax.terms.io.binary.TermReader;
+import org.spoofax.terms.util.NotImplementedException;
 
 /**
  * @see TermReader  An extension of this class that also supports binary ATerms.

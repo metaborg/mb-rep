@@ -10,11 +10,11 @@ package org.spoofax.terms;
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.spoofax.EmptyIterator;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
+import org.spoofax.terms.util.EmptyIterator;
 
 
 public class StrategoString extends StrategoTerm implements IStrategoString {
