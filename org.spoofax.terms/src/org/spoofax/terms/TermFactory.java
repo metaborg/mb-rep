@@ -210,7 +210,6 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
     		return makeString(((IStrategoString) term).stringValue());
         } else if (term instanceof StrategoTerm) {
         	StrategoTerm result = ((StrategoTerm) term).clone(true);
-        	assert !(result instanceof StrategoWrapped) : "not yet supported";
     	    result.internalSetAnnotations(annotations);
     	    assert result.getStorageType() != MAXIMALLY_SHARED;
     	    return result;
