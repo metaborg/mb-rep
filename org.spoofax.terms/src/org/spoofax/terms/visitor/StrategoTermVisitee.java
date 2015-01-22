@@ -13,16 +13,16 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 
 public class StrategoTermVisitee {
-    public static void accept(IStrategoTermVisitor visitor, IStrategoTerm term) {
+    public static void accept(IStrategoTermVisitor visitor, IStrategoTerm initialTerm) {
         final Stack<IStrategoTerm> stack = new Stack<IStrategoTerm>();
-        stack.push(term);
+        stack.push(initialTerm);
         while(!stack.empty()) {
-            final IStrategoTerm sTerm = stack.pop();
-            if(!dispatch(visitor, sTerm)) {
+            final IStrategoTerm term = stack.pop();
+            if(!dispatch(visitor, term)) {
                 continue;
             }
-            for(IStrategoTerm subTerm : sTerm) {
-                stack.push(subTerm);
+            for(int i = term.getSubtermCount() -1; i >= 0; --i) {
+                stack.push(term.getSubterm(i));
             }
         }
     }
