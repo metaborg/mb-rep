@@ -23,6 +23,9 @@
                 <configuration>
                     <format>jar</format>
                     <externalDef>${basedir}/syntax/ATerm.def</externalDef>
+                    <pardonedLanguages>
+                        <language>EditorService</language>
+                    </pardonedLanguages>
                 </configuration>
                 <dependencies>
                     <dependency>
