@@ -2,7 +2,7 @@ module editor/ATerm-Outliner
 
 imports
   include/ATerm
-  lib/runtime/editor/outline-library
+  runtime/editor/outline-library
 
 rules
   
