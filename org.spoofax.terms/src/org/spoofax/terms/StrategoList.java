@@ -8,6 +8,7 @@
 package org.spoofax.terms;
 
 import java.io.IOException;
+import java.io.ObjectStreamException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -213,5 +214,13 @@ public class StrategoList extends StrategoTerm implements IStrategoList {
 
 	public Iterator<IStrategoTerm> iterator() {
 		return new StrategoListIterator(this);
+	}
+	
+	private Object readResolve() throws ObjectStreamException {
+		if (this.isEmpty() && this.getStorageType() == MAXIMALLY_SHARED) {
+			return TermFactory.EMPTY_LIST;
+		} else {
+			return this;
+		}
 	}
 }
