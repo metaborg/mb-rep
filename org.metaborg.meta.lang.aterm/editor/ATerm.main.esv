@@ -1,11 +1,9 @@
 module ATerm.main
 
-imports ATerm-Views ATerm-Colorer ATerm-Folding ATerm-References ATerm-Syntax
+imports ATerm.generated ATerm-Views ATerm-Colorer ATerm-Folding ATerm-References ATerm-Syntax
 
 language General properties
                   
-  name          : ATerm
-  id            : org.metaborg.meta.lang.aterm
   extends       : Root
                   
   description   : "Spoofax/IMP-generated editor for the ATerm language"
