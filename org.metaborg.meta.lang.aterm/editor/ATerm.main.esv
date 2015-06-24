@@ -1,0 +1,16 @@
+module ATerm.main
+
+imports ATerm.generated ATerm-Views ATerm-Colorer ATerm-Folding ATerm-References ATerm-Syntax
+
+language General properties
+                  
+  extends       : Root
+                  
+  description   : "Spoofax/IMP-generated editor for the ATerm language"
+  url           : http://strategoxt.org
+                  
+  extensions    : aterm,term,meta
+  table         : include/ATerm.tbl
+  start symbols : ATerm
+                                               
+  provider : include/aterm.jar

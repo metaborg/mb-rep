@@ -1,4 +1,6 @@
-target
-META-INF
-TestPath
-bin
+/.classpath
+/.project
+/.settings
+/META-INF
+/target
+/TestPath

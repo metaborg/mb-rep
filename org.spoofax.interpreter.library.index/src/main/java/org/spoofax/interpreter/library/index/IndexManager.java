@@ -214,9 +214,8 @@ public class IndexManager {
             if(!file.delete())
                 throw new RuntimeException("Failed to load index from " + file.getName()
                     + ". The index file could not be deleted, please manually delete the file and restart analysis.", e);
-            else
-                throw new RuntimeException("Failed to load index from " + file.getName()
-                    + ". The index file has been deleted, a new index will be created on the next analysis.", e);
+            throw new RuntimeException("Failed to load index from " + file.getName()
+                + ". The index file has been deleted, a new index will be created on the next analysis.", e);
         }
     }
 
