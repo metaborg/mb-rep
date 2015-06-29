@@ -40,8 +40,8 @@ public abstract class AbstractTermFactory implements ITermFactory {
     protected final boolean isTermSharingAllowed() {
     	return defaultStorageType != MUTABLE;
     }
-
-    public StrategoConstructor makeConstructor(String name, int arity) {
+    
+    static StrategoConstructor createCachedConstructor(String name, int arity) {
         StrategoConstructor result = new StrategoConstructor(name, arity);
         synchronized (TermFactory.class) {
 	        StrategoConstructor cached = asyncCtorCache.get(result);
@@ -52,6 +52,10 @@ public abstract class AbstractTermFactory implements ITermFactory {
 	        }
         }
         return result;
+    }
+
+    public StrategoConstructor makeConstructor(String name, int arity) {
+        return createCachedConstructor(name, arity);
     }
 
     public abstract IStrategoAppl makeAppl(IStrategoConstructor constructor,
