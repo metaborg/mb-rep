@@ -174,14 +174,14 @@ public class IndexManager {
 
     public void unloadIndex(URI removedProject) {
         synchronized(IndexManager.class) {
-            WeakReference<IIndex> removedIndex = indexes.remove(removedProject);
+            final WeakReference<IIndex> removedIndex = indexes.remove(removedProject);
 
-            IIndex index = current.get();
-            if(index != null && index == removedIndex.get()) {
+            final IIndex index = current.get();
+            if(index != null && removedIndex != null && index == removedIndex.get()) {
                 current.set(null);
             }
 
-            URI project = currentProject.get();
+            final URI project = currentProject.get();
             if(project != null && project.equals(removedProject)) {
                 currentProject.set(null);
             }
