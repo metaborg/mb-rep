@@ -107,4 +107,9 @@ public final class StrategoConstructor extends StrategoTerm implements IStratego
 	public Iterator<IStrategoTerm> iterator() {
 		return new EmptyIterator<IStrategoTerm>();
 	}
+	
+	private Object readResolve() {
+		IStrategoConstructor cachedConstructor = AbstractTermFactory.createCachedConstructor(name, arity);
+		return cachedConstructor;
+	}
 }
