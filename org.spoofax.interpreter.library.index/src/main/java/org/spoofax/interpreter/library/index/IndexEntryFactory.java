@@ -26,8 +26,11 @@ public class IndexEntryFactory {
 		// TODO: what is the performance of attachment stripping operations?
 		key = stripper.strip(key);
 		value = stripper.strip(value);
-		if(origin != null)
-			value.putAttachment(origin);
+		if (origin != null) {
+			ImploderAttachment.putImploderAttachment(value, false,
+					origin.getSort(), origin.getLeftToken(),
+					origin.getRightToken());
+		}
 
 		final IndexEntry entry = new IndexEntry(key, value, source, origin);
 
@@ -39,8 +42,11 @@ public class IndexEntryFactory {
 
 		// TODO: what is the performance of attachment stripping operations?
 		key = stripper.strip(key);
-		if(origin != null)
-			key.putAttachment(origin);
+		if (origin != null) {
+			ImploderAttachment.putImploderAttachment(key, false,
+					origin.getSort(), origin.getLeftToken(),
+					origin.getRightToken());
+		}
 
 		final IndexEntry entry = new IndexEntry(key, source, origin);
 
@@ -49,7 +55,7 @@ public class IndexEntryFactory {
 
 	private ImploderAttachment getImploderAttachment(IStrategoTerm term) {
 		final IStrategoTerm termWithImploder = ImploderAttachment.getImploderOrigin(term);
-		if(termWithImploder == null)
+		if (termWithImploder == null)
 			return null;
 		return ImploderAttachment.get(termWithImploder);
 	}
@@ -59,16 +65,16 @@ public class IndexEntryFactory {
 	}
 
 	public IStrategoTerm toTerm(IndexEntry entry) {
-		if(entry.origin != null)
+		if (entry.origin != null)
 			return factory.makeTuple(entry.key, entry.value, entry.source,
-				ImploderAttachment.TYPE.toTerm(factory, entry.origin));
+					ImploderAttachment.TYPE.toTerm(factory, entry.origin));
 		else
 			return factory.makeTuple(entry.key, entry.value, entry.source);
 	}
 
 	public IStrategoList toKeyTerms(Iterable<IndexEntry> entries) {
 		IStrategoList list = factory.makeList();
-		for(IndexEntry entry : entries) {
+		for (IndexEntry entry : entries) {
 			list = factory.makeListCons(entry.key, list);
 		}
 		return list;
@@ -76,7 +82,7 @@ public class IndexEntryFactory {
 
 	public IStrategoList toValueTerms(Iterable<IndexEntry> entries) {
 		IStrategoList list = factory.makeList();
-		for(IndexEntry entry : entries) {
+		for (IndexEntry entry : entries) {
 			list = factory.makeListCons(entry.value, list);
 		}
 		return list;
@@ -84,7 +90,7 @@ public class IndexEntryFactory {
 
 	public IStrategoList toPairTerms(Iterable<IndexEntry> entries) {
 		IStrategoList list = factory.makeList();
-		for(IndexEntry entry : entries) {
+		for (IndexEntry entry : entries) {
 			list = factory.makeListCons(toPair(entry), list);
 		}
 		return list;
@@ -94,7 +100,7 @@ public class IndexEntryFactory {
 		final IStrategoTerm key = term.getSubterm(0);
 		final IStrategoTerm value = term.getSubterm(1);
 		final IStrategoTerm source = term.getSubterm(2);
-		if(term.getSubtermCount() == 3)
+		if (term.getSubtermCount() == 3)
 			return new IndexEntry(key, value, source, null);
 		final ImploderAttachment origin = ImploderAttachment.TYPE.fromTerm((IStrategoAppl) term.getSubterm(3));
 		return new IndexEntry(key, value, source, origin);
