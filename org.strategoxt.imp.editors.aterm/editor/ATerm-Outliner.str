@@ -1,4 +1,4 @@
-module editor/ATerm-Outliner
+module ATerm-Outliner
 
 imports
   ATerm
