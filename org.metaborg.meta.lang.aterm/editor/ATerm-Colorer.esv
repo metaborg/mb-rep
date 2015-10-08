@@ -1,11 +1,10 @@
 module ATerm-Colorer
 
-imports ATerm-Colorer.generated
+imports 
+
+  editor/Colorer.generated
 
 colorer
-                                                                      
-  // This file can be used for custom colorer rules.                  
-  // See the imported file for a brief introduction and examples.
   
   _.quoted : 0 0 192
   _.tuple  : 0 128 0 bold

@@ -1,6 +1,0 @@
-
-module ATerm-References
-
-imports ATerm-References.generated
-
-references

@@ -1,5 +1,0 @@
-module ATerm-Completions
-
-imports ATerm-Completions.generated
-
-completions
