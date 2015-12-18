@@ -138,6 +138,10 @@ public class IndexManager {
     }
 
 
+    public IIndex getIndex(URI project) {
+        return indexes.get(project).get();
+    }
+
     public IIndex loadIndex(String projectPath, String language, ITermFactory factory, IOAgent agent) {
         final URI project = getProjectURI(projectPath, agent);
         synchronized(IndexManager.class) {
@@ -165,6 +169,10 @@ public class IndexManager {
 
     public void unloadIndex(String projectPath, IOAgent agent) {
         final URI removedProject = getProjectURI(projectPath, agent);
+        unloadIndex(removedProject);
+    }
+
+    public void unloadIndex(URI removedProject) {
         synchronized(IndexManager.class) {
             WeakReference<IIndex> removedIndex = indexes.remove(removedProject);
 
@@ -182,6 +190,10 @@ public class IndexManager {
 
     public void resetIndex(String projectPath, IOAgent agent) {
         final URI project = getProjectURI(projectPath, agent);
+        resetIndex(project);
+    }
+
+    public void resetIndex(URI project) {
         synchronized(IndexManager.class) {
             final WeakReference<IIndex> indexRef = indexes.get(project);
             IIndex index = indexRef == null ? null : indexRef.get();

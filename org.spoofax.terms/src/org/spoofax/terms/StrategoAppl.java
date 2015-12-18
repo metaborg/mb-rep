@@ -69,7 +69,7 @@ public class StrategoAppl extends StrategoTerm implements IStrategoAppl {
         if (second.getTermType() != IStrategoTerm.APPL)
             return false;
         IStrategoAppl o = (IStrategoAppl)second;
-        if (ctor != o.getConstructor())
+        if (!ctor.equals(o.getConstructor()))
             return false;
         
         IStrategoTerm[] kids = getAllSubterms();
