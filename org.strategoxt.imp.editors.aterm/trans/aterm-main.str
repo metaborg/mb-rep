@@ -1,4 +1,4 @@
-module aterm
+module aterm-main
 
 imports
   

@@ -3,7 +3,7 @@
 	<!-- Key input modules -->
 	<property name="sdfmodule" value="ATerm" />
 	<property name="esvmodule" value="ATerm" />
-	<property name="strmodule" value="aterm" />
+	<property name="strmodule" value="aterm-main" />
 	<property name="ppmodule" value="ATerm-pp"/>
 	<property name="sigmodule" value="ATerm-sig"/>
 

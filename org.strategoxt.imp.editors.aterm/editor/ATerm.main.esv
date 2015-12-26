@@ -15,4 +15,4 @@ language General properties
   table         : include/ATerm.tbl
   start symbols : ATerm
                                                
-  provider : include/aterm.jar
+  provider : include/aterm-main.jar
