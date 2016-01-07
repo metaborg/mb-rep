@@ -16,17 +16,17 @@ public class Index implements IIndex {
     private final Multimap<IStrategoTerm, IndexEntry> childs = HashMultimap.create();
     private final Multimap<IStrategoTerm, IndexEntry> entriesPerSource = HashMultimap.create();
 
-    private final Set<String> languages = Sets.newHashSet();
-
     private final IndexEntryFactory entryFactory;
     private final IndexParentKeyFactory parentKeyFactory;
     private final IndexCollector collector;
+
 
     public Index(ITermFactory termFactory) {
         this.entryFactory = new IndexEntryFactory(termFactory);
         this.parentKeyFactory = new IndexParentKeyFactory(termFactory);
         this.collector = new IndexCollector(termFactory, entryFactory);
     }
+
 
     @Override public IndexEntryFactory entryFactory() {
         return entryFactory;
@@ -114,18 +114,6 @@ public class Index implements IIndex {
         return entriesPerSource.keySet();
     }
 
-    @Override public Iterable<String> getAllLanguages() {
-        return languages;
-    }
-
-    @Override public boolean hasLanguage(String language) {
-        return languages.contains(language);
-    }
-
-    @Override public boolean addLanguage(String language) {
-        return languages.add(language);
-    }
-
     @Override public void recover() {
         collector.recover();
     }
@@ -134,7 +122,6 @@ public class Index implements IIndex {
         entries.clear();
         childs.clear();
         entriesPerSource.clear();
-        languages.clear();
         collector.reset();
     }
 }

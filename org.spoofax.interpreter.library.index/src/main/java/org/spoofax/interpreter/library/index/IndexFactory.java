@@ -1,10 +1,10 @@
 package org.spoofax.interpreter.library.index;
 
+import java.io.IOException;
 import java.util.Collection;
 
 import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
@@ -14,11 +14,13 @@ public class IndexFactory {
     private final ITermFactory termFactory;
     private final IndexEntryFactory entryFactory;
 
+    
     public IndexFactory(ITermFactory termFactory, IndexEntryFactory entryFactory) {
         this.termFactory = termFactory;
         this.entryFactory = entryFactory;
     }
 
+    
     /**
      * Creates a term representation of given index.
      *
@@ -36,13 +38,7 @@ public class IndexFactory {
             sourcesTerm = termFactory.makeListCons(sourceTerm, sourcesTerm);
         }
 
-        IStrategoList languageList = termFactory.makeList();
-        for(String language : index.getAllLanguages()) {
-            final IStrategoString languageTerm = termFactory.makeString(language);
-            languageList = termFactory.makeListCons(languageTerm, languageList);
-        }
-
-        return termFactory.makeTuple(sourcesTerm, languageList);
+        return sourcesTerm;
     }
 
     private IStrategoTerm sourceToTerm(IIndex index, IStrategoTerm source) {
@@ -63,27 +59,21 @@ public class IndexFactory {
      *            A term representation of an index.
      * @throws Exception
      */
-    public IIndex indexFromTerm(IIndex index, IStrategoTerm term) throws Exception {
-        if(!Tools.isTermTuple(term)) {
-            throw new Exception("Cannot read index: Root term is not a tuple.");
+    public IIndex indexFromTerm(IIndex index, IStrategoTerm term) throws IOException {
+        if(!Tools.isTermList(term)) {
+            throw new IOException("Cannot read index; root term is not a list");
         }
 
-        final IStrategoTerm sourcesTerm = term.getSubterm(0);
-        for(IStrategoTerm sourceTerm : sourcesTerm) {
+        for(IStrategoTerm sourceTerm : term) {
             sourceFromTerm(index, sourceTerm);
-        }
-
-        final IStrategoTerm languagesTerm = term.getSubterm(1);
-        for(IStrategoTerm languageTerm : languagesTerm) {
-            index.addLanguage(((IStrategoString) languageTerm).stringValue());
         }
 
         return index;
     }
 
-    private void sourceFromTerm(IIndex index, IStrategoTerm term) throws Exception {
+    private void sourceFromTerm(IIndex index, IStrategoTerm term) throws IOException {
         if(!Tools.isTermTuple(term)) {
-            throw new Exception("Cannot read index: Partition term is not a tuple.");
+            throw new IOException("Cannot read index; partition term is not a tuple");
         }
 
         final IStrategoTerm source = term.getSubterm(0);

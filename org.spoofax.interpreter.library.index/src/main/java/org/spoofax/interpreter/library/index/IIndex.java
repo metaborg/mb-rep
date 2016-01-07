@@ -82,28 +82,6 @@ public interface IIndex {
 
 
     /**
-     * Gets names of all languages that are being indexed.
-     */
-    public abstract Iterable<String> getAllLanguages();
-
-    /**
-     * Query if a language is being indexed.
-     *
-     * @param language
-     *            Name of the language
-     */
-    public abstract boolean hasLanguage(String language);
-
-    /**
-     * Add an indexed language. Returns true if language was not being indexed before.
-     *
-     * @param language
-     *            Name of the language.
-     */
-    public abstract boolean addLanguage(String language);
-
-
-    /**
      * Attempt to recover the index after an exception during collection.
      */
     public abstract void recover();

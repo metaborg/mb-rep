@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemException;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.ParseError;
@@ -12,10 +11,6 @@ import org.spoofax.terms.io.binary.SAFWriter;
 import org.spoofax.terms.io.binary.TermReader;
 
 public class IndexManager {
-    public static FileObject cacheFile(FileObject location) throws FileSystemException {
-        return location.resolveFile(".cache/index");
-    }
-
     public static IIndex create(ITermFactory termFactory) {
         return new Index(termFactory);
     }
