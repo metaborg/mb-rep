@@ -1,0 +1,6 @@
+module ATerm-Folding
+
+folding
+  
+  ATerm.appl
+  ATerm.list

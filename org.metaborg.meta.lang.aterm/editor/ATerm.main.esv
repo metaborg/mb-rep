@@ -1,0 +1,13 @@
+module ATerm.main
+
+imports ATerm-Views ATerm-Colorer ATerm-Folding ATerm-Syntax ATerm-Menus
+
+language General properties
+                  
+  name: ATerm
+                  
+  extensions    : aterm, term, meta
+  table         : include/ATerm.tbl
+  start symbols : ATerm
+                                               
+  provider : include/aterm.jar
