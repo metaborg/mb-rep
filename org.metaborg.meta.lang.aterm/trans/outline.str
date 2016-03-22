@@ -1,7 +1,8 @@
-module editor/ATerm-Outliner
+module outline
 
 imports
-  include/ATerm
+
+  signatures/ATerm
   runtime/editor/outline-library
 
 rules

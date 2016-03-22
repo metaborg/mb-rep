@@ -1,0 +1,16 @@
+module Main
+
+imports
+
+  Views
+  Colorer
+  Syntax
+
+language
+
+  extensions : aterm, term, meta
+  
+  table         : target/metaborg/sdf.tbl
+  start symbols : ATerm
+
+  provider : target/metaborg/stratego.jar
