@@ -1,4 +1,4 @@
-module ATerm-Colorer
+module Colorer
 
 imports 
 
