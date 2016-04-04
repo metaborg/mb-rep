@@ -3,7 +3,7 @@ module aterm
 imports
   
   libstratego-lib
-  editor/ATerm-Outliner
+  outline
 
 rules
   
