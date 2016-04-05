@@ -1,0 +1,35 @@
+module outline
+
+imports
+
+  signatures/ATerm
+  runtime/editor/outline-library
+
+rules
+  
+  outline = custom-label-outline(to-outline-label, to-outline-node)
+  
+  outline-expand-to-level = // heuristic: expand to level 3 if the second level has less than four nodes. Otherwise, expand to level 2.
+    ?[Node(_, children)]; !(<length> children, 4); lt; !3 
+      <+
+    !2
+  
+rules  
+  
+  to-outline-label:
+    appl(fun, args) -> fun{"icons/application.gif"}
+    where
+      not("" := fun)
+    
+  to-outline-label:
+  	appl("", args) -> "( )"{"icons/tuple.gif"}
+    
+  to-outline-label:
+  	list(args) -> "[ ]"{"icons/list.gif"}
+      
+  to-outline-label: int(value) -> value{"icons/int.png"}
+  to-outline-label: real(value) -> value{"icons/int.png"}
+  to-outline-label: fun(value) -> value{"icons/string.png"}
+  	
+  to-outline-node:
+  	annotated(trm, _) -> <outline; Hd> trm

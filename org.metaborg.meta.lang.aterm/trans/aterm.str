@@ -1,0 +1,13 @@
+module aterm
+
+imports
+  
+  libstratego-lib
+  outline
+
+rules
+  
+  editor-outline:
+    (node, position, ast, path, project-path) -> outline
+    where
+      outline := <outline> ast

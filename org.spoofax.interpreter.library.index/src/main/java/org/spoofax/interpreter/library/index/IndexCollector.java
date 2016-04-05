@@ -67,6 +67,10 @@ public class IndexCollector {
 		return sourceInCollection != null;
 	}
 
+	public void recover() {
+	    reset();
+	}
+	
 	public void reset() {
 		addedEntries.clear();
 		removedEntries.clear();

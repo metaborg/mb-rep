@@ -1,0 +1,11 @@
+module Colorer
+
+imports 
+
+  editor/Colorer.generated
+
+colorer
+  
+  _.quoted : 0 0 192
+  _.tuple  : 0 128 0 bold
+  _.list   : 0 128 0 bold

@@ -6,103 +6,88 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 
 public interface IIndex {
-	/**
-	 * Gets the entry factory.
-	 */
-	public abstract IndexEntryFactory entryFactory();
+    /**
+     * Gets the entry factory.
+     */
+    public abstract IndexEntryFactory entryFactory();
 
 
-	/**
-	 * Starts collection for given source.
-	 */
-	public abstract void startCollection(IStrategoTerm source);
+    /**
+     * Starts collection for given source.
+     */
+    public abstract void startCollection(IStrategoTerm source);
 
-	/**
-	 * Collects a new index entry, which will be added when collection is stopped.
-	 */
-	public abstract IndexEntry collect(IStrategoTerm key, IStrategoTerm value);
+    /**
+     * Collects a new index entry, which will be added when collection is stopped.
+     */
+    public abstract IndexEntry collect(IStrategoTerm key, IStrategoTerm value);
 
-	/**
-	 * Collects a new index entry, which will be added when collection is stopped.
-	 */
-	public abstract IndexEntry collect(IStrategoTerm key);
+    /**
+     * Collects a new index entry, which will be added when collection is stopped.
+     */
+    public abstract IndexEntry collect(IStrategoTerm key);
 
-	/**
-	 * Stops collection, returning the entries that were removed and added during collection.
-	 *
-	 * @return The removed and added entries as a tuple.
-	 */
-	public abstract IStrategoTuple stopCollection(IStrategoTerm source);
-
-
-	/**
-	 * Adds a new entry to the index.
-	 */
-	public abstract void add(IndexEntry entry);
-
-	public abstract void addAll(IStrategoTerm source, Iterable<IndexEntry> entry);
+    /**
+     * Stops collection, returning the entries that were removed and added during collection.
+     *
+     * @return The removed and added entries as a tuple.
+     */
+    public abstract IStrategoTuple stopCollection(IStrategoTerm source);
 
 
-	/**
-	 * Gets all entries that match given template.
-	 */
-	public abstract Iterable<IndexEntry> get(IStrategoTerm key);
+    /**
+     * Adds a new entry to the index.
+     */
+    public abstract void add(IndexEntry entry);
 
-	/**
-	 * Gets all child entries for URI in given template.
-	 */
-	public abstract Iterable<IndexEntry> getChilds(IStrategoTerm key);
-
-	/**
-	 * Gets all entries.
-	 */
-	public abstract Iterable<IndexEntry> getAll();
+    public abstract void addAll(IStrategoTerm source, Iterable<IndexEntry> entry);
 
 
-	/**
-	 * Gets all entries for given source
-	 */
-	public abstract Iterable<IndexEntry> getInSource(IStrategoTerm source);
+    /**
+     * Gets all entries that match given template.
+     */
+    public abstract Iterable<IndexEntry> get(IStrategoTerm key);
 
-	/**
-	 * Gets all sources that contain given key. Returned collection is a set of partitions, it does not contain
-	 * duplicates.
-	 */
-	public abstract Set<IStrategoTerm> getSourcesOf(IStrategoTerm key);
+    /**
+     * Gets all child entries for URI in given template.
+     */
+    public abstract Iterable<IndexEntry> getChilds(IStrategoTerm key);
 
-	/**
-	 * Gets all sources.
-	 */
-	public abstract Iterable<IStrategoTerm> getAllSources();
-
-	/**
-	 * Removes all entries for given source and removes the source itself.
-	 */
-	public abstract void clearSource(IStrategoTerm source);
+    /**
+     * Gets all entries.
+     */
+    public abstract Iterable<IndexEntry> getAll();
 
 
-	/**
-	 * Gets names of all languages that are being indexed.
-	 */
-	public abstract Iterable<String> getAllLanguages();
+    /**
+     * Gets all entries for given source
+     */
+    public abstract Iterable<IndexEntry> getInSource(IStrategoTerm source);
 
-	/**
-	 * Query if a language is being indexed.
-	 *
-	 * @param language Name of the language
-	 */
-	public abstract boolean hasLanguage(String language);
+    /**
+     * Gets all sources that contain given key. Returned collection is a set of partitions, it does not contain
+     * duplicates.
+     */
+    public abstract Set<IStrategoTerm> getSourcesOf(IStrategoTerm key);
 
-	/**
-	 * Add an indexed language. Returns true if language was not being indexed before.
-	 *
-	 * @param language Name of the language.
-	 */
-	public abstract boolean addLanguage(String language);
+    /**
+     * Gets all sources.
+     */
+    public abstract Iterable<IStrategoTerm> getAllSources();
+
+    /**
+     * Removes all entries for given source and removes the source itself.
+     */
+    public abstract void clearSource(IStrategoTerm source);
 
 
-	/**
-	 * Resets the index to the initial state.
-	 */
-	public abstract void reset();
+    /**
+     * Attempt to recover the index after an exception during collection.
+     */
+    public abstract void recover();
+
+    /**
+     * Resets the index to the initial state.
+     */
+    public abstract void reset();
 }

@@ -1,5 +1,7 @@
 package org.spoofax.terms.visitor;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Stack;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -13,7 +15,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 
 public class StrategoTermVisitee {
-    public static void accept(IStrategoTermVisitor visitor, IStrategoTerm initialTerm) {
+    public static void topdown(IStrategoTermVisitor visitor, IStrategoTerm initialTerm) {
         final Stack<IStrategoTerm> stack = new Stack<IStrategoTerm>();
         stack.push(initialTerm);
         while(!stack.empty()) {
@@ -23,6 +25,25 @@ public class StrategoTermVisitee {
             }
             for(int i = term.getSubtermCount() -1; i >= 0; --i) {
                 stack.push(term.getSubterm(i));
+            }
+        }
+    }
+    
+    public static void bottomup(IStrategoTermVisitor visitor, IStrategoTerm initialTerm) {
+        final Stack<IStrategoTerm> stack = new Stack<IStrategoTerm>();
+        final Set<IStrategoTerm> visited = new HashSet<IStrategoTerm>();
+        stack.push(initialTerm);
+        while(!stack.isEmpty()) {
+            final IStrategoTerm term = stack.peek();
+            if(term.getSubtermCount() == 0 || visited.contains(term)) {
+                dispatch(visitor, term);
+                stack.pop();
+                visited.remove(term);
+            } else {
+                visited.add(term);
+                for(int i = term.getSubtermCount() -1; i >= 0; --i) {
+                    stack.push(term.getSubterm(i));
+                }
             }
         }
     }

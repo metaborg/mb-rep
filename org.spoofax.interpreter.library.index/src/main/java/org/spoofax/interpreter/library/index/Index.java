@@ -12,143 +12,116 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
 public class Index implements IIndex {
-	private final Multimap<IStrategoTerm, IndexEntry> entries = HashMultimap.create();
-	private final Multimap<IStrategoTerm, IndexEntry> childs = HashMultimap.create();
-	private final Multimap<IStrategoTerm, IndexEntry> entriesPerSource = HashMultimap.create();
+    private final Multimap<IStrategoTerm, IndexEntry> entries = HashMultimap.create();
+    private final Multimap<IStrategoTerm, IndexEntry> childs = HashMultimap.create();
+    private final Multimap<IStrategoTerm, IndexEntry> entriesPerSource = HashMultimap.create();
 
-	private final Set<String> languages = Sets.newHashSet();
+    private final IndexEntryFactory entryFactory;
+    private final IndexParentKeyFactory parentKeyFactory;
+    private final IndexCollector collector;
 
-	private final IndexEntryFactory entryFactory;
-	private final IndexParentKeyFactory parentKeyFactory;
-	private final IndexCollector collector;
 
-	public Index(ITermFactory termFactory) {
-		this.entryFactory = new IndexEntryFactory(termFactory);
-		this.parentKeyFactory = new IndexParentKeyFactory(termFactory);
-		this.collector = new IndexCollector(termFactory, entryFactory);
-	}
+    public Index(ITermFactory termFactory) {
+        this.entryFactory = new IndexEntryFactory(termFactory);
+        this.parentKeyFactory = new IndexParentKeyFactory(termFactory);
+        this.collector = new IndexCollector(termFactory, entryFactory);
+    }
 
-	@Override
-	public IndexEntryFactory entryFactory() {
-		return entryFactory;
-	}
 
-	@Override
-	public void startCollection(IStrategoTerm source) {
-		collector.start(source, getInSource(source));
-		clearSource(source);
-	}
+    @Override public IndexEntryFactory entryFactory() {
+        return entryFactory;
+    }
 
-	@Override
-	public IndexEntry collect(IStrategoTerm key, IStrategoTerm value) {
-		return collector.add(key, value);
-	}
+    @Override public void startCollection(IStrategoTerm source) {
+        collector.start(source, getInSource(source));
+        clearSource(source);
+    }
 
-	@Override
-	public IndexEntry collect(IStrategoTerm key) {
-		return collector.add(key);
-	}
+    @Override public IndexEntry collect(IStrategoTerm key, IStrategoTerm value) {
+        return collector.add(key, value);
+    }
 
-	@Override
-	public IStrategoTuple stopCollection(IStrategoTerm source) {
-		addAll(source, collector.getAddedEntries());
-		return collector.stop();
-	}
+    @Override public IndexEntry collect(IStrategoTerm key) {
+        return collector.add(key);
+    }
 
-	@Override
-	public void add(IndexEntry entry) {
-		entries.put(entry.key, entry);
+    @Override public IStrategoTuple stopCollection(IStrategoTerm source) {
+        addAll(source, collector.getAddedEntries());
+        return collector.stop();
+    }
 
-		final IStrategoTerm parentKey = parentKeyFactory.getParentKey(entry.key);
-		if(parentKey != null) {
-			childs.put(parentKey, entry);
-		}
+    @Override public void add(IndexEntry entry) {
+        entries.put(entry.key, entry);
 
-		entriesPerSource.put(entry.source, entry);
-	}
+        final IStrategoTerm parentKey = parentKeyFactory.getParentKey(entry.key);
+        if(parentKey != null) {
+            childs.put(parentKey, entry);
+        }
 
-	@Override
-	public void addAll(IStrategoTerm source, Iterable<IndexEntry> entriesToAdd) {
-		final Collection<IndexEntry> entriesInSource = entriesPerSource.get(source);
-		for(final IndexEntry entry : entriesToAdd) {
-			entries.put(entry.key, entry);
+        entriesPerSource.put(entry.source, entry);
+    }
 
-			final IStrategoTerm parentKey = parentKeyFactory.getParentKey(entry.key);
-			if(parentKey != null) {
-				childs.put(parentKey, entry);
-			}
+    @Override public void addAll(IStrategoTerm source, Iterable<IndexEntry> entriesToAdd) {
+        final Collection<IndexEntry> entriesInSource = entriesPerSource.get(source);
+        for(final IndexEntry entry : entriesToAdd) {
+            entries.put(entry.key, entry);
 
-			entriesInSource.add(entry);
-		}
-	}
+            final IStrategoTerm parentKey = parentKeyFactory.getParentKey(entry.key);
+            if(parentKey != null) {
+                childs.put(parentKey, entry);
+            }
 
-	@Override
-	public Iterable<IndexEntry> get(IStrategoTerm key) {
-		return entries.get(key);
-	}
+            entriesInSource.add(entry);
+        }
+    }
 
-	@Override
-	public Iterable<IndexEntry> getChilds(IStrategoTerm key) {
-		return childs.get(key);
-	}
+    @Override public Iterable<IndexEntry> get(IStrategoTerm key) {
+        return entries.get(key);
+    }
 
-	@Override
-	public Iterable<IndexEntry> getInSource(IStrategoTerm source) {
-		return entriesPerSource.get(source);
-	}
+    @Override public Iterable<IndexEntry> getChilds(IStrategoTerm key) {
+        return childs.get(key);
+    }
 
-	@Override
-	public Set<IStrategoTerm> getSourcesOf(IStrategoTerm key) {
-		final Set<IStrategoTerm> sources = Sets.newHashSet();
-		for(final IndexEntry entry : get(key)) {
-			sources.add(entry.source);
-		}
-		return sources;
-	}
+    @Override public Iterable<IndexEntry> getInSource(IStrategoTerm source) {
+        return entriesPerSource.get(source);
+    }
 
-	@Override
-	public Iterable<IndexEntry> getAll() {
-		return entries.values();
-	}
+    @Override public Set<IStrategoTerm> getSourcesOf(IStrategoTerm key) {
+        final Set<IStrategoTerm> sources = Sets.newHashSet();
+        for(final IndexEntry entry : get(key)) {
+            sources.add(entry.source);
+        }
+        return sources;
+    }
 
-	@Override
-	public void clearSource(IStrategoTerm source) {
-		for(final IndexEntry entry : getInSource(source)) {
-			entries.remove(entry.key, entry);
-			final IStrategoTerm parentKey = parentKeyFactory.getParentKey(entry.key);
-			if(parentKey != null) {
-				childs.remove(parentKey, entry);
-			}
-		}
-		entriesPerSource.removeAll(source);
-	}
+    @Override public Iterable<IndexEntry> getAll() {
+        return entries.values();
+    }
 
-	@Override
-	public Iterable<IStrategoTerm> getAllSources() {
-		return entriesPerSource.keySet();
-	}
+    @Override public void clearSource(IStrategoTerm source) {
+        for(final IndexEntry entry : getInSource(source)) {
+            entries.remove(entry.key, entry);
+            final IStrategoTerm parentKey = parentKeyFactory.getParentKey(entry.key);
+            if(parentKey != null) {
+                childs.remove(parentKey, entry);
+            }
+        }
+        entriesPerSource.removeAll(source);
+    }
 
-	@Override
-	public Iterable<String> getAllLanguages() {
-		return languages;
-	}
+    @Override public Iterable<IStrategoTerm> getAllSources() {
+        return entriesPerSource.keySet();
+    }
 
-	@Override
-	public boolean hasLanguage(String language) {
-		return languages.contains(language);
-	}
+    @Override public void recover() {
+        collector.recover();
+    }
 
-	@Override
-	public boolean addLanguage(String language) {
-		return languages.add(language);
-	}
-
-	@Override
-	public void reset() {
-		entries.clear();
-		childs.clear();
-		entriesPerSource.clear();
-		languages.clear();
-		collector.reset();
-	}
+    @Override public void reset() {
+        entries.clear();
+        childs.clear();
+        entriesPerSource.clear();
+        collector.reset();
+    }
 }
