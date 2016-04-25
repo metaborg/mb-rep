@@ -18,6 +18,14 @@
 		<sourceDirectory>src</sourceDirectory>
 	</build>
 
+	<dependencies>
+		<dependency>
+			<groupId>org.metaborg</groupId>
+			<artifactId>org.spoofax.terms</artifactId>
+			<version>${metaborg-version}</version>
+		</dependency>
+	</dependencies>
+
 	<developers>
 		<developer>
 			<name>Sebastian Erdweg</name>
