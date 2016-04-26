@@ -12,6 +12,7 @@ import org.spoofax.terms.StrategoString;
 import org.spoofax.terms.StrategoTerm;
 import org.spoofax.terms.attachments.AbstractTermAttachment;
 import org.spoofax.terms.attachments.TermAttachmentType;
+import org.spoofax.terms.typesmart.types.SortType;
 import org.spoofax.terms.util.ArrayIterator;
 
 /**
@@ -19,137 +20,124 @@ import org.spoofax.terms.util.ArrayIterator;
  */
 public class TypesmartSortAttachment extends AbstractTermAttachment {
 
-	private static final long serialVersionUID = -1071986538130031851L;
+    private static final long serialVersionUID = -1071986538130031851L;
 
-	public static final TermAttachmentType<TypesmartSortAttachment> TYPE = new TermAttachmentType<TypesmartSortAttachment>(
-			TypesmartSortAttachment.class, "TypesmartSortAttachment", 1) {
+    public static final TermAttachmentType<TypesmartSortAttachment> TYPE =
+        new TermAttachmentType<TypesmartSortAttachment>(TypesmartSortAttachment.class, "TypesmartSortAttachment", 1) {
 
-		@Override
-		protected IStrategoTerm[] toSubterms(ITermFactory factory, TypesmartSortAttachment attachment) {
-			throw new UnsupportedOperationException();
-		}
+            @Override protected IStrategoTerm[] toSubterms(ITermFactory factory, TypesmartSortAttachment attachment) {
+                throw new UnsupportedOperationException();
+            }
 
-		@Override
-		protected TypesmartSortAttachment fromSubterms(IStrategoTerm[] subterms) {
-			throw new UnsupportedOperationException();
-		}
-	};
-	
-	static final class StrategoStringArray extends StrategoTerm {
-		private static final long serialVersionUID = 5983117664125726796L;
+            @Override protected TypesmartSortAttachment fromSubterms(IStrategoTerm[] subterms) {
+                throw new UnsupportedOperationException();
+            }
+        };
 
-		private String[] ar;
+    static final class StrategoSortTypeArray extends StrategoTerm {
+        private static final long serialVersionUID = 5983117664125726796L;
 
-		protected StrategoStringArray(String[] ar) {
-			super(null, IStrategoTerm.MUTABLE);
-			this.ar = ar;
-		}
+        private SortType[] ar;
 
-		@Override
-		public int getSubtermCount() {
-			return ar.length;
-		}
+        protected StrategoSortTypeArray(SortType[] ar) {
+            super(null, IStrategoTerm.MUTABLE);
+            this.ar = ar;
+        }
 
-		@Override
-		public IStrategoTerm getSubterm(int index) {
-			return new StrategoString(ar[index], null, IStrategoTerm.MUTABLE);
-		}
+        @Override public int getSubtermCount() {
+            return ar.length;
+        }
 
-		@Override
-		public IStrategoTerm[] getAllSubterms() {
-			IStrategoTerm[] ts = new IStrategoTerm[ar.length];
-			for (int i = 0; i < ar.length; i++)
-				ts[i] = getSubterm(i);
-			return ts;
-		}
+        @Override public IStrategoTerm getSubterm(int index) {
+            return new StrategoString(ar[index].toString(), null, IStrategoTerm.MUTABLE);
+        }
 
-		@Override
-		public int getTermType() {
-			return IStrategoTerm.LIST;
-		}
+        @Override public IStrategoTerm[] getAllSubterms() {
+            IStrategoTerm[] ts = new IStrategoTerm[ar.length];
+            for(int i = 0; i < ar.length; i++)
+                ts[i] = getSubterm(i);
+            return ts;
+        }
 
-		@Override
-		public void prettyPrint(ITermPrinter pp) {
-			throw new UnsupportedOperationException();
-		}
+        @Override public int getTermType() {
+            return IStrategoTerm.LIST;
+        }
 
-		@Override
-		public void writeAsString(Appendable output, int maxDepth) throws IOException {
-			output.append(Arrays.toString(ar));
-		}
+        @Override public void prettyPrint(ITermPrinter pp) {
+            throw new UnsupportedOperationException();
+        }
 
-		@Override
-		public Iterator<IStrategoTerm> iterator() {
-			return new ArrayIterator<>(getAllSubterms());
-		}
+        @Override public void writeAsString(Appendable output, int maxDepth) throws IOException {
+            output.append(Arrays.toString(ar));
+        }
 
-		@Override
-		protected boolean doSlowMatch(IStrategoTerm second, int commonStorageType) {
-			if (second instanceof StrategoStringArray)
-				return Arrays.equals(ar, ((StrategoStringArray) second).ar);
-			return false;
-		}
+        @Override public Iterator<IStrategoTerm> iterator() {
+            return new ArrayIterator<>(getAllSubterms());
+        }
 
-		@Override
-		protected int hashFunction() {
-			return Arrays.hashCode(ar);
-		}
-		
-		@Override
-		public String toString() {
-			return Arrays.toString(ar);
-		}
-	}
+        @Override protected boolean doSlowMatch(IStrategoTerm second, int commonStorageType) {
+            if(second instanceof StrategoSortTypeArray)
+                return Arrays.equals(ar, ((StrategoSortTypeArray) second).ar);
+            return false;
+        }
 
-	public TermAttachmentType<?> getAttachmentType() {
-		return TYPE;
-	}
+        @Override protected int hashFunction() {
+            return Arrays.hashCode(ar);
+        }
 
-	public TypesmartSortAttachment(StrategoStringArray sorts) {
-		this.sorts = sorts;
-	}
+        @Override public String toString() {
+            return Arrays.toString(ar);
+        }
+    }
 
-	StrategoStringArray sorts;
+    public TermAttachmentType<?> getAttachmentType() {
+        return TYPE;
+    }
 
-	public StrategoStringArray getSorts() {
-		return sorts;
-	}
+    public TypesmartSortAttachment(StrategoSortTypeArray sorts) {
+        this.sorts = sorts;
+    }
 
-	public static TypesmartSortAttachment get(ISimpleTerm term) {
-		TypesmartSortAttachment attach = term.getAttachment(TYPE);
-		if (attach != null)
-			return attach;
+    StrategoSortTypeArray sorts;
 
-//		String sort = ImploderAttachment.getSort(term);
-//		if (sort != null) {
-//			IStrategoTerm sortTerm = factory.makeAppl(
-//					factory.makeConstructor("SortNoArgs", 1),
-//					factory.makeString(sort));
-//			return new TypesmartSortAttachment(sortTerm);
-//		}
+    public StrategoSortTypeArray getSorts() {
+        return sorts;
+    }
 
-		return null;
-	}
+    public static TypesmartSortAttachment get(ISimpleTerm term) {
+        TypesmartSortAttachment attach = term.getAttachment(TYPE);
+        if(attach != null)
+            return attach;
 
-	public static StrategoStringArray getSorts(ISimpleTerm term) {
-		TypesmartSortAttachment attach = get(term);
-		return attach == null ? null : attach.getSorts();
-	}
+        // String sort = ImploderAttachment.getSort(term);
+        // if (sort != null) {
+        // IStrategoTerm sortTerm = factory.makeAppl(
+        // factory.makeConstructor("SortNoArgs", 1),
+        // factory.makeString(sort));
+        // return new TypesmartSortAttachment(sortTerm);
+        // }
 
-	public static void put(ISimpleTerm term, String[] sorts) {
-		put(term, new StrategoStringArray(sorts));
-	}
+        return null;
+    }
 
-	public static void put(ISimpleTerm term, StrategoStringArray sorts) {
-		term.putAttachment(new TypesmartSortAttachment(sorts));
-	}
+    public static SortType[] getSorts(ISimpleTerm term) {
+        TypesmartSortAttachment attach = get(term);
+        return attach == null ? null : attach.getSorts().ar;
+    }
 
-	public static void put(ISimpleTerm term, TypesmartSortAttachment attach) {
-		term.putAttachment(attach);
-	}
+    public static void put(ISimpleTerm term, SortType[] sorts) {
+        put(term, new StrategoSortTypeArray(sorts));
+    }
 
-	@Override
-	public String toString() {
-		return "(sorts=" + sorts.toString() + ")";
-	}
+    public static void put(ISimpleTerm term, StrategoSortTypeArray sorts) {
+        term.putAttachment(new TypesmartSortAttachment(sorts));
+    }
+
+    public static void put(ISimpleTerm term, TypesmartSortAttachment attach) {
+        term.putAttachment(attach);
+    }
+
+    @Override public String toString() {
+        return "(sorts=" + sorts.toString() + ")";
+    }
 }
