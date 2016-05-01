@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -12,10 +13,10 @@ import java.util.Set;
 import org.spoofax.terms.typesmart.types.SortType;
 
 public class TypesmartContext {
-    private final Map<String, SortType[][]> constructorSignatures;
-    private final Set<String> lexicals;
-    private final Set<Entry<String, String>> injections;
-    private transient Map<String, Set<String>> injectionsClosure;
+    private final Map<String, Set<List<SortType>>> constructorSignatures;
+    private final Set<SortType> lexicals;
+    private final Set<Entry<SortType, SortType>> injections;
+    private transient Map<SortType, Set<SortType>> injectionsClosure;
 
     /**
      * @param constructorSignatures
@@ -26,35 +27,35 @@ public class TypesmartContext {
      * @param injections
      *            Nonterminal injection pairs from -> to.
      */
-    public TypesmartContext(Map<String, SortType[][]> constructorSignatures, Set<String> lexicals,
-        Set<Entry<String, String>> injections) {
+    public TypesmartContext(Map<String, Set<List<SortType>>> constructorSignatures, Set<SortType> lexicals,
+        Set<Entry<SortType, SortType>> injections) {
         this.constructorSignatures = constructorSignatures;
         this.lexicals = lexicals;
         this.injections = injections;
     }
 
-    public Map<String, SortType[][]> getConstructorSignatures() {
+    public Map<String, Set<List<SortType>>> getConstructorSignatures() {
         return constructorSignatures;
     }
 
-    public Set<String> getLexicals() {
+    public Set<SortType> getLexicals() {
         return lexicals;
     }
 
-    public Set<Entry<String, String>> getInjections() {
+    public Set<Entry<SortType, SortType>> getInjections() {
         return injections;
     }
 
-    public Map<String, Set<String>> getInjectionsClosure() {
+    public Map<SortType, Set<SortType>> getInjectionsClosure() {
         if(injectionsClosure == null)
             injectionsClosure = computeClosure();
         return injectionsClosure;
     }
 
-    private Map<String, Set<String>> computeClosure() {
-        Map<String, Set<String>> closure = new HashMap<>();
-        for(Entry<String, String> e : injections) {
-            Set<String> s = closure.get(e.getKey());
+    private Map<SortType, Set<SortType>> computeClosure() {
+        Map<SortType, Set<SortType>> closure = new HashMap<>();
+        for(Entry<SortType, SortType> e : injections) {
+            Set<SortType> s = closure.get(e.getKey());
             if(s == null) {
                 s = new HashSet<>();
                 closure.put(e.getKey(), s);
@@ -62,16 +63,16 @@ public class TypesmartContext {
             s.add(e.getValue());
         }
 
-        LinkedList<Entry<String, String>> todo = new LinkedList<>(injections);
+        LinkedList<Entry<SortType, SortType>> todo = new LinkedList<>(injections);
 
         while(!todo.isEmpty()) {
-            Entry<String, String> e = todo.pop();
-            String from = e.getKey();
-            String to = e.getValue();
-            Set<String> transTos = closure.get(to);
+            Entry<SortType, SortType> e = todo.pop();
+            SortType from = e.getKey();
+            SortType to = e.getValue();
+            Set<SortType> transTos = closure.get(to);
             if(transTos != null) {
-                Set<String> fromTos = closure.get(from);
-                for(String transTo : transTos) {
+                Set<SortType> fromTos = closure.get(from);
+                for(SortType transTo : transTos) {
                     if(fromTos.add(transTo))
                         todo.add(new SimpleEntry<>(from, transTo));
                 }

@@ -7,6 +7,8 @@ import org.spoofax.terms.typesmart.TypesmartContext;
 import org.spoofax.terms.typesmart.TypesmartSortAttachment;
 
 public class TSort implements SortType {
+    private static final long serialVersionUID = 1784763837646076585L;
+
     private String sort;
 
     public TSort(String sort) {
@@ -49,8 +51,8 @@ public class TSort implements SortType {
             if(sort.equals(ts))
                 return true;
 
-            Set<String> injectedInto = context.getInjectionsClosure().get(sort);
-            return injectedInto != null && injectedInto.contains(ts);
+            Set<SortType> injectedInto = context.getInjectionsClosure().get(this);
+            return injectedInto != null && injectedInto.contains(t);
         }
 
         return false;

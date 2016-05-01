@@ -5,6 +5,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.typesmart.TypesmartContext;
 
 public class TOption implements SortType {
+    private static final long serialVersionUID = 5629000565986671549L;
 
     private SortType elemType;
 

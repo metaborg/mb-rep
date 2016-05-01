@@ -4,6 +4,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.typesmart.TypesmartContext;
 
 public class TList implements SortType {
+    private static final long serialVersionUID = 886205363941392393L;
 
     private SortType elemType;
 

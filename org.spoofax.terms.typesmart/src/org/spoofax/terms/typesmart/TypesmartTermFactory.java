@@ -2,6 +2,7 @@ package org.spoofax.terms.typesmart;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.metaborg.util.log.ILogger;
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -33,7 +34,8 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
 
     public TypesmartTermFactory(ITermFactory baseFactory, ILogger logger, TypesmartContext context) {
         super(baseFactory.getDefaultStorageType(), baseFactory);
-        assert baseFactory.getDefaultStorageType() == IStrategoTerm.MUTABLE : "Typesmart factory needs to have a factory with MUTABLE terms";
+        assert baseFactory
+            .getDefaultStorageType() == IStrategoTerm.MUTABLE : "Typesmart factory needs to have a factory with MUTABLE terms";
         this.baseFactory = baseFactory;
         this.logger = logger;
         this.context = context;
@@ -59,13 +61,13 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
     private SortType[] checkConstruction(IStrategoConstructor ctr, IStrategoTerm[] kids, IStrategoTerm term) {
         checkInvokations++;
         long start = System.currentTimeMillis();
-        
+
         try {
             String cname = ctr.getName();
             if(cname.equals("") || cname.equals("None") || cname.equals("Cons"))
                 return new SortType[0];
 
-            SortType[][] sigs = context.getConstructorSignatures().get(cname);
+            Set<List<SortType>> sigs = context.getConstructorSignatures().get(cname);
             if(sigs == null) {
                 String message = "No signature for constructor found: " + annotateTerm(term, makeList());
                 logger.error(message);
@@ -73,23 +75,25 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
             }
 
             List<SortType> resultingSorts = new ArrayList<>();
-            for(SortType[] sig : sigs) {
-                if(sig.length - 1 == kids.length) {
+            for(List<SortType> sig : sigs) {
+                if(sig.size() - 1 == kids.length) {
+                    // matching number of arguments
                     boolean matches = true;
                     for(int i = 0; i < kids.length; i++) {
-                        if(!sig[i].matches(kids[i], context)) {
+                        if(!sig.get(i).matches(kids[i], context)) {
                             matches = false;
                             break;
                         }
                     }
                     if(matches) {
-                        resultingSorts.add(sig[sig.length - 1]);
+                        // all arguments match, so constructor is callable.
+                        resultingSorts.add(sig.get(sig.size() - 1));
                     }
                 }
             }
 
             return resultingSorts.isEmpty() ? null : resultingSorts.toArray(new SortType[resultingSorts.size()]);
-            
+
         } finally {
             long end = System.currentTimeMillis();
             totalTimeMillis += (end - start);

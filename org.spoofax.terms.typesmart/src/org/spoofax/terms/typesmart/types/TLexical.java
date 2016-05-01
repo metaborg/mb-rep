@@ -4,6 +4,8 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.typesmart.TypesmartContext;
 
 public class TLexical implements SortType {
+    private static final long serialVersionUID = -2366199070240630889L;
+
     private TLexical() {
     }
 

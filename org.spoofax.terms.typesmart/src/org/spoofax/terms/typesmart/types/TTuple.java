@@ -7,6 +7,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.typesmart.TypesmartContext;
 
 public class TTuple implements SortType {
+    private static final long serialVersionUID = 6705241429971917743L;
 
     private SortType[] elemTypes;
 
