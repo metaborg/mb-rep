@@ -1,10 +1,13 @@
 package org.spoofax.terms.typesmart;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.vfs2.FileObject;
 import org.metaborg.util.log.ILogger;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
@@ -42,6 +45,21 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
         this.context = context;
     }
 
+    public TypesmartTermFactory(ITermFactory baseFactory, ILogger logger, FileObject contextFile) {
+        super(baseFactory.getDefaultStorageType(), baseFactory);
+        assert baseFactory
+            .getDefaultStorageType() == IStrategoTerm.MUTABLE : "Typesmart factory needs to have a factory with MUTABLE terms";
+        this.baseFactory = baseFactory;
+        this.logger = logger;
+        try(ObjectInputStream ois = new ObjectInputStream(contextFile.getContent().getInputStream())) {
+            TypesmartContext context = (TypesmartContext) ois.readObject();
+            this.context = context;
+        } catch(IOException | ClassNotFoundException e) {
+            logger.error("Error while loading typesmart term factory", e);
+            throw new RuntimeException(e);
+        }
+    }
+
     public ITermFactory getBaseFactory() {
         return baseFactory;
     }
@@ -70,8 +88,8 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
 
             Set<List<SortType>> sigs = context.getConstructorSignatures().get(cname);
             if(sigs == null) {
-                String message = "No signature for constructor found: " + annotateTerm(term, makeList());
-                logger.error(message);
+//                String message = "No signature for constructor found: " + annotateTerm(term, makeList());
+//                logger.error(message);
                 return null;
             }
 

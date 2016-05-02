@@ -31,7 +31,7 @@ public class TList implements SortType {
     @Override public boolean matches(IStrategoTerm t, TypesmartContext context) {
         if(t.getTermType() == IStrategoTerm.LIST) {
             for(IStrategoTerm sub : t)
-                if(!matches(sub, context))
+                if(!elemType.matches(sub, context))
                     return false;
             return true;
         }

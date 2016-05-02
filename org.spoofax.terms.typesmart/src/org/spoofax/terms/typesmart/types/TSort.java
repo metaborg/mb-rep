@@ -34,7 +34,7 @@ public class TSort implements SortType {
     @Override public boolean matches(IStrategoTerm t, TypesmartContext context) {
         if(t.getTermType() == IStrategoTerm.STRING)
             return TLexical.instance.subtypeOf(this, context);
-
+        
         SortType[] sortAlternatives = TypesmartSortAttachment.getSorts(t);
         if(sortAlternatives != null)
             for(SortType sort : sortAlternatives)

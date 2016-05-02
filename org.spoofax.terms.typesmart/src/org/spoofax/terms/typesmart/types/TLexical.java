@@ -23,7 +23,7 @@ public class TLexical implements SortType {
         if(t == this)
             return true;
         if(t instanceof TSort)
-            return context.getLexicals().contains(((TSort) t).getSort());
+            return context.getLexicals().contains(t);
         return false;
     }
 }
