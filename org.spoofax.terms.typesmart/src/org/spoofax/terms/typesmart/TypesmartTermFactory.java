@@ -1,6 +1,7 @@
 package org.spoofax.terms.typesmart;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -92,7 +93,14 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
                 }
             }
 
-            return resultingSorts.isEmpty() ? null : resultingSorts.toArray(new SortType[resultingSorts.size()]);
+            if(resultingSorts.isEmpty()) {
+                String message = "Ill-formed constructor call of " + cname + ", no signature matched.\n  Signatures "
+                    + sigs + "\n  Arguments " + Arrays.toString(kids);
+                logger.error(message);
+                return null;
+            }
+
+            return resultingSorts.toArray(new SortType[resultingSorts.size()]);
 
         } finally {
             long end = System.currentTimeMillis();
