@@ -5,6 +5,7 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +16,7 @@ import org.spoofax.terms.typesmart.types.SortType;
 
 public class TypesmartContext implements Serializable {
     private static final long serialVersionUID = -2343547085277594696L;
-    
+
     private final Map<String, Set<List<SortType>>> constructorSignatures;
     private final Set<SortType> lexicals;
     private final Set<Entry<SortType, SortType>> injections;
@@ -85,4 +86,27 @@ public class TypesmartContext implements Serializable {
         return Collections.unmodifiableMap(closure);
     }
 
+    public static String printSignature(List<SortType> sig) {
+        StringBuilder builder = new StringBuilder();
+        for(int i = 0, max = sig.size() - 1; i < max; i++) {
+            builder.append(sig.get(i)).append(" ");
+        }
+        if(sig.size() > 1) {
+            builder.append("-> ");
+        }
+        builder.append(sig.get(sig.size() - 1));
+        return builder.toString();
+    }
+
+    public static String printSignatures(Iterable<List<SortType>> sigs) {
+        StringBuilder builder = new StringBuilder("[");
+        Iterator<List<SortType>> it = sigs.iterator();
+        while(it.hasNext()) {
+            builder.append(printSignature(it.next()));
+            if(it.hasNext()) {
+                builder.append(", ");
+            }
+        }
+        return builder.append("]").toString();
+    }
 }

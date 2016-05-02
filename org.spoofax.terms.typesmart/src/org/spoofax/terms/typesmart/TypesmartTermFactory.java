@@ -88,8 +88,8 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
 
             Set<List<SortType>> sigs = context.getConstructorSignatures().get(cname);
             if(sigs == null) {
-//                String message = "No signature for constructor found: " + annotateTerm(term, makeList());
-//                logger.error(message);
+                // String message = "No signature for constructor found: " + annotateTerm(term, makeList());
+                // logger.error(message);
                 return null;
             }
 
@@ -113,7 +113,7 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
 
             if(resultingSorts.isEmpty()) {
                 String message = "Ill-formed constructor call of " + cname + ", no signature matched.\n  Signatures "
-                    + sigs + "\n  Arguments " + Arrays.toString(kids);
+                    + TypesmartContext.printSignatures(sigs) + "\n  Arguments " + Arrays.toString(kids);
                 logger.error(message);
                 return null;
             }
