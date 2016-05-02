@@ -6,7 +6,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.typesmart.TypesmartContext;
 
 public interface SortType extends Serializable {
-    public final static String LEXICAL_SORT = "String";
+    public final static SortType LEXICAL_SORT = new TSort("String");
     
     public boolean matches(IStrategoTerm t, TypesmartContext context);
 
