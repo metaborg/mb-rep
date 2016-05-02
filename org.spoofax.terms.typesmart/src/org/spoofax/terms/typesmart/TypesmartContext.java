@@ -1,5 +1,6 @@
 package org.spoofax.terms.typesmart;
 
+import java.io.Serializable;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,7 +13,9 @@ import java.util.Set;
 
 import org.spoofax.terms.typesmart.types.SortType;
 
-public class TypesmartContext {
+public class TypesmartContext implements Serializable {
+    private static final long serialVersionUID = -2343547085277594696L;
+    
     private final Map<String, Set<List<SortType>>> constructorSignatures;
     private final Set<SortType> lexicals;
     private final Set<Entry<SortType, SortType>> injections;
