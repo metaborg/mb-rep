@@ -39,6 +39,9 @@ public class TList implements SortType {
     }
 
     @Override public boolean subtypeOf(SortType t, TypesmartContext context) {
-        return t instanceof TList && elemType.subtypeOf(((TList) t).elemType, context);
+        if(t instanceof TList && elemType.subtypeOf(((TList) t).elemType, context)) {
+            return true;
+        }
+        return context.isInjection(this, t);
     }
 }

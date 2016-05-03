@@ -55,7 +55,7 @@ public class TypesmartContext implements Serializable {
         try(ObjectInputStream ois = new ObjectInputStream(file.getContent().getInputStream())) {
             return (TypesmartContext) ois.readObject();
         } catch(FileNotFoundException e) {
-            logger.warn("Typesmart context file not found", e);
+            logger.warn("Typesmart context file " + file + " not found");
             return TypesmartContext.empty();
         } catch(IOException | ClassNotFoundException e) {
             logger.error("Error while loading typesmart term factory", e);
@@ -163,5 +163,10 @@ public class TypesmartContext implements Serializable {
         constructorSignatures = Collections.unmodifiableMap(constructorSignatures);
 
         return new TypesmartContext(constructorSignatures, lexicals, injections);
+    }
+
+    public boolean isInjection(SortType t1, SortType t2) {
+        Set<SortType> injectedInto = getInjectionsClosure().get(t1);
+        return injectedInto != null && injectedInto.contains(t2);
     }
 }

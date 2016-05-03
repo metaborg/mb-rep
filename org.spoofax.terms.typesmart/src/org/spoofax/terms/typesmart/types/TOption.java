@@ -43,6 +43,9 @@ public class TOption implements SortType {
     }
 
     @Override public boolean subtypeOf(SortType t, TypesmartContext context) {
-        return t instanceof TOption && elemType.subtypeOf(((TOption) t).elemType, context);
+        if(t instanceof TOption && elemType.subtypeOf(((TOption) t).elemType, context)) {
+            return true;
+        }
+        return context.isInjection(this, t);
     }
 }

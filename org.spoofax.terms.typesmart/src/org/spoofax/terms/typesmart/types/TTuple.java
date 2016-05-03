@@ -60,6 +60,6 @@ public class TTuple implements SortType {
             }
             return true;
         }
-        return false;
+        return context.isInjection(this, t);
     }
 }
