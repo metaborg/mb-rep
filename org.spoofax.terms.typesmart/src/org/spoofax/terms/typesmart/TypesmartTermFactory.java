@@ -1,11 +1,14 @@
 package org.spoofax.terms.typesmart;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.apache.commons.vfs2.FileObject;
 import org.metaborg.util.log.ILogger;
@@ -51,13 +54,19 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
             .getDefaultStorageType() == IStrategoTerm.MUTABLE : "Typesmart factory needs to have a factory with MUTABLE terms";
         this.baseFactory = baseFactory;
         this.logger = logger;
+        
+        TypesmartContext context;
         try(ObjectInputStream ois = new ObjectInputStream(contextFile.getContent().getInputStream())) {
-            TypesmartContext context = (TypesmartContext) ois.readObject();
-            this.context = context;
+            context = (TypesmartContext) ois.readObject();
+        } catch(FileNotFoundException e) {
+            logger.warn("Typesmart context file not found", e);
+            context = new TypesmartContext(Collections.<String, Set<List<SortType>>>emptyMap(),
+                Collections.<SortType>emptySet(), Collections.<Entry<SortType, SortType>>emptySet());
         } catch(IOException | ClassNotFoundException e) {
             logger.error("Error while loading typesmart term factory", e);
             throw new RuntimeException(e);
         }
+        this.context = context;
     }
 
     public ITermFactory getBaseFactory() {
@@ -93,7 +102,7 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
                 return null;
             }
 
-            List<SortType> resultingSorts = new ArrayList<>();
+            Set<SortType> resultingSorts = new HashSet<>();
             for(List<SortType> sig : sigs) {
                 if(sig.size() - 1 == kids.length) {
                     // matching number of arguments
@@ -115,7 +124,10 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
                 String message = "Ill-formed constructor call of " + cname + ", no signature matched.\n  Signatures "
                     + TypesmartContext.printSignatures(sigs) + "\n  Arguments " + Arrays.toString(kids);
                 logger.error(message);
-                return null;
+                // prevent error propragation by assuming this term has the right sorts
+                for(List<SortType> sig : sigs) {
+                    resultingSorts.add(sig.get(sig.size() - 1));
+                }
             }
 
             return resultingSorts.toArray(new SortType[resultingSorts.size()]);
