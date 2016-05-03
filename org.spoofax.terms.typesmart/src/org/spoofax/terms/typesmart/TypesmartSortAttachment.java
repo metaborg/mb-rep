@@ -8,11 +8,14 @@ import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.interpreter.terms.ITermPrinter;
+import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.terms.StrategoString;
 import org.spoofax.terms.StrategoTerm;
 import org.spoofax.terms.attachments.AbstractTermAttachment;
 import org.spoofax.terms.attachments.TermAttachmentType;
 import org.spoofax.terms.typesmart.types.SortType;
+import org.spoofax.terms.typesmart.types.TList;
+import org.spoofax.terms.typesmart.types.TSort;
 import org.spoofax.terms.util.ArrayIterator;
 
 /**
@@ -122,7 +125,19 @@ public class TypesmartSortAttachment extends AbstractTermAttachment {
 
     public static SortType[] getSorts(ISimpleTerm term) {
         TypesmartSortAttachment attach = get(term);
-        return attach == null ? null : attach.getSorts().ar;
+        if(attach != null) {
+            return attach.getSorts().ar;
+        } else {
+            ImploderAttachment imploderAttach = ImploderAttachment.get(term);
+            if(imploderAttach == null) {
+                return null;
+            }
+            if(imploderAttach.isSequenceAttachment()) {
+                return new SortType[] { new TList(new TSort(imploderAttach.getElementSort())) };
+            } else {
+                return new SortType[] { new TSort(imploderAttach.getSort()) };
+            }
+        }
     }
 
     public static void put(ISimpleTerm term, SortType[] sorts) {
