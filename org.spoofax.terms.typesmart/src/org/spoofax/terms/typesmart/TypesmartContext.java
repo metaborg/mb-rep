@@ -43,17 +43,28 @@ public class TypesmartContext implements Serializable {
         this.injections = injections;
     }
 
+    /**
+     * @return An empty context.
+     */
+    public static TypesmartContext empty() {
+        return new TypesmartContext(Collections.<String, Set<List<SortType>>>emptyMap(),
+            Collections.<SortType>emptySet(), Collections.<Entry<SortType, SortType>>emptySet());
+    }
+
     public static TypesmartContext load(FileObject file, ILogger logger) {
         try(ObjectInputStream ois = new ObjectInputStream(file.getContent().getInputStream())) {
             return (TypesmartContext) ois.readObject();
         } catch(FileNotFoundException e) {
             logger.warn("Typesmart context file not found", e);
-            return new TypesmartContext(Collections.<String, Set<List<SortType>>>emptyMap(),
-                Collections.<SortType>emptySet(), Collections.<Entry<SortType, SortType>>emptySet());
+            return TypesmartContext.empty();
         } catch(IOException | ClassNotFoundException e) {
             logger.error("Error while loading typesmart term factory", e);
             throw new RuntimeException(e);
         }
+    }
+
+    public boolean isEmpty() {
+        return constructorSignatures.isEmpty() && lexicals.isEmpty() && injections.isEmpty();
     }
 
     public Map<String, Set<List<SortType>>> getConstructorSignatures() {
