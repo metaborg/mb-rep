@@ -1,5 +1,7 @@
 package org.spoofax.terms.typesmart;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Collections;
@@ -12,6 +14,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.vfs2.FileNotFoundException;
+import org.apache.commons.vfs2.FileObject;
+import org.metaborg.util.log.ILogger;
 import org.spoofax.terms.typesmart.types.SortType;
 
 public class TypesmartContext implements Serializable {
@@ -36,6 +41,19 @@ public class TypesmartContext implements Serializable {
         this.constructorSignatures = constructorSignatures;
         this.lexicals = lexicals;
         this.injections = injections;
+    }
+
+    public static TypesmartContext load(FileObject file, ILogger logger) {
+        try(ObjectInputStream ois = new ObjectInputStream(file.getContent().getInputStream())) {
+            return (TypesmartContext) ois.readObject();
+        } catch(FileNotFoundException e) {
+            logger.warn("Typesmart context file not found", e);
+            return new TypesmartContext(Collections.<String, Set<List<SortType>>>emptyMap(),
+                Collections.<SortType>emptySet(), Collections.<Entry<SortType, SortType>>emptySet());
+        } catch(IOException | ClassNotFoundException e) {
+            logger.error("Error while loading typesmart term factory", e);
+            throw new RuntimeException(e);
+        }
     }
 
     public Map<String, Set<List<SortType>>> getConstructorSignatures() {
@@ -108,5 +126,31 @@ public class TypesmartContext implements Serializable {
             }
         }
         return builder.append("]").toString();
+    }
+
+    public TypesmartContext merge(TypesmartContext c) {
+        Set<SortType> lexicals = new HashSet<>(this.lexicals);
+        lexicals.addAll(c.lexicals);
+        lexicals = Collections.unmodifiableSet(lexicals);
+
+        Set<Entry<SortType, SortType>> injections = new HashSet<>(this.injections);
+        injections.addAll(c.injections);
+        injections = Collections.unmodifiableSet(injections);
+
+        Map<String, Set<List<SortType>>> constructorSignatures = new HashMap<>(this.constructorSignatures);
+        for(Entry<String, Set<List<SortType>>> e : c.constructorSignatures.entrySet()) {
+            String cname = e.getKey();
+            Set<List<SortType>> set = this.constructorSignatures.get(cname);
+            if(set == null) {
+                constructorSignatures.put(cname, e.getValue());
+            } else {
+                Set<List<SortType>> newSet = new HashSet<>(set);
+                newSet.addAll(e.getValue());
+                constructorSignatures.put(cname, Collections.unmodifiableSet(newSet));
+            }
+        }
+        constructorSignatures = Collections.unmodifiableMap(constructorSignatures);
+
+        return new TypesmartContext(constructorSignatures, lexicals, injections);
     }
 }

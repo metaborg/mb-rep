@@ -1,16 +1,10 @@
 package org.spoofax.terms.typesmart;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Map.Entry;
 
-import org.apache.commons.vfs2.FileObject;
 import org.metaborg.util.log.ILogger;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
@@ -45,27 +39,6 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
             .getDefaultStorageType() == IStrategoTerm.MUTABLE : "Typesmart factory needs to have a factory with MUTABLE terms";
         this.baseFactory = baseFactory;
         this.logger = logger;
-        this.context = context;
-    }
-
-    public TypesmartTermFactory(ITermFactory baseFactory, ILogger logger, FileObject contextFile) {
-        super(baseFactory.getDefaultStorageType(), baseFactory);
-        assert baseFactory
-            .getDefaultStorageType() == IStrategoTerm.MUTABLE : "Typesmart factory needs to have a factory with MUTABLE terms";
-        this.baseFactory = baseFactory;
-        this.logger = logger;
-        
-        TypesmartContext context;
-        try(ObjectInputStream ois = new ObjectInputStream(contextFile.getContent().getInputStream())) {
-            context = (TypesmartContext) ois.readObject();
-        } catch(FileNotFoundException e) {
-            logger.warn("Typesmart context file not found", e);
-            context = new TypesmartContext(Collections.<String, Set<List<SortType>>>emptyMap(),
-                Collections.<SortType>emptySet(), Collections.<Entry<SortType, SortType>>emptySet());
-        } catch(IOException | ClassNotFoundException e) {
-            logger.error("Error while loading typesmart term factory", e);
-            throw new RuntimeException(e);
-        }
         this.context = context;
     }
 
