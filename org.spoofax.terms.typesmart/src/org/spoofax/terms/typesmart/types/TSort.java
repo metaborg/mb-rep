@@ -1,6 +1,5 @@
 package org.spoofax.terms.typesmart.types;
 
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;

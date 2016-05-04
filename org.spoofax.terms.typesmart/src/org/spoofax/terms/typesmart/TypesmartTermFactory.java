@@ -81,7 +81,6 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
                     boolean matches = true;
                     for(int i = 0; i < kids.length; i++) {
                         if(!sig.get(i).matches(kids[i], context)) {
-                            sig.get(i).matches(kids[i], context);
                             matches = false;
                             break;
                         }
@@ -94,14 +93,10 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
             }
 
             if(resultingSorts.isEmpty()) {
-                String message =
-                    "Ill-formed constructor call, no signature matched.\n  Constructor " + cname + "\n  Signatures "
-                        + TypesmartContext.printSignatures(sigs) + "\n  Arguments " + Arrays.toString(kids);
-                logger.error(message);
-                // prevent error propragation by assuming this term has the right sorts
-                for(List<SortType> sig : sigs) {
-                    resultingSorts.add(sig.get(sig.size() - 1));
-                }
+                String message = "Ill-formed constructor call, no signature matched: " + cname + "\n" //
+                    + "  Signatures " + TypesmartContext.printSignatures(sigs) + "\n" //
+                    + "  Arguments " + Arrays.toString(kids);
+                throw new RuntimeException(message);
             }
 
             return resultingSorts.toArray(new SortType[resultingSorts.size()]);
