@@ -1,5 +1,8 @@
 package org.spoofax.terms.typesmart.types;
 
+import java.util.Map.Entry;
+import java.util.Set;
+
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.typesmart.TypesmartContext;
 import org.spoofax.terms.typesmart.TypesmartSortAttachment;
@@ -30,13 +33,21 @@ public class TSort implements SortType {
     }
 
     @Override public boolean matches(IStrategoTerm t, TypesmartContext context) {
-        if(t.getTermType() == IStrategoTerm.STRING)
+        if(t.getTermType() == IStrategoTerm.STRING) {
             return TLexical.instance.subtypeOf(this, context);
+        }
+
 
         SortType[] sortAlternatives = TypesmartSortAttachment.getSorts(t);
         if(sortAlternatives != null)
             for(SortType sort : sortAlternatives)
                 if(sort.subtypeOf(this, context))
+                    return true;
+
+        Set<SortType> injecteds = context.getReverseInjectionsClosure().get(this);
+        if (injecteds != null)
+            for(SortType injected : injecteds)
+                if(injected.matches(t,  context))
                     return true;
 
         return false;

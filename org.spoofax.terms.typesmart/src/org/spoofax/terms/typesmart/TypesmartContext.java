@@ -26,6 +26,7 @@ public class TypesmartContext implements Serializable {
     private final Set<SortType> lexicals;
     private final Set<Entry<SortType, SortType>> injections;
     private transient Map<SortType, Set<SortType>> injectionsClosure;
+    private transient Map<SortType, Set<SortType>> reverseInjectionsClosure;
 
     /**
      * @param constructorSignatures
@@ -81,19 +82,22 @@ public class TypesmartContext implements Serializable {
 
     public Map<SortType, Set<SortType>> getInjectionsClosure() {
         if(injectionsClosure == null)
-            injectionsClosure = computeClosure();
+            computeClosure();
         return injectionsClosure;
     }
 
-    private Map<SortType, Set<SortType>> computeClosure() {
-        Map<SortType, Set<SortType>> closure = new HashMap<>();
+    public Map<SortType, Set<SortType>> getReverseInjectionsClosure() {
+        if(reverseInjectionsClosure == null)
+            computeClosure();
+        return reverseInjectionsClosure;
+    }
+
+    private void computeClosure() {
+        injectionsClosure = new HashMap<>();
+        reverseInjectionsClosure = new HashMap<>();
         for(Entry<SortType, SortType> e : injections) {
-            Set<SortType> s = closure.get(e.getKey());
-            if(s == null) {
-                s = new HashSet<>();
-                closure.put(e.getKey(), s);
-            }
-            s.add(e.getValue());
+            addToMap(e.getKey(), e.getValue(), injectionsClosure);
+            addToMap(e.getValue(), e.getKey(), reverseInjectionsClosure);
         }
 
         LinkedList<Entry<SortType, SortType>> todo = new LinkedList<>(injections);
@@ -102,17 +106,29 @@ public class TypesmartContext implements Serializable {
             Entry<SortType, SortType> e = todo.pop();
             SortType from = e.getKey();
             SortType to = e.getValue();
-            Set<SortType> transTos = closure.get(to);
+            Set<SortType> transTos = injectionsClosure.get(to);
             if(transTos != null) {
-                Set<SortType> fromTos = closure.get(from);
+                Set<SortType> fromTos = injectionsClosure.get(from);
                 for(SortType transTo : transTos) {
-                    if(fromTos.add(transTo))
+                    if(fromTos.add(transTo)) {
+                        reverseInjectionsClosure.get(transTo).add(from);
                         todo.add(new SimpleEntry<>(from, transTo));
+                    }
                 }
             }
         }
 
-        return Collections.unmodifiableMap(closure);
+        injectionsClosure = Collections.unmodifiableMap(injectionsClosure);
+        reverseInjectionsClosure = Collections.unmodifiableMap(reverseInjectionsClosure);
+    }
+
+    private static <K, V> void addToMap(K key, V value, Map<K, Set<V>> map) {
+        Set<V> vals = map.get(key);
+        if(vals == null) {
+            vals = new HashSet<>();
+            map.put(key, vals);
+        }
+        vals.add(value);
     }
 
     public static String printSignature(List<SortType> sig) {

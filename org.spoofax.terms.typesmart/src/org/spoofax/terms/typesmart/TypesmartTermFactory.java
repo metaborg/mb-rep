@@ -21,7 +21,6 @@ import org.spoofax.terms.typesmart.types.SortType;
  * base factory.
  * 
  * @author Sebastian Erdweg
- * @author Vlad Vergu
  */
 public class TypesmartTermFactory extends AbstractWrappedTermFactory {
 
@@ -82,6 +81,7 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
                     boolean matches = true;
                     for(int i = 0; i < kids.length; i++) {
                         if(!sig.get(i).matches(kids[i], context)) {
+                            sig.get(i).matches(kids[i], context);
                             matches = false;
                             break;
                         }
@@ -94,8 +94,9 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
             }
 
             if(resultingSorts.isEmpty()) {
-                String message = "Ill-formed constructor call of " + cname + ", no signature matched.\n  Signatures "
-                    + TypesmartContext.printSignatures(sigs) + "\n  Arguments " + Arrays.toString(kids);
+                String message =
+                    "Ill-formed constructor call, no signature matched.\n  Constructor " + cname + "\n  Signatures "
+                        + TypesmartContext.printSignatures(sigs) + "\n  Arguments " + Arrays.toString(kids);
                 logger.error(message);
                 // prevent error propragation by assuming this term has the right sorts
                 for(List<SortType> sig : sigs) {
