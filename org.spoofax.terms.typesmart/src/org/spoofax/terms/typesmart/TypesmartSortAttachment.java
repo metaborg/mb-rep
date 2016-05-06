@@ -12,6 +12,7 @@ import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.terms.StrategoString;
 import org.spoofax.terms.StrategoTerm;
 import org.spoofax.terms.attachments.AbstractTermAttachment;
+import org.spoofax.terms.attachments.OriginAttachment;
 import org.spoofax.terms.attachments.TermAttachmentType;
 import org.spoofax.terms.typesmart.types.SortType;
 import org.spoofax.terms.typesmart.types.TList;
@@ -129,13 +130,19 @@ public class TypesmartSortAttachment extends AbstractTermAttachment {
             return attach.getSorts().ar;
         } else {
             ImploderAttachment imploderAttach = ImploderAttachment.get(term);
-            if(imploderAttach == null) {
-                return null;
-            }
-            if(imploderAttach.isSequenceAttachment()) {
-                return new SortType[] { new TList(new TSort(imploderAttach.getElementSort())) };
+            if(imploderAttach != null) {
+                if(imploderAttach.isSequenceAttachment()) {
+                    return new SortType[] { new TList(new TSort(imploderAttach.getElementSort())) };
+                } else {
+                    return new SortType[] { new TSort(imploderAttach.getSort()) };
+                }
             } else {
-                return new SortType[] { new TSort(imploderAttach.getSort()) };
+                IStrategoTerm origin = OriginAttachment.getOrigin(term);
+                if(origin != null) {
+                    return getSorts(origin);
+                } else {
+                    return null;
+                }
             }
         }
     }
