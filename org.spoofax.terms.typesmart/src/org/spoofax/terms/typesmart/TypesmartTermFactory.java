@@ -11,6 +11,7 @@ import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.terms.Term;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.attachments.AbstractWrappedTermFactory;
 import org.spoofax.terms.typesmart.types.SortType;
@@ -75,13 +76,22 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
                 return null;
             }
 
+            IStrategoTerm[] rebuildKids = new IStrategoTerm[kids.length];
+            for(int i = 0, max = kids.length; i < max; i++) {
+                /*
+                 * TODO instead of rebuilding use TermConverter to convert explicitly when injecting terms from one
+                 * factory to another.
+                 */
+                rebuildKids[i] = rebuildIfNecessary(kids[i]);
+            }
+
             Set<SortType> resultingSorts = new HashSet<>();
             for(List<SortType> sig : sigs) {
-                if(sig.size() - 1 == kids.length) {
+                if(sig.size() - 1 == rebuildKids.length) {
                     // matching number of arguments
                     boolean matches = true;
-                    for(int i = 0; i < kids.length; i++) {
-                        if(!sig.get(i).matches(kids[i], context)) {
+                    for(int i = 0; i < rebuildKids.length; i++) {
+                        if(!sig.get(i).matches(rebuildKids[i], context)) {
                             matches = false;
                             break;
                         }
@@ -94,12 +104,17 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
             }
 
             if(resultingSorts.isEmpty()) {
-                String message = "Ill-formed constructor call, no signature matched: " + cname + "\n" //
-                    + "  Signatures\t\t" + cname + ": " + TypesmartContext.printSignatures(sigs) + "\n" //
-                    + "  Arguments \t\t" + cname + ": " + Arrays.toString(kids);
-                if (oldkids != null)
-                    message = message + "\n  Old arguments\t" + cname + ": " + Arrays.toString(oldkids);
-                throw new RuntimeException(message);
+                StringBuilder builder = new StringBuilder();
+                builder.append("Ill-formed constructor call, no signature matched: ").append(cname).append("\n");
+                builder.append("  Signatures\t\t").append(cname).append(": ")
+                    .append(TypesmartContext.printSignatures(sigs)).append("\n");
+                builder.append("  Arguments\t\t").append(cname).append(":\n");
+                printAppendArguments(builder, rebuildKids);
+                if(oldkids != null) {
+                    builder.append("\n  Old arguments\t").append(cname).append(":\n");
+                    printAppendArguments(builder, oldkids);
+                }
+                throw new RuntimeException(builder.toString());
             }
 
             return resultingSorts.toArray(new SortType[resultingSorts.size()]);
@@ -107,6 +122,50 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
         } finally {
             long end = System.currentTimeMillis();
             totalTimeMillis += (end - start);
+        }
+    }
+
+    private IStrategoTerm rebuildIfNecessary(IStrategoTerm term) {
+        if(term.getTermType() == IStrategoTerm.APPL) {
+            IStrategoAppl appl = (IStrategoAppl) term;
+            if(context.getConstructorSignatures().containsKey(appl.getConstructor().getName())
+                && TypesmartSortAttachment.getSorts(appl) == null)
+                return makeAppl(appl.getConstructor(), appl.getAllSubterms(), appl.getAnnotations());
+            else
+                return appl;
+        } else {
+            IStrategoTerm[] kids = new IStrategoTerm[term.getSubtermCount()];
+            boolean changed = false;
+            int i = 0;
+            for(IStrategoTerm kid : term) {
+                IStrategoTerm newkid = rebuildIfNecessary(kid);
+                kids[i] = newkid;
+                changed = changed || kid != newkid;
+            }
+            if(changed) {
+                switch(term.getTermType()) {
+                    case IStrategoTerm.LIST:
+                        return makeList(kids, term.getAnnotations());
+                    case IStrategoTerm.TUPLE:
+                        return makeTuple(kids, term.getAnnotations());
+                    default:
+                        throw new IllegalStateException();
+                }
+            } else {
+                return term;
+            }
+        }
+    }
+
+    private void printAppendArguments(StringBuilder builder, IStrategoTerm[] kids) {
+        for(IStrategoTerm kid : kids) {
+            SortType[] types = TypesmartSortAttachment.getSorts(kid);
+            if(types == null)
+                builder.append("\t\t[] -- ");
+            else
+                builder.append("\t\t").append(Arrays.toString(types)).append(" -- ");
+            builder.append(Term.removeAnnotations(kid, baseFactory));
+            builder.append("\n");
         }
     }
 
