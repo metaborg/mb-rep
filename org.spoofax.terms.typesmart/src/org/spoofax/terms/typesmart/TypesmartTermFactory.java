@@ -48,7 +48,7 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
     @Override public IStrategoAppl makeAppl(IStrategoConstructor ctr, IStrategoTerm[] kids, IStrategoList annotations) {
         IStrategoAppl term = super.makeAppl(ctr, kids, annotations);
 
-        SortType[] sorts = checkConstruction(ctr, kids, term);
+        SortType[] sorts = checkConstruction(ctr, kids, term, null);
         if(sorts != null)
             TypesmartSortAttachment.put(term, sorts);
         return term;
@@ -58,7 +58,8 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
      * @return list of alternative result sorts; null indicates that the construction is illegal; the empty array
      *         indicates a special constructor.
      */
-    private SortType[] checkConstruction(IStrategoConstructor ctr, IStrategoTerm[] kids, IStrategoTerm term) {
+    private SortType[] checkConstruction(IStrategoConstructor ctr, IStrategoTerm[] kids, IStrategoTerm term,
+        IStrategoTerm[] oldkids) {
         checkInvokations++;
         long start = System.currentTimeMillis();
 
@@ -94,8 +95,10 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
 
             if(resultingSorts.isEmpty()) {
                 String message = "Ill-formed constructor call, no signature matched: " + cname + "\n" //
-                    + "  Signatures " + TypesmartContext.printSignatures(sigs) + "\n" //
-                    + "  Arguments " + Arrays.toString(kids);
+                    + "  Signatures\t\t" + cname + ": " + TypesmartContext.printSignatures(sigs) + "\n" //
+                    + "  Arguments \t\t" + cname + ": " + Arrays.toString(kids);
+                if (oldkids != null)
+                    message = message + "\n  Old arguments\t" + cname + ": " + Arrays.toString(oldkids);
                 throw new RuntimeException(message);
             }
 
@@ -133,8 +136,12 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
     /**
      * Recheck invariant of typesmart constrcutor.
      */
-    @Override public IStrategoAppl replaceAppl(IStrategoConstructor constructor, IStrategoTerm[] kids,
-        IStrategoAppl old) {
-        return makeAppl(constructor, kids, old.getAnnotations());
+    @Override public IStrategoAppl replaceAppl(IStrategoConstructor ctr, IStrategoTerm[] kids, IStrategoAppl old) {
+        IStrategoAppl term = super.makeAppl(ctr, kids, old.getAnnotations());
+
+        SortType[] sorts = checkConstruction(ctr, kids, term, old.getAllSubterms());
+        if(sorts != null)
+            TypesmartSortAttachment.put(term, sorts);
+        return term;
     }
 }
