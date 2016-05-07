@@ -53,6 +53,6 @@ public class TSort implements SortType {
     }
 
     @Override public boolean subtypeOf(SortType t, TypesmartContext context) {
-        return this.equals(t) || context.isInjection(this, t);
+        return this.equals(t) || t == TAny.instance || context.isInjection(this, t);
     }
 }

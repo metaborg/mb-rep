@@ -42,6 +42,6 @@ public class TList implements SortType {
         if(t instanceof TList && elemType.subtypeOf(((TList) t).elemType, context)) {
             return true;
         }
-        return context.isInjection(this, t);
+        return t == TAny.instance || context.isInjection(this, t);
     }
 }

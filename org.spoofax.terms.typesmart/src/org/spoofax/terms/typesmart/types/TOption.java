@@ -46,6 +46,6 @@ public class TOption implements SortType {
         if(t instanceof TOption && elemType.subtypeOf(((TOption) t).elemType, context)) {
             return true;
         }
-        return context.isInjection(this, t);
+        return t == TAny.instance || context.isInjection(this, t);
     }
 }

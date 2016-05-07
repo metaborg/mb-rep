@@ -12,7 +12,7 @@ public class TLexical implements SortType {
     public static TLexical instance = new TLexical();
 
     @Override public String toString() {
-        return "Lexical";
+        return SortType.LEXICAL_SORT;
     }
 
     @Override public boolean matches(IStrategoTerm t, TypesmartContext context) {
@@ -20,7 +20,7 @@ public class TLexical implements SortType {
     }
 
     @Override public boolean subtypeOf(SortType t, TypesmartContext context) {
-        if(t == this)
+        if(t == this || t == TAny.instance)
             return true;
         if(t instanceof TSort)
             return context.getLexicals().contains(t);
