@@ -94,7 +94,7 @@ public class TAFTermReader extends StringTermReader {
             else if (Character.isDigit(ch) || ch == '-')
                 return parseAnno(bis, parseNumber(bis));
         }
-        throw new ParseError("Invalid term: '" + (char)ch + "'");
+        throw new ParseError("Invalid term: 0x"+ String.format("%04x", (int) ch) +" '" + (char)ch + "'");
     }
     
     private IStrategoTerm parseAnno(PushbackInputStream bis, IStrategoTerm term) throws IOException, ParseError {
@@ -288,7 +288,7 @@ public class TAFTermReader extends StringTermReader {
         for (;;) {
             int b = input.read();
             switch (b) {
-                case ' ': case '\t': case '\n':
+                case ' ': case '\t': case '\r': case '\n':
                     continue;
                 default:
                     input.unread(b);
