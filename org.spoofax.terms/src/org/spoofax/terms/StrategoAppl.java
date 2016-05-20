@@ -51,7 +51,7 @@ public class StrategoAppl extends StrategoTerm implements IStrategoAppl {
     }
 
     public IStrategoTerm getSubterm(int index) {
-        if (index < 0 || index > kids.length)
+        if (index < 0 || index >= kids.length)
             throw new IndexOutOfBoundsException("Index out of bounds: " + index);
         return kids[index];
     }
