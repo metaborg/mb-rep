@@ -1,5 +1,5 @@
 package org.metaborg.scopegraph;
 
-public interface ILabel {
+public interface Label {
 
 }
