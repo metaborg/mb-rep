@@ -3,13 +3,17 @@ package org.metaborg.scopegraph.resolution.path;
 import org.metaborg.scopegraph.Label;
 import org.metaborg.scopegraph.Scope;
 
+import lombok.Value;
+
+@Value
 public class E implements Path {
 
-    public final Scope scope;
-    public final Label label;
-    public final Path tail;
+    Scope scope;
+    Label label;
+    Path tail;
 
     public E(Scope scope, Label label, Path tail) {
+        assert !(tail instanceof R);
         this.scope = scope;
         this.label = label;
         this.tail = tail;
@@ -21,7 +25,7 @@ public class E implements Path {
 
     @Override
     public String toString() {
-        return String.format("E(%s,%s).%s", scope, label, tail);
+        return String.format("E(%s,%s)%s", scope, label, tail);
     }
 
 }

@@ -3,10 +3,13 @@ package org.metaborg.scopegraph.resolution.path;
 import org.metaborg.scopegraph.Occurrence;
 import org.metaborg.scopegraph.Scope;
 
+import lombok.Value;
+
+@Value
 public class D implements Path {
 
-    public final Occurrence declaration;
-    public final Scope scope;
+    Occurrence declaration;
+    Scope scope;
 
     public D(Occurrence declaration, Scope scope) {
         this.declaration = declaration;

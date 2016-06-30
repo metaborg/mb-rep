@@ -33,10 +33,9 @@ public class Reachability implements PathVisitor<Void> {
     public Reachability(ScopeGraph scopeGraph) {
         this.scopeGraph = scopeGraph;
         resolve();
-        print();
     }
  
-    private void print() {
+    public void print() {
         System.out.println("=== Reachability ===");
         for ( Scope s : env.keySet() ) {
             System.out.println("Scope "+s+":");
@@ -76,7 +75,7 @@ public class Reachability implements PathVisitor<Void> {
         Occurrence decl = Paths.getDeclaration(r);
         for ( Pair<Label,Scope> ls : scopeGraph.getExports(decl) ) {
             Label label = ls.getLeft();
-            for ( Scope scope : scopeGraph.getImports(r.reference, label) ) {
+            for ( Scope scope : scopeGraph.getImports(r.getReference(), label) ) {
                 for ( Path path : env.get(ls.getRight()) ) {
                     N n = new N(scope,label,r,path);
                     env.put(scope, n);
@@ -88,15 +87,15 @@ public class Reachability implements PathVisitor<Void> {
     }
 
     @Override public Void visit(E e) {
-        return visit(e.scope, e);
+        return visit(e.getScope(), e);
     }
 
     @Override public Void visit(N n) {
-        return visit(n.scope, n);
+        return visit(n.getScope(), n);
     }
 
     @Override public Void visit(D d) {
-        return visit(d.scope, d);
+        return visit(d.getScope(), d);
     }
 
     private Void visit(Scope scope, Path path) {
@@ -121,7 +120,7 @@ public class Reachability implements PathVisitor<Void> {
         for ( Pair<Label,Occurrence> ld : scopeGraph.getExports(scope) ) {
             Label label = ld.getLeft();
             for ( R reach : reach.get(ld.getRight()) ) {
-                for ( Scope scope2 : scopeGraph.getImports(reach.reference,label) ) {
+                for ( Scope scope2 : scopeGraph.getImports(reach.getReference(),label) ) {
                     N n = new N(scope2,label,reach,path);
                     env.put(scope2, n);
                     pathStack.push(n);
@@ -132,7 +131,7 @@ public class Reachability implements PathVisitor<Void> {
 
     private void addReachable(Scope scope, Path path) {
         Occurrence decl = Paths.getDeclaration(path);
-        for ( Occurrence ref : scopeGraph.getReferences(scope, decl.id()) ) {
+        for ( Occurrence ref : scopeGraph.getReferences(scope, decl.getId()) ) {
             if ( !Paths.imports(path,ref) ) {
                 R r = new R(ref, path);
                 reach.put(decl, r);

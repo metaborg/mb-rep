@@ -1,10 +1,12 @@
 package org.metaborg.scopegraph.resolution;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.junit.Ignore;
 import org.junit.Test;
+import static org.metaborg.scopegraph.Labels.*;
 import org.metaborg.scopegraph.Occurrence;
 import org.metaborg.scopegraph.Scope;
 import org.metaborg.scopegraph.impl.DefaultLabel;
@@ -16,6 +18,7 @@ public class ReachabilityTest {
     @Ignore @Test public void empty() {
         DefaultScopeGraph g = new DefaultScopeGraph();
         Reachability r = new Reachability(g);
+        r.print();
     }
 
     @Ignore @Test public void single() {
@@ -26,6 +29,7 @@ public class ReachabilityTest {
         Occurrence ref = new DefaultOccurrence("","x",2);
         g.addReference(ref, s);
         Reachability r = new Reachability(g);
+        r.print();
         assertThat(r.resolve(new DefaultOccurrence("","x",2)),
                 hasItem(decl));
     }
@@ -44,6 +48,7 @@ public class ReachabilityTest {
         g.addDirectEdge(s2, new DefaultLabel("P"), s1);
         
         Reachability r = new Reachability(g);
+        r.print();
         assertThat(r.resolve(ref),hasItem(decl));
     }
 
@@ -67,6 +72,7 @@ public class ReachabilityTest {
         g.addImportEdge(s2, new DefaultLabel("I"), mref);
 
         Reachability r = new Reachability(g);
+        r.print();
         assertThat(r.resolve(mref),hasItem(mdecl));
         assertThat(r.resolve(xref),hasItem(xdecl));
     }
@@ -86,6 +92,7 @@ public class ReachabilityTest {
         g.addDirectEdge(s1, new DefaultLabel("P"), s2);
         
         Reachability r = new Reachability(g);
+        r.print();
         assertThat(r.resolve(ref),hasItem(decl));
     }
  
@@ -106,8 +113,41 @@ public class ReachabilityTest {
         g.addImportEdge(s1, new DefaultLabel("I"), ref);
 
         Reachability r = new Reachability(g);
+        r.print();
         assertThat(r.resolve(ref),hasItem(outer_decl));
         assertThat(r.resolve(ref),not(hasItem(inner_decl)));
+    }
+    
+    @Test public void anomaly() {
+        DefaultScopeGraph g = new DefaultScopeGraph();
+
+        Scope s1 = g.createScope();
+        
+        Occurrence outer_A_decl = new DefaultOccurrence("","A",1);
+        g.addDeclaration(s1, outer_A_decl);
+        Scope s2 = g.createScope();
+        g.addExportEdge(outer_A_decl, label("I"), s2);
+        Occurrence inner_B_decl = new DefaultOccurrence("","B",2);
+        g.addDeclaration(s2, inner_B_decl);
+
+        Occurrence outer_B_decl = new DefaultOccurrence("","B",3);
+        g.addDeclaration(s1, outer_B_decl);
+        Scope s3 = g.createScope();
+        g.addExportEdge(outer_B_decl, label("I"), s3);
+        Occurrence inner_A_decl = new DefaultOccurrence("","A",4);
+        g.addDeclaration(s3, inner_A_decl);
+        
+        
+        Occurrence A_ref = new DefaultOccurrence("","A",5);
+        g.addReference(A_ref, s1);
+        g.addImportEdge(s1, label("I"), A_ref);
+
+        Occurrence B_ref = new DefaultOccurrence("","B",6);
+        g.addReference(B_ref, s1);
+        g.addImportEdge(s1, label("I"), B_ref);
+        
+        Reachability r = new Reachability(g);
+        r.print();
     }
     
 }

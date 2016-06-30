@@ -47,7 +47,7 @@ public class DefaultScopeGraph implements ScopeGraph {
     }
 
     public void addReference(Occurrence reference, Scope in) {
-        references.put(Pair.of(in, reference.id()), reference);
+        references.put(Pair.of(in, reference.getId()), reference);
     }
     
     public void addDirectEdge(Scope from, Label label, Scope to) {

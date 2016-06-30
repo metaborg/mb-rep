@@ -4,6 +4,8 @@ import org.apache.commons.lang3.tuple.Pair;
 
 public interface ScopeGraph {
 
+    Iterable<Scope> getScopes();
+
     Iterable<Pair<Label,Scope>> getDirectEdges(Scope scope);
 
     Iterable<Occurrence> getDeclarations(Scope scope);
@@ -15,7 +17,5 @@ public interface ScopeGraph {
     Iterable<Pair<Label,Scope>> getExports(Occurrence occurrence);
 
     Iterable<Scope> getImports(Occurrence ref, Label left);
-
-    Iterable<Scope> getScopes();
 
 }

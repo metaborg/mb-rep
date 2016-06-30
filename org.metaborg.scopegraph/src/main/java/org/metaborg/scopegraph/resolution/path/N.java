@@ -3,14 +3,19 @@ package org.metaborg.scopegraph.resolution.path;
 import org.metaborg.scopegraph.Label;
 import org.metaborg.scopegraph.Scope;
 
+import lombok.Value;
+
+@Value
 public class N implements Path {
 
-    public final Scope scope;
-    public final Label label;
-    public final R inner;
-    public final Path tail;
+    Scope scope;
+    Label label;
+    Path inner;
+    Path tail;
 
-    public N(Scope scope, Label label, R inner, Path tail) {
+    public N(Scope scope, Label label, Path inner, Path tail) {
+        assert inner instanceof R;
+        assert !(tail instanceof R);
         this.scope = scope;
         this.label = label;
         this.inner = inner;
@@ -24,7 +29,7 @@ public class N implements Path {
 
     @Override
     public String toString() {
-        return String.format("N(%s,%s,%s).%s", scope, label, inner, tail);
+        return String.format("N(%s,%s,[ %s ])%s", scope, label, inner, tail);
     }
 
 }

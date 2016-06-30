@@ -1,14 +1,17 @@
 package org.metaborg.scopegraph.resolution.path;
 
 import org.metaborg.scopegraph.Occurrence;
-import org.metaborg.scopegraph.Scope;
 
+import lombok.Value;
+
+@Value
 public class R implements Path {
 
-    public final Occurrence reference;
-    public final Path tail;
+    Occurrence reference;
+    Path tail;
 
     public R(Occurrence reference, Path tail) {
+        assert !(tail instanceof R);
         this.reference = reference;
         this.tail = tail;
     }
@@ -19,7 +22,7 @@ public class R implements Path {
 
     @Override
     public String toString() {
-        return String.format("R(%s).%s", reference, tail);
+        return String.format("R(%s)%s", reference, tail);
     }
 
 }
