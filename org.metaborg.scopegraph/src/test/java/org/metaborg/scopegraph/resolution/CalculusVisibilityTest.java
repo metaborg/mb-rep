@@ -5,6 +5,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.metaborg.scopegraph.Labels.label;
 import static org.metaborg.scopegraph.Labels.order;
+import static org.metaborg.scopegraph.resolution.PathMatchers.pathToDecl;
 
 import java.util.Comparator;
 
@@ -20,18 +21,9 @@ import org.metaborg.scopegraph.impl.DefaultScopeGraph;
 
 import com.google.common.collect.ImmutableMultimap;
 
-public class VisibilityTest {
+public class CalculusVisibilityTest {
  
-    @Ignore @Test public void empty() {
-        DefaultScopeGraph g = new DefaultScopeGraph();
-        Comparator<Label> order = order(new ImmutableMultimap.Builder<Label,Label>()
-                .put(Labels.D, label("P"))
-                .build());
-        Visibility v = new Visibility(g, order);
-        v.print();
-    }
-
-    @Ignore @Test public void shadow() {
+    @Test public void shadow() {
         DefaultScopeGraph g = new DefaultScopeGraph();
 
         Scope s1 = g.createScope();
@@ -50,27 +42,27 @@ public class VisibilityTest {
         Comparator<Label> order1 = order(new ImmutableMultimap.Builder<Label,Label>()
                 .put(Labels.D, label("P"))
                 .build());
-        Visibility v1 = new Visibility(g,order1);
+        CalculusVisibility v1 = new CalculusVisibility(g,order1);
         v1.print();
-        assertThat(v1.resolveDeclarations(ref),not(hasItem(decl1)));
-        assertThat(v1.resolveDeclarations(ref),hasItem(decl2));
+        assertThat(v1.resolve(ref),not(hasItem(pathToDecl(decl1))));
+        assertThat(v1.resolve(ref),hasItem(pathToDecl(decl2)));
 
         // inverse lexical
         Comparator<Label> order2 = order(new ImmutableMultimap.Builder<Label,Label>()
                 .put(label("P"), Labels.D)
                 .build());
-        Visibility v2 = new Visibility(g,order2);
+        CalculusVisibility v2 = new CalculusVisibility(g,order2);
         v2.print();
-        assertThat(v2.resolveDeclarations(ref),hasItem(decl1));
-        assertThat(v2.resolveDeclarations(ref),not(hasItem(decl2)));
+        assertThat(v2.resolve(ref),hasItem(pathToDecl(decl1)));
+        assertThat(v2.resolve(ref),not(hasItem(pathToDecl(decl2))));
 
         // no shadowing
         Comparator<Label> order3 = order(new ImmutableMultimap.Builder<Label,Label>()
                 .build());
-        Visibility v3 = new Visibility(g,order3);
+        CalculusVisibility v3 = new CalculusVisibility(g,order3);
         v3.print();
-        assertThat(v3.resolveDeclarations(ref),hasItem(decl1));
-        assertThat(v3.resolveDeclarations(ref),hasItem(decl2));
+        assertThat(v3.resolve(ref),hasItem(pathToDecl(decl1)));
+        assertThat(v3.resolve(ref),hasItem(pathToDecl(decl2)));
     }
 
     @Test public void importShadow() {
@@ -106,11 +98,13 @@ public class VisibilityTest {
                 .put(Labels.D, label("I"))
                 .put(label("I"), label("P"))
                 .build());
-        Visibility v = new Visibility(g,order);
+        CalculusVisibility v = new CalculusVisibility(g,order);
         v.print();
+        assertThat(v.resolve(M5),hasItem(pathToDecl(M3)));
+        assertThat(v.resolve(x6),hasItem(pathToDecl(x4)));
     }
- 
-    @Ignore @Test public void anomaly() {
+
+    @Test public void anomaly() {
         DefaultScopeGraph g = new DefaultScopeGraph();
 
         Scope s1 = g.createScope();
@@ -131,7 +125,7 @@ public class VisibilityTest {
  
         Scope s4 = g.createScope();
         g.addDirectEdge(s4, label("P"), s1);
-        
+ 
         Occurrence A_ref = new DefaultOccurrence("","A",5);
         g.addReference(A_ref, s4);
         g.addImportEdge(s4, label("I"), A_ref);
@@ -145,8 +139,10 @@ public class VisibilityTest {
                 .put(Labels.D, label("I"))
                 .put(label("I"), label("P"))
                 .build());
-        Visibility v = new Visibility(g,order);
+        CalculusVisibility v = new CalculusVisibility(g,order);
         v.print();
+        assertThat(v.resolve(A_ref), hasItem(pathToDecl(inner_A_decl)));
+        assertThat(v.resolve(B_ref), hasItem(pathToDecl(inner_B_decl)));
     }
-    
+
 }

@@ -1,6 +1,7 @@
 package org.metaborg.scopegraph.resolution.path;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.metaborg.scopegraph.Label;
 import org.metaborg.scopegraph.Labels;
@@ -25,6 +26,23 @@ public class Paths {
             }
             @Override public Occurrence visit(D d) {
                 return d.getDeclaration();
+            }
+        });
+    }
+ 
+    public static Occurrence getReference(final Path path) {
+        return path.visit(new PathVisitor<Occurrence>() {
+            @Override public Occurrence visit(R r) {
+                return r.getReference();
+            }
+            @Override public Occurrence visit(E e) {
+                throw new NoSuchElementException();
+            }
+            @Override public Occurrence visit(N n) {
+                throw new NoSuchElementException();
+            }
+            @Override public Occurrence visit(D d) {
+                throw new NoSuchElementException();
             }
         });
     }
@@ -84,6 +102,7 @@ public class Paths {
         final List<Label> labels = Lists.newArrayList();
         path.visit(new PathVisitor<Void>() {
             @Override public Void visit(R r) {
+                labels.add(Labels.R);
                 return r.getTail().visit(this);
             }
             @Override public Void visit(E e) {
@@ -100,6 +119,23 @@ public class Paths {
             }
         });
         return labels;
+    }
+ 
+    public static Label label(final Path path) {
+        return path.visit(new PathVisitor<Label>() {
+            @Override public Label visit(R r) {
+                return Labels.R;
+            }
+            @Override public Label visit(E e) {
+                return e.getLabel();
+            }
+            @Override public Label visit(N n) {
+                return n.getLabel();
+            }
+            @Override public Label visit(D d) {
+                return Labels.D;
+            }
+        });
     }
  
 }

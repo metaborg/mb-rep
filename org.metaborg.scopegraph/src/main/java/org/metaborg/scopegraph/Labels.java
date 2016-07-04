@@ -13,6 +13,10 @@ public class Labels {
         public String toString() { return "D"; };
     };
  
+    public static final Label R = new Label() {
+        public String toString() { return "R"; };
+    };
+ 
     public static Label label(String value) {
         return new DefaultLabel(value);
     }

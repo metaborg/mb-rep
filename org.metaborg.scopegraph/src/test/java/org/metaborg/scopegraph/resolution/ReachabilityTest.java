@@ -3,6 +3,7 @@ package org.metaborg.scopegraph.resolution;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.metaborg.scopegraph.resolution.PathMatchers.*;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -14,14 +15,8 @@ import org.metaborg.scopegraph.impl.DefaultOccurrence;
 import org.metaborg.scopegraph.impl.DefaultScopeGraph;
 
 public class ReachabilityTest {
- 
-    @Ignore @Test public void empty() {
-        DefaultScopeGraph g = new DefaultScopeGraph();
-        Reachability r = new Reachability(g);
-        r.print();
-    }
 
-    @Ignore @Test public void single() {
+    @Test public void single() {
         DefaultScopeGraph g = new DefaultScopeGraph();
         Scope s = g.createScope();
         Occurrence decl = new DefaultOccurrence("","x",1);
@@ -31,10 +26,10 @@ public class ReachabilityTest {
         Reachability r = new Reachability(g);
         r.print();
         assertThat(r.resolve(new DefaultOccurrence("","x",2)),
-                hasItem(decl));
+                hasItem(pathToDecl(decl)));
     }
 
-    @Ignore @Test public void direct() {
+    @Test public void direct() {
         DefaultScopeGraph g = new DefaultScopeGraph();
 
         Scope s1 = g.createScope();
@@ -49,10 +44,10 @@ public class ReachabilityTest {
         
         Reachability r = new Reachability(g);
         r.print();
-        assertThat(r.resolve(ref),hasItem(decl));
+        assertThat(r.resolve(ref),hasItem(pathToDecl(decl)));
     }
 
-    @Ignore @Test public void named() {
+    @Test public void named() {
         DefaultScopeGraph g = new DefaultScopeGraph();
 
         Scope s1 = g.createScope();
@@ -73,11 +68,11 @@ public class ReachabilityTest {
 
         Reachability r = new Reachability(g);
         r.print();
-        assertThat(r.resolve(mref),hasItem(mdecl));
-        assertThat(r.resolve(xref),hasItem(xdecl));
+        assertThat(r.resolve(mref),hasItem(pathToDecl(mdecl)));
+        assertThat(r.resolve(xref),hasItem(pathToDecl(xdecl)));
     }
 
-    @Ignore @Test public void directCycle() {
+    @Test public void directCycle() {
         DefaultScopeGraph g = new DefaultScopeGraph();
 
         Scope s1 = g.createScope();
@@ -93,10 +88,10 @@ public class ReachabilityTest {
         
         Reachability r = new Reachability(g);
         r.print();
-        assertThat(r.resolve(ref),hasItem(decl));
+        assertThat(r.resolve(ref),hasItem(pathToDecl(decl)));
     }
  
-    @Ignore @Test public void nestedNames() {
+    @Test public void nestedNames() {
         DefaultScopeGraph g = new DefaultScopeGraph();
 
         Scope s1 = g.createScope();
@@ -114,10 +109,10 @@ public class ReachabilityTest {
 
         Reachability r = new Reachability(g);
         r.print();
-        assertThat(r.resolve(ref),hasItem(outer_decl));
-        assertThat(r.resolve(ref),not(hasItem(inner_decl)));
+        assertThat(r.resolve(ref),hasItem(pathToDecl(outer_decl)));
+        assertThat(r.resolve(ref),not(hasItem(pathToDecl(inner_decl))));
     }
-    
+ 
     @Test public void anomaly() {
         DefaultScopeGraph g = new DefaultScopeGraph();
 
