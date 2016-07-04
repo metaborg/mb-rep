@@ -35,6 +35,10 @@
       <artifactId>org.metaborg.util</artifactId>
       <version>${metaborg-version}</version>
     </dependency>
+    <dependency>
+        <groupId>com.google.code.findbugs</groupId>
+        <artifactId>annotations</artifactId>
+    </dependency>
 
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -51,6 +55,7 @@
 			<artifactId>junit-benchmarks</artifactId>
 			<scope>test</scope>
 		</dependency>
+
 	</dependencies>
 
 	<build>
