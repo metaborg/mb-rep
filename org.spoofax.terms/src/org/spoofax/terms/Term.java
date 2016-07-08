@@ -12,6 +12,7 @@ import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoInt;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
 
 public class Term {
     public static String stringAt(IStrategoTerm t, int i) {
@@ -88,4 +89,23 @@ public class Term {
     	return term != null && term.getTermType() == APPL ? ((IStrategoAppl) term).getConstructor().getName() : null;
     }
  
+    public static IStrategoTerm removeAnnotations(IStrategoTerm inTerm, final ITermFactory factory) {
+        TermTransformer trans = new TermTransformer(factory, true) {
+            @Override public IStrategoTerm preTransform(IStrategoTerm term) {
+                switch(term.getTermType()) {
+                    case IStrategoTerm.APPL:
+                        return factory.makeAppl(((IStrategoAppl) term).getConstructor(), term.getAllSubterms(), null);
+                    case IStrategoTerm.LIST:
+                        return factory.makeList(term.getAllSubterms(), null);
+                    case IStrategoTerm.STRING:
+                        return factory.makeString(((IStrategoString) term).stringValue());
+                    case IStrategoTerm.TUPLE:
+                        return factory.makeTuple(term.getAllSubterms(), null);
+                    default:
+                        return term;
+                }
+            }
+        };
+        return trans.transform(inTerm);
+    }
 }
