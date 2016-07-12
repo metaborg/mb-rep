@@ -23,7 +23,7 @@ import com.google.common.collect.ImmutableMultimap;
 
 public class CalculusVisibilityTest {
  
-    @Test public void shadow() {
+    @Ignore @Test public void shadow() {
         DefaultScopeGraph g = new DefaultScopeGraph();
 
         Scope s1 = g.createScope();
@@ -65,7 +65,7 @@ public class CalculusVisibilityTest {
         assertThat(v3.resolve(ref),hasItem(pathToDecl(decl2)));
     }
 
-    @Test public void importShadow() {
+    @Ignore @Test public void importShadow() {
         DefaultScopeGraph g = new DefaultScopeGraph();
 
         Scope s1 = g.createScope();

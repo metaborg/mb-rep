@@ -10,6 +10,7 @@ import static org.metaborg.scopegraph.resolution.PathMatchers.pathToDecl;
 
 import java.util.Comparator;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.metaborg.scopegraph.Label;
 import org.metaborg.scopegraph.Labels;
@@ -23,7 +24,7 @@ import com.google.common.collect.ImmutableMultimap;
 
 public class ConsistentVisibilityTest {
  
-    @Test public void shadow() {
+    @Ignore @Test public void shadow() {
         DefaultScopeGraph g = new DefaultScopeGraph();
 
         Scope s1 = g.createScope();
@@ -65,7 +66,7 @@ public class ConsistentVisibilityTest {
         assertThat(v3.resolve(ref),hasItem(pathToDecl(decl2)));
     }
 
-    @Test public void importShadow() {
+    @Ignore @Test public void importShadow() {
         DefaultScopeGraph g = new DefaultScopeGraph();
 
         Scope s1 = g.createScope();
