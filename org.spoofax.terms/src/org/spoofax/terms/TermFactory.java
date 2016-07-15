@@ -48,7 +48,7 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
     	new StrategoList(null, null, null, MAXIMALLY_SHARED); 
     
     // StrategoXT/801: must use weak keys and values, and must maintain maximal sharing to avoid early collection
-    private static final WeakHashMap<String, WeakReference<StrategoString>> asyncStringPool =
+    private final WeakHashMap<String, WeakReference<StrategoString>> asyncStringPool =
         new WeakHashMap<String, WeakReference<StrategoString>>();
     
     public TermFactory() {
@@ -135,7 +135,7 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
     	if (s.length() > MAX_POOLED_STRING_LENGTH)
     		return new StrategoString(s, null, defaultStorageType);
 
-    	synchronized (TermFactory.class) {
+    	synchronized (asyncStringPool) {
 	    	WeakReference<StrategoString> resultRef = asyncStringPool.get(s);
 	    	StrategoString result = resultRef == null ? null : resultRef.get();
 	    	int type = isTermSharingAllowed() ? STRING_POOL_STORAGE_TYPE : MUTABLE;
@@ -159,7 +159,7 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
     }
     
     public IStrategoString tryMakeUniqueString(String name) {
-        synchronized (TermFactory.class) {
+        synchronized (asyncStringPool) {
         	if (asyncStringPool.containsKey(name)) {
         		return null;
         	} else if (name.length() > MAX_POOLED_STRING_LENGTH) {

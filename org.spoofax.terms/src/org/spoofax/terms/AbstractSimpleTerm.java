@@ -25,7 +25,7 @@ public abstract class AbstractSimpleTerm implements ISimpleTerm, Cloneable {
     	assert !(this instanceof IStrategoTerm)
     		|| ((IStrategoTerm) this).getStorageType() == IStrategoTerm.MUTABLE
     		: "Attachments only supported for mutable, non-shared terms; failed for " + this;
-    	assert attachment.getNext() == null;
+//    	assert attachment.getNext() == null;
     	if (this.attachment == null) {
     		this.attachment = attachment;
     	} else {
