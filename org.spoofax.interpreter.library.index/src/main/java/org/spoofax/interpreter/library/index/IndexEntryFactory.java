@@ -29,7 +29,7 @@ public class IndexEntryFactory {
 		if (origin != null) {
 			ImploderAttachment.putImploderAttachment(value, false,
 					origin.getSort(), origin.getLeftToken(),
-					origin.getRightToken());
+					origin.getRightToken(), origin.isBracket(), origin.isCompletion(), origin.isNestedCompletion(), origin.isSinglePlaceholderCompletion());
 		}
 
         final IndexEntry entry = new IndexEntry(key, value, source, origin);
@@ -45,7 +45,7 @@ public class IndexEntryFactory {
 		if (origin != null) {
 			ImploderAttachment.putImploderAttachment(key, false,
 					origin.getSort(), origin.getLeftToken(),
-					origin.getRightToken());
+					origin.getRightToken(), origin.isBracket(), origin.isCompletion(), origin.isNestedCompletion(), origin.isSinglePlaceholderCompletion());
 		}
 
         final IndexEntry entry = new IndexEntry(key, source, origin);
