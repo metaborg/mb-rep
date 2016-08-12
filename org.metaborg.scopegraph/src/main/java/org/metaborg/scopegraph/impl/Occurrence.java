@@ -17,7 +17,7 @@ public class Occurrence implements IOccurrence, Serializable {
     private final IStrategoTerm index;
 
     public Occurrence(IStrategoTerm term) throws ScopeGraphException {
-        if(!Tools.hasConstructor((IStrategoAppl)term, "Occurrence", 3)) {
+        if(!Tools.isTermAppl(term) || !Tools.hasConstructor((IStrategoAppl)term, "Occurrence", 3)) {
             throw new ScopeGraphException("Term is not an Occurrence: "+term);
         }
         this.namespace = namespaceFromTerm(term.getSubterm(0));
@@ -42,7 +42,7 @@ public class Occurrence implements IOccurrence, Serializable {
     } 
  
     private String namespaceFromTerm(IStrategoTerm term) {
-        if(Tools.hasConstructor((IStrategoAppl)term, "Label")) {
+        if(Tools.isTermAppl(term) && Tools.hasConstructor((IStrategoAppl)term, "Label")) {
             return Tools.asJavaString(term.getSubterm(0));
         }
         return null;

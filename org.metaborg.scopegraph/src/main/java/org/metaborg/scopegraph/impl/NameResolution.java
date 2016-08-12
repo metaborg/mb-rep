@@ -9,6 +9,7 @@ import org.metaborg.scopegraph.IPath;
 import org.metaborg.scopegraph.ScopeGraphException;
 import org.metaborg.scopegraph.indices.ITermIndex;
 import org.metaborg.scopegraph.indices.TermIndex;
+import org.spoofax.interpreter.core.Tools;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
@@ -30,7 +31,11 @@ public class NameResolution implements INameResolution, Serializable {
         }
         for(IStrategoTerm resolution : term) {
             IStrategoTerm refTerm = resolution.getSubterm(0);
-            IStrategoTerm declTerm = resolution.getSubterm(1).getSubterm(0);
+            IStrategoTerm resolutionTerm = resolution.getSubterm(1);
+            if(Tools.isTermAppl(resolutionTerm) && Tools.hasConstructor((IStrategoAppl) resolutionTerm, "None", 0)) {
+                continue;
+            }
+            IStrategoTerm declTerm = resolutionTerm.getSubterm(0);
             IStrategoTerm steps = resolution.getSubterm(1).getSubterm(1);
             Occurrence ref = new Occurrence(refTerm);
             Occurrence decl = new Occurrence(declTerm);
