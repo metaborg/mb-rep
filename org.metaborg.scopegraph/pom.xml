@@ -20,8 +20,22 @@
   <dependencies>
     <dependency>
       <groupId>org.metaborg</groupId>
+      <artifactId>org.spoofax.terms</artifactId>
+      <version>${metaborg-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.metaborg</groupId>
+      <artifactId>org.spoofax.interpreter.core</artifactId>
+      <version>${metaborg-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.metaborg</groupId>
       <artifactId>org.metaborg.util</artifactId>
       <version>${metaborg-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
     </dependency>
 
     <dependency>
@@ -30,7 +44,7 @@
       <scope>provided</scope>
     </dependency>
   </dependencies>
-  
+
   <developers>
     <developer>
       <name>Gabriël Konat</name>

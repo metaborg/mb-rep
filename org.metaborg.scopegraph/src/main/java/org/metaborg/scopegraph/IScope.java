@@ -1,17 +1,13 @@
 package org.metaborg.scopegraph;
 
-import javax.annotation.Nullable;
+import java.util.Collection;
 
 public interface IScope {
-    int id();
 
-
-    Iterable<? extends IDecl> decls();
-
-    Iterable<? extends IRef> refs();
-
-
-    @Nullable IEdge<IScopeLabel, IScope> directEdge();
-
-    Iterable<? extends IEdge<IRefLabel, IRef>> namedEdges();
+    Collection<IOccurrence> declarations();
+    Collection<ILabeledScope> directEdges();
+    Collection<IlabeledOccurrence> importEdges();
+    Collection<IlabeledOccurrence> exportEdges();
+    Collection<IOccurrence> references();
+ 
 }
