@@ -2,4 +2,5 @@ module aterm
 
 imports
 
+  libstratego-lib
   outline
