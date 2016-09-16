@@ -20,10 +20,12 @@ public class NameResolution implements INameResolution, Serializable {
 
     private static final long serialVersionUID = -6131067813443915513L;
 
+    private final IStrategoTerm term;
     private Multimap<IOccurrence,IPath> pathsFrom;
     private Multimap<ITermIndex,IStrategoTerm> astPaths;
-    
+ 
     public NameResolution(IStrategoTerm term) throws ScopeGraphException {
+        this.term = term;
         pathsFrom = HashMultimap.create();
         astPaths = HashMultimap.create();
         if(!term.isList()) {
@@ -45,7 +47,7 @@ public class NameResolution implements INameResolution, Serializable {
             astPaths.put(index, decl.index());
         }
     }
-    
+
     @Override
     public Collection<IPath> pathsFrom(IOccurrence reference) {
         return pathsFrom.get(reference);
@@ -56,4 +58,7 @@ public class NameResolution implements INameResolution, Serializable {
         return astPaths.get(index);
     }
 
+    public IStrategoTerm strategoTerm() {
+        return term;
+    }
 }

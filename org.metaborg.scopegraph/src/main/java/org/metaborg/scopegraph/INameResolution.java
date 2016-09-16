@@ -11,4 +11,5 @@ public interface INameResolution {
  
     Collection<IStrategoTerm> astPaths(ITermIndex index);
     
+    IStrategoTerm strategoTerm();
 }
