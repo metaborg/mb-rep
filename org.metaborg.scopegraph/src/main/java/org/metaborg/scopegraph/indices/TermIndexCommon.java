@@ -1,6 +1,7 @@
 package org.metaborg.scopegraph.indices;
 
 import org.metaborg.scopegraph.ScopeGraphException;
+import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.visitor.AStrategoTermVisitor;
 import org.spoofax.terms.visitor.StrategoTermVisitee;
@@ -12,11 +13,15 @@ public class TermIndexCommon {
     public static void indexTerm(final String resource, final IStrategoTerm term) {
         StrategoTermVisitee.topdown(new AStrategoTermVisitor() {
             private int currentId = 0;
+
+            @Override public boolean visit(IStrategoList list) {
+                visit((IStrategoTerm) list);
+                currentId += list.size();
+                return true;
+            }
+
             @Override public boolean visit(IStrategoTerm term) {
                 TermIndex.put(term, resource, ++currentId);
-                if(term.isList()) {
-                    currentId += term.getSubtermCount();
-                }
                 return true;
             }
         }, term);
