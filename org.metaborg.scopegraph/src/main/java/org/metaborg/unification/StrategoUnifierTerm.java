@@ -14,13 +14,13 @@ import org.spoofax.terms.util.EmptyIterator;
 public class StrategoUnifierTerm extends AbstractSimpleTerm implements IStrategoTerm {
     private static final long serialVersionUID = -4729677959138265955L;
 
-    private final StrategoTermUnifier unifier;
+    private final StrategoUnifier unifier;
 
-    public StrategoUnifierTerm(StrategoTermUnifier unifier) {
+    public StrategoUnifierTerm(StrategoUnifier unifier) {
         this.unifier = unifier;
     }
 
-    public StrategoTermUnifier unifier() {
+    public StrategoUnifier unifier() {
         return unifier;
     }
 
