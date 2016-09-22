@@ -1,4 +1,4 @@
-package org.metaborg.unification;
+package org.metaborg.unification.mutable;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -12,6 +12,7 @@ import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.util.EmptyIterator;
 
 public class StrategoUnifierTerm extends AbstractSimpleTerm implements IStrategoTerm {
+
     private static final long serialVersionUID = -4729677959138265955L;
 
     private final StrategoUnifier unifier;
@@ -59,8 +60,8 @@ public class StrategoUnifierTerm extends AbstractSimpleTerm implements IStratego
         return MUTABLE;
     }
 
-    @Override
-    public IStrategoList getAnnotations() {
+    @SuppressWarnings("deprecation")
+    @Override public IStrategoList getAnnotations() {
         return TermFactory.EMPTY_LIST;
     }
 

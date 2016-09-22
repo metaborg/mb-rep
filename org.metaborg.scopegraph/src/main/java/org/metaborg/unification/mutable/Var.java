@@ -1,11 +1,14 @@
-package org.metaborg.unification;
+package org.metaborg.unification.mutable;
 
-import org.metaborg.unification.StrategoUnifier.Function;
+import org.metaborg.unification.mutable.StrategoUnifier.Function;
 import org.spoofax.interpreter.core.InterpreterException;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
 class Var implements Rep {
+
+    private static final long serialVersionUID = 6653758246621007795L;
+
     private final IStrategoTerm t;
     private Rep rep;
     private int size;
@@ -22,11 +25,11 @@ class Var implements Rep {
             union(this,v);
         } else {
             if(r.occurs(this)) {
-                return UnificationResult.failure(this+" occurs in "+r);
+                return new UnificationResult(this+" occurs in "+r);
             }
             rep = r;
         }
-        return UnificationResult.success();
+        return new UnificationResult(true);
     }
 
     private void union(Var v1, Var v2) {
@@ -44,6 +47,10 @@ class Var implements Rep {
             rep = rep.find(reduceOp);
         }
         return rep;
+    }
+
+    @Override public boolean isActive() {
+        return true;
     }
 
     @Override public boolean isGround() {

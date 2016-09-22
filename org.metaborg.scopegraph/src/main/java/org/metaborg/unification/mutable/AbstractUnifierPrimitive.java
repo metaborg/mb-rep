@@ -1,7 +1,7 @@
-package org.metaborg.unification;
+package org.metaborg.unification.mutable;
 
-import org.metaborg.unification.StrategoUnifier.Function;
-import org.metaborg.unification.StrategoUnifier.Predicate;
+import org.metaborg.unification.mutable.StrategoUnifier.Function;
+import org.metaborg.unification.mutable.StrategoUnifier.Predicate;
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.core.InterpreterException;
 import org.spoofax.interpreter.library.AbstractPrimitive;

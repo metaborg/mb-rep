@@ -1,9 +1,9 @@
-package org.metaborg.unification;
+package org.metaborg.unification.mutable;
 
 import java.util.Collection;
 
-import org.metaborg.unification.StrategoUnifier.Function;
-import org.metaborg.unification.StrategoUnifier.Predicate;
+import org.metaborg.unification.mutable.StrategoUnifier.Function;
+import org.metaborg.unification.mutable.StrategoUnifier.Predicate;
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.core.InterpreterException;
 import org.spoofax.interpreter.core.Pair;
@@ -26,6 +26,7 @@ public class U_unify extends AbstractUnifierPrimitive {
     @Override
     protected boolean doCall(IContext env, StrategoUnifier unifier, Predicate<IStrategoTerm> isVar,
             Predicate<IStrategoAppl> isOp, Function<Rep, Rep> reduceOp) throws InterpreterException {
+        final ITermFactory factory = env.getFactory();
         final IStrategoTerm current = env.current();
         if(!(Tools.isTermTuple(current) && current.getSubtermCount() == 2)) {
             throw new InterpreterException("Input term is not a 2-tuple.");
@@ -34,18 +35,19 @@ public class U_unify extends AbstractUnifierPrimitive {
         final IStrategoTerm t2 = current.getSubterm(1);
 
         UnificationResult result = unifier.unify(t1, t2, isVar, isOp, reduceOp);
-        
-        final ITermFactory factory = env.getFactory();
+        if(!result.progress) {
+            return false;
+        }
         
         Collection<IStrategoString> errors = Lists.newLinkedList();
-        for(String error : result.errors()) {
+        for(String error : result.errors) {
             errors.add(factory.makeString(error));
         }
         IStrategoList errorList = factory.makeList(errors);
 
         Collection<IStrategoTuple> deferred = Lists.newLinkedList();
-        for(Pair<Rep,Rep> defer : result.deferred()) {
-            deferred.add(factory.makeTuple(defer.first.toTerm(factory), defer.second.toTerm(factory)));
+        for(Pair<Rep,Rep> remain : result.remaining) {
+            deferred.add(factory.makeTuple(remain.first.toTerm(factory), remain.second.toTerm(factory)));
         }
         IStrategoList deferredList = factory.makeList(deferred);
 

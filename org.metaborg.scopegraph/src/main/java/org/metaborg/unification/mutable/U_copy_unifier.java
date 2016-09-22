@@ -1,5 +1,6 @@
-package org.metaborg.unification;
+package org.metaborg.unification.mutable;
 
+import org.apache.commons.lang3.SerializationUtils;
 import org.spoofax.interpreter.core.IContext;
 import org.spoofax.interpreter.core.InterpreterException;
 import org.spoofax.interpreter.library.AbstractPrimitive;
@@ -19,7 +20,8 @@ public class U_copy_unifier extends AbstractPrimitive {
             throw new InterpreterException("Term argument must be unifier term.");
         }
         StrategoUnifier unifier = ((StrategoUnifierTerm) unifierTerm).unifier();
-        throw new InterpreterException("Copying unifiers is not implemented yet.");
+        env.setCurrent(new StrategoUnifierTerm(SerializationUtils.clone(unifier)));
+        return true;
     }
 
 }

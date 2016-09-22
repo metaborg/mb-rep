@@ -1,18 +1,19 @@
-package org.metaborg.unification;
+package org.metaborg.unification.mutable;
 
-import org.metaborg.unification.StrategoUnifier.Function;
+import org.metaborg.unification.mutable.StrategoUnifier.Function;
 import org.spoofax.interpreter.core.InterpreterException;
-import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
 class Op implements Rep {
 
+    private static final long serialVersionUID = -5285844765017612802L;
+
     private Appl op;
     private Rep result;
 
-    public Op(IStrategoConstructor cons, Rep[] args) throws InterpreterException {
-        this.op = new Appl(cons, args);
+    public Op(Appl op) {
+        this.op = op;
         this.result = null;
     }
 
@@ -20,7 +21,7 @@ class Op implements Rep {
         if(r instanceof Var) {
             return r.unify(this, reduceOp);
         }
-        return UnificationResult.defer(this, r);
+        return new UnificationResult(false);
     }
 
     @Override public Rep find(Function<Rep, Rep> reduceOp) throws InterpreterException {
@@ -37,6 +38,10 @@ class Op implements Rep {
         return op.occurs(v);
     }
     
+    @Override public boolean isActive() {
+        return true;
+    }
+
     @Override public boolean isGround() {
         return false;
     }

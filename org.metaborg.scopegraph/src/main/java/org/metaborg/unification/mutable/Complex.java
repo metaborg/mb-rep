@@ -1,16 +1,21 @@
-package org.metaborg.unification;
+package org.metaborg.unification.mutable;
 
-import org.metaborg.unification.StrategoUnifier.Function;
+import org.metaborg.unification.mutable.StrategoUnifier.Function;
+import org.metaborg.util.iterators.Iterables2;
 import org.spoofax.interpreter.core.InterpreterException;
+import org.spoofax.interpreter.core.Pair;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
 abstract class Complex implements Rep {
+
+    private static final long serialVersionUID = 3696193702404477518L;
+
     private final int size;
     private final Rep[] reps;
     private boolean ground;
 
-    protected Complex(Rep[] reps) throws InterpreterException {
+    protected Complex(Rep[] reps) {
         this.size = reps.length;
         this.reps = reps;
         this.ground = false;
@@ -18,13 +23,20 @@ abstract class Complex implements Rep {
 
     protected UnificationResult unifys(Complex r, Function<Rep, Rep> reduceOp) throws InterpreterException {
         if(size != r.size) {
-            return UnificationResult.failure(this+" differs in length from "+r);
+            return new UnificationResult(this+" differs in length from "+r);
         }
-        UnificationResult[] results = new UnificationResult[size];
+        final Iterable<String>[] errorsArray = new Iterable[size];
+        final Iterable<Pair<Rep,Rep>>[] remainingArray = new Iterable[size];
         for(int i = 0; i < size; i++) {
-            results[i] = reps[i].find(reduceOp).unify(r.reps[i].find(reduceOp), reduceOp);
+            Rep r1 = reps[i].find(reduceOp);
+            Rep r2 = r.reps[i].find(reduceOp);
+            UnificationResult result = r1.unify(r2, reduceOp);
+            remainingArray[i] = result.progress ? result.remaining : Iterables2.singleton(new Pair<Rep,Rep>(r1,r2));
+            errorsArray[i] = result.progress ? result.errors : Iterables2.<String>empty();
         }
-        return UnificationResult.combine(results);
+        final Iterable<String> errors = Iterables2.fromConcat(errorsArray);
+        final Iterable<Pair<Rep,Rep>> remaining = Iterables2.fromConcat(remainingArray);
+        return new UnificationResult(true,errors,remaining);
     }
 
     protected void finds(Function<Rep, Rep> reduceOp) throws InterpreterException {
@@ -36,6 +48,10 @@ abstract class Complex implements Rep {
             }
         }
         ground = newDone;
+    }
+
+    @Override public boolean isActive() {
+        return false;
     }
 
     @Override public boolean isGround() {
@@ -70,4 +86,5 @@ abstract class Complex implements Rep {
         }
         return sb.toString();
     }
+
 }
