@@ -25,8 +25,8 @@ abstract class Complex implements Rep {
         if(size != r.size) {
             return new UnificationResult(this+" differs in length from "+r);
         }
-        final Iterable<String>[] errorsArray = new Iterable[size];
-        final Iterable<Pair<Rep,Rep>>[] remainingArray = new Iterable[size];
+        @SuppressWarnings("unchecked") final Iterable<String>[] errorsArray = new Iterable[size];
+        @SuppressWarnings("unchecked") final Iterable<Pair<Rep,Rep>>[] remainingArray = new Iterable[size];
         for(int i = 0; i < size; i++) {
             Rep r1 = reps[i].find(reduceOp);
             Rep r2 = r.reps[i].find(reduceOp);
