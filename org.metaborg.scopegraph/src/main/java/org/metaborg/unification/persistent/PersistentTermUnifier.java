@@ -1,22 +1,20 @@
 package org.metaborg.unification.persistent;
 
-import org.metaborg.unification.persistent.fastutil.PersistentObject2ObjectMap;
-import org.metaborg.unification.persistent.fastutil.PersistentObject2ObjectOpenHashMap;
+import org.metaborg.fastutil.persistent.PersistentObject2ObjectMap;
+import org.metaborg.fastutil.persistent.PersistentObject2ObjectOpenHashMap;
 import org.metaborg.unification.terms.ITerm;
-import org.metaborg.unification.terms.TermVar;
 
-public final class TermUnifier {
+public final class PersistentTermUnifier {
 
-    final PersistentObject2ObjectMap<TermVar,ITerm> reps;
+    final PersistentObject2ObjectMap<ITerm,ITerm> reps;
 
-    public TermUnifier() {
+    public PersistentTermUnifier() {
         this.reps = new PersistentObject2ObjectOpenHashMap<>();
     }
-    
-    TermUnifier(PersistentObject2ObjectMap<TermVar,ITerm> reps) {
+
+    PersistentTermUnifier(PersistentObject2ObjectMap<ITerm,ITerm> reps) {
         this.reps = reps;
     }
-
 
     public UnifyResult unify(ITerm term1, ITerm term2) {
         final FindResult result1 = find(term1);

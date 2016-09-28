@@ -11,10 +11,13 @@ public interface IScopeGraphUnit {
     String source();
 
     void setMetadata(int nodeId, IStrategoTerm key, IStrategoTerm value);
+
     @Nullable IStrategoTerm metadata(int nodeId, IStrategoTerm key);
- 
+
     @Nullable IScopeGraph scopeGraph();
+
     @Nullable INameResolution nameResolution();
+
     @Nullable IStrategoTerm analysis();
 
 }

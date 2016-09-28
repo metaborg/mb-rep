@@ -21,28 +21,28 @@ abstract class Complex implements Rep {
         this.ground = false;
     }
 
-    protected UnificationResult unifys(Complex r, Function<Rep, Rep> reduceOp) throws InterpreterException {
-        if(size != r.size) {
-            return new UnificationResult(this+" differs in length from "+r);
+    protected UnificationResult unifys(Complex r, Function<Rep,Rep> reduceOp) throws InterpreterException {
+        if (size != r.size) {
+            return new UnificationResult(this + " differs in length from " + r);
         }
         @SuppressWarnings("unchecked") final Iterable<String>[] errorsArray = new Iterable[size];
         @SuppressWarnings("unchecked") final Iterable<Pair<Rep,Rep>>[] remainingArray = new Iterable[size];
-        for(int i = 0; i < size; i++) {
+        for (int i = 0; i < size; i++) {
             Rep r1 = reps[i].find(reduceOp);
             Rep r2 = r.reps[i].find(reduceOp);
             UnificationResult result = r1.unify(r2, reduceOp);
-            remainingArray[i] = result.progress ? result.remaining : Iterables2.singleton(new Pair<Rep,Rep>(r1,r2));
-            errorsArray[i] = result.progress ? result.errors : Iterables2.<String>empty();
+            remainingArray[i] = result.progress ? result.remaining : Iterables2.singleton(new Pair<Rep,Rep>(r1, r2));
+            errorsArray[i] = result.progress ? result.errors : Iterables2.<String> empty();
         }
         final Iterable<String> errors = Iterables2.fromConcat(errorsArray);
         final Iterable<Pair<Rep,Rep>> remaining = Iterables2.fromConcat(remainingArray);
-        return new UnificationResult(true,errors,remaining);
+        return new UnificationResult(true, errors, remaining);
     }
 
-    protected void finds(Function<Rep, Rep> reduceOp) throws InterpreterException {
+    protected void finds(Function<Rep,Rep> reduceOp) throws InterpreterException {
         boolean newDone = true;
-        for(int i = 0; i < size; i++) {
-            if(!reps[i].isGround()) {
+        for (int i = 0; i < size; i++) {
+            if (!reps[i].isGround()) {
                 reps[i] = reps[i].find(reduceOp);
                 ground &= reps[i].isGround();
             }
@@ -60,7 +60,7 @@ abstract class Complex implements Rep {
 
     @Override public boolean occurs(Var v) {
         boolean occurs = false;
-        for(Rep rep : reps) {
+        for (Rep rep : reps) {
             occurs |= rep.occurs(v);
         }
         return occurs;
@@ -68,7 +68,7 @@ abstract class Complex implements Rep {
 
     protected IStrategoTerm[] toTerms(ITermFactory factory) {
         IStrategoTerm[] elems = new IStrategoTerm[size];
-        for(int i = 0; i < size; i++) {
+        for (int i = 0; i < size; i++) {
             elems[i] = reps[i].toTerm(factory);
         }
         return elems;
@@ -77,8 +77,8 @@ abstract class Complex implements Rep {
     protected String toStrings() {
         final StringBuilder sb = new StringBuilder();
         boolean tail = false;
-        for(Rep r : reps) {
-            if(tail) {
+        for (Rep r : reps) {
+            if (tail) {
                 sb.append(",");
             }
             sb.append(r);

@@ -7,18 +7,18 @@ public final class UnificationResult {
 
     public final boolean progress;
     public final Iterable<String> errors;
-    public final Iterable<Pair<Rep, Rep>> remaining;
+    public final Iterable<Pair<Rep,Rep>> remaining;
 
     public UnificationResult(boolean progress) {
-        this(progress, Iterables2.<String>empty(), Iterables2.<Pair<Rep,Rep>>empty());
+        this(progress, Iterables2.<String> empty(), Iterables2.<Pair<Rep,Rep>> empty());
     }
 
     public UnificationResult(String error) {
-        this(true, Iterables2.singleton(error), Iterables2.<Pair<Rep,Rep>>empty());
+        this(true, Iterables2.singleton(error), Iterables2.<Pair<Rep,Rep>> empty());
     }
 
     public UnificationResult(Iterable<String> errors) {
-        this(true, errors, Iterables2.<Pair<Rep,Rep>>empty());
+        this(true, errors, Iterables2.<Pair<Rep,Rep>> empty());
     }
 
     public UnificationResult(boolean success, Iterable<String> errors, Iterable<Pair<Rep,Rep>> remaining) {
@@ -26,5 +26,5 @@ public final class UnificationResult {
         this.errors = errors;
         this.remaining = remaining;
     }
-    
+
 }

@@ -13,10 +13,9 @@ public class U_copy_unifier extends AbstractPrimitive {
         super(U_copy_unifier.class.getSimpleName(), 0, 0);
     }
 
-    @Override
-    public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) throws InterpreterException {
+    @Override public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) throws InterpreterException {
         final IStrategoTerm unifierTerm = env.current();
-        if(!(unifierTerm instanceof StrategoUnifierTerm)) {
+        if (!(unifierTerm instanceof StrategoUnifierTerm)) {
             throw new InterpreterException("Term argument must be unifier term.");
         }
         StrategoUnifier unifier = ((StrategoUnifierTerm) unifierTerm).unifier();

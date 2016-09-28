@@ -9,20 +9,19 @@ import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 public class SG_set_ast_index extends ScopeGraphPrimitive {
- 
+
     public SG_set_ast_index() {
         super(SG_set_ast_index.class.getSimpleName(), 0, 1);
     }
 
 
-    @Override public boolean call(IScopeGraphContext<?> context, IContext env,
-            Strategy[] strategies, IStrategoTerm[] terms)
-        throws InterpreterException {
+    @Override public boolean call(IScopeGraphContext<?> context, IContext env, Strategy[] strategies,
+            IStrategoTerm[] terms) throws InterpreterException {
         IStrategoTerm indexTerm = terms[0];
-        if(!Tools.isTermAppl(indexTerm)) {
+        if (!Tools.isTermAppl(indexTerm)) {
             throw new InterpreterException("Not a valid index term.");
         }
-        TermIndex.put(env.current(),(IStrategoAppl)terms[0]);
+        TermIndex.put(env.current(), (IStrategoAppl) terms[0]);
         return true;
     }
 

@@ -18,26 +18,26 @@ class Op implements Rep {
     }
 
     @Override public UnificationResult unify(Rep r, Function<Rep,Rep> reduceOp) throws InterpreterException {
-        if(r instanceof Var) {
+        if (r instanceof Var) {
             return r.unify(this, reduceOp);
         }
         return new UnificationResult(false);
     }
 
-    @Override public Rep find(Function<Rep, Rep> reduceOp) throws InterpreterException {
-        if(result == null) {
+    @Override public Rep find(Function<Rep,Rep> reduceOp) throws InterpreterException {
+        if (result == null) {
             op = op.find(reduceOp);
-            if(!op.isGround() || (result = reduceOp.apply(op)) == null) {
+            if (!op.isGround() || (result = reduceOp.apply(op)) == null) {
                 return this;
             }
         }
         return result.find(reduceOp);
     }
- 
+
     @Override public boolean occurs(Var v) {
         return op.occurs(v);
     }
-    
+
     @Override public boolean isActive() {
         return true;
     }
@@ -45,8 +45,8 @@ class Op implements Rep {
     @Override public boolean isGround() {
         return false;
     }
-    
-    @Override public IStrategoTerm toTerm(ITermFactory factory ) {
+
+    @Override public IStrategoTerm toTerm(ITermFactory factory) {
         return op.toTerm(factory);
     }
 

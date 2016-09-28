@@ -13,15 +13,14 @@ public class U_get_ground extends AbstractUnifierPrimitive {
         super(U_get_ground.class.getSimpleName());
     }
 
-    @Override
-    protected boolean doCall(IContext env, StrategoUnifier unifier, Predicate<IStrategoTerm> isVar,
-            Predicate<IStrategoAppl> isOp, Function<Rep, Rep> reduceOp) throws InterpreterException {
+    @Override protected boolean doCall(IContext env, StrategoUnifier unifier, Predicate<IStrategoTerm> isVar,
+            Predicate<IStrategoAppl> isOp, Function<Rep,Rep> reduceOp) throws InterpreterException {
         Rep r = unifier.find(env.current(), isVar, isOp, reduceOp);
-        if(!r.isGround()) {
+        if (!r.isGround()) {
             return false;
         }
         env.setCurrent(r.toTerm(env.getFactory()));
         return true;
     }
-    
+
 }

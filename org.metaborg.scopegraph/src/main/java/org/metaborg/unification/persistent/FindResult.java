@@ -5,9 +5,9 @@ import org.metaborg.unification.terms.ITerm;
 public final class FindResult {
 
     final ITerm rep;
-    final TermUnifier unifier;
+    final PersistentTermUnifier unifier;
 
-    public FindResult(ITerm rep, TermUnifier unifier) {
+    public FindResult(ITerm rep, PersistentTermUnifier unifier) {
         this.rep = rep;
         this.unifier = unifier;
     }

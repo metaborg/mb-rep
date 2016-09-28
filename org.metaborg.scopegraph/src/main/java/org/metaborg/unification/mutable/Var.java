@@ -20,12 +20,12 @@ class Var implements Rep {
     }
 
     @Override public UnificationResult unify(Rep r, Function<Rep,Rep> reduceOp) {
-        if(r instanceof Var) {
+        if (r instanceof Var) {
             Var v = (Var) r;
-            union(this,v);
+            union(this, v);
         } else {
-            if(r.occurs(this)) {
-                return new UnificationResult(this+" occurs in "+r);
+            if (r.occurs(this)) {
+                return new UnificationResult(this + " occurs in " + r);
             }
             rep = r;
         }
@@ -33,7 +33,7 @@ class Var implements Rep {
     }
 
     private void union(Var v1, Var v2) {
-        if(v2.size > v1.size) {
+        if (v2.size > v1.size) {
             final Var tmp = v1;
             v1 = v2;
             v2 = tmp;
@@ -42,8 +42,8 @@ class Var implements Rep {
         v2.rep = v1;
     }
 
-    @Override public Rep find(Function<Rep, Rep> reduceOp) throws InterpreterException {
-        if(rep != this) {
+    @Override public Rep find(Function<Rep,Rep> reduceOp) throws InterpreterException {
+        if (rep != this) {
             rep = rep.find(reduceOp);
         }
         return rep;

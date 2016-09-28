@@ -4,19 +4,19 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.metaborg.unification.persistent.fastutil.PersistentObject2ObjectMap;
-import org.metaborg.unification.persistent.fastutil.PersistentObject2ObjectOpenHashMap;
-import org.metaborg.unification.persistent.fastutil.PersistentObjectOpenHashSet;
-import org.metaborg.unification.persistent.fastutil.PersistentObjectSet;
+import org.metaborg.fastutil.persistent.PersistentObject2ObjectMap;
+import org.metaborg.fastutil.persistent.PersistentObject2ObjectOpenHashMap;
+import org.metaborg.fastutil.persistent.PersistentObjectOpenHashSet;
+import org.metaborg.fastutil.persistent.PersistentObjectSet;
 
 public class FastUtilTests {
 
     @Test public void testPresistentMap() {
-        PersistentObject2ObjectMap<Integer, Integer> m1 = new PersistentObject2ObjectOpenHashMap<>();
+        PersistentObject2ObjectMap<Integer,Integer> m1 = new PersistentObject2ObjectOpenHashMap<>();
         assertFalse(m1.containsKey(1));
-        PersistentObject2ObjectMap<Integer, Integer> m2 = m1.put(1, 42);
+        PersistentObject2ObjectMap<Integer,Integer> m2 = m1.put(1, 42);
         assertTrue(m2.containsKey(1));
-        PersistentObject2ObjectMap<Integer, Integer> m3 = m2.remove(1);
+        PersistentObject2ObjectMap<Integer,Integer> m3 = m2.remove(1);
         assertFalse(m3.containsKey(1));
 
         assertTrue(m2.containsKey(1));

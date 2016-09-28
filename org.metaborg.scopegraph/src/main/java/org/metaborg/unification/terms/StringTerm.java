@@ -1,6 +1,6 @@
 package org.metaborg.unification.terms;
 
-public final class StringTerm implements ITerm {
+public final class StringTerm implements IPrimitiveTerm {
 
     private final String value;
     private final int hashCode;
@@ -14,8 +14,7 @@ public final class StringTerm implements ITerm {
         return value;
     }
 
-    @Override
-    public <T> T accept(ITermVisitor<T> visitor) {
+    @Override public <T> T accept(ITermVisitor<T> visitor) {
         return visitor.visit(this);
     }
 
@@ -26,27 +25,24 @@ public final class StringTerm implements ITerm {
         return result;
     }
 
-    @Override
-    public int hashCode() {
+    @Override public int hashCode() {
         return hashCode;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if(this == obj)
+    @Override public boolean equals(Object obj) {
+        if (this == obj)
             return true;
-        if(obj == null)
+        if (obj == null)
             return false;
-        if(getClass() != obj.getClass())
+        if (getClass() != obj.getClass())
             return false;
         StringTerm other = (StringTerm) obj;
-        if(!value.equals(other.value))
+        if (!value.equals(other.value))
             return false;
         return true;
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return "\"" + value + "\"";
     }
 

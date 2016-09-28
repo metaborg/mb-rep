@@ -25,63 +25,51 @@ public class StrategoUnifierTerm extends AbstractSimpleTerm implements IStratego
         return unifier;
     }
 
-    @Override
-    public boolean isList() {
+    @Override public boolean isList() {
         return false;
     }
 
-    @Override
-    public Iterator<IStrategoTerm> iterator() {
+    @Override public Iterator<IStrategoTerm> iterator() {
         return new EmptyIterator<IStrategoTerm>();
     }
 
-    @Override
-    public int getSubtermCount() {
+    @Override public int getSubtermCount() {
         return 0;
     }
 
-    @Override
-    public IStrategoTerm getSubterm(int index) {
+    @Override public IStrategoTerm getSubterm(int index) {
         throw new NoSuchElementException();
     }
 
-    @Override
-    public IStrategoTerm[] getAllSubterms() {
+    @Override public IStrategoTerm[] getAllSubterms() {
         return new IStrategoTerm[0];
     }
 
-    @Override
-    public int getTermType() {
+    @Override public int getTermType() {
         return BLOB;
     }
 
-    @Override
-    public int getStorageType() {
+    @Override public int getStorageType() {
         return MUTABLE;
     }
 
-    @SuppressWarnings("deprecation")
-    @Override public IStrategoList getAnnotations() {
+    @SuppressWarnings("deprecation") @Override public IStrategoList getAnnotations() {
         return TermFactory.EMPTY_LIST;
     }
 
-    @Override
-    public boolean match(IStrategoTerm second) {
+    @Override public boolean match(IStrategoTerm second) {
         return equals(second);
     }
 
-    @Override
-    public void prettyPrint(ITermPrinter pp) {
+    @Override public void prettyPrint(ITermPrinter pp) {
         pp.print(unifier.toString());
     }
 
-    @Override
-    public String toString(int maxDepth) {
+    @Override public String toString(int maxDepth) {
         return unifier.toString();
     }
 
-    @Override
-    public void writeAsString(Appendable output, int maxDepth) throws IOException {
+    @Override public void writeAsString(Appendable output, int maxDepth) throws IOException {
         output.append(toString(maxDepth));
     }
 

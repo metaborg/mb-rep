@@ -1,49 +1,46 @@
-package org.metaborg.unification.persistent.fastutil;
+package org.metaborg.fastutil.persistent;
 
-public final class PersistentObject2ObjectOpenHashMap<K,V> implements PersistentObject2ObjectMap<K, V> {
- 
+public final class PersistentObject2ObjectOpenHashMap<K, V> implements PersistentObject2ObjectMap<K,V> {
+
     private Inner<K,V> inner;
- 
+
     public PersistentObject2ObjectOpenHashMap() {
         this.inner = new Store<K,V>();
     }
- 
+
     private PersistentObject2ObjectOpenHashMap(Inner<K,V> inner) {
         this.inner = inner;
     }
- 
-    @Override
-    public boolean containsKey(K key) {
+
+    @Override public boolean containsKey(K key) {
         return reroot().containsKey(key);
     }
 
-    @Override
-    public V get(K key) {
+    @Override public V get(K key) {
         return reroot().get(key);
     }
 
-    @Override
-    public PersistentObject2ObjectMap<K, V> put(K key, V value) {
-        return reroot().put(this,key,value);
+    @Override public PersistentObject2ObjectMap<K,V> put(K key, V value) {
+        return reroot().put(this, key, value);
     }
- 
-    @Override
-    public PersistentObject2ObjectMap<K, V> remove(K key) {
-        return reroot().remove(this,key);
+
+    @Override public PersistentObject2ObjectMap<K,V> remove(K key) {
+        return reroot().remove(this, key);
     }
- 
+
     private Store<K,V> reroot() {
         return inner.reroot(this);
     }
-    
-    
-    private interface Inner<K,V> {
+
+
+    private interface Inner<K, V> {
+
         Store<K,V> reroot(PersistentObject2ObjectOpenHashMap<K,V> outer);
     }
- 
-    private static class Store<K,V> implements Inner<K,V>  {
-        private final it.unimi.dsi.fastutil.objects.Object2ObjectMap<K,V> store =
-                new it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap<K,V>();
+
+    private static class Store<K, V> implements Inner<K,V> {
+
+        private final it.unimi.dsi.fastutil.objects.Object2ObjectMap<K,V> store = new it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap<K,V>();
 
         public boolean containsKey(K key) {
             return store.containsKey(key);
@@ -53,9 +50,9 @@ public final class PersistentObject2ObjectOpenHashMap<K,V> implements Persistent
             return store.get(key);
         }
 
-        public PersistentObject2ObjectMap<K, V> put(PersistentObject2ObjectOpenHashMap<K,V> outer, K key, V value) {
+        public PersistentObject2ObjectMap<K,V> put(PersistentObject2ObjectOpenHashMap<K,V> outer, K key, V value) {
             PersistentObject2ObjectOpenHashMap<K,V> res = new PersistentObject2ObjectOpenHashMap<K,V>(this);
-            if(store.containsKey(key)) {
+            if (store.containsKey(key)) {
                 V oldValue = store.get(key);
                 outer.inner = new Update<>(key, oldValue, res);
             } else {
@@ -64,9 +61,9 @@ public final class PersistentObject2ObjectOpenHashMap<K,V> implements Persistent
             store.put(key, value);
             return res;
         }
- 
-        public PersistentObject2ObjectMap<K, V> remove(PersistentObject2ObjectOpenHashMap<K,V> outer, K key) {
-            if(!store.containsKey(key)) {
+
+        public PersistentObject2ObjectMap<K,V> remove(PersistentObject2ObjectOpenHashMap<K,V> outer, K key) {
+            if (!store.containsKey(key)) {
                 return outer;
             }
             PersistentObject2ObjectOpenHashMap<K,V> res = new PersistentObject2ObjectOpenHashMap<K,V>(this);
@@ -75,13 +72,14 @@ public final class PersistentObject2ObjectOpenHashMap<K,V> implements Persistent
             store.remove(key);
             return res;
         }
-        
+
         @Override public Store<K,V> reroot(PersistentObject2ObjectOpenHashMap<K,V> outer) {
             return this;
         };
     }
 
-    private static class Add<K,V> implements Inner<K,V> {
+    private static class Add<K, V> implements Inner<K,V> {
+
         private final K key;
         private final V value;
         private final PersistentObject2ObjectOpenHashMap<K,V> next;
@@ -102,7 +100,8 @@ public final class PersistentObject2ObjectOpenHashMap<K,V> implements Persistent
         };
     }
 
-    private static class Update<K,V> implements Inner<K,V> {
+    private static class Update<K, V> implements Inner<K,V> {
+
         private final K key;
         private final V value;
         private final PersistentObject2ObjectOpenHashMap<K,V> next;
@@ -124,7 +123,8 @@ public final class PersistentObject2ObjectOpenHashMap<K,V> implements Persistent
         };
     }
 
-    private static class Remove<K,V> implements Inner<K,V> {
+    private static class Remove<K, V> implements Inner<K,V> {
+
         private final K key;
         private final PersistentObject2ObjectOpenHashMap<K,V> next;
 

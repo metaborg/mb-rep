@@ -1,10 +1,10 @@
 package org.metaborg.unification.terms;
 
-public final class TermVar implements ITerm {
- 
+public final class TermVar implements IAny {
+
     private final String name;
     private final int hashCode;
-    
+
     public TermVar(String name) {
         this.name = name;
         this.hashCode = calcHashCode();
@@ -14,8 +14,7 @@ public final class TermVar implements ITerm {
         return name;
     }
 
-    @Override
-    public <T> T accept(ITermVisitor<T> visitor) {
+    @Override public <T> T accept(ITermVisitor<T> visitor) {
         return visitor.visit(this);
     }
 
@@ -26,27 +25,24 @@ public final class TermVar implements ITerm {
         return result;
     }
 
-    @Override
-    public int hashCode() {
+    @Override public int hashCode() {
         return hashCode;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if(this == obj)
+    @Override public boolean equals(Object obj) {
+        if (this == obj)
             return true;
-        if(obj == null)
+        if (obj == null)
             return false;
-        if(getClass() != obj.getClass())
+        if (getClass() != obj.getClass())
             return false;
         TermVar other = (TermVar) obj;
-        if(!name.equals(other.name))
+        if (!name.equals(other.name))
             return false;
         return true;
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return "?" + name;
     }
 

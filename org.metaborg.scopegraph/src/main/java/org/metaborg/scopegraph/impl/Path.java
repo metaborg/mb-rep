@@ -20,18 +20,15 @@ public class Path implements IPath, Serializable {
         this.steps = steps;
     }
 
-    @Override
-    public IOccurrence reference() {
+    @Override public IOccurrence reference() {
         return ref;
     }
 
-    @Override
-    public IOccurrence declaration() {
+    @Override public IOccurrence declaration() {
         return decl;
     }
 
-    @Override
-    public IStrategoTerm steps() {
+    @Override public IStrategoTerm steps() {
         return steps;
     }
 

@@ -18,31 +18,30 @@ class Appl extends Complex {
     }
 
     @Override public UnificationResult unify(Rep r, Function<Rep,Rep> reduceOp) throws InterpreterException {
-        if(r.isActive()) {
+        if (r.isActive()) {
             return r.unify(this, reduceOp);
         }
-        if(!(r instanceof Appl)) {
-            return new UnificationResult(this+" != "+r);
+        if (!(r instanceof Appl)) {
+            return new UnificationResult(this + " != " + r);
         }
         Appl a = (Appl) r;
-        if(!cons.equals(a.cons)) {
-            return new UnificationResult(this+" != "+r);
+        if (!cons.equals(a.cons)) {
+            return new UnificationResult(this + " != " + r);
         }
         return unifys(a, reduceOp);
     }
 
-    @Override
-    public Appl find(Function<Rep, Rep> reduceOp) throws InterpreterException {
+    @Override public Appl find(Function<Rep,Rep> reduceOp) throws InterpreterException {
         super.finds(reduceOp);
         return this;
     }
-    
-    @Override public IStrategoTerm toTerm(ITermFactory factory ) {
+
+    @Override public IStrategoTerm toTerm(ITermFactory factory) {
         return factory.makeAppl(cons, toTerms(factory));
     }
 
     @Override public String toString() {
-        return cons.getName()+"("+toStrings()+")";
+        return cons.getName() + "(" + toStrings() + ")";
     }
 
 }

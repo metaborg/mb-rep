@@ -11,22 +11,21 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import com.google.inject.Inject;
 
 public class SG_get_analysis extends ScopeGraphPrimitive {
- 
+
     @Inject public SG_get_analysis() {
         super(SG_get_analysis.class.getSimpleName(), 0, 0);
-    } 
+    }
 
 
-    @Override public boolean call(IScopeGraphContext<?> context, IContext env,
-            Strategy[] strategies, IStrategoTerm[] terms)
-        throws InterpreterException {
+    @Override public boolean call(IScopeGraphContext<?> context, IContext env, Strategy[] strategies,
+            IStrategoTerm[] terms) throws InterpreterException {
         String source = Tools.asJavaString(env.current());
         IScopeGraphUnit unit = context.unit(source);
-        if(unit == null) {
+        if (unit == null) {
             return false;
         }
         IStrategoTerm analysis = unit.analysis();
-        if(analysis == null) {
+        if (analysis == null) {
             return false;
         }
         env.setCurrent(analysis);

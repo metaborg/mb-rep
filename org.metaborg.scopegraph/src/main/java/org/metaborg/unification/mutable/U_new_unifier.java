@@ -12,8 +12,7 @@ public class U_new_unifier extends AbstractPrimitive {
         super(U_new_unifier.class.getSimpleName(), 0, 0);
     }
 
-    @Override
-    public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) throws InterpreterException {
+    @Override public boolean call(IContext env, Strategy[] svars, IStrategoTerm[] tvars) throws InterpreterException {
         final StrategoUnifier unifier = new StrategoUnifier();
         final StrategoUnifierTerm term = new StrategoUnifierTerm(unifier);
         env.setCurrent(term);

@@ -13,15 +13,14 @@ public class U_get_term extends AbstractUnifierPrimitive {
         super(U_get_term.class.getSimpleName());
     }
 
-    @Override
-    protected boolean doCall(IContext env, StrategoUnifier unifier, Predicate<IStrategoTerm> isVar,
-            Predicate<IStrategoAppl> isOp, Function<Rep, Rep> reduceOp) throws InterpreterException {
+    @Override protected boolean doCall(IContext env, StrategoUnifier unifier, Predicate<IStrategoTerm> isVar,
+            Predicate<IStrategoAppl> isOp, Function<Rep,Rep> reduceOp) throws InterpreterException {
         Rep r = unifier.find(env.current(), isVar, isOp, reduceOp);
-        if(r.isActive()) {
+        if (r.isActive()) {
             return false;
         }
         env.setCurrent(r.toTerm(env.getFactory()));
         return true;
     }
-    
+
 }

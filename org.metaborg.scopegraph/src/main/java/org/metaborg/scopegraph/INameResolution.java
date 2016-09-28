@@ -8,8 +8,8 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 public interface INameResolution {
 
     Collection<IPath> pathsFrom(IOccurrence referene);
- 
+
     Collection<IStrategoTerm> astPaths(ITermIndex index);
-    
+
     IStrategoTerm strategoTerm();
 }

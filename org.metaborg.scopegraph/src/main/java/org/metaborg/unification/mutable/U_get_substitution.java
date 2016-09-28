@@ -13,9 +13,8 @@ public class U_get_substitution extends AbstractUnifierPrimitive {
         super(U_get_substitution.class.getSimpleName());
     }
 
-    @Override
-    protected boolean doCall(IContext env, StrategoUnifier unifier, Predicate<IStrategoTerm> isVar,
-            Predicate<IStrategoAppl> isOp, Function<Rep, Rep> reduceOp) throws InterpreterException {
+    @Override protected boolean doCall(IContext env, StrategoUnifier unifier, Predicate<IStrategoTerm> isVar,
+            Predicate<IStrategoAppl> isOp, Function<Rep,Rep> reduceOp) throws InterpreterException {
         env.setCurrent(unifier.toTerm(env.getFactory(), reduceOp));
         return true;
     }

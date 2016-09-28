@@ -17,8 +17,8 @@ public class Occurrence implements IOccurrence, Serializable {
     private final IStrategoTerm index;
 
     public Occurrence(IStrategoTerm term) throws ScopeGraphException {
-        if(!Tools.isTermAppl(term) || !Tools.hasConstructor((IStrategoAppl)term, "Occurrence", 3)) {
-            throw new ScopeGraphException("Term is not an Occurrence: "+term);
+        if (!Tools.isTermAppl(term) || !Tools.hasConstructor((IStrategoAppl) term, "Occurrence", 3)) {
+            throw new ScopeGraphException("Term is not an Occurrence: " + term);
         }
         this.namespace = namespaceFromTerm(term.getSubterm(0));
         this.name = term.getSubterm(1);
@@ -26,31 +26,27 @@ public class Occurrence implements IOccurrence, Serializable {
     }
 
 
-    @Override
-    public String namespace() {
+    @Override public String namespace() {
         return namespace;
     }
 
-    @Override
-    public IStrategoTerm name() {
+    @Override public IStrategoTerm name() {
         return name;
     }
 
-    @Override
-    public IStrategoTerm index() {
+    @Override public IStrategoTerm index() {
         return index;
-    } 
- 
+    }
+
     private String namespaceFromTerm(IStrategoTerm term) {
-        if(Tools.isTermAppl(term) && Tools.hasConstructor((IStrategoAppl)term, "Label")) {
+        if (Tools.isTermAppl(term) && Tools.hasConstructor((IStrategoAppl) term, "Label")) {
             return Tools.asJavaString(term.getSubterm(0));
         }
         return null;
     }
 
 
-    @Override
-    public int hashCode() {
+    @Override public int hashCode() {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((index == null) ? 0 : index.hashCode());
@@ -59,8 +55,7 @@ public class Occurrence implements IOccurrence, Serializable {
         return result;
     }
 
-    @Override
-    public boolean equals(Object obj) {
+    @Override public boolean equals(Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -87,9 +82,8 @@ public class Occurrence implements IOccurrence, Serializable {
     }
 
 
-    @Override
-    public String toString() {
-        return (namespace != null ? namespace : "") + "{"+name+" "+index+"}";
+    @Override public String toString() {
+        return (namespace != null ? namespace : "") + "{" + name + " " + index + "}";
     }
-    
+
 }

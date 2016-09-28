@@ -1,4 +1,4 @@
-package org.metaborg.unification.persistent.fastutil;
+package org.metaborg.fastutil.persistent;
 
 public interface PersistentObject2IntMap<K> {
 

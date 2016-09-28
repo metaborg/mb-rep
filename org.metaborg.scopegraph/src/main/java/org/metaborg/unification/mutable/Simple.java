@@ -15,28 +15,28 @@ class Simple implements Rep {
         this.t = t;
     }
 
-    @Override public UnificationResult unify(Rep r, Function<Rep, Rep> reduceOp) throws InterpreterException {
-        if(r.isActive()) {
+    @Override public UnificationResult unify(Rep r, Function<Rep,Rep> reduceOp) throws InterpreterException {
+        if (r.isActive()) {
             return r.unify(this, reduceOp);
         }
-        if(!(r instanceof Simple)) {
-            return new UnificationResult(this+" != "+r);
+        if (!(r instanceof Simple)) {
+            return new UnificationResult(this + " != " + r);
         }
         Simple s = (Simple) r;
-        if(!t.match(s.t)) {
-            return new UnificationResult(this+" != "+r);
+        if (!t.match(s.t)) {
+            return new UnificationResult(this + " != " + r);
         }
         return new UnificationResult(true);
     }
 
-    @Override public Rep find(Function<Rep, Rep> reduceOp) throws InterpreterException {
+    @Override public Rep find(Function<Rep,Rep> reduceOp) throws InterpreterException {
         return this;
     }
 
     public static Simple find(IStrategoTerm t) {
         return new Simple(t);
     }
-    
+
     @Override public boolean isActive() {
         return false;
     }
