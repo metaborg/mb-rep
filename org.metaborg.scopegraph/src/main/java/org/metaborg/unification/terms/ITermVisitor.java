@@ -8,12 +8,10 @@ public interface ITermVisitor<T> {
 
     T visit(ApplTerm term);
 
-    T visit(ConsTerm term);
-
-    T visit(NilTerm term);
-
     T visit(TupleTerm term);
 
     T visit(IPrimitiveTerm term);
+
+    T visit(ListTerm listTerm);
 
 }

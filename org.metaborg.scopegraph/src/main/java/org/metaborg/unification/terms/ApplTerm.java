@@ -1,11 +1,17 @@
 package org.metaborg.unification.terms;
 
+import com.google.common.collect.ImmutableList;
+
 public final class ApplTerm extends TermWithArgs implements ITerm {
 
     private final String op;
     private final int hashCode;
 
     public ApplTerm(String op, ITerm... args) {
+        this(op, ImmutableList.copyOf(args));
+    }
+
+    public ApplTerm(String op, ImmutableList<ITerm> args) {
         super(args);
         this.op = op;
         this.hashCode = calcHashCode();

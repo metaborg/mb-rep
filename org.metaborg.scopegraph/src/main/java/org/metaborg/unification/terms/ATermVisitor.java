@@ -14,15 +14,11 @@ public abstract class ATermVisitor<T> implements ITermVisitor<T> {
         return visit((ITerm) term);
     }
 
-    public T visit(ConsTerm term) {
-        return visit((ITerm) term);
-    }
-
-    @Override public T visit(NilTerm term) {
-        return visit((ITerm) term);
-    }
-
     @Override public T visit(TupleTerm term) {
+        return visit((ITerm) term);
+    }
+
+    @Override public T visit(ListTerm term) {
         return visit((ITerm) term);
     }
 

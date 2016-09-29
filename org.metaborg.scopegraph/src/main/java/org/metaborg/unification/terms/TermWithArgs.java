@@ -1,30 +1,34 @@
 package org.metaborg.unification.terms;
 
-import java.util.Arrays;
+import com.google.common.collect.ImmutableList;
 
 public abstract class TermWithArgs implements ITerm {
 
-    private final ITerm[] args;
+    private final ImmutableList<ITerm> args;
     private final int hashCode;
 
-    public TermWithArgs(ITerm... args) {
+    public TermWithArgs(ImmutableList<ITerm> args) {
         this.args = args;
         this.hashCode = calcHashCode();
     }
 
-    public final ITerm[] getArgs() {
+    public final int getArity() {
+        return args.size();
+    }
+
+    public final ImmutableList<ITerm> getArgs() {
         return args;
+    }
+
+    @Override public int hashCode() {
+        return hashCode;
     }
 
     private int calcHashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + Arrays.hashCode(args);
+        result = prime * result + args.hashCode();
         return result;
-    }
-
-    @Override public int hashCode() {
-        return hashCode;
     }
 
     @Override public boolean equals(Object obj) {
@@ -35,18 +39,21 @@ public abstract class TermWithArgs implements ITerm {
         if (!(obj instanceof TermWithArgs))
             return false;
         TermWithArgs other = (TermWithArgs) obj;
-        if (!Arrays.equals(args, other.args))
+        if (!args.equals(other.args))
             return false;
         return true;
     }
 
     @Override public String toString() {
         StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < args.length; i++) {
-            if (i != 0) {
+        boolean first = true;
+        for (ITerm arg : args) {
+            if (first) {
+                first = false;
+            } else {
                 sb.append(",");
             }
-            sb.append(args[i].toString());
+            sb.append(arg.toString());
         }
         return sb.toString();
     }

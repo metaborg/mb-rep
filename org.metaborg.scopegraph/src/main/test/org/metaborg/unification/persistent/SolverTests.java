@@ -20,8 +20,6 @@ import org.metaborg.unification.terms.ITerm;
 import org.metaborg.unification.terms.IntTerm;
 import org.metaborg.unification.terms.TermVar;
 
-import com.google.common.collect.Lists;
-
 public class SolverTests {
 
     @Test public void testTrue() {
@@ -52,7 +50,7 @@ public class SolverTests {
     }
 
     @Test public void testConj() {
-        IConstraint constraint = new CConj(Lists.newArrayList(new CTrue(), new CFalse()));
+        IConstraint constraint = new CConj(new CTrue(), new CFalse());
         Solver solver = new Solver(Collections.singleton(constraint));
         ISolution solution = solver.solve();
         assertNotNull(solution);
@@ -60,7 +58,7 @@ public class SolverTests {
     }
 
     @Test public void testDisj() {
-        IConstraint constraint = new CDisj(Lists.newArrayList(new CTrue(), new CFalse()));
+        IConstraint constraint = new CDisj(new CTrue(), new CFalse());
         Solver solver = new Solver(Collections.singleton(constraint));
         ISolution solution = solver.solve();
         assertNotNull(solution);

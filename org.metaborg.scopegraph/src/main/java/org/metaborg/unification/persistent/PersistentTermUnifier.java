@@ -1,5 +1,7 @@
 package org.metaborg.unification.persistent;
 
+import javax.annotation.Nullable;
+
 import org.metaborg.fastutil.persistent.PersistentObject2ObjectMap;
 import org.metaborg.fastutil.persistent.PersistentObject2ObjectOpenHashMap;
 import org.metaborg.unification.terms.ITerm;
@@ -16,7 +18,7 @@ public final class PersistentTermUnifier {
         this.reps = reps;
     }
 
-    public UnifyResult unify(ITerm term1, ITerm term2) {
+    public @Nullable UnifyResult unify(ITerm term1, ITerm term2) {
         final FindResult result1 = find(term1);
         final FindResult result2 = result1.unifier.find(term2);
         return result1.rep.accept(new UnifyVisitor(result2.unifier, result2.rep));

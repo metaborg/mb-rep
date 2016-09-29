@@ -1,11 +1,17 @@
 package org.metaborg.unification.terms;
 
+import com.google.common.collect.ImmutableList;
+
 public final class OpTerm extends TermWithArgs implements IAny {
 
     private final String op;
     private final int hashCode;
 
     public OpTerm(String op, ITerm... args) {
+        this(op, ImmutableList.copyOf(args));
+    }
+
+    public OpTerm(String op, ImmutableList<ITerm> args) {
         super(args);
         this.op = op;
         this.hashCode = calcHashCode();

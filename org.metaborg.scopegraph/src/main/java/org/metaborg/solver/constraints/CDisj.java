@@ -1,12 +1,16 @@
 package org.metaborg.solver.constraints;
 
-import java.util.Collection;
+import com.google.common.collect.ImmutableList;
 
 public class CDisj implements IConstraint {
 
-    public final Collection<? extends IConstraint> constraints;
+    public final ImmutableList<? extends IConstraint> constraints;
 
-    public CDisj(Collection<? extends IConstraint> constraints) {
+    public CDisj(IConstraint... constraints) {
+        this(ImmutableList.copyOf(constraints));
+    }
+
+    public CDisj(ImmutableList<? extends IConstraint> constraints) {
         this.constraints = constraints;
     }
 

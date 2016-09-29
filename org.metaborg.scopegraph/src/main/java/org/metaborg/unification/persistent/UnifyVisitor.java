@@ -1,12 +1,13 @@
 package org.metaborg.unification.persistent;
 
+import java.util.List;
+
 import org.metaborg.unification.terms.ATermVisitor;
 import org.metaborg.unification.terms.ApplTerm;
-import org.metaborg.unification.terms.ConsTerm;
 import org.metaborg.unification.terms.IPrimitiveTerm;
 import org.metaborg.unification.terms.ITerm;
 import org.metaborg.unification.terms.ITermVisitor;
-import org.metaborg.unification.terms.NilTerm;
+import org.metaborg.unification.terms.ListTerm;
 import org.metaborg.unification.terms.OpTerm;
 import org.metaborg.unification.terms.TermPair;
 import org.metaborg.unification.terms.TermVar;
@@ -14,7 +15,8 @@ import org.metaborg.unification.terms.TermWithArgs;
 import org.metaborg.unification.terms.TupleTerm;
 import org.metaborg.util.iterators.Iterables2;
 
-import com.google.common.collect.Iterables;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 final class UnifyVisitor implements ITermVisitor<UnifyResult> {
 
@@ -81,26 +83,25 @@ final class UnifyVisitor implements ITermVisitor<UnifyResult> {
     // ***** WithArgs *****
 
     private UnifyResult visitArgs(TermWithArgs first, TermWithArgs second) {
-        final ITerm[] args1 = first.getArgs();
-        final ITerm[] args2 = second.getArgs();
-        if (args1.length != args2.length) {
+        final ImmutableList<ITerm> args1 = first.getArgs();
+        final ImmutableList<ITerm> args2 = second.getArgs();
+        if (args1.size() != args2.size()) {
             return UnifyResult.resultWithConflict(unifier, TermPair.of(first, second));
         }
-        @SuppressWarnings("unchecked") final Iterable<TermPair>[] conflicts = new Iterable[args1.length];
-        @SuppressWarnings("unchecked") final Iterable<TermPair>[] defers = new Iterable[args1.length];
+        List<Iterable<TermPair>> conflicts = Lists.newLinkedList();
+        List<Iterable<TermPair>> defers = Lists.newLinkedList();
         PersistentTermUnifier localUnifier = unifier;
-        for (int i = 0; i < args1.length; i++) {
-            UnifyResult result = localUnifier.unify(args1[i], args2[i]);
+        for (int i = 0; i < args1.size(); i++) {
+            UnifyResult result = localUnifier.unify(args1.get(i), args2.get(i));
             if (result == null) {
-                conflicts[i] = UnifyResult.EMPTY;
-                defers[i] = Iterables2.singleton(TermPair.of(first, second));
+                defers.add(Iterables2.singleton(TermPair.of(first, second)));
             } else {
-                conflicts[i] = result.conflicts;
-                defers[i] = result.defers;
+                conflicts.add(result.conflicts);
+                defers.add(result.defers);
                 localUnifier = result.unifier;
             }
         }
-        return UnifyResult.result(localUnifier, Iterables.concat(conflicts), Iterables.concat(defers));
+        return UnifyResult.result(localUnifier, Iterables2.fromConcat(conflicts), Iterables2.fromConcat(defers));
     }
 
     // ***** Appl *****
@@ -125,35 +126,20 @@ final class UnifyVisitor implements ITermVisitor<UnifyResult> {
 
     // ***** List *****
 
-    public UnifyResult visit(ConsTerm first) {
-        return second.accept(new ConsVisitor(first));
+    public UnifyResult visit(ListTerm first) {
+        return second.accept(new ListVisitor(first));
     };
 
-    private class ConsVisitor extends VarVisitor<ConsTerm> {
+    private class ListVisitor extends VarVisitor<ListTerm> {
 
-        public ConsVisitor(ConsTerm first) {
+        public ListVisitor(ListTerm first) {
             super(first);
         }
 
-        @Override public UnifyResult visit(ConsTerm second) {
+        @Override public UnifyResult visit(ListTerm second) {
             return visitArgs(first, second);
         }
 
-    }
-
-    public UnifyResult visit(NilTerm first) {
-        return second.accept(new NilVisitor(first));
-    };
-
-    private class NilVisitor extends VarVisitor<NilTerm> {
-
-        public NilVisitor(NilTerm first) {
-            super(first);
-        }
-
-        @Override public UnifyResult visit(NilTerm second) {
-            return UnifyResult.result(unifier);
-        }
     }
 
     // ***** Tuple*****

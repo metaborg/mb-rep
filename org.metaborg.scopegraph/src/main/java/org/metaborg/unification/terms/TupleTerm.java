@@ -1,10 +1,16 @@
 package org.metaborg.unification.terms;
 
+import com.google.common.collect.ImmutableList;
+
 public final class TupleTerm extends TermWithArgs implements ITerm {
 
     private final int hashCode;
 
     public TupleTerm(ITerm... args) {
+        this(ImmutableList.copyOf(args));
+    }
+
+    public TupleTerm(ImmutableList<ITerm> args) {
         super(args);
         this.hashCode = calcHashCode();
     }

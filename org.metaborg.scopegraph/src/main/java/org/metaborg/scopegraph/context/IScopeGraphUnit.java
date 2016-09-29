@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 
 import org.metaborg.scopegraph.INameResolution;
 import org.metaborg.scopegraph.IScopeGraph;
+import org.metaborg.solver.constraints.IConstraint;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 public interface IScopeGraphUnit {
@@ -17,6 +18,8 @@ public interface IScopeGraphUnit {
     @Nullable IScopeGraph scopeGraph();
 
     @Nullable INameResolution nameResolution();
+
+    @Nullable IConstraint constraint();
 
     @Nullable IStrategoTerm analysis();
 

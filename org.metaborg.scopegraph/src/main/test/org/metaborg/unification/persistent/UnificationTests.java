@@ -1,6 +1,7 @@
 package org.metaborg.unification.persistent;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 import org.metaborg.unification.terms.ApplTerm;
@@ -50,7 +51,7 @@ public class UnificationTests {
     @Test public void testOp() {
         PersistentTermUnifier unifier = new PersistentTermUnifier();
         UnifyResult result = unifier.unify(new ApplTerm("f"), new OpTerm("lub"));
-        assertEquals(1, Iterables.size(result.defers));
+        assertNull(result);
     }
 
 }
