@@ -1,5 +1,7 @@
 package org.metaborg.fastutil.persistent;
 
+import java.util.Set;
+
 public interface PersistentObject2ObjectMap<K, V> {
 
     boolean containsKey(K key);
@@ -9,5 +11,7 @@ public interface PersistentObject2ObjectMap<K, V> {
     PersistentObject2ObjectMap<K,V> put(K key, V value);
 
     PersistentObject2ObjectMap<K,V> remove(K key);
+
+    Set<K> keySet();
 
 }

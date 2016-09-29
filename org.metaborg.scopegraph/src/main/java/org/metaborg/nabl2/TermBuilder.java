@@ -1,10 +1,12 @@
 package org.metaborg.nabl2;
 
 import org.metaborg.unification.terms.ApplTerm;
+import org.metaborg.unification.terms.ConsTerm;
 import org.metaborg.unification.terms.DoubleTerm;
+import org.metaborg.unification.terms.IListTerm;
 import org.metaborg.unification.terms.ITerm;
 import org.metaborg.unification.terms.IntTerm;
-import org.metaborg.unification.terms.ListTerm;
+import org.metaborg.unification.terms.NilTerm;
 import org.metaborg.unification.terms.StringTerm;
 import org.metaborg.unification.terms.TermVar;
 import org.metaborg.unification.terms.TupleTerm;
@@ -33,14 +35,37 @@ public class TermBuilder implements IStrategoVisitor<ITerm> {
             IStrategoTerm name = term.getSubterm(1);
             return new TermVar(Tools.asJavaString(resource), Tools.asJavaString(name));
         }
+        // add lists
+        case "TList": {
+            IStrategoList elems = (IStrategoList) term.getSubterm(0);
+            return makeList(elems, new NilTerm());
+        }
+        case "TListTail": {
+            IStrategoList elems = (IStrategoList) term.getSubterm(0);
+            IStrategoTerm tail = term.getSubterm(1);
+            return makeList(elems, (IListTerm) build(tail));
+        }
         default: {
             return new ApplTerm(term.getName(), visits(term));
         }
         }
     }
 
-    @Override public ITerm visit(IStrategoList term) {
-        return new ListTerm(visits(term));
+    private IListTerm makeList(IStrategoList elems, IListTerm tail) {
+        if (elems.isEmpty()) {
+            return tail;
+        } else {
+            return new ConsTerm(build(elems.head()), makeList(elems.tail(), tail));
+        }
+
+    }
+
+    @Override public IListTerm visit(IStrategoList term) {
+        if (term.isEmpty()) {
+            return new NilTerm();
+        } else {
+            return new ConsTerm(build(term.head()), visit(term.tail()));
+        }
     }
 
     @Override public ITerm visit(IStrategoTuple term) {

@@ -2,6 +2,8 @@ package org.metaborg.unification.terms;
 
 public final class IntTerm implements IPrimitiveTerm {
 
+    private static final long serialVersionUID = -5101998574209587501L;
+
     private final int value;
     private final int hashCode;
 

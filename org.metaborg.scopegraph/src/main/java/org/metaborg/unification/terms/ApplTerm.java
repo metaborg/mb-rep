@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableList;
 
 public final class ApplTerm extends TermWithArgs implements ITerm {
 
+    private static final long serialVersionUID = 1425384232895407260L;
+
     private final String op;
     private final int hashCode;
 
@@ -21,8 +23,16 @@ public final class ApplTerm extends TermWithArgs implements ITerm {
         return op;
     }
 
+    public int getArity() {
+        return getArgs().size();
+    }
+
     @Override public <T> T accept(ITermVisitor<T> visitor) {
         return visitor.visit(this);
+    }
+
+    @Override public int hashCode() {
+        return hashCode;
     }
 
     private int calcHashCode() {
@@ -31,10 +41,6 @@ public final class ApplTerm extends TermWithArgs implements ITerm {
         result = prime * result + op.hashCode();
         result = prime * result + super.hashCode();
         return result;
-    }
-
-    @Override public int hashCode() {
-        return hashCode;
     }
 
     @Override public boolean equals(Object obj) {

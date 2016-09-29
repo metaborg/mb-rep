@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableList;
 
 public class CConj implements IConstraint {
 
+    private static final long serialVersionUID = -7392869760223304136L;
+
     public final ImmutableList<? extends IConstraint> constraints;
 
     public CConj(IConstraint... constraints) {

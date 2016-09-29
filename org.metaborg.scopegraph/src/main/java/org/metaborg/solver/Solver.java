@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.metaborg.solver.constraints.IConstraint;
+import org.metaborg.util.iterators.Iterables2;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -16,6 +17,10 @@ import it.unimi.dsi.fastutil.objects.ObjectSet;
 public class Solver {
 
     private final PriorityQueue<Branch> branchQueue;
+
+    public Solver(IConstraint... constraints) {
+        this(Iterables2.from(constraints));
+    }
 
     public Solver(Iterable<? extends IConstraint> constraints) {
         this.branchQueue = new ObjectHeapPriorityQueue<>();

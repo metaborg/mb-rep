@@ -1,6 +1,8 @@
 package org.metaborg.solver.constraints;
 
-public interface IConstraint {
+import java.io.Serializable;
+
+public interface IConstraint extends Serializable {
 
     <T> T accept(IConstraintVisitor<T> visitor);
 

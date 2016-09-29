@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableList;
 
 public final class TupleTerm extends TermWithArgs implements ITerm {
 
+    private static final long serialVersionUID = -3435889275904515538L;
+
     private final int hashCode;
 
     public TupleTerm(ITerm... args) {

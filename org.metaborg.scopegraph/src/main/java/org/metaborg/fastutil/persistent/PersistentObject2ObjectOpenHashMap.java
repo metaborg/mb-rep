@@ -1,5 +1,7 @@
 package org.metaborg.fastutil.persistent;
 
+import java.util.Set;
+
 public final class PersistentObject2ObjectOpenHashMap<K, V> implements PersistentObject2ObjectMap<K,V> {
 
     private Inner<K,V> inner;
@@ -28,14 +30,18 @@ public final class PersistentObject2ObjectOpenHashMap<K, V> implements Persisten
         return reroot().remove(this, key);
     }
 
+    @Override public Set<K> keySet() {
+        return reroot().store.keySet();
+    }
+
     private Store<K,V> reroot() {
         return inner.reroot(this);
     }
 
-
     private interface Inner<K, V> {
 
         Store<K,V> reroot(PersistentObject2ObjectOpenHashMap<K,V> outer);
+
     }
 
     private static class Store<K, V> implements Inner<K,V> {

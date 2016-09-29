@@ -4,7 +4,7 @@ public interface ITermVisitor<T> {
 
     T visit(TermVar term);
 
-    T visit(OpTerm opTerm);
+    T visit(TermOp termOp);
 
     T visit(ApplTerm term);
 
@@ -12,6 +12,8 @@ public interface ITermVisitor<T> {
 
     T visit(IPrimitiveTerm term);
 
-    T visit(ListTerm listTerm);
+    T visit(ConsTerm term);
+
+    T visit(NilTerm term);
 
 }

@@ -4,11 +4,12 @@ import java.util.List;
 
 import org.metaborg.unification.terms.ATermVisitor;
 import org.metaborg.unification.terms.ApplTerm;
+import org.metaborg.unification.terms.ConsTerm;
 import org.metaborg.unification.terms.IPrimitiveTerm;
 import org.metaborg.unification.terms.ITerm;
 import org.metaborg.unification.terms.ITermVisitor;
-import org.metaborg.unification.terms.ListTerm;
-import org.metaborg.unification.terms.OpTerm;
+import org.metaborg.unification.terms.NilTerm;
+import org.metaborg.unification.terms.TermOp;
 import org.metaborg.unification.terms.TermPair;
 import org.metaborg.unification.terms.TermVar;
 import org.metaborg.unification.terms.TermWithArgs;
@@ -31,10 +32,10 @@ final class UnifyVisitor implements ITermVisitor<UnifyResult> {
     // ***** Var & Op *****
 
     @Override public UnifyResult visit(final TermVar first) {
-        return UnifyResult.result(new PersistentTermUnifier(unifier.reps.put(first, second)));
+        return UnifyResult.result(new PersistentTermUnifier(unifier.varReps.put(first, second), unifier.opReps));
     }
 
-    public UnifyResult visit(OpTerm first) {
+    public UnifyResult visit(TermOp first) {
         return null;
     };
 
@@ -47,10 +48,10 @@ final class UnifyVisitor implements ITermVisitor<UnifyResult> {
         }
 
         @Override public UnifyResult visit(TermVar second) {
-            return UnifyResult.result(new PersistentTermUnifier(unifier.reps.put(second, first)));
+            return UnifyResult.result(new PersistentTermUnifier(unifier.varReps.put(second, first), unifier.opReps));
         }
 
-        @Override public UnifyResult visit(OpTerm second) {
+        @Override public UnifyResult visit(TermOp second) {
             return null;
         }
 
@@ -126,18 +127,35 @@ final class UnifyVisitor implements ITermVisitor<UnifyResult> {
 
     // ***** List *****
 
-    public UnifyResult visit(ListTerm first) {
-        return second.accept(new ListVisitor(first));
+    public UnifyResult visit(ConsTerm first) {
+        return second.accept(new ConsVisitor(first));
     };
 
-    private class ListVisitor extends VarVisitor<ListTerm> {
+    private class ConsVisitor extends VarVisitor<ConsTerm> {
 
-        public ListVisitor(ListTerm first) {
+        public ConsVisitor(ConsTerm first) {
             super(first);
         }
 
-        @Override public UnifyResult visit(ListTerm second) {
-            return visitArgs(first, second);
+        @Override public UnifyResult visit(ConsTerm second) {
+            UnifyResult heads = unifier.unify(first.getHead(), second.getHead());
+            return heads.unifier.unify(first.getTail(), second.getTail());
+        }
+
+    }
+
+    public UnifyResult visit(NilTerm first) {
+        return second.accept(new NilVisitor(first));
+    };
+
+    private class NilVisitor extends VarVisitor<NilTerm> {
+
+        public NilVisitor(NilTerm first) {
+            super(first);
+        }
+
+        @Override public UnifyResult visit(NilTerm second) {
+            return UnifyResult.result(unifier);
         }
 
     }

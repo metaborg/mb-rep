@@ -2,6 +2,8 @@ package org.metaborg.unification.terms;
 
 public final class TermVar implements IAny {
 
+    private static final long serialVersionUID = 6751667565412022313L;
+
     private final String resource;
     private final String name;
     private final int hashCode;

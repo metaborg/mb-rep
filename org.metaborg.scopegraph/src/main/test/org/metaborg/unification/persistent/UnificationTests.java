@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNull;
 import org.junit.Test;
 import org.metaborg.unification.terms.ApplTerm;
 import org.metaborg.unification.terms.IntTerm;
-import org.metaborg.unification.terms.OpTerm;
+import org.metaborg.unification.terms.TermOp;
 import org.metaborg.unification.terms.StringTerm;
 import org.metaborg.unification.terms.TermVar;
 
@@ -50,7 +50,7 @@ public class UnificationTests {
 
     @Test public void testOp() {
         PersistentTermUnifier unifier = new PersistentTermUnifier();
-        UnifyResult result = unifier.unify(new ApplTerm("f"), new OpTerm("lub"));
+        UnifyResult result = unifier.unify(new ApplTerm("f"), new TermOp("lub"));
         assertNull(result);
     }
 

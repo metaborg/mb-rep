@@ -4,16 +4,14 @@ import com.google.common.collect.ImmutableList;
 
 public abstract class TermWithArgs implements ITerm {
 
+    private static final long serialVersionUID = -4024524039271970100L;
+
     private final ImmutableList<ITerm> args;
     private final int hashCode;
 
     public TermWithArgs(ImmutableList<ITerm> args) {
         this.args = args;
         this.hashCode = calcHashCode();
-    }
-
-    public final int getArity() {
-        return args.size();
     }
 
     public final ImmutableList<ITerm> getArgs() {

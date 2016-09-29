@@ -1,6 +1,8 @@
 package org.metaborg.unification.terms;
 
-public interface ITerm {
+import java.io.Serializable;
+
+public interface ITerm extends Serializable {
 
     <T> T accept(ITermVisitor<T> visitor);
 }

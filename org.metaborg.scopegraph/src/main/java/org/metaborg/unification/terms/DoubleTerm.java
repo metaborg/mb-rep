@@ -2,6 +2,8 @@ package org.metaborg.unification.terms;
 
 public final class DoubleTerm implements IPrimitiveTerm {
 
+    private static final long serialVersionUID = 6618120393430830314L;
+
     private final double value;
     private final int hashCode;
 

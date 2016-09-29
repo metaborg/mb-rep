@@ -2,7 +2,7 @@ package org.metaborg.unification.persistent;
 
 import org.metaborg.unification.terms.ATermVisitor;
 import org.metaborg.unification.terms.ITerm;
-import org.metaborg.unification.terms.OpTerm;
+import org.metaborg.unification.terms.TermOp;
 import org.metaborg.unification.terms.TermVar;
 
 final class FindVisitor extends ATermVisitor<FindResult> {
@@ -14,20 +14,22 @@ final class FindVisitor extends ATermVisitor<FindResult> {
     }
 
     @Override public FindResult visit(TermVar termVar) {
-        if (unifier.reps.containsKey(termVar)) {
-            FindResult result = unifier.reps.get(termVar).accept(this);
-            return new FindResult(result.rep, new PersistentTermUnifier(result.unifier.reps.put(termVar, result.rep)));
+        if (unifier.varReps.containsKey(termVar)) {
+            FindResult result = unifier.varReps.get(termVar).accept(this);
+            return new FindResult(result.rep,
+                    new PersistentTermUnifier(result.unifier.varReps.put(termVar, result.rep), result.unifier.opReps));
         } else {
             return new FindResult(termVar, unifier);
         }
     }
 
-    @Override public FindResult visit(OpTerm opTerm) {
-        if (unifier.reps.containsKey(opTerm)) {
-            FindResult result = unifier.reps.get(opTerm).accept(this);
-            return new FindResult(result.rep, new PersistentTermUnifier(result.unifier.reps.put(opTerm, result.rep)));
+    @Override public FindResult visit(TermOp termOp) {
+        if (unifier.opReps.containsKey(termOp)) {
+            FindResult result = unifier.opReps.get(termOp).accept(this);
+            return new FindResult(result.rep,
+                    new PersistentTermUnifier(result.unifier.varReps, result.unifier.opReps.put(termOp, result.rep)));
         } else {
-            return new FindResult(opTerm, unifier);
+            return new FindResult(termOp, unifier);
         }
     }
 

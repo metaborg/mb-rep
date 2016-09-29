@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableList;
 
 public class CDisj implements IConstraint {
 
+    private static final long serialVersionUID = -6709355340712459429L;
+
     public final ImmutableList<? extends IConstraint> constraints;
 
     public CDisj(IConstraint... constraints) {

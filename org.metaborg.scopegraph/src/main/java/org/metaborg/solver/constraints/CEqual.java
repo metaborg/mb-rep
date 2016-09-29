@@ -4,6 +4,8 @@ import org.metaborg.unification.terms.ITerm;
 
 public class CEqual implements IConstraint {
 
+    private static final long serialVersionUID = 3290973729084863334L;
+
     public final ITerm term1;
     public final ITerm term2;
 

@@ -21,7 +21,7 @@ public class SG_set_ast_index extends ScopeGraphPrimitive {
         if (!Tools.isTermAppl(indexTerm)) {
             throw new InterpreterException("Not a valid index term.");
         }
-        TermIndex.put(env.current(), (IStrategoAppl) terms[0]);
+        TermIndex.put(env.current(), (IStrategoAppl) indexTerm);
         return true;
     }
 
