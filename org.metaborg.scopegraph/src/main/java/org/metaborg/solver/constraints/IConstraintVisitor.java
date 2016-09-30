@@ -9,6 +9,8 @@ public interface IConstraintVisitor<T> {
 
     T visit(CEqual constraint);
 
+    T visit(CInequal constraint);
+
     T visit(CConj constraint);
 
     T visit(CDisj constraint);

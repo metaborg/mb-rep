@@ -4,6 +4,7 @@ import org.metaborg.solver.constraints.CConj;
 import org.metaborg.solver.constraints.CDisj;
 import org.metaborg.solver.constraints.CEqual;
 import org.metaborg.solver.constraints.CFalse;
+import org.metaborg.solver.constraints.CInequal;
 import org.metaborg.solver.constraints.CTrue;
 import org.metaborg.solver.constraints.IConstraint;
 import org.metaborg.unification.ITerm;
@@ -46,6 +47,10 @@ public class ConstraintBuilder extends AStrategoVisitor<IConstraint> {
             ITerm term1 = termBuilder.build(term.getSubterm(0));
             ITerm term2 = termBuilder.build(term.getSubterm(1));
             return new CEqual(term1, term2);
+        } else if (Tools.hasConstructor(term, "CInequal", 3)) {
+            ITerm term1 = termBuilder.build(term.getSubterm(0));
+            ITerm term2 = termBuilder.build(term.getSubterm(1));
+            return new CInequal(term1, term2);
         } else {
             logger.warn("Ignoring unsupported constraint " + term);
             return new CTrue();
