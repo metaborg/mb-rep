@@ -1,5 +1,9 @@
 package org.metaborg.unification.terms;
 
+import org.metaborg.unification.ITerm;
+import org.metaborg.unification.ITermFunction;
+import org.metaborg.unification.ITermPredicate;
+
 import com.google.common.collect.ImmutableList;
 
 public final class TupleTerm extends TermWithArgs implements ITerm {
@@ -17,8 +21,12 @@ public final class TupleTerm extends TermWithArgs implements ITerm {
         this.hashCode = calcHashCode();
     }
 
-    @Override public <T> T accept(ITermVisitor<T> visitor) {
-        return visitor.visit(this);
+    @Override public <T> T apply(ITermFunction<T> visitor) {
+        return visitor.apply(this);
+    }
+
+    @Override public boolean test(ITermPredicate predicate) {
+        return predicate.test(this);
     }
 
     private int calcHashCode() {

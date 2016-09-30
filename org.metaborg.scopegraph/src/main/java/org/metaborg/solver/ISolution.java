@@ -1,13 +1,13 @@
 package org.metaborg.solver;
 
 import org.metaborg.fastutil.persistent.PersistentObjectSet;
-import org.metaborg.unification.persistent.PersistentTermUnifier;
+import org.metaborg.unification.ITermUnifier;
 
 public interface ISolution {
 
-    PersistentTermUnifier getUnifier();
+    ITermUnifier getUnifier();
 
-    ISolution setUnifier(PersistentTermUnifier unifier);
+    ISolution setUnifier(ITermUnifier unifier);
 
     PersistentObjectSet<String> getErrors();
 

@@ -1,5 +1,4 @@
-package org.metaborg.unification.terms;
-
+package org.metaborg.unification;
 
 public interface IPrimitiveTerm extends ITerm {
 

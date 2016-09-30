@@ -1,5 +1,7 @@
 package org.metaborg.unification.terms;
 
+import org.metaborg.unification.ITerm;
+
 public final class TermPair {
 
     public final ITerm first;

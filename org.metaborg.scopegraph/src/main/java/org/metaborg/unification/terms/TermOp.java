@@ -1,5 +1,10 @@
 package org.metaborg.unification.terms;
 
+import org.metaborg.unification.IAny;
+import org.metaborg.unification.ITerm;
+import org.metaborg.unification.ITermFunction;
+import org.metaborg.unification.ITermPredicate;
+
 import com.google.common.collect.ImmutableList;
 
 public final class TermOp extends TermWithArgs implements IAny {
@@ -27,8 +32,16 @@ public final class TermOp extends TermWithArgs implements IAny {
         return getArgs().size();
     }
 
-    @Override public <T> T accept(ITermVisitor<T> visitor) {
-        return visitor.visit(this);
+    @Override public boolean isGround() {
+        return false;
+    }
+
+    @Override public <T> T apply(ITermFunction<T> visitor) {
+        return visitor.apply(this);
+    }
+
+    @Override public boolean test(ITermPredicate predicate) {
+        return predicate.test(this);
     }
 
     private int calcHashCode() {

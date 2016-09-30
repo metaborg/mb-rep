@@ -2,15 +2,15 @@ package org.metaborg.nabl2;
 
 import java.util.List;
 
-import org.metaborg.unification.persistent.PersistentTermUnifier;
-import org.metaborg.unification.terms.ATermVisitor;
+import org.metaborg.unification.IListTerm;
+import org.metaborg.unification.IPrimitiveTerm;
+import org.metaborg.unification.ITerm;
+import org.metaborg.unification.ITermFunction;
+import org.metaborg.unification.ITermUnifier;
+import org.metaborg.unification.terms.ATermFunction;
 import org.metaborg.unification.terms.ApplTerm;
 import org.metaborg.unification.terms.ConsTerm;
 import org.metaborg.unification.terms.DoubleTerm;
-import org.metaborg.unification.terms.IListTerm;
-import org.metaborg.unification.terms.IPrimitiveTerm;
-import org.metaborg.unification.terms.ITerm;
-import org.metaborg.unification.terms.ITermVisitor;
 import org.metaborg.unification.terms.IntTerm;
 import org.metaborg.unification.terms.NilTerm;
 import org.metaborg.unification.terms.StringTerm;
@@ -33,12 +33,12 @@ public final class SubstitutingStrategoBuilder {
 
     private static final ILogger logger = LoggerUtils.logger(SubstitutingStrategoBuilder.class);
 
-    private final PersistentTermUnifier unifier;
+    private final ITermUnifier unifier;
     private final ITermFactory termFactory;
     private final IStrategoConstructor specialTail;
     private final IStrategoConstructor varConstructor;
 
-    public SubstitutingStrategoBuilder(PersistentTermUnifier unifier, ITermFactory termFactory) {
+    public SubstitutingStrategoBuilder(ITermUnifier unifier, ITermFactory termFactory) {
         this.unifier = unifier.findAll();
         this.termFactory = termFactory;
         this.specialTail = termFactory.makeConstructor("LazyList", 1);
@@ -48,7 +48,7 @@ public final class SubstitutingStrategoBuilder {
     public IStrategoTerm substitution() {
         List<IStrategoTuple> entries = Lists.newLinkedList();
         for (TermVar var : unifier.variables()) {
-            ITerm term = unifier.find(var).rep;
+            ITerm term = unifier.find(var).rep();
             IStrategoTerm varTerm = termVar(var);
             IStrategoTerm resultTerm = term(term);
             entries.add(termFactory.makeTuple(varTerm, resultTerm));
@@ -57,8 +57,8 @@ public final class SubstitutingStrategoBuilder {
     }
 
     public IStrategoTerm term(ITerm term) {
-        ITerm rep = unifier.find(term).rep;
-        return rep.accept(termVisitor);
+        ITerm rep = unifier.find(term).rep();
+        return rep.apply(termFunction);
     }
 
     public IStrategoTerm primitiveTerm(IPrimitiveTerm term) {
@@ -86,8 +86,8 @@ public final class SubstitutingStrategoBuilder {
     }
 
     public IStrategoList listTerm(IListTerm term) {
-        ITerm rep = unifier.find(term).rep;
-        return rep.accept(listTermVisitor);
+        ITerm rep = unifier.find(term).rep();
+        return rep.apply(listTermVisitor);
     }
 
     public IStrategoList consTerm(ConsTerm term) {
@@ -116,63 +116,63 @@ public final class SubstitutingStrategoBuilder {
         return newTerms;
     }
 
-    private final ITermVisitor<IStrategoTerm> termVisitor = new ATermVisitor<IStrategoTerm>() {
+    private final ITermFunction<IStrategoTerm> termFunction = new ATermFunction<IStrategoTerm>() {
 
-        @Override public IStrategoTerm visit(TermVar term) {
+        @Override public IStrategoTerm apply(TermVar term) {
             return termVar(term);
         }
 
-        @Override public IStrategoTerm visit(IPrimitiveTerm term) {
+        @Override public IStrategoTerm apply(IPrimitiveTerm term) {
             return primitiveTerm(term);
         }
 
-        @Override public IStrategoTerm visit(ApplTerm term) {
+        @Override public IStrategoTerm apply(ApplTerm term) {
             return applTerm(term);
         }
 
-        @Override public IStrategoTerm visit(TupleTerm term) {
+        @Override public IStrategoTerm apply(TupleTerm term) {
             return tupleTerm(term);
         }
 
-        @Override public IStrategoTerm visit(ConsTerm term) {
+        @Override public IStrategoTerm apply(ConsTerm term) {
             return consTerm(term);
         }
 
-        @Override public IStrategoTerm visit(NilTerm term) {
+        @Override public IStrategoTerm apply(NilTerm term) {
             return nilTerm(term);
         }
 
-        @Override public IStrategoTerm visit(TermOp term) {
+        @Override public IStrategoTerm apply(TermOp term) {
             return termOp(term);
         }
 
-        @Override public IStrategoTerm visit(ITerm term) {
+        @Override public IStrategoTerm defaultApply(ITerm term) {
             throw new IllegalArgumentException("Unsupported term " + term);
         }
 
     };
 
-    private final ITermVisitor<IStrategoList> listTermVisitor = new ATermVisitor<IStrategoList>() {
+    private final ITermFunction<IStrategoList> listTermVisitor = new ATermFunction<IStrategoList>() {
 
-        @Override public IStrategoList visit(ConsTerm term) {
+        @Override public IStrategoList apply(ConsTerm term) {
             return consTerm(term);
         }
 
-        @Override public IStrategoList visit(NilTerm term) {
+        @Override public IStrategoList apply(NilTerm term) {
             return nilTerm(term);
         }
 
-        @Override public IStrategoList visit(TermVar term) {
+        @Override public IStrategoList apply(TermVar term) {
             logger.warn("Turning list tail " + term + " into last element.");
             return termFactory.makeList(termFactory.makeAppl(specialTail, term(term)));
         }
 
-        @Override public IStrategoList visit(TermOp term) {
+        @Override public IStrategoList apply(TermOp term) {
             logger.warn("Turning list tail " + term + " into last element.");
             return termFactory.makeList(termFactory.makeAppl(specialTail, term(term)));
         }
 
-        @Override public IStrategoList visit(ITerm term) {
+        @Override public IStrategoList defaultApply(ITerm term) {
             throw new IllegalArgumentException("Unsupported term " + term);
         }
 

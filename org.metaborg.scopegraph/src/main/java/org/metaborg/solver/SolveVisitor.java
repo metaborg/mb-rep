@@ -12,7 +12,7 @@ import org.metaborg.solver.constraints.CFalse;
 import org.metaborg.solver.constraints.CTrue;
 import org.metaborg.solver.constraints.IConstraint;
 import org.metaborg.solver.constraints.IConstraintVisitor;
-import org.metaborg.unification.persistent.UnifyResult;
+import org.metaborg.unification.IUnifyResult;
 import org.metaborg.unification.terms.TermPair;
 
 import com.google.common.collect.Lists;
@@ -50,19 +50,19 @@ public class SolveVisitor implements IConstraintVisitor<Collection<SolveResult>>
     }
 
     @Override public Collection<SolveResult> visit(CEqual constraint) {
-        UnifyResult result = solution.getUnifier().unify(constraint.term1, constraint.term2);
+        IUnifyResult result = solution.getUnifier().unify(constraint.term1, constraint.term2);
         if (result == null) {
             return null;
         }
 
         Collection<IConstraint> constraints = Lists.newLinkedList();
-        for (TermPair defer : result.defers) {
+        for (TermPair defer : result.defers()) {
             constraints.add(new CEqual(defer.first, defer.second));
         }
 
-        ISolution localSolution = solution.setUnifier(result.unifier);
+        ISolution localSolution = solution.setUnifier(result.unifier());
         PersistentObjectSet<String> localErrors = solution.getErrors();
-        for (TermPair conflict : result.conflicts) {
+        for (TermPair conflict : result.conflicts()) {
             String message = "Cannot unify " + conflict.first.toString() + " with " + conflict.second.toString();
             localErrors = localErrors.add(message);
         }

@@ -1,5 +1,9 @@
 package org.metaborg.unification.terms;
 
+import org.metaborg.unification.IPrimitiveTerm;
+import org.metaborg.unification.ITermFunction;
+import org.metaborg.unification.ITermPredicate;
+
 public final class StringTerm implements IPrimitiveTerm {
 
     private static final long serialVersionUID = -5894215163299613968L;
@@ -16,8 +20,16 @@ public final class StringTerm implements IPrimitiveTerm {
         return value;
     }
 
-    @Override public <T> T accept(ITermVisitor<T> visitor) {
-        return visitor.visit(this);
+    @Override public boolean isGround() {
+        return true;
+    }
+
+    @Override public <T> T apply(ITermFunction<T> visitor) {
+        return visitor.apply(this);
+    }
+
+    @Override public boolean test(ITermPredicate predicate) {
+        return predicate.test(this);
     }
 
     private int calcHashCode() {

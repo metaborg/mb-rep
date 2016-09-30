@@ -2,28 +2,27 @@ package org.metaborg.solver;
 
 import org.metaborg.fastutil.persistent.PersistentObjectOpenHashSet;
 import org.metaborg.fastutil.persistent.PersistentObjectSet;
-import org.metaborg.unification.persistent.PersistentTermUnifier;
+import org.metaborg.unification.ITermUnifier;
 
 public final class Solution implements ISolution {
 
-    private final PersistentTermUnifier unifier;
+    private final ITermUnifier unifier;
     private final PersistentObjectSet<String> errors;
 
-    public Solution() {
-        this.unifier = new PersistentTermUnifier();
-        this.errors = new PersistentObjectOpenHashSet<>();
+    public Solution(ITermUnifier unifier) {
+        this(unifier, new PersistentObjectOpenHashSet<String>());
     }
 
-    private Solution(PersistentTermUnifier unifier, PersistentObjectSet<String> errors) {
+    private Solution(ITermUnifier unifier, PersistentObjectSet<String> errors) {
         this.unifier = unifier;
         this.errors = errors;
     }
 
-    @Override public PersistentTermUnifier getUnifier() {
+    @Override public ITermUnifier getUnifier() {
         return unifier;
     }
 
-    @Override public Solution setUnifier(PersistentTermUnifier unifier) {
+    @Override public Solution setUnifier(ITermUnifier unifier) {
         return new Solution(unifier, errors);
     }
 

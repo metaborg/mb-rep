@@ -1,6 +1,6 @@
 package org.metaborg.solver.constraints;
 
-import org.metaborg.unification.terms.ITerm;
+import org.metaborg.unification.ITerm;
 
 public class CEqual implements IConstraint {
 

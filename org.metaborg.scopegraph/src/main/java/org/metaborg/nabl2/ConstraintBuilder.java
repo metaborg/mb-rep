@@ -6,7 +6,7 @@ import org.metaborg.solver.constraints.CEqual;
 import org.metaborg.solver.constraints.CFalse;
 import org.metaborg.solver.constraints.CTrue;
 import org.metaborg.solver.constraints.IConstraint;
-import org.metaborg.unification.terms.ITerm;
+import org.metaborg.unification.ITerm;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.core.Tools;

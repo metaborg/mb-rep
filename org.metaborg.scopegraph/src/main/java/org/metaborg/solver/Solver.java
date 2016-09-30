@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.metaborg.solver.constraints.IConstraint;
+import org.metaborg.unification.ITermUnifier;
 import org.metaborg.util.iterators.Iterables2;
 
 import com.google.common.collect.Iterables;
@@ -18,13 +19,13 @@ public class Solver {
 
     private final PriorityQueue<Branch> branchQueue;
 
-    public Solver(IConstraint... constraints) {
-        this(Iterables2.from(constraints));
+    public Solver(ITermUnifier unifier, IConstraint... constraints) {
+        this(unifier, Iterables2.from(constraints));
     }
 
-    public Solver(Iterable<? extends IConstraint> constraints) {
+    public Solver(ITermUnifier unifier, Iterable<? extends IConstraint> constraints) {
         this.branchQueue = new ObjectHeapPriorityQueue<>();
-        this.branchQueue.enqueue(new Branch(constraints));
+        this.branchQueue.enqueue(new Branch(unifier, constraints));
     }
 
     public ISolution solve() {
@@ -92,12 +93,12 @@ public class Solver {
         public ISolution solution;
         public boolean progress;
 
-        public Branch(Iterable<? extends IConstraint> constraints) {
+        public Branch(ITermUnifier unifier, Iterable<? extends IConstraint> constraints) {
             this.constraints = new ObjectHeapPriorityQueue<>(Iterables.toArray(constraints, IConstraint.class),
                     new ConstraintPriorityComparator());
             this.defers = new ObjectOpenHashSet<>();
             this.progress = false;
-            this.solution = new Solution();
+            this.solution = new Solution(unifier);
         }
 
         public Branch(Branch other, ISolution solution, Collection<? extends IConstraint> constraints) {

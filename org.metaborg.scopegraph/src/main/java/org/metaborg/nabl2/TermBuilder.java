@@ -1,10 +1,10 @@
 package org.metaborg.nabl2;
 
+import org.metaborg.unification.IListTerm;
+import org.metaborg.unification.ITerm;
 import org.metaborg.unification.terms.ApplTerm;
 import org.metaborg.unification.terms.ConsTerm;
 import org.metaborg.unification.terms.DoubleTerm;
-import org.metaborg.unification.terms.IListTerm;
-import org.metaborg.unification.terms.ITerm;
 import org.metaborg.unification.terms.IntTerm;
 import org.metaborg.unification.terms.NilTerm;
 import org.metaborg.unification.terms.StringTerm;

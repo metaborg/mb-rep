@@ -1,5 +1,9 @@
 package org.metaborg.unification.terms;
 
+import org.metaborg.unification.ITerm;
+import org.metaborg.unification.ITermFunction;
+import org.metaborg.unification.ITermPredicate;
+
 import com.google.common.collect.ImmutableList;
 
 public final class ApplTerm extends TermWithArgs implements ITerm {
@@ -27,8 +31,12 @@ public final class ApplTerm extends TermWithArgs implements ITerm {
         return getArgs().size();
     }
 
-    @Override public <T> T accept(ITermVisitor<T> visitor) {
-        return visitor.visit(this);
+    @Override public <T> T apply(ITermFunction<T> function) {
+        return function.apply(this);
+    }
+
+    @Override public boolean test(ITermPredicate predicate) {
+        return predicate.test(this);
     }
 
     @Override public int hashCode() {

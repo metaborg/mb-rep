@@ -1,5 +1,7 @@
 package org.metaborg.unification.terms;
 
+import org.metaborg.unification.ITerm;
+
 import com.google.common.collect.ImmutableList;
 
 public abstract class TermWithArgs implements ITerm {
@@ -7,15 +9,33 @@ public abstract class TermWithArgs implements ITerm {
     private static final long serialVersionUID = -4024524039271970100L;
 
     private final ImmutableList<ITerm> args;
+    private final boolean isGround;
     private final int hashCode;
 
     public TermWithArgs(ImmutableList<ITerm> args) {
         this.args = args;
+        this.isGround = calcGround();
         this.hashCode = calcHashCode();
     }
 
     public final ImmutableList<ITerm> getArgs() {
         return args;
+    }
+
+    public final boolean areArgsGround() {
+        return isGround;
+    }
+
+    public boolean isGround() {
+        return areArgsGround();
+    }
+
+    private boolean calcGround() {
+        boolean isGround = true;
+        for (ITerm arg : args) {
+            isGround &= arg.isGround();
+        }
+        return isGround;
     }
 
     @Override public int hashCode() {

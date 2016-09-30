@@ -16,7 +16,8 @@ import org.metaborg.solver.constraints.CEqual;
 import org.metaborg.solver.constraints.CFalse;
 import org.metaborg.solver.constraints.CTrue;
 import org.metaborg.solver.constraints.IConstraint;
-import org.metaborg.unification.terms.ITerm;
+import org.metaborg.unification.ITerm;
+import org.metaborg.unification.lazy.LazyTermUnifier;
 import org.metaborg.unification.terms.IntTerm;
 import org.metaborg.unification.terms.TermVar;
 
@@ -24,7 +25,7 @@ public class SolverTests {
 
     @Test public void testTrue() {
         IConstraint constraint = new CTrue();
-        Solver solver = new Solver(Collections.singleton(constraint));
+        Solver solver = new Solver(new LazyTermUnifier(), Collections.singleton(constraint));
         ISolution solution = solver.solve();
         assertNotNull(solution);
         assertTrue(solution.getErrors().isEmpty());
@@ -32,7 +33,7 @@ public class SolverTests {
 
     @Test public void testFalse() {
         IConstraint constraint = new CFalse();
-        Solver solver = new Solver(Collections.singleton(constraint));
+        Solver solver = new Solver(new LazyTermUnifier(), Collections.singleton(constraint));
         ISolution solution = solver.solve();
         assertNotNull(solution);
         assertEquals(1, solution.getErrors().size());
@@ -42,16 +43,16 @@ public class SolverTests {
         ITerm v = new TermVar("a");
         ITerm i = new IntTerm(1);
         IConstraint constraint = new CEqual(v, i);
-        Solver solver = new Solver(Collections.singleton(constraint));
+        Solver solver = new Solver(new LazyTermUnifier(), Collections.singleton(constraint));
         ISolution solution = solver.solve();
         assertNotNull(solution);
         assertTrue(solution.getErrors().isEmpty());
-        assertEquals(i, solution.getUnifier().find(v).rep);
+        assertEquals(i, solution.getUnifier().find(v).rep());
     }
 
     @Test public void testConj() {
         IConstraint constraint = new CConj(new CTrue(), new CFalse());
-        Solver solver = new Solver(Collections.singleton(constraint));
+        Solver solver = new Solver(new LazyTermUnifier(), Collections.singleton(constraint));
         ISolution solution = solver.solve();
         assertNotNull(solution);
         assertFalse(solution.getErrors().isEmpty());
@@ -59,7 +60,7 @@ public class SolverTests {
 
     @Test public void testDisj() {
         IConstraint constraint = new CDisj(new CTrue(), new CFalse());
-        Solver solver = new Solver(Collections.singleton(constraint));
+        Solver solver = new Solver(new LazyTermUnifier(), Collections.singleton(constraint));
         ISolution solution = solver.solve();
         assertNotNull(solution);
         assertTrue(solution.getErrors().isEmpty());
