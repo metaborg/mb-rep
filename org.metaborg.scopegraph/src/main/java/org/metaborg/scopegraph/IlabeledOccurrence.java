@@ -1,8 +1,10 @@
 package org.metaborg.scopegraph;
 
-public interface IlabeledOccurrence {
+import java.io.Serializable;
 
-    String label();
+public interface ILabeledOccurrence extends Serializable {
+
+    ILabel label();
 
     IOccurrence occurrence();
 

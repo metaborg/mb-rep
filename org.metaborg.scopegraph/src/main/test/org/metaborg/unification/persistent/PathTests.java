@@ -1,20 +1,20 @@
 package org.metaborg.unification.persistent;
 
-import static org.metaborg.scopegraph.experimental.path.free.PathConcat.concat;
+import static org.metaborg.scopegraph.path.free.PathConcat.concat;
 
 import org.junit.Test;
-import org.metaborg.scopegraph.experimental.IOccurrence;
-import org.metaborg.scopegraph.experimental.IScope;
-import org.metaborg.scopegraph.experimental.path.CyclicPathException;
-import org.metaborg.scopegraph.experimental.path.IFullPath;
-import org.metaborg.scopegraph.experimental.path.OccurrenceMismatchPathException;
-import org.metaborg.scopegraph.experimental.path.PathException;
-import org.metaborg.scopegraph.experimental.path.RecursivePathException;
-import org.metaborg.scopegraph.experimental.path.ScopeMismatchPathException;
-import org.metaborg.scopegraph.experimental.path.free.DeclStep;
-import org.metaborg.scopegraph.experimental.path.free.DirectStep;
-import org.metaborg.scopegraph.experimental.path.free.NamedStep;
-import org.metaborg.scopegraph.experimental.path.free.RefStep;
+import org.metaborg.scopegraph.IOccurrence;
+import org.metaborg.scopegraph.IScope;
+import org.metaborg.scopegraph.path.CyclicPathException;
+import org.metaborg.scopegraph.path.IFullPath;
+import org.metaborg.scopegraph.path.OccurrenceMismatchPathException;
+import org.metaborg.scopegraph.path.PathException;
+import org.metaborg.scopegraph.path.RecursivePathException;
+import org.metaborg.scopegraph.path.ScopeMismatchPathException;
+import org.metaborg.scopegraph.path.free.DeclStep;
+import org.metaborg.scopegraph.path.free.DirectStep;
+import org.metaborg.scopegraph.path.free.NamedStep;
+import org.metaborg.scopegraph.path.free.RefStep;
 
 public class PathTests {
 

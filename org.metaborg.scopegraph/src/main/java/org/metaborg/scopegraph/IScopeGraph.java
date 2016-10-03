@@ -1,13 +1,17 @@
 package org.metaborg.scopegraph;
 
-import java.util.Collection;
+import java.io.Serializable;
 
-import org.spoofax.interpreter.terms.IStrategoTerm;
+public interface IScopeGraph extends Serializable {
 
-public interface IScopeGraph {
+    IScopeGraph addDecl(IOccurrence declaration, IScope scope);
 
-    Collection<IScope> scopes();
+    IScopeGraph addRef(IOccurrence reference, IScope scope);
 
-    IStrategoTerm strategoTerm();
+    IScopeGraph addLink(IScope source, ILabel label, IScope target);
+
+    IScopeGraph addExport(IOccurrence declaration, ILabel label, IScope scope);
+
+    IScopeGraph addImport(IOccurrence reference, ILabel label, IScope scope);
 
 }

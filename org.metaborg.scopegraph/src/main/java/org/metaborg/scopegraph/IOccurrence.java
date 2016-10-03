@@ -1,13 +1,9 @@
 package org.metaborg.scopegraph;
 
-import org.spoofax.interpreter.terms.IStrategoTerm;
+import java.io.Serializable;
 
-public interface IOccurrence {
+public interface IOccurrence extends Serializable {
 
-    String namespace();
-
-    IStrategoTerm name();
-
-    IStrategoTerm index();
+    boolean matches(IOccurrence other);
 
 }

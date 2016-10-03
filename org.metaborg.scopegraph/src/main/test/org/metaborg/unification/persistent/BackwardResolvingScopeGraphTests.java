@@ -3,12 +3,12 @@ package org.metaborg.unification.persistent;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
-import org.metaborg.scopegraph.experimental.ILabel;
-import org.metaborg.scopegraph.experimental.IOccurrence;
-import org.metaborg.scopegraph.experimental.IScope;
-import org.metaborg.scopegraph.experimental.path.IDeclPath;
-import org.metaborg.scopegraph.experimental.path.IFullPath;
-import org.metaborg.scopegraph.experimental.resolution.BackwardResolvingScopeGraph;
+import org.metaborg.scopegraph.ILabel;
+import org.metaborg.scopegraph.IOccurrence;
+import org.metaborg.scopegraph.IScope;
+import org.metaborg.scopegraph.path.IDeclPath;
+import org.metaborg.scopegraph.path.IFullPath;
+import org.metaborg.scopegraph.resolution.BackwardResolvingScopeGraph;
 
 public class BackwardResolvingScopeGraphTests {
 

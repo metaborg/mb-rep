@@ -1,8 +1,10 @@
 package org.metaborg.scopegraph;
 
-public interface ILabeledScope {
+import java.io.Serializable;
 
-    String label();
+public interface ILabeledScope extends Serializable {
+
+    ILabel label();
 
     IScope scope();
 

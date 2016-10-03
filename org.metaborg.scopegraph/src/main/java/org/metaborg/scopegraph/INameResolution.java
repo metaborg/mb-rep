@@ -1,15 +1,15 @@
 package org.metaborg.scopegraph;
 
-import java.util.Collection;
+import java.io.Serializable;
 
-import org.metaborg.scopegraph.indices.ITermIndex;
-import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.metaborg.scopegraph.path.IDeclPath;
+import org.metaborg.scopegraph.path.IFullPath;
+import org.pcollections.PSet;
 
-public interface INameResolution {
+public interface INameResolution extends Serializable {
 
-    Collection<IPath> pathsFrom(IOccurrence referene);
+    PSet<IDeclPath> reachables(IScope scope);
 
-    Collection<IStrategoTerm> astPaths(ITermIndex index);
+    PSet<IFullPath> reachables(IOccurrence reference);
 
-    IStrategoTerm strategoTerm();
 }
