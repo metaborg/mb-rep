@@ -1,6 +1,6 @@
 package org.metaborg.solver;
 
-import org.metaborg.fastutil.persistent.PersistentObjectSet;
+import org.metaborg.fastutil.persistent.ObjectPSet;
 import org.metaborg.unification.ITermUnifier;
 
 public interface ISolution {
@@ -9,8 +9,8 @@ public interface ISolution {
 
     ISolution setUnifier(ITermUnifier unifier);
 
-    PersistentObjectSet<String> getErrors();
+    ObjectPSet<String> getErrors();
 
-    ISolution setErrors(PersistentObjectSet<String> errors);
+    ISolution setErrors(ObjectPSet<String> errors);
 
 }

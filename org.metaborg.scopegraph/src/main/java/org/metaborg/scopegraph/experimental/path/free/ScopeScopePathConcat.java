@@ -1,27 +1,34 @@
-package org.metaborg.scopegraph.experimental.path.concat;
+package org.metaborg.scopegraph.experimental.path.free;
+
+import java.util.Iterator;
 
 import org.metaborg.scopegraph.experimental.IOccurrence;
 import org.metaborg.scopegraph.experimental.IScope;
 import org.metaborg.scopegraph.experimental.path.CyclicPathException;
+import org.metaborg.scopegraph.experimental.path.IPathVisitor;
+import org.metaborg.scopegraph.experimental.path.IScopePath;
+import org.metaborg.scopegraph.experimental.path.IStep;
 import org.metaborg.scopegraph.experimental.path.PathException;
+import org.metaborg.scopegraph.experimental.path.Paths;
 import org.metaborg.scopegraph.experimental.path.ScopeMismatchPathException;
-import org.metaborg.scopegraph.experimental.path.ScopePath;
 import org.pcollections.PSet;
 
+import com.google.common.collect.Iterators;
 
-public class ScopeScopePathConcat implements ScopePath {
+
+public class ScopeScopePathConcat implements IScopePath {
 
     private static final long serialVersionUID = 5910491421765037299L;
 
-    private final ScopePath left;
-    private final ScopePath right;
+    private final IScopePath left;
+    private final IScopePath right;
     private final int size;
 
-    public ScopeScopePathConcat(ScopePath left, ScopePath right) throws PathException {
+    public ScopeScopePathConcat(IScopePath left, IScopePath right) throws PathException {
         if (!left.targetScope().equals(right.sourceScope())) {
             throw new ScopeMismatchPathException();
         }
-        if (PathConcat.cyclic(left, right, left.targetScope())) {
+        if (Paths.cyclic(left, right, left.targetScope())) {
             throw new CyclicPathException();
         }
         this.left = left;
@@ -47,6 +54,14 @@ public class ScopeScopePathConcat implements ScopePath {
 
     @Override public PSet<IOccurrence> references() {
         return PathConcat.union(left.references(), right.references());
+    }
+
+    @Override public <T> T accept(IPathVisitor<T> visitor) throws PathException {
+        return visitor.visit(this);
+    }
+
+    @Override public Iterator<IStep> iterator() {
+        return Iterators.concat(left.iterator(), right.iterator());
     }
 
 }

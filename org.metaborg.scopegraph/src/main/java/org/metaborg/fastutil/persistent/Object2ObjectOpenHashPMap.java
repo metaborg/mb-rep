@@ -2,31 +2,35 @@ package org.metaborg.fastutil.persistent;
 
 import java.util.Set;
 
-public final class PersistentObject2ObjectOpenHashMap<K, V> implements PersistentObject2ObjectMap<K,V> {
+public final class Object2ObjectOpenHashPMap<K, V> implements Object2ObjectPMap<K,V> {
 
     private Inner<K,V> inner;
 
-    public PersistentObject2ObjectOpenHashMap() {
+    public Object2ObjectOpenHashPMap() {
         this.inner = new Store<K,V>();
     }
 
-    private PersistentObject2ObjectOpenHashMap(Inner<K,V> inner) {
+    public Object2ObjectOpenHashPMap(V defaultValue) {
+        this.inner = new Store<K,V>(defaultValue);
+    }
+
+    private Object2ObjectOpenHashPMap(Inner<K,V> inner) {
         this.inner = inner;
     }
 
     @Override public boolean containsKey(K key) {
-        return reroot().containsKey(key);
+        return reroot().store.containsKey(key);
     }
 
     @Override public V get(K key) {
-        return reroot().get(key);
+        return reroot().store.get(key);
     }
 
-    @Override public PersistentObject2ObjectMap<K,V> put(K key, V value) {
+    @Override public Object2ObjectOpenHashPMap<K,V> put(K key, V value) {
         return reroot().put(this, key, value);
     }
 
-    @Override public PersistentObject2ObjectMap<K,V> remove(K key) {
+    @Override public Object2ObjectOpenHashPMap<K,V> remove(K key) {
         return reroot().remove(this, key);
     }
 
@@ -40,24 +44,25 @@ public final class PersistentObject2ObjectOpenHashMap<K, V> implements Persisten
 
     private interface Inner<K, V> {
 
-        Store<K,V> reroot(PersistentObject2ObjectOpenHashMap<K,V> outer);
+        Store<K,V> reroot(Object2ObjectOpenHashPMap<K,V> outer);
 
     }
 
     private static class Store<K, V> implements Inner<K,V> {
 
-        private final it.unimi.dsi.fastutil.objects.Object2ObjectMap<K,V> store = new it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap<K,V>();
+        private final it.unimi.dsi.fastutil.objects.Object2ObjectMap<K,V> store;
 
-        public boolean containsKey(K key) {
-            return store.containsKey(key);
+        public Store(V defaultValue) {
+            this();
+            store.defaultReturnValue(defaultValue);
         }
 
-        public V get(K key) {
-            return store.get(key);
+        public Store() {
+            this.store = new it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap<K,V>();
         }
 
-        public PersistentObject2ObjectMap<K,V> put(PersistentObject2ObjectOpenHashMap<K,V> outer, K key, V value) {
-            PersistentObject2ObjectOpenHashMap<K,V> res = new PersistentObject2ObjectOpenHashMap<K,V>(this);
+        public Object2ObjectOpenHashPMap<K,V> put(Object2ObjectOpenHashPMap<K,V> outer, K key, V value) {
+            Object2ObjectOpenHashPMap<K,V> res = new Object2ObjectOpenHashPMap<K,V>(this);
             if (store.containsKey(key)) {
                 V oldValue = store.get(key);
                 outer.inner = new Update<>(key, oldValue, res);
@@ -68,18 +73,18 @@ public final class PersistentObject2ObjectOpenHashMap<K, V> implements Persisten
             return res;
         }
 
-        public PersistentObject2ObjectMap<K,V> remove(PersistentObject2ObjectOpenHashMap<K,V> outer, K key) {
+        public Object2ObjectOpenHashPMap<K,V> remove(Object2ObjectOpenHashPMap<K,V> outer, K key) {
             if (!store.containsKey(key)) {
                 return outer;
             }
-            PersistentObject2ObjectOpenHashMap<K,V> res = new PersistentObject2ObjectOpenHashMap<K,V>(this);
+            Object2ObjectOpenHashPMap<K,V> res = new Object2ObjectOpenHashPMap<K,V>(this);
             V oldValue = store.get(key);
             outer.inner = new Add<>(key, oldValue, res);
             store.remove(key);
             return res;
         }
 
-        @Override public Store<K,V> reroot(PersistentObject2ObjectOpenHashMap<K,V> outer) {
+        @Override public Store<K,V> reroot(Object2ObjectOpenHashPMap<K,V> outer) {
             return this;
         };
     }
@@ -88,66 +93,73 @@ public final class PersistentObject2ObjectOpenHashMap<K, V> implements Persisten
 
         private final K key;
         private final V value;
-        private final PersistentObject2ObjectOpenHashMap<K,V> next;
+        private final Object2ObjectOpenHashPMap<K,V> next;
 
-        public Add(K key, V value, PersistentObject2ObjectOpenHashMap<K,V> next) {
+        public Add(K key, V value, Object2ObjectOpenHashPMap<K,V> next) {
             this.key = key;
             this.value = value;
             this.next = next;
         }
 
-        @Override public Store<K,V> reroot(PersistentObject2ObjectOpenHashMap<K,V> outer) {
+        @Override public Store<K,V> reroot(Object2ObjectOpenHashPMap<K,V> outer) {
             Store<K,V> store = next.reroot();
-            assert !store.containsKey(key);
+            assert !store.store.containsKey(key);
             store.store.put(key, value);
             outer.inner = store;
             next.inner = new Remove<>(key, outer);
             return store;
         };
+
     }
 
     private static class Update<K, V> implements Inner<K,V> {
 
         private final K key;
         private final V value;
-        private final PersistentObject2ObjectOpenHashMap<K,V> next;
+        private final Object2ObjectOpenHashPMap<K,V> next;
 
-        public Update(K key, V value, PersistentObject2ObjectOpenHashMap<K,V> next) {
+        public Update(K key, V value, Object2ObjectOpenHashPMap<K,V> next) {
             this.key = key;
             this.value = value;
             this.next = next;
         }
 
-        @Override public Store<K,V> reroot(PersistentObject2ObjectOpenHashMap<K,V> outer) {
+        @Override public Store<K,V> reroot(Object2ObjectOpenHashPMap<K,V> outer) {
             Store<K,V> store = next.reroot();
-            assert store.containsKey(key);
+            assert store.store.containsKey(key);
             V oldValue = store.store.get(key);
             store.store.put(key, value);
             outer.inner = store;
             next.inner = new Update<>(key, oldValue, outer);
             return store;
         };
+
     }
 
     private static class Remove<K, V> implements Inner<K,V> {
 
         private final K key;
-        private final PersistentObject2ObjectOpenHashMap<K,V> next;
+        private final Object2ObjectOpenHashPMap<K,V> next;
 
-        public Remove(K key, PersistentObject2ObjectOpenHashMap<K,V> next) {
+        public Remove(K key, Object2ObjectOpenHashPMap<K,V> next) {
             this.key = key;
             this.next = next;
         }
 
-        @Override public Store<K,V> reroot(PersistentObject2ObjectOpenHashMap<K,V> outer) {
+        @Override public Store<K,V> reroot(Object2ObjectOpenHashPMap<K,V> outer) {
             Store<K,V> store = next.reroot();
-            assert store.containsKey(key);
+            assert store.store.containsKey(key);
             V oldValue = store.store.get(key);
             store.store.remove(key);
             outer.inner = store;
             next.inner = new Add<>(key, oldValue, outer);
             return store;
         };
+
+    }
+
+    @Override public String toString() {
+        return reroot().store.toString();
     }
 
 }

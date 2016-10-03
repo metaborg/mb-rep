@@ -4,8 +4,8 @@ import java.util.Set;
 
 import javax.annotation.Nullable;
 
-import org.metaborg.fastutil.persistent.PersistentObject2ObjectMap;
-import org.metaborg.fastutil.persistent.PersistentObject2ObjectOpenHashMap;
+import org.metaborg.fastutil.persistent.Object2ObjectPMap;
+import org.metaborg.fastutil.persistent.Object2ObjectOpenHashPMap;
 import org.metaborg.unification.ITerm;
 import org.metaborg.unification.ITermUnifier;
 import org.metaborg.unification.terms.TermOp;
@@ -13,16 +13,15 @@ import org.metaborg.unification.terms.TermVar;
 
 public final class LazyTermUnifier implements ITermUnifier {
 
-    final PersistentObject2ObjectMap<TermVar,ITerm> varReps;
-    final PersistentObject2ObjectMap<TermOp,ITerm> opReps;
+    final Object2ObjectPMap<TermVar,ITerm> varReps;
+    final Object2ObjectPMap<TermOp,ITerm> opReps;
 
     public LazyTermUnifier() {
-        this.varReps = new PersistentObject2ObjectOpenHashMap<>();
-        this.opReps = new PersistentObject2ObjectOpenHashMap<>();
+        this.varReps = new Object2ObjectOpenHashPMap<>();
+        this.opReps = new Object2ObjectOpenHashPMap<>();
     }
 
-    LazyTermUnifier(PersistentObject2ObjectMap<TermVar,ITerm> varReps,
-            PersistentObject2ObjectMap<TermOp,ITerm> opReps) {
+    LazyTermUnifier(Object2ObjectPMap<TermVar,ITerm> varReps, Object2ObjectPMap<TermOp,ITerm> opReps) {
         this.varReps = varReps;
         this.opReps = opReps;
     }

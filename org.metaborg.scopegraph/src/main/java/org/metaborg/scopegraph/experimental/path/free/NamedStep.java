@@ -1,29 +1,37 @@
-package org.metaborg.scopegraph.experimental.path.step;
+package org.metaborg.scopegraph.experimental.path.free;
+
+import java.util.Iterator;
 
 import org.metaborg.scopegraph.experimental.ILabel;
 import org.metaborg.scopegraph.experimental.IOccurrence;
 import org.metaborg.scopegraph.experimental.IScope;
 import org.metaborg.scopegraph.experimental.path.CyclicPathException;
+import org.metaborg.scopegraph.experimental.path.IFullPath;
+import org.metaborg.scopegraph.experimental.path.INamedStep;
+import org.metaborg.scopegraph.experimental.path.IPathVisitor;
+import org.metaborg.scopegraph.experimental.path.IStep;
 import org.metaborg.scopegraph.experimental.path.PathException;
-import org.metaborg.scopegraph.experimental.path.ScopePath;
 import org.pcollections.HashTreePSet;
 import org.pcollections.PSet;
 
+import com.google.common.collect.Iterators;
 
-public final class DirectStep implements ScopePath {
+public final class NamedStep implements INamedStep {
 
-    private static final long serialVersionUID = 8232068669592543089L;
+    private static final long serialVersionUID = 2375221392501994432L;
 
     private final IScope sourceScope;
     private final ILabel label;
+    private final IFullPath path;
     private final IScope targetScope;
 
-    public DirectStep(IScope sourceScope, ILabel label, IScope targetScope) throws PathException {
+    public NamedStep(IScope sourceScope, ILabel label, IFullPath path, IScope targetScope) throws PathException {
         if (sourceScope.equals(targetScope)) {
             throw new CyclicPathException();
         }
         this.sourceScope = sourceScope;
         this.label = label;
+        this.path = path;
         this.targetScope = targetScope;
     }
 
@@ -31,8 +39,12 @@ public final class DirectStep implements ScopePath {
         return sourceScope;
     }
 
-    public ILabel label() {
+    @Override public ILabel label() {
         return label;
+    }
+
+    @Override public IFullPath path() {
+        return path;
     }
 
     @Override public IScope targetScope() {
@@ -48,7 +60,15 @@ public final class DirectStep implements ScopePath {
     }
 
     @Override public PSet<IOccurrence> references() {
-        return HashTreePSet.empty();
+        return path.references();
+    }
+
+    @Override public <T> T accept(IPathVisitor<T> visitor) throws PathException {
+        return visitor.visit(this);
+    }
+
+    @Override public Iterator<IStep> iterator() {
+        return Iterators.<IStep> singletonIterator(this);
     }
 
 }

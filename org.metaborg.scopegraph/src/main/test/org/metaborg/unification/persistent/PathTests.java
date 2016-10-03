@@ -1,20 +1,20 @@
 package org.metaborg.unification.persistent;
 
-import static org.metaborg.scopegraph.experimental.path.concat.PathConcat.concat;
+import static org.metaborg.scopegraph.experimental.path.free.PathConcat.concat;
 
 import org.junit.Test;
 import org.metaborg.scopegraph.experimental.IOccurrence;
 import org.metaborg.scopegraph.experimental.IScope;
 import org.metaborg.scopegraph.experimental.path.CyclicPathException;
-import org.metaborg.scopegraph.experimental.path.FullPath;
+import org.metaborg.scopegraph.experimental.path.IFullPath;
 import org.metaborg.scopegraph.experimental.path.OccurrenceMismatchPathException;
 import org.metaborg.scopegraph.experimental.path.PathException;
 import org.metaborg.scopegraph.experimental.path.RecursivePathException;
 import org.metaborg.scopegraph.experimental.path.ScopeMismatchPathException;
-import org.metaborg.scopegraph.experimental.path.step.DeclStep;
-import org.metaborg.scopegraph.experimental.path.step.DirectStep;
-import org.metaborg.scopegraph.experimental.path.step.NamedStep;
-import org.metaborg.scopegraph.experimental.path.step.RefStep;
+import org.metaborg.scopegraph.experimental.path.free.DeclStep;
+import org.metaborg.scopegraph.experimental.path.free.DirectStep;
+import org.metaborg.scopegraph.experimental.path.free.NamedStep;
+import org.metaborg.scopegraph.experimental.path.free.RefStep;
 
 public class PathTests {
 
@@ -60,7 +60,7 @@ public class PathTests {
         Scope is = new Scope();
         RefStep ir = new RefStep(x, is);
         DeclStep id = new DeclStep(is, x);
-        FullPath ip = concat(ir, id);
+        IFullPath ip = concat(ir, id);
 
         Scope s1 = new Scope();
         Scope s2 = new Scope();

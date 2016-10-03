@@ -1,14 +1,16 @@
 package org.metaborg.fastutil.persistent;
 
-public final class PersistentObjectOpenHashSet<T> implements PersistentObjectSet<T> {
+import java.util.Iterator;
+
+public final class ObjectOpenHashPSet<T> implements ObjectPSet<T> {
 
     private Inner<T> inner;
 
-    public PersistentObjectOpenHashSet() {
+    public ObjectOpenHashPSet() {
         this.inner = new Store<T>();
     }
 
-    private PersistentObjectOpenHashSet(Inner<T> inner) {
+    private ObjectOpenHashPSet(Inner<T> inner) {
         this.inner = inner;
     }
 
@@ -16,11 +18,11 @@ public final class PersistentObjectOpenHashSet<T> implements PersistentObjectSet
         return reroot().store.contains(elem);
     }
 
-    @Override public PersistentObjectSet<T> add(T elem) {
+    @Override public ObjectPSet<T> add(T elem) {
         return reroot().add(this, elem);
     }
 
-    @Override public PersistentObjectSet<T> remove(T elem) {
+    @Override public ObjectPSet<T> remove(T elem) {
         return reroot().remove(this, elem);
     }
 
@@ -32,21 +34,25 @@ public final class PersistentObjectOpenHashSet<T> implements PersistentObjectSet
         return reroot().store.isEmpty();
     }
 
+    @Override public Iterator<T> iterator() {
+        return reroot().store.iterator();
+    }
+
     private Store<T> reroot() {
         return inner.reroot(this);
     }
 
     private interface Inner<T> {
 
-        Store<T> reroot(PersistentObjectOpenHashSet<T> outer);
+        Store<T> reroot(ObjectOpenHashPSet<T> outer);
     }
 
     private static class Store<T> implements Inner<T> {
 
         private final it.unimi.dsi.fastutil.objects.ObjectSet<T> store = new it.unimi.dsi.fastutil.objects.ObjectOpenHashSet<T>();
 
-        public PersistentObjectSet<T> add(PersistentObjectOpenHashSet<T> outer, T elem) {
-            PersistentObjectOpenHashSet<T> res = new PersistentObjectOpenHashSet<T>(this);
+        public ObjectPSet<T> add(ObjectOpenHashPSet<T> outer, T elem) {
+            ObjectOpenHashPSet<T> res = new ObjectOpenHashPSet<T>(this);
             if (store.contains(elem)) {
                 return outer;
             } else {
@@ -56,17 +62,17 @@ public final class PersistentObjectOpenHashSet<T> implements PersistentObjectSet
             return res;
         }
 
-        public PersistentObjectSet<T> remove(PersistentObjectOpenHashSet<T> outer, T elem) {
+        public ObjectPSet<T> remove(ObjectOpenHashPSet<T> outer, T elem) {
             if (!store.contains(elem)) {
                 return outer;
             }
-            PersistentObjectOpenHashSet<T> res = new PersistentObjectOpenHashSet<T>(this);
+            ObjectOpenHashPSet<T> res = new ObjectOpenHashPSet<T>(this);
             outer.inner = new Add<>(elem, res);
             store.remove(elem);
             return res;
         }
 
-        @Override public Store<T> reroot(PersistentObjectOpenHashSet<T> outer) {
+        @Override public Store<T> reroot(ObjectOpenHashPSet<T> outer) {
             return this;
         };
     }
@@ -74,14 +80,14 @@ public final class PersistentObjectOpenHashSet<T> implements PersistentObjectSet
     private static class Add<T> implements Inner<T> {
 
         private final T elem;
-        private final PersistentObjectOpenHashSet<T> next;
+        private final ObjectOpenHashPSet<T> next;
 
-        public Add(T elem, PersistentObjectOpenHashSet<T> next) {
+        public Add(T elem, ObjectOpenHashPSet<T> next) {
             this.elem = elem;
             this.next = next;
         }
 
-        @Override public Store<T> reroot(PersistentObjectOpenHashSet<T> outer) {
+        @Override public Store<T> reroot(ObjectOpenHashPSet<T> outer) {
             Store<T> store = next.reroot();
             assert !store.store.contains(elem);
             store.store.add(elem);
@@ -95,14 +101,14 @@ public final class PersistentObjectOpenHashSet<T> implements PersistentObjectSet
     private static class Remove<T> implements Inner<T> {
 
         private final T elem;
-        private final PersistentObjectOpenHashSet<T> next;
+        private final ObjectOpenHashPSet<T> next;
 
-        public Remove(T elem, PersistentObjectOpenHashSet<T> next) {
+        public Remove(T elem, ObjectOpenHashPSet<T> next) {
             this.elem = elem;
             this.next = next;
         }
 
-        @Override public Store<T> reroot(PersistentObjectOpenHashSet<T> outer) {
+        @Override public Store<T> reroot(ObjectOpenHashPSet<T> outer) {
             Store<T> store = next.reroot();
             assert store.store.contains(elem);
             store.store.remove(elem);
@@ -111,6 +117,10 @@ public final class PersistentObjectOpenHashSet<T> implements PersistentObjectSet
             return store;
         };
 
+    }
+
+    @Override public String toString() {
+        return reroot().store.toString();
     }
 
 }

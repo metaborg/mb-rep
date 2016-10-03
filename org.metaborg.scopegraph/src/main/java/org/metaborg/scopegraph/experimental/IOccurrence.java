@@ -1,6 +1,8 @@
 package org.metaborg.scopegraph.experimental;
 
-public interface IOccurrence {
+import java.io.Serializable;
+
+public interface IOccurrence extends Serializable {
 
     boolean matches(IOccurrence other);
 

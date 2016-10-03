@@ -1,4 +1,4 @@
-package org.metaborg.scopegraph.experimental.path.step;
+package org.metaborg.scopegraph.experimental.path;
 
 import java.io.Serializable;
 

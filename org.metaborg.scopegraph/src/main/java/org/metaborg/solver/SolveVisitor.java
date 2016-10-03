@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.metaborg.fastutil.persistent.PersistentObjectSet;
+import org.metaborg.fastutil.persistent.ObjectPSet;
 import org.metaborg.solver.constraints.CConj;
 import org.metaborg.solver.constraints.CDisj;
 import org.metaborg.solver.constraints.CEqual;
@@ -32,7 +32,7 @@ public class SolveVisitor implements IConstraintVisitor<Collection<SolveResult>>
     }
 
     @Override public Collection<SolveResult> visit(CFalse constraint) {
-        PersistentObjectSet<String> localErrors = solution.getErrors();
+        ObjectPSet<String> localErrors = solution.getErrors();
         localErrors = localErrors.add("fail");
         ISolution localSolver = solution.setErrors(localErrors);
         return Collections.singleton(new SolveResult(localSolver));
@@ -62,7 +62,7 @@ public class SolveVisitor implements IConstraintVisitor<Collection<SolveResult>>
         }
 
         ISolution localSolution = solution.setUnifier(result.unifier());
-        PersistentObjectSet<String> localErrors = solution.getErrors();
+        ObjectPSet<String> localErrors = solution.getErrors();
         for (TermPair conflict : result.conflicts()) {
             String message = "Cannot unify " + conflict.first.toString() + " with " + conflict.second.toString();
             localErrors = localErrors.add(message);

@@ -1,5 +1,7 @@
 package org.metaborg.scopegraph.experimental;
 
-public interface IScope {
+import java.io.Serializable;
+
+public interface IScope extends Serializable {
 
 }

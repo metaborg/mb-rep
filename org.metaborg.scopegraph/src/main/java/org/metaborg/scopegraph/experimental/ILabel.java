@@ -1,6 +1,7 @@
 package org.metaborg.scopegraph.experimental;
 
+import java.io.Serializable;
 
-public interface ILabel {
+public interface ILabel extends Serializable {
 
 }

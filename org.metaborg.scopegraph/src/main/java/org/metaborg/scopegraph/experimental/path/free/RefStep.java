@@ -1,12 +1,19 @@
-package org.metaborg.scopegraph.experimental.path.step;
+package org.metaborg.scopegraph.experimental.path.free;
+
+import java.util.Iterator;
 
 import org.metaborg.scopegraph.experimental.IOccurrence;
 import org.metaborg.scopegraph.experimental.IScope;
-import org.metaborg.scopegraph.experimental.path.RefPath;
+import org.metaborg.scopegraph.experimental.path.IPathVisitor;
+import org.metaborg.scopegraph.experimental.path.IRefStep;
+import org.metaborg.scopegraph.experimental.path.IStep;
+import org.metaborg.scopegraph.experimental.path.PathException;
 import org.pcollections.HashTreePSet;
 import org.pcollections.PSet;
 
-public final class RefStep implements RefPath {
+import com.google.common.collect.Iterators;
+
+public final class RefStep implements IRefStep {
 
     private static final long serialVersionUID = 4409541109071389538L;
 
@@ -22,7 +29,7 @@ public final class RefStep implements RefPath {
         return reference;
     }
 
-    @Override public IScope scope() {
+    @Override public IScope targetScope() {
         return scope;
     }
 
@@ -36,6 +43,14 @@ public final class RefStep implements RefPath {
 
     @Override public PSet<IOccurrence> references() {
         return HashTreePSet.singleton(reference);
+    }
+
+    @Override public <T> T accept(IPathVisitor<T> visitor) throws PathException {
+        return visitor.visit(this);
+    }
+
+    @Override public Iterator<IStep> iterator() {
+        return Iterators.<IStep> singletonIterator(this);
     }
 
 }
