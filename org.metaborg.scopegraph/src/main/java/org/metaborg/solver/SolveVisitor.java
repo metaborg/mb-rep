@@ -39,32 +39,32 @@ public class SolveVisitor implements IConstraintVisitor<Collection<SolveResult>>
     }
 
     @Override public Collection<SolveResult> visit(CConj constraint) {
-        return Collections.singleton(new SolveResult(solution, constraint.constraints));
+        return Collections.singleton(new SolveResult(solution, constraint.getConstraints()));
     }
 
     @Override public Collection<SolveResult> visit(CDisj constraint) {
         List<SolveResult> results = Lists.newLinkedList();
-        for (IConstraint localConstraint : constraint.constraints) {
+        for (IConstraint localConstraint : constraint.getConstraints()) {
             results.add(new SolveResult(solution, Collections.singleton(localConstraint)));
         }
         return results;
     }
 
     @Override public Collection<SolveResult> visit(CEqual constraint) {
-        IUnifyResult result = solution.getUnifier().unify(constraint.term1, constraint.term2);
+        IUnifyResult result = solution.getUnifier().unify(constraint.getFirst(), constraint.getSecond());
         if (result == null) {
             return null;
         }
 
         Collection<IConstraint> constraints = Lists.newLinkedList();
         for (TermPair defer : result.defers()) {
-            constraints.add(new CEqual(defer.first, defer.second));
+            constraints.add(CEqual.of(defer.getFirst(), defer.getSecond()));
         }
 
         ISolution localSolution = solution.setUnifier(result.unifier());
         ObjectPSet<String> localErrors = solution.getErrors();
         for (TermPair conflict : result.conflicts()) {
-            String message = "Cannot unify " + conflict.first.toString() + " with " + conflict.second.toString();
+            String message = "Cannot unify " + conflict.getFirst().toString() + " with " + conflict.getSecond().toString();
             localErrors = localErrors.add(message);
         }
         localSolution = localSolution.setErrors(localErrors);
@@ -73,8 +73,8 @@ public class SolveVisitor implements IConstraintVisitor<Collection<SolveResult>>
     }
 
     @Override public Collection<SolveResult> visit(CInequal constraint) {
-        ITerm rep1 = solution.getUnifier().find(constraint.term1).rep();
-        ITerm rep2 = solution.getUnifier().find(constraint.term2).rep();
+        ITerm rep1 = solution.getUnifier().find(constraint.getFirst()).rep();
+        ITerm rep2 = solution.getUnifier().find(constraint.getSecond()).rep();
         if (!(rep1.isGround() && rep2.isGround())) {
             return null;
         }

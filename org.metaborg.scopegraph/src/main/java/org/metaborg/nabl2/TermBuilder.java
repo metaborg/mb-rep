@@ -33,12 +33,12 @@ public class TermBuilder implements IStrategoVisitor<ITerm> {
         case "CVar": {
             IStrategoTerm resource = term.getSubterm(0);
             IStrategoTerm name = term.getSubterm(1);
-            return new TermVar(Tools.asJavaString(resource), Tools.asJavaString(name));
+            return TermVar.of(Tools.asJavaString(resource), Tools.asJavaString(name));
         }
         // add lists
         case "TList": {
             IStrategoList elems = (IStrategoList) term.getSubterm(0);
-            return makeList(elems, new NilTerm());
+            return makeList(elems, NilTerm.of());
         }
         case "TListTail": {
             IStrategoList elems = (IStrategoList) term.getSubterm(0);
@@ -46,7 +46,7 @@ public class TermBuilder implements IStrategoVisitor<ITerm> {
             return makeList(elems, (IListTerm) build(tail));
         }
         default: {
-            return new ApplTerm(term.getName(), visits(term));
+            return ApplTerm.of(term.getName(), visits(term));
         }
         }
     }
@@ -55,34 +55,34 @@ public class TermBuilder implements IStrategoVisitor<ITerm> {
         if (elems.isEmpty()) {
             return tail;
         } else {
-            return new ConsTerm(build(elems.head()), makeList(elems.tail(), tail));
+            return ConsTerm.of(build(elems.head()), makeList(elems.tail(), tail));
         }
 
     }
 
     @Override public IListTerm visit(IStrategoList term) {
         if (term.isEmpty()) {
-            return new NilTerm();
+            return NilTerm.of();
         } else {
-            return new ConsTerm(build(term.head()), visit(term.tail()));
+            return ConsTerm.of(build(term.head()), visit(term.tail()));
         }
     }
 
     @Override public ITerm visit(IStrategoTuple term) {
-        return new TupleTerm(visits(term));
+        return TupleTerm.of(visits(term));
     }
 
     @Override public ITerm visit(IStrategoInt term) {
-        return new IntTerm(term.intValue());
+        return IntTerm.of(term.intValue());
 
     }
 
     @Override public ITerm visit(IStrategoReal term) {
-        return new DoubleTerm(term.realValue());
+        return DoubleTerm.of(term.realValue());
     }
 
     @Override public ITerm visit(IStrategoString term) {
-        return new StringTerm(term.stringValue());
+        return StringTerm.of(term.stringValue());
     }
 
     private ImmutableList<ITerm> visits(Iterable<IStrategoTerm> terms) {

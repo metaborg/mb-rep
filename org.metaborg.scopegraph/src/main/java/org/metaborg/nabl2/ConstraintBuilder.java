@@ -34,26 +34,26 @@ public class ConstraintBuilder extends AStrategoVisitor<IConstraint> {
     @Override public IConstraint visit(IStrategoAppl term) {
         // TODO Replace by allowing to register conversion functions
         if (Tools.hasConstructor(term, "CTrue", 0)) {
-            return new CTrue();
+            return CTrue.of();
         } else if (Tools.hasConstructor(term, "CFalse", 1)) {
-            return new CFalse();
+            return CFalse.of();
         } else if (Tools.hasConstructor(term, "CConj", 1)) {
             ImmutableList<IConstraint> constraints = convert(term.getSubterm(0));
-            return new CConj(constraints);
+            return CConj.of(constraints);
         } else if (Tools.hasConstructor(term, "CDisj", 1)) {
             ImmutableList<IConstraint> constraints = convert(term.getSubterm(0));
-            return new CDisj(constraints);
+            return CDisj.of(constraints);
         } else if (Tools.hasConstructor(term, "CEqual", 3)) {
             ITerm term1 = termBuilder.build(term.getSubterm(0));
             ITerm term2 = termBuilder.build(term.getSubterm(1));
-            return new CEqual(term1, term2);
+            return CEqual.of(term1, term2);
         } else if (Tools.hasConstructor(term, "CInequal", 3)) {
             ITerm term1 = termBuilder.build(term.getSubterm(0));
             ITerm term2 = termBuilder.build(term.getSubterm(1));
-            return new CInequal(term1, term2);
+            return CInequal.of(term1, term2);
         } else {
             logger.warn("Ignoring unsupported constraint " + term);
-            return new CTrue();
+            return CTrue.of();
         }
     }
 

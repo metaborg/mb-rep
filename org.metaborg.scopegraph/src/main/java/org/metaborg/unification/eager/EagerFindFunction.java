@@ -36,7 +36,7 @@ final class EagerFindFunction implements ITermFunction<EagerFindResult> {
             EagerFindResult result = unifier.termReps.get(term).apply(this);
             return new EagerFindResult(result.rep(),
                     new EagerTermUnifier(result.unifier().varReps, result.unifier().termReps.put(term, result.rep())));
-        } else if (term.areArgsGround()) {
+        } else if (term.isGround()) {
             // TODO Try reduction
             return new EagerFindResult(term, unifier);
         } else {
@@ -65,7 +65,7 @@ final class EagerFindFunction implements ITermFunction<EagerFindResult> {
             }
             boolean someArgsUpdated = localUnifier != unifier;
             if (someArgsUpdated) {
-                ApplTerm newTerm = new ApplTerm(term.getOp(), argBuilder.build());
+                ApplTerm newTerm = ApplTerm.of(term.getOp(), argBuilder.build());
                 return new EagerFindResult(newTerm,
                         new EagerTermUnifier(unifier.varReps, unifier.termReps.put(term, newTerm)));
             } else {
@@ -95,7 +95,7 @@ final class EagerFindFunction implements ITermFunction<EagerFindResult> {
             }
             boolean someArgsUpdated = localUnifier != unifier;
             if (someArgsUpdated) {
-                TupleTerm newTerm = new TupleTerm(argBuilder.build());
+                TupleTerm newTerm = TupleTerm.of(argBuilder.build());
                 return new EagerFindResult(newTerm,
                         new EagerTermUnifier(unifier.varReps, unifier.termReps.put(term, newTerm)));
             } else {
@@ -131,7 +131,7 @@ final class EagerFindFunction implements ITermFunction<EagerFindResult> {
             }
             boolean someArgsUpdated = localUnifier != unifier;
             if (someArgsUpdated) {
-                ConsTerm newTerm = new ConsTerm(head, tail);
+                ConsTerm newTerm = ConsTerm.of(head, tail);
                 return new EagerFindResult(newTerm,
                         new EagerTermUnifier(unifier.varReps, unifier.termReps.put(term, newTerm)));
             } else {
