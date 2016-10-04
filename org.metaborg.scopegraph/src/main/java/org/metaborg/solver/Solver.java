@@ -23,7 +23,7 @@ public class Solver {
         this(unifier, Iterables2.from(constraints));
     }
 
-    public Solver(ITermUnifier unifier, Iterable<? extends IConstraint> constraints) {
+    public Solver(ITermUnifier unifier, Iterable<IConstraint> constraints) {
         this.branchQueue = new ObjectHeapPriorityQueue<>();
         this.branchQueue.enqueue(new Branch(unifier, constraints));
     }
@@ -93,7 +93,7 @@ public class Solver {
         public ISolution solution;
         public boolean progress;
 
-        public Branch(ITermUnifier unifier, Iterable<? extends IConstraint> constraints) {
+        public Branch(ITermUnifier unifier, Iterable<IConstraint> constraints) {
             this.constraints = new ObjectHeapPriorityQueue<>(Iterables.toArray(constraints, IConstraint.class),
                     new ConstraintPriorityComparator());
             this.defers = new ObjectOpenHashSet<>();
@@ -101,14 +101,14 @@ public class Solver {
             this.solution = new Solution(unifier);
         }
 
-        public Branch(Branch other, ISolution solution, Collection<? extends IConstraint> constraints) {
+        public Branch(Branch other, ISolution solution, Collection<IConstraint> constraints) {
             this.constraints = new ObjectHeapPriorityQueue<>(constraints, new ConstraintPriorityComparator());
             this.defers = new ObjectOpenHashSet<>(other.defers);
             this.progress = true;
             this.solution = solution;
         }
 
-        public void addConstraints(Collection<? extends IConstraint> constraints) {
+        public void addConstraints(Collection<IConstraint> constraints) {
             for (IConstraint constraint : constraints) {
                 this.constraints.enqueue(constraint);
             }

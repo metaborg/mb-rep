@@ -12,7 +12,7 @@ import com.google.common.collect.ImmutableList;
 @SuppressWarnings("serial")
 public abstract class CDisjV implements IConstraint {
 
-    public abstract ImmutableList<? extends IConstraint> getConstraints();
+    public abstract ImmutableList<IConstraint> getConstraints();
 
     @Override public <T> T accept(IConstraintVisitor<T> visitor) {
         return visitor.visit((CDisj)this);
