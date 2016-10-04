@@ -12,6 +12,10 @@ public abstract class SymbolV<S> implements IRegExp<S> {
 
     public abstract S get();
     
+    @Override public <T> T accept(IRegExpVisitor<S,T> visitor) {
+        return visitor.symbol(get());
+    }
+    
     @Override public String toString() {
         return get().toString();
     }

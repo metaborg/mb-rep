@@ -13,6 +13,10 @@ public abstract class ConcatV<S> implements IRegExp<S> {
     public abstract IRegExp<S> getLeft();
     public abstract IRegExp<S> getRight();
     
+    @Override public <T> T accept(IRegExpVisitor<S,T> visitor) {
+        return visitor.concat(getLeft(), getRight());
+    }
+    
     @Override public String toString() {
         return getLeft() + " . " + getRight();
     }

@@ -14,6 +14,10 @@ public abstract class OrV<S> implements IRegExp<S> {
 
     public abstract IRegExp<S> getRight();
 
+    @Override public <T> T accept(IRegExpVisitor<S,T> visitor) {
+        return visitor.or(getLeft(), getRight());
+    }
+    
     @Override public String toString() {
         return "(" + getLeft() + " | " + getRight() + ")";
     }

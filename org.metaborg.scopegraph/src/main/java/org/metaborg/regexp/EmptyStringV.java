@@ -10,6 +10,10 @@ import org.metaborg.annotations.ConstantClass;
 @SuppressWarnings("serial")
 public abstract class EmptyStringV<S> implements IRegExp<S> {
 
+    @Override public <T> T accept(IRegExpVisitor<S,T> visitor) {
+        return visitor.emptyString();
+    }
+    
     @Override public String toString() {
         return "''";
     }
