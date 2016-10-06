@@ -16,11 +16,11 @@ import org.metaborg.unification.ITermPredicate;
 public abstract class TupleTermV extends TermWithArgs implements ITerm {
 
     @Override public <T> T apply(ITermFunction<T> visitor) {
-        return visitor.apply((TupleTerm)this);
+        return visitor.apply((TupleTerm) this);
     }
 
     @Override public boolean test(ITermPredicate predicate) {
-        return predicate.test((TupleTerm)this);
+        return predicate.test((TupleTerm) this);
     }
 
     @Override public String toString() {
@@ -30,5 +30,5 @@ public abstract class TupleTermV extends TermWithArgs implements ITerm {
     public static TupleTerm of(ITerm... args) {
         return TupleTerm.of(Arrays.asList(args));
     }
-    
+
 }

@@ -15,7 +15,7 @@ public abstract class CConjV implements IConstraint {
     public abstract ImmutableList<IConstraint> getConstraints();
 
     @Override public <T> T accept(IConstraintVisitor<T> visitor) {
-        return visitor.visit((CConj)this);
+        return visitor.visit((CConj) this);
     }
 
     @Override public String toString() {
@@ -34,8 +34,8 @@ public abstract class CConjV implements IConstraint {
         return sb.toString();
     }
 
-    public static CConj of(IConstraint...constraints) {
+    public static CConj of(IConstraint... constraints) {
         return CConj.of(ImmutableList.copyOf(constraints));
     }
-    
+
 }

@@ -18,11 +18,11 @@ public abstract class NilTermV implements IListTerm {
     }
 
     @Override public <T> T apply(ITermFunction<T> visitor) {
-        return visitor.apply((NilTerm)this);
+        return visitor.apply((NilTerm) this);
     }
 
     @Override public boolean test(ITermPredicate predicate) {
-        return predicate.test((NilTerm)this);
+        return predicate.test((NilTerm) this);
     }
 
     @Override public String toString() {

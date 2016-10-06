@@ -31,11 +31,11 @@ public abstract class TermOpV extends TermWithArgs implements IAny {
     }
 
     @Override public <T> T apply(ITermFunction<T> visitor) {
-        return visitor.apply((TermOp)this);
+        return visitor.apply((TermOp) this);
     }
 
     @Override public boolean test(ITermPredicate predicate) {
-        return predicate.test((TermOp)this);
+        return predicate.test((TermOp) this);
     }
 
     @Override public String toString() {
@@ -45,5 +45,5 @@ public abstract class TermOpV extends TermWithArgs implements IAny {
     public static TermOp of(String op, ITerm... args) {
         return TermOp.of(op, Arrays.asList(args));
     }
-    
+
 }

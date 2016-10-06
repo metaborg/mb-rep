@@ -14,6 +14,7 @@ import org.metaborg.unification.ITerm;
 public abstract class TermPairV implements Serializable {
 
     public abstract ITerm getFirst();
+
     public abstract ITerm getSecond();
 
     @Override public String toString() {

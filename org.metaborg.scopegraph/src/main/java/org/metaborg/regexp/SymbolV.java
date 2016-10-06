@@ -17,7 +17,7 @@ abstract class SymbolV<S> implements IRegExp<S> {
     }
 
     public abstract S getSymbol();
-    
+
     public abstract IAlphabet<S> getAlphabet();
 
     @Override public boolean isNullable() {
@@ -27,7 +27,7 @@ abstract class SymbolV<S> implements IRegExp<S> {
     @Override public <T> T accept(IRegExpFunction<S,T> visitor) {
         return visitor.symbol(getSymbol());
     }
-    
+
     @Override public String toString() {
         return getSymbol().toString();
     }

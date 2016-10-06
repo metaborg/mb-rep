@@ -11,7 +11,7 @@ public final class RegExpBuilder<S> {
     public IAlphabet<S> getAlphabet() {
         return alphabet;
     }
-    
+
     public IRegExp<S> emptySet() {
         return EmptySet.of(alphabet);
     }

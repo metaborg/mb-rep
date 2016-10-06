@@ -19,8 +19,8 @@ public class RegExpMatcher<S> implements IRegExpMatcher<S> {
     private final IAlphabet<S> alphabet;
 
     private RegExpMatcher(IRegExp<S> state,
-            Object2ObjectMap<IRegExp<S>,Object2ObjectMap<S,IRegExp<S>>> stateTransitions, ObjectSet<IRegExp<S>> canStepFrom,
-            IAlphabet<S> alphabet) {
+            Object2ObjectMap<IRegExp<S>,Object2ObjectMap<S,IRegExp<S>>> stateTransitions,
+            ObjectSet<IRegExp<S>> canStepFrom, IAlphabet<S> alphabet) {
         this.state = state;
         this.stateTransitions = stateTransitions;
         this.canStepFrom = canStepFrom;

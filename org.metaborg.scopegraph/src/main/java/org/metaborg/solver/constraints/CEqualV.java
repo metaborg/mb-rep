@@ -16,7 +16,7 @@ public abstract class CEqualV implements IConstraint {
     public abstract ITerm getSecond();
 
     @Override public <T> T accept(IConstraintVisitor<T> visitor) {
-        return visitor.visit((CEqual)this);
+        return visitor.visit((CEqual) this);
     }
 
     @Override public String toString() {

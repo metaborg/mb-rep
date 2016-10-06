@@ -24,7 +24,7 @@ public abstract class TermVarV implements IAny {
     }
 
     @Override public <T> T apply(ITermFunction<T> visitor) {
-        return visitor.apply((TermVar)this);
+        return visitor.apply((TermVar) this);
     }
 
     @Override public boolean test(ITermPredicate predicate) {

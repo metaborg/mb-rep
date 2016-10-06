@@ -18,17 +18,16 @@ public abstract class ConsTermV implements IListTerm {
 
     public abstract IListTerm getTail();
 
-    @Value.Lazy
-    @Override public boolean isGround() {
+    @Value.Lazy @Override public boolean isGround() {
         return getHead().isGround() && getTail().isGround();
     }
 
     @Override public <T> T apply(ITermFunction<T> visitor) {
-        return visitor.apply((ConsTerm)this);
+        return visitor.apply((ConsTerm) this);
     }
 
     @Override public boolean test(ITermPredicate predicate) {
-        return predicate.test((ConsTerm)this);
+        return predicate.test((ConsTerm) this);
     }
 
     @Override public String toString() {

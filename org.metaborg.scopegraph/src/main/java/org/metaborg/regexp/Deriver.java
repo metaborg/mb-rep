@@ -14,7 +14,7 @@ public class Deriver<S> implements IRegExpFunction<S,IRegExp<S>> {
     public S getSymbol() {
         return symbol;
     }
-    
+
     @Override public IRegExp<S> emptySet() {
         return builder.emptySet();
     }

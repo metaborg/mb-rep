@@ -19,9 +19,9 @@ abstract class EmptySetV<S> implements IRegExp<S> {
     @Override public <T> T accept(IRegExpFunction<S,T> visitor) {
         return visitor.emptySet();
     }
-    
+
     @Override public String toString() {
         return "0";
     }
-    
+
 }

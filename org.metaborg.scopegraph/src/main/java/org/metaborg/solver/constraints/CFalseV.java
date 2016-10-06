@@ -11,7 +11,7 @@ import org.metaborg.annotations.ConstantClass;
 public abstract class CFalseV implements IConstraint {
 
     @Override public <T> T accept(IConstraintVisitor<T> visitor) {
-        return visitor.visit((CFalse)this);
+        return visitor.visit((CFalse) this);
     }
 
     @Override public String toString() {

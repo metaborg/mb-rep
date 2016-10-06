@@ -19,9 +19,9 @@ abstract class EmptyStringV<S> implements IRegExp<S> {
     @Override public <T> T accept(IRegExpFunction<S,T> visitor) {
         return visitor.emptyString();
     }
-    
+
     @Override public String toString() {
         return "e";
     }
-    
+
 }

@@ -64,7 +64,8 @@ public class SolveVisitor implements IConstraintVisitor<Collection<SolveResult>>
         ISolution localSolution = solution.setUnifier(result.unifier());
         ObjectPSet<String> localErrors = solution.getErrors();
         for (TermPair conflict : result.conflicts()) {
-            String message = "Cannot unify " + conflict.getFirst().toString() + " with " + conflict.getSecond().toString();
+            String message = "Cannot unify " + conflict.getFirst().toString() + " with "
+                    + conflict.getSecond().toString();
             localErrors = localErrors.add(message);
         }
         localSolution = localSolution.setErrors(localErrors);

@@ -21,7 +21,7 @@ abstract class ComplementV<S> implements IRegExp<S> {
     @Override public <T> T accept(IRegExpFunction<S,T> visitor) {
         return visitor.complement(getRE());
     }
-    
+
     @Override public String toString() {
         return "~(" + getRE() + ")";
     }

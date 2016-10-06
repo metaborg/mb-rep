@@ -11,8 +11,7 @@ public abstract class TermWithArgs implements ITerm {
     /** Must be redeclared in subclasses, to make it a @Value.Parameter. */
     public abstract ImmutableList<ITerm> getArgs();
 
-    @Value.Lazy
-    public boolean isGround() {
+    @Value.Lazy public boolean isGround() {
         boolean isGround = true;
         for (ITerm arg : getArgs()) {
             isGround &= arg.isGround();
