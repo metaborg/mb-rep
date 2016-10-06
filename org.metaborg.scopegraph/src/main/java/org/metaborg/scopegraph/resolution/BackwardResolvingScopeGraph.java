@@ -136,6 +136,9 @@ public class BackwardResolvingScopeGraph implements IScopeGraph, INameResolution
 
 
     @Override public BackwardResolvingScopeGraph addDecl(IOccurrence declaration, IScope scope) {
+        if (scopeDecls.get(scope).contains(declaration)) {
+            return this;
+        }
         DeclPath newPath = DeclPath.of(scope, declaration);
         return new BackwardResolvingScopeGraph(initialWF, scopeChildren, scopeRefs, refImports, declExports,
                 scopeExports, scopeDecls.put(scope, declaration), scopeReachableDecls, refDecls, declRefs)
@@ -143,6 +146,9 @@ public class BackwardResolvingScopeGraph implements IScopeGraph, INameResolution
     }
 
     @Override public BackwardResolvingScopeGraph addRef(IOccurrence reference, IScope scope) {
+        if (scopeRefs.get(scope).contains(reference)) {
+            return this;
+        }
         Stack<WFPath> paths = new ObjectArrayList<>();
         for (WFDeclPath wftail : scopeReachableDecls.get(scope)) {
             try {
@@ -156,6 +162,10 @@ public class BackwardResolvingScopeGraph implements IScopeGraph, INameResolution
     }
 
     @Override public BackwardResolvingScopeGraph addLink(IScope source, ILabel label, IScope target) {
+        LabeledScope labeledScope = new LabeledScope(label, source);
+        if ( scopeChildren.get(target).contains(labeledScope)) {
+            return this;
+        }
         Stack<WFPath> paths = new ObjectArrayList<>();
         for (WFDeclPath wftail : scopeReachableDecls.get(target)) {
             try {
@@ -165,12 +175,16 @@ public class BackwardResolvingScopeGraph implements IScopeGraph, INameResolution
             } catch (PathException ex) {
             }
         }
-        return new BackwardResolvingScopeGraph(initialWF, scopeChildren.put(target, new LabeledScope(label, source)),
+        return new BackwardResolvingScopeGraph(initialWF, scopeChildren.put(target, labeledScope),
                 scopeRefs, refImports, declExports, scopeExports, scopeDecls, scopeReachableDecls, refDecls, declRefs)
                         .resolve(paths);
     }
 
     @Override public BackwardResolvingScopeGraph addExport(IOccurrence declaration, ILabel label, IScope scope) {
+        LabeledScope labeledScope = new LabeledScope(label, scope);
+        if (declExports.get(declaration).contains(labeledScope)) {
+            return this;
+        }
         Stack<WFPath> paths = new ObjectArrayList<>();
         for (WFFullPath wfreach : declRefs.get(declaration)) {
             IFullPath reach = wfreach.path();
@@ -187,12 +201,16 @@ public class BackwardResolvingScopeGraph implements IScopeGraph, INameResolution
 
         }
         return new BackwardResolvingScopeGraph(initialWF, scopeChildren, scopeRefs, refImports,
-                declExports.put(declaration, new LabeledScope(label, scope)),
+                declExports.put(declaration, labeledScope),
                 scopeExports.put(scope, new LabeledOccurrence(label, declaration)), scopeDecls, scopeReachableDecls,
                 refDecls, declRefs).resolve(paths);
     }
 
     @Override public BackwardResolvingScopeGraph addImport(IOccurrence reference, ILabel label, IScope scope) {
+        LabeledScope labeledScope = new LabeledScope(label, scope);
+        if ( refImports.get(reference).contains(labeledScope)) {
+            return this;
+        }
         Stack<WFPath> paths = new ObjectArrayList<>();
         for (WFFullPath wfreach : refDecls.get(reference)) {
             IFullPath reach = wfreach.path();
@@ -209,7 +227,7 @@ public class BackwardResolvingScopeGraph implements IScopeGraph, INameResolution
             }
         }
         return new BackwardResolvingScopeGraph(initialWF, scopeChildren, scopeRefs,
-                refImports.put(reference, new LabeledScope(label, scope)), declExports, scopeExports, scopeDecls,
+                refImports.put(reference, labeledScope), declExports, scopeExports, scopeDecls,
                 scopeReachableDecls, refDecls, declRefs).resolve(paths);
     }
 
