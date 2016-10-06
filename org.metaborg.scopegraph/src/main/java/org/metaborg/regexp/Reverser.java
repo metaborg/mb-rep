@@ -1,18 +1,12 @@
 package org.metaborg.regexp;
 
 
-public class Deriver<S> implements IRegExpFunction<S,IRegExp<S>> {
+public class Reverser<S> implements IRegExpFunction<S,IRegExp<S>> {
 
-    private final S symbol;
     private final IRegExpBuilder<S> builder;
 
-    public Deriver(S symbol, IRegExpBuilder<S> builder) {
-        this.symbol = symbol;
+    public Reverser(IRegExpBuilder<S> builder) {
         this.builder = builder;
-    }
-
-    public S getSymbol() {
-        return symbol;
     }
 
     @Override public IRegExp<S> emptySet() {
@@ -20,28 +14,19 @@ public class Deriver<S> implements IRegExpFunction<S,IRegExp<S>> {
     }
 
     @Override public IRegExp<S> emptyString() {
-        return builder.emptySet();
+        return builder.emptyString();
     }
 
     @Override public IRegExp<S> symbol(S s) {
-        if (s.equals(symbol)) {
-            return builder.emptyString();
-        } else {
-            return builder.emptySet();
-        }
+        return builder.symbol(s);
     }
 
     @Override public IRegExp<S> concat(IRegExp<S> left, IRegExp<S> right) {
-        IRegExp<S> newLeft = builder.concat(left.accept(this), right);
-        if (left.isNullable()) {
-            return builder.or(newLeft, right.accept(this));
-        } else {
-            return newLeft;
-        }
+        return builder.concat(right, left);
     }
 
     @Override public IRegExp<S> closure(IRegExp<S> re) {
-        return builder.concat(re.accept(this), builder.closure(re));
+        return builder.closure(re.accept(this));
     }
 
     @Override public IRegExp<S> or(IRegExp<S> left, IRegExp<S> right) {

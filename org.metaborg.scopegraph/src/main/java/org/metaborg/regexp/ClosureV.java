@@ -12,7 +12,7 @@ abstract class ClosureV<S> implements IRegExp<S> {
 
     public abstract IRegExp<S> getRE();
 
-    public abstract IAlphabet<S> getAlphabet();
+    public abstract IRegExpBuilder<S> getBuilder();
 
     @Override public boolean isNullable() {
         return true;

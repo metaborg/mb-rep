@@ -1,6 +1,6 @@
 package org.metaborg.regexp;
 
-public final class RegExpBuilder<S> {
+public final class RegExpBuilder<S> implements IRegExpBuilder<S> {
 
     private final IAlphabet<S> alphabet;
 
@@ -8,23 +8,23 @@ public final class RegExpBuilder<S> {
         this.alphabet = alphabet;
     }
 
-    public IAlphabet<S> getAlphabet() {
+    @Override public IAlphabet<S> getAlphabet() {
         return alphabet;
     }
 
-    public IRegExp<S> emptySet() {
-        return EmptySet.of(alphabet);
+    @Override public IRegExp<S> emptySet() {
+        return EmptySet.of(this);
     }
 
-    public IRegExp<S> emptyString() {
-        return EmptyString.of(alphabet);
+    @Override public IRegExp<S> emptyString() {
+        return EmptyString.of(this);
     }
 
-    public IRegExp<S> symbol(S s) {
-        return Symbol.of(s, alphabet);
+    @Override public IRegExp<S> symbol(S s) {
+        return Symbol.of(s, this);
     }
 
-    public IRegExp<S> concat(final IRegExp<S> left, final IRegExp<S> right) {
+    @Override public IRegExp<S> concat(final IRegExp<S> left, final IRegExp<S> right) {
         return left.accept(new ARegExpFunction<S,IRegExp<S>>() {
 
             @Override public IRegExp<S> emptySet() {
@@ -50,9 +50,8 @@ public final class RegExpBuilder<S> {
                         return left;
                     }
 
-
                     @Override public IRegExp<S> defaultValue() {
-                        return Concat.of(left, right, alphabet);
+                        return Concat.of(left, right, RegExpBuilder.this);
                     }
 
                 });
@@ -61,7 +60,7 @@ public final class RegExpBuilder<S> {
         });
     }
 
-    public IRegExp<S> closure(final IRegExp<S> re) {
+    @Override public IRegExp<S> closure(final IRegExp<S> re) {
         return re.accept(new ARegExpFunction<S,IRegExp<S>>() {
 
             @Override public IRegExp<S> emptySet() {
@@ -73,17 +72,17 @@ public final class RegExpBuilder<S> {
             }
 
             @Override public IRegExp<S> closure(IRegExp<S> innerRe) {
-                return Closure.of(innerRe, alphabet);
+                return Closure.of(innerRe, RegExpBuilder.this);
             }
 
             @Override public IRegExp<S> defaultValue() {
-                return Closure.of(re, alphabet);
+                return Closure.of(re, RegExpBuilder.this);
             }
 
         });
     }
 
-    public IRegExp<S> or(final IRegExp<S> left, final IRegExp<S> right) {
+    @Override public IRegExp<S> or(final IRegExp<S> left, final IRegExp<S> right) {
         if (left.equals(right)) {
             return left;
         }
@@ -93,7 +92,7 @@ public final class RegExpBuilder<S> {
         return left.accept(new ARegExpFunction<S,IRegExp<S>>() {
 
             @Override public IRegExp<S> or(IRegExp<S> innerLeft, IRegExp<S> innerRight) {
-                return Or.of(innerLeft, RegExpBuilder.this.or(innerRight, right), alphabet);
+                return Or.of(innerLeft, RegExpBuilder.this.or(innerRight, right), RegExpBuilder.this);
             }
 
             @Override public IRegExp<S> defaultValue() {
@@ -119,7 +118,7 @@ public final class RegExpBuilder<S> {
                     }
 
                     @Override public IRegExp<S> defaultValue() {
-                        return Or.of(left, right, alphabet);
+                        return Or.of(left, right, RegExpBuilder.this);
                     }
                 });
 
@@ -128,7 +127,7 @@ public final class RegExpBuilder<S> {
         });
     }
 
-    public IRegExp<S> and(final IRegExp<S> left, final IRegExp<S> right) {
+    @Override public IRegExp<S> and(final IRegExp<S> left, final IRegExp<S> right) {
         System.out.println(left + " & " + right);
         if (left.equals(right)) {
             return left;
@@ -140,7 +139,7 @@ public final class RegExpBuilder<S> {
         return left.accept(new ARegExpFunction<S,IRegExp<S>>() {
 
             @Override public IRegExp<S> and(IRegExp<S> innerLeft, IRegExp<S> innerRight) {
-                return And.of(innerLeft, RegExpBuilder.this.and(innerRight, right), alphabet);
+                return And.of(innerLeft, RegExpBuilder.this.and(innerRight, right), RegExpBuilder.this);
             }
 
             @Override public IRegExp<S> defaultValue() {
@@ -166,18 +165,17 @@ public final class RegExpBuilder<S> {
                     }
 
                     @Override public IRegExp<S> defaultValue() {
-                        return And.of(left, right, alphabet);
+                        return And.of(left, right, RegExpBuilder.this);
                     }
 
                 });
-
 
             }
 
         });
     }
 
-    public IRegExp<S> complement(final IRegExp<S> re) {
+    @Override public IRegExp<S> complement(final IRegExp<S> re) {
         return re.accept(new ARegExpFunction<S,IRegExp<S>>() {
 
             @Override public IRegExp<S> complement(IRegExp<S> innerRe) {
@@ -185,15 +183,13 @@ public final class RegExpBuilder<S> {
             }
 
             @Override public IRegExp<S> defaultValue() {
-                return Complement.of(re, alphabet);
+                return Complement.of(re, RegExpBuilder.this);
             }
 
         });
     }
 
     private int compare(final IRegExp<S> re1, final IRegExp<S> re2) {
-        assert re1.getAlphabet().equals(alphabet);
-        assert re2.getAlphabet().equals(alphabet);
         return re1.accept(new IRegExpFunction<S,Integer>() {
 
             @Override public Integer emptySet() {

@@ -8,6 +8,6 @@ public interface IRegExpMatcher<S> {
 
     boolean isAccepting();
 
-    boolean isStuck();
+    boolean isFinal();
 
 }

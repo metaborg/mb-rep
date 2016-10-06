@@ -15,21 +15,21 @@ public class RegExpMatcher<S> implements IRegExpMatcher<S> {
 
     private final IRegExp<S> state;
     private final Object2ObjectMap<IRegExp<S>,Object2ObjectMap<S,IRegExp<S>>> stateTransitions;
-    private final ObjectSet<IRegExp<S>> canStepFrom;
+    private final ObjectSet<IRegExp<S>> nonFinal;
     private final IAlphabet<S> alphabet;
 
     private RegExpMatcher(IRegExp<S> state,
             Object2ObjectMap<IRegExp<S>,Object2ObjectMap<S,IRegExp<S>>> stateTransitions,
-            ObjectSet<IRegExp<S>> canStepFrom, IAlphabet<S> alphabet) {
+            ObjectSet<IRegExp<S>> nonFinal) {
         this.state = state;
         this.stateTransitions = stateTransitions;
-        this.canStepFrom = canStepFrom;
-        this.alphabet = alphabet;
+        this.nonFinal = nonFinal;
+        this.alphabet = state.getBuilder().getAlphabet();
     }
 
     @Override public RegExpMatcher<S> match(S symbol) {
         assert alphabet.contains(symbol);
-        return new RegExpMatcher<>(stateTransitions.get(state).get(symbol), stateTransitions, canStepFrom, alphabet);
+        return new RegExpMatcher<>(stateTransitions.get(state).get(symbol), stateTransitions, nonFinal);
     }
 
     @Override public IRegExpMatcher<S> match(Iterable<S> symbols) {
@@ -44,15 +44,14 @@ public class RegExpMatcher<S> implements IRegExpMatcher<S> {
         return state.isNullable();
     }
 
-    @Override public boolean isStuck() {
-        return !canStepFrom.contains(state);
+    @Override public boolean isFinal() {
+        return !nonFinal.contains(state);
     }
 
-    public static <S> IRegExpMatcher<S> create(final IRegExp<S> initial, RegExpBuilder<S> builder) {
-        assert initial.getAlphabet().equals(builder.getAlphabet());
+    public static <S> IRegExpMatcher<S> create(final IRegExp<S> initial) {
         final List<Deriver<S>> derivers = Lists.newArrayList();
-        for (S symbol : builder.getAlphabet()) {
-            derivers.add(new Deriver<S>(symbol, builder));
+        for (S symbol : initial.getBuilder().getAlphabet()) {
+            derivers.add(new Deriver<S>(symbol, initial.getBuilder()));
         }
 
         final Object2ObjectMap<IRegExp<S>,Object2ObjectMap<S,IRegExp<S>>> stateTransitions = new Object2ObjectOpenHashMap<>();
@@ -77,7 +76,7 @@ public class RegExpMatcher<S> implements IRegExpMatcher<S> {
             }
         }
 
-        final ObjectSet<IRegExp<S>> canStepFrom = new ObjectOpenHashSet<>();
+        final ObjectSet<IRegExp<S>> nonFinal = new ObjectOpenHashSet<>();
         for (IRegExp<S> state : stateTransitions.keySet()) {
             if (state.isNullable()) {
                 worklist.push(state);
@@ -85,17 +84,17 @@ public class RegExpMatcher<S> implements IRegExpMatcher<S> {
         }
         while (!worklist.isEmpty()) {
             final IRegExp<S> state = worklist.pop();
-            if (!canStepFrom.contains(state)) {
+            if (!nonFinal.contains(state)) {
                 if (reverseTransitions.containsKey(state)) {
                     for (IRegExp<S> nextState : reverseTransitions.get(state)) {
-                        canStepFrom.add(nextState);
+                        nonFinal.add(nextState);
                         worklist.push(nextState);
                     }
                 }
             }
         }
 
-        return new RegExpMatcher<>(initial, stateTransitions, canStepFrom, builder.getAlphabet());
+        return new RegExpMatcher<>(initial, stateTransitions, nonFinal);
     }
 
 }

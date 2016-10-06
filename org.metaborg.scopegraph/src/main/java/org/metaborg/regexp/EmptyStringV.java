@@ -10,7 +10,7 @@ import org.metaborg.annotations.ConstructorClass;
 @SuppressWarnings("serial")
 abstract class EmptyStringV<S> implements IRegExp<S> {
 
-    public abstract IAlphabet<S> getAlphabet();
+    public abstract IRegExpBuilder<S> getBuilder();
 
     @Override public boolean isNullable() {
         return true;

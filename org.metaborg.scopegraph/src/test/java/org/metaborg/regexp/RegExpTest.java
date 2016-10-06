@@ -13,7 +13,7 @@ import com.google.common.collect.ImmutableSet;
 public class RegExpTest {
 
     private static IAlphabet<Integer> alphabet;
-    private static RegExpBuilder<Integer> b;
+    private static IRegExpBuilder<Integer> b;
 
     @BeforeClass public static void beforeClass() {
         alphabet = new FiniteAlphabet<>(ImmutableSet.of(1, 3, 5, 7, 11));
@@ -109,18 +109,18 @@ public class RegExpTest {
 
     @Test public void testSymbolMatching() {
         IRegExp<Integer> re = b.symbol(1);
-        IRegExpMatcher<Integer> m = RegExpMatcher.create(re, b);
-        assertFalse(m.isStuck());
+        IRegExpMatcher<Integer> m = RegExpMatcher.create(re);
+        assertFalse(m.isFinal());
         m = m.match(1);
         assertTrue(m.isAccepting());
-        assertTrue(m.isStuck());
+        assertTrue(m.isFinal());
         m = m.match(3);
         assertFalse(m.isAccepting());
     }
 
     @Test public void testClosureMatching() {
         IRegExp<Integer> re = b.closure(b.symbol(1));
-        IRegExpMatcher<Integer> m = RegExpMatcher.create(re, b);
+        IRegExpMatcher<Integer> m = RegExpMatcher.create(re);
         m = m.match(1);
         assertTrue(m.isAccepting());
         m = m.match(Iterables2.from(1, 1, 1, 1, 1));
@@ -131,13 +131,13 @@ public class RegExpTest {
 
     @Test public void testEmptySetMatching() {
         IRegExp<Integer> re = b.emptySet();
-        IRegExpMatcher<Integer> m = RegExpMatcher.create(re, b);
+        IRegExpMatcher<Integer> m = RegExpMatcher.create(re);
         assertFalse(m.isAccepting());
     }
 
     @Test public void testEmptyStringMatching() {
         IRegExp<Integer> re = b.emptyString();
-        IRegExpMatcher<Integer> m = RegExpMatcher.create(re, b);
+        IRegExpMatcher<Integer> m = RegExpMatcher.create(re);
         assertTrue(m.isAccepting());
         m = m.match(3);
         assertFalse(m.isAccepting());
@@ -145,7 +145,7 @@ public class RegExpTest {
 
     @Test public void testConcatMatching() {
         IRegExp<Integer> re = b.concat(b.symbol(1), b.symbol(3));
-        IRegExpMatcher<Integer> m = RegExpMatcher.create(re, b);
+        IRegExpMatcher<Integer> m = RegExpMatcher.create(re);
         m = m.match(1);
         assertFalse(m.isAccepting());
         m = m.match(3);
@@ -154,7 +154,7 @@ public class RegExpTest {
 
     @Test public void testComplementMatching() {
         IRegExp<Integer> re = b.complement(b.symbol(1));
-        IRegExpMatcher<Integer> m = RegExpMatcher.create(re, b);
+        IRegExpMatcher<Integer> m = RegExpMatcher.create(re);
         assertTrue(m.isAccepting());
         m = m.match(1);
         assertFalse(m.isAccepting());
@@ -164,7 +164,7 @@ public class RegExpTest {
 
     @Test public void testAndMatching() {
         IRegExp<Integer> re = b.and(b.symbol(1), b.closure(b.symbol(1)));
-        IRegExpMatcher<Integer> m = RegExpMatcher.create(re, b);
+        IRegExpMatcher<Integer> m = RegExpMatcher.create(re);
         assertFalse(m.isAccepting());
         m = m.match(1);
         assertTrue(m.isAccepting());
@@ -174,7 +174,7 @@ public class RegExpTest {
 
     @Test public void testOrMatching() {
         IRegExp<Integer> re = b.closure(b.or(b.symbol(1), b.symbol(3)));
-        IRegExpMatcher<Integer> m = RegExpMatcher.create(re, b);
+        IRegExpMatcher<Integer> m = RegExpMatcher.create(re);
         assertTrue(m.isAccepting());
         m = m.match(1);
         assertTrue(m.isAccepting());

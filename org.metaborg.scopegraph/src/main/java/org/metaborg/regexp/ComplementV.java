@@ -12,7 +12,7 @@ abstract class ComplementV<S> implements IRegExp<S> {
 
     public abstract IRegExp<S> getRE();
 
-    public abstract IAlphabet<S> getAlphabet();
+    public abstract IRegExpBuilder<S> getBuilder();
 
     @Value.Lazy @Override public boolean isNullable() {
         return !getRE().isNullable();

@@ -1,7 +1,7 @@
 package org.metaborg.scopegraph.path;
 
 
-public class PathException extends Exception {
+public class PathException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
