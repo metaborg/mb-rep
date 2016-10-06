@@ -1,4 +1,4 @@
-package org.metaborg.unification.persistent;
+package org.metaborg.fastutil.persistent;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

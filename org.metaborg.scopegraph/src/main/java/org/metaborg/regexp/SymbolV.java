@@ -4,20 +4,32 @@ import org.immutables.serial.Serial;
 import org.immutables.value.Value;
 import org.metaborg.annotations.ConstructorClass;
 
+import com.google.common.base.Preconditions;
+
 @Value.Immutable
 @ConstructorClass
 @Serial.Structural
 @SuppressWarnings("serial")
-public abstract class SymbolV<S> implements IRegExp<S> {
+abstract class SymbolV<S> implements IRegExp<S> {
 
-    public abstract S get();
+    @Value.Check protected void check() {
+        Preconditions.checkState(getAlphabet().contains(getSymbol()));
+    }
+
+    public abstract S getSymbol();
     
-    @Override public <T> T accept(IRegExpVisitor<S,T> visitor) {
-        return visitor.symbol(get());
+    public abstract IAlphabet<S> getAlphabet();
+
+    @Override public boolean isNullable() {
+        return false;
+    }
+
+    @Override public <T> T accept(IRegExpFunction<S,T> visitor) {
+        return visitor.symbol(getSymbol());
     }
     
     @Override public String toString() {
-        return get().toString();
+        return getSymbol().toString();
     }
 
 }

@@ -1,4 +1,4 @@
-package org.metaborg.unification.persistent;
+package org.metaborg.scopegraph;
 
 import static org.metaborg.scopegraph.path.free.PathConcat.concat;
 

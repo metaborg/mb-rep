@@ -8,16 +8,22 @@ import org.metaborg.annotations.ConstructorClass;
 @ConstructorClass
 @Serial.Structural
 @SuppressWarnings("serial")
-public abstract class ComplementV<S> implements IRegExp<S> {
+abstract class ComplementV<S> implements IRegExp<S> {
 
-    public abstract IRegExp<S> re();
+    public abstract IRegExp<S> getRE();
 
-    @Override public <T> T accept(IRegExpVisitor<S,T> visitor) {
-        return visitor.complement(re());
+    public abstract IAlphabet<S> getAlphabet();
+
+    @Value.Lazy @Override public boolean isNullable() {
+        return !getRE().isNullable();
+    }
+
+    @Override public <T> T accept(IRegExpFunction<S,T> visitor) {
+        return visitor.complement(getRE());
     }
     
     @Override public String toString() {
-        return "~" + re();
+        return "~(" + getRE() + ")";
     }
 
 }

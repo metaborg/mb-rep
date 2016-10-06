@@ -2,15 +2,21 @@ package org.metaborg.regexp;
 
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
-import org.metaborg.annotations.ConstantClass;
+import org.metaborg.annotations.ConstructorClass;
 
 @Value.Immutable
-@ConstantClass
+@ConstructorClass
 @Serial.Version(value = 1L)
 @SuppressWarnings("serial")
-public abstract class EmptySetV<S> implements IRegExp<S> {
+abstract class EmptySetV<S> implements IRegExp<S> {
 
-    @Override public <T> T accept(IRegExpVisitor<S,T> visitor) {
+    public abstract IAlphabet<S> getAlphabet();
+
+    @Override public boolean isNullable() {
+        return false;
+    }
+
+    @Override public <T> T accept(IRegExpFunction<S,T> visitor) {
         return visitor.emptySet();
     }
     

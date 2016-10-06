@@ -8,16 +8,22 @@ import org.metaborg.annotations.ConstructorClass;
 @ConstructorClass
 @Serial.Structural
 @SuppressWarnings("serial")
-public abstract class ClosureV<S> implements IRegExp<S> {
+abstract class ClosureV<S> implements IRegExp<S> {
 
-    public abstract IRegExp<S> re();
+    public abstract IRegExp<S> getRE();
 
-    @Override public <T> T accept(IRegExpVisitor<S,T> visitor) {
-        return visitor.closure(re());
+    public abstract IAlphabet<S> getAlphabet();
+
+    @Override public boolean isNullable() {
+        return true;
     }
-    
+
+    @Override public <T> T accept(IRegExpFunction<S,T> visitor) {
+        return visitor.closure(getRE());
+    }
+
     @Override public String toString() {
-        return re() + "*";
+        return "(" + getRE() + ")*";
     }
 
 }

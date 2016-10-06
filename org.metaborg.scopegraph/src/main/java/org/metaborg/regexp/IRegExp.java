@@ -4,6 +4,10 @@ import java.io.Serializable;
 
 public interface IRegExp<S> extends Serializable {
 
-    <T> T accept(IRegExpVisitor<S,T> visitor);
+    IAlphabet<S> getAlphabet();
+    
+    boolean isNullable();
+    
+    <T> T accept(IRegExpFunction<S,T> visitor);
 
 }
