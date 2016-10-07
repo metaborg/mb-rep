@@ -128,12 +128,10 @@ public final class RegExpBuilder<S> implements IRegExpBuilder<S> {
     }
 
     @Override public IRegExp<S> and(final IRegExp<S> left, final IRegExp<S> right) {
-        System.out.println(left + " & " + right);
         if (left.equals(right)) {
             return left;
         }
         if (compare(left, right) > 0) {
-            System.out.println("swap");
             return RegExpBuilder.this.and(right, left);
         }
         return left.accept(new ARegExpFunction<S,IRegExp<S>>() {
