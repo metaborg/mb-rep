@@ -50,14 +50,14 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
  *          RESOLVE (s) =l=> [r] ->* [d] =l=> (s) ->* [d']
  *
  * RESOLVE:
- *    case (s) ->* [d]:
+ *    case (s) ->* [d] unless path is final & not accepting:
  *       for every (s) <-l- (s')
  *          RESOLVE (s') -l-> (s) ->* [d]
  *       for every (s) <- [r] where r matches d:
  *          RESOLVE [r] -> (s) ->* [d]
  *       for every (s) <=l= [d'], [d'] *<- [r'], [r'] <=l= (s')
  *          RESOLVE (s') =l=> [r'] ->* [d'] =l=> (s) ->* [d]
- *    case [r] ->* [d]:
+ *    case [r] ->* [d] where path is accepting:
  *       for every [r] <=l= (s), [d] =l=> (s'), (s') ->* [d']:
  *          RESOLVE (s) =l=> [r] ->* [d] =l=> (s') ->* [d']
  * </pre>
@@ -163,7 +163,7 @@ public class BackwardResolvingScopeGraph implements IScopeGraph, INameResolution
 
     @Override public BackwardResolvingScopeGraph addLink(IScope source, ILabel label, IScope target) {
         LabeledScope labeledScope = new LabeledScope(label, source);
-        if ( scopeChildren.get(target).contains(labeledScope)) {
+        if (scopeChildren.get(target).contains(labeledScope)) {
             return this;
         }
         Stack<WFPath> paths = new ObjectArrayList<>();
@@ -175,8 +175,8 @@ public class BackwardResolvingScopeGraph implements IScopeGraph, INameResolution
             } catch (PathException ex) {
             }
         }
-        return new BackwardResolvingScopeGraph(initialWF, scopeChildren.put(target, labeledScope),
-                scopeRefs, refImports, declExports, scopeExports, scopeDecls, scopeReachableDecls, refDecls, declRefs)
+        return new BackwardResolvingScopeGraph(initialWF, scopeChildren.put(target, labeledScope), scopeRefs,
+                refImports, declExports, scopeExports, scopeDecls, scopeReachableDecls, refDecls, declRefs)
                         .resolve(paths);
     }
 
@@ -208,7 +208,7 @@ public class BackwardResolvingScopeGraph implements IScopeGraph, INameResolution
 
     @Override public BackwardResolvingScopeGraph addImport(IOccurrence reference, ILabel label, IScope scope) {
         LabeledScope labeledScope = new LabeledScope(label, scope);
-        if ( refImports.get(reference).contains(labeledScope)) {
+        if (refImports.get(reference).contains(labeledScope)) {
             return this;
         }
         Stack<WFPath> paths = new ObjectArrayList<>();
@@ -227,8 +227,8 @@ public class BackwardResolvingScopeGraph implements IScopeGraph, INameResolution
             }
         }
         return new BackwardResolvingScopeGraph(initialWF, scopeChildren, scopeRefs,
-                refImports.put(reference, labeledScope), declExports, scopeExports, scopeDecls,
-                scopeReachableDecls, refDecls, declRefs).resolve(paths);
+                refImports.put(reference, labeledScope), declExports, scopeExports, scopeDecls, scopeReachableDecls,
+                refDecls, declRefs).resolve(paths);
     }
 
 
