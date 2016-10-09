@@ -4,8 +4,6 @@ import org.immutables.serial.Serial;
 import org.immutables.value.Value;
 import org.metaborg.annotations.ConstructorClass;
 
-import com.google.common.base.Preconditions;
-
 @Value.Immutable
 @ConstructorClass
 @Serial.Structural
