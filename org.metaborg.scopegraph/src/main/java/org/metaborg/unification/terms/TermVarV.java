@@ -5,7 +5,6 @@ import javax.annotation.Nullable;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
 import org.metaborg.annotations.ConstructorClass;
-import org.metaborg.unification.IAny;
 import org.metaborg.unification.ITermFunction;
 import org.metaborg.unification.ITermPredicate;
 
@@ -13,10 +12,12 @@ import org.metaborg.unification.ITermPredicate;
 @ConstructorClass
 @Serial.Structural
 @SuppressWarnings("serial")
-public abstract class TermVarV implements IAny {
+public abstract class TermVarV implements ITermVar {
 
+    @Override
     public abstract @Nullable String getResource();
 
+    @Override
     public abstract String getName();
 
     @Override public boolean isGround() {
@@ -24,7 +25,7 @@ public abstract class TermVarV implements IAny {
     }
 
     @Override public <T> T apply(ITermFunction<T> visitor) {
-        return visitor.apply((TermVar) this);
+        return visitor.apply(this);
     }
 
     @Override public boolean test(ITermPredicate predicate) {

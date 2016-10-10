@@ -2,14 +2,14 @@ package org.metaborg.scopegraph;
 
 import java.io.Serializable;
 
-import org.metaborg.scopegraph.wf.WFDeclPath;
-import org.metaborg.scopegraph.wf.WFFullPath;
+import org.metaborg.scopegraph.wf.IWFDeclPath;
+import org.metaborg.scopegraph.wf.IWFFullPath;
 import org.pcollections.PSet;
 
 public interface INameResolution extends Serializable {
 
-    PSet<WFDeclPath> reachables(IScope scope);
+    PSet<IWFDeclPath> reachables(IScope scope);
 
-    PSet<WFFullPath> reachables(IOccurrence reference);
+    PSet<IWFFullPath> reachables(IOccurrence reference);
 
 }

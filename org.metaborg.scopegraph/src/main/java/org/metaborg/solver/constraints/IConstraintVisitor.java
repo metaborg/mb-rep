@@ -3,16 +3,16 @@ package org.metaborg.solver.constraints;
 
 public interface IConstraintVisitor<T> {
 
-    T visit(CTrue constraint);
+    T visit(ICTrue constraint);
 
-    T visit(CFalse constraint);
+    T visit(ICFalse constraint);
 
-    T visit(CEqual constraint);
+    T visit(ICEqual constraint);
 
-    T visit(CInequal constraint);
+    T visit(ICInequal constraint);
 
-    T visit(CConj constraint);
+    T visit(ICConj constraint);
 
-    T visit(CDisj constraint);
+    T visit(ICDisj constraint);
 
 }

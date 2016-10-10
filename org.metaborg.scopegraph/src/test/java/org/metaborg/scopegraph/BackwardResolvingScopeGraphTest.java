@@ -11,8 +11,8 @@ import org.metaborg.regexp.IRegExp;
 import org.metaborg.regexp.IRegExpBuilder;
 import org.metaborg.regexp.RegExpBuilder;
 import org.metaborg.scopegraph.resolution.BackwardResolvingScopeGraph;
-import org.metaborg.scopegraph.wf.WFDeclPath;
-import org.metaborg.scopegraph.wf.WFFullPath;
+import org.metaborg.scopegraph.wf.IWFDeclPath;
+import org.metaborg.scopegraph.wf.IWFFullPath;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -133,8 +133,8 @@ public class BackwardResolvingScopeGraphTest {
         assertFalse(inRes(g.reachables(r2), d2));
     }
 
-    private static boolean inEnv(Iterable<WFDeclPath> paths, IOccurrence declaration) {
-        for (WFDeclPath path : paths) {
+    private static boolean inEnv(Iterable<IWFDeclPath> paths, IOccurrence declaration) {
+        for (IWFDeclPath path : paths) {
             if (path.path().declaration().equals(declaration)) {
                 return true;
             }
@@ -142,8 +142,8 @@ public class BackwardResolvingScopeGraphTest {
         return false;
     }
 
-    private static boolean inRes(Iterable<WFFullPath> paths, IOccurrence declaration) {
-        for (WFFullPath path : paths) {
+    private static boolean inRes(Iterable<IWFFullPath> paths, IOccurrence declaration) {
+        for (IWFFullPath path : paths) {
             if (path.path().declaration().equals(declaration)) {
                 return true;
             }

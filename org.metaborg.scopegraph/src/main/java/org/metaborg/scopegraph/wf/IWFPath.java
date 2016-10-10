@@ -6,12 +6,12 @@ import org.metaborg.scopegraph.path.IPath;
 import org.metaborg.scopegraph.path.PathException;
 
 
-public interface WFPath {
+public interface IWFPath {
 
     IPath path();
 
     IRegExpMatcher<ILabel> wf();
 
-    <T> T accept(WFPathVisitor<T> visitor) throws PathException;
+    <T> T accept(IWFPathVisitor<T> visitor) throws PathException;
 
 }

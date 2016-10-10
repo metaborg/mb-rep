@@ -11,18 +11,18 @@ import org.metaborg.unification.ITermPredicate;
 @ConstantClass
 @Serial.Version(value = 1L)
 @SuppressWarnings("serial")
-public abstract class NilTermV implements IListTerm {
+public abstract class NilTermV implements INilTerm {
 
     @Override public boolean isGround() {
         return true;
     }
 
     @Override public <T> T apply(ITermFunction<T> visitor) {
-        return visitor.apply((NilTerm) this);
+        return visitor.apply(this);
     }
 
     @Override public boolean test(ITermPredicate predicate) {
-        return predicate.test((NilTerm) this);
+        return predicate.test(this);
     }
 
     @Override public String toString() {

@@ -20,10 +20,12 @@ import org.metaborg.scopegraph.path.backward.DeclPath;
 import org.metaborg.scopegraph.path.backward.DirectPath;
 import org.metaborg.scopegraph.path.backward.NamedPath;
 import org.metaborg.scopegraph.path.backward.RefPath;
+import org.metaborg.scopegraph.wf.IWFDeclPath;
+import org.metaborg.scopegraph.wf.IWFFullPath;
+import org.metaborg.scopegraph.wf.IWFPath;
+import org.metaborg.scopegraph.wf.IWFPathVisitor;
 import org.metaborg.scopegraph.wf.WFDeclPath;
 import org.metaborg.scopegraph.wf.WFFullPath;
-import org.metaborg.scopegraph.wf.WFPath;
-import org.metaborg.scopegraph.wf.WFPathVisitor;
 import org.pcollections.PSet;
 
 import it.unimi.dsi.fastutil.Stack;
@@ -68,32 +70,31 @@ public class BackwardResolvingScopeGraph implements IScopeGraph, INameResolution
     private static final long serialVersionUID = 467691464366824128L;
 
     // (s) <-l- (s)
-    private final Object2ObjectPMultimap<IScope,ILabeledScope> scopeChildren;
+    private final Object2ObjectPMultimap<IScope, ILabeledScope> scopeChildren;
 
     // (s) <- [r]
-    private final Object2ObjectPMultimap<IScope,IOccurrence> scopeRefs;
+    private final Object2ObjectPMultimap<IScope, IOccurrence> scopeRefs;
 
     // [r] <=l= (s)
-    private final Object2ObjectPMultimap<IOccurrence,ILabeledScope> refImports;
+    private final Object2ObjectPMultimap<IOccurrence, ILabeledScope> refImports;
 
     // [d] =l=> (s)
-    private final Object2ObjectPMultimap<IOccurrence,ILabeledScope> declExports;
+    private final Object2ObjectPMultimap<IOccurrence, ILabeledScope> declExports;
 
     // (s) <=l= [d]
-    private final Object2ObjectPMultimap<IScope,ILabeledOccurrence> scopeExports;
+    private final Object2ObjectPMultimap<IScope, ILabeledOccurrence> scopeExports;
 
     // (s) -> [d] # not necessary for resolution
-    private final Object2ObjectPMultimap<IScope,IOccurrence> scopeDecls;
+    private final Object2ObjectPMultimap<IScope, IOccurrence> scopeDecls;
 
     // (s) ->* [d]
-    private final Object2ObjectPMultimap<IScope,WFDeclPath> scopeReachableDecls;
-
+    private final Object2ObjectPMultimap<IScope, IWFDeclPath> scopeReachableDecls;
 
     // [r] ->* [d]
-    private final Object2ObjectPMultimap<IOccurrence,WFFullPath> refDecls;
+    private final Object2ObjectPMultimap<IOccurrence, IWFFullPath> refDecls;
 
     // [d] *<- [r]
-    private final Object2ObjectPMultimap<IOccurrence,WFFullPath> declRefs;
+    private final Object2ObjectPMultimap<IOccurrence, IWFFullPath> declRefs;
 
     private final IRegExpMatcher<ILabel> initialWF;
 
@@ -113,15 +114,15 @@ public class BackwardResolvingScopeGraph implements IScopeGraph, INameResolution
     }
 
     private BackwardResolvingScopeGraph(IRegExpMatcher<ILabel> initialWF,
-            Object2ObjectPMultimap<IScope,ILabeledScope> scopeChildren,
-            Object2ObjectPMultimap<IScope,IOccurrence> scopeRefs,
-            Object2ObjectPMultimap<IOccurrence,ILabeledScope> refImports,
-            Object2ObjectPMultimap<IOccurrence,ILabeledScope> declExports,
-            Object2ObjectPMultimap<IScope,ILabeledOccurrence> scopeExports,
-            Object2ObjectPMultimap<IScope,IOccurrence> scopeDecls,
-            Object2ObjectPMultimap<IScope,WFDeclPath> scopeReachableDecls,
-            Object2ObjectPMultimap<IOccurrence,WFFullPath> refDecls,
-            Object2ObjectPMultimap<IOccurrence,WFFullPath> declRefs) {
+            Object2ObjectPMultimap<IScope, ILabeledScope> scopeChildren,
+            Object2ObjectPMultimap<IScope, IOccurrence> scopeRefs,
+            Object2ObjectPMultimap<IOccurrence, ILabeledScope> refImports,
+            Object2ObjectPMultimap<IOccurrence, ILabeledScope> declExports,
+            Object2ObjectPMultimap<IScope, ILabeledOccurrence> scopeExports,
+            Object2ObjectPMultimap<IScope, IOccurrence> scopeDecls,
+            Object2ObjectPMultimap<IScope, IWFDeclPath> scopeReachableDecls,
+            Object2ObjectPMultimap<IOccurrence, IWFFullPath> refDecls,
+            Object2ObjectPMultimap<IOccurrence, IWFFullPath> declRefs) {
         this.initialWF = initialWF;
         this.scopeChildren = scopeChildren;
         this.scopeRefs = scopeRefs;
@@ -134,9 +135,9 @@ public class BackwardResolvingScopeGraph implements IScopeGraph, INameResolution
         this.declRefs = declRefs;
     }
 
-
-    @Override public BackwardResolvingScopeGraph addDecl(IOccurrence declaration, IScope scope) {
-        if (scopeDecls.get(scope).contains(declaration)) {
+    @Override
+    public BackwardResolvingScopeGraph addDecl(IOccurrence declaration, IScope scope) {
+        if(scopeDecls.get(scope).contains(declaration)) {
             return this;
         }
         DeclPath newPath = DeclPath.of(scope, declaration);
@@ -145,34 +146,36 @@ public class BackwardResolvingScopeGraph implements IScopeGraph, INameResolution
                         .resolve(WFDeclPath.of(newPath, initialWF));
     }
 
-    @Override public BackwardResolvingScopeGraph addRef(IOccurrence reference, IScope scope) {
-        if (scopeRefs.get(scope).contains(reference)) {
+    @Override
+    public BackwardResolvingScopeGraph addRef(IOccurrence reference, IScope scope) {
+        if(scopeRefs.get(scope).contains(reference)) {
             return this;
         }
-        Stack<WFPath> paths = new ObjectArrayList<>();
-        for (WFDeclPath wftail : scopeReachableDecls.get(scope)) {
+        Stack<IWFPath> paths = new ObjectArrayList<>();
+        for(IWFDeclPath wftail : scopeReachableDecls.get(scope)) {
             try {
                 RefPath newPath = RefPath.of(reference, wftail.path());
                 paths.push(WFFullPath.of(newPath, wftail.wf()));
-            } catch (PathException e) {
+            } catch(PathException e) {
             }
         }
         return new BackwardResolvingScopeGraph(initialWF, scopeChildren, scopeRefs.put(scope, reference), refImports,
                 declExports, scopeExports, scopeDecls, scopeReachableDecls, refDecls, declRefs).resolve(paths);
     }
 
-    @Override public BackwardResolvingScopeGraph addLink(IScope source, ILabel label, IScope target) {
+    @Override
+    public BackwardResolvingScopeGraph addLink(IScope source, ILabel label, IScope target) {
         LabeledScope labeledScope = new LabeledScope(label, source);
-        if (scopeChildren.get(target).contains(labeledScope)) {
+        if(scopeChildren.get(target).contains(labeledScope)) {
             return this;
         }
-        Stack<WFPath> paths = new ObjectArrayList<>();
-        for (WFDeclPath wftail : scopeReachableDecls.get(target)) {
+        Stack<IWFPath> paths = new ObjectArrayList<>();
+        for(IWFDeclPath wftail : scopeReachableDecls.get(target)) {
             try {
                 DirectPath newPath = DirectPath.of(source, label, wftail.path());
                 IRegExpMatcher<ILabel> newWF = wftail.wf().match(label);
                 paths.push(WFDeclPath.of(newPath, newWF));
-            } catch (PathException ex) {
+            } catch(PathException ex) {
             }
         }
         return new BackwardResolvingScopeGraph(initialWF, scopeChildren.put(target, labeledScope), scopeRefs,
@@ -180,21 +183,22 @@ public class BackwardResolvingScopeGraph implements IScopeGraph, INameResolution
                         .resolve(paths);
     }
 
-    @Override public BackwardResolvingScopeGraph addExport(IOccurrence declaration, ILabel label, IScope scope) {
+    @Override
+    public BackwardResolvingScopeGraph addExport(IOccurrence declaration, ILabel label, IScope scope) {
         LabeledScope labeledScope = new LabeledScope(label, scope);
-        if (declExports.get(declaration).contains(labeledScope)) {
+        if(declExports.get(declaration).contains(labeledScope)) {
             return this;
         }
-        Stack<WFPath> paths = new ObjectArrayList<>();
-        for (WFFullPath wfreach : declRefs.get(declaration)) {
+        Stack<IWFPath> paths = new ObjectArrayList<>();
+        for(IWFFullPath wfreach : declRefs.get(declaration)) {
             IFullPath reach = wfreach.path();
-            for (ILabeledScope import_ : refImports.get(reach.reference())) {
-                for (WFDeclPath wftail : scopeReachableDecls.get(scope)) {
+            for(ILabeledScope import_ : refImports.get(reach.reference())) {
+                for(IWFDeclPath wftail : scopeReachableDecls.get(scope)) {
                     try {
                         NamedPath newPath = NamedPath.of(import_.scope(), import_.label(), reach, wftail.path());
                         IRegExpMatcher<ILabel> newWF = wftail.wf().match(label);
                         paths.push(WFDeclPath.of(newPath, newWF));
-                    } catch (PathException ex) {
+                    } catch(PathException ex) {
                     }
                 }
             }
@@ -206,21 +210,22 @@ public class BackwardResolvingScopeGraph implements IScopeGraph, INameResolution
                 refDecls, declRefs).resolve(paths);
     }
 
-    @Override public BackwardResolvingScopeGraph addImport(IOccurrence reference, ILabel label, IScope scope) {
+    @Override
+    public BackwardResolvingScopeGraph addImport(IOccurrence reference, ILabel label, IScope scope) {
         LabeledScope labeledScope = new LabeledScope(label, scope);
-        if (refImports.get(reference).contains(labeledScope)) {
+        if(refImports.get(reference).contains(labeledScope)) {
             return this;
         }
-        Stack<WFPath> paths = new ObjectArrayList<>();
-        for (WFFullPath wfreach : refDecls.get(reference)) {
+        Stack<IWFPath> paths = new ObjectArrayList<>();
+        for(IWFFullPath wfreach : refDecls.get(reference)) {
             IFullPath reach = wfreach.path();
-            for (ILabeledScope export : declExports.get(reach.declaration())) {
-                for (WFDeclPath wftail : scopeReachableDecls.get(export.scope())) {
+            for(ILabeledScope export : declExports.get(reach.declaration())) {
+                for(IWFDeclPath wftail : scopeReachableDecls.get(export.scope())) {
                     try {
                         NamedPath newPath = NamedPath.of(scope, export.label(), reach, wftail.path());
                         IRegExpMatcher<ILabel> newWF = wftail.wf().match(export.label());
                         paths.push(WFDeclPath.of(newPath, newWF));
-                    } catch (PathException ex) {
+                    } catch(PathException ex) {
                     }
                 }
 
@@ -231,49 +236,49 @@ public class BackwardResolvingScopeGraph implements IScopeGraph, INameResolution
                 refDecls, declRefs).resolve(paths);
     }
 
-
-    private BackwardResolvingScopeGraph resolve(final WFPath... initialPaths) {
+    private BackwardResolvingScopeGraph resolve(final IWFPath... initialPaths) {
         return resolve(new ObjectArrayList<>(initialPaths));
     }
 
-    private BackwardResolvingScopeGraph resolve(final Stack<WFPath> worklist) {
+    private BackwardResolvingScopeGraph resolve(final Stack<IWFPath> worklist) {
         BackwardResolvingScopeGraph localGraph = this;
-        while (!worklist.isEmpty()) {
-            final WFPath wfpath = worklist.pop();
-            BackwardResolvingScopeGraph newGraph = wfpath.accept(new WFPathVisitor<BackwardResolvingScopeGraph>() {
+        while(!worklist.isEmpty()) {
+            final IWFPath wfpath = worklist.pop();
+            BackwardResolvingScopeGraph newGraph = wfpath.accept(new IWFPathVisitor<BackwardResolvingScopeGraph>() {
 
-                @Override public BackwardResolvingScopeGraph visit(WFDeclPath wfpath) {
+                @Override
+                public BackwardResolvingScopeGraph visit(IWFDeclPath wfpath) {
                     IRegExpMatcher<ILabel> wf = wfpath.wf();
-                    if (wf.isFinal() && !wf.isAccepting()) {
+                    if(wf.isFinal() && !wf.isAccepting()) {
                         return null;
                     }
                     IDeclPath path = wfpath.path();
                     IScope scope = path.sourceScope();
-                    for (ILabeledScope child : scopeChildren.get(scope)) {
+                    for(ILabeledScope child : scopeChildren.get(scope)) {
                         try {
                             IRegExpMatcher<ILabel> newWF = wf.match(child.label());
                             DirectPath newPath = DirectPath.of(child.scope(), child.label(), path);
                             worklist.push(WFDeclPath.of(newPath, newWF));
-                        } catch (PathException e) {
+                        } catch(PathException e) {
                         }
                     }
-                    for (IOccurrence reference : scopeRefs.get(scope)) {
+                    for(IOccurrence reference : scopeRefs.get(scope)) {
                         try {
                             RefPath newPath = RefPath.of(reference, path);
                             worklist.push(WFFullPath.of(newPath, wf));
-                        } catch (PathException e) {
+                        } catch(PathException e) {
                         }
                     }
-                    for (ILabeledOccurrence export : scopeExports.get(scope)) {
-                        for (WFFullPath wfinner : declRefs.get(export.occurrence())) {
+                    for(ILabeledOccurrence export : scopeExports.get(scope)) {
+                        for(IWFFullPath wfinner : declRefs.get(export.occurrence())) {
                             IFullPath inner = wfinner.path();
-                            for (ILabeledScope import_ : refImports.get(inner.reference())) {
-                                if (export.label().equals(import_.label())) {
+                            for(ILabeledScope import_ : refImports.get(inner.reference())) {
+                                if(export.label().equals(import_.label())) {
                                     try {
                                         NamedPath newPath = NamedPath.of(import_.scope(), export.label(), inner, path);
                                         IRegExpMatcher<ILabel> newWF = wf.match(export.label());
                                         worklist.push(WFDeclPath.of(newPath, newWF));
-                                    } catch (PathException e) {
+                                    } catch(PathException e) {
                                     }
                                 }
                             }
@@ -284,24 +289,25 @@ public class BackwardResolvingScopeGraph implements IScopeGraph, INameResolution
                             scopeExports, scopeDecls, scopeReachableDecls.put(scope, wfpath), refDecls, declRefs);
                 }
 
-                @Override public BackwardResolvingScopeGraph visit(WFFullPath wfpath) {
-                    if (!wfpath.wf().isAccepting()) {
+                @Override
+                public BackwardResolvingScopeGraph visit(IWFFullPath wfpath) {
+                    if(!wfpath.wf().isAccepting()) {
                         return null;
                     }
                     IFullPath path = wfpath.path();
                     IOccurrence ref = path.reference();
                     IOccurrence decl = path.declaration();
-                    for (ILabeledScope import_ : refImports.get(ref)) {
-                        for (ILabeledScope export : declExports.get(decl)) {
-                            if (export.label().equals(import_.label())) {
-                                for (WFDeclPath wftail : scopeReachableDecls.get(export.scope())) {
+                    for(ILabeledScope import_ : refImports.get(ref)) {
+                        for(ILabeledScope export : declExports.get(decl)) {
+                            if(export.label().equals(import_.label())) {
+                                for(IWFDeclPath wftail : scopeReachableDecls.get(export.scope())) {
                                     IDeclPath tail = wftail.path();
                                     IRegExpMatcher<ILabel> wf = wftail.wf();
                                     try {
                                         NamedPath newPath = NamedPath.of(import_.scope(), export.label(), path, tail);
                                         IRegExpMatcher<ILabel> newWF = wf.match(export.label());
                                         worklist.push(WFDeclPath.of(newPath, newWF));
-                                    } catch (PathException e) {
+                                    } catch(PathException e) {
                                     }
                                 }
                             }
@@ -314,19 +320,20 @@ public class BackwardResolvingScopeGraph implements IScopeGraph, INameResolution
                 }
 
             });
-            if (newGraph != null) {
+            if(newGraph != null) {
                 localGraph = newGraph;
             }
         }
         return localGraph;
     }
 
-
-    @Override public PSet<WFDeclPath> reachables(IScope scope) {
+    @Override
+    public PSet<IWFDeclPath> reachables(IScope scope) {
         return scopeReachableDecls.get(scope);
     }
 
-    @Override public PSet<WFFullPath> reachables(IOccurrence reference) {
+    @Override
+    public PSet<IWFFullPath> reachables(IOccurrence reference) {
         return refDecls.get(reference);
     }
 

@@ -12,10 +12,12 @@ import org.metaborg.unification.ITermPredicate;
 @ConstructorClass
 @Serial.Structural
 @SuppressWarnings("serial")
-public abstract class ConsTermV implements IListTerm {
+public abstract class ConsTermV implements IConsTerm {
 
+    @Override
     public abstract ITerm getHead();
 
+    @Override
     public abstract IListTerm getTail();
 
     @Value.Lazy @Override public boolean isGround() {
@@ -23,11 +25,11 @@ public abstract class ConsTermV implements IListTerm {
     }
 
     @Override public <T> T apply(ITermFunction<T> visitor) {
-        return visitor.apply((ConsTerm) this);
+        return visitor.apply(this);
     }
 
     @Override public boolean test(ITermPredicate predicate) {
-        return predicate.test((ConsTerm) this);
+        return predicate.test(this);
     }
 
     @Override public String toString() {

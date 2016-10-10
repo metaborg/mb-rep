@@ -9,14 +9,14 @@ import org.metaborg.unification.ITerm;
 @ConstructorClass
 @Serial.Structural
 @SuppressWarnings("serial")
-public abstract class CInequalV implements IConstraint {
+public abstract class CInequalV implements ICInequal {
 
     public abstract ITerm getFirst();
 
     public abstract ITerm getSecond();
 
     @Override public <T> T accept(IConstraintVisitor<T> visitor) {
-        return visitor.visit((CInequal) this);
+        return visitor.visit(this);
     }
 
     @Override public String toString() {

@@ -1,26 +1,26 @@
 package org.metaborg.unification;
 
-import org.metaborg.unification.terms.ApplTerm;
-import org.metaborg.unification.terms.ConsTerm;
-import org.metaborg.unification.terms.NilTerm;
-import org.metaborg.unification.terms.TermOp;
-import org.metaborg.unification.terms.TermVar;
-import org.metaborg.unification.terms.TupleTerm;
+import org.metaborg.unification.terms.IApplTerm;
+import org.metaborg.unification.terms.IConsTerm;
+import org.metaborg.unification.terms.INilTerm;
+import org.metaborg.unification.terms.ITermOp;
+import org.metaborg.unification.terms.ITermVar;
+import org.metaborg.unification.terms.ITupleTerm;
 
 public interface ITermPredicate {
 
-    boolean test(TermVar term);
+    boolean test(ITermVar term);
 
-    boolean test(TermOp termOp);
+    boolean test(ITermOp termOp);
 
-    boolean test(ApplTerm term);
+    boolean test(IApplTerm term);
 
-    boolean test(TupleTerm term);
+    boolean test(ITupleTerm term);
 
     boolean test(IPrimitiveTerm term);
 
-    boolean test(ConsTerm term);
+    boolean test(IConsTerm term);
 
-    boolean test(NilTerm term);
+    boolean test(INilTerm term);
 
 }

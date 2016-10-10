@@ -3,26 +3,36 @@ package org.metaborg.solver.constraints;
 
 public abstract class AConstraintVisitor<T> implements IConstraintVisitor<T> {
 
-    @Override public T visit(CTrue constraint) {
-        return visit((IConstraint) constraint);
+    @Override
+    public T visit(ICTrue constraint) {
+        return visitDefault(constraint);
     }
 
-    @Override public T visit(CFalse constraint) {
-        return visit((IConstraint) constraint);
+    @Override
+    public T visit(ICFalse constraint) {
+        return visitDefault(constraint);
     }
 
-    @Override public T visit(CEqual constraint) {
-        return visit((IConstraint) constraint);
+    @Override
+    public T visit(ICEqual constraint) {
+        return visitDefault(constraint);
     }
 
-    @Override public T visit(CConj constraint) {
-        return visit((IConstraint) constraint);
+    @Override
+    public T visit(ICInequal constraint) {
+        return visitDefault(constraint);
     }
 
-    @Override public T visit(CDisj constraint) {
-        return visit((IConstraint) constraint);
+    @Override
+    public T visit(ICConj constraint) {
+        return visitDefault(constraint);
     }
 
-    public abstract T visit(IConstraint constraint);
+    @Override
+    public T visit(ICDisj constraint) {
+        return visitDefault(constraint);
+    }
+
+    public abstract T visitDefault(IConstraint constraint);
 
 }

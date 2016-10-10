@@ -4,15 +4,15 @@ import java.util.Set;
 
 import javax.annotation.Nullable;
 
-import org.metaborg.fastutil.persistent.Object2ObjectPMap;
 import org.metaborg.fastutil.persistent.Object2ObjectOpenHashPMap;
+import org.metaborg.fastutil.persistent.Object2ObjectPMap;
 import org.metaborg.unification.ITerm;
 import org.metaborg.unification.ITermUnifier;
-import org.metaborg.unification.terms.TermVar;
+import org.metaborg.unification.terms.ITermVar;
 
 public final class EagerTermUnifier implements ITermUnifier {
 
-    final Object2ObjectPMap<TermVar,ITerm> varReps;
+    final Object2ObjectPMap<ITermVar,ITerm> varReps;
     final Object2ObjectPMap<ITerm,ITerm> termReps;
 
     public EagerTermUnifier() {
@@ -20,7 +20,7 @@ public final class EagerTermUnifier implements ITermUnifier {
         this.termReps = new Object2ObjectOpenHashPMap<>();
     }
 
-    EagerTermUnifier(Object2ObjectPMap<TermVar,ITerm> varReps, Object2ObjectPMap<ITerm,ITerm> termReps) {
+    EagerTermUnifier(Object2ObjectPMap<ITermVar,ITerm> varReps, Object2ObjectPMap<ITerm,ITerm> termReps) {
         this.varReps = varReps;
         this.termReps = termReps;
     }
@@ -37,13 +37,13 @@ public final class EagerTermUnifier implements ITermUnifier {
 
     @Override public ITermUnifier findAll() {
         ITermUnifier localUnifier = this;
-        for (TermVar var : varReps.keySet()) {
+        for (ITermVar var : varReps.keySet()) {
             localUnifier = localUnifier.find(var).unifier();
         }
         return localUnifier;
     }
 
-    @Override public Set<TermVar> variables() {
+    @Override public Set<ITermVar> variables() {
         return varReps.keySet();
     }
 

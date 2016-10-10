@@ -15,22 +15,25 @@ import com.google.common.collect.ImmutableList;
 @ConstructorClass
 @Serial.Structural
 @SuppressWarnings("serial")
-public abstract class ApplTermV extends TermWithArgs implements ITerm {
+public abstract class ApplTermV extends TermWithArgs implements ITerm, IApplTerm {
 
+    @Override
     public abstract String getOp();
 
+    @Override
     public abstract ImmutableList<ITerm> getArgs();
 
+    @Override
     @Value.Lazy public int getArity() {
         return getArgs().size();
     }
 
     @Override public <T> T apply(ITermFunction<T> function) {
-        return function.apply((ApplTerm) this);
+        return function.apply(this);
     }
 
     @Override public boolean test(ITermPredicate predicate) {
-        return predicate.test((ApplTerm) this);
+        return predicate.test(this);
     }
 
     @Override public String toString() {

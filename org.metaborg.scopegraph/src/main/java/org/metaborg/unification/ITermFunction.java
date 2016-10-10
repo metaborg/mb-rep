@@ -1,26 +1,26 @@
 package org.metaborg.unification;
 
-import org.metaborg.unification.terms.ApplTerm;
-import org.metaborg.unification.terms.ConsTerm;
-import org.metaborg.unification.terms.NilTerm;
-import org.metaborg.unification.terms.TermOp;
-import org.metaborg.unification.terms.TermVar;
-import org.metaborg.unification.terms.TupleTerm;
+import org.metaborg.unification.terms.IApplTerm;
+import org.metaborg.unification.terms.IConsTerm;
+import org.metaborg.unification.terms.INilTerm;
+import org.metaborg.unification.terms.ITermOp;
+import org.metaborg.unification.terms.ITermVar;
+import org.metaborg.unification.terms.ITupleTerm;
 
 public interface ITermFunction<T> {
 
-    T apply(TermVar term);
+    T apply(ITermVar term);
 
-    T apply(TermOp termOp);
+    T apply(ITermOp termOp);
 
-    T apply(ApplTerm term);
+    T apply(IApplTerm term);
 
-    T apply(TupleTerm term);
+    T apply(ITupleTerm term);
 
     T apply(IPrimitiveTerm term);
 
-    T apply(ConsTerm term);
+    T apply(IConsTerm term);
 
-    T apply(NilTerm term);
+    T apply(INilTerm term);
 
 }

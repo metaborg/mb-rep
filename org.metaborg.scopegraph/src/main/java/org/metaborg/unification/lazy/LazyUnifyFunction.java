@@ -6,14 +6,14 @@ import org.metaborg.unification.IPrimitiveTerm;
 import org.metaborg.unification.ITerm;
 import org.metaborg.unification.ITermFunction;
 import org.metaborg.unification.terms.ATermFunction;
-import org.metaborg.unification.terms.ApplTerm;
-import org.metaborg.unification.terms.ConsTerm;
-import org.metaborg.unification.terms.NilTerm;
-import org.metaborg.unification.terms.TermOp;
+import org.metaborg.unification.terms.IApplTerm;
+import org.metaborg.unification.terms.IConsTerm;
+import org.metaborg.unification.terms.INilTerm;
+import org.metaborg.unification.terms.ITermOp;
+import org.metaborg.unification.terms.ITermVar;
+import org.metaborg.unification.terms.ITermWithArgs;
+import org.metaborg.unification.terms.ITupleTerm;
 import org.metaborg.unification.terms.TermPair;
-import org.metaborg.unification.terms.TermVar;
-import org.metaborg.unification.terms.TermWithArgs;
-import org.metaborg.unification.terms.TupleTerm;
 import org.metaborg.util.iterators.Iterables2;
 
 import com.google.common.collect.ImmutableList;
@@ -31,11 +31,11 @@ final class LazyUnifyFunction implements ITermFunction<LazyUnifyResult> {
 
     // ***** Var & Op *****
 
-    @Override public LazyUnifyResult apply(final TermVar first) {
+    @Override public LazyUnifyResult apply(final ITermVar first) {
         return LazyUnifyResult.result(new LazyTermUnifier(unifier.varReps.put(first, second), unifier.opReps));
     }
 
-    public LazyUnifyResult apply(TermOp first) {
+    public LazyUnifyResult apply(final ITermOp first) {
         return null;
     };
 
@@ -47,11 +47,11 @@ final class LazyUnifyFunction implements ITermFunction<LazyUnifyResult> {
             this.first = first;
         }
 
-        @Override public LazyUnifyResult apply(TermVar second) {
+        @Override public LazyUnifyResult apply(ITermVar second) {
             return LazyUnifyResult.result(new LazyTermUnifier(unifier.varReps.put(second, first), unifier.opReps));
         }
 
-        @Override public LazyUnifyResult apply(TermOp second) {
+        @Override public LazyUnifyResult apply(ITermOp second) {
             return null;
         }
 
@@ -83,7 +83,7 @@ final class LazyUnifyFunction implements ITermFunction<LazyUnifyResult> {
 
     // ***** WithArgs *****
 
-    private LazyUnifyResult visitArgs(TermWithArgs first, TermWithArgs second) {
+    private LazyUnifyResult visitArgs(ITermWithArgs first, ITermWithArgs second) {
         final ImmutableList<ITerm> args1 = first.getArgs();
         final ImmutableList<ITerm> args2 = second.getArgs();
         if (args1.size() != args2.size()) {
@@ -107,17 +107,17 @@ final class LazyUnifyFunction implements ITermFunction<LazyUnifyResult> {
 
     // ***** Appl *****
 
-    public LazyUnifyResult apply(ApplTerm first) {
+    public LazyUnifyResult apply(IApplTerm first) {
         return second.apply(new ApplVisitor(first));
     };
 
-    private class ApplVisitor extends VarVisitor<ApplTerm> {
+    private class ApplVisitor extends VarVisitor<IApplTerm> {
 
-        public ApplVisitor(ApplTerm first) {
+        public ApplVisitor(IApplTerm first) {
             super(first);
         }
 
-        @Override public LazyUnifyResult apply(ApplTerm second) {
+        @Override public LazyUnifyResult apply(IApplTerm second) {
             if (!first.getOp().equals(second.getOp())) {
                 return LazyUnifyResult.resultWithConflict(unifier, TermPair.of(first, second));
             }
@@ -127,34 +127,34 @@ final class LazyUnifyFunction implements ITermFunction<LazyUnifyResult> {
 
     // ***** List *****
 
-    public LazyUnifyResult apply(ConsTerm first) {
+    public LazyUnifyResult apply(IConsTerm first) {
         return second.apply(new ConsVisitor(first));
     };
 
-    private class ConsVisitor extends VarVisitor<ConsTerm> {
+    private class ConsVisitor extends VarVisitor<IConsTerm> {
 
-        public ConsVisitor(ConsTerm first) {
+        public ConsVisitor(IConsTerm first) {
             super(first);
         }
 
-        @Override public LazyUnifyResult apply(ConsTerm second) {
+        @Override public LazyUnifyResult apply(IConsTerm second) {
             LazyUnifyResult heads = unifier.unify(first.getHead(), second.getHead());
             return heads.unifier().unify(first.getTail(), second.getTail());
         }
 
     }
 
-    public LazyUnifyResult apply(NilTerm first) {
+    public LazyUnifyResult apply(INilTerm first) {
         return second.apply(new NilVisitor(first));
     };
 
-    private class NilVisitor extends VarVisitor<NilTerm> {
+    private class NilVisitor extends VarVisitor<INilTerm> {
 
-        public NilVisitor(NilTerm first) {
+        public NilVisitor(INilTerm first) {
             super(first);
         }
 
-        @Override public LazyUnifyResult apply(NilTerm second) {
+        @Override public LazyUnifyResult apply(INilTerm second) {
             return LazyUnifyResult.result(unifier);
         }
 
@@ -162,17 +162,17 @@ final class LazyUnifyFunction implements ITermFunction<LazyUnifyResult> {
 
     // ***** Tuple*****
 
-    public LazyUnifyResult apply(TupleTerm first) {
+    public LazyUnifyResult apply(ITupleTerm first) {
         return second.apply(new TupleVisitor(first));
     };
 
-    private class TupleVisitor extends VarVisitor<TupleTerm> {
+    private class TupleVisitor extends VarVisitor<ITupleTerm> {
 
-        public TupleVisitor(TupleTerm first) {
+        public TupleVisitor(ITupleTerm first) {
             super(first);
         }
 
-        @Override public LazyUnifyResult apply(TupleTerm second) {
+        @Override public LazyUnifyResult apply(ITupleTerm second) {
             return visitArgs(first, second);
         }
     }

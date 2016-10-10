@@ -8,13 +8,14 @@ import org.metaborg.annotations.ConstantClass;
 @ConstantClass
 @Serial.Version(value = 1L)
 @SuppressWarnings("serial")
-public abstract class CFalseV implements IConstraint {
+public abstract class CFalseV implements ICFalse {
 
     @Override public <T> T accept(IConstraintVisitor<T> visitor) {
-        return visitor.visit((CFalse) this);
+        return visitor.visit(this);
     }
 
     @Override public String toString() {
         return "false";
     }
+
 }

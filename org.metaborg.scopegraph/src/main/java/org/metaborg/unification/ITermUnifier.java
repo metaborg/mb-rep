@@ -2,7 +2,7 @@ package org.metaborg.unification;
 
 import java.util.Set;
 
-import org.metaborg.unification.terms.TermVar;
+import org.metaborg.unification.terms.ITermVar;
 
 
 public interface ITermUnifier {
@@ -13,6 +13,6 @@ public interface ITermUnifier {
 
     ITermUnifier findAll();
 
-    Set<TermVar> variables();
+    Set<ITermVar> variables();
 
 }

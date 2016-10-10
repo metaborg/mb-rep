@@ -6,32 +6,32 @@ import org.metaborg.unification.ITermFunction;
 
 public abstract class ATermFunction<T> implements ITermFunction<T> {
 
-    @Override public T apply(TermVar term) {
-        return defaultApply((ITerm) term);
+    @Override public T apply(ITermVar term) {
+        return defaultApply(term);
     }
 
     @Override public T apply(IPrimitiveTerm term) {
-        return defaultApply((ITerm) term);
+        return defaultApply(term);
     }
 
-    @Override public T apply(ApplTerm term) {
-        return defaultApply((ITerm) term);
+    @Override public T apply(IApplTerm term) {
+        return defaultApply(term);
     }
 
-    @Override public T apply(TupleTerm term) {
-        return defaultApply((ITerm) term);
+    @Override public T apply(ITupleTerm term) {
+        return defaultApply(term);
     }
 
-    @Override public T apply(ConsTerm term) {
-        return defaultApply((ITerm) term);
+    @Override public T apply(IConsTerm term) {
+        return defaultApply(term);
     }
 
-    @Override public T apply(NilTerm term) {
-        return defaultApply((ITerm) term);
+    @Override public T apply(INilTerm term) {
+        return defaultApply(term);
     }
 
-    @Override public T apply(TermOp term) {
-        return defaultApply((ITerm) term);
+    @Override public T apply(ITermOp term) {
+        return defaultApply(term);
     }
 
     public abstract T defaultApply(ITerm term);

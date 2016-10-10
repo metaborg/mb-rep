@@ -13,14 +13,14 @@ import org.metaborg.unification.ITermPredicate;
 @ConstructorClass
 @Serial.Structural
 @SuppressWarnings("serial")
-public abstract class TupleTermV extends TermWithArgs implements ITerm {
+public abstract class TupleTermV extends TermWithArgs implements ITupleTerm {
 
     @Override public <T> T apply(ITermFunction<T> visitor) {
-        return visitor.apply((TupleTerm) this);
+        return visitor.apply(this);
     }
 
     @Override public boolean test(ITermPredicate predicate) {
-        return predicate.test((TupleTerm) this);
+        return predicate.test(this);
     }
 
     @Override public String toString() {

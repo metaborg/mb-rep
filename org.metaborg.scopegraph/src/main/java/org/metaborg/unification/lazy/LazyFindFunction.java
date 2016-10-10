@@ -2,8 +2,8 @@ package org.metaborg.unification.lazy;
 
 import org.metaborg.unification.ITerm;
 import org.metaborg.unification.terms.ATermFunction;
-import org.metaborg.unification.terms.TermOp;
-import org.metaborg.unification.terms.TermVar;
+import org.metaborg.unification.terms.ITermOp;
+import org.metaborg.unification.terms.ITermVar;
 
 final class LazyFindFunction extends ATermFunction<LazyFindResult> {
 
@@ -13,7 +13,7 @@ final class LazyFindFunction extends ATermFunction<LazyFindResult> {
         this.unifier = unifier;
     }
 
-    @Override public LazyFindResult apply(TermVar termVar) {
+    @Override public LazyFindResult apply(ITermVar termVar) {
         if (unifier.varReps.containsKey(termVar)) {
             LazyFindResult result = unifier.varReps.get(termVar).apply(this);
             return new LazyFindResult(result.rep(),
@@ -23,7 +23,7 @@ final class LazyFindFunction extends ATermFunction<LazyFindResult> {
         }
     }
 
-    @Override public LazyFindResult apply(TermOp termOp) {
+    @Override public LazyFindResult apply(ITermOp termOp) {
         if (unifier.opReps.containsKey(termOp)) {
             LazyFindResult result = unifier.opReps.get(termOp).apply(this);
             return new LazyFindResult(result.rep(),

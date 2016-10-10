@@ -6,9 +6,12 @@ import org.metaborg.unification.ITerm;
 import org.metaborg.unification.ITermFunction;
 import org.metaborg.unification.terms.ApplTerm;
 import org.metaborg.unification.terms.ConsTerm;
-import org.metaborg.unification.terms.NilTerm;
-import org.metaborg.unification.terms.TermOp;
-import org.metaborg.unification.terms.TermVar;
+import org.metaborg.unification.terms.IApplTerm;
+import org.metaborg.unification.terms.IConsTerm;
+import org.metaborg.unification.terms.INilTerm;
+import org.metaborg.unification.terms.ITermOp;
+import org.metaborg.unification.terms.ITermVar;
+import org.metaborg.unification.terms.ITupleTerm;
 import org.metaborg.unification.terms.TupleTerm;
 
 import com.google.common.collect.ImmutableList;
@@ -21,7 +24,7 @@ final class EagerFindFunction implements ITermFunction<EagerFindResult> {
         this.unifier = unifier;
     }
 
-    @Override public EagerFindResult apply(TermVar term) {
+    @Override public EagerFindResult apply(ITermVar term) {
         if (unifier.varReps.containsKey(term)) {
             EagerFindResult result = unifier.varReps.get(term).apply(this);
             return new EagerFindResult(result.rep(),
@@ -31,7 +34,7 @@ final class EagerFindFunction implements ITermFunction<EagerFindResult> {
         }
     }
 
-    @Override public EagerFindResult apply(TermOp term) {
+    @Override public EagerFindResult apply(ITermOp term) {
         if (unifier.termReps.containsKey(term)) {
             EagerFindResult result = unifier.termReps.get(term).apply(this);
             return new EagerFindResult(result.rep(),
@@ -44,7 +47,7 @@ final class EagerFindFunction implements ITermFunction<EagerFindResult> {
         }
     }
 
-    @Override public EagerFindResult apply(ApplTerm term) {
+    @Override public EagerFindResult apply(IApplTerm term) {
         if (term.isGround()) {
             return new EagerFindResult(term, unifier);
         } else if (unifier.termReps.containsKey(term)) {
@@ -65,7 +68,7 @@ final class EagerFindFunction implements ITermFunction<EagerFindResult> {
             }
             boolean someArgsUpdated = localUnifier != unifier;
             if (someArgsUpdated) {
-                ApplTerm newTerm = ApplTerm.of(term.getOp(), argBuilder.build());
+                IApplTerm newTerm = ApplTerm.of(term.getOp(), argBuilder.build());
                 return new EagerFindResult(newTerm,
                         new EagerTermUnifier(unifier.varReps, unifier.termReps.put(term, newTerm)));
             } else {
@@ -74,7 +77,7 @@ final class EagerFindFunction implements ITermFunction<EagerFindResult> {
         }
     }
 
-    @Override public EagerFindResult apply(TupleTerm term) {
+    @Override public EagerFindResult apply(ITupleTerm term) {
         if (term.isGround()) {
             return new EagerFindResult(term, unifier);
         } else if (unifier.termReps.containsKey(term)) {
@@ -95,7 +98,7 @@ final class EagerFindFunction implements ITermFunction<EagerFindResult> {
             }
             boolean someArgsUpdated = localUnifier != unifier;
             if (someArgsUpdated) {
-                TupleTerm newTerm = TupleTerm.of(argBuilder.build());
+                ITupleTerm newTerm = TupleTerm.of(argBuilder.build());
                 return new EagerFindResult(newTerm,
                         new EagerTermUnifier(unifier.varReps, unifier.termReps.put(term, newTerm)));
             } else {
@@ -108,7 +111,7 @@ final class EagerFindFunction implements ITermFunction<EagerFindResult> {
         return new EagerFindResult(term, unifier);
     }
 
-    @Override public EagerFindResult apply(ConsTerm term) {
+    @Override public EagerFindResult apply(IConsTerm term) {
         if (term.isGround()) {
             return new EagerFindResult(term, unifier);
         } else if (unifier.termReps.containsKey(term)) {
@@ -131,7 +134,7 @@ final class EagerFindFunction implements ITermFunction<EagerFindResult> {
             }
             boolean someArgsUpdated = localUnifier != unifier;
             if (someArgsUpdated) {
-                ConsTerm newTerm = ConsTerm.of(head, tail);
+                IConsTerm newTerm = ConsTerm.of(head, tail);
                 return new EagerFindResult(newTerm,
                         new EagerTermUnifier(unifier.varReps, unifier.termReps.put(term, newTerm)));
             } else {
@@ -140,7 +143,7 @@ final class EagerFindFunction implements ITermFunction<EagerFindResult> {
         }
     }
 
-    @Override public EagerFindResult apply(NilTerm term) {
+    @Override public EagerFindResult apply(INilTerm term) {
         return new EagerFindResult(term, unifier);
     }
 

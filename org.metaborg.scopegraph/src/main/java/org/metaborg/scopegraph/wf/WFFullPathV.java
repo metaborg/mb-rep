@@ -14,14 +14,14 @@ import org.metaborg.scopegraph.path.PathException;
 @ConstructorClass
 @Serial.Structural
 @SuppressWarnings("serial")
-public abstract class WFFullPathV implements Serializable, WFPath {
+public abstract class WFFullPathV implements Serializable, IWFFullPath {
 
     @Override public abstract IFullPath path();
 
     @Override public abstract IRegExpMatcher<ILabel> wf();
 
-    @Override public <T> T accept(WFPathVisitor<T> visitor) throws PathException {
-        return visitor.visit((WFFullPath) this);
+    @Override public <T> T accept(IWFPathVisitor<T> visitor) throws PathException {
+        return visitor.visit(this);
     }
 
 }

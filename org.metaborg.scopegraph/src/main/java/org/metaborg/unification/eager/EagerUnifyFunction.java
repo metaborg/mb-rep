@@ -6,14 +6,14 @@ import org.metaborg.unification.IPrimitiveTerm;
 import org.metaborg.unification.ITerm;
 import org.metaborg.unification.ITermFunction;
 import org.metaborg.unification.terms.ATermFunction;
-import org.metaborg.unification.terms.ApplTerm;
-import org.metaborg.unification.terms.ConsTerm;
-import org.metaborg.unification.terms.NilTerm;
-import org.metaborg.unification.terms.TermOp;
+import org.metaborg.unification.terms.IApplTerm;
+import org.metaborg.unification.terms.IConsTerm;
+import org.metaborg.unification.terms.INilTerm;
+import org.metaborg.unification.terms.ITermOp;
+import org.metaborg.unification.terms.ITermVar;
+import org.metaborg.unification.terms.ITermWithArgs;
+import org.metaborg.unification.terms.ITupleTerm;
 import org.metaborg.unification.terms.TermPair;
-import org.metaborg.unification.terms.TermVar;
-import org.metaborg.unification.terms.TermWithArgs;
-import org.metaborg.unification.terms.TupleTerm;
 import org.metaborg.util.iterators.Iterables2;
 
 import com.google.common.collect.ImmutableList;
@@ -31,11 +31,11 @@ final class EagerUnifyFunction implements ITermFunction<EagerUnifyResult> {
 
     // ***** Var & Op *****
 
-    @Override public EagerUnifyResult apply(final TermVar first) {
+    @Override public EagerUnifyResult apply(final ITermVar first) {
         return EagerUnifyResult.result(new EagerTermUnifier(unifier.varReps.put(first, second), unifier.termReps));
     }
 
-    public EagerUnifyResult apply(TermOp first) {
+    public EagerUnifyResult apply(ITermOp first) {
         return null;
     };
 
@@ -47,11 +47,11 @@ final class EagerUnifyFunction implements ITermFunction<EagerUnifyResult> {
             this.first = first;
         }
 
-        @Override public EagerUnifyResult apply(TermVar second) {
+        @Override public EagerUnifyResult apply(ITermVar second) {
             return EagerUnifyResult.result(new EagerTermUnifier(unifier.varReps.put(second, first), unifier.termReps));
         }
 
-        @Override public EagerUnifyResult apply(TermOp second) {
+        @Override public EagerUnifyResult apply(ITermOp second) {
             return null;
         }
 
@@ -83,7 +83,7 @@ final class EagerUnifyFunction implements ITermFunction<EagerUnifyResult> {
 
     // ***** WithArgs *****
 
-    private EagerUnifyResult visitArgs(TermWithArgs first, TermWithArgs second) {
+    private EagerUnifyResult visitArgs(ITermWithArgs first, ITermWithArgs second) {
         final ImmutableList<ITerm> args1 = first.getArgs();
         final ImmutableList<ITerm> args2 = second.getArgs();
         if (args1.size() != args2.size()) {
@@ -107,17 +107,17 @@ final class EagerUnifyFunction implements ITermFunction<EagerUnifyResult> {
 
     // ***** Appl *****
 
-    public EagerUnifyResult apply(ApplTerm first) {
+    public EagerUnifyResult apply(IApplTerm first) {
         return second.apply(new ApplVisitor(first));
     };
 
-    private class ApplVisitor extends VarVisitor<ApplTerm> {
+    private class ApplVisitor extends VarVisitor<IApplTerm> {
 
-        public ApplVisitor(ApplTerm first) {
+        public ApplVisitor(IApplTerm first) {
             super(first);
         }
 
-        @Override public EagerUnifyResult apply(ApplTerm second) {
+        @Override public EagerUnifyResult apply(IApplTerm second) {
             if (!first.getOp().equals(second.getOp())) {
                 return EagerUnifyResult.resultWithConflict(unifier, TermPair.of(first, second));
             }
@@ -127,34 +127,34 @@ final class EagerUnifyFunction implements ITermFunction<EagerUnifyResult> {
 
     // ***** List *****
 
-    public EagerUnifyResult apply(ConsTerm first) {
+    public EagerUnifyResult apply(IConsTerm first) {
         return second.apply(new ConsVisitor(first));
     };
 
-    private class ConsVisitor extends VarVisitor<ConsTerm> {
+    private class ConsVisitor extends VarVisitor<IConsTerm> {
 
-        public ConsVisitor(ConsTerm first) {
+        public ConsVisitor(IConsTerm first) {
             super(first);
         }
 
-        @Override public EagerUnifyResult apply(ConsTerm second) {
+        @Override public EagerUnifyResult apply(IConsTerm second) {
             EagerUnifyResult heads = unifier.unify(first.getHead(), second.getHead());
             return heads.unifier().unify(first.getTail(), second.getTail());
         }
 
     }
 
-    public EagerUnifyResult apply(NilTerm first) {
+    public EagerUnifyResult apply(INilTerm first) {
         return second.apply(new NilVisitor(first));
     };
 
-    private class NilVisitor extends VarVisitor<NilTerm> {
+    private class NilVisitor extends VarVisitor<INilTerm> {
 
-        public NilVisitor(NilTerm first) {
+        public NilVisitor(INilTerm first) {
             super(first);
         }
 
-        @Override public EagerUnifyResult apply(NilTerm second) {
+        @Override public EagerUnifyResult apply(INilTerm second) {
             return EagerUnifyResult.result(unifier);
         }
 
@@ -162,17 +162,17 @@ final class EagerUnifyFunction implements ITermFunction<EagerUnifyResult> {
 
     // ***** Tuple*****
 
-    public EagerUnifyResult apply(TupleTerm first) {
+    public EagerUnifyResult apply(ITupleTerm first) {
         return second.apply(new TupleVisitor(first));
     };
 
-    private class TupleVisitor extends VarVisitor<TupleTerm> {
+    private class TupleVisitor extends VarVisitor<ITupleTerm> {
 
-        public TupleVisitor(TupleTerm first) {
+        public TupleVisitor(ITupleTerm first) {
             super(first);
         }
 
-        @Override public EagerUnifyResult apply(TupleTerm second) {
+        @Override public EagerUnifyResult apply(ITupleTerm second) {
             return visitArgs(first, second);
         }
     }
