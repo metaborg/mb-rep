@@ -34,7 +34,7 @@ public abstract class CConjV implements ICConj {
         return sb.toString();
     }
 
-    public static CConj of(IConstraint... constraints) {
+    public static ICConj of(IConstraint... constraints) {
         return CConj.of(ImmutableList.copyOf(constraints));
     }
 
