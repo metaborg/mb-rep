@@ -17,35 +17,27 @@ import com.google.common.collect.ImmutableList;
 @SuppressWarnings("serial")
 public abstract class TermOpV extends TermWithArgs implements ITermOp {
 
-    @Override
-    public abstract String getOp();
+    @Override public abstract String getOp();
 
-    @Override
-    public abstract ImmutableList<ITerm> getArgs();
+    @Override public abstract ImmutableList<ITerm> getArgs();
 
-    @Override
-    @Value.Lazy
-    public int getArity() {
+    @Override @Value.Lazy public int getArity() {
         return getArgs().size();
     }
 
-    @Override
-    public boolean isGround() {
+    @Override public boolean isGround() {
         return false;
     }
 
-    @Override
-    public <T> T apply(ITermFunction<T> visitor) {
+    @Override public <T> T apply(ITermFunction<T> visitor) {
         return visitor.apply(this);
     }
 
-    @Override
-    public boolean test(ITermPredicate predicate) {
+    @Override public boolean test(ITermPredicate predicate) {
         return predicate.test(this);
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return "!" + getOp() + "(" + super.toString() + ")";
     }
 

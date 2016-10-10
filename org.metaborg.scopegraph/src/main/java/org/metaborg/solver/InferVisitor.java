@@ -20,11 +20,11 @@ import org.metaborg.unification.terms.TermPair;
 
 import com.google.common.collect.Lists;
 
-public class SolveVisitor implements IConstraintVisitor<Collection<SolveResult>> {
+public class InferVisitor implements IConstraintVisitor<Collection<SolveResult>> {
 
     private final ISolution solution;
 
-    public SolveVisitor(ISolution solution) {
+    public InferVisitor(ISolution solution) {
         this.solution = solution;
     }
 

@@ -14,11 +14,9 @@ import org.metaborg.unification.ITermPredicate;
 @SuppressWarnings("serial")
 public abstract class TermVarV implements ITermVar {
 
-    @Override
-    public abstract @Nullable String getResource();
+    @Override public abstract @Nullable String getResource();
 
-    @Override
-    public abstract String getName();
+    @Override public abstract String getName();
 
     @Override public boolean isGround() {
         return false;

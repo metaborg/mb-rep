@@ -4,8 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
-import org.metaborg.unification.ITermUnifier;
-import org.metaborg.unification.IUnifyResult;
 import org.metaborg.unification.eager.EagerTermUnifier;
 import org.metaborg.unification.lazy.LazyTermUnifier;
 import org.metaborg.unification.terms.ApplTerm;

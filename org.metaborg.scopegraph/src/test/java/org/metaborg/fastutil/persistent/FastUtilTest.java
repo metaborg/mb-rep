@@ -4,10 +4,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.metaborg.fastutil.persistent.Object2ObjectPMap;
-import org.metaborg.fastutil.persistent.Object2ObjectOpenHashPMap;
-import org.metaborg.fastutil.persistent.ObjectOpenHashPSet;
-import org.metaborg.fastutil.persistent.ObjectPSet;
 
 public class FastUtilTest {
 

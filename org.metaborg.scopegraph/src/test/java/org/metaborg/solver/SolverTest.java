@@ -8,8 +8,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.Collections;
 
 import org.junit.Test;
-import org.metaborg.solver.ISolution;
-import org.metaborg.solver.Solver;
 import org.metaborg.solver.constraints.CConj;
 import org.metaborg.solver.constraints.CDisj;
 import org.metaborg.solver.constraints.CEqual;

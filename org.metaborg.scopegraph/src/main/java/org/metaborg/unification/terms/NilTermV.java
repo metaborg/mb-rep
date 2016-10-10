@@ -3,7 +3,6 @@ package org.metaborg.unification.terms;
 import org.immutables.serial.Serial;
 import org.immutables.value.Value;
 import org.metaborg.annotations.ConstantClass;
-import org.metaborg.unification.IListTerm;
 import org.metaborg.unification.ITermFunction;
 import org.metaborg.unification.ITermPredicate;
 

@@ -12,8 +12,7 @@ import com.google.common.collect.ImmutableList;
 @SuppressWarnings("serial")
 public abstract class CConjV implements ICConj {
 
-    @Override
-    public abstract ImmutableList<IConstraint> getConstraints();
+    @Override public abstract ImmutableList<IConstraint> getConstraints();
 
     @Override public <T> T accept(IConstraintVisitor<T> visitor) {
         return visitor.visit(this);

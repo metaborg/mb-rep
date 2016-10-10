@@ -17,14 +17,11 @@ import com.google.common.collect.ImmutableList;
 @SuppressWarnings("serial")
 public abstract class ApplTermV extends TermWithArgs implements ITerm, IApplTerm {
 
-    @Override
-    public abstract String getOp();
+    @Override public abstract String getOp();
 
-    @Override
-    public abstract ImmutableList<ITerm> getArgs();
+    @Override public abstract ImmutableList<ITerm> getArgs();
 
-    @Override
-    @Value.Lazy public int getArity() {
+    @Override @Value.Lazy public int getArity() {
         return getArgs().size();
     }
 

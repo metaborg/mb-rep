@@ -45,7 +45,7 @@ public class Solver {
         final int errorsAtStart = branch.solution.getErrors().size();
         while (branch.canProgress()) {
             IConstraint constraint = branch.constraints.dequeue();
-            Collection<SolveResult> results = constraint.accept(new SolveVisitor(branch.solution));
+            Collection<SolveResult> results = constraint.accept(new InferVisitor(branch.solution));
             if (results == null) {
                 branch.defers.add(constraint);
             } else {

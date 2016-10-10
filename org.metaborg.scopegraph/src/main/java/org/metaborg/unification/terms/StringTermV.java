@@ -11,7 +11,7 @@ import org.metaborg.unification.ITermPredicate;
 @ConstructorClass
 @Serial.Structural
 @SuppressWarnings("serial")
-public abstract class StringTermV implements IPrimitiveTerm  {
+public abstract class StringTermV implements IPrimitiveTerm {
 
     public abstract String getValue();
 

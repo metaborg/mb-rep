@@ -14,11 +14,9 @@ import org.metaborg.unification.ITermPredicate;
 @SuppressWarnings("serial")
 public abstract class ConsTermV implements IConsTerm {
 
-    @Override
-    public abstract ITerm getHead();
+    @Override public abstract ITerm getHead();
 
-    @Override
-    public abstract IListTerm getTail();
+    @Override public abstract IListTerm getTail();
 
     @Value.Lazy @Override public boolean isGround() {
         return getHead().isGround() && getTail().isGround();

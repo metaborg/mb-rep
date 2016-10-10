@@ -3,8 +3,6 @@ package org.metaborg.scopegraph;
 import static org.metaborg.scopegraph.path.free.PathConcat.concat;
 
 import org.junit.Test;
-import org.metaborg.scopegraph.IOccurrence;
-import org.metaborg.scopegraph.IScope;
 import org.metaborg.scopegraph.path.CyclicPathException;
 import org.metaborg.scopegraph.path.IFullPath;
 import org.metaborg.scopegraph.path.OccurrenceMismatchPathException;
