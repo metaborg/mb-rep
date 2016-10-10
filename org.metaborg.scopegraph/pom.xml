@@ -80,7 +80,6 @@
         <artifactId>maven-processor-plugin</artifactId>
         <version>3.2.0</version>
         <configuration>
-          <addOutputDirectoryToCompilationSources>true</addOutputDirectoryToCompilationSources>
         </configuration>
         <executions>
           <execution>

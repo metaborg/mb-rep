@@ -8,9 +8,9 @@ public interface IScope {
 
     Collection<ILabeledScope> directEdges();
 
-    Collection<IlabeledOccurrence> importEdges();
+    Collection<ILabeledOccurrence> importEdges();
 
-    Collection<IlabeledOccurrence> exportEdges();
+    Collection<ILabeledOccurrence> exportEdges();
 
     Collection<IOccurrence> references();
 

@@ -1,6 +1,6 @@
 package org.metaborg.nabl2.solution;
 
-public interface IlabeledOccurrence {
+public interface ILabeledOccurrence {
 
     String label();
 
