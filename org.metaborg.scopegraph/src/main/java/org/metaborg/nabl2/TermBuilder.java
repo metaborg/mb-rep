@@ -4,9 +4,8 @@ import org.metaborg.unification.IListTerm;
 import org.metaborg.unification.ITerm;
 import org.metaborg.unification.terms.ApplTerm;
 import org.metaborg.unification.terms.ConsTerm;
-import org.metaborg.unification.terms.DoubleTerm;
-import org.metaborg.unification.terms.IntTerm;
 import org.metaborg.unification.terms.NilTerm;
+import org.metaborg.unification.terms.PrimitiveTerm;
 import org.metaborg.unification.terms.StringTerm;
 import org.metaborg.unification.terms.TermVar;
 import org.metaborg.unification.terms.TupleTerm;
@@ -73,12 +72,12 @@ public class TermBuilder implements IStrategoVisitor<ITerm> {
     }
 
     @Override public ITerm visit(IStrategoInt term) {
-        return IntTerm.of(term.intValue());
+        return PrimitiveTerm.of(term.intValue());
 
     }
 
     @Override public ITerm visit(IStrategoReal term) {
-        return DoubleTerm.of(term.realValue());
+        return PrimitiveTerm.of(term.realValue());
     }
 
     @Override public ITerm visit(IStrategoString term) {

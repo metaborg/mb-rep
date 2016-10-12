@@ -28,7 +28,7 @@ public class ScopeScopePathConcat implements IScopePath {
         if (!left.targetScope().equals(right.sourceScope())) {
             throw new ScopeMismatchPathException();
         }
-        if (Paths.cyclic(left, right, left.targetScope())) {
+        if (Paths.isCyclic(left, right, left.targetScope())) {
             throw new CyclicPathException();
         }
         this.left = left;

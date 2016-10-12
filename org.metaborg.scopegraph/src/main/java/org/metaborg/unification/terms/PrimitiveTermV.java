@@ -11,9 +11,9 @@ import org.metaborg.unification.ITermPredicate;
 @ConstructorClass
 @Serial.Structural
 @SuppressWarnings("serial")
-public abstract class IntTermV implements IPrimitiveTerm {
+public abstract class PrimitiveTermV implements IPrimitiveTerm {
 
-    public abstract int getValue();
+    public abstract Object getValue();
 
     @Override public boolean isGround() {
         return true;
@@ -27,8 +27,12 @@ public abstract class IntTermV implements IPrimitiveTerm {
         return predicate.test(this);
     }
 
-    @Override public String toString() {
-        return Integer.toString(getValue());
+    @Override public java.lang.String toString() {
+        if (getValue() instanceof String) {
+            return  "\"" + getValue() + "\"";
+        } else {
+            return getValue().toString();
+        }
     }
 
 }

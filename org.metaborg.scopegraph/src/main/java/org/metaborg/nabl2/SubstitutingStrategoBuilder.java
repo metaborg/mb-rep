@@ -8,15 +8,12 @@ import org.metaborg.unification.ITerm;
 import org.metaborg.unification.ITermFunction;
 import org.metaborg.unification.ITermUnifier;
 import org.metaborg.unification.terms.ATermFunction;
-import org.metaborg.unification.terms.DoubleTerm;
 import org.metaborg.unification.terms.IApplTerm;
 import org.metaborg.unification.terms.IConsTerm;
 import org.metaborg.unification.terms.INilTerm;
 import org.metaborg.unification.terms.ITermOp;
 import org.metaborg.unification.terms.ITermVar;
 import org.metaborg.unification.terms.ITupleTerm;
-import org.metaborg.unification.terms.IntTerm;
-import org.metaborg.unification.terms.StringTerm;
 import org.metaborg.util.log.ILogger;
 import org.metaborg.util.log.LoggerUtils;
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -63,15 +60,16 @@ public final class SubstitutingStrategoBuilder {
 
     public IStrategoTerm primitiveTerm(IPrimitiveTerm term) {
         // TODO Fix this mess
-        if (term instanceof IntTerm) {
-            IntTerm i = (IntTerm) term;
-            return termFactory.makeInt(i.getValue());
-        } else if (term instanceof DoubleTerm) {
-            DoubleTerm i = (DoubleTerm) term;
-            return termFactory.makeReal(i.getValue());
-        } else if (term instanceof StringTerm) {
-            StringTerm i = (StringTerm) term;
-            return termFactory.makeString(i.getValue());
+        Object value = term.getValue();
+        if (value instanceof Integer) {
+            int i = (Integer) value;
+            return termFactory.makeInt(i);
+        } else if (value instanceof Double) {
+            double d = (Double) value;
+            return termFactory.makeReal(d);
+        } else if (value instanceof String) {
+            String s = (String) value;
+            return termFactory.makeString(s);
         } else {
             throw new IllegalArgumentException("Unsupported primitive term " + term);
         }

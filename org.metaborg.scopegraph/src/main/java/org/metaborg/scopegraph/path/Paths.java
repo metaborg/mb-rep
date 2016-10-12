@@ -6,7 +6,7 @@ import org.pcollections.PSet;
 
 public class Paths {
 
-    public static boolean cyclic(IPath left, IPath right, IScope connection) {
+    public static boolean isCyclic(IPath left, IPath right, IScope connection) {
         boolean swap = left.size() < right.size();
         PSet<IScope> larger = swap ? right.scopes() : left.scopes();
         PSet<IScope> smaller = swap ? left.scopes() : right.scopes();
@@ -18,7 +18,7 @@ public class Paths {
         return false;
     }
 
-    public static boolean recursive(IPath path, IOccurrence reference) {
+    public static boolean isRecursive(IPath path, IOccurrence reference) {
         return path.references().contains(reference);
     }
 

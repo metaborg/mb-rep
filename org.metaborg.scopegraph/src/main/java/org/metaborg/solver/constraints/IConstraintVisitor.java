@@ -15,4 +15,6 @@ public interface IConstraintVisitor<T> {
 
     T visit(ICDisj constraint);
 
+    T visit(ICResolve constraint);
+
 }

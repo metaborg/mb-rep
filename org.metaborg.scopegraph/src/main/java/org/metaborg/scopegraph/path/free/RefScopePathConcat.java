@@ -30,10 +30,10 @@ public class RefScopePathConcat implements IRefPath {
         if (!left.targetScope().equals(right.sourceScope())) {
             throw new ScopeMismatchPathException();
         }
-        if (Paths.cyclic(left, right, left.targetScope())) {
+        if (Paths.isCyclic(left, right, left.targetScope())) {
             throw new CyclicPathException();
         }
-        if (Paths.recursive(right, left.reference())) {
+        if (Paths.isRecursive(right, left.reference())) {
             throw new RecursivePathException();
         }
         this.left = left;

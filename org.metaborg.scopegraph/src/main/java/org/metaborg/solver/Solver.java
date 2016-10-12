@@ -3,6 +3,8 @@ package org.metaborg.solver;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.metaborg.regexp.IRegExp;
+import org.metaborg.scopegraph.ILabel;
 import org.metaborg.solver.constraints.IConstraint;
 import org.metaborg.unification.ITermUnifier;
 import org.metaborg.util.iterators.Iterables2;
@@ -19,13 +21,13 @@ public class Solver {
 
     private final PriorityQueue<Branch> branchQueue;
 
-    public Solver(ITermUnifier unifier, IConstraint... constraints) {
-        this(unifier, Iterables2.from(constraints));
+    public Solver(ITermUnifier unifier, IRegExp<ILabel> wf, IConstraint... constraints) {
+        this(unifier, wf, Iterables2.from(constraints));
     }
 
-    public Solver(ITermUnifier unifier, Iterable<IConstraint> constraints) {
+    public Solver(ITermUnifier unifier, IRegExp<ILabel> wf, Iterable<IConstraint> constraints) {
         this.branchQueue = new ObjectHeapPriorityQueue<>();
-        this.branchQueue.enqueue(new Branch(unifier, constraints));
+        this.branchQueue.enqueue(new Branch(unifier, wf, constraints));
     }
 
     public ISolution solve() {
@@ -93,12 +95,12 @@ public class Solver {
         public ISolution solution;
         public boolean progress;
 
-        public Branch(ITermUnifier unifier, Iterable<IConstraint> constraints) {
+        public Branch(ITermUnifier unifier, IRegExp<ILabel> wf, Iterable<IConstraint> constraints) {
             this.constraints = new ObjectHeapPriorityQueue<>(Iterables.toArray(constraints, IConstraint.class),
                     new ConstraintPriorityComparator());
             this.defers = new ObjectOpenHashSet<>();
             this.progress = false;
-            this.solution = new Solution(unifier);
+            this.solution = new Solution(unifier, wf);
         }
 
         public Branch(Branch other, ISolution solution, Collection<IConstraint> constraints) {

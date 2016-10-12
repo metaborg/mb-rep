@@ -5,18 +5,25 @@ import java.util.Collections;
 import java.util.List;
 
 import org.metaborg.fastutil.persistent.ObjectPSet;
+import org.metaborg.scopegraph.IOccurrence;
+import org.metaborg.scopegraph.wf.IWFFullPath;
 import org.metaborg.solver.constraints.CEqual;
 import org.metaborg.solver.constraints.ICConj;
 import org.metaborg.solver.constraints.ICDisj;
 import org.metaborg.solver.constraints.ICEqual;
 import org.metaborg.solver.constraints.ICFalse;
 import org.metaborg.solver.constraints.ICInequal;
+import org.metaborg.solver.constraints.ICResolve;
 import org.metaborg.solver.constraints.ICTrue;
 import org.metaborg.solver.constraints.IConstraint;
 import org.metaborg.solver.constraints.IConstraintVisitor;
+import org.metaborg.unification.IFindResult;
+import org.metaborg.unification.IPrimitiveTerm;
 import org.metaborg.unification.ITerm;
 import org.metaborg.unification.IUnifyResult;
+import org.metaborg.unification.terms.PrimitiveTerm;
 import org.metaborg.unification.terms.TermPair;
+import org.pcollections.PSet;
 
 import com.google.common.collect.Lists;
 
@@ -86,6 +93,49 @@ public class InferVisitor implements IConstraintVisitor<Collection<SolveResult>>
             localSolution = localSolution.setErrors(localSolution.getErrors().add(message));
         }
         return Collections.singleton(new SolveResult(localSolution));
+    }
+
+    @Override public Collection<SolveResult> visit(ICResolve constraint) {
+        // TODO Check that graph is fully built.
+
+        IFindResult refResult = solution.getUnifier().find(constraint.getReference());
+        ITerm refTerm = refResult.rep();
+        if (!refTerm.isGround()) {
+            return null;
+        }
+
+        if (!(refTerm instanceof IPrimitiveTerm)) {
+            throw new IllegalArgumentException("Expected occurrence, got " + refTerm);
+        }
+        IPrimitiveTerm refPrim = (IPrimitiveTerm) refTerm;
+        if (!(refPrim.getValue() instanceof IOccurrence)) {
+            throw new IllegalArgumentException("Expected occurrence, got " + refTerm);
+        }
+        IOccurrence ref = (IOccurrence) refPrim.getValue();
+
+        IFindResult declResult = solution.getUnifier().find(constraint.getDeclaration());
+        ITerm declTerm = declResult.rep();
+
+        if (solution.getResolution().containsKey(ref)) {
+            IOccurrence decl = solution.getResolution().get(ref).declaration();
+            IConstraint eq = CEqual.of(declTerm, PrimitiveTerm.of(decl));
+            return Collections.singleton(new SolveResult(solution, Collections.singleton(eq)));
+        }
+
+        PSet<IWFFullPath> paths = solution.getScopeGraph().reachables(ref);
+        if (paths.isEmpty()) {
+            String message = "Cannot resolve " + ref;
+            ISolution localSolution = solution.setErrors(solution.getErrors().add(message));
+            return Collections.singleton(new SolveResult(localSolution));
+        } else {
+            List<SolveResult> results = Lists.newArrayListWithExpectedSize(paths.size());
+            for (IWFFullPath path : paths) {
+                ISolution localSolution = solution.setResolution(solution.getResolution().put(ref, path.path()));
+                IConstraint eq = CEqual.of(declTerm, PrimitiveTerm.of(path.path().declaration()));
+                results.add(new SolveResult(localSolution, Collections.singleton(eq)));
+            }
+            return results;
+        }
     }
 
 }

@@ -1,4 +1,4 @@
 package org.metaborg.unification;
 
-public interface IAny extends ITerm, IPrimitiveTerm, IListTerm {
+public interface IAny extends ITerm, IListTerm {
 }

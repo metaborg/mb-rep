@@ -35,10 +35,10 @@ public class RefDeclPathConcat implements IFullPath {
         if (!left.reference().matches(right.declaration())) {
             throw new OccurrenceMismatchPathException();
         }
-        if (Paths.cyclic(left, right, left.targetScope())) {
+        if (Paths.isCyclic(left, right, left.targetScope())) {
             throw new CyclicPathException();
         }
-        if (Paths.recursive(right, left.reference())) {
+        if (Paths.isRecursive(right, left.reference())) {
             throw new RecursivePathException();
         }
         this.left = left;

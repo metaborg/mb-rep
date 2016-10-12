@@ -9,10 +9,9 @@ import org.metaborg.regexp.Reverser;
 import org.metaborg.scopegraph.ILabel;
 import org.metaborg.scopegraph.ILabeledOccurrence;
 import org.metaborg.scopegraph.ILabeledScope;
-import org.metaborg.scopegraph.INameResolution;
 import org.metaborg.scopegraph.IOccurrence;
+import org.metaborg.scopegraph.IResolvingScopeGraph;
 import org.metaborg.scopegraph.IScope;
-import org.metaborg.scopegraph.IScopeGraph;
 import org.metaborg.scopegraph.path.IDeclPath;
 import org.metaborg.scopegraph.path.IFullPath;
 import org.metaborg.scopegraph.path.PathException;
@@ -52,7 +51,8 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
  *          RESOLVE (s) =l=> [r] ->* [d] =l=> (s) ->* [d']
  *
  * RESOLVE:
- *    case (s) ->* [d] unless path is final & not accepting:
+ *    case p : (s) ->* [d] where p not final or p is well-formed:
+ *       env(s) += <path>
  *       for every (s) <-l- (s')
  *          RESOLVE (s') -l-> (s) ->* [d]
  *       for every (s) <- [r] where r matches d:
@@ -60,12 +60,13 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
  *       for every (s) <=l= [d'], [d'] *<- [r'], [r'] <=l= (s')
  *          RESOLVE (s') =l=> [r'] ->* [d'] =l=> (s) ->* [d]
  *    case [r] ->* [d] where path is accepting:
+ *       res(r) += <path>
  *       for every [r] <=l= (s), [d] =l=> (s'), (s') ->* [d']:
  *          RESOLVE (s) =l=> [r] ->* [d] =l=> (s') ->* [d']
  * </pre>
  */
 
-public class BackwardResolvingScopeGraph implements IScopeGraph, INameResolution {
+public class BackwardResolvingScopeGraph implements IResolvingScopeGraph {
 
     private static final long serialVersionUID = 467691464366824128L;
 
