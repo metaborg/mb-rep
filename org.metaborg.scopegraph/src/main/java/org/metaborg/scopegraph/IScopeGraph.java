@@ -7,7 +7,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 public interface IScopeGraph {
 
     Collection<IScope> scopes();
- 
+
     IStrategoTerm strategoTerm();
- 
+
 }
