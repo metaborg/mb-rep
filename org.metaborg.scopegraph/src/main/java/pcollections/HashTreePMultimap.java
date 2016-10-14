@@ -85,7 +85,7 @@ public class HashTreePMultimap<K, V> implements PMultimap<K,V> {
     }
 
     @Override public PSet<V> get(K key) {
-        return data.get(key);
+        return data.getOrDefault(key, HashTreePSet.<V>empty());
     }
 
     @Override public Set<K> keySet() {
@@ -144,4 +144,9 @@ public class HashTreePMultimap<K, V> implements PMultimap<K,V> {
         throw new IllegalAccessError();
     }
 
+    @Override
+    public String toString() {
+        return data.toString();
+    }
+    
 }
