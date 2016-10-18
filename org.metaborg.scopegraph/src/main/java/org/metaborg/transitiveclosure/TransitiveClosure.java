@@ -1,9 +1,8 @@
 package org.metaborg.transitiveclosure;
 
+import org.metaborg.pcollections.HashTreePMultimap;
+import org.metaborg.pcollections.PMultimap;
 import org.pcollections.PSet;
-
-import pcollections.HashTreePMultimap;
-import pcollections.PMultimap;
 
 public class TransitiveClosure<T> {
 

@@ -1,4 +1,4 @@
-package pcollections;
+package org.metaborg.pcollections;
 
 import java.util.Collection;
 import java.util.Map;
