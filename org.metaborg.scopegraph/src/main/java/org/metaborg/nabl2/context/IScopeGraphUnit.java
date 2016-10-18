@@ -1,25 +1,22 @@
 package org.metaborg.nabl2.context;
 
+import java.io.Serializable;
+
 import javax.annotation.Nullable;
 
 import org.metaborg.nabl2.solution.INameResolution;
 import org.metaborg.nabl2.solution.IScopeGraph;
-import org.metaborg.solver.constraints.IConstraint;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-public interface IScopeGraphUnit {
+public interface IScopeGraphUnit extends Serializable {
 
-    String source();
+    String resource();
 
-    void setMetadata(int nodeId, IStrategoTerm key, IStrategoTerm value);
-
-    @Nullable IStrategoTerm metadata(int nodeId, IStrategoTerm key);
+    @Nullable IStrategoTerm partialAnalysis();
 
     @Nullable IScopeGraph scopeGraph();
 
     @Nullable INameResolution nameResolution();
-
-    @Nullable IConstraint constraint();
 
     @Nullable IStrategoTerm analysis();
 

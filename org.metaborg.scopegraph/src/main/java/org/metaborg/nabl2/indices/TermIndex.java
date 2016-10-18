@@ -59,8 +59,13 @@ public class TermIndex extends AbstractTermAttachment implements ITermIndex, Ser
         term.putAttachment(new TermIndex(resource, nodeId));
     }
 
-    public static void put(IStrategoTerm term, IStrategoAppl index) {
-        term.putAttachment(TermIndex.TYPE.fromTerm(index));
+    public static boolean put(IStrategoTerm term, IStrategoAppl indexTerm) {
+        TermIndex index = TermIndex.TYPE.fromTerm(indexTerm);
+        if (index == null) {
+            return false;
+        }
+        term.putAttachment(index);
+        return true;
     }
 
     public static @Nullable TermIndex get(ISimpleTerm term) {
