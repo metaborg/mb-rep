@@ -3,6 +3,8 @@ package org.metaborg.solver;
 import java.util.Collection;
 import java.util.Collections;
 
+import javax.annotation.Nullable;
+
 import org.metaborg.regexp.IRegExp;
 import org.metaborg.scopegraph.ILabel;
 import org.metaborg.solver.constraints.IConstraint;
@@ -13,11 +15,15 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import it.unimi.dsi.fastutil.PriorityQueue;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectHeapPriorityQueue;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class Solver {
+
+    private final Object2ObjectMap<Class<? extends IConstraint>,Class<? extends IConstraint>> typeRedirect;
 
     private final PriorityQueue<Branch> branchQueue;
 
@@ -25,7 +31,14 @@ public class Solver {
         this(unifier, wf, Iterables2.from(constraints));
     }
 
-    public Solver(ITermUnifier unifier, IRegExp<ILabel> wf, Iterable<IConstraint> constraints) {
+    public Solver(ITermUnifier unifier, Iterable<AbstractSolverComponent<?>> components,
+            Iterable<IConstraint> constraints) {
+        this.components = new Object2ObjectOpenHashMap<>();
+        this.typeRedirect = new Object2ObjectOpenHashMap<>();
+        for (AbstractSolverComponent<?> component : components) {
+            assert findComponent(component.type()) == null;
+            this.components.put(component.type(), component);
+        }
         this.branchQueue = new ObjectHeapPriorityQueue<>();
         this.branchQueue.enqueue(new Branch(unifier, wf, constraints));
     }
@@ -90,6 +103,7 @@ public class Solver {
 
     private static class Branch implements Comparable<Branch> {
 
+        private final Object2ObjectMap<Class<? extends IConstraint>,AbstractSolverComponent<?>> components;
         public final PriorityQueue<IConstraint> constraints;
         public final ObjectSet<IConstraint> defers;
         public ISolution solution;
@@ -129,6 +143,33 @@ public class Solver {
 
         @Override public int compareTo(Branch other) {
             return solution.getErrors().size() - other.solution.getErrors().size();
+        }
+
+        @SuppressWarnings("unchecked") private @Nullable AbstractSolverComponent<?> findComponent(
+                final Class<? extends IConstraint> type) {
+            if (components.containsKey(type)) {
+                return components.get(type);
+            } else if (typeRedirect.containsKey(type)) {
+                return findComponent(typeRedirect.get(type));
+            } else {
+                AbstractSolverComponent<?> component = null;
+                for (Class<?> intf : type.getInterfaces()) {
+                    if (IConstraint.class.isAssignableFrom(intf)) {
+                        component = findComponent(type);
+                        break;
+                    }
+                }
+                if (component == null) {
+                    Class<?> superType = type.getSuperclass();
+                    if (superType != null && IConstraint.class.isAssignableFrom(superType)) {
+                        component = findComponent(type);
+                    }
+                }
+                if (component != null) {
+                    typeRedirect.put(type, component.type());
+                }
+                return component;
+            }
         }
 
     }

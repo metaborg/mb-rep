@@ -26,39 +26,40 @@ public class HashTreePMultimap<K, V> implements PMultimap<K,V> {
     }
 
     @Override public PMultimap<K,V> plus(K key, V value) {
-        PSet<V> newValues = data.getOrDefault(key, HashTreePSet.<V> empty()).plus(value);
-        PMap<K,PSet<V>> newData = data.plus(key, newValues);
+        final PSet<V> newValues = get(key).plus(value);
+        final PMap<K,PSet<V>> newData = data.plus(key, newValues);
         return new HashTreePMultimap<>(newData);
     }
 
     @Override public PMultimap<K,V> plusAll(K key, Collection<? extends V> values) {
-        PSet<V> newValues = data.getOrDefault(key, HashTreePSet.<V> empty()).plusAll(values);
-        PMap<K,PSet<V>> newData = data.plus(key, newValues);
+        final PSet<V> newValues = get(key).plusAll(values);
+        final PMap<K,PSet<V>> newData = data.plus(key, newValues);
         return new HashTreePMultimap<>(newData);
     }
 
     @Override public PMultimap<K,V> plusAll(Multimap<? extends K,? extends V> multimap) {
         PMap<K,PSet<V>> newData = data;
         for (Entry<? extends K,? extends V> entry : multimap.entries()) {
-            PSet<V> newValues = data.getOrDefault(entry.getKey(), HashTreePSet.<V> empty()).plus(entry.getValue());
-            newData = newData.plus(entry.getKey(), newValues);
+            final K key = entry.getKey();
+            final PSet<V> newValues = get(key).plus(entry.getValue());
+            newData = newData.plus(key, newValues);
         }
         return new HashTreePMultimap<>(newData);
     }
 
     @Override public PMultimap<K,V> minus(K key) {
-        PMap<K,PSet<V>> newData = data.minus(key);
+        final PMap<K,PSet<V>> newData = data.minus(key);
         return new HashTreePMultimap<>(newData);
     }
 
     @Override public PMultimap<K,V> minus(K key, V value) {
-        PSet<V> newValues = data.getOrDefault(key, HashTreePSet.<V> empty()).minus(value);
-        PMap<K,PSet<V>> newData = data.plus(key, newValues);
+        final PSet<V> newValues = get(key).minus(value);
+        final PMap<K,PSet<V>> newData = data.plus(key, newValues);
         return new HashTreePMultimap<>(newData);
     }
 
     @Override public PMultimap<K,V> minusAll(K key, Collection<? extends V> values) {
-        PSet<V> newValues = data.getOrDefault(key, HashTreePSet.<V> empty()).minusAll(values);
+        PSet<V> newValues = get(key).minusAll(values);
         PMap<K,PSet<V>> newData = data.plus(key, newValues);
         return new HashTreePMultimap<>(newData);
     }
@@ -85,7 +86,7 @@ public class HashTreePMultimap<K, V> implements PMultimap<K,V> {
     }
 
     @Override public PSet<V> get(K key) {
-        return data.getOrDefault(key, HashTreePSet.<V>empty());
+        return data.containsKey(key) ? data.get(key) : HashTreePSet.<V> empty();
     }
 
     @Override public Set<K> keySet() {
@@ -144,9 +145,8 @@ public class HashTreePMultimap<K, V> implements PMultimap<K,V> {
         throw new IllegalAccessError();
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return data.toString();
     }
-    
+
 }
