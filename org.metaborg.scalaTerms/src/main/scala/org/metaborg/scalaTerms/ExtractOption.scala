@@ -1,6 +1,6 @@
-package org.spoofax.scalaTerms
+package org.metaborg.scalaTerms
 
-import org.spoofax.scalaTerms.sdf._
+import org.metaborg.scalaTerms.sdf._
 
 /**
   * Extracts an option of T from an STerm version of Option

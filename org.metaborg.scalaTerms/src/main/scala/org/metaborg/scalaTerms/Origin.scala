@@ -1,4 +1,4 @@
-package org.spoofax.scalaTerms
+package org.metaborg.scalaTerms
 
 import org.spoofax.interpreter.terms.IStrategoTerm
 import org.spoofax.jsglr.client.imploder.ImploderAttachment

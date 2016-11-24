@@ -1,6 +1,6 @@
-package org.spoofax.scalaTerms.sdf
+package org.metaborg.scalaTerms.sdf
 
-import org.spoofax.scalaTerms.{ STerm, TermLike }
+import org.metaborg.scalaTerms.{ STerm, TermLike }
 
 /**
   * Represents an SDF Lexical Sort. The implementor can be generated from an SDF specification.

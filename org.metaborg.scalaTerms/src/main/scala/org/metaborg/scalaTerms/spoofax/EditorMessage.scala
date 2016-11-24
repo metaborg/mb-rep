@@ -1,6 +1,6 @@
-package org.spoofax.scalaTerms.spoofax
+package org.metaborg.scalaTerms.spoofax
 
-import org.spoofax.scalaTerms.{ Extract, Origin, STerm, TermLike }
+import org.metaborg.scalaTerms.{ Extract, Origin, STerm, TermLike }
 
 /**
   * Editor message expected to be returned by editor-* strategy implementations

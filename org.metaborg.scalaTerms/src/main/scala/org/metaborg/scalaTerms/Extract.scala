@@ -1,4 +1,4 @@
-package org.spoofax.scalaTerms
+package org.metaborg.scalaTerms
 
 /**
   * A pattern to match an STerm against. Can also match lists and options of these.

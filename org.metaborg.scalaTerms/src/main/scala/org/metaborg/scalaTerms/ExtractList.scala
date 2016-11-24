@@ -1,8 +1,8 @@
-package org.spoofax.scalaTerms
+package org.metaborg.scalaTerms
 
 /**
   * Extracts a list of T from an STerm version of List
- *
+  *
   * @tparam T the type to extract from the STerm
   */
 trait ExtractList[T] extends Extract[STerm.List[T]] {

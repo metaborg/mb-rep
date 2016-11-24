@@ -1,6 +1,6 @@
-package org.spoofax.scalaTerms.spoofax
+package org.metaborg.scalaTerms.spoofax
 
-import org.spoofax.scalaTerms.{ Extract, Origin, STerm }
+import org.metaborg.scalaTerms.{ Extract, Origin, STerm }
 
 /**
   * Strategy input that's given, for example, to `editor-analyze`
