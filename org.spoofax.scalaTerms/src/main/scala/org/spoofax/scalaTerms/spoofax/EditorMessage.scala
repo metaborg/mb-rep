@@ -1,15 +1,14 @@
-package org.metaborg.scalaInterop.terms.spoofax
+package org.spoofax.scalaTerms.spoofax
 
-import org.metaborg.scalaInterop.terms.generic.{ Extract, ExtractList }
-import org.metaborg.scalaInterop.terms.stratego.{ Origin, TermLike, Term => STerm }
+import org.spoofax.scalaTerms.{ Extract, Origin, STerm, TermLike }
 
 /**
   * Editor message expected to be returned by editor-* strategy implementations
-  * Well.. the scalaInterop.stratego ATerm representation of it anyway
+  * Well.. the Scala ATerm representation of it anyway
   */
 case class EditorMessage(message: String, origin: Origin) extends TermLike {
   /**
-    * @return equivalent scalaInterop.stratego ATerm representation
+    * @return equivalent Scala ATerm representation
     */
   override def toSTerm: STerm = {
     STerm.Tuple(List(STerm.String("origin dummy", origin), STerm.String(message, origin)), origin)
@@ -22,8 +21,4 @@ object ExtractEditorMessage extends Extract[EditorMessage] {
       Some(EditorMessage(message, origin))
     case _                                                                       => None
   }
-}
-
-object ExtractEditorMessageList extends ExtractList[EditorMessage] {
-  override val Extract: Extract[EditorMessage] = ExtractEditorMessage
 }

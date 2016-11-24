@@ -1,4 +1,4 @@
-package org.metaborg.scalaInterop.terms.stratego
+package org.spoofax.scalaTerms
 
 import org.spoofax.interpreter.terms._
 import org.strategoxt.lang.Context
@@ -9,9 +9,9 @@ trait TermLike {
   val origin: Origin
   
   /**
-    * @return equivalent scalaInterop.stratego ATerm representation
+    * @return equivalent Scala ATerm representation
     */
-  def toSTerm: Term
+  def toSTerm: STerm
   
   /**
     * @return equivalent Java ATerm representation
@@ -22,13 +22,13 @@ trait TermLike {
 }
 
 /**
-  * The scalaInterop.stratego representation of ATerms
+  * The Scala representation of ATerms
   */
-sealed trait Term extends TermLike {
+sealed trait STerm extends TermLike {
   /**
-    * @return equivalent scalaInterop.stratego ATerm representation
+    * @return equivalent Scala ATerm representation
     */
-  override def toSTerm: Term = this
+  override def toSTerm: STerm = this
   
   /**
     * @return equivalent Java ATerm representation
@@ -36,14 +36,14 @@ sealed trait Term extends TermLike {
   override def toStratego(implicit context: Context): IStrategoTerm
 }
 
-object Term {
+object STerm {
   
   /**
     * @param iStrategoTerm the Java ATerm representation
     *
-    * @return equivalent scalaInterop.stratego representation
+    * @return equivalent Scala representation
     */
-  def fromStratego(iStrategoTerm: IStrategoTerm): Term = {
+  def fromStratego(iStrategoTerm: IStrategoTerm): STerm = {
     val origin = Origin.fromStratego(iStrategoTerm)
     iStrategoTerm.getTermType match {
       case IStrategoTerm.INT    => Int(iStrategoTerm.asInstanceOf[IStrategoInt].intValue, origin)
@@ -60,7 +60,7 @@ object Term {
     }
   }
   
-  case class Int(value: scala.Int, origin: Origin) extends Term {
+  case class Int(value: scala.Int, origin: Origin) extends STerm {
     /**
       * @return equivalent Java ATerm representation
       */
@@ -71,7 +71,7 @@ object Term {
     }
   }
   
-  case class Real(value: Double, origin: Origin) extends Term {
+  case class Real(value: Double, origin: Origin) extends STerm {
     /**
       * @return equivalent Java ATerm representation
       */
@@ -82,7 +82,7 @@ object Term {
     }
   }
   
-  case class String(value: java.lang.String, origin: Origin) extends Term {
+  case class String(value: java.lang.String, origin: Origin) extends STerm {
     /**
       * @return equivalent Java ATerm representation
       */
@@ -93,7 +93,7 @@ object Term {
     }
   }
   
-  case class List(value: scala.List[Term], origin: Origin) extends Term {
+  case class List[T <: TermLike](value: scala.List[T], origin: Origin) extends STerm {
     /**
       * @return equivalent Java ATerm representation
       */
@@ -104,7 +104,7 @@ object Term {
     }
   }
   
-  case class Tuple(value: scala.List[Term], origin: Origin) extends Term {
+  case class Tuple(value: scala.List[STerm], origin: Origin) extends STerm {
     /**
       * @return equivalent Java ATerm representation
       */
@@ -117,7 +117,7 @@ object Term {
     
   }
   
-  case class Cons(value: java.lang.String, children: scala.List[Term], origin: Origin) extends Term {
+  case class Cons(value: java.lang.String, children: scala.List[STerm], origin: Origin) extends STerm {
     /**
       * @return equivalent Java ATerm representation
       */
@@ -132,6 +132,7 @@ object Term {
   
 }
 
-object conversions {
-  implicit def termLikeToTerm[T <: TermLike](t: T): Term = t.toSTerm
+object implicits {
+  implicit def termLikeToTerm[T <: TermLike](t: T): STerm = t.toSTerm
+  implicit def sListToList[T](l: STerm.List[T]): List[T] = l.value
 }
