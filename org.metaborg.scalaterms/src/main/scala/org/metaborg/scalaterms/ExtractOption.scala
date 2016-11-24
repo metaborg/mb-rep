@@ -1,6 +1,6 @@
-package org.metaborg.scalaTerms
+package org.metaborg.scalaterms
 
-import org.metaborg.scalaTerms.sdf._
+import org.metaborg.scalaterms.sdf._
 
 /**
   * Extracts an option of T from an STerm version of Option

@@ -1,6 +1,6 @@
-package org.metaborg.scalaTerms.sdf
+package org.metaborg.scalaterms.sdf
 
-import org.metaborg.scalaTerms.{ Origin, STerm, TermLike }
+import org.metaborg.scalaterms.{ Origin, STerm, TermLike }
 
 /**
   * Represents an SDF Constructor. The implementor can be generated from an SDF specification.

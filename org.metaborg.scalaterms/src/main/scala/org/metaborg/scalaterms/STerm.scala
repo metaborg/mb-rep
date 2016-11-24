@@ -1,4 +1,4 @@
-package org.metaborg.scalaTerms
+package org.metaborg.scalaterms
 
 import org.spoofax.interpreter.terms._
 import org.strategoxt.lang.Context

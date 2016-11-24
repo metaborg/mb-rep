@@ -1,4 +1,4 @@
-package org.metaborg.scalaTerms
+package org.metaborg.scalaterms
 
 /**
   * Extracts a list of T from an STerm version of List

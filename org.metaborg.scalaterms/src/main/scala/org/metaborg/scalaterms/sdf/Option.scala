@@ -1,6 +1,6 @@
-package org.metaborg.scalaTerms.sdf
+package org.metaborg.scalaterms.sdf
 
-import org.metaborg.scalaTerms.{ Origin, STerm, TermLike }
+import org.metaborg.scalaterms.{ Origin, STerm, TermLike }
 
 /**
   * Created by jeff on 24/11/16.

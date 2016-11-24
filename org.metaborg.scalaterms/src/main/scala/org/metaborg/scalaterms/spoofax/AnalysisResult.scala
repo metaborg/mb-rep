@@ -1,6 +1,6 @@
-package org.metaborg.scalaTerms.spoofax
+package org.metaborg.scalaterms.spoofax
 
-import org.metaborg.scalaTerms.{ Extract, Origin, STerm, TermLike }
+import org.metaborg.scalaterms.{ Extract, Origin, STerm, TermLike }
 
 /**
   * Created by jeff on 23/11/16.
