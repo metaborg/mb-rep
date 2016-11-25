@@ -1,9 +1,10 @@
 package org.metaborg.scalaterms.spoofax
 
-import org.metaborg.scalaterms.{ Extract, Origin, STerm, TermLike }
+import org.metaborg.scalaterms.implicits._
+import org.metaborg.scalaterms._
 
 /**
-  * Created by jeff on 23/11/16.
+  * The Scala representation of the analysis result, as returned by `editor-analyze`
   */
 case class AnalysisResult(ast: STerm,
                           errors: List[EditorMessage],
@@ -21,15 +22,23 @@ case class AnalysisResult(ast: STerm,
   }
 }
 
-object ExtractAnalysisResult extends Extract[AnalysisResult] {
-  def unapply(term: STerm): Option[AnalysisResult] = term match {
-    case STerm.Tuple(List(ast,
-                          ExtractEditorMessage.list(errors),
-                          ExtractEditorMessage.list(warnings),
-                          ExtractEditorMessage.list(notes)), origin) => Some(AnalysisResult(ast,
-                                                                                            errors,
-                                                                                            warnings,
-                                                                                            notes,
-                                                                                            origin))
+object AnalysisResult extends TermLikeCompanion[AnalysisResult] {
+  override val fromSTerm = new FromSTerm[AnalysisResult] {
+    /**
+      * The extraction from STerm
+      *
+      * @param term the STerm
+      * @return the Some(T) that's extracted if matched
+      */
+    override def unapply(term: STerm): Option[AnalysisResult] = term match {
+      case STerm.Tuple(List(ast,
+                            EditorMessage.fromSTerm.list(errors),
+                            EditorMessage.fromSTerm.list(warnings),
+                            EditorMessage.fromSTerm.list(notes)), origin) => Some(AnalysisResult(ast,
+                                                                                                 errors,
+                                                                                                 warnings,
+                                                                                                 notes,
+                                                                                                 origin))
+    }
   }
 }
