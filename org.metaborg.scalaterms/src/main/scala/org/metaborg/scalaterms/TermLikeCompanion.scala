@@ -8,7 +8,7 @@ package org.metaborg.scalaterms
   * or patterns in a pattern match.
   * @tparam T The class this object is a companion of
   */
-trait TermLikeCompanion[T] { self =>
+trait TermLikeCompanion[T <: TermLike] { self =>
   val fromSTerm: FromSTerm[T]
   val fromStratego: FromStratego[T] = new FromStratego[T] {
     override val fromSTerm: Extract[T] = self.fromSTerm

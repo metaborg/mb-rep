@@ -22,6 +22,7 @@ object ResolutionResult extends TermLikeCompanion[ResolutionResult] {
       */
     override def unapply(term: STerm): Option[ResolutionResult] = term match {
       case STerm.String(_, origin) => Some(ResolutionResult(origin))
+      case _ => None
     }
   }
 }

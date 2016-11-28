@@ -5,14 +5,14 @@ package org.metaborg.scalaterms
  *
   * @tparam T the type to extract from the STerm
   */
-trait FromSTerm[T] {self =>
+trait FromSTerm[T <: TermLike] {self =>
   /**
     * The list matcher for the same type.
     */
   val list = new FromSTerm[STerm.List[T]] {
     override def unapply(term: STerm): Option[STerm.List[T]] = term match {
       case STerm.List(l, o) =>
-        val l2 = l.map(t => self.unapply(t.toSTerm))
+        val l2: List[Option[T]] = l.map(t => self.unapply(t.toSTerm))
         if (l2.contains(None.asInstanceOf[Option[T]])) {
           None
         }

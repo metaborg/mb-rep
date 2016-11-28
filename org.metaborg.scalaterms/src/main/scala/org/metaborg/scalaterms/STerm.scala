@@ -115,8 +115,7 @@ object STerm {
 }
 
 object implicits {
-  impli
-  cit def termLikeToTerm[T <: TermLike](t: T): STerm = t.toSTerm
+  implicit def termLikeToTerm[T <: TermLike](t: T): STerm = t.toSTerm
 
-  implicit def sListToList[T](l: STerm.List[T]): List[T] = l.value
+  implicit def sListToList[T <: TermLike](l: STerm.List[T]): List[T] = l.value
 }

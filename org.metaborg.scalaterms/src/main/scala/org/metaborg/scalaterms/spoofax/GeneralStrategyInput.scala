@@ -5,7 +5,10 @@ import org.metaborg.scalaterms._
 /**
   * Strategy input that's given, for example, to `editor-hover` and `editor-resolve`
   */
-case class GeneralStrategyInput(ast: STerm, path: String, projectPath: String, origin: Origin) extends TermLike {
+class GeneralStrategyInput(val ast: STerm,
+                           val path: String,
+                           val projectPath: String,
+                           override val origin: Origin) extends TermLike {
   /**
     * @return equivalent Scala ATerm representation
     */
@@ -32,7 +35,7 @@ case class GeneralStrategyInput(ast: STerm, path: String, projectPath: String, o
 }
 
 object GeneralStrategyInput extends TermLikeCompanion[GeneralStrategyInput] {
-  override val fromSTerm = new FromSTerm[_] {
+  override val fromSTerm = new FromSTerm[GeneralStrategyInput] {
     /**
       * The extraction from STerm
       *
@@ -46,4 +49,12 @@ object GeneralStrategyInput extends TermLikeCompanion[GeneralStrategyInput] {
       case _ => None
     }
   }
+
+  def apply(ast: STerm,
+            path: String,
+            projectPath: String,
+            origin: Origin): GeneralStrategyInput = new GeneralStrategyInput(ast, path, projectPath, origin)
+
+  def unapply(gsi: GeneralStrategyInput): Option[(STerm, String, String, Origin)] = Some((gsi.ast, gsi.path, gsi
+    .projectPath, gsi.origin))
 }

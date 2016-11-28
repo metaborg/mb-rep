@@ -7,7 +7,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm
   *
   * @tparam T the type to extract from the STerm
   */
-trait FromStratego[T] { self =>
+trait FromStratego[T <: TermLike] { self =>
   val fromSTerm: FromSTerm[T]
 
   val list = new FromStratego[STerm.List[T]] {
