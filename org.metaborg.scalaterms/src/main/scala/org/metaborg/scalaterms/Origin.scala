@@ -10,6 +10,8 @@ class Origin(filename: String, line: Int, column: Int, startOffset: Int, endOffs
   def toStratego: ImploderAttachment = {
     ImploderAttachment.createCompactPositionAttachment(filename, line, column, startOffset, endOffset)
   }
+
+  def zero: Origin = new Origin(this.filename, 0, 0, 0, 0)
 }
 
 object Origin {

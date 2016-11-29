@@ -28,4 +28,9 @@ object EditorMessage extends TermLikeCompanion[EditorMessage] {
       case _ => None
     }
   }
+
+  def from(message: Any, origin: Origin): EditorMessage = {
+    val msg = message.toString.replace("<", "&lt;").replace(">", "&gt;").replace("&", "&amp;")
+    EditorMessage(msg, origin)
+  }
 }
