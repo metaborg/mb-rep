@@ -48,7 +48,9 @@ object STerm {
       */
     override def toStratego(implicit context: Context): IStrategoTerm = {
       val term = context.getFactory.makeInt(value)
-      term.putAttachment(origin.toStratego)
+      if (origin != null) {
+        term.putAttachment(origin.toStratego)
+      }
       term
     }
   }
@@ -59,7 +61,9 @@ object STerm {
       */
     override def toStratego(implicit context: Context): IStrategoTerm = {
       val term = context.getFactory.makeReal(value)
-      term.putAttachment(origin.toStratego)
+      if (origin != null) {
+        term.putAttachment(origin.toStratego)
+      }
       term
     }
   }
@@ -70,7 +74,9 @@ object STerm {
       */
     override def toStratego(implicit context: Context): IStrategoTerm = {
       val term = context.getFactory.makeString(value)
-      term.putAttachment(origin.toStratego)
+      if (origin != null) {
+        term.putAttachment(origin.toStratego)
+      }
       term
     }
   }
@@ -81,7 +87,9 @@ object STerm {
       */
     override def toStratego(implicit context: Context): IStrategoTerm = {
       val term = context.getFactory.makeList(value.map(_.toStratego).asJava)
-      term.putAttachment(origin.toStratego)
+      if (origin != null) {
+        term.putAttachment(origin.toStratego)
+      }
       term
     }
   }
@@ -93,7 +101,9 @@ object STerm {
     override def toStratego(implicit context: Context): IStrategoTerm = {
       val factory = context.getFactory
       val term = factory.makeTuple(value.map(_.toStratego).toArray, factory.makeList())
-      term.putAttachment(origin.toStratego)
+      if (origin != null) {
+        term.putAttachment(origin.toStratego)
+      }
       term
     }
 
@@ -107,7 +117,9 @@ object STerm {
       val factory = context.getFactory
       val constructor = factory.makeConstructor(value, children.length)
       val term = factory.makeAppl(constructor, children.map(_.toStratego).toArray, factory.makeList)
-      term.putAttachment(origin.toStratego)
+      if (origin != null) {
+        term.putAttachment(origin.toStratego)
+      }
       term
     }
   }
