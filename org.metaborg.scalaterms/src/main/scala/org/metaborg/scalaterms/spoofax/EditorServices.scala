@@ -1,7 +1,6 @@
 package org.metaborg.scalaterms.spoofax
 
-import org.metaborg.scalaterms.STerm
-import org.spoofax.interpreter.core.Context
+import org.strategoxt.lang.Context
 import org.spoofax.interpreter.terms.IStrategoTerm
 
 /**

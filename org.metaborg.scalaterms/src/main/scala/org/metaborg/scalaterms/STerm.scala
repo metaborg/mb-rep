@@ -1,6 +1,6 @@
 package org.metaborg.scalaterms
 
-import org.spoofax.interpreter.core.Context
+import org.strategoxt.lang.Context
 import org.spoofax.interpreter.terms._
 
 import scala.collection.JavaConverters._
