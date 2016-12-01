@@ -7,8 +7,6 @@ import org.spoofax.interpreter.terms.IStrategoTerm
   * Something that has an STerm representation
   */
 trait TermLike {
-  val origin: Origin
-
   /**
     * @return equivalent Scala ATerm representation
     */
