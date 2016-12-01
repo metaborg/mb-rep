@@ -9,7 +9,7 @@ trait FromSTerm[T <: TermLike] {self =>
   /**
     * The list matcher for the same type.
     */
-  val list = new FromSTerm[STerm.List[T]] {
+  lazy val list = new FromSTerm[STerm.List[T]] {
     override def unapply(term: STerm): Option[STerm.List[T]] = term match {
       case STerm.List(l, o) =>
         val l2: List[Option[T]] = l.map(t => self.unapply(t.toSTerm))
@@ -26,7 +26,7 @@ trait FromSTerm[T <: TermLike] {self =>
   /**
     * The option matcher for the same type.
     */
-  val option = new FromSTerm[sdf.Option[T]] {
+  lazy val option = new FromSTerm[sdf.Option[T]] {
     override def unapply(term: STerm): Option[sdf.Option[T]] = term match {
       case STerm.Cons("Some", List(t), o) => self.unapply(t).map(sdf.Some(_, o))
       case STerm.Cons("None", List(), o)  => Some(sdf.None(o))
