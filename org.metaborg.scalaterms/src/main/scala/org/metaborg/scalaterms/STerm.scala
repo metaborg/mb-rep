@@ -85,7 +85,7 @@ object STerm {
     }
   }
 
-  case class List[T <: TermLike](value: scala.List[T], override val origin: Option[Origin] = None) extends STerm {
+  case class List[T <: TermLike](value: scala.Seq[T], override val origin: Option[Origin] = None) extends STerm {
     /**
       * @return equivalent Java ATerm representation
       */
@@ -99,7 +99,7 @@ object STerm {
     }
   }
 
-  case class Tuple(value: scala.List[STerm], override val origin: Option[Origin] = None) extends STerm {
+  case class Tuple(value: scala.Seq[STerm], override val origin: Option[Origin] = None) extends STerm {
     /**
       * @return equivalent Java ATerm representation
       */
@@ -115,7 +115,7 @@ object STerm {
 
   }
 
-  case class Cons(value: java.lang.String, children: scala.List[STerm], override val origin: Option[Origin] = None) extends STerm {
+  case class Cons(value: java.lang.String, children: scala.Seq[STerm], override val origin: Option[Origin] = None) extends STerm {
     /**
       * @return equivalent Java ATerm representation
       */
@@ -136,5 +136,5 @@ object STerm {
 object implicits {
   implicit def termLikeToTerm[T <: TermLike](t: T): STerm = t.toSTerm
 
-  implicit def sListToList[T <: TermLike](l: STerm.List[T]): List[T] = l.value
+  implicit def sListToSeq[T <: TermLike](l: STerm.List[T]): Seq[T] = l.value
 }

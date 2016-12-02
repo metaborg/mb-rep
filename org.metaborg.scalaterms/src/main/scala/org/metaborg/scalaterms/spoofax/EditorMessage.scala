@@ -10,7 +10,7 @@ case class EditorMessage(message: String, override val origin: Origin) extends T
     * @return equivalent Scala ATerm representation
     */
   override def toSTerm: STerm = {
-    STerm.Tuple(List(STerm.String("Dummy string for supplying the origin", Some(origin)), STerm.String(message)))
+    STerm.Tuple(Seq(STerm.String("Dummy string for supplying the origin", Some(origin)), STerm.String(message)))
   }
 }
 
@@ -23,7 +23,7 @@ object EditorMessage extends TermLikeCompanion[EditorMessage] {
       * @return the Some(T) that's extracted if matched
       */
     override def unapply(term: STerm): Option[EditorMessage] = term match {
-      case STerm.Tuple(List(STerm.String(_, _), STerm.String(message, _)), Some(origin)) =>
+      case STerm.Tuple(Seq(STerm.String(_, _), STerm.String(message, _)), Some(origin)) =>
         Some(EditorMessage(message, origin))
       case _ => None
     }

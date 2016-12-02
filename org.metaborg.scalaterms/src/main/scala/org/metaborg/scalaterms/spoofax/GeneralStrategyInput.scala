@@ -12,7 +12,7 @@ class GeneralStrategyInput(val ast: STerm,
     * @return equivalent Scala ATerm representation
     */
   override def toSTerm: STerm = {
-    STerm.Tuple(List(ast, STerm.String(path), STerm.String(projectPath)))
+    STerm.Tuple(Seq(ast, STerm.String(path), STerm.String(projectPath)))
   }
 
   /**
@@ -25,9 +25,9 @@ class GeneralStrategyInput(val ast: STerm,
     * @param ast      The ast to give back. Default is the input ast
     * @return The AnalysisResult that can directly be turned into a Spoofax consumable representation with `toStratego`
     */
-  def makeAnalysisResult(errors: List[EditorMessage],
-                         warnings: List[EditorMessage],
-                         notes: List[EditorMessage],
+  def makeAnalysisResult(errors: Seq[EditorMessage],
+                         warnings: Seq[EditorMessage],
+                         notes: Seq[EditorMessage],
                          ast: STerm = this.ast): AnalysisResult = {
     AnalysisResult(ast, errors, warnings, notes)
   }
@@ -42,8 +42,10 @@ object GeneralStrategyInput extends TermLikeCompanion[GeneralStrategyInput] {
       * @return the Some(T) that's extracted if matched
       */
     override def unapply(term: STerm): Option[GeneralStrategyInput] = term match {
-      case STerm.List(List(ast, STerm.String(path, _), STerm.String(projectPath, _)), _) => Some(
-        GeneralStrategyInput(ast.toSTerm, path, projectPath))
+      case STerm.Tuple(Seq(ast, STerm.String(path, _), STerm.String(projectPath, _)), _) => Some(
+        GeneralStrategyInput(ast, path, projectPath))
+      case STerm.List(Seq(STerm.Cons("File", Seq(STerm.String(path, _), ast, STerm.Real(_, _)), _)), _) => Some(
+        GeneralStrategyInput(ast, path, ""))
       case FocusedStrategyInput.fromSTerm(fsi) => Some(fsi)
       case _ => None
     }

@@ -16,7 +16,7 @@ case class FocusedStrategyInput(node: STerm,
     * @return equivalent Scala ATerm representation
     */
   override def toSTerm: STerm = {
-    STerm.Tuple(List(node, position, ast, STerm.String(path), STerm.String(projectPath)))
+    STerm.Tuple(Seq(node, position, ast, STerm.String(path), STerm.String(projectPath)))
   }
 }
 
@@ -29,7 +29,7 @@ object FocusedStrategyInput extends TermLikeCompanion[FocusedStrategyInput] {
       * @return the Some(T) that's extracted if matched
       */
     override def unapply(term: STerm): Option[FocusedStrategyInput] = term match {
-      case STerm.Tuple(List(node, position, ast, STerm.String(path, _), STerm.String(projectPath, _)), _) => Some(
+      case STerm.Tuple(Seq(node, position, ast, STerm.String(path, _), STerm.String(projectPath, _)), _) => Some(
         FocusedStrategyInput(node, position, ast, path, projectPath))
       case _ => None
     }

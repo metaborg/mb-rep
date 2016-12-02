@@ -16,7 +16,6 @@ trait EditorAnalyze {
     */
   def editorAnalyze(context: Context, term: IStrategoTerm): IStrategoTerm = {
     implicit val ctx = context
-    context.getIOAgent.printError("TEST: " + term.getTermType)
     GeneralStrategyInput.fromStratego(term).map(editorAnalyze).map(_.toStratego).orNull
   }
 

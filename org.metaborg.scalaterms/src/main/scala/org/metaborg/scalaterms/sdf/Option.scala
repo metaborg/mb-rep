@@ -16,7 +16,7 @@ final case class Some[+A <: TermLike](x: A, override val origin: Origin) extends
   /**
     * @return equivalent Scala ATerm representation
     */
-  override def toSTerm: STerm = STerm.Cons("Some", List(x.toSTerm), scala.Some(origin))
+  override def toSTerm: STerm = STerm.Cons("Some", Seq(x.toSTerm), scala.Some(origin))
 }
 
 case class None(override val origin: Origin) extends Option[Nothing] {
@@ -27,7 +27,7 @@ case class None(override val origin: Origin) extends Option[Nothing] {
   /**
     * @return equivalent Scala ATerm representation
     */
-  override def toSTerm: STerm = STerm.Cons("None", List(), scala.Some(origin))
+  override def toSTerm: STerm = STerm.Cons("None", Seq(), scala.Some(origin))
 }
 
 object implicits {
