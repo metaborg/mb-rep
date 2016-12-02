@@ -1,8 +1,5 @@
 package org.metaborg.scalaterms.spoofax
 
-import org.strategoxt.lang.Context
-import org.spoofax.interpreter.terms.IStrategoTerm
-
 /**
   * `editor-*` strategies that can be called from the Java `InteropRegistrer` in the Spoofax project
   * Easiest to call from Java when the implementer is an object. Then the call is for example:

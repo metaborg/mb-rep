@@ -4,7 +4,8 @@ import org.spoofax.interpreter.terms.IStrategoTerm
 import org.strategoxt.lang.Context
 
 /**
-  * Created by jeff on 01/12/16.
+  * `editor-resolve` strategies that can be called from the Java `InteropRegistrer` in the Spoofax project
+  * Easiest to call from Java when the implementer is an object.
   */
 trait EditorResolve {
 

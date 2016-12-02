@@ -44,8 +44,16 @@ object GeneralStrategyInput extends TermLikeCompanion[GeneralStrategyInput] {
     override def unapply(term: STerm): Option[GeneralStrategyInput] = term match {
       case STerm.Tuple(Seq(ast, STerm.String(path, _), STerm.String(projectPath, _)), _) => Some(
         GeneralStrategyInput(ast, path, projectPath))
-      case STerm.List(Seq(STerm.Cons("File", Seq(STerm.String(path, _), ast, STerm.Real(_, _)), _)), _) => Some(
-        GeneralStrategyInput(ast, path, ""))
+      case STerm.List(Seq(STerm.Cons("File", _, _), _*), _) =>
+        throw new RuntimeException(
+          """scalaterms doesn't work with a TaskEngine project.
+            |Make sure editor/Analyze.esv has the following settings:
+            |
+            |language
+            |
+            |  observer : editor-analyze // !!! WITHOUT (multifile)
+            |  context  : legacy
+          """.stripMargin)
       case FocusedStrategyInput.fromSTerm(fsi) => Some(fsi)
       case _ => None
     }
