@@ -6,12 +6,10 @@ import org.metaborg.scalaterms._
   * The Scala representation of the hover result message, as returned by `editor-hover`
   */
 case class HoverResult(message: String) extends TermLike {
-  override val origin: Origin = null
-
   /**
     * @return equivalent Scala ATerm representation
     */
-  override def toSTerm: STerm = STerm.String(message, origin)
+  override def toSTerm: STerm = STerm.String(message)
 }
 
 object HoverResult extends TermLikeCompanion[HoverResult] {
