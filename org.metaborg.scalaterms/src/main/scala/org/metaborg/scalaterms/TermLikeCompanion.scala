@@ -10,7 +10,7 @@ package org.metaborg.scalaterms
   */
 trait TermLikeCompanion[T <: TermLike] { self =>
   val fromSTerm: FromSTerm[T]
-  val fromStratego: FromStratego[T] = new FromStratego[T] {
+  lazy val fromStratego: FromStratego[T] = new FromStratego[T] {
     override val fromSTerm: Extract[T] = self.fromSTerm
   }
 }
