@@ -1,6 +1,6 @@
 package org.metaborg.scalaterms
 
-import org.spoofax.interpreter.core.Context
+import org.strategoxt.lang.Context
 import org.spoofax.interpreter.terms._
 
 import scala.collection.JavaConverters._
@@ -9,6 +9,7 @@ import scala.collection.JavaConverters._
   * The Scala representation of ATerms
   */
 sealed trait STerm extends TermLike {
+  val origin: Option[Origin] = None
   /**
     * @return equivalent Scala ATerm representation
     */
@@ -42,64 +43,79 @@ object STerm {
     }
   }
 
-  case class Int(value: scala.Int, origin: Origin) extends STerm {
+  case class Int(value: scala.Int, override val origin: Option[Origin] = None) extends STerm {
     /**
       * @return equivalent Java ATerm representation
       */
     override def toStratego(implicit context: Context): IStrategoTerm = {
       val term = context.getFactory.makeInt(value)
-      term.putAttachment(origin.toStratego)
+      origin match {
+        case Some(o) => term.putAttachment(o.toStratego)
+        case None => // Do nothing
+      }
       term
     }
   }
 
-  case class Real(value: Double, origin: Origin) extends STerm {
+  case class Real(value: Double, override val origin: Option[Origin] = None) extends STerm {
     /**
       * @return equivalent Java ATerm representation
       */
     override def toStratego(implicit context: Context): IStrategoTerm = {
       val term = context.getFactory.makeReal(value)
-      term.putAttachment(origin.toStratego)
+      origin match {
+        case Some(o) => term.putAttachment(o.toStratego)
+        case None => // Do nothing
+      }
       term
     }
   }
 
-  case class String(value: java.lang.String, origin: Origin) extends STerm {
+  case class String(value: java.lang.String, override val origin: Option[Origin] = None) extends STerm {
     /**
       * @return equivalent Java ATerm representation
       */
     override def toStratego(implicit context: Context): IStrategoTerm = {
       val term = context.getFactory.makeString(value)
-      term.putAttachment(origin.toStratego)
+      origin match {
+        case Some(o) => term.putAttachment(o.toStratego)
+        case None => // Do nothing
+      }
       term
     }
   }
 
-  case class List[T <: TermLike](value: scala.List[T], origin: Origin) extends STerm {
+  case class List[T <: TermLike](value: scala.Seq[T], override val origin: Option[Origin] = None) extends STerm {
     /**
       * @return equivalent Java ATerm representation
       */
     override def toStratego(implicit context: Context): IStrategoTerm = {
       val term = context.getFactory.makeList(value.map(_.toStratego).asJava)
-      term.putAttachment(origin.toStratego)
+      origin match {
+        case Some(o) => term.putAttachment(o.toStratego)
+        case None => // Do nothing
+      }
       term
     }
   }
 
-  case class Tuple(value: scala.List[STerm], origin: Origin) extends STerm {
+  case class Tuple(value: scala.Seq[STerm], override val origin: Option[Origin] = None) extends STerm {
     /**
       * @return equivalent Java ATerm representation
       */
     override def toStratego(implicit context: Context): IStrategoTerm = {
       val factory = context.getFactory
       val term = factory.makeTuple(value.map(_.toStratego).toArray, factory.makeList())
-      term.putAttachment(origin.toStratego)
+      origin match {
+        case Some(o) => term.putAttachment(o.toStratego)
+        case None => // Do nothing
+      }
       term
     }
 
   }
 
-  case class Cons(value: java.lang.String, children: scala.List[STerm], origin: Origin) extends STerm {
+  case class Cons(value: java.lang.String, children: scala.Seq[STerm], override val origin: Option[Origin] = None) extends STerm {
     /**
       * @return equivalent Java ATerm representation
       */
@@ -107,7 +123,10 @@ object STerm {
       val factory = context.getFactory
       val constructor = factory.makeConstructor(value, children.length)
       val term = factory.makeAppl(constructor, children.map(_.toStratego).toArray, factory.makeList)
-      term.putAttachment(origin.toStratego)
+      origin match {
+        case Some(o) => term.putAttachment(o.toStratego)
+        case None => // Do nothing
+      }
       term
     }
   }
@@ -117,5 +136,5 @@ object STerm {
 object implicits {
   implicit def termLikeToTerm[T <: TermLike](t: T): STerm = t.toSTerm
 
-  implicit def sListToList[T <: TermLike](l: STerm.List[T]): List[T] = l.value
+  implicit def sListToSeq[T <: TermLike](l: STerm.List[T]): Seq[T] = l.value
 }

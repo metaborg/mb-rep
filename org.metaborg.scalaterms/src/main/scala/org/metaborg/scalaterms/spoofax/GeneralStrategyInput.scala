@@ -7,13 +7,12 @@ import org.metaborg.scalaterms._
   */
 class GeneralStrategyInput(val ast: STerm,
                            val path: String,
-                           val projectPath: String,
-                           override val origin: Origin) extends TermLike {
+                           val projectPath: String) extends TermLike {
   /**
     * @return equivalent Scala ATerm representation
     */
   override def toSTerm: STerm = {
-    STerm.Tuple(List(ast, STerm.String(path, origin), STerm.String(projectPath, origin)), origin)
+    STerm.Tuple(Seq(ast, STerm.String(path), STerm.String(projectPath)))
   }
 
   /**
@@ -26,11 +25,11 @@ class GeneralStrategyInput(val ast: STerm,
     * @param ast      The ast to give back. Default is the input ast
     * @return The AnalysisResult that can directly be turned into a Spoofax consumable representation with `toStratego`
     */
-  def makeAnalysisResult(errors: List[EditorMessage],
-                         warnings: List[EditorMessage],
-                         notes: List[EditorMessage],
+  def makeAnalysisResult(errors: Seq[EditorMessage],
+                         warnings: Seq[EditorMessage],
+                         notes: Seq[EditorMessage],
                          ast: STerm = this.ast): AnalysisResult = {
-    AnalysisResult(ast, errors, warnings, notes, this.origin)
+    AnalysisResult(ast, errors, warnings, notes)
   }
 }
 
@@ -43,8 +42,18 @@ object GeneralStrategyInput extends TermLikeCompanion[GeneralStrategyInput] {
       * @return the Some(T) that's extracted if matched
       */
     override def unapply(term: STerm): Option[GeneralStrategyInput] = term match {
-      case STerm.Tuple(List(ast, STerm.String(path, _), STerm.String(projectPath, _)), origin) => Some(
-        GeneralStrategyInput(ast, path, projectPath, origin))
+      case STerm.Tuple(Seq(ast, STerm.String(path, _), STerm.String(projectPath, _)), _) => Some(
+        GeneralStrategyInput(ast, path, projectPath))
+      case STerm.List(Seq(STerm.Cons("File", _, _), _*), _) =>
+        throw new RuntimeException(
+          """scalaterms doesn't work with a TaskEngine project.
+            |Make sure editor/Analyze.esv has the following settings:
+            |
+            |language
+            |
+            |  observer : editor-analyze // !!! WITHOUT (multifile)
+            |  context  : legacy
+          """.stripMargin)
       case FocusedStrategyInput.fromSTerm(fsi) => Some(fsi)
       case _ => None
     }
@@ -52,9 +61,8 @@ object GeneralStrategyInput extends TermLikeCompanion[GeneralStrategyInput] {
 
   def apply(ast: STerm,
             path: String,
-            projectPath: String,
-            origin: Origin): GeneralStrategyInput = new GeneralStrategyInput(ast, path, projectPath, origin)
+            projectPath: String): GeneralStrategyInput = new GeneralStrategyInput(ast, path, projectPath)
 
-  def unapply(gsi: GeneralStrategyInput): Option[(STerm, String, String, Origin)] = Some((gsi.ast, gsi.path, gsi
-    .projectPath, gsi.origin))
+  def unapply(gsi: GeneralStrategyInput): Option[(STerm, String, String)] = Some((gsi.ast, gsi.path, gsi
+    .projectPath))
 }

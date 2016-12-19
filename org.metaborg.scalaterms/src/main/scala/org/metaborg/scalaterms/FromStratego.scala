@@ -10,11 +10,11 @@ import org.spoofax.interpreter.terms.IStrategoTerm
 trait FromStratego[T <: TermLike] { self =>
   val fromSTerm: FromSTerm[T]
 
-  val list = new FromStratego[STerm.List[T]] {
+  lazy val list = new FromStratego[STerm.List[T]] {
     override val fromSTerm: FromSTerm[STerm.List[T]] = self.fromSTerm.list
   }
 
-  val option = new FromStratego[sdf.Option[T]] {
+  lazy val option = new FromStratego[sdf.Option[T]] {
     override val fromSTerm: FromSTerm[sdf.Option[T]] = self.fromSTerm.option
   }
 
