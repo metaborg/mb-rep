@@ -13,7 +13,6 @@ public class StrategoListIterator implements Iterator<IStrategoTerm> {
 		current = list;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public static Iterable<IStrategoTerm> iterable(final IStrategoList list) {
 		if (list instanceof Iterable)
 			return ((Iterable<IStrategoTerm>) list);

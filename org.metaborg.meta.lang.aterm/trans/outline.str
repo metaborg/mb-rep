@@ -3,9 +3,14 @@ module outline
 imports
 
   signatures/ATerm
-  runtime/editor/outline-library
+  libspoofax/editor/outline
 
 rules
+  
+  editor-outline:
+    (node, position, ast, path, project-path) -> outline
+    where
+      outline := <outline> ast
   
   outline = custom-label-outline(to-outline-label, to-outline-node)
   

@@ -1,7 +1,13 @@
 package org.metaborg.scopegraph;
 
-public interface IScopeGraph {
-    IScope root();
+import java.util.Collection;
 
-    Iterable<? extends IScope> scopes();
+import org.spoofax.interpreter.terms.IStrategoTerm;
+
+public interface IScopeGraph {
+
+    Collection<IScope> scopes();
+
+    IStrategoTerm strategoTerm();
+
 }

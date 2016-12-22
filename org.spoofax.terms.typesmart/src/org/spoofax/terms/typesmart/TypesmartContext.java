@@ -16,6 +16,7 @@ import java.util.Set;
 
 import org.apache.commons.vfs2.FileNotFoundException;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
 import org.metaborg.util.log.ILogger;
 import org.spoofax.terms.typesmart.types.SortType;
 
@@ -55,7 +56,7 @@ public class TypesmartContext implements Serializable {
     public static TypesmartContext load(FileObject file, ILogger logger) {
         try(ObjectInputStream ois = new ObjectInputStream(file.getContent().getInputStream())) {
             return (TypesmartContext) ois.readObject();
-        } catch(FileNotFoundException e) {
+        } catch(FileSystemException e) {
             logger.warn("Typesmart context file " + file + " not found");
             return TypesmartContext.empty();
         } catch(IOException | ClassNotFoundException e) {
