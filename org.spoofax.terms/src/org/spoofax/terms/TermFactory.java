@@ -19,7 +19,7 @@ import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 
 public class TermFactory extends AbstractTermFactory implements ITermFactory {
-    private static final int MAX_POOLED_STRING_LENGTH = 100;
+    private static final int MAX_POOLED_STRING_LENGTH = 200;
     private static final Set<String> usedStrings = Collections.newSetFromMap(new WeakHashMap<String, Boolean>());
 
     private IStrategoConstructor placeholderConstructor;
