@@ -1,7 +1,5 @@
 package org.spoofax.interpreter.terms;
 
-import java.io.Serializable;
-
 import org.spoofax.terms.attachments.ITermAttachment;
 import org.spoofax.terms.attachments.TermAttachmentType;
 
@@ -11,7 +9,7 @@ import org.spoofax.terms.attachments.TermAttachmentType;
  * 
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-public interface ISimpleTerm extends Serializable {
+public interface ISimpleTerm {
 	
 	int getSubtermCount();
 	
