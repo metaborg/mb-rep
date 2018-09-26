@@ -59,7 +59,31 @@ public class DesugaredOriginAttachment extends AbstractTermAttachment {
 		term.putAttachment(new DesugaredOriginAttachment(desugared));
 	}
 	
-	@Override
+	
+	@Override public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((desugaredOrigin == null) ? 0 : desugaredOrigin.hashCode());
+        return result;
+    }
+
+    @Override public boolean equals(Object obj) {
+        if(this == obj)
+            return true;
+        if(obj == null)
+            return false;
+        if(getClass() != obj.getClass())
+            return false;
+        DesugaredOriginAttachment other = (DesugaredOriginAttachment) obj;
+        if(desugaredOrigin == null) {
+            if(other.desugaredOrigin != null)
+                return false;
+        } else if(!desugaredOrigin.equals(other.desugaredOrigin))
+            return false;
+        return true;
+    }
+
+    @Override
 	public String toString() {
 		return "" + desugaredOrigin;
 	}

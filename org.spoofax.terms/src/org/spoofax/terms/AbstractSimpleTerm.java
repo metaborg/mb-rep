@@ -6,6 +6,7 @@ import org.spoofax.terms.attachments.ITermAttachment;
 import org.spoofax.terms.attachments.TermAttachmentType;
 
 public abstract class AbstractSimpleTerm implements ISimpleTerm, Cloneable {
+    private static final long serialVersionUID = 1L;
     
     private ITermAttachment attachment;
     
