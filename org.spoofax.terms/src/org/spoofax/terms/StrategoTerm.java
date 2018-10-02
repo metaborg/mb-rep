@@ -25,7 +25,7 @@ public abstract class StrategoTerm extends AbstractSimpleTerm implements IStrate
 
 	private final int storageType;
 	
-	private int hashCode = UNKNOWN_HASH;
+	private transient int hashCode = UNKNOWN_HASH;
 
     private IStrategoList annotations;
     
