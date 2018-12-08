@@ -6,6 +6,6 @@
         visibility = Value.Style.ImplementationVisibility.PUBLIC
         // @formatter:on
 )
-package org.spoofax.terms.clean;
+package mb.terms;
 
 import org.immutables.value.Value;

@@ -1,4 +1,4 @@
-package org.spoofax.terms.clean;
+package mb.terms;
 
 import com.google.common.collect.ImmutableClassToInstanceMap;
 import io.usethesource.capsule.Map;
@@ -8,15 +8,15 @@ import java.util.List;
 
 @SuppressWarnings("WeakerAccess")
 @Value.Immutable
-abstract class AbstractCTMap implements ICleanTerm {
+abstract class AbstractTermMap implements ITerm {
     public static final TermKind termKind = TermKind.Map;
 
-    public abstract Map.Immutable<ICleanTerm, ICleanTerm> map();
+    public abstract Map.Immutable<ITerm, ITerm> map();
 
-    public abstract List<ICleanTerm> annotations();
+    public abstract List<ITerm> annotations();
 
     @Value.Auxiliary
-    public abstract ImmutableClassToInstanceMap<ICleanTermAttachment> attachments();
+    public abstract ImmutableClassToInstanceMap<ITermAttachment> attachments();
 
     @Override
     public TermKind getTermKind() {
