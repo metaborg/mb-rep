@@ -5,19 +5,14 @@ import org.immutables.value.Value;
 
 import java.util.List;
 
-@SuppressWarnings("WeakerAccess")
 @Value.Immutable
-public abstract class AbstractTermInt implements ITerm {
-
+public abstract class AbstractTermInt implements ITermInt {
+    @Override
     public abstract int value();
 
+    @Override
     public abstract List<ITerm> annotations();
 
     @Value.Auxiliary
-    public abstract ImmutableClassToInstanceMap<ITermAttachment> attachments();
-
-    @Override
-    public TermKind getTermKind() {
-        return TermKind.Int;
-    }
+    public abstract ImmutableClassToInstanceMap<Object> attachments();
 }

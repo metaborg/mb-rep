@@ -7,18 +7,13 @@ import java.util.List;
 
 @SuppressWarnings("WeakerAccess")
 @Value.Immutable
-abstract class AbstractTermString implements ITerm {
-    public static final TermKind termKind = TermKind.String;
-
+public abstract class AbstractTermString implements ITermString {
+    @Override
     public abstract String value();
 
+    @Override
     public abstract List<ITerm> annotations();
 
     @Value.Auxiliary
-    public abstract ImmutableClassToInstanceMap<ITermAttachment> attachments();
-
-    @Override
-    public TermKind getTermKind() {
-        return termKind;
-    }
+    public abstract ImmutableClassToInstanceMap<Object> attachments();
 }

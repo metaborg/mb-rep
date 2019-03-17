@@ -5,20 +5,14 @@ import org.immutables.value.Value;
 
 import java.util.List;
 
-@SuppressWarnings("WeakerAccess")
 @Value.Immutable
-abstract class AbstractTermFloat implements ITerm {
-    public static final TermKind termKind = TermKind.Float;
-
+public abstract class AbstractTermFloat implements ITermFloat {
+    @Override
     public abstract float value();
 
+    @Override
     public abstract List<ITerm> annotations();
 
     @Value.Auxiliary
-    public abstract ImmutableClassToInstanceMap<ITermAttachment> attachments();
-
-    @Override
-    public TermKind getTermKind() {
-        return termKind;
-    }
+    public abstract ImmutableClassToInstanceMap<Object> attachments();
 }

@@ -8,7 +8,6 @@ import org.immutables.value.Value;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -18,8 +17,8 @@ import java.util.function.Consumer;
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 @Value.Immutable
-abstract class AbstractTermFactory {
-    public static final ImmutableClassToInstanceMap<ITermAttachment> NO_ATTACHMENTS = ImmutableClassToInstanceMap.<ITermAttachment>builder().build();
+public abstract class AbstractTermFactory {
+    public static final ImmutableClassToInstanceMap<Object> NO_ATTACHMENTS = ImmutableClassToInstanceMap.builder().build();
 
     /**
      * This observer is called with every String given to the factory.
@@ -38,7 +37,7 @@ abstract class AbstractTermFactory {
      * @param value The int value to wrap
      * @return The new TermInt wrapping the value with the annotations/attachments from the old term
      */
-    public AbstractTermInt replaceInt(ITerm old, int value) {
+    public ITermInt replaceInt(ITerm old, int value) {
         return TermInt.of(value, old.annotations(), old.attachments());
     }
 
@@ -50,7 +49,7 @@ abstract class AbstractTermFactory {
      * @param annotations The annotation for the term
      * @return The new TermInt wrapping the value with the attachments from the old term
      */
-    public AbstractTermInt replaceInt(ITerm old, int value, List<ITerm> annotations) {
+    public ITermInt replaceInt(ITerm old, int value, List<ITerm> annotations) {
         return TermInt.of(value, annotations, old.attachments());
     }
 
@@ -61,7 +60,7 @@ abstract class AbstractTermFactory {
      * @param value The float value to wrap
      * @return The new TermFloat wrapping the value with the annotations/attachments from the old term
      */
-    public AbstractTermFloat replaceFloat(ITerm old, float value) {
+    public ITermFloat replaceFloat(ITerm old, float value) {
         return TermFloat.of(value, old.annotations(), old.attachments());
     }
 
@@ -73,7 +72,7 @@ abstract class AbstractTermFactory {
      * @param annotations The annotation for the term
      * @return The new TermFloat wrapping the value with the attachments from the old term
      */
-    public AbstractTermFloat replaceFloat(ITerm old, float value, List<ITerm> annotations) {
+    public ITermFloat replaceFloat(ITerm old, float value, List<ITerm> annotations) {
         return TermFloat.of(value, annotations, old.attachments());
     }
 
@@ -84,8 +83,11 @@ abstract class AbstractTermFactory {
      * @param value The String value to wrap
      * @return The new TermString wrapping the value with the annotations/attachments from the old term
      */
-    public AbstractTermString replaceString(ITerm old, String value) {
-        Objects.requireNonNull(stringObserver()).accept(value);
+    public ITermString replaceString(ITerm old, String value) {
+        Consumer<String> stringObserver = stringObserver();
+        if(stringObserver != null) {
+            stringObserver.accept(value);
+        }
         return TermString.of(value, old.annotations(), old.attachments());
     }
 
@@ -97,8 +99,11 @@ abstract class AbstractTermFactory {
      * @param annotations The annotation for the term
      * @return The new TermString wrapping the value with the attachments from the old term
      */
-    public AbstractTermString replaceString(ITerm old, String value, List<ITerm> annotations) {
-        Objects.requireNonNull(stringObserver()).accept(value);
+    public ITermString replaceString(ITerm old, String value, List<ITerm> annotations) {
+        Consumer<String> stringObserver = stringObserver();
+        if(stringObserver != null) {
+            stringObserver.accept(value);
+        }
         return TermString.of(value, annotations, old.attachments());
     }
 
@@ -109,7 +114,7 @@ abstract class AbstractTermFactory {
      * @param values The term values to wrap
      * @return The new TermList wrapping the values with the annotations/attachments from the old term
      */
-    public AbstractTermList replaceList(ITerm old, List<ITerm> values) {
+    public ITermList replaceList(ITerm old, List<ITerm> values) {
         return this.replaceList(old, values, old.annotations());
     }
 
@@ -121,7 +126,7 @@ abstract class AbstractTermFactory {
      * @param annotations The annotation for the term
      * @return The new TermList wrapping the values with the attachments from the old term
      */
-    public AbstractTermList replaceList(ITerm old, List<ITerm> value, List<ITerm> annotations) {
+    public ITermList replaceList(ITerm old, List<ITerm> value, List<ITerm> annotations) {
         return TermList.of(value, Collections.singletonList(annotations), Collections.singletonList(old.attachments()));
     }
 
@@ -132,7 +137,7 @@ abstract class AbstractTermFactory {
      * @param value The set of term values to wrap
      * @return The new TermSet wrapping the values with the annotations/attachments from the old term
      */
-    public AbstractTermSet replaceSet(ITerm old, Set.Immutable<ITerm> value) {
+    public ITermSet replaceSet(ITerm old, Set.Immutable<ITerm> value) {
         return TermSet.of(value, old.annotations(), old.attachments());
     }
 
@@ -144,7 +149,7 @@ abstract class AbstractTermFactory {
      * @param annotations The annotation for the term
      * @return The new TermSet wrapping the values with the attachments from the old term
      */
-    public AbstractTermSet replaceSet(ITerm old, Set.Immutable<ITerm> value, List<ITerm> annotations) {
+    public ITermSet replaceSet(ITerm old, Set.Immutable<ITerm> value, List<ITerm> annotations) {
         return TermSet.of(value, annotations, old.attachments());
     }
 
@@ -155,7 +160,7 @@ abstract class AbstractTermFactory {
      * @param value The map of term values to wrap
      * @return The new TermMap wrapping the values with the annotations/attachments from the old term
      */
-    public AbstractTermMap replaceMap(ITerm old, Map.Immutable<ITerm, ITerm> value) {
+    public ITermMap replaceMap(ITerm old, Map.Immutable<ITerm, ITerm> value) {
         return TermMap.of(value, old.annotations(), old.attachments());
     }
 
@@ -167,7 +172,7 @@ abstract class AbstractTermFactory {
      * @param annotations The annotation for the term
      * @return The new TermMap wrapping the values with the attachments from the old term
      */
-    public AbstractTermMap replaceMap(ITerm old, Map.Immutable<ITerm, ITerm> value, List<ITerm> annotations) {
+    public ITermMap replaceMap(ITerm old, Map.Immutable<ITerm, ITerm> value, List<ITerm> annotations) {
         return TermMap.of(value, annotations, old.attachments());
     }
 
@@ -179,7 +184,7 @@ abstract class AbstractTermFactory {
      * @param children The child terms of the application
      * @return The new TermApplication wrapping the values with the annotations/attachments from the old term
      */
-    public AbstractTermApplication replaceAppl(ITerm old, String cons, List<ITerm> children) {
+    public ITermApplication replaceAppl(ITerm old, String cons, List<ITerm> children) {
         return this.replaceAppl(old, cons, children, old.annotations());
     }
 
@@ -192,8 +197,11 @@ abstract class AbstractTermFactory {
      * @param annotations The annotation for the term
      * @return The new TermApplication wrapping the values with the attachments from the old term
      */
-    public AbstractTermApplication replaceAppl(ITerm old, String cons, List<ITerm> children, List<ITerm> annotations) {
-        Objects.requireNonNull(stringObserver()).accept(cons);
+    public ITermApplication replaceAppl(ITerm old, String cons, List<ITerm> children, List<ITerm> annotations) {
+        Consumer<String> stringObserver = stringObserver();
+        if(stringObserver != null) {
+            stringObserver.accept(cons);
+        }
         return TermApplication.of(cons, children, annotations, old.attachments());
     }
 
@@ -204,7 +212,7 @@ abstract class AbstractTermFactory {
      * @param annotations The annotations for the term
      * @return The new TermInt wrapping the value
      */
-    public AbstractTermInt newInt(int value, List<ITerm> annotations) {
+    public ITermInt newInt(int value, List<ITerm> annotations) {
         return TermInt.of(value, annotations, NO_ATTACHMENTS);
     }
 
@@ -215,7 +223,7 @@ abstract class AbstractTermFactory {
      * @param annotations The annotations for the term
      * @return The new TermFloat wrapping the value
      */
-    public AbstractTermFloat newFloat(float value, List<ITerm> annotations) {
+    public ITermFloat newFloat(float value, List<ITerm> annotations) {
         return TermFloat.of(value, annotations, NO_ATTACHMENTS);
     }
 
@@ -226,8 +234,11 @@ abstract class AbstractTermFactory {
      * @param annotations The annotations for the term
      * @return The new TermString wrapping the value
      */
-    public AbstractTermString newString(String value, List<ITerm> annotations) {
-        Objects.requireNonNull(stringObserver()).accept(value);
+    public ITermString newString(String value, List<ITerm> annotations) {
+        Consumer<String> stringObserver = stringObserver();
+        if(stringObserver != null) {
+            stringObserver.accept(value);
+        }
         return TermString.of(value, annotations, NO_ATTACHMENTS);
     }
 
@@ -237,7 +248,7 @@ abstract class AbstractTermFactory {
      * @param values The list values to wrap
      * @return The new TermList wrapping the value
      */
-    public AbstractTermList newList(List<ITerm> values) {
+    public ITermList newList(List<ITerm> values) {
         return this.newList(values, Collections.emptyList());
     }
 
@@ -248,7 +259,7 @@ abstract class AbstractTermFactory {
      * @param annotations The annotations for the term
      * @return The new TermList wrapping the value
      */
-    public AbstractTermList newList(List<ITerm> value, List<ITerm> annotations) {
+    public ITermList newList(List<ITerm> value, List<ITerm> annotations) {
         return TermList.of(value, Collections.singletonList(annotations), Collections.singletonList(NO_ATTACHMENTS));
     }
 
@@ -259,7 +270,7 @@ abstract class AbstractTermFactory {
      * @param annotations The annotations for the term
      * @return The new TermSet wrapping the value
      */
-    public AbstractTermSet newSet(Set.Immutable<ITerm> value, List<ITerm> annotations) {
+    public ITermSet newSet(Set.Immutable<ITerm> value, List<ITerm> annotations) {
         return TermSet.of(value, annotations, NO_ATTACHMENTS);
     }
 
@@ -270,7 +281,7 @@ abstract class AbstractTermFactory {
      * @param annotations The annotations for the term
      * @return The new TermMap wrapping the valueCollections.singletonList
      */
-    public AbstractTermMap newMap(Map.Immutable<ITerm, ITerm> value, List<ITerm> annotations) {
+    public ITermMap newMap(Map.Immutable<ITerm, ITerm> value, List<ITerm> annotations) {
         return TermMap.of(value, annotations, NO_ATTACHMENTS);
     }
 
@@ -281,7 +292,7 @@ abstract class AbstractTermFactory {
      * @param children The child terms of the application
      * @return The new TermApplication wrapping the value
      */
-    public AbstractTermApplication newAppl(String cons, List<ITerm> children) {
+    public ITermApplication newAppl(String cons, List<ITerm> children) {
         return this.newAppl(cons, children, Collections.emptyList());
     }
 
@@ -293,8 +304,11 @@ abstract class AbstractTermFactory {
      * @param annotations The annotations for the term
      * @return The new TermApplication wrapping the value
      */
-    public AbstractTermApplication newAppl(String cons, List<ITerm> children, List<ITerm> annotations) {
-        Objects.requireNonNull(stringObserver()).accept(cons);
+    public ITermApplication newAppl(String cons, List<ITerm> children, List<ITerm> annotations) {
+        Consumer<String> stringObserver = stringObserver();
+        if(stringObserver != null) {
+            stringObserver.accept(cons);
+        }
         return TermApplication.of(cons, children, annotations, NO_ATTACHMENTS);
     }
 }
