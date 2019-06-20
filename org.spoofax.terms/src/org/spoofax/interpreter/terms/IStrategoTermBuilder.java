@@ -54,6 +54,10 @@ public interface IStrategoTermBuilder {
      * @throws UnsupportedOperationException if the given storage type is not supported.
      */
     public IStrategoTermBuilder getFactoryWithStorageType(int storageType);
+
+    default IStrategoAppl makeAppl(String cons, IStrategoTerm... children) {
+        return makeAppl(makeConstructor(cons, children.length), children, null);
+    }
     
 }
 
