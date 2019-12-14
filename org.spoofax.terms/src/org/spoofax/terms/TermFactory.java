@@ -3,6 +3,7 @@ package org.spoofax.terms;
 import static java.lang.Math.min;
 import static org.spoofax.interpreter.terms.IStrategoTerm.*;
 
+import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.Set;
 import java.util.WeakHashMap;
@@ -17,10 +18,11 @@ import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.terms.util.StringInterner;
 
 public class TermFactory extends AbstractTermFactory implements ITermFactory {
     private static final int MAX_POOLED_STRING_LENGTH = 200;
-    private static final Set<String> usedStrings = Collections.newSetFromMap(new WeakHashMap<String, Boolean>());
+    private static final StringInterner usedStrings = new StringInterner();
 
     private IStrategoConstructor placeholderConstructor;
 
@@ -94,13 +96,12 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
     }
 
     public IStrategoString makeString(String s) {
-        final IStrategoString string = new StrategoString(s, null, defaultStorageType);
         if(s.length() <= MAX_POOLED_STRING_LENGTH) {
             synchronized(usedStrings) {
-                usedStrings.add(s);
+                s = usedStrings.intern(s);
             }
         }
-        return string;
+        return new StrategoString(s, null, defaultStorageType);
     }
 
     public IStrategoString tryMakeUniqueString(String s) {
