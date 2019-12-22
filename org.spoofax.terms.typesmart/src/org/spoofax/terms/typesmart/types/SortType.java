@@ -1,15 +1,16 @@
 package org.spoofax.terms.typesmart.types;
 
-import java.io.Serializable;
-
-import org.spoofax.interpreter.terms.IStrategoTerm;
+import mb.terms.AbstractTermApplication;
+import mb.terms.ITerm;
 import org.spoofax.terms.typesmart.TypesmartContext;
 
-public interface SortType extends Serializable {
-    public final static String LEXICAL_SORT = "String";
-    public final static String ANY_SORT = "T_Any";
-    
-    public boolean matches(IStrategoTerm t, TypesmartContext context);
+import java.io.Serializable;
 
-    public boolean subtypeOf(SortType t, TypesmartContext context);
+public abstract class SortType extends AbstractTermApplication implements Serializable {
+    public static final String LEXICAL_SORT = "String";
+    public static final String ANY_SORT = "T_Any";
+    
+    public abstract boolean matches(ITerm t, TypesmartContext context);
+
+    public abstract boolean subtypeOf(SortType t, TypesmartContext context);
 }

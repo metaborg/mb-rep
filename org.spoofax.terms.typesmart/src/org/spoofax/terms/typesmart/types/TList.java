@@ -1,9 +1,15 @@
 package org.spoofax.terms.typesmart.types;
 
-import org.spoofax.interpreter.terms.IStrategoTerm;
+import com.google.common.collect.ImmutableClassToInstanceMap;
+import mb.terms.ITerm;
+import mb.terms.ITermAttachment;
+import mb.terms.ITermList;
 import org.spoofax.terms.typesmart.TypesmartContext;
 
-public class TList implements SortType {
+import java.util.Collections;
+import java.util.List;
+
+public class TList extends SortType {
     private static final long serialVersionUID = 886205363941392393L;
 
     private SortType elemType;
@@ -28,9 +34,9 @@ public class TList implements SortType {
         return "List<" + elemType + ">";
     }
 
-    @Override public boolean matches(IStrategoTerm t, TypesmartContext context) {
-        if(t.getTermType() == IStrategoTerm.LIST) {
-            for(IStrategoTerm sub : t)
+    @Override public boolean matches(ITerm t, TypesmartContext context) {
+        if(t.getTermKind() == ITerm.TermKind.List) {
+            for(ITerm sub : ((ITermList) t).children())
                 if(!elemType.matches(sub, context))
                     return false;
             return true;
@@ -43,5 +49,35 @@ public class TList implements SortType {
             return true;
         }
         return t == TAny.instance || context.isInjection(this, t);
+    }
+
+    @Override
+    public String constructor() {
+        return "TList";
+    }
+
+    @Override
+    public List<ITerm> children() {
+        return Collections.unmodifiableList(Collections.singletonList(elemType));
+    }
+
+    @Override
+    public List<ITerm> annotations() {
+        return Collections.unmodifiableList(Collections.emptyList());
+    }
+
+    @Override
+    public ImmutableClassToInstanceMap<ITermAttachment> attachments() {
+        return ImmutableClassToInstanceMap.of();
+    }
+
+    @Override
+    public ITerm withAnnotations(Iterable<? extends ITerm> annotations) {
+        return this;
+    }
+
+    @Override
+    public ITerm withAttachments(ImmutableClassToInstanceMap<ITermAttachment> attachments) {
+        return this;
     }
 }

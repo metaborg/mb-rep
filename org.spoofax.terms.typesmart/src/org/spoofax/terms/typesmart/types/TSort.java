@@ -1,12 +1,17 @@
 package org.spoofax.terms.typesmart.types;
 
-import java.util.Set;
-
-import org.spoofax.interpreter.terms.IStrategoTerm;
+import com.google.common.collect.ImmutableClassToInstanceMap;
+import mb.terms.ITerm;
+import mb.terms.ITermAttachment;
+import mb.terms.TermString;
 import org.spoofax.terms.typesmart.TypesmartContext;
 import org.spoofax.terms.typesmart.TypesmartSortAttachment;
 
-public class TSort implements SortType {
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
+public class TSort extends SortType {
     private static final long serialVersionUID = 1784763837646076585L;
 
     private String sort;
@@ -31,8 +36,8 @@ public class TSort implements SortType {
         return sort;
     }
 
-    @Override public boolean matches(IStrategoTerm t, TypesmartContext context) {
-        if(t.getTermType() == IStrategoTerm.STRING) {
+    @Override public boolean matches(ITerm t, TypesmartContext context) {
+        if(t.getTermKind() == ITerm.TermKind.String) {
             return TLexical.instance.subtypeOf(this, context);
         }
 
@@ -54,5 +59,36 @@ public class TSort implements SortType {
 
     @Override public boolean subtypeOf(SortType t, TypesmartContext context) {
         return this.equals(t) || t == TAny.instance || context.isInjection(this, t);
+    }
+
+    @Override
+    public String constructor() {
+        return "TSort";
+    }
+
+    @Override
+    public List<ITerm> children() {
+        TermString string = TermString.of(sort, Collections.emptyList(), ImmutableClassToInstanceMap.of());
+        return Collections.unmodifiableList(Collections.singletonList(string));
+    }
+
+    @Override
+    public List<ITerm> annotations() {
+        return Collections.unmodifiableList(Collections.emptyList());
+    }
+
+    @Override
+    public ImmutableClassToInstanceMap<ITermAttachment> attachments() {
+        return ImmutableClassToInstanceMap.of();
+    }
+
+    @Override
+    public ITerm withAnnotations(Iterable<? extends ITerm> annotations) {
+        return this;
+    }
+
+    @Override
+    public ITerm withAttachments(ImmutableClassToInstanceMap<ITermAttachment> attachments) {
+        return this;
     }
 }

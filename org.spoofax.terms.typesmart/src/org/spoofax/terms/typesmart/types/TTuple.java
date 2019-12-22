@@ -1,12 +1,16 @@
 package org.spoofax.terms.typesmart.types;
 
-import java.util.Arrays;
-
-import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoTerm;
+import com.google.common.collect.ImmutableClassToInstanceMap;
+import mb.terms.ITerm;
+import mb.terms.ITermApplication;
+import mb.terms.ITermAttachment;
 import org.spoofax.terms.typesmart.TypesmartContext;
 
-public class TTuple implements SortType {
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+public class TTuple extends SortType {
     private static final long serialVersionUID = 6705241429971917743L;
 
     private SortType[] elemTypes;
@@ -35,12 +39,12 @@ public class TTuple implements SortType {
         return "Tuple<" + elems.substring(1, elems.length() - 1) + ">";
     }
 
-    @Override public boolean matches(IStrategoTerm t, TypesmartContext context) {
-        if(t.getTermType() == 0) {
-            IStrategoAppl appl = (IStrategoAppl) t;
-            if("".equals(appl.getName()) && elemTypes.length == appl.getSubtermCount()) {
+    @Override public boolean matches(ITerm t, TypesmartContext context) {
+        if(t.getTermKind() == ITerm.TermKind.Application) {
+            ITermApplication appl = (ITermApplication) t;
+            if("".equals(appl.constructor()) && elemTypes.length == appl.children().size()) {
                 for(int i = 0; i < elemTypes.length; i++) {
-                    if(!elemTypes[i].matches(appl.getSubterm(i), context)) {
+                    if(!elemTypes[i].matches(appl.children().get(i), context)) {
                         return false;
                     }
                 }
@@ -61,5 +65,35 @@ public class TTuple implements SortType {
             return true;
         }
         return t == TAny.instance || context.isInjection(this, t);
+    }
+
+    @Override
+    public String constructor() {
+        return "TTuple";
+    }
+
+    @Override
+    public List<ITerm> children() {
+        return Collections.unmodifiableList(Arrays.asList(elemTypes));
+    }
+
+    @Override
+    public List<ITerm> annotations() {
+        return Collections.unmodifiableList(Collections.emptyList());
+    }
+
+    @Override
+    public ImmutableClassToInstanceMap<ITermAttachment> attachments() {
+        return ImmutableClassToInstanceMap.of();
+    }
+
+    @Override
+    public ITerm withAnnotations(Iterable<? extends ITerm> annotations) {
+        return this;
+    }
+
+    @Override
+    public ITerm withAttachments(ImmutableClassToInstanceMap<ITermAttachment> attachments) {
+        return this;
     }
 }
