@@ -1,7 +1,6 @@
 package mb.terms;
 
-import com.google.common.collect.ImmutableClassToInstanceMap;
-
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -18,7 +17,7 @@ public interface ITermListForStratego extends ITerm {
     ITermListForStratego withAnnotations(Iterable<? extends ITerm> annotations);
 
     @Override
-    ITermListForStratego withAttachments(ImmutableClassToInstanceMap<Object> attachments);
+    ITermListForStratego withAttachments(HashMap<Class<?>, Object> attachments);
 
     @Override
     default ITermListForStratego withAttachment(Object attachment) {
@@ -41,7 +40,7 @@ public interface ITermListForStratego extends ITerm {
     }
 
     default ITermListForStratego tail() {
-        return this.withOffset(offset() + 1).withAnnotations(/* none */).withAttachments(AbstractTermFactory.NO_ATTACHMENTS);
+        return this.withOffset(offset() + 1).withAnnotations(/* none */).withAttachments(AbstractTermFactory.noAttachments());
     }
 
     default int size() {

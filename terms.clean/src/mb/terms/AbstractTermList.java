@@ -4,10 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableClassToInstanceMap;
 import org.immutables.value.Value;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
 @Value.Immutable
@@ -18,10 +15,10 @@ public abstract class AbstractTermList implements ITermList {
     protected abstract List<List<ITerm>> consNilAnnotations();
 
     @Value.Auxiliary
-    protected abstract List<ImmutableClassToInstanceMap<Object>> consNilAttachments();
+    protected abstract List<HashMap<Class<?>, Object>> consNilAttachments();
 
     @Override
-    public ImmutableClassToInstanceMap<Object> attachments() {
+    public HashMap<Class<?>, Object> attachments() {
         return consNilAttachments().get(offset());
     }
 
@@ -58,8 +55,8 @@ public abstract class AbstractTermList implements ITermList {
     }
 
     @Override
-    public AbstractTermList withAttachments(ImmutableClassToInstanceMap<Object> attachments) {
-        List<ImmutableClassToInstanceMap<Object>> newAttachments = new ArrayList<>(consNilAttachments());
+    public AbstractTermList withAttachments(HashMap<Class<?>, Object> attachments) {
+        List<HashMap<Class<?>, Object>> newAttachments = new ArrayList<>(consNilAttachments());
         newAttachments.set(0, attachments);
         return TermList.of(children(), consNilAnnotations(), newAttachments);
     }
