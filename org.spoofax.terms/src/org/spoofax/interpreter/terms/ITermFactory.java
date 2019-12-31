@@ -35,6 +35,4 @@ public interface ITermFactory extends IStrategoTermBuilder {
     public IStrategoTerm replaceTerm(IStrategoTerm term, IStrategoTerm old);
     
     public IStrategoTuple replaceTuple(IStrategoTerm[] kids, IStrategoTuple old);
-    
-    public ITermFactory getFactoryWithStorageType(int storageType);
 }

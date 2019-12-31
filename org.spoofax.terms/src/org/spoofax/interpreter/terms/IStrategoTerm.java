@@ -24,11 +24,6 @@ public interface IStrategoTerm extends ISimpleTerm, Serializable, Iterable<IStra
     public static final int BLOB = 9;
     public static final int PLACEHOLDER = 10;
     
-    public static final int MUTABLE = 0;
-    public static final int IMMUTABLE = 1;
-    public static final int SHARABLE = 2;
-    public static final int MAXIMALLY_SHARED = 3;
-    
     public static final int INFINITE = Integer.MAX_VALUE;
 
     public int getSubtermCount();
@@ -36,25 +31,6 @@ public interface IStrategoTerm extends ISimpleTerm, Serializable, Iterable<IStra
     public IStrategoTerm[] getAllSubterms();
     
     public int getTermType();
-    
-    /**
-     * Indicates the assumptions that can be made about how this term is stored.
-     * 
-     * One of {@value #MUTABLE}, {@value #IMMUTABLE}, {@value #SHARABLE} and
-     * {@value #MAXIMALLY_SHARED}. For each a specific contract exists; 
-     * only {@value #MUTABLE} poses no restrictions on the implementation.
-     * 
-     * All non-{@value #MUTABLE} terms are expected to have an O(1)
-     * {@link #hashCode()} implementation.
-     * 
-     * A general contract is that the storage type of a term must always 
-     * be smaller than or equal to the storage types of its subterms.
-     * 
-     * Finally, when multiple term factories are used together,
-     * they should use the same hash codes for equal terms: 
-     * the TermFactory classes should be used as a reference.
-     */
-    public int getStorageType();
     
     public IStrategoList getAnnotations();
     

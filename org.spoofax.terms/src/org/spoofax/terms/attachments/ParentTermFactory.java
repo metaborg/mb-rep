@@ -1,6 +1,5 @@
 package org.spoofax.terms.attachments;
 
-import static org.spoofax.interpreter.terms.IStrategoTerm.MUTABLE;
 import static org.spoofax.terms.attachments.ParentAttachment.getParent;
 import static org.spoofax.terms.attachments.ParentAttachment.putParent;
 import static org.spoofax.terms.Term.*;
@@ -30,15 +29,9 @@ public class ParentTermFactory extends AbstractTermFactory {
 	private final ITermFactory baseFactory;
 
 	public ParentTermFactory(ITermFactory baseFactory) {
-		super(MUTABLE);
+		super();
 		assert !(baseFactory instanceof ParentTermFactory);
-		this.baseFactory = baseFactory.getFactoryWithStorageType(MUTABLE);
-		assert checkStorageType(this.baseFactory, MUTABLE);
-	}
-
-	public ITermFactory getFactoryWithStorageType(int storageType) {
-		assert getDefaultStorageType() <= storageType;
-		return this;
+		this.baseFactory = baseFactory;
 	}
 
 	public IStrategoPlaceholder makePlaceholder(IStrategoTerm template) {

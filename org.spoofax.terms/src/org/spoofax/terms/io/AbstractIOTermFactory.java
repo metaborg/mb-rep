@@ -26,8 +26,8 @@ public abstract class AbstractIOTermFactory extends AbstractTermFactory implemen
 
 	private final TAFTermReader reader = new TermReader(this);
 	
-	public AbstractIOTermFactory(int defaultStorageType) {
-		super(defaultStorageType);
+	public AbstractIOTermFactory() {
+		super();
 	}
 
     public IStrategoTerm parseFromStream(InputStream inputStream) throws IOException, ParseError {

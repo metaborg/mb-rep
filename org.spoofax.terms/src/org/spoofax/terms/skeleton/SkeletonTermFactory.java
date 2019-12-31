@@ -12,12 +12,8 @@ import org.spoofax.terms.util.NotImplementedException;
 
 public abstract class SkeletonTermFactory extends AbstractTermFactory {
 
-    public SkeletonTermFactory(int defaultStorageType) {
-        super(defaultStorageType);
-    }
-
-    final public ITermFactory getFactoryWithStorageType(int storageType) {
-        throw new NotImplementedException();
+    public SkeletonTermFactory() {
+        super();
     }
 
     final public IStrategoPlaceholder makePlaceholder(IStrategoTerm template) {

@@ -33,10 +33,6 @@ public final class UniqueValueTerm extends AbstractSimpleTerm implements IStrate
 		return TermFactory.EMPTY_LIST;
 	}
 
-	public int getStorageType() {
-		return MUTABLE; // allow attachments
-	}
-
 	public IStrategoTerm getSubterm(int index) {
 		throw new UnsupportedOperationException();
 	}
