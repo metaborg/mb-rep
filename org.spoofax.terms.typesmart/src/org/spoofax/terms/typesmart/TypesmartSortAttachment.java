@@ -44,7 +44,7 @@ public class TypesmartSortAttachment extends AbstractTermAttachment {
         private SortType[] ar;
 
         protected StrategoSortTypeArray(SortType[] ar) {
-            super(null, IStrategoTerm.MUTABLE);
+            super(null);
             this.ar = ar;
         }
 
@@ -53,7 +53,7 @@ public class TypesmartSortAttachment extends AbstractTermAttachment {
         }
 
         @Override public IStrategoTerm getSubterm(int index) {
-            return new StrategoString(ar[index].toString(), null, IStrategoTerm.MUTABLE);
+            return new StrategoString(ar[index].toString(), null);
         }
 
         @Override public IStrategoTerm[] getAllSubterms() {
@@ -79,7 +79,7 @@ public class TypesmartSortAttachment extends AbstractTermAttachment {
             return new ArrayIterator<>(getAllSubterms());
         }
 
-        @Override protected boolean doSlowMatch(IStrategoTerm second, int commonStorageType) {
+        @Override protected boolean doSlowMatch(IStrategoTerm second) {
             if(second instanceof StrategoSortTypeArray)
                 return Arrays.equals(ar, ((StrategoSortTypeArray) second).ar);
             return false;

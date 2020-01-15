@@ -84,10 +84,6 @@ public abstract class LazyTerm implements IStrategoAppl, IStrategoInt, IStratego
 		return getWrapped().getAnnotations();
 	}
 
-	public int getStorageType() {
-		return MUTABLE; // let's not spread these guys // Math.min(SHARABLE, getWrapped().getStorageType());
-	}
-
 	public boolean match(IStrategoTerm second) {
 		return getWrapped().match(second);
 	}

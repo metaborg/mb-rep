@@ -11,7 +11,6 @@ import java.util.Collection;
 
 
 public interface IStrategoTermBuilder {
-    
     public IStrategoConstructor makeConstructor(String string, int arity);
     
     // @Deprecated public IStrategoAppl makeAppl(IStrategoConstructor ctr, IStrategoList kids);
@@ -38,27 +37,11 @@ public interface IStrategoTermBuilder {
     
     public IStrategoString tryMakeUniqueString(String name);
     
-    public int getDefaultStorageType();
-    
     public IStrategoTerm copyAttachments(IStrategoTerm from, IStrategoTerm to);
-    
-    /**
-     * Sets the default storage type for terms, returning a (usually new) factory
-     * that guarantees it will never create terms with a higher storage
-     * type value than the given value.
-     * 
-     * Implementors should note that even strings and empty lists
-     * follow this contract, allowing users to create mutable
-     * terms and use term attachments.
-     * 
-     * @throws UnsupportedOperationException if the given storage type is not supported.
-     */
-    public IStrategoTermBuilder getFactoryWithStorageType(int storageType);
 
     default IStrategoAppl makeAppl(String cons, IStrategoTerm... children) {
         return makeAppl(makeConstructor(cons, children.length), children, null);
     }
-    
 }
 
 

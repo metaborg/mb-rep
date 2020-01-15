@@ -34,9 +34,7 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
     private final TypesmartContext context;
 
     public TypesmartTermFactory(ITermFactory baseFactory, ILogger logger, TypesmartContext context) {
-        super(baseFactory.getDefaultStorageType(), baseFactory);
-        assert baseFactory
-            .getDefaultStorageType() == IStrategoTerm.MUTABLE : "Typesmart factory needs to have a factory with MUTABLE terms";
+        super(baseFactory);
         this.baseFactory = baseFactory;
         this.logger = logger;
         this.context = context;
@@ -180,16 +178,6 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
             TypesmartSortAttachment.put(result, attach);
 
         return result;
-    }
-
-    public ITermFactory getFactoryWithStorageType(int storageType) {
-        if(storageType != IStrategoTerm.MUTABLE)
-            throw new RuntimeException("Typesmart factory cannot work with NON-MUTABLE terms");
-
-        if(storageType == getDefaultStorageType())
-            return this;
-
-        return new TypesmartTermFactory(baseFactory.getFactoryWithStorageType(storageType), logger, context);
     }
 
     /**

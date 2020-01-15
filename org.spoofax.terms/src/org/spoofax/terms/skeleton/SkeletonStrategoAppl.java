@@ -16,8 +16,8 @@ public abstract class SkeletonStrategoAppl extends StrategoTerm implements IStra
 
 	private static final long serialVersionUID = -2522680523775044390L;
 
-	public SkeletonStrategoAppl(IStrategoList annotations, int storageType) {
-		super(annotations, storageType);
+	public SkeletonStrategoAppl(IStrategoList annotations) {
+		super(annotations);
 	}
 
 	@Deprecated
@@ -38,7 +38,7 @@ public abstract class SkeletonStrategoAppl extends StrategoTerm implements IStra
 	}
 
 	@Override
-	final protected boolean doSlowMatch(IStrategoTerm second, int commonStorageType) {
+	final protected boolean doSlowMatch(IStrategoTerm second) {
 		if(second.getTermType() != IStrategoTerm.APPL)
 			return false;
 		final IStrategoAppl o = (IStrategoAppl) second;
@@ -52,28 +52,17 @@ public abstract class SkeletonStrategoAppl extends StrategoTerm implements IStra
 				final IStrategoTerm kid = kids[i];
 				final IStrategoTerm secondKid = secondKids[i];
 				if(kid != secondKid && !kid.match(secondKid)) {
-					if(commonStorageType == SHARABLE && i != 0)
-						System.arraycopy(secondKids, 0, kids, 0, i);
 					return false;
 				}
 			}
-
-			// FIXME should update sharing when possible
-			// if (commonStorageType == SHARABLE)
-			// this.kids = secondKids;
 		}
 
 		final IStrategoList annotations = getAnnotations();
 		final IStrategoList secondAnnotations = second.getAnnotations();
 		if(annotations == secondAnnotations) {
 			return true;
-		} else if(annotations.match(secondAnnotations)) {
-			if(commonStorageType == SHARABLE)
-				internalSetAnnotations(secondAnnotations);
-			return true;
-		} else {
-			return false;
-		}
+		} else
+			return annotations.match(secondAnnotations);
 	}
 
 	final public void writeAsString(Appendable output, int maxDepth) throws IOException {

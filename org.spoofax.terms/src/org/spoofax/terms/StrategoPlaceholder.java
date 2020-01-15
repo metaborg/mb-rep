@@ -1,12 +1,8 @@
 package org.spoofax.terms;
 
-import java.io.IOException;
+import org.spoofax.interpreter.terms.*;
 
-import org.spoofax.interpreter.terms.IStrategoConstructor;
-import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoPlaceholder;
-import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.ITermPrinter;
+import java.io.IOException;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
@@ -15,50 +11,46 @@ public class StrategoPlaceholder extends StrategoAppl implements IStrategoPlaceh
 
     private static final long serialVersionUID = -1212433450601997725L;
 
-	public StrategoPlaceholder(IStrategoConstructor ctor, IStrategoTerm template, IStrategoList annotations, int storageType) {
-        super(ctor, new IStrategoTerm[] { template }, annotations, storageType);
+    public StrategoPlaceholder(IStrategoConstructor ctor, IStrategoTerm template, IStrategoList annotations) {
+        super(ctor, new IStrategoTerm[] { template }, annotations);
     }
-    
+
     public IStrategoTerm getTemplate() {
         return getSubterm(0);
     }
-    
+
     @Override
     public int getTermType() {
         return PLACEHOLDER;
     }
-    
+
     @Override
-    protected boolean doSlowMatch(IStrategoTerm second, int commonStorageType) {
-        if (second.getTermType() != PLACEHOLDER)
+    protected boolean doSlowMatch(IStrategoTerm second) {
+        if(second.getTermType() != PLACEHOLDER)
             return false;
-        
-        if (!getTemplate().match(((IStrategoPlaceholder) second).getTemplate()))
-        	return false;
-        
+
+        if(!getTemplate().match(((IStrategoPlaceholder) second).getTemplate()))
+            return false;
+
         IStrategoList annotations = getAnnotations();
         IStrategoList secondAnnotations = second.getAnnotations();
-        if (annotations == secondAnnotations) {
+        if(annotations == secondAnnotations) {
             return true;
-        } else if (annotations.match(secondAnnotations)) {
-            if (commonStorageType == SHARABLE) internalSetAnnotations(secondAnnotations);
-            return true;
-        } else {
-            return false;
-        }
+        } else
+            return annotations.match(secondAnnotations);
     }
-    
+
     @Override
-	public void writeAsString(Appendable output, int maxDepth) throws IOException {
-    	output.append('<');
-    	getTemplate().writeAsString(output, maxDepth - 1);
-    	output.append('>');
-    	appendAnnotations(output, maxDepth);
+    public void writeAsString(Appendable output, int maxDepth) throws IOException {
+        output.append('<');
+        getTemplate().writeAsString(output, maxDepth - 1);
+        output.append('>');
+        appendAnnotations(output, maxDepth);
     }
-    
+
     @Override
     @Deprecated
-	public void prettyPrint(ITermPrinter pp) {
+    public void prettyPrint(ITermPrinter pp) {
         pp.print("<");
         getTemplate().prettyPrint(pp);
         pp.print(">");

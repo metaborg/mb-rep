@@ -46,7 +46,7 @@ public class StrategoWrapped extends StrategoTerm implements IStrategoAppl, IStr
 	 * {@link #prettyPrint(ITermPrinter)}.
 	 */
 	protected StrategoWrapped(IStrategoTerm wrapped, IStrategoList annotations) {
-		super(annotations, MUTABLE);
+		super(annotations);
 		this.wrapped = wrapped;
 	}
 	
@@ -62,7 +62,7 @@ public class StrategoWrapped extends StrategoTerm implements IStrategoAppl, IStr
 	}
 	
 	@Override
-	protected boolean doSlowMatch(IStrategoTerm second, int commonStorageType) {
+	protected boolean doSlowMatch(IStrategoTerm second) {
 		return wrapped.match(second);
 	}
 

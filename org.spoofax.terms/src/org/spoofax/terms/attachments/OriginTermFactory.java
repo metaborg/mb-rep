@@ -1,6 +1,5 @@
 package org.spoofax.terms.attachments;
 
-import static org.spoofax.interpreter.terms.IStrategoTerm.MUTABLE;
 import static org.spoofax.terms.attachments.OriginAttachment.getOrigin;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -38,13 +37,8 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 	}
 
 	public OriginTermFactory(ITermFactory baseFactory) {
-		super(MUTABLE, baseFactory);
+		super(baseFactory);
 		assert !(baseFactory instanceof OriginTermFactory);
-	}
-
-	public ITermFactory getFactoryWithStorageType(int storageType) {
-		assert getDefaultStorageType() <= storageType;
-		return this;
 	}
 	
 	/**
@@ -125,8 +119,7 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 				return makeListLink((IStrategoList) term, (IStrategoList) origin);
 			}
 		} else if (OriginAttachment.get(term) == null) {
-			if (term.getStorageType() == MUTABLE) // TODO: handle mutable terms (e.g., some literals)
-				OriginAttachment.setOrigin(term, origin);
+			OriginAttachment.setOrigin(term, origin);
 		} else if (REASSIGN_ORIGINS) {
 			throw new NotImplementedException("Not implemented: unwrapping of possibly already wrapped term");
 			/*
@@ -145,8 +138,7 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 	 */
 	public IStrategoTerm makeLinkDesugared(IStrategoTerm term, IStrategoTerm desugared) {
 		if (!term.isList() && DesugaredOriginAttachment.get(term) == null) {
-			if (term.getStorageType() == MUTABLE)
-				DesugaredOriginAttachment.setDesugaredOrigin(term, desugared);
+			DesugaredOriginAttachment.setDesugaredOrigin(term, desugared);
 		} else if (REASSIGN_ORIGINS) {
 			throw new NotImplementedException("Not implemented: unwrapping of possibly already wrapped term");
 		}
