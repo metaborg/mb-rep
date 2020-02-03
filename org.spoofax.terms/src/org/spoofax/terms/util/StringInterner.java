@@ -30,22 +30,33 @@ public class StringInterner extends AbstractSet<String> implements Set<String>, 
         s = m.keySet();
     }
 
+    /**
+     * Interns the specified string.
+     *
+     * @param e the string to intern
+     * @return the interned string instance; or the existing interned string instance, if any
+     */
     public String intern(String e) {
-        if(m.containsKey(e)) {
-            return m.get(e).get();
+        WeakReference<String> internedString = m.get(e);
+        if(internedString != null) {
+            return internedString.get();
         } else {
             add(e);
             return e;
         }
     }
 
+    /**
+     * Determines whether the specified string is the interned instance of the string.
+     *
+     * @param e the string to check
+     * @return {@code true} when the string is the interned instance of the string;
+     * otherwise, {@code false} when it is a different instance
+     */
     public boolean isInterned(String e) {
-        if(m.containsKey(e)) {
-            //noinspection StringEquality
-            return m.get(e).get() == e;
-        } else {
-            return false;
-        }
+        WeakReference<String> internedString = m.get(e);
+        //noinspection StringEquality
+        return internedString != null && internedString.get() == e;
     }
 
     public void clear() {
