@@ -11,8 +11,9 @@ import org.spoofax.interpreter.terms.ITermPrinter;
 import org.spoofax.terms.util.EmptyIterator;
 
 /**
- * @author Lennart Kats <lennart add lclnet.nl>
+ * Used by the SRTS_EXT_newint_0_0 compatibility strategy.
  */
+@Deprecated
 public final class UniqueValueTerm extends AbstractSimpleTerm implements IStrategoInt {
 	
 	private static final long serialVersionUID = 2464633689395266636L;

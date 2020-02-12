@@ -4,13 +4,21 @@ import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.terms.attachments.ITermAttachment;
 import org.spoofax.terms.attachments.TermAttachmentType;
 
+import javax.annotation.Nullable;
+
+
+/**
+ * Base class for simple term implementations.
+ */
 public abstract class AbstractSimpleTerm implements ISimpleTerm, Cloneable {
+
     private static final long serialVersionUID = 1L;
 
     private ITermAttachment attachment;
 
     @SuppressWarnings("unchecked")
-    public <T extends ITermAttachment> T getAttachment(TermAttachmentType<T> type) {
+    @Override
+    @Nullable public <T extends ITermAttachment> T getAttachment(@Nullable TermAttachmentType<T> type) {
         if(type == null)
             return (T) this.attachment;
         for(ITermAttachment a = this.attachment; a != null; a = a.getNext()) {
@@ -20,6 +28,7 @@ public abstract class AbstractSimpleTerm implements ISimpleTerm, Cloneable {
         return null;
     }
 
+    @Override
     public void putAttachment(ITermAttachment attachment) {
         if(attachment == null)
             return;
@@ -45,7 +54,8 @@ public abstract class AbstractSimpleTerm implements ISimpleTerm, Cloneable {
         }
     }
 
-    public ITermAttachment removeAttachment(TermAttachmentType<?> type) {
+    @Override
+    @Nullable public ITermAttachment removeAttachment(TermAttachmentType<?> type) {
         if(attachment != null) {
             if(attachment.getAttachmentType() == type) {
                 ITermAttachment old = attachment;
@@ -70,4 +80,5 @@ public abstract class AbstractSimpleTerm implements ISimpleTerm, Cloneable {
     protected void clearAttachments() {
         attachment = null;
     }
+
 }

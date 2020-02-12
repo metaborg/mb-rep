@@ -7,9 +7,18 @@
  */
 package org.spoofax.interpreter.terms;
 
+/**
+ * An Int Stratego term.
+ */
 public interface IStrategoInt extends IStrategoTerm {
 
-    public int intValue();
-    
-    public boolean isUniqueValueTerm();
+    /**
+     * Gets the value of this term.
+     *
+     * @return the value
+     */
+    int intValue();
+
+    @Deprecated
+    boolean isUniqueValueTerm();
 }
