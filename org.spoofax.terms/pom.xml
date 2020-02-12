@@ -16,7 +16,22 @@
 
 	<build>
 		<sourceDirectory>src</sourceDirectory>
+    <testSourceDirectory>test</testSourceDirectory>
 	</build>
+
+
+  <dependencies>
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 
 	<developers>
 		<developer>
