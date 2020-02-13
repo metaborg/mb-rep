@@ -5,7 +5,7 @@ import org.spoofax.interpreter.terms.*;
 import java.io.IOException;
 
 /**
- * @author Lennart Kats <lennart add lclnet.nl>
+ * A Stratego Placeholder term.
  */
 public class StrategoPlaceholder extends StrategoAppl implements IStrategoPlaceholder {
 

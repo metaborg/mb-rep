@@ -239,7 +239,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
         }
 
         @Test
-        @Disabled("This is not currently implemented.")
+        @Disabled("FIXME: Modifications to the returned array must not be reflected in the term.")
         @DisplayName("modifications to returned array are not reflected in the term")
         default void modificationsToReturnedArrayAreNotReflectedInTheTerm() {
             // Arrange
