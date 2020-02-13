@@ -18,8 +18,8 @@ public class StrategoApplTests extends TestBase implements IStrategoApplTests {
 
     @Nullable
     @Override
-    public IStrategoAppl createStrategoAppl(IStrategoConstructor constructor, List<IStrategoTerm> subterms,
-                                            IStrategoList annotations, List<ITermAttachment> attachments) {
+    public IStrategoAppl createStrategoAppl(@Nullable IStrategoConstructor constructor, @Nullable List<IStrategoTerm> subterms,
+                                            @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments) {
         return TermUtil.putAttachments(new StrategoAppl(constructor, subterms.toArray(new IStrategoTerm[0]), annotations), attachments);
     }
 

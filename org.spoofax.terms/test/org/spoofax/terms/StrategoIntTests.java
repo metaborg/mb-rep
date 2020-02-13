@@ -16,8 +16,9 @@ import java.util.List;
 @DisplayName("StrategoInt")
 public class StrategoIntTests extends TestBase implements IStrategoIntTests {
 
+    @Nullable
     @Override
-    public IStrategoInt createStrategoInt(int value, IStrategoList annotations, List<ITermAttachment> attachments) {
+    public IStrategoInt createStrategoInt(@Nullable Integer value, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments) {
         return TermUtil.putAttachments(new StrategoInt(value, annotations), attachments);
     }
 

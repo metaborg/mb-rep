@@ -16,9 +16,10 @@ import java.util.List;
 @DisplayName("StrategoPlaceholder")
 public class StrategoPlaceholderTests extends TestBase implements IStrategoPlaceholderTests {
 
+    @Nullable
     @Override
-    public IStrategoPlaceholder createStrategoPlaceholder(IStrategoTerm template, IStrategoList annotations,
-                                                          List<ITermAttachment> attachments) {
+    public IStrategoPlaceholder createStrategoPlaceholder(@Nullable IStrategoTerm template, @Nullable IStrategoList annotations,
+                                                          @Nullable List<ITermAttachment> attachments) {
         return TermUtil.putAttachments(new StrategoPlaceholder(getTermBuilder().makeConstructor("<>", 1), template, annotations), attachments);
     }
 

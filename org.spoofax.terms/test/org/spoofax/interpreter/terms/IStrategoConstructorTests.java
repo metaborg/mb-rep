@@ -14,6 +14,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static org.spoofax.TestBase.TEST_INSTANCE_NOT_CREATED;
 
 
 /**
@@ -25,41 +26,44 @@ public interface IStrategoConstructorTests extends IStrategoTermTests {
     /**
      * Creates a new instance of the {@link IStrategoConstructor} for testing.
      *
-     * @param name the constructor name
-     * @param arity the constructor arity
-     * @param annotations the annotations of the term
-     * @param attachments the attachments of the term
-     * @return the created object
+     * @param name the constructor name; or {@code null} to use a sensible default
+     * @param arity the constructor arity; or {@code null} to use a sensible default
+     * @param annotations the annotations of the term; or {@code null} to use a sensible default
+     * @param attachments the attachments of the term; or {@code null} to use a sensible default
+     * @return the created object; or {@code null} when an instance with the given parameters could not be created
      */
-    IStrategoConstructor createStrategoConstructor(String name, int arity, IStrategoList annotations, List<ITermAttachment> attachments);
+    @Nullable
+    IStrategoConstructor createStrategoConstructor(@Nullable String name, @Nullable Integer arity, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
 
     /**
      * Creates a new instance of the {@link IStrategoTerm} for testing.
      *
-     * @param name the constructor name
-     * @param arity the constructor arity
-     * @param annotations the annotations of the term
-     * @return the created object
+     * @param name the constructor name; or {@code null} to use a sensible default
+     * @param arity the constructor arity; or {@code null} to use a sensible default
+     * @param annotations the annotations of the term; or {@code null} to use a sensible default
+     * @return the created object; or {@code null} when an instance with the given parameters could not be created
      */
-    default IStrategoConstructor createStrategoConstructor(String name, int arity, IStrategoList annotations) {
+    @Nullable
+    default IStrategoConstructor createStrategoConstructor(@Nullable String name, @Nullable Integer arity, @Nullable IStrategoList annotations) {
         return createStrategoConstructor(name, arity, annotations, Collections.emptyList());
     }
 
     /**
      * Creates a new instance of the {@link IStrategoTerm} for testing.
      *
-     * @param name the constructor name
-     * @param arity the constructor arity
-     * @return the created object
+     * @param name the constructor name; or {@code null} to use a sensible default
+     * @param arity the constructor arity; or {@code null} to use a sensible default
+     * @return the created object; or {@code null} when an instance with the given parameters could not be created
      */
-    default IStrategoConstructor createStrategoConstructor(String name, int arity) {
+    @Nullable
+    default IStrategoConstructor createStrategoConstructor(@Nullable String name, @Nullable Integer arity) {
         return createStrategoConstructor(name, arity, TermFactory.EMPTY_LIST);
     }
 
     @Nullable
     @Override
-    default IStrategoTerm createStrategoTerm(List<IStrategoTerm> subterms, IStrategoList annotations,
-                                             List<ITermAttachment> attachments) {
+    default IStrategoTerm createStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations,
+                                             @Nullable List<ITermAttachment> attachments) {
         if (subterms != null && subterms.size() != 0) return null;
         return createStrategoConstructor("Dummy", 0, annotations, attachments);
     }
@@ -79,7 +83,7 @@ public interface IStrategoConstructorTests extends IStrategoTermTests {
             IStrategoConstructor sut = createStrategoConstructor(name, arity);
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support the given name and/or arity.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             String result = sut.getName();
@@ -105,7 +109,7 @@ public interface IStrategoConstructorTests extends IStrategoTermTests {
             IStrategoConstructor sut = createStrategoConstructor(name, arity);
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support the given name and/or arity.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             int result = sut.getArity();

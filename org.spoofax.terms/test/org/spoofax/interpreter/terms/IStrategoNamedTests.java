@@ -3,6 +3,8 @@ package org.spoofax.interpreter.terms;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import javax.annotation.Nullable;
+
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
@@ -14,8 +16,9 @@ public interface IStrategoNamedTests extends IStrategoTermTests {
     /**
      * Creates a new instance of the {@link IStrategoNamed} for testing.
      *
-     * @return the created object
+     * @return the created object; or {@code null} when an instance with the given parameters could not be created
      */
+    @Nullable
     IStrategoNamed createStrategoNamed();
 
     /**

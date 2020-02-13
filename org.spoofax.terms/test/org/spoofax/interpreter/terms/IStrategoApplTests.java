@@ -14,6 +14,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static org.spoofax.TestBase.TEST_INSTANCE_NOT_CREATED;
 
 
 /**
@@ -25,53 +26,54 @@ public interface IStrategoApplTests extends IStrategoNamedTests {
     /**
      * Creates a new instance of the {@link IStrategoAppl} for testing.
      *
-     * @param constructor the constructor of the term
-     * @param subterms the subterms of the term
-     * @param annotations the annotations of the term
-     * @param attachments the attachments of the term
-     * @return the created object; or {@code null} when it could not be created
+     * @param constructor the constructor of the term; or {@code null} to use a sensible default
+     * @param subterms the subterms of the term; or {@code null} to use a sensible default
+     * @param annotations the annotations of the term; or {@code null} to use a sensible default
+     * @param attachments the attachments of the term; or {@code null} to use a sensible default
+     * @return the created object; or {@code null} when an instance with the given parameters could not be created
      */
     @Nullable
-    IStrategoAppl createStrategoAppl(IStrategoConstructor constructor, List<IStrategoTerm> subterms, IStrategoList annotations, List<ITermAttachment> attachments);
+    IStrategoAppl createStrategoAppl(@Nullable IStrategoConstructor constructor, @Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
 
     /**
      * Creates a new instance of the {@link IStrategoAppl} for testing.
      *
-     * @param constructor the constructor of the term
-     * @param subterms the subterms of the term
-     * @param annotations the annotations of the term
-     * @return the created object; or {@code null} when it could not be created
+     * @param constructor the constructor of the term; or {@code null} to use a sensible default
+     * @param subterms the subterms of the term; or {@code null} to use a sensible default
+     * @param annotations the annotations of the term; or {@code null} to use a sensible default
+     * @return the created object; or {@code null} when an instance with the given parameters could not be created
      */
     @Nullable
-    default IStrategoAppl createStrategoAppl(IStrategoConstructor constructor, List<IStrategoTerm> subterms, IStrategoList annotations) {
+    default IStrategoAppl createStrategoAppl(@Nullable IStrategoConstructor constructor, @Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations) {
         return createStrategoAppl(constructor, subterms, annotations, Collections.emptyList());
     }
 
     /**
      * Creates a new instance of the {@link IStrategoAppl} for testing.
      *
-     * @param constructor the constructor of the term
-     * @param subterms the subterms of the term
-     * @return the created object; or {@code null} when it could not be created
+     * @param constructor the constructor of the term; or {@code null} to use a sensible default
+     * @param subterms the subterms of the term; or {@code null} to use a sensible default
+     * @return the created object; or {@code null} when an instance with the given parameters could not be created
      */
     @Nullable
-    default IStrategoAppl createStrategoAppl(IStrategoConstructor constructor, List<IStrategoTerm> subterms) {
+    default IStrategoAppl createStrategoAppl(@Nullable IStrategoConstructor constructor, @Nullable List<IStrategoTerm> subterms) {
         return createStrategoAppl(constructor, subterms, TermFactory.EMPTY_LIST);
     }
 
     /**
      * Creates a new instance of the {@link IStrategoAppl} for testing.
      *
-     * @return the created object
+     * @return the created object; or {@code null} when an instance with the given parameters could not be created
      */
+    @Nullable
     default IStrategoAppl createStrategoAppl() {
         return createStrategoAppl(DummyStrategoConstructor.Dummy0, Collections.emptyList(), TermFactory.EMPTY_LIST);
     }
 
     @Nullable
     @Override
-    default IStrategoTerm createStrategoTerm(List<IStrategoTerm> subterms, IStrategoList annotations,
-                                             List<ITermAttachment> attachments) {
+    default IStrategoTerm createStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations,
+                                             @Nullable List<ITermAttachment> attachments) {
         IStrategoConstructor constructor;
         switch (subterms.size()) {
             case 0: constructor = DummyStrategoConstructor.Dummy0; break;
@@ -104,7 +106,7 @@ public interface IStrategoApplTests extends IStrategoNamedTests {
             IStrategoAppl sut = createStrategoAppl(constructor, subterms);
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support the given constructor and/or subterms.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             IStrategoConstructor result = sut.getConstructor();
@@ -131,7 +133,7 @@ public interface IStrategoApplTests extends IStrategoNamedTests {
             IStrategoAppl sut = createStrategoAppl(constructor, subterms);
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support the given constructor and/or subterms.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             String result = sut.getName();
@@ -179,7 +181,7 @@ public interface IStrategoApplTests extends IStrategoNamedTests {
             IStrategoAppl other = createStrategoAppl(constructor, subterms);
 
             // Assume
-            assumeTrue(sut != null && other != null, "The implementation does not support the given constructor and/or subterms.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             boolean result = sut.match(other);
@@ -197,7 +199,7 @@ public interface IStrategoApplTests extends IStrategoNamedTests {
             IStrategoAppl other = createStrategoAppl(new DummyStrategoConstructor("Alt", 2), subterms);
 
             // Assume
-            assumeTrue(sut != null && other != null, "The implementation does not support the given constructor and/or subterms.");
+            assumeTrue(sut != null && other != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             boolean result = sut.match(other);
@@ -214,7 +216,7 @@ public interface IStrategoApplTests extends IStrategoNamedTests {
             IStrategoAppl other = createStrategoAppl(DummyStrategoConstructor.Dummy2, Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()));
 
             // Assume
-            assumeTrue(sut != null && other != null, "The implementation does not support the given constructor and/or subterms.");
+            assumeTrue(sut != null && other != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             boolean result = sut.match(other);
@@ -239,7 +241,7 @@ public interface IStrategoApplTests extends IStrategoNamedTests {
             IStrategoAppl sut = createStrategoAppl(DummyStrategoConstructor.Dummy2, Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()));
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support the given constructor and/or subterms.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             String result = sut.toString();
@@ -264,7 +266,7 @@ public interface IStrategoApplTests extends IStrategoNamedTests {
             IStrategoAppl sut = createStrategoAppl(DummyStrategoConstructor.Dummy2, Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()));
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support the given constructor and/or subterms.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             sut.writeAsString(sb);

@@ -16,6 +16,7 @@ import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static org.spoofax.TestBase.TEST_INSTANCE_NOT_CREATED;
 
 
 /**
@@ -27,14 +28,14 @@ public interface IStrategoListTests extends IStrategoTermTests {
     /**
      * Creates a new instance of the {@link IStrategoList} for testing.
      *
-     * @param elements the elements of the list
-     * @param annotations the annotations of the term
-     * @param attachments the attachments of the term
-     * @return the created object; or {@code null} when it could not be created
+     * @param elements the elements of the list; or {@code null} to use a sensible default
+     * @param annotations the annotations of the term; or {@code null} to use a sensible default
+     * @param attachments the attachments of the term; or {@code null} to use a sensible default
+     * @return the created object; or {@code null} when an instance with the given parameters could not be created
      */
     @Nullable
-    default IStrategoList createStrategoList(List<IStrategoTerm> elements,
-                                     IStrategoList annotations, List<ITermAttachment> attachments) {
+    default IStrategoList createStrategoList(@Nullable List<IStrategoTerm> elements,
+                                             @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments) {
         if (elements.isEmpty()) { return createStrategoEmptyList(annotations, attachments); }
         return createStrategoList(elements.get(0), createStrategoList(elements.subList(1, elements.size())), annotations, attachments);
     }
@@ -42,23 +43,23 @@ public interface IStrategoListTests extends IStrategoTermTests {
     /**
      * Creates a new instance of the {@link IStrategoList} for testing.
      *
-     * @param elements the elements of the list
-     * @param annotations the annotations of the term
-     * @return the created object; or {@code null} when it could not be created
+     * @param elements the elements of the list; or {@code null} to use a sensible default
+     * @param annotations the annotations of the term; or {@code null} to use a sensible default
+     * @return the created object; or {@code null} when an instance with the given parameters could not be created
      */
     @Nullable
-    default IStrategoList createStrategoList(List<IStrategoTerm> elements, IStrategoList annotations) {
+    default IStrategoList createStrategoList(@Nullable List<IStrategoTerm> elements, @Nullable IStrategoList annotations) {
         return createStrategoList(elements, annotations, Collections.emptyList());
     }
 
     /**
      * Creates a new instance of the {@link IStrategoList} for testing.
      *
-     * @param elements the elements of the list
-     * @return the created object; or {@code null} when it could not be created
+     * @param elements the elements of the list; or {@code null} to use a sensible default
+     * @return the created object; or {@code null} when an instance with the given parameters could not be created
      */
     @Nullable
-    default IStrategoList createStrategoList(List<IStrategoTerm> elements) {
+    default IStrategoList createStrategoList(@Nullable List<IStrategoTerm> elements) {
         return createStrategoList(elements, TermFactory.EMPTY_LIST);
     }
 
@@ -66,38 +67,38 @@ public interface IStrategoListTests extends IStrategoTermTests {
     /**
      * Creates a new instance of the {@link IStrategoList} for testing.
      *
-     * @param head the head of the list
-     * @param tail the tail of the list
-     * @param annotations the annotations of the term
-     * @param attachments the attachments of the term
-     * @return the created object; or {@code null} when it could not be created
+     * @param head the head of the list; or {@code null} to use a sensible default
+     * @param tail the tail of the list; or {@code null} to use a sensible default
+     * @param annotations the annotations of the term; or {@code null} to use a sensible default
+     * @param attachments the attachments of the term; or {@code null} to use a sensible default
+     * @return the created object; or {@code null} when an instance with the given parameters could not be created
      */
     @Nullable
-    IStrategoList createStrategoList(IStrategoTerm head, IStrategoList tail,
-                                     IStrategoList annotations, List<ITermAttachment> attachments);
+    IStrategoList createStrategoList(@Nullable IStrategoTerm head, @Nullable IStrategoList tail,
+                                     @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
 
     /**
      * Creates a new instance of the {@link IStrategoList} for testing.
      *
-     * @param head the head of the list
-     * @param tail the tail of the list
-     * @param annotations the annotations of the term
-     * @return the created object; or {@code null} when it could not be created
+     * @param head the head of the list; or {@code null} to use a sensible default
+     * @param tail the tail of the list; or {@code null} to use a sensible default
+     * @param annotations the annotations of the term; or {@code null} to use a sensible default
+     * @return the created object; or {@code null} when an instance with the given parameters could not be created
      */
     @Nullable
-    default IStrategoList createStrategoList(IStrategoTerm head, IStrategoList tail, IStrategoList annotations) {
+    default IStrategoList createStrategoList(@Nullable IStrategoTerm head, @Nullable IStrategoList tail, @Nullable IStrategoList annotations) {
         return createStrategoList(head, tail, annotations, Collections.emptyList());
     }
 
     /**
      * Creates a new instance of the {@link IStrategoList} for testing.
      *
-     * @param head the head of the list
-     * @param tail the tail of the list
-     * @return the created object; or {@code null} when it could not be created
+     * @param head the head of the list; or {@code null} to use a sensible default
+     * @param tail the tail of the list; or {@code null} to use a sensible default
+     * @return the created object; or {@code null} when an instance with the given parameters could not be created
      */
     @Nullable
-    default IStrategoList createStrategoList(IStrategoTerm head, IStrategoList tail) {
+    default IStrategoList createStrategoList(@Nullable IStrategoTerm head, @Nullable IStrategoList tail) {
         return createStrategoList(head, tail, TermFactory.EMPTY_LIST);
     }
 
@@ -106,21 +107,23 @@ public interface IStrategoListTests extends IStrategoTermTests {
      *
      * This creates an empty list.
      *
-     * @param annotations the annotations of the term
-     * @param attachments the attachments of the term
-     * @return the created object
+     * @param annotations the annotations of the term; or {@code null} to use a sensible default
+     * @param attachments the attachments of the term; or {@code null} to use a sensible default
+     * @return the created object; or {@code null} when an instance with the given parameters could not be created
      */
-    IStrategoList createStrategoEmptyList(IStrategoList annotations, List<ITermAttachment> attachments);
+    @Nullable
+    IStrategoList createStrategoEmptyList(@Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
 
     /**
      * Creates a new instance of the {@link IStrategoList} for testing.
      *
      * This creates an empty list.
      *
-     * @param annotations the annotations of the term
-     * @return the created object
+     * @param annotations the annotations of the term; or {@code null} to use a sensible default
+     * @return the created object; or {@code null} when an instance with the given parameters could not be created
      */
-    default IStrategoList createStrategoEmptyList(IStrategoList annotations) {
+    @Nullable
+    default IStrategoList createStrategoEmptyList(@Nullable IStrategoList annotations) {
         return createStrategoEmptyList(annotations, Collections.emptyList());
     }
 
@@ -129,8 +132,9 @@ public interface IStrategoListTests extends IStrategoTermTests {
      *
      * This creates an empty list.
      *
-     * @return the created object
+     * @return the created object; or {@code null} when an instance with the given parameters could not be created
      */
+    @Nullable
     default IStrategoList createStrategoEmptyList() {
         return createStrategoEmptyList(TermFactory.EMPTY_LIST);
     }
@@ -138,8 +142,8 @@ public interface IStrategoListTests extends IStrategoTermTests {
 
     @Nullable
     @Override
-    default IStrategoTerm createStrategoTerm(List<IStrategoTerm> subterms, IStrategoList annotations,
-                                             List<ITermAttachment> attachments) {
+    default IStrategoTerm createStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations,
+                                             @Nullable List<ITermAttachment> attachments) {
         return createStrategoList(subterms, annotations, attachments);
     }
 
@@ -170,7 +174,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
             IStrategoList sut = createStrategoList(elements);
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support the given elements.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             int result = sut.size();
@@ -207,7 +211,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
             IStrategoList sut = createStrategoList(elements);
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support the given elements.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             IStrategoTerm result = sut.head();
@@ -245,7 +249,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
             IStrategoList sut = createStrategoList(elements);
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support the given elements.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             IStrategoList result = sut.tail();
@@ -261,7 +265,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
             IStrategoList sut = createStrategoList(Collections.singletonList(new DummyStrategoTerm()));
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support the given elements.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             IStrategoList result = sut.tail();
@@ -282,7 +286,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
             IStrategoList sut = createStrategoList(new DummyStrategoTerm(), l1, a2);
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support the given elements.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             IStrategoList result1 = sut.tail();
@@ -307,7 +311,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
             IStrategoList sut = createStrategoList(new DummyStrategoTerm(), l1, TermFactory.EMPTY_LIST, Collections.singletonList(a2));
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support the given elements.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             IStrategoList result1 = sut.tail();
@@ -348,7 +352,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
             IStrategoList sut = createStrategoList(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()));
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support the given elements.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             boolean result = sut.isEmpty();
@@ -388,7 +392,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
             IStrategoList sut = createStrategoList(elements);
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support the given elements.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             int result = sut.getTermType();
@@ -413,7 +417,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
             IStrategoList other = createStrategoList(elements);
 
             // Assume
-            assumeTrue(sut != null && other != null, "The implementation does not support the given constructor and/or subterms.");
+            assumeTrue(sut != null && other != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             boolean result = sut.match(other);
@@ -431,7 +435,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
             IStrategoList other = createStrategoList(elements);
 
             // Assume
-            assumeTrue(sut != null && other != null, "The implementation does not support the given constructor and/or subterms.");
+            assumeTrue(sut != null && other != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             boolean result = sut.match(other);
@@ -448,7 +452,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
             IStrategoList other = createStrategoList(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()));
 
             // Assume
-            assumeTrue(sut != null && other != null, "The implementation does not support the given constructor and/or subterms.");
+            assumeTrue(sut != null && other != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             boolean result = sut.match(other);
@@ -465,7 +469,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
             IStrategoList other = createStrategoList(Arrays.asList(new DummyStrategoTerm()));
 
             // Assume
-            assumeTrue(sut != null && other != null, "The implementation does not support the given constructor and/or subterms.");
+            assumeTrue(sut != null && other != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             boolean result = sut.match(other);
@@ -482,7 +486,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
             IStrategoList other = createStrategoEmptyList();
 
             // Assume
-            assumeTrue(sut != null && other != null, "The implementation does not support the given constructor and/or subterms.");
+            assumeTrue(sut != null && other != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             boolean result = sut.match(other);
@@ -504,7 +508,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
             IStrategoList other = createStrategoList(t1, createStrategoList(t0, createStrategoEmptyList(), anno2));
 
             // Assume
-            assumeTrue(sut != null && other != null, "The implementation does not support the given constructor and/or subterms.");
+            assumeTrue(sut != null && other != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             boolean result = sut.match(other);
@@ -526,7 +530,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
             IStrategoList other = createStrategoList(t1, createStrategoList(t0, createStrategoEmptyList(anno2)));
 
             // Assume
-            assumeTrue(sut != null && other != null, "The implementation does not support the given constructor and/or subterms.");
+            assumeTrue(sut != null && other != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             boolean result = sut.match(other);
@@ -551,7 +555,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
             IStrategoList sut = createStrategoList(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()));
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support the given constructor and/or subterms.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             String result = sut.toString();
@@ -576,7 +580,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
             IStrategoList sut = createStrategoList(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()));
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support the given constructor and/or subterms.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             sut.writeAsString(sb);

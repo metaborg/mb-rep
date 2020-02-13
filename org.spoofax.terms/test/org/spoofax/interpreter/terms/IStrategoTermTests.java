@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static org.spoofax.TestBase.TEST_INSTANCE_NOT_CREATED;
 
 
 /**
@@ -35,44 +36,42 @@ public interface IStrategoTermTests extends ISimpleTermTests {
     /**
      * Creates a new instance of the {@link IStrategoTerm} for testing.
      *
-     * @param subterms the subterms of the term
-     * @param annotations the annotations of the term
-     * @param attachments the attachments of the term
-     * @return the created object;
-     * or {@code null} when an instance with the given subterms or attachments could not be created
+     * @param subterms the subterms of the term; or {@code null} to use a sensible default
+     * @param annotations the annotations of the term; or {@code null} to use a sensible default
+     * @param attachments the attachments of the term; or {@code null} to use a sensible default
+     * @return the created object; or {@code null} when an instance with the given parameters could not be created
      */
     @Nullable
-    IStrategoTerm createStrategoTerm(List<IStrategoTerm> subterms, IStrategoList annotations, List<ITermAttachment> attachments);
+    IStrategoTerm createStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
 
     /**
      * Creates a new instance of the {@link IStrategoTerm} for testing.
      *
-     * @param subterms the subterms of the term
-     * @param annotations the annotations of the term
-     * @return the created object;
-     * or {@code null} when an instance with the given subterms could not be created
+     * @param subterms the subterms of the term; or {@code null} to use a sensible default
+     * @param annotations the annotations of the term; or {@code null} to use a sensible default
+     * @return the created object; or {@code null} when an instance with the given parameters could not be created
      */
     @Nullable
-    default IStrategoTerm createStrategoTerm(List<IStrategoTerm> subterms, IStrategoList annotations) {
+    default IStrategoTerm createStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations) {
         return createStrategoTerm(subterms, annotations, Collections.emptyList());
     }
 
     /**
      * Creates a new instance of the {@link IStrategoTerm} for testing.
      *
-     * @param subterms the subterms of the term
-     * @return the created object;
-     * or {@code null} when an instance with the given subterms could not be created
+     * @param subterms the subterms of the term; or {@code null} to use a sensible default
+     * @return the created object; or {@code null} when an instance with the given parameters could not be created
      */
-    @Nullable default IStrategoTerm createStrategoTerm(List<IStrategoTerm> subterms) {
+    @Nullable default IStrategoTerm createStrategoTerm(@Nullable List<IStrategoTerm> subterms) {
         return createStrategoTerm(subterms, TermFactory.EMPTY_LIST);
     }
 
     /**
      * Creates a new instance of the {@link IStrategoTerm} for testing.
      *
-     * @return the created object
+     * @return the created object; or {@code null} when an instance with the given parameters could not be created
      */
+    @Nullable
     default IStrategoTerm createStrategoTerm() {
         @Nullable IStrategoTerm term = createStrategoTerm(Collections.emptyList());
         if (term == null) throw new IllegalStateException();
@@ -81,7 +80,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
 
     @Nullable
     @Override
-    default ISimpleTerm createSimpleTerm(List<ISimpleTerm> subterms, List<ITermAttachment> attachments) {
+    default ISimpleTerm createSimpleTerm(@Nullable List<ISimpleTerm> subterms, @Nullable List<ITermAttachment> attachments) {
         try {
             List<IStrategoTerm> newSubterms = subterms.stream().map(t -> (IStrategoTerm)t).collect(Collectors.toList());
             return createStrategoTerm(newSubterms, TermFactory.EMPTY_LIST, attachments);
@@ -104,7 +103,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
             IStrategoTerm sut = createStrategoTerm(subterms);
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support multiple subterms.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             int result = sut.getSubtermCount();
@@ -120,7 +119,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
             IStrategoTerm sut = createStrategoTerm(Collections.emptyList());
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support zero subterms.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             int result = sut.getSubtermCount();
@@ -145,7 +144,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
             IStrategoTerm sut = createStrategoTerm(subterms);
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support multiple subterms.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             IStrategoTerm result = sut.getSubterm(1);
@@ -173,7 +172,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
             IStrategoTerm sut = createStrategoTerm(Collections.emptyList());
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support zero subterms.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act/Assert
             assertThrows(IndexOutOfBoundsException.class, () -> {
@@ -189,7 +188,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
             IStrategoTerm sut = createStrategoTerm(subterms);
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support multiple subterms.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act/Assert
             assertThrows(IndexOutOfBoundsException.class, () -> {
@@ -212,7 +211,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
             IStrategoTerm sut = createStrategoTerm(Collections.emptyList());
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support zero subterms.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             IStrategoTerm[] result = sut.getAllSubterms();
@@ -229,7 +228,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
             IStrategoTerm sut = createStrategoTerm(subterms);
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support multiple subterms.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             IStrategoTerm[] result = sut.getAllSubterms();
@@ -247,7 +246,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
             IStrategoTerm sut = createStrategoTerm(subterms);
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support multiple subterms.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             DummyStrategoTerm replacement = new DummyStrategoTerm();
@@ -308,7 +307,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
             IStrategoTerm sut = createStrategoTerm(Collections.emptyList(), annotations);
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support zero subterms.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             IStrategoList result = sut.getAnnotations();
@@ -345,7 +344,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
             IStrategoTerm sut = createStrategoTerm(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(), new DummyStrategoTerm()));
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support multiple subterms.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             boolean result = sut.match(sut);
@@ -361,7 +360,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
             IStrategoTerm sut = createStrategoTerm(Collections.emptyList());
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support zero subterms.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             boolean result = sut.match(sut);
@@ -379,7 +378,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
             IStrategoTerm other = createStrategoTerm(subterms);
 
             // Assume
-            assumeTrue(sut != null && other != null, "The implementation does not support multiple subterms.");
+            assumeTrue(sut != null && other != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             boolean result = sut.match(other);
@@ -396,7 +395,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
             IStrategoTerm other = createStrategoTerm(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(), new DummyStrategoTerm()));
 
             // Assume
-            assumeTrue(sut != null && other != null, "The implementation does not support multiple subterms.");
+            assumeTrue(sut != null && other != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             boolean result = sut.match(other);
@@ -415,7 +414,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
             IStrategoTerm other = createStrategoTerm(subterms.subList(0, 2));
 
             // Assume
-            assumeTrue(sut != null && other != null, "The implementation does not support multiple subterms.");
+            assumeTrue(sut != null && other != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             boolean result = sut.match(other);
@@ -433,7 +432,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
             IStrategoTerm other = new DummyStrategoTerm();
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support multiple subterms.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             boolean result = sut.match(other);
@@ -453,7 +452,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
             IStrategoTerm other = createStrategoTerm(Collections.emptyList(), annotations);
 
             // Assume
-            assumeTrue(sut != null && other != null, "The implementation does not support zero subterms.");
+            assumeTrue(sut != null && other != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             boolean result = sut.match(other);
@@ -474,7 +473,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
             IStrategoTerm other = createStrategoTerm(Collections.emptyList(), annotations2);
 
             // Assume
-            assumeTrue(sut != null && other != null, "The implementation does not support zero subterms.");
+            assumeTrue(sut != null && other != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             boolean result = sut.match(other);

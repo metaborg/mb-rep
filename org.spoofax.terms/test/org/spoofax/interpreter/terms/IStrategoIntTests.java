@@ -23,38 +23,41 @@ public interface IStrategoIntTests extends IStrategoTermTests {
     /**
      * Creates a new instance of the {@link IStrategoInt} for testing.
      *
-     * @param value the value of the term
-     * @param annotations the annotations of the term
-     * @param attachments the attachments of the term
-     * @return the created object
+     * @param value the value of the term; or {@code null} to use a sensible default
+     * @param annotations the annotations of the term; or {@code null} to use a sensible default
+     * @param attachments the attachments of the term; or {@code null} to use a sensible default
+     * @return the created object; or {@code null} when an instance with the given parameters could not be created
      */
-    IStrategoInt createStrategoInt(int value, IStrategoList annotations, List<ITermAttachment> attachments);
+    @Nullable
+    IStrategoInt createStrategoInt(@Nullable Integer value, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
 
     /**
      * Creates a new instance of the {@link IStrategoInt} for testing.
      *
-     * @param value the value of the term
-     * @param annotations the annotations of the term
-     * @return the created object
+     * @param value the value of the term; or {@code null} to use a sensible default
+     * @param annotations the annotations of the term; or {@code null} to use a sensible default
+     * @return the created object; or {@code null} when an instance with the given parameters could not be created
      */
-    default IStrategoInt createStrategoInt(int value, IStrategoList annotations) {
+    @Nullable
+    default IStrategoInt createStrategoInt(@Nullable Integer value, @Nullable IStrategoList annotations) {
         return createStrategoInt(value, annotations, Collections.emptyList());
     }
 
     /**
      * Creates a new instance of the {@link IStrategoInt} for testing.
      *
-     * @param value the value of the term
-     * @return the created object
+     * @param value the value of the term; or {@code null} to use a sensible default
+     * @return the created object; or {@code null} when an instance with the given parameters could not be created
      */
-    default IStrategoInt createStrategoInt(int value) {
+    @Nullable
+    default IStrategoInt createStrategoInt(@Nullable Integer value) {
         return createStrategoInt(value, TermFactory.EMPTY_LIST);
     }
 
     @Nullable
     @Override
-    default IStrategoTerm createStrategoTerm(List<IStrategoTerm> subterms, IStrategoList annotations,
-                                     List<ITermAttachment> attachments) {
+    default IStrategoTerm createStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations,
+                                             @Nullable List<ITermAttachment> attachments) {
         if (subterms != null && subterms.size() != 0) return null;
         return createStrategoInt(42, annotations, attachments);
     }

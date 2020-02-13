@@ -18,13 +18,14 @@ public class StrategoListTests extends TestBase implements IStrategoListTests {
 
     @Nullable
     @Override
-    public IStrategoList createStrategoList(IStrategoTerm head, IStrategoList tail, IStrategoList annotations,
-                                            List<ITermAttachment> attachments) {
+    public IStrategoList createStrategoList(@Nullable IStrategoTerm head, @Nullable IStrategoList tail, @Nullable IStrategoList annotations,
+                                            @Nullable List<ITermAttachment> attachments) {
         return TermUtil.putAttachments(new StrategoList(head, tail, annotations), attachments);
     }
 
+    @Nullable
     @Override
-    public IStrategoList createStrategoEmptyList(IStrategoList annotations, List<ITermAttachment> attachments) {
+    public IStrategoList createStrategoEmptyList(@Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments) {
         return TermUtil.putAttachments(new StrategoList(annotations), attachments);
     }
 

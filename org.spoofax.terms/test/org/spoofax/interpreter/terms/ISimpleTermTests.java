@@ -12,6 +12,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static org.spoofax.TestBase.TEST_INSTANCE_NOT_CREATED;
 
 
 /**
@@ -23,22 +24,30 @@ public interface ISimpleTermTests {
     /**
      * Creates a new instance of the {@link ISimpleTerm} for testing.
      *
-     * @param subterms the subterms of the term
-     * @param attachments the attachments of the term
-     * @return the created object;
-     * or {@code null} when an instance with the given subterms or attachments could not be created
+     * @param subterms the subterms of the term; or {@code null} to use a sensible default
+     * @param attachments the attachments of the term; or {@code null} to use a sensible default
+     * @return the created object; or {@code null} when an instance with the given parameters could not be created
      */
-    @Nullable ISimpleTerm createSimpleTerm(List<ISimpleTerm> subterms, List<ITermAttachment> attachments);
+    @Nullable ISimpleTerm createSimpleTerm(@Nullable List<ISimpleTerm> subterms, @Nullable List<ITermAttachment> attachments);
 
     /**
      * Creates a new instance of the {@link ISimpleTerm} for testing.
      *
-     * @param subterms the subterms of the term
-     * @return the created object;
-     * or {@code null} when an instance with the given subterms or attachments could not be created
+     * @param subterms the subterms of the term; or {@code null} to use a sensible default
+     * @return the created object; or {@code null} when an instance with the given parameters could not be created
      */
-    @Nullable default ISimpleTerm createSimpleTerm(List<ISimpleTerm> subterms) {
-        return createSimpleTerm(subterms, Collections.emptyList());
+    @Nullable
+    default ISimpleTerm createSimpleTerm(@Nullable List<ISimpleTerm> subterms) {
+        return createSimpleTerm(subterms, null);
+    }
+
+    /**
+     * Creates a new instance of the {@link ISimpleTerm} for testing.
+     *
+     * @return the created object
+     */
+    default ISimpleTerm createSimpleTerm() {
+        return createSimpleTerm(null, null);
     }
 
     /**
@@ -55,7 +64,7 @@ public interface ISimpleTermTests {
             ISimpleTerm sut = createSimpleTerm(subterms);
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support multiple subterms.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             int result = sut.getSubtermCount();
@@ -71,7 +80,7 @@ public interface ISimpleTermTests {
             ISimpleTerm sut = createSimpleTerm(Collections.emptyList());
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support zero subterms.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             int result = sut.getSubtermCount();
@@ -96,7 +105,7 @@ public interface ISimpleTermTests {
             ISimpleTerm sut = createSimpleTerm(subterms);
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support multiple subterms.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             ISimpleTerm result = sut.getSubterm(1);
@@ -112,7 +121,7 @@ public interface ISimpleTermTests {
             ISimpleTerm sut = createSimpleTerm(Collections.emptyList());
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support zero subterms.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act/Assert
             assertThrows(IndexOutOfBoundsException.class, () -> {
@@ -127,7 +136,7 @@ public interface ISimpleTermTests {
             ISimpleTerm sut = createSimpleTerm(Collections.emptyList());
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support zero subterms.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act/Assert
             assertThrows(IndexOutOfBoundsException.class, () -> {
@@ -143,7 +152,7 @@ public interface ISimpleTermTests {
             ISimpleTerm sut = createSimpleTerm(subterms);
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support multiple subterms.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act/Assert
             assertThrows(IndexOutOfBoundsException.class, () -> {
@@ -166,7 +175,7 @@ public interface ISimpleTermTests {
             ISimpleTerm sut = createSimpleTerm(Collections.emptyList(), Collections.emptyList());
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support zero subterms.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             ITermAttachment result = sut.getAttachment(null);
@@ -187,7 +196,7 @@ public interface ISimpleTermTests {
             ISimpleTerm sut = createSimpleTerm(Collections.emptyList(), attachments);
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support zero subterms or multiple attachments.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             ITermAttachment result = sut.getAttachment(null);
@@ -208,7 +217,7 @@ public interface ISimpleTermTests {
             ISimpleTerm sut = createSimpleTerm(Collections.emptyList(), attachments);
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support zero subterms or multiple attachments.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             ITermAttachment result = sut.getAttachment(DummyTermAttachment.Type2);
@@ -229,7 +238,7 @@ public interface ISimpleTermTests {
             ISimpleTerm sut = createSimpleTerm(Collections.emptyList(), attachments);
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support zero subterms or multiple attachments.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             ITermAttachment result = sut.getAttachment(DummyTermAttachment.Type4);
@@ -259,7 +268,7 @@ public interface ISimpleTermTests {
             DummyTermAttachment replacement = new DummyTermAttachment(DummyTermAttachment.Type2);
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support zero subterms or multiple attachments.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             sut.putAttachment(replacement);
@@ -282,7 +291,7 @@ public interface ISimpleTermTests {
             DummyTermAttachment addition = new DummyTermAttachment(DummyTermAttachment.Type4);
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support zero subterms or multiple attachments.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             sut.putAttachment(addition);
@@ -312,7 +321,7 @@ public interface ISimpleTermTests {
             ISimpleTerm sut = createSimpleTerm(Collections.emptyList(), attachments);
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support zero subterms or multiple attachments.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             ITermAttachment removed = sut.removeAttachment(DummyTermAttachment.Type2);
@@ -333,7 +342,7 @@ public interface ISimpleTermTests {
             ISimpleTerm sut = createSimpleTerm(Collections.emptyList(), attachments);
 
             // Assume
-            assumeTrue(sut != null, "The implementation does not support zero subterms or multiple attachments.");
+            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             ITermAttachment removed = sut.removeAttachment(DummyTermAttachment.Type4);

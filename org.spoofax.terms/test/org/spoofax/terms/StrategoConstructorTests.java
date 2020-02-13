@@ -9,6 +9,7 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTermBuilder;
 import org.spoofax.terms.attachments.ITermAttachment;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 
@@ -19,8 +20,9 @@ import java.util.List;
 public class StrategoConstructorTests extends TestBase implements IStrategoConstructorTests {
 
 
+    @Nullable
     @Override
-    public IStrategoConstructor createStrategoConstructor(String name, int arity, IStrategoList annotations, List<ITermAttachment> attachments) {
+    public IStrategoConstructor createStrategoConstructor(@Nullable String name, @Nullable Integer arity, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments) {
         if (annotations != null && !annotations.isEmpty()) return null;
         return TermUtil.putAttachments(new StrategoConstructor(name, arity), attachments);
     }

@@ -23,43 +23,47 @@ public interface IStrategoPlaceholderTests extends IStrategoTermTests {
     /**
      * Creates a new instance of the {@link IStrategoPlaceholder} for testing.
      *
-     * @param template the template of the placeholder
-     * @param annotations the annotations of the term
-     * @param attachments the attachments of the term
-     * @return the created object
+     * @param template the template of the placeholder; or {@code null} to use a sensible default
+     * @param annotations the annotations of the term; or {@code null} to use a sensible default
+     * @param attachments the attachments of the term; or {@code null} to use a sensible default
+     * @return the created object; or {@code null} when an instance with the given parameters could not be created
      */
+    @Nullable
     IStrategoPlaceholder createStrategoPlaceholder(IStrategoTerm template, IStrategoList annotations, List<ITermAttachment> attachments);
 
     /**
      * Creates a new instance of the {@link IStrategoPlaceholder} for testing.
      *
-     * @param template the template of the placeholder
-     * @param annotations the annotations of the term
-     * @return the created object
+     * @param template the template of the placeholder; or {@code null} to use a sensible default
+     * @param annotations the annotations of the term; or {@code null} to use a sensible default
+     * @return the created object; or {@code null} when an instance with the given parameters could not be created
      */
-    default IStrategoPlaceholder createStrategoPlaceholder(IStrategoTerm template, IStrategoList annotations) {
+    @Nullable
+    default IStrategoPlaceholder createStrategoPlaceholder(@Nullable IStrategoTerm template, @Nullable IStrategoList annotations) {
         return createStrategoPlaceholder(template, annotations, Collections.emptyList());
     }
 
     /**
      * Creates a new instance of the {@link IStrategoPlaceholder} for testing.
      *
-     * @param template the template of the placeholder
-     * @return the created object
+     * @param template the template of the placeholder; or {@code null} to use a sensible default
+     * @return the created object; or {@code null} when an instance with the given parameters could not be created
      */
-    default IStrategoPlaceholder createStrategoPlaceholder(IStrategoTerm template) {
+    @Nullable
+    default IStrategoPlaceholder createStrategoPlaceholder(@Nullable IStrategoTerm template) {
         return createStrategoPlaceholder(template, TermFactory.EMPTY_LIST);
     }
 
     @Nullable
     @Override
-    default IStrategoTerm createStrategoTerm(List<IStrategoTerm> subterms, IStrategoList annotations,
-                                             List<ITermAttachment> attachments) {
+    default IStrategoTerm createStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations,
+                                             @Nullable List<ITermAttachment> attachments) {
         if (subterms == null || subterms.size() != 1) return null;
         return createStrategoPlaceholder(subterms.get(0), annotations, attachments);
     }
 
     @Override
+    @Nullable
     default IStrategoTerm createStrategoTerm() {
         return createStrategoPlaceholder(new DummyStrategoTerm());
     }

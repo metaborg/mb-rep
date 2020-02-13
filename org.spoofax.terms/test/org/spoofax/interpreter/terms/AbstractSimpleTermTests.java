@@ -19,22 +19,20 @@ public interface AbstractSimpleTermTests extends ISimpleTermTests {
     /**
      * Creates a new instance of the {@link AbstractSimpleTerm} for testing.
      *
-     * @param subterms the subterms of the term
-     * @param attachments the attachments of the term
-     * @return the created object;
-     * or {@code null} when an instance with the given subterms or attachments could not be created
+     * @param subterms the subterms of the term; or {@code null} to use a sensible default
+     * @param attachments the attachments of the term; or {@code null} to use a sensible default
+     * @return the created object; or {@code null} when an instance with the given parameters could not be created
      */
     @Nullable
-    AbstractSimpleTerm createAbstractSimpleTerm(List<ISimpleTerm> subterms, List<ITermAttachment> attachments);
+    AbstractSimpleTerm createAbstractSimpleTerm(@Nullable List<ISimpleTerm> subterms, @Nullable List<ITermAttachment> attachments);
 
     /**
      * Creates a new instance of the {@link AbstractSimpleTerm} for testing.
      *
-     * @param subterms the subterms of the term
-     * @return the created object;
-     * or {@code null} when an instance with the given subterms or attachments could not be created
+     * @param subterms the subterms of the term; or {@code null} to use a sensible default
+     * @return the created object; or {@code null} when an instance with the given parameters could not be created
      */
-    @Nullable default AbstractSimpleTerm createAbstractSimpleTerm(List<ISimpleTerm> subterms) {
+    @Nullable default AbstractSimpleTerm createAbstractSimpleTerm(@Nullable List<ISimpleTerm> subterms) {
         return createAbstractSimpleTerm(subterms, Collections.emptyList());
     }
 
