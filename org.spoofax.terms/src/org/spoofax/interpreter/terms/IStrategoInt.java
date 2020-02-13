@@ -8,7 +8,7 @@
 package org.spoofax.interpreter.terms;
 
 /**
- * An Int Stratego term.
+ * A Stratego Int term.
  */
 public interface IStrategoInt extends IStrategoTerm {
 

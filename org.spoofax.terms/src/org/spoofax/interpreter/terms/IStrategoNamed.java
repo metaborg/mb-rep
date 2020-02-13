@@ -1,9 +1,15 @@
 package org.spoofax.interpreter.terms;
 
 /** 
- * @author Lennart Kats <lennart add lclnet.nl>
+ * A Stratego named term.
  */
 public interface IStrategoNamed extends IStrategoTerm {
 
+    /**
+     * Gets the name of the term.
+     *
+     * @return the name of the term
+     */
 	String getName();
+
 }

@@ -3,18 +3,15 @@ package org.spoofax.interpreter.terms;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.spoofax.terms.StrategoList;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.attachments.ITermAttachment;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 
 /**
@@ -69,7 +66,7 @@ public interface IStrategoIntTests extends IStrategoTermTests {
     interface IntValueTests extends IStrategoIntTests {
 
         @Test
-        @DisplayName("returnsTheValueOfTheTerm")
+        @DisplayName("returns the value of the term")
         default void returnsTheValueOfTheTerm() {
             // Arrange
             int value = 10;
@@ -170,8 +167,8 @@ public interface IStrategoIntTests extends IStrategoTermTests {
         }
 
         @Test
-        @DisplayName("when other has different value, returns true")
-        default void whenOtherHasDifferentValue_returnsTrue() {
+        @DisplayName("when other has different value, returns false")
+        default void whenOtherHasDifferentValue_returnsFalse() {
             // Arrange
             IStrategoInt sut = createStrategoInt(42);
             IStrategoInt other = createStrategoInt(1337);

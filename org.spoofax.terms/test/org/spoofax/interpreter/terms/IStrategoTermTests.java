@@ -1,6 +1,7 @@
 package org.spoofax.interpreter.terms;
 
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.spoofax.terms.TermFactory;
@@ -65,6 +66,17 @@ public interface IStrategoTermTests extends ISimpleTermTests {
      */
     @Nullable default IStrategoTerm createStrategoTerm(List<IStrategoTerm> subterms) {
         return createStrategoTerm(subterms, TermFactory.EMPTY_LIST);
+    }
+
+    /**
+     * Creates a new instance of the {@link IStrategoTerm} for testing.
+     *
+     * @return the created object
+     */
+    default IStrategoTerm createStrategoTerm() {
+        @Nullable IStrategoTerm term = createStrategoTerm(Collections.emptyList());
+        if (term == null) throw new IllegalStateException();
+        return term;
     }
 
     @Nullable
@@ -146,10 +158,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
         @DisplayName("throws exception when below bounds")
         default void throwsExceptionWhenBelowBounds() {
             // Arrange
-            IStrategoTerm sut = createStrategoTerm(Collections.emptyList());
-
-            // Assume
-            assumeTrue(sut != null, "The implementation does not support zero subterms.");
+            IStrategoTerm sut = createStrategoTerm();
 
             // Act/Assert
             assertThrows(IndexOutOfBoundsException.class, () -> {
@@ -230,6 +239,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
         }
 
         @Test
+        @Disabled("This is not currently implemented.")
         @DisplayName("modifications to returned array are not reflected in the term")
         default void modificationsToReturnedArrayAreNotReflectedInTheTerm() {
             // Arrange
@@ -261,10 +271,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
         @DisplayName("returns a valid term type")
         default void returnsAValidTermType() {
             // Arrange
-            IStrategoTerm sut = createStrategoTerm(Collections.emptyList());
-
-            // Assume
-            assumeTrue(sut != null, "The implementation does not support zero subterms.");
+            IStrategoTerm sut = createStrategoTerm();
 
             // Act
             int result = sut.getTermType();
@@ -314,10 +321,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
         @DisplayName("when there are no annotations, returns an empty list")
         default void whenThereAreNoAnnotations_returnsAnEmptyList() {
             // Arrange
-            IStrategoTerm sut = createStrategoTerm(Collections.emptyList());
-
-            // Assume
-            assumeTrue(sut != null, "The implementation does not support zero subterms.");
+            IStrategoTerm sut = createStrategoTerm();
 
             // Act
             IStrategoList result = sut.getAnnotations();
@@ -492,10 +496,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
         @DisplayName("returns a non-empty string")
         default void returnsANonEmptyString() {
             // Arrange
-            IStrategoTerm sut = createStrategoTerm(Collections.emptyList());
-
-            // Assume
-            assumeTrue(sut != null, "The implementation does not support zero subterms.");
+            IStrategoTerm sut = createStrategoTerm();
 
             // Act
             String result = sut.toString();
@@ -508,10 +509,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
         @DisplayName("when depth is zero, returns a non-empty string")
         default void whenDepthIsZero_returnsANonEmptyString() {
             // Arrange
-            IStrategoTerm sut = createStrategoTerm(Collections.emptyList());
-
-            // Assume
-            assumeTrue(sut != null, "The implementation does not support zero subterms.");
+            IStrategoTerm sut = createStrategoTerm();
 
             // Act
             String result = sut.toString(0);
@@ -533,11 +531,8 @@ public interface IStrategoTermTests extends ISimpleTermTests {
         @DisplayName("writes a non-empty string")
         default void writesANonEmptyString() throws IOException {
             // Arrange
-            IStrategoTerm sut = createStrategoTerm(Collections.emptyList());
+            IStrategoTerm sut = createStrategoTerm();
             StringBuilder sb = new StringBuilder();
-
-            // Assume
-            assumeTrue(sut != null, "The implementation does not support zero subterms.");
 
             // Act
             sut.writeAsString(sb);
@@ -550,11 +545,8 @@ public interface IStrategoTermTests extends ISimpleTermTests {
         @DisplayName("when depth is zero, writes a non-empty string")
         default void whenDepthIsZero_writesANonEmptyString() throws IOException {
             // Arrange
-            IStrategoTerm sut = createStrategoTerm(Collections.emptyList());
+            IStrategoTerm sut = createStrategoTerm();
             StringBuilder sb = new StringBuilder();
-
-            // Assume
-            assumeTrue(sut != null, "The implementation does not support zero subterms.");
 
             // Act
             sut.writeAsString(sb, 0);
