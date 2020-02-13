@@ -42,7 +42,7 @@ public final class StrategoConstructor extends StrategoTerm implements IStratego
     }
 
     public IStrategoTerm getSubterm(int index) {
-        throw new UnsupportedOperationException();
+        throw new IndexOutOfBoundsException();
     }
 
     public int getSubtermCount() {
@@ -71,12 +71,12 @@ public final class StrategoConstructor extends StrategoTerm implements IStratego
 
     @Override
     public String toString() {
-        return name + "/" + arity;
+        return name + "`" + arity;
     }
 
     public void writeAsString(Appendable output, int maxDepth) throws IOException {
         output.append(name);
-        output.append('/');
+        output.append('`');
         output.append(Integer.toString(arity));
     }
 

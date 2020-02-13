@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public interface IStrategoIntTests extends IStrategoTermTests {
 
     /**
-     * Creates a new instance of the {@link IStrategoTerm} for testing.
+     * Creates a new instance of the {@link IStrategoInt} for testing.
      *
      * @param value the value of the term
      * @param annotations the annotations of the term
@@ -31,7 +31,7 @@ public interface IStrategoIntTests extends IStrategoTermTests {
     IStrategoInt createStrategoInt(int value, IStrategoList annotations, List<ITermAttachment> attachments);
 
     /**
-     * Creates a new instance of the {@link IStrategoTerm} for testing.
+     * Creates a new instance of the {@link IStrategoInt} for testing.
      *
      * @param value the value of the term
      * @param annotations the annotations of the term
@@ -42,7 +42,7 @@ public interface IStrategoIntTests extends IStrategoTermTests {
     }
 
     /**
-     * Creates a new instance of the {@link IStrategoTerm} for testing.
+     * Creates a new instance of the {@link IStrategoInt} for testing.
      *
      * @param value the value of the term
      * @return the created object
