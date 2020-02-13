@@ -37,7 +37,7 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
 
     @Override
     public IStrategoList makeList() {
-        return new StrategoList(null, null, null);
+        return new StrategoList(null);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
             if(outerAnnos == null || outerAnnos.isEmpty()) {
                 return makeList();
             } else {
-                return new StrategoList(null, null, outerAnnos);
+                return new StrategoList(outerAnnos);
             }
         }
         return result;

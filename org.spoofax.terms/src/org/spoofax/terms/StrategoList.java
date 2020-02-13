@@ -35,14 +35,27 @@ public class StrategoList extends StrategoTerm implements IStrategoList {
     /**
      * Creates a new list.
      *
-     * @see #prepend(IStrategoTerm) Adds a new head element to a list.
+     * @param head the head of the list
+     * @param tail the tail of the list
+     * @param annotations the annotations on the term
      */
     public StrategoList(IStrategoTerm head, IStrategoList tail, IStrategoList annotations) {
         super(annotations);
+        if ((head == null) != (tail == null)) throw new IllegalArgumentException("Both the head and tail must be non-null or both null.");
+
         this.head = head;
         this.tail = tail;
 
         this.size = (head == null ? 0 : 1) + (tail == null ? 0 : tail.size());
+    }
+
+    /**
+     * Creates a new empty list.
+     *
+     * @param annotations the annotations on the term
+     */
+    public StrategoList(IStrategoList annotations) {
+        this(null, null, annotations);
     }
 
     public IStrategoTerm head() {
@@ -88,7 +101,7 @@ public class StrategoList extends StrategoTerm implements IStrategoList {
 
     public IStrategoTerm getSubterm(int index) {
         IStrategoList list = this;
-        if(index < 0)
+        if(index < 0 || index >= size)
             throw new IndexOutOfBoundsException("Index out of bounds: " + index);
         for(int i = 0; i < index; i++) {
             if(list.isEmpty())

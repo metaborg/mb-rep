@@ -9,7 +9,7 @@ import java.util.HashMap;
 public abstract class AbstractTermFactory implements ITermFactory {
 
     @Deprecated
-    public static final IStrategoList EMPTY_LIST = new StrategoList(null, null, null);
+    public static final IStrategoList EMPTY_LIST = new StrategoList(null);
 
     public static final IStrategoTerm[] EMPTY = new IStrategoTerm[0];
     private static final HashMap<StrategoConstructor, StrategoConstructor> asyncCtorCache =

@@ -8,29 +8,54 @@
 package org.spoofax.interpreter.terms;
 
 
+import java.util.NoSuchElementException;
+
+
+/**
+ * A Stratego List term.
+ */
 public interface IStrategoList extends IStrategoTerm {
 	// Too restrictive for client classes: Iterable<IStrategoTerm>
 
+    // FIXME: Should be named getSize() for Kotlin compatibility
     /**
-     * @deprecated Use {@link #getSubterm(int)} instead.
+     * Gets the size of the list.
+     *
+     * @return the size of the list
      */
-	@Deprecated // useless; only causes incompatibility with other base classes
-	public IStrategoTerm get(int index);
+    int size();
 
-    public int size();
+    // FIXME: Should be named getHead() for Kotlin compatibility
+    /**
+     * Gets the head of the list.
+     *
+     * @return the head of the list
+     * @throws NoSuchElementException The list is empty.
+     */
+    IStrategoTerm head();
+
+    // FIXME: Should be named getTail() for Kotlin compatibility
+    /**
+     * Gets the tail of the list.
+     *
+     * @return the tail of the list
+     * @throws IllegalStateException The list is empty.
+     */
+    IStrategoList tail();
 
     /**
-     * @deprecated Use
-     *             {@link IStrategoTermBuilder#makeListCons(IStrategoTerm, IStrategoList)}
-     *             instead.
+     * Gets whether the list is empty.
+     *
+     * @return {@code true} when the list is empty; otherwise, {@code false}.
      */
+    boolean isEmpty();
+
+    /** @deprecated Use {@link IStrategoTermBuilder#makeListCons(IStrategoTerm, IStrategoList)} instead. */
     @Deprecated
-    public IStrategoList prepend(IStrategoTerm prefix);
+    IStrategoList prepend(IStrategoTerm prefix);
 
-    public IStrategoTerm head();
-
-    public IStrategoList tail();
-
-    public boolean isEmpty();
+    /** @deprecated Use {@link #getSubterm(int)} instead. */
+    @Deprecated // useless; only causes incompatibility with other base classes
+    IStrategoTerm get(int index);
 
 }

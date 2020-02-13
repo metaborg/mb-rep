@@ -10,6 +10,7 @@ package org.spoofax.interpreter.terms;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.Writer;
+import java.util.Iterator;
 
 /**
  * A Stratego annotated term.
@@ -111,4 +112,10 @@ public interface IStrategoTerm extends ISimpleTerm, Serializable, Iterable<IStra
      * @param maxDepth how many levels of the tree to write, or {@link Integer#MAX_VALUE} for infinitely many
      */
     void writeAsString(Appendable output, int maxDepth) throws IOException;
+
+    // TODO: Remove Iterable<IStrategoTerm>
+    /** @deprecated Use {@link #getAllSubterms()} instead. */
+    @Override @Deprecated
+    Iterator<IStrategoTerm> iterator();
+
 }

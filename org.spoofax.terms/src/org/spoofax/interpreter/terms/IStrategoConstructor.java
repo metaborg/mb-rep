@@ -8,14 +8,9 @@
 package org.spoofax.interpreter.terms;
 
 /**
- * A term constructor.
+ * A Stratego term constructor.
  */
 public interface IStrategoConstructor extends IStrategoTerm {
-
-    @Deprecated
-    IStrategoAppl instantiate(ITermFactory factory, IStrategoTerm... kids);
-    @Deprecated
-    IStrategoAppl instantiate(ITermFactory factory, IStrategoList kids);
 
     /**
      * Gets the name of the constructor.
@@ -32,5 +27,10 @@ public interface IStrategoConstructor extends IStrategoTerm {
      * @return the arity of the constructor
      */
     int getArity();
+
+    @Deprecated
+    IStrategoAppl instantiate(ITermFactory factory, IStrategoTerm... kids);
+    @Deprecated
+    IStrategoAppl instantiate(ITermFactory factory, IStrategoList kids);
 
 }

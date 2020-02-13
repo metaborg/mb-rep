@@ -2,6 +2,7 @@ package org.spoofax.terms;
 
 import org.junit.jupiter.api.DisplayName;
 import org.spoofax.TermUtil;
+import org.spoofax.TestBase;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoConstructorTests;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -15,12 +16,8 @@ import java.util.List;
  * Tests the {@link StrategoConstructor} class.
  */
 @DisplayName("StrategoConstructor")
-public class StrategoConstructorTests implements IStrategoConstructorTests {
+public class StrategoConstructorTests extends TestBase implements IStrategoConstructorTests {
 
-    @Override
-    public IStrategoTermBuilder getTermBuilder() {
-        return new TermFactory();
-    }
 
     @Override
     public IStrategoConstructor createStrategoConstructor(String name, int arity, IStrategoList annotations, List<ITermAttachment> attachments) {
