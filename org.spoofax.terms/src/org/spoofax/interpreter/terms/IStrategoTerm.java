@@ -42,6 +42,7 @@ public interface IStrategoTerm extends ISimpleTerm, Serializable, Iterable<IStra
     @Deprecated int INFINITE = Integer.MAX_VALUE;
 
     @Override int getSubtermCount();
+
     @Override IStrategoTerm getSubterm(int index);
 
     /**

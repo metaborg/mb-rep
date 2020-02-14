@@ -20,6 +20,7 @@ public interface ISimpleTerm extends Serializable {
      */
 	int getSubtermCount();
 
+    // FIXME: Should be named get() for Kotlin compatibility
     /**
      * Gets the subterm at the specified index.
      *

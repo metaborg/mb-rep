@@ -316,9 +316,8 @@ public interface IStrategoListTests extends IStrategoTermTests {
         @DisplayName("when both are empty lists, returns true")
         default void whenBothAreEmptyLists_returnsTrue() {
             // Arrange
-            List<IStrategoTerm> elements = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm());
-            IStrategoList sut = createStrategoList(elements, null, null);
-            IStrategoList other = createStrategoList(elements, null, null);
+            IStrategoList sut = createStrategoList(Collections.emptyList(), null, null);
+            IStrategoList other = createStrategoList(Collections.emptyList(), null, null);
 
             // Act
             boolean result = sut.match(other);
