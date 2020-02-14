@@ -7,8 +7,17 @@
  */
 package org.spoofax.interpreter.terms;
 
+/**
+ * A Stratego String term.
+ */
 public interface IStrategoString extends IStrategoTerm, IStrategoNamed {
 
-    public String stringValue();
+    // FIXME: Should be named getValue() for Kotlin compatibility
+    /**
+     * Gets the value of this term.
+     *
+     * @return the value
+     */
+    String stringValue();
 
 }

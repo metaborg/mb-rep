@@ -12,6 +12,7 @@ package org.spoofax.interpreter.terms;
  */
 public interface IStrategoInt extends IStrategoTerm {
 
+    // FIXME: Should be named getValue() for Kotlin compatibility
     /**
      * Gets the value of this term.
      *

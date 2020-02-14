@@ -7,6 +7,7 @@
  */
 package org.spoofax.interpreter.terms;
 
+@Deprecated
 public interface IStrategoRef extends IStrategoTerm {
 	// Nothing to see here...
 }
