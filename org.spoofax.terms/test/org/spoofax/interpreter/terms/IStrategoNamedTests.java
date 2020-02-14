@@ -6,19 +6,23 @@ import org.junit.jupiter.api.Test;
 import javax.annotation.Nullable;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static org.spoofax.TestBase.TEST_INSTANCE_NOT_CREATED;
+
 
 /**
  * Tests the {@link IStrategoNamed} interface.
  */
+@SuppressWarnings("unused")
 @DisplayName("IStrategoNamed")
 public interface IStrategoNamedTests extends IStrategoTermTests {
 
     /**
      * Creates a new instance of the {@link IStrategoNamed} for testing.
      *
-     * @return the created object; or {@code null} when an instance with the given parameters could not be created
+     * @return the created object
+     * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
      */
-    @Nullable
     IStrategoNamed createStrategoNamed();
 
     /**

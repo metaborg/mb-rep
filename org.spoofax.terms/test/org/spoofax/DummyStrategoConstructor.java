@@ -1,4 +1,7 @@
-package org.spoofax.interpreter.terms;
+package org.spoofax;
+
+import org.spoofax.interpreter.terms.*;
+
 
 /**
  * A dummy term constructor.

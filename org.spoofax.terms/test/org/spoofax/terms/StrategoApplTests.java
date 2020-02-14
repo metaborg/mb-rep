@@ -1,8 +1,8 @@
 package org.spoofax.terms;
 
 import org.junit.jupiter.api.DisplayName;
+import org.spoofax.DummyStrategoConstructor;
 import org.spoofax.TermUtil;
-import org.spoofax.TestBase;
 import org.spoofax.interpreter.terms.*;
 import org.spoofax.terms.attachments.ITermAttachment;
 
@@ -14,13 +14,33 @@ import java.util.List;
  * Tests the {@link StrategoAppl} class.
  */
 @DisplayName("StrategoAppl")
-public class StrategoApplTests extends TestBase implements IStrategoApplTests {
+public class StrategoApplTests extends StrategoTermTests implements IStrategoApplTests {
 
-    @Nullable
     @Override
     public IStrategoAppl createStrategoAppl(@Nullable IStrategoConstructor constructor, @Nullable List<IStrategoTerm> subterms,
                                             @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments) {
-        return TermUtil.putAttachments(new StrategoAppl(constructor, subterms.toArray(new IStrategoTerm[0]), annotations), attachments);
+        if (constructor == null) {
+            switch (subterms != null ? subterms.size() : 0) {
+                case 0: constructor = DummyStrategoConstructor.Dummy0; break;
+                case 1: constructor = DummyStrategoConstructor.Dummy1; break;
+                case 2: constructor = DummyStrategoConstructor.Dummy2; break;
+                case 3: constructor = DummyStrategoConstructor.Dummy3; break;
+                case 4: constructor = DummyStrategoConstructor.Dummy4; break;
+                default: constructor = new DummyStrategoConstructor("Dummy", subterms.size()); break;
+            }
+        }
+        return TermUtil.putAttachments(new StrategoAppl(
+                    constructor,
+                    subterms != null ? subterms.toArray(new IStrategoTerm[0]) : new IStrategoTerm[0],
+                    annotations != null ? annotations : TermFactory.EMPTY_LIST
+                ), attachments);
+    }
+
+    @Override
+    public IStrategoTerm createStrategoTerm(@Nullable List<IStrategoTerm> subterms,
+                                            @Nullable IStrategoList annotations,
+                                            @Nullable List<ITermAttachment> attachments) {
+        return createStrategoAppl(null, subterms, annotations, attachments);
     }
 
     // @formatter:off

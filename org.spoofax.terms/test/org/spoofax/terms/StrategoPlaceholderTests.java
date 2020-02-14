@@ -1,8 +1,8 @@
 package org.spoofax.terms;
 
 import org.junit.jupiter.api.DisplayName;
+import org.spoofax.DummyStrategoTerm;
 import org.spoofax.TermUtil;
-import org.spoofax.TestBase;
 import org.spoofax.interpreter.terms.*;
 import org.spoofax.terms.attachments.ITermAttachment;
 
@@ -14,13 +14,16 @@ import java.util.List;
  * Tests the {@link StrategoPlaceholder} class.
  */
 @DisplayName("StrategoPlaceholder")
-public class StrategoPlaceholderTests extends TestBase implements IStrategoPlaceholderTests {
+public class StrategoPlaceholderTests extends StrategoApplTests implements IStrategoPlaceholderTests {
 
-    @Nullable
     @Override
     public IStrategoPlaceholder createStrategoPlaceholder(@Nullable IStrategoTerm template, @Nullable IStrategoList annotations,
                                                           @Nullable List<ITermAttachment> attachments) {
-        return TermUtil.putAttachments(new StrategoPlaceholder(getTermBuilder().makeConstructor("<>", 1), template, annotations), attachments);
+        return TermUtil.putAttachments(new StrategoPlaceholder(
+                getTermBuilder().makeConstructor("<>", 1),
+                template != null ? template : new DummyStrategoTerm(),
+                annotations != null ? annotations : TermFactory.EMPTY_LIST
+        ), attachments);
     }
 
     // @formatter:off
@@ -37,18 +40,5 @@ public class StrategoPlaceholderTests extends TestBase implements IStrategoPlace
     static class ToStringTests          extends StrategoPlaceholderTests implements IStrategoPlaceholderTests.ToStringTests {}
     static class WriteAsStringTests     extends StrategoPlaceholderTests implements IStrategoPlaceholderTests.WriteAsStringTests {}
     // @formatter:on
-
-    @DisplayName("StrategoPlaceholder/StrategoAppl")
-    public static class StrategoApplTests extends org.spoofax.terms.StrategoApplTests {
-
-        @Nullable
-        @Override
-        public IStrategoAppl createStrategoAppl(IStrategoConstructor constructor, List<IStrategoTerm> subterms,
-                                                IStrategoList annotations, List<ITermAttachment> attachments) {
-            if (!constructor.getName().equals("<>") || constructor.getArity() != 1 || subterms.size() != 1) return null;
-            return TermUtil.putAttachments(new StrategoPlaceholder(constructor, subterms.get(0), annotations), attachments);
-        }
-
-    }
 
 }

@@ -1,5 +1,6 @@
-package org.spoofax.interpreter.terms;
+package org.spoofax;
 
+import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.terms.attachments.ITermAttachment;
 import org.spoofax.terms.attachments.TermAttachmentType;
 
@@ -7,7 +8,7 @@ import org.spoofax.terms.attachments.TermAttachmentType;
 /**
  * A dummy simple term.
  */
-/* package private */ class DummySimpleTerm implements ISimpleTerm {
+public class DummySimpleTerm implements ISimpleTerm {
 
     @Override
     public int getSubtermCount() { return 0; }

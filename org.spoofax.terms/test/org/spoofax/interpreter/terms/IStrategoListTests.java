@@ -4,6 +4,9 @@ package org.spoofax.interpreter.terms;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.spoofax.DummyStrategoTerm;
+import org.spoofax.DummyTermAttachment;
+import org.spoofax.DummyTermAttachmentType;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.attachments.ITermAttachment;
 
@@ -22,6 +25,7 @@ import static org.spoofax.TestBase.TEST_INSTANCE_NOT_CREATED;
 /**
  * Tests the {@link IStrategoList} interface.
  */
+@SuppressWarnings({"CodeBlock2Expr", "Convert2MethodRef", "unused"})
 @DisplayName("IStrategoList")
 public interface IStrategoListTests extends IStrategoTermTests {
 
@@ -31,38 +35,14 @@ public interface IStrategoListTests extends IStrategoTermTests {
      * @param elements the elements of the list; or {@code null} to use a sensible default
      * @param annotations the annotations of the term; or {@code null} to use a sensible default
      * @param attachments the attachments of the term; or {@code null} to use a sensible default
-     * @return the created object; or {@code null} when an instance with the given parameters could not be created
+     * @return the created object
+     * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
      */
-    @Nullable
     default IStrategoList createStrategoList(@Nullable List<IStrategoTerm> elements,
                                              @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments) {
-        if (elements.isEmpty()) { return createStrategoEmptyList(annotations, attachments); }
-        return createStrategoList(elements.get(0), createStrategoList(elements.subList(1, elements.size())), annotations, attachments);
+        if (elements == null || elements.isEmpty()) { return createStrategoEmptyList(annotations, attachments); }
+        return createStrategoList(elements.get(0), createStrategoList(elements.subList(1, elements.size()), null, null), annotations, attachments);
     }
-
-    /**
-     * Creates a new instance of the {@link IStrategoList} for testing.
-     *
-     * @param elements the elements of the list; or {@code null} to use a sensible default
-     * @param annotations the annotations of the term; or {@code null} to use a sensible default
-     * @return the created object; or {@code null} when an instance with the given parameters could not be created
-     */
-    @Nullable
-    default IStrategoList createStrategoList(@Nullable List<IStrategoTerm> elements, @Nullable IStrategoList annotations) {
-        return createStrategoList(elements, annotations, Collections.emptyList());
-    }
-
-    /**
-     * Creates a new instance of the {@link IStrategoList} for testing.
-     *
-     * @param elements the elements of the list; or {@code null} to use a sensible default
-     * @return the created object; or {@code null} when an instance with the given parameters could not be created
-     */
-    @Nullable
-    default IStrategoList createStrategoList(@Nullable List<IStrategoTerm> elements) {
-        return createStrategoList(elements, TermFactory.EMPTY_LIST);
-    }
-
 
     /**
      * Creates a new instance of the {@link IStrategoList} for testing.
@@ -71,76 +51,24 @@ public interface IStrategoListTests extends IStrategoTermTests {
      * @param tail the tail of the list; or {@code null} to use a sensible default
      * @param annotations the annotations of the term; or {@code null} to use a sensible default
      * @param attachments the attachments of the term; or {@code null} to use a sensible default
-     * @return the created object; or {@code null} when an instance with the given parameters could not be created
+     * @return the created object
+     * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
      */
-    @Nullable
     IStrategoList createStrategoList(@Nullable IStrategoTerm head, @Nullable IStrategoList tail,
                                      @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
 
     /**
      * Creates a new instance of the {@link IStrategoList} for testing.
      *
-     * @param head the head of the list; or {@code null} to use a sensible default
-     * @param tail the tail of the list; or {@code null} to use a sensible default
-     * @param annotations the annotations of the term; or {@code null} to use a sensible default
-     * @return the created object; or {@code null} when an instance with the given parameters could not be created
-     */
-    @Nullable
-    default IStrategoList createStrategoList(@Nullable IStrategoTerm head, @Nullable IStrategoList tail, @Nullable IStrategoList annotations) {
-        return createStrategoList(head, tail, annotations, Collections.emptyList());
-    }
-
-    /**
-     * Creates a new instance of the {@link IStrategoList} for testing.
-     *
-     * @param head the head of the list; or {@code null} to use a sensible default
-     * @param tail the tail of the list; or {@code null} to use a sensible default
-     * @return the created object; or {@code null} when an instance with the given parameters could not be created
-     */
-    @Nullable
-    default IStrategoList createStrategoList(@Nullable IStrategoTerm head, @Nullable IStrategoList tail) {
-        return createStrategoList(head, tail, TermFactory.EMPTY_LIST);
-    }
-
-    /**
-     * Creates a new instance of the {@link IStrategoList} for testing.
-     *
      * This creates an empty list.
      *
      * @param annotations the annotations of the term; or {@code null} to use a sensible default
      * @param attachments the attachments of the term; or {@code null} to use a sensible default
-     * @return the created object; or {@code null} when an instance with the given parameters could not be created
+     * @return the created object
+     * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
      */
-    @Nullable
     IStrategoList createStrategoEmptyList(@Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
 
-    /**
-     * Creates a new instance of the {@link IStrategoList} for testing.
-     *
-     * This creates an empty list.
-     *
-     * @param annotations the annotations of the term; or {@code null} to use a sensible default
-     * @return the created object; or {@code null} when an instance with the given parameters could not be created
-     */
-    @Nullable
-    default IStrategoList createStrategoEmptyList(@Nullable IStrategoList annotations) {
-        return createStrategoEmptyList(annotations, Collections.emptyList());
-    }
-
-    /**
-     * Creates a new instance of the {@link IStrategoList} for testing.
-     *
-     * This creates an empty list.
-     *
-     * @return the created object; or {@code null} when an instance with the given parameters could not be created
-     */
-    @Nullable
-    default IStrategoList createStrategoEmptyList() {
-        return createStrategoEmptyList(TermFactory.EMPTY_LIST);
-    }
-
-
-    @Nullable
     @Override
     default IStrategoTerm createStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations,
                                              @Nullable List<ITermAttachment> attachments) {
@@ -157,7 +85,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
         @DisplayName("when the list is empty, returns zero")
         default void whenTheListIsEmpty_returnsZero() {
             // Arrange
-            IStrategoList sut = createStrategoEmptyList();
+            IStrategoList sut = createStrategoEmptyList(null, null);
 
             // Act
             int result = sut.size();
@@ -171,10 +99,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
         default void whenTheListIsNotEmpty_returnsTheSize() {
             // Arrange
             List<IStrategoTerm> elements = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm());
-            IStrategoList sut = createStrategoList(elements);
-
-            // Assume
-            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
+            IStrategoList sut = createStrategoList(elements, null, null);
 
             // Act
             int result = sut.size();
@@ -195,7 +120,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
         @DisplayName("when the list is empty, throws exception")
         default void whenTheListIsEmpty_throwsException() {
             // Arrange
-            IStrategoList sut = createStrategoEmptyList();
+            IStrategoList sut = createStrategoEmptyList(null, null);
 
             // Act/Assert
             assertThrows(NoSuchElementException.class, () -> {
@@ -208,10 +133,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
         default void whenTheListIsNotEmpty_returnsTheFirstElement() {
             // Arrange
             List<IStrategoTerm> elements = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm());
-            IStrategoList sut = createStrategoList(elements);
-
-            // Assume
-            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
+            IStrategoList sut = createStrategoList(elements, null, null);
 
             // Act
             IStrategoTerm result = sut.head();
@@ -233,7 +155,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
         @DisplayName("when the list is empty, throws exception")
         default void whenTheListIsEmpty_throwsException() {
             // Arrange
-            IStrategoList sut = createStrategoEmptyList();
+            IStrategoList sut = createStrategoEmptyList(null, null);
 
             // Act/Assert
             assertThrows(IllegalStateException.class, () -> {
@@ -246,10 +168,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
         default void whenTheListIsNotEmpty_returnsTheTailList() {
             // Arrange
             List<IStrategoTerm> elements = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm());
-            IStrategoList sut = createStrategoList(elements);
-
-            // Assume
-            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
+            IStrategoList sut = createStrategoList(elements, null, null);
 
             // Act
             IStrategoList result = sut.tail();
@@ -262,10 +181,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
         @DisplayName("when the list is a singleton list, returns the empty list")
         default void whenTheListIsASingletonList_returnsTheEmptyList() {
             // Arrange
-            IStrategoList sut = createStrategoList(Collections.singletonList(new DummyStrategoTerm()));
-
-            // Assume
-            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
+            IStrategoList sut = createStrategoList(Collections.singletonList(new DummyStrategoTerm()), null, null);
 
             // Act
             IStrategoList result = sut.tail();
@@ -279,14 +195,11 @@ public interface IStrategoListTests extends IStrategoTermTests {
         default void whenTailHasAnnotations_returnsTheAnnotationsToo() {
             // Arrange
             IStrategoList a0 = getTermBuilder().makeList(new DummyStrategoTerm());
-            IStrategoList l0 = createStrategoEmptyList(a0);
+            IStrategoList l0 = createStrategoEmptyList(a0, null);
             IStrategoList a1 = getTermBuilder().makeList(new DummyStrategoTerm());
-            IStrategoList l1 = createStrategoList(new DummyStrategoTerm(), l0, a1);
+            IStrategoList l1 = createStrategoList(new DummyStrategoTerm(), l0, a1, null);
             IStrategoList a2 = getTermBuilder().makeList(new DummyStrategoTerm());
-            IStrategoList sut = createStrategoList(new DummyStrategoTerm(), l1, a2);
-
-            // Assume
-            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
+            IStrategoList sut = createStrategoList(new DummyStrategoTerm(), l1, a2, null);
 
             // Act
             IStrategoList result1 = sut.tail();
@@ -309,9 +222,6 @@ public interface IStrategoListTests extends IStrategoTermTests {
             IStrategoList l1 = createStrategoList(new DummyStrategoTerm(), l0, TermFactory.EMPTY_LIST, Collections.singletonList(a1));
             ITermAttachment a2 = new DummyTermAttachment(attachmentType);
             IStrategoList sut = createStrategoList(new DummyStrategoTerm(), l1, TermFactory.EMPTY_LIST, Collections.singletonList(a2));
-
-            // Assume
-            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
 
             // Act
             IStrategoList result1 = sut.tail();
@@ -336,7 +246,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
         @DisplayName("when the list is empty, returns true")
         default void whenTheListIsEmpty_returnsTrue() {
             // Arrange
-            IStrategoList sut = createStrategoEmptyList();
+            IStrategoList sut = createStrategoEmptyList(null, null);
 
             // Act
             boolean result = sut.isEmpty();
@@ -349,10 +259,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
         @DisplayName("when the list is not empty, returns false")
         default void whenTheListIsNotEmpty_returnsFalse() {
             // Arrange
-            IStrategoList sut = createStrategoList(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()));
-
-            // Assume
-            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
+            IStrategoList sut = createStrategoList(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
 
             // Act
             boolean result = sut.isEmpty();
@@ -375,7 +282,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
         @DisplayName("empty list, returns the correct term type")
         default void emptyList_returnsTheCorrectTermType() {
             // Arrange
-            IStrategoList sut = createStrategoEmptyList();
+            IStrategoList sut = createStrategoEmptyList(null, null);
 
             // Act
             int result = sut.getTermType();
@@ -389,10 +296,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
         default void nonEmptyList_returnsTheCorrectTermType() {
             // Arrange
             List<IStrategoTerm> elements = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm());
-            IStrategoList sut = createStrategoList(elements);
-
-            // Assume
-            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
+            IStrategoList sut = createStrategoList(elements, null, null);
 
             // Act
             int result = sut.getTermType();
@@ -413,11 +317,8 @@ public interface IStrategoListTests extends IStrategoTermTests {
         default void whenBothAreEmptyLists_returnsTrue() {
             // Arrange
             List<IStrategoTerm> elements = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm());
-            IStrategoList sut = createStrategoList(elements);
-            IStrategoList other = createStrategoList(elements);
-
-            // Assume
-            assumeTrue(sut != null && other != null, TEST_INSTANCE_NOT_CREATED);
+            IStrategoList sut = createStrategoList(elements, null, null);
+            IStrategoList other = createStrategoList(elements, null, null);
 
             // Act
             boolean result = sut.match(other);
@@ -431,11 +332,8 @@ public interface IStrategoListTests extends IStrategoTermTests {
         default void whenBothHaveTheSameElements_returnsTrue() {
             // Arrange
             List<IStrategoTerm> elements = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm());
-            IStrategoList sut = createStrategoList(elements);
-            IStrategoList other = createStrategoList(elements);
-
-            // Assume
-            assumeTrue(sut != null && other != null, TEST_INSTANCE_NOT_CREATED);
+            IStrategoList sut = createStrategoList(elements, null, null);
+            IStrategoList other = createStrategoList(elements, null, null);
 
             // Act
             boolean result = sut.match(other);
@@ -448,11 +346,8 @@ public interface IStrategoListTests extends IStrategoTermTests {
         @DisplayName("when other has differing elements, returns false")
         default void whenOtherHasDifferingElements_returnsFalse() {
             // Arrange
-            IStrategoList sut = createStrategoList(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()));
-            IStrategoList other = createStrategoList(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()));
-
-            // Assume
-            assumeTrue(sut != null && other != null, TEST_INSTANCE_NOT_CREATED);
+            IStrategoList sut = createStrategoList(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
+            IStrategoList other = createStrategoList(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
 
             // Act
             boolean result = sut.match(other);
@@ -465,11 +360,8 @@ public interface IStrategoListTests extends IStrategoTermTests {
         @DisplayName("when other has different number of elements, returns false")
         default void whenOtherHasDifferentNumberOfElements_returnsFalse() {
             // Arrange
-            IStrategoList sut = createStrategoList(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()));
-            IStrategoList other = createStrategoList(Arrays.asList(new DummyStrategoTerm()));
-
-            // Assume
-            assumeTrue(sut != null && other != null, TEST_INSTANCE_NOT_CREATED);
+            IStrategoList sut = createStrategoList(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
+            IStrategoList other = createStrategoList(Arrays.asList(new DummyStrategoTerm()), null, null);
 
             // Act
             boolean result = sut.match(other);
@@ -482,11 +374,8 @@ public interface IStrategoListTests extends IStrategoTermTests {
         @DisplayName("when one is empty, returns false")
         default void whenOneIsEmpty_returnsFalse() {
             // Arrange
-            IStrategoList sut = createStrategoList(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()));
-            IStrategoList other = createStrategoEmptyList();
-
-            // Assume
-            assumeTrue(sut != null && other != null, TEST_INSTANCE_NOT_CREATED);
+            IStrategoList sut = createStrategoList(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
+            IStrategoList other = createStrategoEmptyList(null, null);
 
             // Act
             boolean result = sut.match(other);
@@ -504,11 +393,8 @@ public interface IStrategoListTests extends IStrategoTermTests {
             IStrategoList anno2 = getTermBuilder().makeList(new DummyStrategoTerm());
             DummyStrategoTerm t0 = new DummyStrategoTerm();
             DummyStrategoTerm t1 = new DummyStrategoTerm();
-            IStrategoList sut = createStrategoList(t1, createStrategoList(t0, createStrategoEmptyList(), anno1));
-            IStrategoList other = createStrategoList(t1, createStrategoList(t0, createStrategoEmptyList(), anno2));
-
-            // Assume
-            assumeTrue(sut != null && other != null, TEST_INSTANCE_NOT_CREATED);
+            IStrategoList sut = createStrategoList(t1, createStrategoList(t0, createStrategoEmptyList(null, null), anno1, null), null, null);
+            IStrategoList other = createStrategoList(t1, createStrategoList(t0, createStrategoEmptyList(null, null), anno2, null), null, null);
 
             // Act
             boolean result = sut.match(other);
@@ -526,11 +412,8 @@ public interface IStrategoListTests extends IStrategoTermTests {
             IStrategoList anno2 = getTermBuilder().makeList(new DummyStrategoTerm());
             DummyStrategoTerm t0 = new DummyStrategoTerm();
             DummyStrategoTerm t1 = new DummyStrategoTerm();
-            IStrategoList sut = createStrategoList(t1, createStrategoList(t0, createStrategoEmptyList(anno1)));
-            IStrategoList other = createStrategoList(t1, createStrategoList(t0, createStrategoEmptyList(anno2)));
-
-            // Assume
-            assumeTrue(sut != null && other != null, TEST_INSTANCE_NOT_CREATED);
+            IStrategoList sut = createStrategoList(t1, createStrategoList(t0, createStrategoEmptyList(anno1, null), null, null), null, null);
+            IStrategoList other = createStrategoList(t1, createStrategoList(t0, createStrategoEmptyList(anno2, null), null, null), null, null);
 
             // Act
             boolean result = sut.match(other);
@@ -552,10 +435,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
         @DisplayName("returns the correct string representation")
         default void returnsTheCorrectStringRepresentation() {
             // Arrange
-            IStrategoList sut = createStrategoList(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()));
-
-            // Assume
-            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
+            IStrategoList sut = createStrategoList(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
 
             // Act
             String result = sut.toString();
@@ -577,10 +457,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
         default void returnsTheCorrectStringRepresentation() throws IOException {
             // Arrange
             StringBuilder sb = new StringBuilder();
-            IStrategoList sut = createStrategoList(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()));
-
-            // Assume
-            assumeTrue(sut != null, TEST_INSTANCE_NOT_CREATED);
+            IStrategoList sut = createStrategoList(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
 
             // Act
             sut.writeAsString(sb);

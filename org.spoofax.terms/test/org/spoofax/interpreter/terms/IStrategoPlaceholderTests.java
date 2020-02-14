@@ -3,20 +3,23 @@ package org.spoofax.interpreter.terms;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.spoofax.terms.TermFactory;
+import org.opentest4j.TestAbortedException;
+import org.spoofax.DummyStrategoTerm;
 import org.spoofax.terms.attachments.ITermAttachment;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static org.spoofax.TestBase.TEST_INSTANCE_NOT_CREATED;
 
 
 /**
  * Tests the {@link IStrategoPlaceholder} interface.
  */
+@SuppressWarnings("unused")
 @DisplayName("IStrategoPlaceholder")
 public interface IStrategoPlaceholderTests extends IStrategoTermTests {
 
@@ -26,46 +29,16 @@ public interface IStrategoPlaceholderTests extends IStrategoTermTests {
      * @param template the template of the placeholder; or {@code null} to use a sensible default
      * @param annotations the annotations of the term; or {@code null} to use a sensible default
      * @param attachments the attachments of the term; or {@code null} to use a sensible default
-     * @return the created object; or {@code null} when an instance with the given parameters could not be created
+     * @return the created object
+     * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
      */
-    @Nullable
     IStrategoPlaceholder createStrategoPlaceholder(IStrategoTerm template, IStrategoList annotations, List<ITermAttachment> attachments);
 
-    /**
-     * Creates a new instance of the {@link IStrategoPlaceholder} for testing.
-     *
-     * @param template the template of the placeholder; or {@code null} to use a sensible default
-     * @param annotations the annotations of the term; or {@code null} to use a sensible default
-     * @return the created object; or {@code null} when an instance with the given parameters could not be created
-     */
-    @Nullable
-    default IStrategoPlaceholder createStrategoPlaceholder(@Nullable IStrategoTerm template, @Nullable IStrategoList annotations) {
-        return createStrategoPlaceholder(template, annotations, Collections.emptyList());
-    }
-
-    /**
-     * Creates a new instance of the {@link IStrategoPlaceholder} for testing.
-     *
-     * @param template the template of the placeholder; or {@code null} to use a sensible default
-     * @return the created object; or {@code null} when an instance with the given parameters could not be created
-     */
-    @Nullable
-    default IStrategoPlaceholder createStrategoPlaceholder(@Nullable IStrategoTerm template) {
-        return createStrategoPlaceholder(template, TermFactory.EMPTY_LIST);
-    }
-
-    @Nullable
     @Override
     default IStrategoTerm createStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations,
                                              @Nullable List<ITermAttachment> attachments) {
-        if (subterms == null || subterms.size() != 1) return null;
+        if (subterms == null || subterms.size() != 1)  throw new TestAbortedException(TEST_INSTANCE_NOT_CREATED);
         return createStrategoPlaceholder(subterms.get(0), annotations, attachments);
-    }
-
-    @Override
-    @Nullable
-    default IStrategoTerm createStrategoTerm() {
-        return createStrategoPlaceholder(new DummyStrategoTerm());
     }
 
     /**
@@ -79,7 +52,7 @@ public interface IStrategoPlaceholderTests extends IStrategoTermTests {
         default void returnsTheTemplateOfTheTerm() {
             // Arrange
             IStrategoTerm template = new DummyStrategoTerm();
-            IStrategoPlaceholder sut = createStrategoPlaceholder(template);
+            IStrategoPlaceholder sut = createStrategoPlaceholder(template, null, null);
 
             // Act
             IStrategoTerm result = sut.getTemplate();
@@ -100,7 +73,7 @@ public interface IStrategoPlaceholderTests extends IStrategoTermTests {
         @DisplayName("returns the correct term type")
         default void returnsTheCorrectTermType() {
             // Arrange
-            IStrategoPlaceholder sut = createStrategoPlaceholder(new DummyStrategoTerm());
+            IStrategoPlaceholder sut = createStrategoPlaceholder(null, null, null);
 
             // Act
             int result = sut.getTermType();
@@ -122,7 +95,7 @@ public interface IStrategoPlaceholderTests extends IStrategoTermTests {
         @DisplayName("alwaysReturnsOne")
         default void alwaysReturnsOne() {
             // Arrange
-            IStrategoTerm sut = createStrategoPlaceholder(new DummyStrategoTerm());
+            IStrategoTerm sut = createStrategoPlaceholder(null, null, null);
 
             // Act
             int result = sut.getSubtermCount();
@@ -143,7 +116,7 @@ public interface IStrategoPlaceholderTests extends IStrategoTermTests {
         @DisplayName("always returns one element array")
         default void alwaysReturnsOneElementArray() {
             // Arrange
-            IStrategoTerm sut = createStrategoPlaceholder(new DummyStrategoTerm());
+            IStrategoTerm sut = createStrategoPlaceholder(null, null, null);
 
             // Act
             IStrategoTerm[] result = sut.getAllSubterms();
@@ -166,8 +139,8 @@ public interface IStrategoPlaceholderTests extends IStrategoTermTests {
         default void whenBothHaveTheSameTemplate_returnsTrue() {
             // Arrange
             DummyStrategoTerm template = new DummyStrategoTerm();
-            IStrategoPlaceholder sut = createStrategoPlaceholder(template);
-            IStrategoPlaceholder other = createStrategoPlaceholder(template);
+            IStrategoPlaceholder sut = createStrategoPlaceholder(template, null, null);
+            IStrategoPlaceholder other = createStrategoPlaceholder(template, null, null);
 
             // Act
             boolean result = sut.match(other);
@@ -180,8 +153,8 @@ public interface IStrategoPlaceholderTests extends IStrategoTermTests {
         @DisplayName("when other has different value, returns false")
         default void whenOtherHasDifferentValue_returnsFalse() {
             // Arrange
-            IStrategoPlaceholder sut = createStrategoPlaceholder(new DummyStrategoTerm());
-            IStrategoPlaceholder other = createStrategoPlaceholder(new DummyStrategoTerm());
+            IStrategoPlaceholder sut = createStrategoPlaceholder(new DummyStrategoTerm(), null, null);
+            IStrategoPlaceholder other = createStrategoPlaceholder(new DummyStrategoTerm(), null, null);
 
             // Act
             boolean result = sut.match(other);
@@ -203,7 +176,7 @@ public interface IStrategoPlaceholderTests extends IStrategoTermTests {
         @DisplayName("returns the correct string representation")
         default void returnsTheCorrectStringRepresentation() {
             // Arrange
-            IStrategoPlaceholder sut = createStrategoPlaceholder(getTermBuilder().makeString("template"));
+            IStrategoPlaceholder sut = createStrategoPlaceholder(getTermBuilder().makeString("template"), null, null);
 
             // Act
             String result = sut.toString();
@@ -224,8 +197,8 @@ public interface IStrategoPlaceholderTests extends IStrategoTermTests {
         @DisplayName("returns the correct string representation")
         default void returnsTheCorrectStringRepresentation() throws IOException {
             // Arrange
-            IStrategoPlaceholder sut = createStrategoPlaceholder(getTermBuilder().makeString("template"));
             StringBuilder sb = new StringBuilder();
+            IStrategoPlaceholder sut = createStrategoPlaceholder(getTermBuilder().makeString("template"), null, null);
 
             // Act
             sut.writeAsString(sb);

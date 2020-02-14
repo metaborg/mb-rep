@@ -1,12 +1,12 @@
 package org.spoofax.terms;
 
 import org.junit.jupiter.api.DisplayName;
+import org.opentest4j.TestAbortedException;
 import org.spoofax.TermUtil;
-import org.spoofax.TestBase;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoConstructorTests;
 import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoTermBuilder;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.attachments.ITermAttachment;
 
 import javax.annotation.Nullable;
@@ -17,14 +17,23 @@ import java.util.List;
  * Tests the {@link StrategoConstructor} class.
  */
 @DisplayName("StrategoConstructor")
-public class StrategoConstructorTests extends TestBase implements IStrategoConstructorTests {
+public class StrategoConstructorTests extends StrategoTermTests implements IStrategoConstructorTests {
 
-
-    @Nullable
     @Override
     public IStrategoConstructor createStrategoConstructor(@Nullable String name, @Nullable Integer arity, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments) {
-        if (annotations != null && !annotations.isEmpty()) return null;
-        return TermUtil.putAttachments(new StrategoConstructor(name, arity), attachments);
+        if (annotations != null && !annotations.isEmpty())  throw new TestAbortedException(TEST_INSTANCE_NOT_CREATED);
+        return TermUtil.putAttachments(new StrategoConstructor(
+                    name != null ? name : "Dummy",
+                    arity != null ? arity : 0
+                ), attachments);
+    }
+
+    @Override
+    public IStrategoTerm createStrategoTerm(@Nullable List<IStrategoTerm> subterms,
+                                            @Nullable IStrategoList annotations,
+                                            @Nullable List<ITermAttachment> attachments) {
+        if (subterms != null && subterms.size() != 0)  throw new TestAbortedException(TEST_INSTANCE_NOT_CREATED);
+        return createStrategoConstructor(null, null, annotations, attachments);
     }
 
     // @formatter:off

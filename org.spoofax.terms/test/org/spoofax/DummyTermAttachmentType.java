@@ -1,14 +1,20 @@
-package org.spoofax.interpreter.terms;
+package org.spoofax;
 
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.attachments.ITermAttachment;
 import org.spoofax.terms.attachments.TermAttachmentType;
 
 
-/* package private */ class DummyTermAttachmentType<T extends ITermAttachment> extends TermAttachmentType<T> {
+/**
+ * A dummy term attachment type.
+ * @param <T> the type of term attachment
+ */
+public class DummyTermAttachmentType<T extends ITermAttachment> extends TermAttachmentType<T> {
 
     private final String name;
 
-    /* package private */ DummyTermAttachmentType(String name, Class<T> type) {
+    public DummyTermAttachmentType(String name, Class<T> type) {
         super(type, null, 0);
         this.name = name;
     }

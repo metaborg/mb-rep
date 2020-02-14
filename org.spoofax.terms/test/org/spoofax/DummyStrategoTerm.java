@@ -1,4 +1,8 @@
-package org.spoofax.interpreter.terms;
+package org.spoofax;
+
+import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermPrinter;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -8,7 +12,7 @@ import java.util.Iterator;
 /**
  * A dummy Stratego term.
  */
-/* package private */ class DummyStrategoTerm extends DummySimpleTerm implements IStrategoTerm {
+public class DummyStrategoTerm extends DummySimpleTerm implements IStrategoTerm {
 
     @Override
     public IStrategoTerm getSubterm(int i) { throw new IndexOutOfBoundsException(); }

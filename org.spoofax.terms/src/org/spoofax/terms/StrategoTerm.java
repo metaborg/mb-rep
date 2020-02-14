@@ -156,6 +156,7 @@ public abstract class StrategoTerm extends AbstractSimpleTerm implements IStrate
         }
     }
 
+    @Deprecated
     public final boolean isList() {
         return getTermType() == LIST;
     }
