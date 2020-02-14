@@ -24,11 +24,11 @@ import org.spoofax.terms.util.PushbackStringIterator;
 public class StringTermReader {
 
 	protected final ITermFactory factory;
-	
+
     public StringTermReader(ITermFactory factory) {
     	this.factory = factory;
     }
-    
+
     public ITermFactory getFactory() {
 		return factory;
 	}
@@ -55,15 +55,15 @@ public class StringTermReader {
         }
         throw new ParseError("Invalid term: '" + (char)ch + "'");
     }
-    
+
     private IStrategoTerm parseAnno(PushbackStringIterator bis, IStrategoTerm term) throws ParseError {
         parseSkip(bis);
         final int ch = bis.read();
         if (ch == '{') {
             List<IStrategoTerm> annos = parseTermSequence(bis, '}');
             if (annos.size()==0)
-                return factory.annotateTerm(term, TermFactory.EMPTY_LIST); 
-            return factory.annotateTerm(term, factory.makeList(annos)); 
+                return factory.annotateTerm(term, TermFactory.EMPTY_LIST);
+            return factory.annotateTerm(term, factory.makeList(annos));
         } else {
             bis.unread(ch);
             return term;
@@ -120,13 +120,13 @@ public class StringTermReader {
                 case '9':
                     throw new NotImplementedException();
                 default:
-                    sb.append("\\" + (char)ch); 
+                    sb.append("\\" + (char)ch);
                 }
                 ch = bis.read();
             } else if(ch != '\"') {
                 if (ch == -1)
                     throw new ParseError("Unterminated string: " + sb);
-                sb.append((char)ch);
+                sb.appendCodePoint(ch);
                 ch = bis.read();
             }
         } while(escaped || ch != '\"');
@@ -138,7 +138,7 @@ public class StringTermReader {
         // TODO: share stringbuilder instances?
         StringBuilder sb = new StringBuilder();
         int ch;
-        
+
         ch = bis.read();
         do {
             sb.append((char)ch);
@@ -146,9 +146,9 @@ public class StringTermReader {
         } // TODO: use a switch for this
           while(Character.isLetterOrDigit((char)ch) || ch == '_' || ch == '-'
             || ch == '+' || ch == '*' || ch == '$');
-        
+
         //System.err.println(" - " + sb.toString());
-        
+
         bis.unread(ch);
         parseSkip(bis);
         ch = bis.read();
@@ -163,7 +163,7 @@ public class StringTermReader {
             return factory.makeAppl(c, AbstractTermFactory.EMPTY_TERM_ARRAY);
         }
     }
-    
+
     private IStrategoTerm parsePlaceholder(PushbackStringIterator bis) throws ParseError {
         IStrategoTerm template = parseFromString(bis);
         parseSkip(bis);
@@ -191,7 +191,7 @@ public class StringTermReader {
             parseSkip(bis);
             ch = bis.read();
         } while(ch == ',');
-        
+
         if (ch != endChar) {
             bis.unread(ch);
             parseSkip(bis);
@@ -200,7 +200,7 @@ public class StringTermReader {
 
         if(ch != endChar)
             throw new ParseError("Sequence must end with '" + endChar + "', saw '" + (char)ch + "'");
-        
+
         return els;
     }
 
@@ -212,7 +212,7 @@ public class StringTermReader {
     private IStrategoTerm parseNumber(PushbackStringIterator bis) throws ParseError {
         //System.err.println("number");
         String whole = parseDigitSequence(bis);
-        
+
         int ch = bis.read();
         if(ch == '.') {
             String frac = parseDigitSequence(bis);
@@ -236,11 +236,11 @@ public class StringTermReader {
         do {
             sb.append((char)ch);
             ch = bis.read();
-        } while(Character.isDigit((char)ch));
+        } while(Character.isDigit(ch));
         bis.unread(ch);
-        return sb.toString(); 
+        return sb.toString();
     }
-    
+
     private void parseSkip(PushbackStringIterator input) throws ParseError {
         for (;;) {
             int b = input.read();

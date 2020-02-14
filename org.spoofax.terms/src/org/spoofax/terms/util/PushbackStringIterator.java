@@ -1,11 +1,11 @@
 package org.spoofax.terms.util;
 
 public class PushbackStringIterator {
-	
+
 	public static final int UNICODE_LETTER = 255;
-	
+
 	public static final int UNICODE_DIGIT = 254;
-	
+
 	public static final int UNICODE_OTHER = 253;
 
 	private final String data;
@@ -16,30 +16,31 @@ public class PushbackStringIterator {
 		position = 0;
 		assert data != null;
 	}
-	
+
 	public int read() {
 		if(position >= data.length())
 			return -1;
-		char c = data.charAt(position++);
-		c = truncateUnicodeChar(c);
+		int c = data.codePointAt(position);
+		position += Character.charCount(c);
 		return c;
 	}
 
-	public char truncateUnicodeChar(char c) {
+	// TODO should not be needed anymore, but is used in JSGLR1 because it does not support Unicode
+	public char truncateUnicodeChar(int c) {
 		if (c >= UNICODE_OTHER) {
 			if (Character.isLetter(c)) {
-				c = UNICODE_LETTER;
+				return UNICODE_LETTER;
 			} else if (Character.isDigit(c)) {
-				c = UNICODE_DIGIT;
+				return UNICODE_DIGIT;
 			} else {
-				c = UNICODE_OTHER;
+				return UNICODE_OTHER;
 			}
 		}
-		return c;
+		return (char) c;
 	}
-	
+
 	public void unread(int c) {
-		position--;
+		position -= Character.charCount(c);
 	}
 
 	public int getOffset() {
