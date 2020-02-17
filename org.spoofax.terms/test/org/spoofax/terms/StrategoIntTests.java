@@ -23,14 +23,16 @@ public class StrategoIntTests {
 
         @Override
         StrategoInt createIStrategoInt(@Nullable Integer value, @Nullable IStrategoList annotations,
-                                             @Nullable List<ITermAttachment> attachments);
+                                       @Nullable List<ITermAttachment> attachments);
+
     }
+
 
     public static class FixtureImpl extends StrategoTermTests.FixtureImpl implements Fixture {
 
         @Override
         public StrategoInt createIStrategoInt(@Nullable Integer value, @Nullable IStrategoList annotations,
-                                             @Nullable List<ITermAttachment> attachments) {
+                                              @Nullable List<ITermAttachment> attachments) {
             return TermUtil.putAttachments(new StrategoInt(
                     value != null ? value : 42,
                     annotations != null ? annotations : TermFactory.EMPTY_LIST
@@ -39,13 +41,14 @@ public class StrategoIntTests {
 
         @Override
         public StrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms,
-                                               @Nullable IStrategoList annotations,
-                                               @Nullable List<ITermAttachment> attachments) {
+                                                @Nullable IStrategoList annotations,
+                                                @Nullable List<ITermAttachment> attachments) {
             if (subterms != null && subterms.size() != 0) throw new TestAbortedException(TEST_INSTANCE_NOT_CREATED);
             return createIStrategoInt(null, annotations, attachments);
         }
 
     }
+
 
     // @formatter:off
     // IStrategoInt

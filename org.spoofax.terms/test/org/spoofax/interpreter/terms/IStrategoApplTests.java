@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 
 /**
@@ -34,10 +33,13 @@ public interface IStrategoApplTests {
          * @return the created object
          * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
          */
-        IStrategoAppl createIStrategoAppl(@Nullable IStrategoConstructor constructor, @Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
+        IStrategoAppl createIStrategoAppl(@Nullable IStrategoConstructor constructor,
+                                          @Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations
+                , @Nullable List<ITermAttachment> attachments);
 
         @Override
-        default IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations,
+        default IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms,
+                                                  @Nullable IStrategoList annotations,
                                                   @Nullable List<ITermAttachment> attachments) {
             return createIStrategoAppl(null, subterms, annotations, attachments);
         }
@@ -48,6 +50,7 @@ public interface IStrategoApplTests {
         }
 
     }
+
 
     /**
      * Tests the {@link IStrategoAppl#getConstructor()} method.
@@ -96,6 +99,7 @@ public interface IStrategoApplTests {
 
     }
 
+
     /**
      * Tests the {@link IStrategoAppl#getTermType()} method.
      */
@@ -116,6 +120,7 @@ public interface IStrategoApplTests {
         }
 
     }
+
 
     /**
      * Tests the {@link IStrategoAppl#match(IStrategoTerm)} method.
@@ -158,8 +163,10 @@ public interface IStrategoApplTests {
         @DisplayName("when other has different subterms, returns false")
         default void whenOtherHasDifferentSubterms_returnsFalse() {
             // Arrange
-            IStrategoAppl sut = createIStrategoAppl(DummyStrategoConstructor.Dummy2, Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
-            IStrategoAppl other = createIStrategoAppl(DummyStrategoConstructor.Dummy2, Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
+            IStrategoAppl sut = createIStrategoAppl(DummyStrategoConstructor.Dummy2,
+                    Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
+            IStrategoAppl other = createIStrategoAppl(DummyStrategoConstructor.Dummy2,
+                    Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
 
             // Act
             boolean result = sut.match(other);
@@ -181,7 +188,8 @@ public interface IStrategoApplTests {
         @DisplayName("returns the correct string representation")
         default void returnsTheCorrectStringRepresentation() {
             // Arrange
-            IStrategoAppl sut = createIStrategoAppl(DummyStrategoConstructor.Dummy2, Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
+            IStrategoAppl sut = createIStrategoAppl(DummyStrategoConstructor.Dummy2,
+                    Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
 
             // Act
             String result = sut.toString();
@@ -189,11 +197,13 @@ public interface IStrategoApplTests {
             // Assert
             assertEquals("Dummy(<dummy>,<dummy>)", result);
         }
+
     }
 
 
     /**
-     * Tests the {@link IStrategoInt#writeAsString(Appendable, int)} and {@link IStrategoInt#writeAsString(Appendable)} methods.
+     * Tests the {@link IStrategoInt#writeAsString(Appendable, int)} and {@link IStrategoInt#writeAsString(Appendable)}
+     * methods.
      */
     @DisplayName("writeAsString(..)")
     interface WriteAsStringTests extends Fixture, IStrategoTermTests.WriteAsStringTests {
@@ -203,7 +213,8 @@ public interface IStrategoApplTests {
         default void returnsTheCorrectStringRepresentation() throws IOException {
             // Arrange
             StringBuilder sb = new StringBuilder();
-            IStrategoAppl sut = createIStrategoAppl(DummyStrategoConstructor.Dummy2, Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
+            IStrategoAppl sut = createIStrategoAppl(DummyStrategoConstructor.Dummy2,
+                    Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
 
             // Act
             sut.writeAsString(sb);
@@ -213,4 +224,5 @@ public interface IStrategoApplTests {
         }
 
     }
+
 }

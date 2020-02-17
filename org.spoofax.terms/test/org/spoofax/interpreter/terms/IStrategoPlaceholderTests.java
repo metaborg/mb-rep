@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.spoofax.TestUtils.TEST_INSTANCE_NOT_CREATED;
 import static org.spoofax.TestUtils.getTermBuilder;
 
@@ -34,16 +33,19 @@ public interface IStrategoPlaceholderTests {
          * @return the created object
          * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
          */
-        IStrategoPlaceholder createIStrategoPlaceholder(IStrategoTerm template, IStrategoList annotations, List<ITermAttachment> attachments);
+        IStrategoPlaceholder createIStrategoPlaceholder(IStrategoTerm template, IStrategoList annotations,
+                                                        List<ITermAttachment> attachments);
 
         @Override
-        default IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations,
+        default IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms,
+                                                  @Nullable IStrategoList annotations,
                                                   @Nullable List<ITermAttachment> attachments) {
             if (subterms == null || subterms.size() != 1) throw new TestAbortedException(TEST_INSTANCE_NOT_CREATED);
             return createIStrategoPlaceholder(subterms.get(0), annotations, attachments);
         }
 
     }
+
 
     /**
      * Tests the {@link IStrategoPlaceholder#getTemplate()} method.
@@ -66,6 +68,7 @@ public interface IStrategoPlaceholderTests {
         }
 
     }
+
 
     /**
      * Tests the {@link IStrategoPlaceholder#getTermType()} method.
@@ -109,6 +112,7 @@ public interface IStrategoPlaceholderTests {
         }
 
     }
+
 
     /**
      * Tests the {@link IStrategoPlaceholder#getAllSubterms()} method.
@@ -188,11 +192,13 @@ public interface IStrategoPlaceholderTests {
             // Assert
             assertEquals("<\"template\">", result);
         }
+
     }
 
 
     /**
-     * Tests the {@link IStrategoPlaceholder#writeAsString(Appendable, int)} and {@link IStrategoPlaceholder#writeAsString(Appendable)} methods.
+     * Tests the {@link IStrategoPlaceholder#writeAsString(Appendable, int)} and {@link
+     * IStrategoPlaceholder#writeAsString(Appendable)} methods.
      */
     @DisplayName("writeAsString(..)")
     interface WriteAsStringTests extends Fixture, IStrategoTermTests.WriteAsStringTests {
@@ -212,4 +218,5 @@ public interface IStrategoPlaceholderTests {
         }
 
     }
+
 }

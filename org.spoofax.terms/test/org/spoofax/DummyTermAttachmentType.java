@@ -8,6 +8,7 @@ import org.spoofax.terms.attachments.TermAttachmentType;
 
 /**
  * A dummy term attachment type.
+ *
  * @param <T> the type of term attachment
  */
 public class DummyTermAttachmentType<T extends ITermAttachment> extends TermAttachmentType<T> {

@@ -21,28 +21,34 @@ public class StrategoTupleTests {
 
         @Override
         StrategoTuple createIStrategoTuple(@Nullable List<IStrategoTerm> elements,
-                                                 @Nullable IStrategoList annotations,
-                                                 @Nullable List<ITermAttachment> attachments);
+                                           @Nullable IStrategoList annotations,
+                                           @Nullable List<ITermAttachment> attachments);
+
     }
+
 
     public static class FixtureImpl extends StrategoTermTests.FixtureImpl implements Fixture {
 
         @Override
         public StrategoTuple createIStrategoTuple(@Nullable List<IStrategoTerm> elements,
-                                                 @Nullable IStrategoList annotations,
-                                                 @Nullable List<ITermAttachment> attachments) {
+                                                  @Nullable IStrategoList annotations,
+                                                  @Nullable List<ITermAttachment> attachments) {
             return TermUtil.putAttachments(new StrategoTuple(
-                    elements != null ? elements.toArray(new IStrategoTerm[0]) : new IStrategoTerm[]{new DummyStrategoTerm()},
+                    elements != null ? elements.toArray(new IStrategoTerm[0]) :
+                            new IStrategoTerm[]{new DummyStrategoTerm()},
                     annotations != null ? annotations : TermFactory.EMPTY_LIST
             ), attachments);
         }
 
         @Override
-        public StrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments) {
+        public StrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms,
+                                                @Nullable IStrategoList annotations,
+                                                @Nullable List<ITermAttachment> attachments) {
             return createIStrategoTuple(subterms, annotations, attachments);
         }
 
     }
+
 
     // @formatter:off
     // IStrategoTuple

@@ -17,8 +17,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.spoofax.TestUtils.TEST_INSTANCE_NOT_CREATED;
 import static org.spoofax.TestUtils.getTermBuilder;
 
@@ -40,18 +38,23 @@ public interface IStrategoTermTests {
          * @return the created object
          * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
          */
-        IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
+        IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations
+                , @Nullable List<ITermAttachment> attachments);
 
         @Override
-        default ISimpleTerm createISimpleTerm(@Nullable List<ISimpleTerm> subterms, @Nullable List<ITermAttachment> attachments) {
+        default ISimpleTerm createISimpleTerm(@Nullable List<ISimpleTerm> subterms,
+                                              @Nullable List<ITermAttachment> attachments) {
             try {
-                List<IStrategoTerm> newSubterms = subterms != null ? subterms.stream().map(t -> (IStrategoTerm)t).collect(Collectors.toList()) : null;
+                List<IStrategoTerm> newSubterms = subterms != null ?
+                        subterms.stream().map(t -> (IStrategoTerm)t).collect(Collectors.toList()) : null;
                 return createIStrategoTerm(newSubterms, TermFactory.EMPTY_LIST, attachments);
             } catch (ClassCastException e) {
                 throw new TestAbortedException(TEST_INSTANCE_NOT_CREATED);
             }
         }
+
     }
+
 
     /**
      * Tests the {@link IStrategoTerm#getSubtermCount()} method.
@@ -63,7 +66,8 @@ public interface IStrategoTermTests {
         @DisplayName("returns the number of subterms")
         default void returnsTheNumberOfSubterms() {
             // Arrange
-            List<IStrategoTerm> subterms = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(), new DummyStrategoTerm());
+            List<IStrategoTerm> subterms = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(),
+                    new DummyStrategoTerm());
             IStrategoTerm sut = createIStrategoTerm(subterms, null, null);
 
             // Act
@@ -88,6 +92,7 @@ public interface IStrategoTermTests {
 
     }
 
+
     /**
      * Tests the {@link IStrategoTerm#getSubterm(int)} method.
      */
@@ -98,7 +103,8 @@ public interface IStrategoTermTests {
         @DisplayName("returns the subterm at the specified index")
         default void returnsTheSubtermAtTheSpecifiedIndex() {
             // Arrange
-            List<IStrategoTerm> subterms = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(), new DummyStrategoTerm());
+            List<IStrategoTerm> subterms = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(),
+                    new DummyStrategoTerm());
             IStrategoTerm sut = createIStrategoTerm(subterms, null, null);
 
             // Act
@@ -112,7 +118,7 @@ public interface IStrategoTermTests {
         @DisplayName("throws exception when below bounds")
         default void throwsExceptionWhenBelowBounds() {
             // Arrange
-            IStrategoTerm sut = createIStrategoTerm(null,null, null);
+            IStrategoTerm sut = createIStrategoTerm(null, null, null);
 
             // Act/Assert
             assertThrows(IndexOutOfBoundsException.class, () -> {
@@ -136,7 +142,8 @@ public interface IStrategoTermTests {
         @DisplayName("throws exception when above bounds")
         default void throwsExceptionWhenAboveBounds() {
             // Arrange
-            List<IStrategoTerm> subterms = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(), new DummyStrategoTerm());
+            List<IStrategoTerm> subterms = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(),
+                    new DummyStrategoTerm());
             IStrategoTerm sut = createIStrategoTerm(subterms, null, null);
 
             // Act/Assert
@@ -146,6 +153,7 @@ public interface IStrategoTermTests {
         }
 
     }
+
 
     /**
      * Tests the {@link IStrategoTerm#getAllSubterms()} method.
@@ -170,7 +178,8 @@ public interface IStrategoTermTests {
         @DisplayName("when it has subterms, returns array of subterms")
         default void whenItHasSubterms_returnsEmptyArray() {
             // Arrange
-            List<IStrategoTerm> subterms = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(), new DummyStrategoTerm());
+            List<IStrategoTerm> subterms = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(),
+                    new DummyStrategoTerm());
             IStrategoTerm sut = createIStrategoTerm(subterms, null, null);
 
             // Act
@@ -185,7 +194,8 @@ public interface IStrategoTermTests {
         @DisplayName("modifications to returned array are not reflected in the term")
         default void modificationsToReturnedArrayAreNotReflectedInTheTerm() {
             // Arrange
-            List<IStrategoTerm> subterms = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(), new DummyStrategoTerm());
+            List<IStrategoTerm> subterms = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(),
+                    new DummyStrategoTerm());
             IStrategoTerm sut = createIStrategoTerm(subterms, null, null);
 
             // Act
@@ -217,20 +227,23 @@ public interface IStrategoTermTests {
 
             // Assert
             assertTrue(
-                    result == IStrategoTerm.APPL ||
-                    result == IStrategoTerm.LIST ||
-                    result == IStrategoTerm.INT ||
-                    result == IStrategoTerm.REAL ||
-                    result == IStrategoTerm.STRING ||
-                    result == IStrategoTerm.CTOR ||
-                    result == IStrategoTerm.TUPLE ||
-                    result == IStrategoTerm.REF ||
-                    result == IStrategoTerm.BLOB ||
-                    result == IStrategoTerm.PLACEHOLDER
+                // @formatter:off
+                result == IStrategoTerm.APPL ||
+                result == IStrategoTerm.LIST ||
+                result == IStrategoTerm.INT ||
+                result == IStrategoTerm.REAL ||
+                result == IStrategoTerm.STRING ||
+                result == IStrategoTerm.CTOR ||
+                result == IStrategoTerm.TUPLE ||
+                result == IStrategoTerm.REF ||
+                result == IStrategoTerm.BLOB ||
+                result == IStrategoTerm.PLACEHOLDER
+                // @formatter:on
             );
         }
 
     }
+
 
     /**
      * Tests the {@link IStrategoTerm#getAnnotations()} method.
@@ -268,6 +281,7 @@ public interface IStrategoTermTests {
 
     }
 
+
     /**
      * Tests the {@link IStrategoTerm#match(IStrategoTerm)} method.
      */
@@ -278,7 +292,8 @@ public interface IStrategoTermTests {
         @DisplayName("when compared to itself (with children), returns true")
         default void whenComparedToItself_withChildren_returnsTrue() {
             // Arrange
-            IStrategoTerm sut = createIStrategoTerm(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
+            IStrategoTerm sut = createIStrategoTerm(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(),
+                    new DummyStrategoTerm()), null, null);
 
             // Act
             boolean result = sut.match(sut);
@@ -304,7 +319,8 @@ public interface IStrategoTermTests {
         @DisplayName("when compared to an identical copy, returns true")
         default void whenComparedToAnIdenticalCopy_returnsTrue() {
             // Arrange
-            List<IStrategoTerm> subterms = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(), new DummyStrategoTerm());
+            List<IStrategoTerm> subterms = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(),
+                    new DummyStrategoTerm());
             IStrategoTerm sut = createIStrategoTerm(subterms, null, null);
             IStrategoTerm other = createIStrategoTerm(subterms, null, null);
 
@@ -319,8 +335,10 @@ public interface IStrategoTermTests {
         @DisplayName("when compared to a copy with different subterms, returns false")
         default void whenComparedToACopyWithDifferentSubterms_returnsFalse() {
             // Arrange
-            IStrategoTerm sut = createIStrategoTerm(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
-            IStrategoTerm other = createIStrategoTerm(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
+            IStrategoTerm sut = createIStrategoTerm(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(),
+                    new DummyStrategoTerm()), null, null);
+            IStrategoTerm other = createIStrategoTerm(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(),
+                    new DummyStrategoTerm()), null, null);
 
             // Act
             boolean result = sut.match(other);
@@ -434,7 +452,9 @@ public interface IStrategoTermTests {
 
 
     /**
-     * Tests the {@link IStrategoTerm#writeAsString(Appendable, int)} and {@link IStrategoTerm#writeAsString(Appendable)} methods.
+     * Tests the {@link IStrategoTerm#writeAsString(Appendable, int)} and
+     * {@link IStrategoTerm#writeAsString(Appendable)}
+     * methods.
      */
     @DisplayName("writeAsString(..)")
     interface WriteAsStringTests extends Fixture {
@@ -468,4 +488,5 @@ public interface IStrategoTermTests {
         }
 
     }
+
 }

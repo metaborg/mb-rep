@@ -9,10 +9,12 @@ import org.spoofax.terms.attachments.TermAttachmentType;
  */
 public class DummyTermAttachment extends AbstractTermAttachment {
 
+    // @formatter:off
     public static final DummyTermAttachmentType<DummyTermAttachment> Type1 = new DummyTermAttachmentType<>("Type1", DummyTermAttachment.class);
     public static final DummyTermAttachmentType<DummyTermAttachment> Type2 = new DummyTermAttachmentType<>("Type2", DummyTermAttachment.class);
     public static final DummyTermAttachmentType<DummyTermAttachment> Type3 = new DummyTermAttachmentType<>("Type3", DummyTermAttachment.class);
     public static final DummyTermAttachmentType<DummyTermAttachment> Type4 = new DummyTermAttachmentType<>("Type4", DummyTermAttachment.class);
+    // @formatter:on
 
     private final TermAttachmentType<?> attachmentType;
 

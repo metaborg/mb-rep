@@ -22,13 +22,17 @@ public class StrategoRealTests {
     public interface Fixture extends IStrategoRealTests.Fixture {
 
         @Override
-        StrategoReal createIStrategoReal(@Nullable Double value, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
+        StrategoReal createIStrategoReal(@Nullable Double value, @Nullable IStrategoList annotations,
+                                         @Nullable List<ITermAttachment> attachments);
+
     }
+
 
     public static class FixtureImpl extends StrategoTermTests.FixtureImpl implements Fixture {
 
         @Override
-        public StrategoReal createIStrategoReal(@Nullable Double value, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments) {
+        public StrategoReal createIStrategoReal(@Nullable Double value, @Nullable IStrategoList annotations,
+                                                @Nullable List<ITermAttachment> attachments) {
             return TermUtil.putAttachments(new StrategoReal(
                     value != null ? value : 4.2,
                     annotations != null ? annotations : TermFactory.EMPTY_LIST
@@ -37,8 +41,8 @@ public class StrategoRealTests {
 
         @Override
         public StrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms,
-                                               @Nullable IStrategoList annotations,
-                                               @Nullable List<ITermAttachment> attachments) {
+                                                @Nullable IStrategoList annotations,
+                                                @Nullable List<ITermAttachment> attachments) {
             if (subterms != null && subterms.size() != 0) throw new TestAbortedException(TEST_INSTANCE_NOT_CREATED);
             return createIStrategoReal(null, annotations, attachments);
         }

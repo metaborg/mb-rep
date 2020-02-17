@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.spoofax.TestUtils.TEST_INSTANCE_NOT_CREATED;
 
 
@@ -32,16 +31,19 @@ public interface IStrategoIntTests {
          * @return the created object
          * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
          */
-        IStrategoInt createIStrategoInt(@Nullable Integer value, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
+        IStrategoInt createIStrategoInt(@Nullable Integer value, @Nullable IStrategoList annotations,
+                                        @Nullable List<ITermAttachment> attachments);
 
         @Override
-        default IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations,
+        default IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms,
+                                                  @Nullable IStrategoList annotations,
                                                   @Nullable List<ITermAttachment> attachments) {
             if (subterms != null && subterms.size() != 0) throw new TestAbortedException(TEST_INSTANCE_NOT_CREATED);
             return createIStrategoInt(null, annotations, attachments);
         }
 
     }
+
 
     /**
      * Tests the {@link IStrategoInt#intValue()} method.
@@ -64,6 +66,7 @@ public interface IStrategoIntTests {
         }
 
     }
+
 
     /**
      * Tests the {@link IStrategoInt#getTermType()} method.
@@ -108,6 +111,7 @@ public interface IStrategoIntTests {
 
     }
 
+
     /**
      * Tests the {@link IStrategoInt#getAllSubterms()} method.
      */
@@ -118,7 +122,7 @@ public interface IStrategoIntTests {
         @DisplayName("always returns empty array")
         default void alwaysReturnsEmptyArray() {
             // Arrange
-            IStrategoTerm sut= createIStrategoInt(null, null, null);
+            IStrategoTerm sut = createIStrategoInt(null, null, null);
 
             // Act
             IStrategoTerm[] result = sut.getAllSubterms();
@@ -140,8 +144,8 @@ public interface IStrategoIntTests {
         @DisplayName("when both have the same value, returns true")
         default void whenBothHaveTheSameValue_returnsTrue() {
             // Arrange
-            IStrategoInt sut= createIStrategoInt(42, null, null);
-            IStrategoInt other= createIStrategoInt(42, null, null);
+            IStrategoInt sut = createIStrategoInt(42, null, null);
+            IStrategoInt other = createIStrategoInt(42, null, null);
 
             // Act
             boolean result = sut.match(other);
@@ -154,8 +158,8 @@ public interface IStrategoIntTests {
         @DisplayName("when other has different value, returns false")
         default void whenOtherHasDifferentValue_returnsFalse() {
             // Arrange
-            IStrategoInt sut= createIStrategoInt(42, null, null);
-            IStrategoInt other= createIStrategoInt(1337, null, null);
+            IStrategoInt sut = createIStrategoInt(42, null, null);
+            IStrategoInt other = createIStrategoInt(1337, null, null);
 
             // Act
             boolean result = sut.match(other);
@@ -177,7 +181,7 @@ public interface IStrategoIntTests {
         @DisplayName("returns the correct string representation")
         default void returnsTheCorrectStringRepresentation() {
             // Arrange
-            IStrategoInt sut= createIStrategoInt(42, null, null);
+            IStrategoInt sut = createIStrategoInt(42, null, null);
 
             // Act
             String result = sut.toString();
@@ -185,11 +189,13 @@ public interface IStrategoIntTests {
             // Assert
             assertEquals("42", result);
         }
+
     }
 
 
     /**
-     * Tests the {@link IStrategoInt#writeAsString(Appendable, int)} and {@link IStrategoInt#writeAsString(Appendable)} methods.
+     * Tests the {@link IStrategoInt#writeAsString(Appendable, int)} and {@link IStrategoInt#writeAsString(Appendable)}
+     * methods.
      */
     @DisplayName("writeAsString(..)")
     interface WriteAsStringTests extends Fixture, IStrategoTermTests.WriteAsStringTests {
@@ -209,4 +215,5 @@ public interface IStrategoIntTests {
         }
 
     }
+
 }

@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.spoofax.TestUtils.TEST_INSTANCE_NOT_CREATED;
 
 
@@ -32,16 +31,20 @@ public interface IStrategoConstructorTests {
          * @return the created object
          * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
          */
-        IStrategoConstructor createIStrategoConstructor(@Nullable String name, @Nullable Integer arity, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
+        IStrategoConstructor createIStrategoConstructor(@Nullable String name, @Nullable Integer arity,
+                                                        @Nullable IStrategoList annotations,
+                                                        @Nullable List<ITermAttachment> attachments);
 
         @Override
-        default IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations,
+        default IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms,
+                                                  @Nullable IStrategoList annotations,
                                                   @Nullable List<ITermAttachment> attachments) {
             if (subterms != null && subterms.size() != 0) throw new TestAbortedException(TEST_INSTANCE_NOT_CREATED);
             return createIStrategoConstructor(null, null, annotations, attachments);
         }
 
     }
+
 
     /**
      * Tests the {@link IStrategoConstructor#getName()} method.
@@ -66,6 +69,7 @@ public interface IStrategoConstructorTests {
 
     }
 
+
     /**
      * Tests the {@link IStrategoConstructor#getArity()} method.
      */
@@ -88,6 +92,7 @@ public interface IStrategoConstructorTests {
         }
 
     }
+
 
     /**
      * Tests the {@link IStrategoConstructor#getTermType()} method.
@@ -131,6 +136,7 @@ public interface IStrategoConstructorTests {
         }
 
     }
+
 
     /**
      * Tests the {@link IStrategoConstructor#getAllSubterms()} method.
@@ -223,11 +229,13 @@ public interface IStrategoConstructorTests {
             // Assert
             assertEquals("Dummy`2", result);
         }
+
     }
 
 
     /**
-     * Tests the {@link IStrategoConstructor#writeAsString(Appendable, int)} and {@link IStrategoConstructor#writeAsString(Appendable)} methods.
+     * Tests the {@link IStrategoConstructor#writeAsString(Appendable, int)} and {@link
+     * IStrategoConstructor#writeAsString(Appendable)} methods.
      */
     @DisplayName("writeAsString(..)")
     interface WriteAsStringTests extends Fixture, IStrategoTermTests.WriteAsStringTests {
@@ -247,4 +255,5 @@ public interface IStrategoConstructorTests {
         }
 
     }
+
 }

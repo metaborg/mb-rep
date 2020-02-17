@@ -22,22 +22,28 @@ public class StrategoPlaceholderTests {
     public interface Fixture extends IStrategoPlaceholderTests.Fixture {
 
         @Override
-        StrategoPlaceholder createIStrategoPlaceholder(@Nullable IStrategoTerm template, @Nullable IStrategoList annotations,
-                                                             @Nullable List<ITermAttachment> attachments);
+        StrategoPlaceholder createIStrategoPlaceholder(@Nullable IStrategoTerm template,
+                                                       @Nullable IStrategoList annotations,
+                                                       @Nullable List<ITermAttachment> attachments);
+
     }
+
 
     public static class FixtureImpl extends StrategoApplTests.FixtureImpl implements Fixture {
 
         @Override
-        public StrategoPlaceholder createIStrategoPlaceholder(@Nullable IStrategoTerm template, @Nullable IStrategoList annotations,
-                                                             @Nullable List<ITermAttachment> attachments) {
+        public StrategoPlaceholder createIStrategoPlaceholder(@Nullable IStrategoTerm template,
+                                                              @Nullable IStrategoList annotations,
+                                                              @Nullable List<ITermAttachment> attachments) {
             return TermUtil.putAttachments(new StrategoPlaceholder(
                     getTermBuilder().makeConstructor("<>", 1),
                     template != null ? template : new DummyStrategoTerm(),
                     annotations != null ? annotations : TermFactory.EMPTY_LIST
             ), attachments);
         }
+
     }
+
 
     // @formatter:off
     // IStrategoPlaceholder

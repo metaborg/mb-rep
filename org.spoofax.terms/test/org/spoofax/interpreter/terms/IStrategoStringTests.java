@@ -48,6 +48,7 @@ public interface IStrategoStringTests {
 
     }
 
+
     /**
      * Tests the {@link IStrategoString#stringValue()} method.
      */
@@ -70,6 +71,7 @@ public interface IStrategoStringTests {
 
     }
 
+
     /**
      * Tests the {@link IStrategoString#getName()} method.
      */
@@ -91,6 +93,7 @@ public interface IStrategoStringTests {
         }
 
     }
+
 
     /**
      * Tests the {@link IStrategoString#getTermType()} method.
@@ -134,6 +137,7 @@ public interface IStrategoStringTests {
         }
 
     }
+
 
     /**
      * Tests the {@link IStrategoString#getAllSubterms()} method.
@@ -213,11 +217,14 @@ public interface IStrategoStringTests {
             // Assert
             assertEquals("\"abc\"", result);
         }
+
     }
 
 
     /**
-     * Tests the {@link IStrategoString#writeAsString(Appendable, int)} and {@link IStrategoString#writeAsString(Appendable)} methods.
+     * Tests the {@link IStrategoString#writeAsString(Appendable, int)} and
+     * {@link IStrategoString#writeAsString(Appendable)}
+     * methods.
      */
     @DisplayName("writeAsString(..)")
     interface WriteAsStringTests extends Fixture, IStrategoTermTests.WriteAsStringTests {
@@ -237,4 +244,5 @@ public interface IStrategoStringTests {
         }
 
     }
+
 }

@@ -14,7 +14,8 @@ import java.util.stream.StreamSupport;
  */
 public final class TestUtils {
 
-    public static final String TEST_INSTANCE_NOT_CREATED = "A test instance with the given parameters could not be created.";
+    public static final String TEST_INSTANCE_NOT_CREATED = "A test instance with the given parameters could not be " +
+            "created.";
 
     private static final TermFactory termFactory = new TermFactory();
 
@@ -26,10 +27,11 @@ public final class TestUtils {
      * Attempts to casts all elements in the specified iterable to a different type.
      *
      * @param input the iterable
-     * @param <R> the type to cast to
+     * @param <R>   the type to cast to
      * @return the cast list; or {@code null} when casting failed or the input was {@code null}
      */
-    @Nullable public static <R> List<R> tryCastAll(@Nullable Iterable<?> input) {
+    @Nullable
+    public static <R> List<R> tryCastAll(@Nullable Iterable<?> input) {
         if (input == null) return null;
         try {
             //noinspection unchecked

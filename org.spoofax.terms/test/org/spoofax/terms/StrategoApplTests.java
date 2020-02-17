@@ -20,15 +20,21 @@ public class StrategoApplTests {
     public interface Fixture extends IStrategoApplTests.Fixture {
 
         @Override
-        StrategoAppl createIStrategoAppl(@Nullable IStrategoConstructor constructor, @Nullable List<IStrategoTerm> subterms,
-                                               @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
+        StrategoAppl createIStrategoAppl(@Nullable IStrategoConstructor constructor,
+                                         @Nullable List<IStrategoTerm> subterms,
+                                         @Nullable IStrategoList annotations,
+                                         @Nullable List<ITermAttachment> attachments);
+
     }
+
 
     public static class FixtureImpl extends StrategoTermTests.FixtureImpl implements Fixture {
 
         @Override
-        public StrategoAppl createIStrategoAppl(@Nullable IStrategoConstructor constructor, @Nullable List<IStrategoTerm> subterms,
-                                               @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments) {
+        public StrategoAppl createIStrategoAppl(@Nullable IStrategoConstructor constructor,
+                                                @Nullable List<IStrategoTerm> subterms,
+                                                @Nullable IStrategoList annotations,
+                                                @Nullable List<ITermAttachment> attachments) {
             if (constructor == null) {
                 switch (subterms != null ? subterms.size() : 0) {
                     case 0:
@@ -60,8 +66,8 @@ public class StrategoApplTests {
 
         @Override
         public StrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms,
-                                               @Nullable IStrategoList annotations,
-                                               @Nullable List<ITermAttachment> attachments) {
+                                                @Nullable IStrategoList annotations,
+                                                @Nullable List<ITermAttachment> attachments) {
             return createIStrategoAppl(null, subterms, annotations, attachments);
         }
 

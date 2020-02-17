@@ -22,13 +22,19 @@ public class StrategoConstructorTests {
     public interface Fixture extends IStrategoConstructorTests.Fixture {
 
         @Override
-        StrategoConstructor createIStrategoConstructor(@Nullable String name, @Nullable Integer arity, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
+        StrategoConstructor createIStrategoConstructor(@Nullable String name, @Nullable Integer arity,
+                                                       @Nullable IStrategoList annotations,
+                                                       @Nullable List<ITermAttachment> attachments);
+
     }
+
 
     public static class FixtureImpl extends StrategoTermTests.FixtureImpl implements Fixture {
 
         @Override
-        public StrategoConstructor createIStrategoConstructor(@Nullable String name, @Nullable Integer arity, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments) {
+        public StrategoConstructor createIStrategoConstructor(@Nullable String name, @Nullable Integer arity,
+                                                              @Nullable IStrategoList annotations,
+                                                              @Nullable List<ITermAttachment> attachments) {
             if (annotations != null && !annotations.isEmpty())
                 throw new TestAbortedException(TEST_INSTANCE_NOT_CREATED);
             return TermUtil.putAttachments(new StrategoConstructor(
@@ -39,8 +45,8 @@ public class StrategoConstructorTests {
 
         @Override
         public StrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms,
-                                               @Nullable IStrategoList annotations,
-                                               @Nullable List<ITermAttachment> attachments) {
+                                                @Nullable IStrategoList annotations,
+                                                @Nullable List<ITermAttachment> attachments) {
             if (subterms != null && subterms.size() != 0) throw new TestAbortedException(TEST_INSTANCE_NOT_CREATED);
             return createIStrategoConstructor(null, null, annotations, attachments);
         }

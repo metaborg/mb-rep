@@ -37,12 +37,14 @@ public interface IStrategoTupleTests {
                                             @Nullable List<ITermAttachment> attachments);
 
         @Override
-        default IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations,
+        default IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms,
+                                                  @Nullable IStrategoList annotations,
                                                   @Nullable List<ITermAttachment> attachments) {
             return createIStrategoTuple(subterms, annotations, attachments);
         }
 
     }
+
 
     /**
      * Tests the {@link IStrategoTuple#size()} method.
@@ -90,7 +92,8 @@ public interface IStrategoTupleTests {
         @DisplayName("returns the subterm at the specified index")
         default void returnsTheSubtermAtTheSpecifiedIndex() {
             // Arrange
-            List<IStrategoTerm> elements = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(), new DummyStrategoTerm());
+            List<IStrategoTerm> elements = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(),
+                    new DummyStrategoTerm());
             IStrategoTuple sut = createIStrategoTuple(elements, null, null);
 
             // Act
@@ -104,7 +107,7 @@ public interface IStrategoTupleTests {
         @DisplayName("throws exception when below bounds")
         default void throwsExceptionWhenBelowBounds() {
             // Arrange
-            IStrategoTuple sut = createIStrategoTuple(null,null, null);
+            IStrategoTuple sut = createIStrategoTuple(null, null, null);
 
             // Act/Assert
             assertThrows(IndexOutOfBoundsException.class, () -> {
@@ -128,7 +131,8 @@ public interface IStrategoTupleTests {
         @DisplayName("throws exception when above bounds")
         default void throwsExceptionWhenAboveBounds() {
             // Arrange
-            List<IStrategoTerm> elements = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(), new DummyStrategoTerm());
+            List<IStrategoTerm> elements = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(),
+                    new DummyStrategoTerm());
             IStrategoTuple sut = createIStrategoTuple(elements, null, null);
 
             // Act/Assert
@@ -160,6 +164,7 @@ public interface IStrategoTupleTests {
         }
 
     }
+
 
     /**
      * Tests the {@link IStrategoTuple#match(IStrategoTerm)} method.
@@ -200,8 +205,10 @@ public interface IStrategoTupleTests {
         @DisplayName("when other has differing elements, returns false")
         default void whenOtherHasDifferingElements_returnsFalse() {
             // Arrange
-            IStrategoTuple sut = createIStrategoTuple(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
-            IStrategoTuple other = createIStrategoTuple(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
+            IStrategoTuple sut = createIStrategoTuple(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm())
+                    , null, null);
+            IStrategoTuple other = createIStrategoTuple(Arrays.asList(new DummyStrategoTerm(),
+                    new DummyStrategoTerm()), null, null);
 
             // Act
             boolean result = sut.match(other);
@@ -214,7 +221,8 @@ public interface IStrategoTupleTests {
         @DisplayName("when other has different number of elements, returns false")
         default void whenOtherHasDifferentNumberOfElements_returnsFalse() {
             // Arrange
-            IStrategoTuple sut = createIStrategoTuple(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
+            IStrategoTuple sut = createIStrategoTuple(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm())
+                    , null, null);
             IStrategoTuple other = createIStrategoTuple(Arrays.asList(new DummyStrategoTerm()), null, null);
 
             // Act
@@ -228,7 +236,8 @@ public interface IStrategoTupleTests {
         @DisplayName("when one is empty, returns false")
         default void whenOneIsEmpty_returnsFalse() {
             // Arrange
-            IStrategoTuple sut = createIStrategoTuple(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
+            IStrategoTuple sut = createIStrategoTuple(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm())
+                    , null, null);
             IStrategoTuple other = createIStrategoTuple(Collections.emptyList(), null, null);
 
             // Act
@@ -251,7 +260,8 @@ public interface IStrategoTupleTests {
         @DisplayName("returns the correct string representation")
         default void returnsTheCorrectStringRepresentation() {
             // Arrange
-            IStrategoTuple sut = createIStrategoTuple(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
+            IStrategoTuple sut = createIStrategoTuple(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm())
+                    , null, null);
 
             // Act
             String result = sut.toString();
@@ -259,11 +269,13 @@ public interface IStrategoTupleTests {
             // Assert
             assertEquals("(<dummy>,<dummy>)", result);
         }
+
     }
 
 
     /**
-     * Tests the {@link IStrategoInt#writeAsString(Appendable, int)} and {@link IStrategoInt#writeAsString(Appendable)} methods.
+     * Tests the {@link IStrategoInt#writeAsString(Appendable, int)} and {@link IStrategoInt#writeAsString(Appendable)}
+     * methods.
      */
     @DisplayName("writeAsString(..)")
     interface WriteAsStringTests extends Fixture, IStrategoTermTests.WriteAsStringTests {
@@ -273,7 +285,8 @@ public interface IStrategoTupleTests {
         default void returnsTheCorrectStringRepresentation() throws IOException {
             // Arrange
             StringBuilder sb = new StringBuilder();
-            IStrategoTuple sut = createIStrategoTuple(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
+            IStrategoTuple sut = createIStrategoTuple(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm())
+                    , null, null);
 
             // Act
             sut.writeAsString(sb);
@@ -283,4 +296,5 @@ public interface IStrategoTupleTests {
         }
 
     }
+
 }

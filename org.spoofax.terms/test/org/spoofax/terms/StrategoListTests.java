@@ -22,30 +22,38 @@ public class StrategoListTests {
 
         @Override
         StrategoList createIStrategoList(@Nullable List<IStrategoTerm> elements,
-                                               @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
+                                         @Nullable IStrategoList annotations,
+                                         @Nullable List<ITermAttachment> attachments);
 
         @Override
-        StrategoList createConsNilIStrategoList(@Nullable IStrategoTerm head, @Nullable IStrategoList tail, @Nullable IStrategoList annotations,
-                                                      @Nullable List<ITermAttachment> attachments);
+        StrategoList createConsNilIStrategoList(@Nullable IStrategoTerm head, @Nullable IStrategoList tail,
+                                                @Nullable IStrategoList annotations,
+                                                @Nullable List<ITermAttachment> attachments);
 
         @Override
-        StrategoList createEmptyIStrategoList(@Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
+        StrategoList createEmptyIStrategoList(@Nullable IStrategoList annotations,
+                                              @Nullable List<ITermAttachment> attachments);
+
     }
+
 
     public static class FixtureImpl extends StrategoTermTests.FixtureImpl implements Fixture {
 
         @Override
         public StrategoList createIStrategoList(@Nullable List<IStrategoTerm> elements,
-                                               @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments) {
+                                                @Nullable IStrategoList annotations,
+                                                @Nullable List<ITermAttachment> attachments) {
             if (elements == null || elements.isEmpty()) {
                 return createEmptyIStrategoList(annotations, attachments);
             }
-            return createConsNilIStrategoList(elements.get(0), createIStrategoList(elements.subList(1, elements.size()), null, null), annotations, attachments);
+            return createConsNilIStrategoList(elements.get(0), createIStrategoList(elements.subList(1,
+                    elements.size()), null, null), annotations, attachments);
         }
 
         @Override
-        public StrategoList createConsNilIStrategoList(@Nullable IStrategoTerm head, @Nullable IStrategoList tail, @Nullable IStrategoList annotations,
-                                                      @Nullable List<ITermAttachment> attachments) {
+        public StrategoList createConsNilIStrategoList(@Nullable IStrategoTerm head, @Nullable IStrategoList tail,
+                                                       @Nullable IStrategoList annotations,
+                                                       @Nullable List<ITermAttachment> attachments) {
             return TermUtil.putAttachments(new StrategoList(
                     head != null ? head : new DummyStrategoTerm(),
                     tail != null ? tail : new StrategoList(null),
@@ -54,7 +62,8 @@ public class StrategoListTests {
         }
 
         @Override
-        public StrategoList createEmptyIStrategoList(@Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments) {
+        public StrategoList createEmptyIStrategoList(@Nullable IStrategoList annotations,
+                                                     @Nullable List<ITermAttachment> attachments) {
             return TermUtil.putAttachments(new StrategoList(
                     annotations != null ? annotations : TermFactory.EMPTY_LIST
             ), attachments);
@@ -62,12 +71,13 @@ public class StrategoListTests {
 
         @Override
         public StrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms,
-                                               @Nullable IStrategoList annotations,
-                                               @Nullable List<ITermAttachment> attachments) {
+                                                @Nullable IStrategoList annotations,
+                                                @Nullable List<ITermAttachment> attachments) {
             if (subterms == null || subterms.isEmpty()) {
                 return createEmptyIStrategoList(annotations, attachments);
             }
-            return createConsNilIStrategoList(subterms.get(0), createIStrategoList(subterms.subList(1, subterms.size()), null, null), annotations, attachments);
+            return createConsNilIStrategoList(subterms.get(0), createIStrategoList(subterms.subList(1,
+                    subterms.size()), null, null), annotations, attachments);
         }
 
     }

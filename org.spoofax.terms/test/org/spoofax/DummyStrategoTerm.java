@@ -15,19 +15,29 @@ import java.util.Iterator;
 public class DummyStrategoTerm extends DummySimpleTerm implements IStrategoTerm {
 
     @Override
-    public IStrategoTerm getSubterm(int i) { throw new IndexOutOfBoundsException(); }
+    public IStrategoTerm getSubterm(int i) {
+        throw new IndexOutOfBoundsException();
+    }
 
     @Override
-    public IStrategoTerm[] getAllSubterms() { return new IStrategoTerm[0]; }
+    public IStrategoTerm[] getAllSubterms() {
+        return new IStrategoTerm[0];
+    }
 
     @Override
-    public int getTermType() { return 9; }
+    public int getTermType() {
+        return 9;
+    }
 
     @Override
-    public IStrategoList getAnnotations() { throw new IllegalStateException("Not supported."); }
+    public IStrategoList getAnnotations() {
+        throw new IllegalStateException("Not supported.");
+    }
 
     @Override
-    public boolean match(IStrategoTerm second) { return true; }
+    public boolean match(IStrategoTerm second) {
+        return true;
+    }
 
     @Override
     public void prettyPrint(ITermPrinter pp) {
@@ -51,12 +61,18 @@ public class DummyStrategoTerm extends DummySimpleTerm implements IStrategoTerm 
     }
 
     @Override
-    public String toString(int maxDepth) { return "<dummy>"; }
+    public String toString(int maxDepth) {
+        return "<dummy>";
+    }
 
     @Override
-    public void writeAsString(Appendable output, int maxDepth) throws IOException { output.append("<dummy>"); }
+    public void writeAsString(Appendable output, int maxDepth) throws IOException {
+        output.append("<dummy>");
+    }
 
     @Override
-    public Iterator<IStrategoTerm> iterator() { return Arrays.asList(getAllSubterms()).iterator(); }
+    public Iterator<IStrategoTerm> iterator() {
+        return Arrays.asList(getAllSubterms()).iterator();
+    }
 
 }

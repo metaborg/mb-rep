@@ -13,7 +13,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 
 /**
@@ -32,9 +31,11 @@ public interface ISimpleTermTests {
          * @return the created object
          * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
          */
-        ISimpleTerm createISimpleTerm(@Nullable List<ISimpleTerm> subterms, @Nullable List<ITermAttachment> attachments);
+        ISimpleTerm createISimpleTerm(@Nullable List<ISimpleTerm> subterms,
+                                      @Nullable List<ITermAttachment> attachments);
 
     }
+
 
     /**
      * Tests the {@link ISimpleTerm#getSubtermCount()} method.
@@ -46,7 +47,8 @@ public interface ISimpleTermTests {
         @DisplayName("returns the number of subterms")
         default void returnsTheNumberOfSubterms() {
             // Arrange
-            List<ISimpleTerm> subterms = Arrays.asList(new DummySimpleTerm(), new DummySimpleTerm(), new DummySimpleTerm());
+            List<ISimpleTerm> subterms = Arrays.asList(new DummySimpleTerm(), new DummySimpleTerm(),
+                    new DummySimpleTerm());
             ISimpleTerm sut = createISimpleTerm(subterms, null);
 
             // Act
@@ -71,6 +73,7 @@ public interface ISimpleTermTests {
 
     }
 
+
     /**
      * Tests the {@link ISimpleTerm#getSubterm(int)} method.
      */
@@ -81,7 +84,8 @@ public interface ISimpleTermTests {
         @DisplayName("returns the subterm at the specified index")
         default void returnsTheSubtermAtTheSpecifiedIndex() {
             // Arrange
-            List<ISimpleTerm> subterms = Arrays.asList(new DummySimpleTerm(), new DummySimpleTerm(), new DummySimpleTerm());
+            List<ISimpleTerm> subterms = Arrays.asList(new DummySimpleTerm(), new DummySimpleTerm(),
+                    new DummySimpleTerm());
             ISimpleTerm sut = createISimpleTerm(subterms, null);
 
             // Act
@@ -119,7 +123,8 @@ public interface ISimpleTermTests {
         @DisplayName("throws exception when above bounds")
         default void throwsExceptionWhenAboveBounds() {
             // Arrange
-            List<ISimpleTerm> subterms = Arrays.asList(new DummySimpleTerm(), new DummySimpleTerm(), new DummySimpleTerm());
+            List<ISimpleTerm> subterms = Arrays.asList(new DummySimpleTerm(), new DummySimpleTerm(),
+                    new DummySimpleTerm());
             ISimpleTerm sut = createISimpleTerm(subterms, null);
 
             // Act/Assert
@@ -129,6 +134,7 @@ public interface ISimpleTermTests {
         }
 
     }
+
 
     /**
      * Tests the {@link ISimpleTerm#getAttachment(TermAttachmentType)} method.
@@ -202,6 +208,7 @@ public interface ISimpleTermTests {
             // Assert
             assertNull(result);
         }
+
     }
 
 

@@ -10,7 +10,6 @@ import org.spoofax.terms.attachments.ITermAttachment;
 import javax.annotation.Nullable;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.spoofax.TestUtils.TEST_INSTANCE_NOT_CREATED;
 
 
@@ -23,13 +22,17 @@ public class StrategoStringTests {
     public interface Fixture extends IStrategoStringTests.Fixture {
 
         @Override
-        StrategoString createIStrategoString(@Nullable String value, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
+        StrategoString createIStrategoString(@Nullable String value, @Nullable IStrategoList annotations,
+                                             @Nullable List<ITermAttachment> attachments);
+
     }
+
 
     public static class FixtureImpl extends StrategoTermTests.FixtureImpl implements Fixture {
 
         @Override
-        public StrategoString createIStrategoString(@Nullable String value, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments) {
+        public StrategoString createIStrategoString(@Nullable String value, @Nullable IStrategoList annotations,
+                                                    @Nullable List<ITermAttachment> attachments) {
             return TermUtil.putAttachments(new StrategoString(
                     value != null ? value : "abc",
                     annotations != null ? annotations : TermFactory.EMPTY_LIST
@@ -38,8 +41,8 @@ public class StrategoStringTests {
 
         @Override
         public StrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms,
-                                               @Nullable IStrategoList annotations,
-                                               @Nullable List<ITermAttachment> attachments) {
+                                                @Nullable IStrategoList annotations,
+                                                @Nullable List<ITermAttachment> attachments) {
             if (subterms != null && subterms.size() != 0) throw new TestAbortedException(TEST_INSTANCE_NOT_CREATED);
             return createIStrategoString(null, annotations, attachments);
         }

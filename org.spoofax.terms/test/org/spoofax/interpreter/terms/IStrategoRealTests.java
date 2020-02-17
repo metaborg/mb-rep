@@ -44,6 +44,7 @@ public interface IStrategoRealTests {
 
     }
 
+
     /**
      * Tests the {@link IStrategoReal#realValue()} method.
      */
@@ -65,6 +66,7 @@ public interface IStrategoRealTests {
         }
 
     }
+
 
     /**
      * Tests the {@link IStrategoReal#getTermType()} method.
@@ -108,6 +110,7 @@ public interface IStrategoRealTests {
         }
 
     }
+
 
     /**
      * Tests the {@link IStrategoReal#getAllSubterms()} method.
@@ -186,11 +189,14 @@ public interface IStrategoRealTests {
             // Assert
             assertEquals("4.2", result);
         }
+
     }
 
 
     /**
-     * Tests the {@link IStrategoReal#writeAsString(Appendable, int)} and {@link IStrategoReal#writeAsString(Appendable)} methods.
+     * Tests the {@link IStrategoReal#writeAsString(Appendable, int)} and
+     * {@link IStrategoReal#writeAsString(Appendable)}
+     * methods.
      */
     @DisplayName("writeAsString(..)")
     interface WriteAsStringTests extends Fixture, IStrategoTermTests.WriteAsStringTests {
@@ -210,4 +216,5 @@ public interface IStrategoRealTests {
         }
 
     }
+
 }
