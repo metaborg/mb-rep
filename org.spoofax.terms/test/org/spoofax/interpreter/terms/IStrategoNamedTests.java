@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 /**
  * Tests the {@link IStrategoNamed} interface.
  */
+@DisplayName("IStrategoNamed")
 @SuppressWarnings("unused")
 public interface IStrategoNamedTests {
 

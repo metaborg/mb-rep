@@ -19,6 +19,7 @@ import static org.spoofax.TestUtils.getTermBuilder;
 /**
  * Tests the {@link IStrategoPlaceholder} interface.
  */
+@DisplayName("IStrategoPlaceholder")
 @SuppressWarnings("unused")
 public interface IStrategoPlaceholderTests {
 

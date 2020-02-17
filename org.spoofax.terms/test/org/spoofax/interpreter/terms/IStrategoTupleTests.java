@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Tests the {@link IStrategoTuple} interface.
  */
+@DisplayName("IStrategoTuple")
 @SuppressWarnings({"CodeBlock2Expr", "Convert2MethodRef", "unused"})
 public interface IStrategoTupleTests {
 

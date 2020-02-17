@@ -17,7 +17,7 @@ import static org.spoofax.TestUtils.tryCastAll;
  * Tests the {@link StrategoTerm} class.
  */
 @DisplayName("StrategoTerm")
-public class StrategoTermTests {
+public abstract class StrategoTermTests {
 
     public interface Fixture extends IStrategoTermTests.Fixture {
 

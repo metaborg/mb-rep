@@ -24,6 +24,7 @@ import static org.spoofax.TestUtils.getTermBuilder;
 /**
  * Tests the {@link IStrategoTerm} interface.
  */
+@DisplayName("IStrategoTerm")
 @SuppressWarnings({"CodeBlock2Expr", "Convert2MethodRef", "unused"})
 public interface IStrategoTermTests {
 

@@ -14,7 +14,7 @@ import java.util.List;
  * Tests the {@link AbstractSimpleTerm} abstract class.
  */
 @DisplayName("AbstractSimpleTerm")
-public interface AbstractSimpleTermTests {
+public abstract class AbstractSimpleTermTests {
 
     interface Fixture extends ISimpleTermTests.Fixture {
 
@@ -32,7 +32,7 @@ public interface AbstractSimpleTermTests {
     }
 
 
-    abstract class FixtureImpl implements Fixture {
+    abstract static class FixtureImpl implements Fixture {
 
         @Override
         public abstract AbstractSimpleTerm createAbstractSimpleTerm(@Nullable List<ISimpleTerm> subterms,

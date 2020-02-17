@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Tests the {@link IStrategoAppl} interface.
  */
+@DisplayName("IStrategoAppl")
 @SuppressWarnings("unused")
 public interface IStrategoApplTests {
 

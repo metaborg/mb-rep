@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Tests the {@link ISimpleTerm} interface.
  */
+@DisplayName("ISimpleTerm")
 @SuppressWarnings({"unused", "CodeBlock2Expr"})
 public interface ISimpleTermTests {
 

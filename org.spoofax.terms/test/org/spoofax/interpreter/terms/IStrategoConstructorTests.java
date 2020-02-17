@@ -16,6 +16,7 @@ import static org.spoofax.TestUtils.TEST_INSTANCE_NOT_CREATED;
 /**
  * Tests the {@link IStrategoConstructor} interface.
  */
+@DisplayName("IStrategoConstructor")
 @SuppressWarnings("unused")
 public interface IStrategoConstructorTests {
 
