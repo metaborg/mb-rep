@@ -21,23 +21,14 @@ public class StrategoConstructorTests {
 
     public interface Fixture extends IStrategoConstructorTests.Fixture {
 
-        /**
-         * Creates a new instance of {@link StrategoConstructor} for testing.
-         *
-         * @param name the constructor name; or {@code null} to use a sensible default
-         * @param arity the constructor arity; or {@code null} to use a sensible default
-         * @param annotations the annotations of the term; or {@code null} to use a sensible default
-         * @param attachments the attachments of the term; or {@code null} to use a sensible default
-         * @return the created object
-         * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
-         */
-        StrategoConstructor createStrategoConstructor(@Nullable String name, @Nullable Integer arity, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
+        @Override
+        StrategoConstructor createIStrategoConstructor(@Nullable String name, @Nullable Integer arity, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
     }
 
     public static class FixtureImpl extends StrategoTermTests.FixtureImpl implements Fixture {
 
         @Override
-        public StrategoConstructor createStrategoConstructor(@Nullable String name, @Nullable Integer arity, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments) {
+        public StrategoConstructor createIStrategoConstructor(@Nullable String name, @Nullable Integer arity, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments) {
             if (annotations != null && !annotations.isEmpty())
                 throw new TestAbortedException(TEST_INSTANCE_NOT_CREATED);
             return TermUtil.putAttachments(new StrategoConstructor(
@@ -47,16 +38,11 @@ public class StrategoConstructorTests {
         }
 
         @Override
-        public IStrategoConstructor createIStrategoConstructor(@Nullable String name, @Nullable Integer arity, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments) {
-            return createStrategoConstructor(name, arity, annotations, attachments);
-        }
-
-        @Override
-        public StrategoTerm createStrategoTerm(@Nullable List<IStrategoTerm> subterms,
+        public StrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms,
                                                @Nullable IStrategoList annotations,
                                                @Nullable List<ITermAttachment> attachments) {
             if (subterms != null && subterms.size() != 0) throw new TestAbortedException(TEST_INSTANCE_NOT_CREATED);
-            return createStrategoConstructor(null, null, annotations, attachments);
+            return createIStrategoConstructor(null, null, annotations, attachments);
         }
 
     }

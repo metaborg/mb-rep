@@ -21,23 +21,15 @@ public class StrategoPlaceholderTests {
 
     public interface Fixture extends IStrategoPlaceholderTests.Fixture {
 
-        /**
-         * Creates a new instance of {@link StrategoPlaceholder} for testing.
-         *
-         * @param template    the template of the placeholder; or {@code null} to use a sensible default
-         * @param annotations the annotations of the term; or {@code null} to use a sensible default
-         * @param attachments the attachments of the term; or {@code null} to use a sensible default
-         * @return the created object
-         * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
-         */
-        StrategoPlaceholder createStrategoPlaceholder(@Nullable IStrategoTerm template, @Nullable IStrategoList annotations,
+        @Override
+        StrategoPlaceholder createIStrategoPlaceholder(@Nullable IStrategoTerm template, @Nullable IStrategoList annotations,
                                                              @Nullable List<ITermAttachment> attachments);
     }
 
     public static class FixtureImpl extends StrategoApplTests.FixtureImpl implements Fixture {
 
         @Override
-        public StrategoPlaceholder createStrategoPlaceholder(@Nullable IStrategoTerm template, @Nullable IStrategoList annotations,
+        public StrategoPlaceholder createIStrategoPlaceholder(@Nullable IStrategoTerm template, @Nullable IStrategoList annotations,
                                                              @Nullable List<ITermAttachment> attachments) {
             return TermUtil.putAttachments(new StrategoPlaceholder(
                     getTermBuilder().makeConstructor("<>", 1),
@@ -45,13 +37,6 @@ public class StrategoPlaceholderTests {
                     annotations != null ? annotations : TermFactory.EMPTY_LIST
             ), attachments);
         }
-
-        @Override
-        public IStrategoPlaceholder createIStrategoPlaceholder(@Nullable IStrategoTerm template, @Nullable IStrategoList annotations,
-                                                               @Nullable List<ITermAttachment> attachments) {
-            return createStrategoPlaceholder(template, annotations, attachments);
-        }
-
     }
 
     // @formatter:off

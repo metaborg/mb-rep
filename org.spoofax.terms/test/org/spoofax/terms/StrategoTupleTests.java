@@ -19,16 +19,8 @@ public class StrategoTupleTests {
 
     public interface Fixture extends IStrategoTupleTests.Fixture {
 
-        /**
-         * Creates a new instance of {@link StrategoTuple} for testing.
-         *
-         * @param elements the elements of the tuple; or {@code null} to use a sensible default
-         * @param annotations the annotations of the term; or {@code null} to use a sensible default
-         * @param attachments the attachments of the term; or {@code null} to use a sensible default
-         * @return the created object
-         * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
-         */
-        StrategoTuple createStrategoTuple(@Nullable List<IStrategoTerm> elements,
+        @Override
+        StrategoTuple createIStrategoTuple(@Nullable List<IStrategoTerm> elements,
                                                  @Nullable IStrategoList annotations,
                                                  @Nullable List<ITermAttachment> attachments);
     }
@@ -36,7 +28,7 @@ public class StrategoTupleTests {
     public static class FixtureImpl extends StrategoTermTests.FixtureImpl implements Fixture {
 
         @Override
-        public StrategoTuple createStrategoTuple(@Nullable List<IStrategoTerm> elements,
+        public StrategoTuple createIStrategoTuple(@Nullable List<IStrategoTerm> elements,
                                                  @Nullable IStrategoList annotations,
                                                  @Nullable List<ITermAttachment> attachments) {
             return TermUtil.putAttachments(new StrategoTuple(
@@ -46,15 +38,8 @@ public class StrategoTupleTests {
         }
 
         @Override
-        public IStrategoTuple createIStrategoTuple(@Nullable List<IStrategoTerm> elements,
-                                                   @Nullable IStrategoList annotations,
-                                                   @Nullable List<ITermAttachment> attachments) {
-            return createStrategoTuple(elements, annotations, attachments);
-        }
-
-        @Override
-        public StrategoTerm createStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments) {
-            return createStrategoTuple(subterms, annotations, attachments);
+        public StrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments) {
+            return createIStrategoTuple(subterms, annotations, attachments);
         }
 
     }

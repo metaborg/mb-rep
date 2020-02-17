@@ -21,23 +21,15 @@ public class StrategoIntTests {
 
     public interface Fixture extends IStrategoIntTests.Fixture {
 
-        /**
-         * Creates a new instance of {@link StrategoInt} for testing.
-         *
-         * @param value the value of the term; or {@code null} to use a sensible default
-         * @param annotations the annotations of the term; or {@code null} to use a sensible default
-         * @param attachments the attachments of the term; or {@code null} to use a sensible default
-         * @return the created object
-         * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
-         */
-        StrategoInt createStrategoInt(@Nullable Integer value, @Nullable IStrategoList annotations,
+        @Override
+        StrategoInt createIStrategoInt(@Nullable Integer value, @Nullable IStrategoList annotations,
                                              @Nullable List<ITermAttachment> attachments);
     }
 
     public static class FixtureImpl extends StrategoTermTests.FixtureImpl implements Fixture {
 
         @Override
-        public StrategoInt createStrategoInt(@Nullable Integer value, @Nullable IStrategoList annotations,
+        public StrategoInt createIStrategoInt(@Nullable Integer value, @Nullable IStrategoList annotations,
                                              @Nullable List<ITermAttachment> attachments) {
             return TermUtil.putAttachments(new StrategoInt(
                     value != null ? value : 42,
@@ -46,17 +38,11 @@ public class StrategoIntTests {
         }
 
         @Override
-        public IStrategoInt createIStrategoInt(@Nullable Integer value, @Nullable IStrategoList annotations,
-                                               @Nullable List<ITermAttachment> attachments) {
-            return createStrategoInt(value, annotations, attachments);
-        }
-
-        @Override
-        public StrategoTerm createStrategoTerm(@Nullable List<IStrategoTerm> subterms,
+        public StrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms,
                                                @Nullable IStrategoList annotations,
                                                @Nullable List<ITermAttachment> attachments) {
             if (subterms != null && subterms.size() != 0) throw new TestAbortedException(TEST_INSTANCE_NOT_CREATED);
-            return createStrategoInt(null, annotations, attachments);
+            return createIStrategoInt(null, annotations, attachments);
         }
 
     }

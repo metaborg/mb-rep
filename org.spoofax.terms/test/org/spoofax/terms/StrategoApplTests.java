@@ -19,24 +19,15 @@ public class StrategoApplTests {
 
     public interface Fixture extends IStrategoApplTests.Fixture {
 
-        /**
-         * Creates a new instance of {@link StrategoAppl} for testing.
-         *
-         * @param constructor the constructor of the term; or {@code null} to use a sensible default
-         * @param subterms the subterms of the term; or {@code null} to use a sensible default
-         * @param annotations the annotations of the term; or {@code null} to use a sensible default
-         * @param attachments the attachments of the term; or {@code null} to use a sensible default
-         * @return the created object
-         * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
-         */
-        StrategoAppl createStrategoAppl(@Nullable IStrategoConstructor constructor, @Nullable List<IStrategoTerm> subterms,
+        @Override
+        StrategoAppl createIStrategoAppl(@Nullable IStrategoConstructor constructor, @Nullable List<IStrategoTerm> subterms,
                                                @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
     }
 
     public static class FixtureImpl extends StrategoTermTests.FixtureImpl implements Fixture {
 
         @Override
-        public StrategoAppl createStrategoAppl(@Nullable IStrategoConstructor constructor, @Nullable List<IStrategoTerm> subterms,
+        public StrategoAppl createIStrategoAppl(@Nullable IStrategoConstructor constructor, @Nullable List<IStrategoTerm> subterms,
                                                @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments) {
             if (constructor == null) {
                 switch (subterms != null ? subterms.size() : 0) {
@@ -68,16 +59,10 @@ public class StrategoApplTests {
         }
 
         @Override
-        public IStrategoAppl createIStrategoAppl(@Nullable IStrategoConstructor constructor, @Nullable List<IStrategoTerm> subterms,
-                                                 @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments) {
-            return createStrategoAppl(constructor, subterms, annotations, attachments);
-        }
-
-        @Override
-        public StrategoTerm createStrategoTerm(@Nullable List<IStrategoTerm> subterms,
+        public StrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms,
                                                @Nullable IStrategoList annotations,
                                                @Nullable List<ITermAttachment> attachments) {
-            return createStrategoAppl(null, subterms, annotations, attachments);
+            return createIStrategoAppl(null, subterms, annotations, attachments);
         }
 
     }

@@ -22,22 +22,14 @@ public class StrategoStringTests {
 
     public interface Fixture extends IStrategoStringTests.Fixture {
 
-        /**
-         * Creates a new instance of {@link StrategoString} for testing.
-         *
-         * @param value the value of the term; or {@code null} to use a sensible default
-         * @param annotations the annotations of the term; or {@code null} to use a sensible default
-         * @param attachments the attachments of the term; or {@code null} to use a sensible default
-         * @return the created object
-         * @throws TestAbortedException when an instance with the given parameters could not be created
-         */
-        StrategoString createStrategoString(@Nullable String value, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
+        @Override
+        StrategoString createIStrategoString(@Nullable String value, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
     }
 
     public static class FixtureImpl extends StrategoTermTests.FixtureImpl implements Fixture {
 
         @Override
-        public StrategoString createStrategoString(@Nullable String value, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments) {
+        public StrategoString createIStrategoString(@Nullable String value, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments) {
             return TermUtil.putAttachments(new StrategoString(
                     value != null ? value : "abc",
                     annotations != null ? annotations : TermFactory.EMPTY_LIST
@@ -45,16 +37,11 @@ public class StrategoStringTests {
         }
 
         @Override
-        public IStrategoString createIStrategoString(@Nullable String value, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments) {
-            return createStrategoString(value, annotations, attachments);
-        }
-
-        @Override
-        public StrategoTerm createStrategoTerm(@Nullable List<IStrategoTerm> subterms,
+        public StrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms,
                                                @Nullable IStrategoList annotations,
                                                @Nullable List<ITermAttachment> attachments) {
             if (subterms != null && subterms.size() != 0) throw new TestAbortedException(TEST_INSTANCE_NOT_CREATED);
-            return createStrategoString(null, annotations, attachments);
+            return createIStrategoString(null, annotations, attachments);
         }
 
     }
