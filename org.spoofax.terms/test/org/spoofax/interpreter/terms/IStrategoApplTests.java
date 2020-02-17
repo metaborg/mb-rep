@@ -14,18 +14,16 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
-import static org.spoofax.TestBase.TEST_INSTANCE_NOT_CREATED;
 
 
 /**
  * Tests the {@link IStrategoAppl} interface.
  */
 @SuppressWarnings("unused")
-@DisplayName("IStrategoAppl")
 public interface IStrategoApplTests extends IStrategoNamedTests {
 
     /**
-     * Creates a new instance of the {@link IStrategoAppl} for testing.
+     * Creates a new instance of {@link IStrategoAppl} for testing.
      *
      * @param constructor the constructor of the term; or {@code null} to use a sensible default
      * @param subterms the subterms of the term; or {@code null} to use a sensible default
@@ -34,17 +32,17 @@ public interface IStrategoApplTests extends IStrategoNamedTests {
      * @return the created object
      * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
      */
-    IStrategoAppl createStrategoAppl(@Nullable IStrategoConstructor constructor, @Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
+    IStrategoAppl createIStrategoAppl(@Nullable IStrategoConstructor constructor, @Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
 
     @Override
-    default IStrategoTerm createStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations,
-                                             @Nullable List<ITermAttachment> attachments) {
-        return createStrategoAppl(null, subterms, annotations, attachments);
+    default IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations,
+                                              @Nullable List<ITermAttachment> attachments) {
+        return createIStrategoAppl(null, subterms, annotations, attachments);
     }
 
     @Override
-    default IStrategoNamed createStrategoNamed() {
-        return createStrategoAppl(null, null, null, null);
+    default IStrategoNamed createIStrategoNamed() {
+        return createIStrategoAppl(null, null, null, null);
     }
 
     /**
@@ -59,7 +57,7 @@ public interface IStrategoApplTests extends IStrategoNamedTests {
             // Arrange
             IStrategoConstructor constructor = DummyStrategoConstructor.Dummy2;
             List<IStrategoTerm> subterms = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm());
-            IStrategoAppl sut = createStrategoAppl(constructor, subterms, null, null);
+            IStrategoAppl sut = createIStrategoAppl(constructor, subterms, null, null);
 
             // Act
             IStrategoConstructor result = sut.getConstructor();
@@ -83,7 +81,7 @@ public interface IStrategoApplTests extends IStrategoNamedTests {
             // Arrange
             IStrategoConstructor constructor = DummyStrategoConstructor.Dummy2;
             List<IStrategoTerm> subterms = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm());
-            IStrategoAppl sut = createStrategoAppl(constructor, subterms, null, null);
+            IStrategoAppl sut = createIStrategoAppl(constructor, subterms, null, null);
 
             // Act
             String result = sut.getName();
@@ -104,7 +102,7 @@ public interface IStrategoApplTests extends IStrategoNamedTests {
         @DisplayName("returns the correct term type")
         default void returnsTheCorrectTermType() {
             // Arrange
-            IStrategoAppl sut = createStrategoAppl(null, null, null, null);
+            IStrategoAppl sut = createIStrategoAppl(null, null, null, null);
 
             // Act
             int result = sut.getTermType();
@@ -127,8 +125,8 @@ public interface IStrategoApplTests extends IStrategoNamedTests {
             // Arrange
             IStrategoConstructor constructor = DummyStrategoConstructor.Dummy2;
             List<IStrategoTerm> subterms = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm());
-            IStrategoAppl sut = createStrategoAppl(constructor, subterms, null, null);
-            IStrategoAppl other = createStrategoAppl(constructor, subterms, null, null);
+            IStrategoAppl sut = createIStrategoAppl(constructor, subterms, null, null);
+            IStrategoAppl other = createIStrategoAppl(constructor, subterms, null, null);
 
             // Act
             boolean result = sut.match(other);
@@ -142,8 +140,8 @@ public interface IStrategoApplTests extends IStrategoNamedTests {
         default void whenOtherHasDifferentConstructor_returnsFalse() {
             // Arrange
             List<IStrategoTerm> subterms = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm());
-            IStrategoAppl sut = createStrategoAppl(DummyStrategoConstructor.Dummy2, subterms, null, null);
-            IStrategoAppl other = createStrategoAppl(new DummyStrategoConstructor("Alt", 2), subterms, null, null);
+            IStrategoAppl sut = createIStrategoAppl(DummyStrategoConstructor.Dummy2, subterms, null, null);
+            IStrategoAppl other = createIStrategoAppl(new DummyStrategoConstructor("Alt", 2), subterms, null, null);
 
             // Act
             boolean result = sut.match(other);
@@ -156,8 +154,8 @@ public interface IStrategoApplTests extends IStrategoNamedTests {
         @DisplayName("when other has different subterms, returns false")
         default void whenOtherHasDifferentSubterms_returnsFalse() {
             // Arrange
-            IStrategoAppl sut = createStrategoAppl(DummyStrategoConstructor.Dummy2, Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
-            IStrategoAppl other = createStrategoAppl(DummyStrategoConstructor.Dummy2, Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
+            IStrategoAppl sut = createIStrategoAppl(DummyStrategoConstructor.Dummy2, Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
+            IStrategoAppl other = createIStrategoAppl(DummyStrategoConstructor.Dummy2, Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
 
             // Act
             boolean result = sut.match(other);
@@ -179,7 +177,7 @@ public interface IStrategoApplTests extends IStrategoNamedTests {
         @DisplayName("returns the correct string representation")
         default void returnsTheCorrectStringRepresentation() {
             // Arrange
-            IStrategoAppl sut = createStrategoAppl(DummyStrategoConstructor.Dummy2, Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
+            IStrategoAppl sut = createIStrategoAppl(DummyStrategoConstructor.Dummy2, Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
 
             // Act
             String result = sut.toString();
@@ -201,7 +199,7 @@ public interface IStrategoApplTests extends IStrategoNamedTests {
         default void returnsTheCorrectStringRepresentation() throws IOException {
             // Arrange
             StringBuilder sb = new StringBuilder();
-            IStrategoAppl sut = createStrategoAppl(DummyStrategoConstructor.Dummy2, Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
+            IStrategoAppl sut = createIStrategoAppl(DummyStrategoConstructor.Dummy2, Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
 
             // Act
             sut.writeAsString(sb);

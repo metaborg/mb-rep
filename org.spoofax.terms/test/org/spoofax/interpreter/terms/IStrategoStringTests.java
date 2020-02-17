@@ -10,18 +10,17 @@ import java.io.IOException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.spoofax.TestBase.TEST_INSTANCE_NOT_CREATED;
+import static org.spoofax.TestUtils.TEST_INSTANCE_NOT_CREATED;
 
 
 /**
  * Tests the {@link IStrategoString} interface.
  */
 @SuppressWarnings("unused")
-@DisplayName("IStrategoString")
 public interface IStrategoStringTests extends IStrategoTermTests, IStrategoNamedTests {
 
     /**
-     * Creates a new instance of the {@link IStrategoString} for testing.
+     * Creates a new instance of {@link IStrategoString} for testing.
      *
      * @param value the value of the term; or {@code null} to use a sensible default
      * @param annotations the annotations of the term; or {@code null} to use a sensible default
@@ -29,20 +28,20 @@ public interface IStrategoStringTests extends IStrategoTermTests, IStrategoNamed
      * @return the created object
      * @throws TestAbortedException when an instance with the given parameters could not be created
      */
-    IStrategoString createStrategoString(@Nullable String value, @Nullable IStrategoList annotations,
-                                     @Nullable List<ITermAttachment> attachments);
+    IStrategoString createIStrategoString(@Nullable String value, @Nullable IStrategoList annotations,
+                                          @Nullable List<ITermAttachment> attachments);
 
     @Override
-    default IStrategoTerm createStrategoTerm(@Nullable List<IStrategoTerm> subterms,
-                                             @Nullable IStrategoList annotations,
-                                             @Nullable List<ITermAttachment> attachments) {
+    default IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms,
+                                              @Nullable IStrategoList annotations,
+                                              @Nullable List<ITermAttachment> attachments) {
         if (subterms != null && subterms.size() != 0) throw new TestAbortedException(TEST_INSTANCE_NOT_CREATED);
-        return createStrategoString(null, annotations, attachments);
+        return createIStrategoString(null, annotations, attachments);
     }
 
     @Override
-    default IStrategoNamed createStrategoNamed() {
-        return createStrategoString(null, null, null);
+    default IStrategoNamed createIStrategoNamed() {
+        return createIStrategoString(null, null, null);
     }
 
     /**
@@ -56,7 +55,7 @@ public interface IStrategoStringTests extends IStrategoTermTests, IStrategoNamed
         default void returnsTheValueOfTheTerm() {
             // Arrange
             String value = "abc";
-            IStrategoString sut = createStrategoString(value, null, null);
+            IStrategoString sut = createIStrategoString(value, null, null);
 
             // Act
             String result = sut.stringValue();
@@ -78,7 +77,7 @@ public interface IStrategoStringTests extends IStrategoTermTests, IStrategoNamed
         default void returnsANonEmptyStringAsTheName() {
             // Arrange
             String value = "abc";
-            IStrategoString sut = createStrategoString(value, null, null);
+            IStrategoString sut = createIStrategoString(value, null, null);
 
             // Act
             String result = sut.getName();
@@ -99,7 +98,7 @@ public interface IStrategoStringTests extends IStrategoTermTests, IStrategoNamed
         @DisplayName("returns the correct term type")
         default void returnsTheCorrectTermType() {
             // Arrange
-            IStrategoString sut = createStrategoString(null, null, null);
+            IStrategoString sut = createIStrategoString(null, null, null);
 
             // Act
             int result = sut.getTermType();
@@ -121,7 +120,7 @@ public interface IStrategoStringTests extends IStrategoTermTests, IStrategoNamed
         @DisplayName("alwaysReturnsZero")
         default void alwaysReturnsZero() {
             // Arrange
-            IStrategoTerm sut = createStrategoString(null, null, null);
+            IStrategoTerm sut = createIStrategoString(null, null, null);
 
             // Act
             int result = sut.getSubtermCount();
@@ -142,7 +141,7 @@ public interface IStrategoStringTests extends IStrategoTermTests, IStrategoNamed
         @DisplayName("always returns empty array")
         default void alwaysReturnsEmptyArray() {
             // Arrange
-            IStrategoTerm sut = createStrategoString(null, null, null);
+            IStrategoTerm sut = createIStrategoString(null, null, null);
 
             // Act
             IStrategoTerm[] result = sut.getAllSubterms();
@@ -165,8 +164,8 @@ public interface IStrategoStringTests extends IStrategoTermTests, IStrategoNamed
         @SuppressWarnings("StringOperationCanBeSimplified")
         default void whenBothHaveTheSameValue_returnsTrue() {
             // Arrange
-            IStrategoString sut = createStrategoString("abc", null, null);
-            IStrategoString other = createStrategoString(new String("abc"), null, null);
+            IStrategoString sut = createIStrategoString("abc", null, null);
+            IStrategoString other = createIStrategoString(new String("abc"), null, null);
 
             // Act
             boolean result = sut.match(other);
@@ -179,8 +178,8 @@ public interface IStrategoStringTests extends IStrategoTermTests, IStrategoNamed
         @DisplayName("when other has different value, returns false")
         default void whenOtherHasDifferentValue_returnsFalse() {
             // Arrange
-            IStrategoString sut = createStrategoString("abc", null, null);
-            IStrategoString other = createStrategoString("DEF", null, null);
+            IStrategoString sut = createIStrategoString("abc", null, null);
+            IStrategoString other = createIStrategoString("DEF", null, null);
 
             // Act
             boolean result = sut.match(other);
@@ -202,7 +201,7 @@ public interface IStrategoStringTests extends IStrategoTermTests, IStrategoNamed
         @DisplayName("returns the correct string representation")
         default void returnsTheCorrectStringRepresentation() {
             // Arrange
-            IStrategoString sut = createStrategoString("abc", null, null);
+            IStrategoString sut = createIStrategoString("abc", null, null);
 
             // Act
             String result = sut.toString();
@@ -224,7 +223,7 @@ public interface IStrategoStringTests extends IStrategoTermTests, IStrategoNamed
         default void returnsTheCorrectStringRepresentation() throws IOException {
             // Arrange
             StringBuilder sb = new StringBuilder();
-            IStrategoString sut = createStrategoString("abc", null, null);
+            IStrategoString sut = createIStrategoString("abc", null, null);
 
             // Act
             sut.writeAsString(sb);

@@ -12,18 +12,17 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
-import static org.spoofax.TestBase.TEST_INSTANCE_NOT_CREATED;
+import static org.spoofax.TestUtils.TEST_INSTANCE_NOT_CREATED;
 
 
 /**
  * Tests the {@link IStrategoInt} interface.
  */
 @SuppressWarnings("unused")
-@DisplayName("IStrategoInt")
 public interface IStrategoIntTests extends IStrategoTermTests {
 
     /**
-     * Creates a new instance of the {@link IStrategoInt} for testing.
+     * Creates a new instance of {@link IStrategoInt} for testing.
      *
      * @param value the value of the term; or {@code null} to use a sensible default
      * @param annotations the annotations of the term; or {@code null} to use a sensible default
@@ -31,13 +30,13 @@ public interface IStrategoIntTests extends IStrategoTermTests {
      * @return the created object
      * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
      */
-    IStrategoInt createStrategoInt(@Nullable Integer value, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
+    IStrategoInt createIStrategoInt(@Nullable Integer value, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
 
     @Override
-    default IStrategoTerm createStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations,
-                                             @Nullable List<ITermAttachment> attachments) {
+    default IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations,
+                                              @Nullable List<ITermAttachment> attachments) {
         if (subterms != null && subterms.size() != 0) throw new TestAbortedException(TEST_INSTANCE_NOT_CREATED);
-        return createStrategoInt(null, annotations, attachments);
+        return createIStrategoInt(null, annotations, attachments);
     }
 
     /**
@@ -51,7 +50,7 @@ public interface IStrategoIntTests extends IStrategoTermTests {
         default void returnsTheValueOfTheTerm() {
             // Arrange
             int value = 10;
-            IStrategoInt sut = createStrategoInt(value, null, null);
+            IStrategoInt sut = createIStrategoInt(value, null, null);
 
             // Act
             int result = sut.intValue();
@@ -72,7 +71,7 @@ public interface IStrategoIntTests extends IStrategoTermTests {
         @DisplayName("returns the correct term type")
         default void returnsTheCorrectTermType() {
             // Arrange
-            IStrategoInt sut = createStrategoInt(null, null, null);
+            IStrategoInt sut = createIStrategoInt(null, null, null);
 
             // Act
             int result = sut.getTermType();
@@ -94,7 +93,7 @@ public interface IStrategoIntTests extends IStrategoTermTests {
         @DisplayName("alwaysReturnsZero")
         default void alwaysReturnsZero() {
             // Arrange
-            IStrategoTerm sut = createStrategoInt(null, null, null);
+            IStrategoTerm sut = createIStrategoInt(null, null, null);
 
             // Act
             int result = sut.getSubtermCount();
@@ -115,7 +114,7 @@ public interface IStrategoIntTests extends IStrategoTermTests {
         @DisplayName("always returns empty array")
         default void alwaysReturnsEmptyArray() {
             // Arrange
-            IStrategoTerm sut = createStrategoInt(null, null, null);
+            IStrategoTerm sut = createIStrategoInt(null, null, null);
 
             // Act
             IStrategoTerm[] result = sut.getAllSubterms();
@@ -137,8 +136,8 @@ public interface IStrategoIntTests extends IStrategoTermTests {
         @DisplayName("when both have the same value, returns true")
         default void whenBothHaveTheSameValue_returnsTrue() {
             // Arrange
-            IStrategoInt sut = createStrategoInt(42, null, null);
-            IStrategoInt other = createStrategoInt(42, null, null);
+            IStrategoInt sut = createIStrategoInt(42, null, null);
+            IStrategoInt other = createIStrategoInt(42, null, null);
 
             // Act
             boolean result = sut.match(other);
@@ -151,8 +150,8 @@ public interface IStrategoIntTests extends IStrategoTermTests {
         @DisplayName("when other has different value, returns false")
         default void whenOtherHasDifferentValue_returnsFalse() {
             // Arrange
-            IStrategoInt sut = createStrategoInt(42, null, null);
-            IStrategoInt other = createStrategoInt(1337, null, null);
+            IStrategoInt sut = createIStrategoInt(42, null, null);
+            IStrategoInt other = createIStrategoInt(1337, null, null);
 
             // Act
             boolean result = sut.match(other);
@@ -174,7 +173,7 @@ public interface IStrategoIntTests extends IStrategoTermTests {
         @DisplayName("returns the correct string representation")
         default void returnsTheCorrectStringRepresentation() {
             // Arrange
-            IStrategoInt sut = createStrategoInt(42, null, null);
+            IStrategoInt sut = createIStrategoInt(42, null, null);
 
             // Act
             String result = sut.toString();
@@ -196,7 +195,7 @@ public interface IStrategoIntTests extends IStrategoTermTests {
         default void returnsTheCorrectStringRepresentation() throws IOException {
             // Arrange
             StringBuilder sb = new StringBuilder();
-            IStrategoInt sut = createStrategoInt(42, null, null);
+            IStrategoInt sut = createIStrategoInt(42, null, null);
 
             // Act
             sut.writeAsString(sb);

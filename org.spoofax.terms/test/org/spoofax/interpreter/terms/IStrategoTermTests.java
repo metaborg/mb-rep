@@ -19,25 +19,18 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
-import static org.spoofax.TestBase.TEST_INSTANCE_NOT_CREATED;
+import static org.spoofax.TestUtils.TEST_INSTANCE_NOT_CREATED;
+import static org.spoofax.TestUtils.getTermBuilder;
 
 
 /**
  * Tests the {@link IStrategoTerm} interface.
  */
 @SuppressWarnings({"CodeBlock2Expr", "Convert2MethodRef", "unused"})
-@DisplayName("IStrategoTerm")
 public interface IStrategoTermTests extends ISimpleTermTests {
 
     /**
-     * Gets a term builder.
-     *
-     * @return the term builder
-     */
-    IStrategoTermBuilder getTermBuilder();
-
-    /**
-     * Creates a new instance of the {@link IStrategoTerm} for testing.
+     * Creates a new instance of {@link IStrategoTerm} for testing.
      *
      * @param subterms the subterms of the term; or {@code null} to use a sensible default
      * @param annotations the annotations of the term; or {@code null} to use a sensible default
@@ -45,13 +38,13 @@ public interface IStrategoTermTests extends ISimpleTermTests {
      * @return the created object
      * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
      */
-    IStrategoTerm createStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
+    IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
 
     @Override
-    default ISimpleTerm createSimpleTerm(@Nullable List<ISimpleTerm> subterms, @Nullable List<ITermAttachment> attachments) {
+    default ISimpleTerm createISimpleTerm(@Nullable List<ISimpleTerm> subterms, @Nullable List<ITermAttachment> attachments) {
         try {
             List<IStrategoTerm> newSubterms = subterms != null ? subterms.stream().map(t -> (IStrategoTerm)t).collect(Collectors.toList()) : null;
-            return createStrategoTerm(newSubterms, TermFactory.EMPTY_LIST, attachments);
+            return createIStrategoTerm(newSubterms, TermFactory.EMPTY_LIST, attachments);
         } catch (ClassCastException e) {
             throw new TestAbortedException(TEST_INSTANCE_NOT_CREATED);
         }
@@ -68,7 +61,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
         default void returnsTheNumberOfSubterms() {
             // Arrange
             List<IStrategoTerm> subterms = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(), new DummyStrategoTerm());
-            IStrategoTerm sut = createStrategoTerm(subterms, null, null);
+            IStrategoTerm sut = createIStrategoTerm(subterms, null, null);
 
             // Act
             int result = sut.getSubtermCount();
@@ -81,7 +74,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
         @DisplayName("returns zero when the term has no subterms")
         default void returnsZeroWhenTheTermHasNoSubterms() {
             // Arrange
-            IStrategoTerm sut = createStrategoTerm(Collections.emptyList(), null, null);
+            IStrategoTerm sut = createIStrategoTerm(Collections.emptyList(), null, null);
 
             // Act
             int result = sut.getSubtermCount();
@@ -103,7 +96,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
         default void returnsTheSubtermAtTheSpecifiedIndex() {
             // Arrange
             List<IStrategoTerm> subterms = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(), new DummyStrategoTerm());
-            IStrategoTerm sut = createStrategoTerm(subterms, null, null);
+            IStrategoTerm sut = createIStrategoTerm(subterms, null, null);
 
             // Act
             IStrategoTerm result = sut.getSubterm(1);
@@ -116,7 +109,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
         @DisplayName("throws exception when below bounds")
         default void throwsExceptionWhenBelowBounds() {
             // Arrange
-            IStrategoTerm sut = createStrategoTerm(null,null, null);
+            IStrategoTerm sut = createIStrategoTerm(null,null, null);
 
             // Act/Assert
             assertThrows(IndexOutOfBoundsException.class, () -> {
@@ -128,7 +121,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
         @DisplayName("throws exception when above bounds of term without subterms")
         default void throwsExceptionWhenAboveBoundsOfTermWithoutSubterms() {
             // Arrange
-            IStrategoTerm sut = createStrategoTerm(Collections.emptyList(), null, null);
+            IStrategoTerm sut = createIStrategoTerm(Collections.emptyList(), null, null);
 
             // Act/Assert
             assertThrows(IndexOutOfBoundsException.class, () -> {
@@ -141,7 +134,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
         default void throwsExceptionWhenAboveBounds() {
             // Arrange
             List<IStrategoTerm> subterms = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(), new DummyStrategoTerm());
-            IStrategoTerm sut = createStrategoTerm(subterms, null, null);
+            IStrategoTerm sut = createIStrategoTerm(subterms, null, null);
 
             // Act/Assert
             assertThrows(IndexOutOfBoundsException.class, () -> {
@@ -161,7 +154,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
         @DisplayName("when it has no subterms, returns empty array")
         default void whenItHasNoSubterms_returnsEmptyArray() {
             // Arrange
-            IStrategoTerm sut = createStrategoTerm(Collections.emptyList(), null, null);
+            IStrategoTerm sut = createIStrategoTerm(Collections.emptyList(), null, null);
 
             // Act
             IStrategoTerm[] result = sut.getAllSubterms();
@@ -175,7 +168,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
         default void whenItHasSubterms_returnsEmptyArray() {
             // Arrange
             List<IStrategoTerm> subterms = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(), new DummyStrategoTerm());
-            IStrategoTerm sut = createStrategoTerm(subterms, null, null);
+            IStrategoTerm sut = createIStrategoTerm(subterms, null, null);
 
             // Act
             IStrategoTerm[] result = sut.getAllSubterms();
@@ -190,7 +183,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
         default void modificationsToReturnedArrayAreNotReflectedInTheTerm() {
             // Arrange
             List<IStrategoTerm> subterms = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(), new DummyStrategoTerm());
-            IStrategoTerm sut = createStrategoTerm(subterms, null, null);
+            IStrategoTerm sut = createIStrategoTerm(subterms, null, null);
 
             // Act
             DummyStrategoTerm replacement = new DummyStrategoTerm();
@@ -214,7 +207,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
         @DisplayName("returns a valid term type")
         default void returnsAValidTermType() {
             // Arrange
-            IStrategoTerm sut = createStrategoTerm(null, null, null);
+            IStrategoTerm sut = createIStrategoTerm(null, null, null);
 
             // Act
             int result = sut.getTermType();
@@ -248,7 +241,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
             // Arrange
             IStrategoList annotations = getTermBuilder().makeList(
                     new DummyStrategoTerm(), new DummyStrategoTerm(), new DummyStrategoTerm());
-            IStrategoTerm sut = createStrategoTerm(Collections.emptyList(), annotations, null);
+            IStrategoTerm sut = createIStrategoTerm(Collections.emptyList(), annotations, null);
 
             // Act
             IStrategoList result = sut.getAnnotations();
@@ -261,7 +254,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
         @DisplayName("when there are no annotations, returns an empty list")
         default void whenThereAreNoAnnotations_returnsAnEmptyList() {
             // Arrange
-            IStrategoTerm sut = createStrategoTerm(null, null, null);
+            IStrategoTerm sut = createIStrategoTerm(null, null, null);
 
             // Act
             IStrategoList result = sut.getAnnotations();
@@ -282,7 +275,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
         @DisplayName("when compared to itself (with children), returns true")
         default void whenComparedToItself_withChildren_returnsTrue() {
             // Arrange
-            IStrategoTerm sut = createStrategoTerm(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
+            IStrategoTerm sut = createIStrategoTerm(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
 
             // Act
             boolean result = sut.match(sut);
@@ -295,7 +288,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
         @DisplayName("when compared to itself (without children), returns true")
         default void whenComparedToItself_withoutChildren_returnsTrue() {
             // Arrange
-            IStrategoTerm sut = createStrategoTerm(Collections.emptyList(), null, null);
+            IStrategoTerm sut = createIStrategoTerm(Collections.emptyList(), null, null);
 
             // Act
             boolean result = sut.match(sut);
@@ -309,8 +302,8 @@ public interface IStrategoTermTests extends ISimpleTermTests {
         default void whenComparedToAnIdenticalCopy_returnsTrue() {
             // Arrange
             List<IStrategoTerm> subterms = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(), new DummyStrategoTerm());
-            IStrategoTerm sut = createStrategoTerm(subterms, null, null);
-            IStrategoTerm other = createStrategoTerm(subterms, null, null);
+            IStrategoTerm sut = createIStrategoTerm(subterms, null, null);
+            IStrategoTerm other = createIStrategoTerm(subterms, null, null);
 
             // Act
             boolean result = sut.match(other);
@@ -323,8 +316,8 @@ public interface IStrategoTermTests extends ISimpleTermTests {
         @DisplayName("when compared to a copy with different subterms, returns false")
         default void whenComparedToACopyWithDifferentSubterms_returnsFalse() {
             // Arrange
-            IStrategoTerm sut = createStrategoTerm(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
-            IStrategoTerm other = createStrategoTerm(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
+            IStrategoTerm sut = createIStrategoTerm(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
+            IStrategoTerm other = createIStrategoTerm(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
 
             // Act
             boolean result = sut.match(other);
@@ -339,8 +332,8 @@ public interface IStrategoTermTests extends ISimpleTermTests {
             // Arrange
             List<IStrategoTerm> subterms = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(),
                     new DummyStrategoTerm());
-            IStrategoTerm sut = createStrategoTerm(subterms, null, null);
-            IStrategoTerm other = createStrategoTerm(subterms.subList(0, 2), null, null);
+            IStrategoTerm sut = createIStrategoTerm(subterms, null, null);
+            IStrategoTerm other = createIStrategoTerm(subterms.subList(0, 2), null, null);
 
             // Act
             boolean result = sut.match(other);
@@ -353,7 +346,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
         @DisplayName("when compared to a different kind of term, returns false")
         default void whenComparedToADifferentKindOfTerm_returnsFalse() {
             // Arrange
-            IStrategoTerm sut = createStrategoTerm(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(),
+            IStrategoTerm sut = createIStrategoTerm(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(),
                     new DummyStrategoTerm()), null, null);
             IStrategoTerm other = new DummyStrategoTerm();
 
@@ -371,8 +364,8 @@ public interface IStrategoTermTests extends ISimpleTermTests {
             // Arrange
             IStrategoList annotations = getTermBuilder().makeList(
                     new DummyStrategoTerm(), new DummyStrategoTerm(), new DummyStrategoTerm());
-            IStrategoTerm sut = createStrategoTerm(Collections.emptyList(), annotations, null);
-            IStrategoTerm other = createStrategoTerm(Collections.emptyList(), annotations, null);
+            IStrategoTerm sut = createIStrategoTerm(Collections.emptyList(), annotations, null);
+            IStrategoTerm other = createIStrategoTerm(Collections.emptyList(), annotations, null);
 
             // Act
             boolean result = sut.match(other);
@@ -389,8 +382,8 @@ public interface IStrategoTermTests extends ISimpleTermTests {
                     new DummyStrategoTerm(), new DummyStrategoTerm(), new DummyStrategoTerm());
             IStrategoList annotations2 = getTermBuilder().makeList(
                     new DummyStrategoTerm(), new DummyStrategoTerm());
-            IStrategoTerm sut = createStrategoTerm(Collections.emptyList(), annotations1, null);
-            IStrategoTerm other = createStrategoTerm(Collections.emptyList(), annotations2, null);
+            IStrategoTerm sut = createIStrategoTerm(Collections.emptyList(), annotations1, null);
+            IStrategoTerm other = createIStrategoTerm(Collections.emptyList(), annotations2, null);
 
             // Act
             boolean result = sut.match(other);
@@ -412,7 +405,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
         @DisplayName("returns a non-empty string")
         default void returnsANonEmptyString() {
             // Arrange
-            IStrategoTerm sut = createStrategoTerm(null, null, null);
+            IStrategoTerm sut = createIStrategoTerm(null, null, null);
 
             // Act
             String result = sut.toString();
@@ -425,7 +418,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
         @DisplayName("when depth is zero, returns a non-empty string")
         default void whenDepthIsZero_returnsANonEmptyString() {
             // Arrange
-            IStrategoTerm sut = createStrategoTerm(null, null, null);
+            IStrategoTerm sut = createIStrategoTerm(null, null, null);
 
             // Act
             String result = sut.toString(0);
@@ -447,7 +440,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
         @DisplayName("writes a non-empty string")
         default void writesANonEmptyString() throws IOException {
             // Arrange
-            IStrategoTerm sut = createStrategoTerm(null, null, null);
+            IStrategoTerm sut = createIStrategoTerm(null, null, null);
             StringBuilder sb = new StringBuilder();
 
             // Act
@@ -461,7 +454,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
         @DisplayName("when depth is zero, writes a non-empty string")
         default void whenDepthIsZero_writesANonEmptyString() throws IOException {
             // Arrange
-            IStrategoTerm sut = createStrategoTerm(null, null, null);
+            IStrategoTerm sut = createIStrategoTerm(null, null, null);
             StringBuilder sb = new StringBuilder();
 
             // Act

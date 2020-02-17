@@ -11,18 +11,17 @@ import java.io.IOException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.spoofax.TestBase.TEST_INSTANCE_NOT_CREATED;
+import static org.spoofax.TestUtils.TEST_INSTANCE_NOT_CREATED;
 
 
 /**
  * Tests the {@link IStrategoReal} interface.
  */
 @SuppressWarnings("unused")
-@DisplayName("IStrategoReal")
 public interface IStrategoRealTests extends IStrategoTermTests {
 
     /**
-     * Creates a new instance of the {@link IStrategoReal} for testing.
+     * Creates a new instance of {@link IStrategoReal} for testing.
      *
      * @param value the value of the term; or {@code null} to use a sensible default
      * @param annotations the annotations of the term; or {@code null} to use a sensible default
@@ -30,15 +29,15 @@ public interface IStrategoRealTests extends IStrategoTermTests {
      * @return the created object
      * @throws TestAbortedException when an instance with the given parameters could not be created
      */
-    IStrategoReal createStrategoReal(@Nullable Double value, @Nullable IStrategoList annotations,
-                                   @Nullable List<ITermAttachment> attachments);
+    IStrategoReal createIStrategoReal(@Nullable Double value, @Nullable IStrategoList annotations,
+                                      @Nullable List<ITermAttachment> attachments);
 
     @Override
-    default IStrategoTerm createStrategoTerm(@Nullable List<IStrategoTerm> subterms,
-                                             @Nullable IStrategoList annotations,
-                                             @Nullable List<ITermAttachment> attachments) {
+    default IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms,
+                                              @Nullable IStrategoList annotations,
+                                              @Nullable List<ITermAttachment> attachments) {
         if (subterms != null && subterms.size() != 0) throw new TestAbortedException(TEST_INSTANCE_NOT_CREATED);
-        return createStrategoReal(null, annotations, attachments);
+        return createIStrategoReal(null, annotations, attachments);
     }
 
     /**
@@ -52,7 +51,7 @@ public interface IStrategoRealTests extends IStrategoTermTests {
         default void returnsTheValueOfTheTerm() {
             // Arrange
             double value = 10.2;
-            IStrategoReal sut = createStrategoReal(value, null, null);
+            IStrategoReal sut = createIStrategoReal(value, null, null);
 
             // Act
             double result = sut.realValue();
@@ -73,7 +72,7 @@ public interface IStrategoRealTests extends IStrategoTermTests {
         @DisplayName("returns the correct term type")
         default void returnsTheCorrectTermType() {
             // Arrange
-            IStrategoReal sut = createStrategoReal(null, null, null);
+            IStrategoReal sut = createIStrategoReal(null, null, null);
 
             // Act
             int result = sut.getTermType();
@@ -95,7 +94,7 @@ public interface IStrategoRealTests extends IStrategoTermTests {
         @DisplayName("alwaysReturnsZero")
         default void alwaysReturnsZero() {
             // Arrange
-            IStrategoTerm sut = createStrategoReal(null, null, null);
+            IStrategoTerm sut = createIStrategoReal(null, null, null);
 
             // Act
             int result = sut.getSubtermCount();
@@ -116,7 +115,7 @@ public interface IStrategoRealTests extends IStrategoTermTests {
         @DisplayName("always returns empty array")
         default void alwaysReturnsEmptyArray() {
             // Arrange
-            IStrategoTerm sut = createStrategoReal(null, null, null);
+            IStrategoTerm sut = createIStrategoReal(null, null, null);
 
             // Act
             IStrategoTerm[] result = sut.getAllSubterms();
@@ -138,8 +137,8 @@ public interface IStrategoRealTests extends IStrategoTermTests {
         @DisplayName("when both have the same value, returns true")
         default void whenBothHaveTheSameValue_returnsTrue() {
             // Arrange
-            IStrategoReal sut = createStrategoReal(13.37, null, null);
-            IStrategoReal other = createStrategoReal(13.37, null, null);
+            IStrategoReal sut = createIStrategoReal(13.37, null, null);
+            IStrategoReal other = createIStrategoReal(13.37, null, null);
 
             // Act
             boolean result = sut.match(other);
@@ -152,8 +151,8 @@ public interface IStrategoRealTests extends IStrategoTermTests {
         @DisplayName("when other has different value, returns false")
         default void whenOtherHasDifferentValue_returnsFalse() {
             // Arrange
-            IStrategoReal sut = createStrategoReal(4.2, null, null);
-            IStrategoReal other = createStrategoReal(13.37, null, null);
+            IStrategoReal sut = createIStrategoReal(4.2, null, null);
+            IStrategoReal other = createIStrategoReal(13.37, null, null);
 
             // Act
             boolean result = sut.match(other);
@@ -175,7 +174,7 @@ public interface IStrategoRealTests extends IStrategoTermTests {
         @DisplayName("returns the correct string representation")
         default void returnsTheCorrectStringRepresentation() {
             // Arrange
-            IStrategoReal sut = createStrategoReal(4.2, null, null);
+            IStrategoReal sut = createIStrategoReal(4.2, null, null);
 
             // Act
             String result = sut.toString();
@@ -197,7 +196,7 @@ public interface IStrategoRealTests extends IStrategoTermTests {
         default void returnsTheCorrectStringRepresentation() throws IOException {
             // Arrange
             StringBuilder sb = new StringBuilder();
-            IStrategoReal sut = createStrategoReal(4.2, null, null);
+            IStrategoReal sut = createIStrategoReal(4.2, null, null);
 
             // Act
             sut.writeAsString(sb);

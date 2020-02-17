@@ -4,24 +4,22 @@ import org.spoofax.interpreter.terms.IStrategoTermBuilder;
 import org.spoofax.terms.TermFactory;
 
 import javax.annotation.Nullable;
-
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
-
 
 /**
- * Base class for term tests.
+ * Utility methods for tests.
  */
-public abstract class TestBase {
+public final class TestUtils {
 
     public static final String TEST_INSTANCE_NOT_CREATED = "A test instance with the given parameters could not be created.";
 
-    public IStrategoTermBuilder getTermBuilder() {
-        return new TermFactory();
+    private static final TermFactory termFactory = new TermFactory();
+
+    public static IStrategoTermBuilder getTermBuilder() {
+        return termFactory;
     }
 
     /**

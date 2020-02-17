@@ -12,44 +12,24 @@ import org.spoofax.terms.attachments.ITermAttachment;
 import javax.annotation.Nullable;
 import java.util.List;
 
+import static org.spoofax.TestUtils.TEST_INSTANCE_NOT_CREATED;
+
 
 /**
  * Tests the {@link StrategoConstructor} class.
  */
-@DisplayName("StrategoConstructor")
-public class StrategoConstructorTests extends StrategoTermTests implements IStrategoConstructorTests {
+public interface StrategoConstructorTests extends IStrategoConstructorTests {
 
-    @Override
-    public IStrategoConstructor createStrategoConstructor(@Nullable String name, @Nullable Integer arity, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments) {
-        if (annotations != null && !annotations.isEmpty())  throw new TestAbortedException(TEST_INSTANCE_NOT_CREATED);
-        return TermUtil.putAttachments(new StrategoConstructor(
-                    name != null ? name : "Dummy",
-                    arity != null ? arity : 0
-                ), attachments);
-    }
-
-    @Override
-    public IStrategoTerm createStrategoTerm(@Nullable List<IStrategoTerm> subterms,
-                                            @Nullable IStrategoList annotations,
-                                            @Nullable List<ITermAttachment> attachments) {
-        if (subterms != null && subterms.size() != 0)  throw new TestAbortedException(TEST_INSTANCE_NOT_CREATED);
-        return createStrategoConstructor(null, null, annotations, attachments);
-    }
-
-    // @formatter:off
-    static class GetAllSubtermTests     extends StrategoConstructorTests implements IStrategoConstructorTests.GetAllSubtermTests {}
-    static class GetAnnotationsTests    extends StrategoConstructorTests implements IStrategoConstructorTests.GetAnnotationsTests {}
-    static class GetArityTests          extends StrategoConstructorTests implements IStrategoConstructorTests.GetArityTests {}
-    static class GetAttachmentTests     extends StrategoConstructorTests implements IStrategoConstructorTests.GetAttachmentTests {}
-    static class GetNameTests           extends StrategoConstructorTests implements IStrategoConstructorTests.GetNameTests {}
-    static class GetSubtermCountTests   extends StrategoConstructorTests implements IStrategoConstructorTests.GetSubtermCountTests {}
-    static class GetSubtermTests        extends StrategoConstructorTests implements IStrategoConstructorTests.GetSubtermTests {}
-    static class GetTermTypeTests       extends StrategoConstructorTests implements IStrategoConstructorTests.GetTermTypeTests {}
-    static class MatchTests             extends StrategoConstructorTests implements IStrategoConstructorTests.MatchTests {}
-    static class PutAttachmentTests     extends StrategoConstructorTests implements IStrategoConstructorTests.PutAttachmentTests {}
-    static class RemoveAttachmentTests  extends StrategoConstructorTests implements IStrategoConstructorTests.RemoveAttachmentTests {}
-    static class ToStringTests          extends StrategoConstructorTests implements IStrategoConstructorTests.ToStringTests {}
-    static class WriteAsStringTests     extends StrategoConstructorTests implements IStrategoConstructorTests.WriteAsStringTests {}
-    // @formatter:on
+    /**
+     * Creates a new instance of {@link StrategoConstructor} for testing.
+     *
+     * @param name the constructor name; or {@code null} to use a sensible default
+     * @param arity the constructor arity; or {@code null} to use a sensible default
+     * @param annotations the annotations of the term; or {@code null} to use a sensible default
+     * @param attachments the attachments of the term; or {@code null} to use a sensible default
+     * @return the created object
+     * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
+     */
+    StrategoConstructor createStrategoConstructor(@Nullable String name, @Nullable Integer arity, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
 
 }

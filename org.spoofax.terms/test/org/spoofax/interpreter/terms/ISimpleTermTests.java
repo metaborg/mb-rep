@@ -2,7 +2,6 @@ package org.spoofax.interpreter.terms;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.opentest4j.TestAbortedException;
 import org.spoofax.DummySimpleTerm;
 import org.spoofax.DummyTermAttachment;
 import org.spoofax.terms.attachments.ITermAttachment;
@@ -15,25 +14,23 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
-import static org.spoofax.TestBase.TEST_INSTANCE_NOT_CREATED;
 
 
 /**
  * Tests the {@link ISimpleTerm} interface.
  */
 @SuppressWarnings({"unused", "CodeBlock2Expr"})
-@DisplayName("ISimpleTerm")
 public interface ISimpleTermTests {
 
     /**
-     * Creates a new instance of the {@link ISimpleTerm} for testing.
+     * Creates a new instance of {@link ISimpleTerm} for testing.
      *
      * @param subterms the subterms of the term; or {@code null} to use a sensible default
      * @param attachments the attachments of the term; or {@code null} to use a sensible default
      * @return the created object
      * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
      */
-    ISimpleTerm createSimpleTerm(@Nullable List<ISimpleTerm> subterms, @Nullable List<ITermAttachment> attachments);
+    ISimpleTerm createISimpleTerm(@Nullable List<ISimpleTerm> subterms, @Nullable List<ITermAttachment> attachments);
 
     /**
      * Tests the {@link ISimpleTerm#getSubtermCount()} method.
@@ -46,7 +43,7 @@ public interface ISimpleTermTests {
         default void returnsTheNumberOfSubterms() {
             // Arrange
             List<ISimpleTerm> subterms = Arrays.asList(new DummySimpleTerm(), new DummySimpleTerm(), new DummySimpleTerm());
-            ISimpleTerm sut = createSimpleTerm(subterms, null);
+            ISimpleTerm sut = createISimpleTerm(subterms, null);
 
             // Act
             int result = sut.getSubtermCount();
@@ -59,7 +56,7 @@ public interface ISimpleTermTests {
         @DisplayName("returns zero when the term has no subterms")
         default void returnsZeroWhenTheTermHasNoSubterms() {
             // Arrange
-            ISimpleTerm sut = createSimpleTerm(Collections.emptyList(), null);
+            ISimpleTerm sut = createISimpleTerm(Collections.emptyList(), null);
 
             // Act
             int result = sut.getSubtermCount();
@@ -81,7 +78,7 @@ public interface ISimpleTermTests {
         default void returnsTheSubtermAtTheSpecifiedIndex() {
             // Arrange
             List<ISimpleTerm> subterms = Arrays.asList(new DummySimpleTerm(), new DummySimpleTerm(), new DummySimpleTerm());
-            ISimpleTerm sut = createSimpleTerm(subterms, null);
+            ISimpleTerm sut = createISimpleTerm(subterms, null);
 
             // Act
             ISimpleTerm result = sut.getSubterm(1);
@@ -94,7 +91,7 @@ public interface ISimpleTermTests {
         @DisplayName("throws exception when below bounds")
         default void throwsExceptionWhenBelowBounds() {
             // Arrange
-            ISimpleTerm sut = createSimpleTerm(Collections.emptyList(), null);
+            ISimpleTerm sut = createISimpleTerm(Collections.emptyList(), null);
 
             // Act/Assert
             assertThrows(IndexOutOfBoundsException.class, () -> {
@@ -106,7 +103,7 @@ public interface ISimpleTermTests {
         @DisplayName("throws exception when above bounds of term without subterms")
         default void throwsExceptionWhenAboveBoundsOfTermWithoutSubterms() {
             // Arrange
-            ISimpleTerm sut = createSimpleTerm(Collections.emptyList(), null);
+            ISimpleTerm sut = createISimpleTerm(Collections.emptyList(), null);
 
             // Act/Assert
             assertThrows(IndexOutOfBoundsException.class, () -> {
@@ -119,7 +116,7 @@ public interface ISimpleTermTests {
         default void throwsExceptionWhenAboveBounds() {
             // Arrange
             List<ISimpleTerm> subterms = Arrays.asList(new DummySimpleTerm(), new DummySimpleTerm(), new DummySimpleTerm());
-            ISimpleTerm sut = createSimpleTerm(subterms, null);
+            ISimpleTerm sut = createISimpleTerm(subterms, null);
 
             // Act/Assert
             assertThrows(IndexOutOfBoundsException.class, () -> {
@@ -139,7 +136,7 @@ public interface ISimpleTermTests {
         @DisplayName("when getting the first attachment, returns null when the term has no attachments")
         default void whenGettingTheFirstAttachment_returnsNullWhenTheTermHasNoAttachments() {
             // Arrange
-            ISimpleTerm sut = createSimpleTerm(null, Collections.emptyList());
+            ISimpleTerm sut = createISimpleTerm(null, Collections.emptyList());
 
             // Act
             ITermAttachment result = sut.getAttachment(null);
@@ -157,7 +154,7 @@ public interface ISimpleTermTests {
                     new DummyTermAttachment(DummyTermAttachment.Type2),
                     new DummyTermAttachment(DummyTermAttachment.Type3)
             );
-            ISimpleTerm sut = createSimpleTerm(null, attachments);
+            ISimpleTerm sut = createISimpleTerm(null, attachments);
 
             // Act
             ITermAttachment result = sut.getAttachment(null);
@@ -175,7 +172,7 @@ public interface ISimpleTermTests {
                     new DummyTermAttachment(DummyTermAttachment.Type2),
                     new DummyTermAttachment(DummyTermAttachment.Type3)
             );
-            ISimpleTerm sut = createSimpleTerm(null, attachments);
+            ISimpleTerm sut = createISimpleTerm(null, attachments);
 
             // Act
             ITermAttachment result = sut.getAttachment(DummyTermAttachment.Type2);
@@ -193,7 +190,7 @@ public interface ISimpleTermTests {
                     new DummyTermAttachment(DummyTermAttachment.Type2),
                     new DummyTermAttachment(DummyTermAttachment.Type3)
             );
-            ISimpleTerm sut = createSimpleTerm(null, attachments);
+            ISimpleTerm sut = createISimpleTerm(null, attachments);
 
             // Act
             ITermAttachment result = sut.getAttachment(DummyTermAttachment.Type4);
@@ -219,7 +216,7 @@ public interface ISimpleTermTests {
                     new DummyTermAttachment(DummyTermAttachment.Type2),
                     new DummyTermAttachment(DummyTermAttachment.Type3)
             );
-            ISimpleTerm sut = createSimpleTerm(Collections.emptyList(), attachments);
+            ISimpleTerm sut = createISimpleTerm(Collections.emptyList(), attachments);
             DummyTermAttachment replacement = new DummyTermAttachment(DummyTermAttachment.Type2);
 
             // Act
@@ -239,7 +236,7 @@ public interface ISimpleTermTests {
                     new DummyTermAttachment(DummyTermAttachment.Type2),
                     new DummyTermAttachment(DummyTermAttachment.Type3)
             );
-            ISimpleTerm sut = createSimpleTerm(Collections.emptyList(), attachments);
+            ISimpleTerm sut = createISimpleTerm(Collections.emptyList(), attachments);
             DummyTermAttachment addition = new DummyTermAttachment(DummyTermAttachment.Type4);
 
             // Act
@@ -267,7 +264,7 @@ public interface ISimpleTermTests {
                     new DummyTermAttachment(DummyTermAttachment.Type2),
                     new DummyTermAttachment(DummyTermAttachment.Type3)
             );
-            ISimpleTerm sut = createSimpleTerm(Collections.emptyList(), attachments);
+            ISimpleTerm sut = createISimpleTerm(Collections.emptyList(), attachments);
 
             // Act
             ITermAttachment removed = sut.removeAttachment(DummyTermAttachment.Type2);
@@ -285,7 +282,7 @@ public interface ISimpleTermTests {
                     new DummyTermAttachment(DummyTermAttachment.Type2),
                     new DummyTermAttachment(DummyTermAttachment.Type3)
             );
-            ISimpleTerm sut = createSimpleTerm(Collections.emptyList(), attachments);
+            ISimpleTerm sut = createISimpleTerm(Collections.emptyList(), attachments);
 
             // Act
             ITermAttachment removed = sut.removeAttachment(DummyTermAttachment.Type4);

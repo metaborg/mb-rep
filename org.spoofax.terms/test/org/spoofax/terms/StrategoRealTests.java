@@ -12,42 +12,22 @@ import org.spoofax.terms.attachments.ITermAttachment;
 import javax.annotation.Nullable;
 import java.util.List;
 
+import static org.spoofax.TestUtils.TEST_INSTANCE_NOT_CREATED;
+
 
 /**
  * Tests the {@link StrategoReal} class.
  */
-@DisplayName("StrategoReal")
-public class StrategoRealTests extends StrategoTermTests implements IStrategoRealTests {
+public interface StrategoRealTests extends IStrategoRealTests {
 
-    @Override
-    public IStrategoReal createStrategoReal(@Nullable Double value, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments) {
-        return TermUtil.putAttachments(new StrategoReal(
-                    value != null ? value : 4.2,
-                    annotations != null ? annotations : TermFactory.EMPTY_LIST
-                ), attachments);
-    }
-
-    @Override
-    public IStrategoTerm createStrategoTerm(@Nullable List<IStrategoTerm> subterms,
-                                            @Nullable IStrategoList annotations,
-                                            @Nullable List<ITermAttachment> attachments) {
-        if (subterms != null && subterms.size() != 0) throw new TestAbortedException(TEST_INSTANCE_NOT_CREATED);
-        return createStrategoReal(null, annotations, attachments);
-    }
-
-    // @formatter:off
-    static class GetAllSubtermTests     extends StrategoRealTests implements IStrategoRealTests.GetAllSubtermTests {}
-    static class GetAnnotationsTests    extends StrategoRealTests implements IStrategoRealTests.GetAnnotationsTests {}
-    static class GetAttachmentTests     extends StrategoRealTests implements IStrategoRealTests.GetAttachmentTests {}
-    static class GetSubtermCountTests   extends StrategoRealTests implements IStrategoRealTests.GetSubtermCountTests {}
-    static class GetSubtermTests        extends StrategoRealTests implements IStrategoRealTests.GetSubtermTests {}
-    static class GetTermTypeTests       extends StrategoRealTests implements IStrategoRealTests.GetTermTypeTests {}
-    static class RealValueTests         extends StrategoRealTests implements IStrategoRealTests.RealValueTests {}
-    static class MatchTests             extends StrategoRealTests implements IStrategoRealTests.MatchTests {}
-    static class PutAttachmentTests     extends StrategoRealTests implements IStrategoRealTests.PutAttachmentTests {}
-    static class RemoveAttachmentTests  extends StrategoRealTests implements IStrategoRealTests.RemoveAttachmentTests {}
-    static class ToStringTests          extends StrategoRealTests implements IStrategoRealTests.ToStringTests {}
-    static class WriteAsStringTests     extends StrategoRealTests implements IStrategoRealTests.WriteAsStringTests {}
-    // @formatter:on
-
+    /**
+     * Creates a new instance of {@link StrategoReal} for testing.
+     *
+     * @param value the value of the term; or {@code null} to use a sensible default
+     * @param annotations the annotations of the term; or {@code null} to use a sensible default
+     * @param attachments the attachments of the term; or {@code null} to use a sensible default
+     * @return the created object
+     * @throws TestAbortedException when an instance with the given parameters could not be created
+     */
+    StrategoReal createStrategoReal(@Nullable Double value, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
 }
