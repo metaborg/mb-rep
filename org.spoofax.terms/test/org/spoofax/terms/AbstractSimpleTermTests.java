@@ -13,6 +13,7 @@ import java.util.List;
 /**
  * Tests the {@link AbstractSimpleTerm} abstract class.
  */
+@DisplayName("AbstractSimpleTerm")
 public interface AbstractSimpleTermTests {
 
     public interface Fixture extends ISimpleTermTests.Fixture {

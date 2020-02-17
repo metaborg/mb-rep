@@ -1,5 +1,6 @@
 package org.spoofax.terms;
 
+import org.junit.jupiter.api.DisplayName;
 import org.spoofax.interpreter.terms.*;
 import org.spoofax.terms.attachments.ITermAttachment;
 
@@ -13,6 +14,7 @@ import static org.spoofax.TestUtils.tryCastAll;
 /**
  * Tests the {@link StrategoTerm} class.
  */
+@DisplayName("StrategoTerm")
 public class StrategoTermTests {
 
     public interface Fixture extends IStrategoTermTests.Fixture {

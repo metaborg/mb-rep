@@ -1,5 +1,6 @@
 package org.spoofax.terms;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.spoofax.DummyStrategoTerm;
 import org.spoofax.TermUtil;
@@ -13,6 +14,7 @@ import java.util.List;
 /**
  * Tests the {@link StrategoList} class.
  */
+@DisplayName("StrategoList")
 public class StrategoListTests {
 
 

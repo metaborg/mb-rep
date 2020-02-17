@@ -1,5 +1,6 @@
 package org.spoofax.terms;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.spoofax.DummyStrategoTerm;
 import org.spoofax.TermUtil;
@@ -15,6 +16,7 @@ import static org.spoofax.TestUtils.getTermBuilder;
 /**
  * Tests the {@link StrategoPlaceholder} class.
  */
+@DisplayName("StrategoPlaceholder")
 public class StrategoPlaceholderTests {
 
     public interface Fixture extends IStrategoPlaceholderTests.Fixture {

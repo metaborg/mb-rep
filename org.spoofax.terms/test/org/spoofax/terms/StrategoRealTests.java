@@ -1,5 +1,6 @@
 package org.spoofax.terms;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.opentest4j.TestAbortedException;
 import org.spoofax.TermUtil;
@@ -15,6 +16,7 @@ import static org.spoofax.TestUtils.TEST_INSTANCE_NOT_CREATED;
 /**
  * Tests the {@link StrategoReal} class.
  */
+@DisplayName("StrategoReal")
 public class StrategoRealTests {
 
     public interface Fixture extends IStrategoRealTests.Fixture {
