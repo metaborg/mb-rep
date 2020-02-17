@@ -19,32 +19,36 @@ import static org.junit.jupiter.api.Assertions.*;
  * Tests the {@link IStrategoTuple} interface.
  */
 @SuppressWarnings({"CodeBlock2Expr", "Convert2MethodRef", "unused"})
-public interface IStrategoTupleTests extends IStrategoTermTests {
+public interface IStrategoTupleTests {
 
-    /**
-     * Creates a new instance of {@link IStrategoTuple} for testing.
-     *
-     * @param elements the elements of the tuple; or {@code null} to use a sensible default
-     * @param annotations the annotations of the term; or {@code null} to use a sensible default
-     * @param attachments the attachments of the term; or {@code null} to use a sensible default
-     * @return the created object
-     * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
-     */
-    IStrategoTuple createIStrategoTuple(@Nullable List<IStrategoTerm> elements,
-                                        @Nullable IStrategoList annotations,
-                                        @Nullable List<ITermAttachment> attachments);
+    interface Fixture extends IStrategoTermTests.Fixture {
 
-    @Override
-    default IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations,
-                                              @Nullable List<ITermAttachment> attachments) {
-        return createIStrategoTuple(subterms, annotations, attachments);
+        /**
+         * Creates a new instance of {@link IStrategoTuple} for testing.
+         *
+         * @param elements    the elements of the tuple; or {@code null} to use a sensible default
+         * @param annotations the annotations of the term; or {@code null} to use a sensible default
+         * @param attachments the attachments of the term; or {@code null} to use a sensible default
+         * @return the created object
+         * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
+         */
+        IStrategoTuple createIStrategoTuple(@Nullable List<IStrategoTerm> elements,
+                                            @Nullable IStrategoList annotations,
+                                            @Nullable List<ITermAttachment> attachments);
+
+        @Override
+        default IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations,
+                                                  @Nullable List<ITermAttachment> attachments) {
+            return createIStrategoTuple(subterms, annotations, attachments);
+        }
+
     }
 
     /**
      * Tests the {@link IStrategoTuple#size()} method.
      */
     @DisplayName("size()")
-    interface SizeTests extends IStrategoTupleTests {
+    interface SizeTests extends Fixture {
 
         @Test
         @DisplayName("when the tuple is empty, returns zero")
@@ -80,7 +84,7 @@ public interface IStrategoTupleTests extends IStrategoTermTests {
      * Tests the {@link IStrategoTuple#get(int)} method.
      */
     @DisplayName("get(int)")
-    interface GetTests extends IStrategoTupleTests {
+    interface GetTests extends Fixture {
 
         @Test
         @DisplayName("returns the subterm at the specified index")
@@ -140,7 +144,7 @@ public interface IStrategoTupleTests extends IStrategoTermTests {
      * Tests the {@link IStrategoTuple#getTermType()} method.
      */
     @DisplayName("getTermType()")
-    interface GetTermTypeTests extends IStrategoTupleTests, IStrategoTermTests.GetTermTypeTests {
+    interface GetTermTypeTests extends Fixture, IStrategoTermTests.GetTermTypeTests {
 
         @Test
         @DisplayName("returns the correct term type")
@@ -161,7 +165,7 @@ public interface IStrategoTupleTests extends IStrategoTermTests {
      * Tests the {@link IStrategoTuple#match(IStrategoTerm)} method.
      */
     @DisplayName("match(IStrategoTerm)")
-    interface MatchTests extends IStrategoTupleTests, IStrategoTermTests.MatchTests {
+    interface MatchTests extends Fixture, IStrategoTermTests.MatchTests {
 
         @Test
         @DisplayName("when both are empty tuples, returns true")
@@ -241,7 +245,7 @@ public interface IStrategoTupleTests extends IStrategoTermTests {
      * Tests the {@link IStrategoInt#toString(int)} and {@link IStrategoInt#toString()} methods.
      */
     @DisplayName("toString(..)")
-    interface ToStringTests extends IStrategoTupleTests, IStrategoTermTests.ToStringTests {
+    interface ToStringTests extends Fixture, IStrategoTermTests.ToStringTests {
 
         @Test
         @DisplayName("returns the correct string representation")
@@ -262,7 +266,7 @@ public interface IStrategoTupleTests extends IStrategoTermTests {
      * Tests the {@link IStrategoInt#writeAsString(Appendable, int)} and {@link IStrategoInt#writeAsString(Appendable)} methods.
      */
     @DisplayName("writeAsString(..)")
-    interface WriteAsStringTests extends IStrategoTupleTests, IStrategoTermTests.WriteAsStringTests {
+    interface WriteAsStringTests extends Fixture, IStrategoTermTests.WriteAsStringTests {
 
         @Test
         @DisplayName("returns the correct string representation")

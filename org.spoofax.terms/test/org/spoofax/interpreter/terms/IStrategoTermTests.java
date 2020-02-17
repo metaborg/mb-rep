@@ -27,26 +27,29 @@ import static org.spoofax.TestUtils.getTermBuilder;
  * Tests the {@link IStrategoTerm} interface.
  */
 @SuppressWarnings({"CodeBlock2Expr", "Convert2MethodRef", "unused"})
-public interface IStrategoTermTests extends ISimpleTermTests {
+public interface IStrategoTermTests {
 
-    /**
-     * Creates a new instance of {@link IStrategoTerm} for testing.
-     *
-     * @param subterms the subterms of the term; or {@code null} to use a sensible default
-     * @param annotations the annotations of the term; or {@code null} to use a sensible default
-     * @param attachments the attachments of the term; or {@code null} to use a sensible default
-     * @return the created object
-     * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
-     */
-    IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
+    interface Fixture extends ISimpleTermTests.Fixture {
 
-    @Override
-    default ISimpleTerm createISimpleTerm(@Nullable List<ISimpleTerm> subterms, @Nullable List<ITermAttachment> attachments) {
-        try {
-            List<IStrategoTerm> newSubterms = subterms != null ? subterms.stream().map(t -> (IStrategoTerm)t).collect(Collectors.toList()) : null;
-            return createIStrategoTerm(newSubterms, TermFactory.EMPTY_LIST, attachments);
-        } catch (ClassCastException e) {
-            throw new TestAbortedException(TEST_INSTANCE_NOT_CREATED);
+        /**
+         * Creates a new instance of {@link IStrategoTerm} for testing.
+         *
+         * @param subterms    the subterms of the term; or {@code null} to use a sensible default
+         * @param annotations the annotations of the term; or {@code null} to use a sensible default
+         * @param attachments the attachments of the term; or {@code null} to use a sensible default
+         * @return the created object
+         * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
+         */
+        IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
+
+        @Override
+        default ISimpleTerm createISimpleTerm(@Nullable List<ISimpleTerm> subterms, @Nullable List<ITermAttachment> attachments) {
+            try {
+                List<IStrategoTerm> newSubterms = subterms != null ? subterms.stream().map(t -> (IStrategoTerm)t).collect(Collectors.toList()) : null;
+                return createIStrategoTerm(newSubterms, TermFactory.EMPTY_LIST, attachments);
+            } catch (ClassCastException e) {
+                throw new TestAbortedException(TEST_INSTANCE_NOT_CREATED);
+            }
         }
     }
 
@@ -54,7 +57,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
      * Tests the {@link IStrategoTerm#getSubtermCount()} method.
      */
     @DisplayName("getSubtermCount()")
-    interface GetSubtermCountTests extends IStrategoTermTests {
+    interface GetSubtermCountTests extends Fixture {
 
         @Test
         @DisplayName("returns the number of subterms")
@@ -89,7 +92,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
      * Tests the {@link IStrategoTerm#getSubterm(int)} method.
      */
     @DisplayName("getSubterm(int)")
-    interface GetSubtermTests extends IStrategoTermTests {
+    interface GetSubtermTests extends Fixture {
 
         @Test
         @DisplayName("returns the subterm at the specified index")
@@ -148,7 +151,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
      * Tests the {@link IStrategoTerm#getAllSubterms()} method.
      */
     @DisplayName("getAllSubterms(int)")
-    interface GetAllSubtermTests extends IStrategoTermTests {
+    interface GetAllSubtermTests extends Fixture {
 
         @Test
         @DisplayName("when it has no subterms, returns empty array")
@@ -201,7 +204,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
      * Tests the {@link IStrategoTerm#getTermType()} method.
      */
     @DisplayName("getTermType()")
-    interface GetTermTypeTests extends IStrategoTermTests {
+    interface GetTermTypeTests extends Fixture {
 
         @Test
         @DisplayName("returns a valid term type")
@@ -233,7 +236,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
      * Tests the {@link IStrategoTerm#getAnnotations()} method.
      */
     @DisplayName("getAnnotations()")
-    interface GetAnnotationsTests extends IStrategoTermTests {
+    interface GetAnnotationsTests extends Fixture {
 
         @Test
         @DisplayName("returns the annotation list term that was used to construct it")
@@ -269,7 +272,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
      * Tests the {@link IStrategoTerm#match(IStrategoTerm)} method.
      */
     @DisplayName("match(IStrategoTerm)")
-    interface MatchTests extends IStrategoTermTests {
+    interface MatchTests extends Fixture {
 
         @Test
         @DisplayName("when compared to itself (with children), returns true")
@@ -399,7 +402,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
      * Tests the {@link IStrategoTerm#toString(int)} and {@link IStrategoTerm#toString()} methods.
      */
     @DisplayName("toString(..)")
-    interface ToStringTests extends IStrategoTermTests {
+    interface ToStringTests extends Fixture {
 
         @Test
         @DisplayName("returns a non-empty string")
@@ -434,7 +437,7 @@ public interface IStrategoTermTests extends ISimpleTermTests {
      * Tests the {@link IStrategoTerm#writeAsString(Appendable, int)} and {@link IStrategoTerm#writeAsString(Appendable)} methods.
      */
     @DisplayName("writeAsString(..)")
-    interface WriteAsStringTests extends IStrategoTermTests {
+    interface WriteAsStringTests extends Fixture {
 
         @Test
         @DisplayName("writes a non-empty string")

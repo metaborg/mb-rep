@@ -26,59 +26,65 @@ import static org.spoofax.TestUtils.getTermBuilder;
  * Tests the {@link IStrategoList} interface.
  */
 @SuppressWarnings({"CodeBlock2Expr", "Convert2MethodRef", "unused"})
-public interface IStrategoListTests extends IStrategoTermTests {
+public interface IStrategoListTests {
 
-    /**
-     * Creates a new instance of {@link IStrategoList} for testing.
-     *
-     * @param elements the elements of the list; or {@code null} to use a sensible default
-     * @param annotations the annotations of the term; or {@code null} to use a sensible default
-     * @param attachments the attachments of the term; or {@code null} to use a sensible default
-     * @return the created object
-     * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
-     */
-    default IStrategoList createIStrategoList(@Nullable List<IStrategoTerm> elements,
-                                              @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments) {
-        if (elements == null || elements.isEmpty()) { return createEmptyIStrategoList(annotations, attachments); }
-        return createConsNilIStrategoList(elements.get(0), createIStrategoList(elements.subList(1, elements.size()), null, null), annotations, attachments);
-    }
+    interface Fixture extends IStrategoTermTests.Fixture {
 
-    /**
-     * Creates a new instance of a cons-nil {@link IStrategoList} for testing.
-     *
-     * @param head the head of the list; or {@code null} to use a sensible default
-     * @param tail the tail of the list; or {@code null} to use a sensible default
-     * @param annotations the annotations of the term; or {@code null} to use a sensible default
-     * @param attachments the attachments of the term; or {@code null} to use a sensible default
-     * @return the created object
-     * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
-     */
-    IStrategoList createConsNilIStrategoList(@Nullable IStrategoTerm head, @Nullable IStrategoList tail,
-                                             @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
+        /**
+         * Creates a new instance of {@link IStrategoList} for testing.
+         *
+         * @param elements    the elements of the list; or {@code null} to use a sensible default
+         * @param annotations the annotations of the term; or {@code null} to use a sensible default
+         * @param attachments the attachments of the term; or {@code null} to use a sensible default
+         * @return the created object
+         * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
+         */
+        default IStrategoList createIStrategoList(@Nullable List<IStrategoTerm> elements,
+                                                  @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments) {
+            if (elements == null || elements.isEmpty()) {
+                return createEmptyIStrategoList(annotations, attachments);
+            }
+            return createConsNilIStrategoList(elements.get(0), createIStrategoList(elements.subList(1, elements.size()), null, null), annotations, attachments);
+        }
 
-    /**
-     * Creates a new instance of an empty {@link IStrategoList} for testing.
-     *
-     * This creates an empty list.
-     *
-     * @param annotations the annotations of the term; or {@code null} to use a sensible default
-     * @param attachments the attachments of the term; or {@code null} to use a sensible default
-     * @return the created object
-     * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
-     */
-    IStrategoList createEmptyIStrategoList(@Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
+        /**
+         * Creates a new instance of a cons-nil {@link IStrategoList} for testing.
+         *
+         * @param head        the head of the list; or {@code null} to use a sensible default
+         * @param tail        the tail of the list; or {@code null} to use a sensible default
+         * @param annotations the annotations of the term; or {@code null} to use a sensible default
+         * @param attachments the attachments of the term; or {@code null} to use a sensible default
+         * @return the created object
+         * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
+         */
+        IStrategoList createConsNilIStrategoList(@Nullable IStrategoTerm head, @Nullable IStrategoList tail,
+                                                 @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
 
-    @Override
-    default IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations,
-                                              @Nullable List<ITermAttachment> attachments) {
-        return createIStrategoList(subterms, annotations, attachments);
+        /**
+         * Creates a new instance of an empty {@link IStrategoList} for testing.
+         * <p>
+         * This creates an empty list.
+         *
+         * @param annotations the annotations of the term; or {@code null} to use a sensible default
+         * @param attachments the attachments of the term; or {@code null} to use a sensible default
+         * @return the created object
+         * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
+         */
+        IStrategoList createEmptyIStrategoList(@Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
+
+        @Override
+        default IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations,
+                                                  @Nullable List<ITermAttachment> attachments) {
+            return createIStrategoList(subterms, annotations, attachments);
+        }
+
     }
 
     /**
      * Tests the {@link IStrategoList#size()} method.
      */
     @DisplayName("size()")
-    interface SizeTests extends IStrategoListTests {
+    interface SizeTests extends Fixture {
 
         @Test
         @DisplayName("when the list is empty, returns zero")
@@ -113,7 +119,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
      * Tests the {@link IStrategoList#head()} method.
      */
     @DisplayName("head()")
-    interface HeadTests extends IStrategoListTests {
+    interface HeadTests extends Fixture {
 
         @Test
         @DisplayName("when the list is empty, throws exception")
@@ -148,7 +154,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
      * Tests the {@link IStrategoList#tail()} method.
      */
     @DisplayName("tail()")
-    interface TailTests extends IStrategoListTests {
+    interface TailTests extends Fixture {
 
         @Test
         @DisplayName("when the list is empty, throws exception")
@@ -239,7 +245,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
      * Tests the {@link IStrategoList#isEmpty()} method.
      */
     @DisplayName("isEmpty()")
-    interface IsEmptyTests extends IStrategoListTests {
+    interface IsEmptyTests extends Fixture {
 
         @Test
         @DisplayName("when the list is empty, returns true")
@@ -275,7 +281,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
      * Tests the {@link IStrategoList#getTermType()} method.
      */
     @DisplayName("getTermType()")
-    interface GetTermTypeTests extends IStrategoListTests, IStrategoTermTests.GetTermTypeTests {
+    interface GetTermTypeTests extends Fixture, IStrategoTermTests.GetTermTypeTests {
 
         @Test
         @DisplayName("empty list, returns the correct term type")
@@ -309,7 +315,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
      * Tests the {@link IStrategoList#match(IStrategoTerm)} method.
      */
     @DisplayName("match(IStrategoTerm)")
-    interface MatchTests extends IStrategoListTests, IStrategoTermTests.MatchTests {
+    interface MatchTests extends Fixture, IStrategoTermTests.MatchTests {
 
         @Test
         @DisplayName("when both are empty lists, returns true")
@@ -427,7 +433,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
      * Tests the {@link IStrategoInt#toString(int)} and {@link IStrategoInt#toString()} methods.
      */
     @DisplayName("toString(..)")
-    interface ToStringTests extends IStrategoListTests, IStrategoTermTests.ToStringTests {
+    interface ToStringTests extends Fixture, IStrategoTermTests.ToStringTests {
 
         @Test
         @DisplayName("returns the correct string representation")
@@ -448,7 +454,7 @@ public interface IStrategoListTests extends IStrategoTermTests {
      * Tests the {@link IStrategoInt#writeAsString(Appendable, int)} and {@link IStrategoInt#writeAsString(Appendable)} methods.
      */
     @DisplayName("writeAsString(..)")
-    interface WriteAsStringTests extends IStrategoListTests, IStrategoTermTests.WriteAsStringTests {
+    interface WriteAsStringTests extends Fixture, IStrategoTermTests.WriteAsStringTests {
 
         @Test
         @DisplayName("returns the correct string representation")

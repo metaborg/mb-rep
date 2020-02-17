@@ -18,33 +18,37 @@ import static org.spoofax.TestUtils.TEST_INSTANCE_NOT_CREATED;
  * Tests the {@link IStrategoReal} interface.
  */
 @SuppressWarnings("unused")
-public interface IStrategoRealTests extends IStrategoTermTests {
+public interface IStrategoRealTests {
 
-    /**
-     * Creates a new instance of {@link IStrategoReal} for testing.
-     *
-     * @param value the value of the term; or {@code null} to use a sensible default
-     * @param annotations the annotations of the term; or {@code null} to use a sensible default
-     * @param attachments the attachments of the term; or {@code null} to use a sensible default
-     * @return the created object
-     * @throws TestAbortedException when an instance with the given parameters could not be created
-     */
-    IStrategoReal createIStrategoReal(@Nullable Double value, @Nullable IStrategoList annotations,
-                                      @Nullable List<ITermAttachment> attachments);
+    interface Fixture extends IStrategoTermTests.Fixture {
 
-    @Override
-    default IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms,
-                                              @Nullable IStrategoList annotations,
-                                              @Nullable List<ITermAttachment> attachments) {
-        if (subterms != null && subterms.size() != 0) throw new TestAbortedException(TEST_INSTANCE_NOT_CREATED);
-        return createIStrategoReal(null, annotations, attachments);
+        /**
+         * Creates a new instance of {@link IStrategoReal} for testing.
+         *
+         * @param value       the value of the term; or {@code null} to use a sensible default
+         * @param annotations the annotations of the term; or {@code null} to use a sensible default
+         * @param attachments the attachments of the term; or {@code null} to use a sensible default
+         * @return the created object
+         * @throws TestAbortedException when an instance with the given parameters could not be created
+         */
+        IStrategoReal createIStrategoReal(@Nullable Double value, @Nullable IStrategoList annotations,
+                                          @Nullable List<ITermAttachment> attachments);
+
+        @Override
+        default IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms,
+                                                  @Nullable IStrategoList annotations,
+                                                  @Nullable List<ITermAttachment> attachments) {
+            if (subterms != null && subterms.size() != 0) throw new TestAbortedException(TEST_INSTANCE_NOT_CREATED);
+            return createIStrategoReal(null, annotations, attachments);
+        }
+
     }
 
     /**
      * Tests the {@link IStrategoReal#realValue()} method.
      */
     @DisplayName("realValue()")
-    interface RealValueTests extends IStrategoRealTests {
+    interface RealValueTests extends Fixture {
 
         @Test
         @DisplayName("returns the value of the term")
@@ -66,7 +70,7 @@ public interface IStrategoRealTests extends IStrategoTermTests {
      * Tests the {@link IStrategoReal#getTermType()} method.
      */
     @DisplayName("getTermType()")
-    interface GetTermTypeTests extends IStrategoRealTests, IStrategoTermTests.GetTermTypeTests {
+    interface GetTermTypeTests extends Fixture, IStrategoTermTests.GetTermTypeTests {
 
         @Test
         @DisplayName("returns the correct term type")
@@ -88,7 +92,7 @@ public interface IStrategoRealTests extends IStrategoTermTests {
      * Tests the {@link IStrategoReal#getSubtermCount()} method.
      */
     @DisplayName("getSubtermCount()")
-    interface GetSubtermCountTests extends IStrategoRealTests, IStrategoTermTests.GetSubtermCountTests {
+    interface GetSubtermCountTests extends Fixture, IStrategoTermTests.GetSubtermCountTests {
 
         @Test
         @DisplayName("alwaysReturnsZero")
@@ -109,7 +113,7 @@ public interface IStrategoRealTests extends IStrategoTermTests {
      * Tests the {@link IStrategoReal#getAllSubterms()} method.
      */
     @DisplayName("getAllSubterms(int)")
-    interface GetAllSubtermTests extends IStrategoRealTests, IStrategoTermTests.GetAllSubtermTests {
+    interface GetAllSubtermTests extends Fixture, IStrategoTermTests.GetAllSubtermTests {
 
         @Test
         @DisplayName("always returns empty array")
@@ -131,7 +135,7 @@ public interface IStrategoRealTests extends IStrategoTermTests {
      * Tests the {@link IStrategoReal#match(IStrategoTerm)} method.
      */
     @DisplayName("match(IStrategoTerm)")
-    interface MatchTests extends IStrategoRealTests, IStrategoTermTests.MatchTests {
+    interface MatchTests extends Fixture, IStrategoTermTests.MatchTests {
 
         @Test
         @DisplayName("when both have the same value, returns true")
@@ -168,7 +172,7 @@ public interface IStrategoRealTests extends IStrategoTermTests {
      * Tests the {@link IStrategoReal#toString(int)} and {@link IStrategoReal#toString()} methods.
      */
     @DisplayName("toString(..)")
-    interface ToStringTests extends IStrategoRealTests, IStrategoTermTests.ToStringTests {
+    interface ToStringTests extends Fixture, IStrategoTermTests.ToStringTests {
 
         @Test
         @DisplayName("returns the correct string representation")
@@ -189,7 +193,7 @@ public interface IStrategoRealTests extends IStrategoTermTests {
      * Tests the {@link IStrategoReal#writeAsString(Appendable, int)} and {@link IStrategoReal#writeAsString(Appendable)} methods.
      */
     @DisplayName("writeAsString(..)")
-    interface WriteAsStringTests extends IStrategoRealTests, IStrategoTermTests.WriteAsStringTests {
+    interface WriteAsStringTests extends Fixture, IStrategoTermTests.WriteAsStringTests {
 
         @Test
         @DisplayName("returns the correct string representation")

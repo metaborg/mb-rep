@@ -21,31 +21,35 @@ import static org.spoofax.TestUtils.getTermBuilder;
  * Tests the {@link IStrategoPlaceholder} interface.
  */
 @SuppressWarnings("unused")
-public interface IStrategoPlaceholderTests extends IStrategoTermTests {
+public interface IStrategoPlaceholderTests {
 
-    /**
-     * Creates a new instance of {@link IStrategoPlaceholder} for testing.
-     *
-     * @param template the template of the placeholder; or {@code null} to use a sensible default
-     * @param annotations the annotations of the term; or {@code null} to use a sensible default
-     * @param attachments the attachments of the term; or {@code null} to use a sensible default
-     * @return the created object
-     * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
-     */
-    IStrategoPlaceholder createIStrategoPlaceholder(IStrategoTerm template, IStrategoList annotations, List<ITermAttachment> attachments);
+    interface Fixture extends IStrategoTermTests.Fixture {
 
-    @Override
-    default IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations,
-                                              @Nullable List<ITermAttachment> attachments) {
-        if (subterms == null || subterms.size() != 1)  throw new TestAbortedException(TEST_INSTANCE_NOT_CREATED);
-        return createIStrategoPlaceholder(subterms.get(0), annotations, attachments);
+        /**
+         * Creates a new instance of {@link IStrategoPlaceholder} for testing.
+         *
+         * @param template    the template of the placeholder; or {@code null} to use a sensible default
+         * @param annotations the annotations of the term; or {@code null} to use a sensible default
+         * @param attachments the attachments of the term; or {@code null} to use a sensible default
+         * @return the created object
+         * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
+         */
+        IStrategoPlaceholder createIStrategoPlaceholder(IStrategoTerm template, IStrategoList annotations, List<ITermAttachment> attachments);
+
+        @Override
+        default IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations,
+                                                  @Nullable List<ITermAttachment> attachments) {
+            if (subterms == null || subterms.size() != 1) throw new TestAbortedException(TEST_INSTANCE_NOT_CREATED);
+            return createIStrategoPlaceholder(subterms.get(0), annotations, attachments);
+        }
+
     }
 
     /**
      * Tests the {@link IStrategoPlaceholder#getTemplate()} method.
      */
     @DisplayName("getTemplate()")
-    interface GetTemplateTests extends IStrategoPlaceholderTests {
+    interface GetTemplateTests extends Fixture {
 
         @Test
         @DisplayName("returns the template of the term")
@@ -67,7 +71,7 @@ public interface IStrategoPlaceholderTests extends IStrategoTermTests {
      * Tests the {@link IStrategoPlaceholder#getTermType()} method.
      */
     @DisplayName("getTermType()")
-    interface GetTermTypeTests extends IStrategoPlaceholderTests, IStrategoTermTests.GetTermTypeTests {
+    interface GetTermTypeTests extends Fixture, IStrategoTermTests.GetTermTypeTests {
 
         @Test
         @DisplayName("returns the correct term type")
@@ -89,7 +93,7 @@ public interface IStrategoPlaceholderTests extends IStrategoTermTests {
      * Tests the {@link IStrategoPlaceholder#getSubtermCount()} method.
      */
     @DisplayName("getSubtermCount()")
-    interface GetSubtermCountTests extends IStrategoPlaceholderTests, IStrategoTermTests.GetSubtermCountTests {
+    interface GetSubtermCountTests extends Fixture, IStrategoTermTests.GetSubtermCountTests {
 
         @Test
         @DisplayName("alwaysReturnsOne")
@@ -110,7 +114,7 @@ public interface IStrategoPlaceholderTests extends IStrategoTermTests {
      * Tests the {@link IStrategoPlaceholder#getAllSubterms()} method.
      */
     @DisplayName("getAllSubterms(int)")
-    interface GetAllSubtermTests extends IStrategoPlaceholderTests, IStrategoTermTests.GetAllSubtermTests {
+    interface GetAllSubtermTests extends Fixture, IStrategoTermTests.GetAllSubtermTests {
 
         @Test
         @DisplayName("always returns one element array")
@@ -132,7 +136,7 @@ public interface IStrategoPlaceholderTests extends IStrategoTermTests {
      * Tests the {@link IStrategoPlaceholder#match(IStrategoTerm)} method.
      */
     @DisplayName("match(IStrategoTerm)")
-    interface MatchTests extends IStrategoPlaceholderTests, IStrategoTermTests.MatchTests {
+    interface MatchTests extends Fixture, IStrategoTermTests.MatchTests {
 
         @Test
         @DisplayName("when both have the same template, returns true")
@@ -170,7 +174,7 @@ public interface IStrategoPlaceholderTests extends IStrategoTermTests {
      * Tests the {@link IStrategoPlaceholder#toString(int)} and {@link IStrategoPlaceholder#toString()} methods.
      */
     @DisplayName("toString(..)")
-    interface ToStringTests extends IStrategoPlaceholderTests, IStrategoTermTests.ToStringTests {
+    interface ToStringTests extends Fixture, IStrategoTermTests.ToStringTests {
 
         @Test
         @DisplayName("returns the correct string representation")
@@ -191,7 +195,7 @@ public interface IStrategoPlaceholderTests extends IStrategoTermTests {
      * Tests the {@link IStrategoPlaceholder#writeAsString(Appendable, int)} and {@link IStrategoPlaceholder#writeAsString(Appendable)} methods.
      */
     @DisplayName("writeAsString(..)")
-    interface WriteAsStringTests extends IStrategoPlaceholderTests, IStrategoTermTests.WriteAsStringTests {
+    interface WriteAsStringTests extends Fixture, IStrategoTermTests.WriteAsStringTests {
 
         @Test
         @DisplayName("returns the correct string representation")

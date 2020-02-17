@@ -22,21 +22,25 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 @SuppressWarnings({"unused", "CodeBlock2Expr"})
 public interface ISimpleTermTests {
 
-    /**
-     * Creates a new instance of {@link ISimpleTerm} for testing.
-     *
-     * @param subterms the subterms of the term; or {@code null} to use a sensible default
-     * @param attachments the attachments of the term; or {@code null} to use a sensible default
-     * @return the created object
-     * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
-     */
-    ISimpleTerm createISimpleTerm(@Nullable List<ISimpleTerm> subterms, @Nullable List<ITermAttachment> attachments);
+    interface Fixture {
+
+        /**
+         * Creates a new instance of {@link ISimpleTerm} for testing.
+         *
+         * @param subterms    the subterms of the term; or {@code null} to use a sensible default
+         * @param attachments the attachments of the term; or {@code null} to use a sensible default
+         * @return the created object
+         * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
+         */
+        ISimpleTerm createISimpleTerm(@Nullable List<ISimpleTerm> subterms, @Nullable List<ITermAttachment> attachments);
+
+    }
 
     /**
      * Tests the {@link ISimpleTerm#getSubtermCount()} method.
      */
     @DisplayName("getSubtermCount()")
-    interface GetSubtermCountTests extends ISimpleTermTests {
+    interface GetSubtermCountTests extends Fixture {
 
         @Test
         @DisplayName("returns the number of subterms")
@@ -71,7 +75,7 @@ public interface ISimpleTermTests {
      * Tests the {@link ISimpleTerm#getSubterm(int)} method.
      */
     @DisplayName("getSubterm(int)")
-    interface GetSubtermTests extends ISimpleTermTests {
+    interface GetSubtermTests extends Fixture {
 
         @Test
         @DisplayName("returns the subterm at the specified index")
@@ -130,7 +134,7 @@ public interface ISimpleTermTests {
      * Tests the {@link ISimpleTerm#getAttachment(TermAttachmentType)} method.
      */
     @DisplayName("getAttachment(TermAttachmentType)")
-    interface GetAttachmentTests extends ISimpleTermTests {
+    interface GetAttachmentTests extends Fixture {
 
         @Test
         @DisplayName("when getting the first attachment, returns null when the term has no attachments")
@@ -205,7 +209,7 @@ public interface ISimpleTermTests {
      * Tests the {@link ISimpleTerm#putAttachment(ITermAttachment)} method.
      */
     @DisplayName("putAttachment(ITermAttachment)")
-    interface PutAttachmentTests extends ISimpleTermTests {
+    interface PutAttachmentTests extends Fixture {
 
         @Test
         @DisplayName("when an attachment of the type is present, replaces it")
@@ -253,7 +257,7 @@ public interface ISimpleTermTests {
      * Tests the {@link ISimpleTerm#removeAttachment(TermAttachmentType)} method.
      */
     @DisplayName("removeAttachment(TermAttachmentType)")
-    interface RemoveAttachmentTests extends ISimpleTermTests {
+    interface RemoveAttachmentTests extends Fixture {
 
         @Test
         @DisplayName("when an attachment of the type is present, removes and returns it")

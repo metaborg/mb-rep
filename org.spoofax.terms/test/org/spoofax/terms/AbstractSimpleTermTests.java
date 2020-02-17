@@ -13,17 +13,33 @@ import java.util.List;
 /**
  * Tests the {@link AbstractSimpleTerm} abstract class.
  */
-public interface AbstractSimpleTermTests extends ISimpleTermTests {
+public interface AbstractSimpleTermTests {
 
-    /**
-     * Creates a new instance of {@link AbstractSimpleTerm} for testing.
-     *
-     * @param subterms    the subterms of the term; or {@code null} to use a sensible default
-     * @param attachments the attachments of the term; or {@code null} to use a sensible default
-     * @return the created object
-     * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
-     */
-    AbstractSimpleTerm createAbstractSimpleTerm(@Nullable List<ISimpleTerm> subterms, @Nullable List<ITermAttachment> attachments);
+    public interface Fixture extends ISimpleTermTests.Fixture {
 
+        /**
+         * Creates a new instance of {@link AbstractSimpleTerm} for testing.
+         *
+         * @param subterms    the subterms of the term; or {@code null} to use a sensible default
+         * @param attachments the attachments of the term; or {@code null} to use a sensible default
+         * @return the created object
+         * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
+         */
+        AbstractSimpleTerm createAbstractSimpleTerm(@Nullable List<ISimpleTerm> subterms, @Nullable List<ITermAttachment> attachments);
+
+    }
+
+    abstract class FixtureImpl implements Fixture {
+
+        @Override
+        public abstract AbstractSimpleTerm createAbstractSimpleTerm(@Nullable List<ISimpleTerm> subterms, @Nullable List<ITermAttachment> attachments);
+
+        @Override
+        @Nullable
+        public ISimpleTerm createISimpleTerm(@Nullable List<ISimpleTerm> subterms, @Nullable List<ITermAttachment> attachments) {
+            return createAbstractSimpleTerm(subterms, attachments);
+        }
+
+    }
 
 }

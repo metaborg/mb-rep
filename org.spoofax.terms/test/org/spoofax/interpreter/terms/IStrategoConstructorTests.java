@@ -18,32 +18,36 @@ import static org.spoofax.TestUtils.TEST_INSTANCE_NOT_CREATED;
  * Tests the {@link IStrategoConstructor} interface.
  */
 @SuppressWarnings("unused")
-public interface IStrategoConstructorTests extends IStrategoTermTests {
+public interface IStrategoConstructorTests {
 
-    /**
-     * Creates a new instance of {@link IStrategoConstructor} for testing.
-     *
-     * @param name the constructor name; or {@code null} to use a sensible default
-     * @param arity the constructor arity; or {@code null} to use a sensible default
-     * @param annotations the annotations of the term; or {@code null} to use a sensible default
-     * @param attachments the attachments of the term; or {@code null} to use a sensible default
-     * @return the created object
-     * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
-     */
-    IStrategoConstructor createIStrategoConstructor(@Nullable String name, @Nullable Integer arity, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
+    interface Fixture extends IStrategoTermTests.Fixture {
 
-    @Override
-    default IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations,
-                                              @Nullable List<ITermAttachment> attachments) {
-        if (subterms != null && subterms.size() != 0)  throw new TestAbortedException(TEST_INSTANCE_NOT_CREATED);
-        return createIStrategoConstructor(null, null, annotations, attachments);
+        /**
+         * Creates a new instance of {@link IStrategoConstructor} for testing.
+         *
+         * @param name        the constructor name; or {@code null} to use a sensible default
+         * @param arity       the constructor arity; or {@code null} to use a sensible default
+         * @param annotations the annotations of the term; or {@code null} to use a sensible default
+         * @param attachments the attachments of the term; or {@code null} to use a sensible default
+         * @return the created object
+         * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
+         */
+        IStrategoConstructor createIStrategoConstructor(@Nullable String name, @Nullable Integer arity, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
+
+        @Override
+        default IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations,
+                                                  @Nullable List<ITermAttachment> attachments) {
+            if (subterms != null && subterms.size() != 0) throw new TestAbortedException(TEST_INSTANCE_NOT_CREATED);
+            return createIStrategoConstructor(null, null, annotations, attachments);
+        }
+
     }
 
     /**
      * Tests the {@link IStrategoConstructor#getName()} method.
      */
     @DisplayName("getName()")
-    interface GetNameTests extends IStrategoConstructorTests {
+    interface GetNameTests extends Fixture {
 
         @Test
         @DisplayName("returns the constructor name")
@@ -66,7 +70,7 @@ public interface IStrategoConstructorTests extends IStrategoTermTests {
      * Tests the {@link IStrategoConstructor#getArity()} method.
      */
     @DisplayName("getArity()")
-    interface GetArityTests extends IStrategoConstructorTests {
+    interface GetArityTests extends Fixture {
 
         @Test
         @DisplayName("returns the constructor arity")
@@ -89,7 +93,7 @@ public interface IStrategoConstructorTests extends IStrategoTermTests {
      * Tests the {@link IStrategoConstructor#getTermType()} method.
      */
     @DisplayName("getTermType()")
-    interface GetTermTypeTests extends IStrategoConstructorTests, IStrategoTermTests.GetTermTypeTests {
+    interface GetTermTypeTests extends Fixture, IStrategoTermTests.GetTermTypeTests {
 
         @Test
         @DisplayName("returns the correct term type")
@@ -111,7 +115,7 @@ public interface IStrategoConstructorTests extends IStrategoTermTests {
      * Tests the {@link IStrategoConstructor#getSubtermCount()} method.
      */
     @DisplayName("getSubtermCount()")
-    interface GetSubtermCountTests extends IStrategoConstructorTests, IStrategoTermTests.GetSubtermCountTests {
+    interface GetSubtermCountTests extends Fixture, IStrategoTermTests.GetSubtermCountTests {
 
         @Test
         @DisplayName("alwaysReturnsZero")
@@ -132,7 +136,7 @@ public interface IStrategoConstructorTests extends IStrategoTermTests {
      * Tests the {@link IStrategoConstructor#getAllSubterms()} method.
      */
     @DisplayName("getAllSubterms(int)")
-    interface GetAllSubtermTests extends IStrategoConstructorTests, IStrategoTermTests.GetAllSubtermTests {
+    interface GetAllSubtermTests extends Fixture, IStrategoTermTests.GetAllSubtermTests {
 
         @Test
         @DisplayName("always returns empty array")
@@ -154,7 +158,7 @@ public interface IStrategoConstructorTests extends IStrategoTermTests {
      * Tests the {@link IStrategoConstructor#match(IStrategoTerm)} method.
      */
     @DisplayName("match(IStrategoTerm)")
-    interface MatchTests extends IStrategoConstructorTests, IStrategoTermTests.MatchTests {
+    interface MatchTests extends Fixture, IStrategoTermTests.MatchTests {
 
         @Test
         @DisplayName("when both have the same name and arity, returns true")
@@ -205,7 +209,7 @@ public interface IStrategoConstructorTests extends IStrategoTermTests {
      * Tests the {@link IStrategoConstructor#toString(int)} and {@link IStrategoConstructor#toString()} methods.
      */
     @DisplayName("toString(..)")
-    interface ToStringTests extends IStrategoConstructorTests, IStrategoTermTests.ToStringTests {
+    interface ToStringTests extends Fixture, IStrategoTermTests.ToStringTests {
 
         @Test
         @DisplayName("returns the correct string representation")
@@ -226,7 +230,7 @@ public interface IStrategoConstructorTests extends IStrategoTermTests {
      * Tests the {@link IStrategoConstructor#writeAsString(Appendable, int)} and {@link IStrategoConstructor#writeAsString(Appendable)} methods.
      */
     @DisplayName("writeAsString(..)")
-    interface WriteAsStringTests extends IStrategoConstructorTests, IStrategoTermTests.WriteAsStringTests {
+    interface WriteAsStringTests extends Fixture, IStrategoTermTests.WriteAsStringTests {
 
         @Test
         @DisplayName("returns the correct string representation")

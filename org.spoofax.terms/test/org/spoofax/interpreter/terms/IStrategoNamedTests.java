@@ -11,21 +11,25 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  * Tests the {@link IStrategoNamed} interface.
  */
 @SuppressWarnings("unused")
-public interface IStrategoNamedTests extends IStrategoTermTests {
+public interface IStrategoNamedTests {
 
-    /**
-     * Creates a new instance of {@link IStrategoNamed} for testing.
-     *
-     * @return the created object
-     * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
-     */
-    IStrategoNamed createIStrategoNamed();
+    interface Fixture extends IStrategoTermTests.Fixture {
+
+        /**
+         * Creates a new instance of {@link IStrategoNamed} for testing.
+         *
+         * @return the created object
+         * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
+         */
+        IStrategoNamed createIStrategoNamed();
+
+    }
 
     /**
      * Tests the {@link IStrategoNamed#getName()} method.
      */
     @DisplayName("getName()")
-    interface GetNameTests extends IStrategoNamedTests {
+    interface GetNameTests extends Fixture {
 
         @Test
         @DisplayName("returns a non-empty string as the name")

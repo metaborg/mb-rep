@@ -20,36 +20,40 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  * Tests the {@link IStrategoAppl} interface.
  */
 @SuppressWarnings("unused")
-public interface IStrategoApplTests extends IStrategoNamedTests {
+public interface IStrategoApplTests {
 
-    /**
-     * Creates a new instance of {@link IStrategoAppl} for testing.
-     *
-     * @param constructor the constructor of the term; or {@code null} to use a sensible default
-     * @param subterms the subterms of the term; or {@code null} to use a sensible default
-     * @param annotations the annotations of the term; or {@code null} to use a sensible default
-     * @param attachments the attachments of the term; or {@code null} to use a sensible default
-     * @return the created object
-     * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
-     */
-    IStrategoAppl createIStrategoAppl(@Nullable IStrategoConstructor constructor, @Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
+    interface Fixture extends IStrategoNamedTests.Fixture {
 
-    @Override
-    default IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations,
-                                              @Nullable List<ITermAttachment> attachments) {
-        return createIStrategoAppl(null, subterms, annotations, attachments);
-    }
+        /**
+         * Creates a new instance of {@link IStrategoAppl} for testing.
+         *
+         * @param constructor the constructor of the term; or {@code null} to use a sensible default
+         * @param subterms    the subterms of the term; or {@code null} to use a sensible default
+         * @param annotations the annotations of the term; or {@code null} to use a sensible default
+         * @param attachments the attachments of the term; or {@code null} to use a sensible default
+         * @return the created object
+         * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
+         */
+        IStrategoAppl createIStrategoAppl(@Nullable IStrategoConstructor constructor, @Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
 
-    @Override
-    default IStrategoNamed createIStrategoNamed() {
-        return createIStrategoAppl(null, null, null, null);
+        @Override
+        default IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms, @Nullable IStrategoList annotations,
+                                                  @Nullable List<ITermAttachment> attachments) {
+            return createIStrategoAppl(null, subterms, annotations, attachments);
+        }
+
+        @Override
+        default IStrategoNamed createIStrategoNamed() {
+            return createIStrategoAppl(null, null, null, null);
+        }
+
     }
 
     /**
      * Tests the {@link IStrategoAppl#getConstructor()} method.
      */
     @DisplayName("getConstructor()")
-    interface GetConstructorTests extends IStrategoApplTests {
+    interface GetConstructorTests extends Fixture {
 
         @Test
         @DisplayName("returns the constructor of the term")
@@ -73,7 +77,7 @@ public interface IStrategoApplTests extends IStrategoNamedTests {
      * Tests the {@link IStrategoAppl#getName()} method.
      */
     @DisplayName("getName()")
-    interface GetNameTests extends IStrategoApplTests, IStrategoNamedTests.GetNameTests {
+    interface GetNameTests extends Fixture, IStrategoNamedTests.GetNameTests {
 
         @Test
         @DisplayName("returns the constructor name as the name")
@@ -96,7 +100,7 @@ public interface IStrategoApplTests extends IStrategoNamedTests {
      * Tests the {@link IStrategoAppl#getTermType()} method.
      */
     @DisplayName("getTermType()")
-    interface GetTermTypeTests extends IStrategoApplTests, IStrategoTermTests.GetTermTypeTests {
+    interface GetTermTypeTests extends Fixture, IStrategoTermTests.GetTermTypeTests {
 
         @Test
         @DisplayName("returns the correct term type")
@@ -117,7 +121,7 @@ public interface IStrategoApplTests extends IStrategoNamedTests {
      * Tests the {@link IStrategoAppl#match(IStrategoTerm)} method.
      */
     @DisplayName("match(IStrategoTerm)")
-    interface MatchTests extends IStrategoApplTests, IStrategoTermTests.MatchTests {
+    interface MatchTests extends Fixture, IStrategoTermTests.MatchTests {
 
         @Test
         @DisplayName("when both have the same constructor and subterms, returns true")
@@ -171,7 +175,7 @@ public interface IStrategoApplTests extends IStrategoNamedTests {
      * Tests the {@link IStrategoInt#toString(int)} and {@link IStrategoInt#toString()} methods.
      */
     @DisplayName("toString(..)")
-    interface ToStringTests extends IStrategoApplTests, IStrategoTermTests.ToStringTests {
+    interface ToStringTests extends Fixture, IStrategoTermTests.ToStringTests {
 
         @Test
         @DisplayName("returns the correct string representation")
@@ -192,7 +196,7 @@ public interface IStrategoApplTests extends IStrategoNamedTests {
      * Tests the {@link IStrategoInt#writeAsString(Appendable, int)} and {@link IStrategoInt#writeAsString(Appendable)} methods.
      */
     @DisplayName("writeAsString(..)")
-    interface WriteAsStringTests extends IStrategoApplTests, IStrategoTermTests.WriteAsStringTests {
+    interface WriteAsStringTests extends Fixture, IStrategoTermTests.WriteAsStringTests {
 
         @Test
         @DisplayName("returns the correct string representation")
