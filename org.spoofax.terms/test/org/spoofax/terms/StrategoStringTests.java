@@ -3,7 +3,7 @@ package org.spoofax.terms;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.opentest4j.TestAbortedException;
-import org.spoofax.TermUtil;
+import org.spoofax.TestUtils;
 import org.spoofax.interpreter.terms.*;
 import org.spoofax.terms.attachments.ITermAttachment;
 
@@ -33,7 +33,7 @@ public class StrategoStringTests {
         @Override
         public StrategoString createIStrategoString(@Nullable String value, @Nullable IStrategoList annotations,
                                                     @Nullable List<ITermAttachment> attachments) {
-            return TermUtil.putAttachments(new StrategoString(
+            return TestUtils.putAttachments(new StrategoString(
                     value != null ? value : "abc",
                     annotations != null ? annotations : TermFactory.EMPTY_LIST
             ), attachments);

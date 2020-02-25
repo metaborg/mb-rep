@@ -3,7 +3,7 @@ package org.spoofax.terms;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.opentest4j.TestAbortedException;
-import org.spoofax.TermUtil;
+import org.spoofax.TestUtils;
 import org.spoofax.interpreter.terms.*;
 import org.spoofax.terms.attachments.ITermAttachment;
 
@@ -37,7 +37,7 @@ public class StrategoConstructorTests {
                                                               @Nullable List<ITermAttachment> attachments) {
             if (annotations != null && !annotations.isEmpty())
                 throw new TestAbortedException(TEST_INSTANCE_NOT_CREATED);
-            return TermUtil.putAttachments(new StrategoConstructor(
+            return TestUtils.putAttachments(new StrategoConstructor(
                     name != null ? name : "Dummy",
                     arity != null ? arity : 0
             ), attachments);

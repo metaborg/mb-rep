@@ -3,7 +3,7 @@ package org.spoofax.terms;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.spoofax.DummyStrategoConstructor;
-import org.spoofax.TermUtil;
+import org.spoofax.TestUtils;
 import org.spoofax.interpreter.terms.*;
 import org.spoofax.terms.attachments.ITermAttachment;
 
@@ -57,7 +57,7 @@ public class StrategoApplTests {
                         break;
                 }
             }
-            return TermUtil.putAttachments(new StrategoAppl(
+            return TestUtils.putAttachments(new StrategoAppl(
                     constructor,
                     subterms != null ? subterms.toArray(new IStrategoTerm[0]) : new IStrategoTerm[0],
                     annotations != null ? annotations : TermFactory.EMPTY_LIST

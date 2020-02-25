@@ -3,7 +3,7 @@ package org.spoofax.terms;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.spoofax.DummyStrategoTerm;
-import org.spoofax.TermUtil;
+import org.spoofax.TestUtils;
 import org.spoofax.interpreter.terms.*;
 import org.spoofax.terms.attachments.ITermAttachment;
 
@@ -54,7 +54,7 @@ public class StrategoListTests {
         public StrategoList createConsNilIStrategoList(@Nullable IStrategoTerm head, @Nullable IStrategoList tail,
                                                        @Nullable IStrategoList annotations,
                                                        @Nullable List<ITermAttachment> attachments) {
-            return TermUtil.putAttachments(new StrategoList(
+            return TestUtils.putAttachments(new StrategoList(
                     head != null ? head : new DummyStrategoTerm(),
                     tail != null ? tail : new StrategoList(null),
                     annotations != null ? annotations : TermFactory.EMPTY_LIST
@@ -64,7 +64,7 @@ public class StrategoListTests {
         @Override
         public StrategoList createEmptyIStrategoList(@Nullable IStrategoList annotations,
                                                      @Nullable List<ITermAttachment> attachments) {
-            return TermUtil.putAttachments(new StrategoList(
+            return TestUtils.putAttachments(new StrategoList(
                     annotations != null ? annotations : TermFactory.EMPTY_LIST
             ), attachments);
         }

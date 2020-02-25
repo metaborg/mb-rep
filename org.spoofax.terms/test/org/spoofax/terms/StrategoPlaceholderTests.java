@@ -3,7 +3,7 @@ package org.spoofax.terms;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.spoofax.DummyStrategoTerm;
-import org.spoofax.TermUtil;
+import org.spoofax.TestUtils;
 import org.spoofax.interpreter.terms.*;
 import org.spoofax.terms.attachments.ITermAttachment;
 
@@ -35,7 +35,7 @@ public class StrategoPlaceholderTests {
         public StrategoPlaceholder createIStrategoPlaceholder(@Nullable IStrategoTerm template,
                                                               @Nullable IStrategoList annotations,
                                                               @Nullable List<ITermAttachment> attachments) {
-            return TermUtil.putAttachments(new StrategoPlaceholder(
+            return TestUtils.putAttachments(new StrategoPlaceholder(
                     getTermBuilder().makeConstructor("<>", 1),
                     template != null ? template : new DummyStrategoTerm(),
                     annotations != null ? annotations : TermFactory.EMPTY_LIST
