@@ -371,7 +371,7 @@ public final class TermUtilsTests {
         public void whenTermIsNotAnApplTerm_returnsNothing() {
             assertFalse(TermUtils.asAppl(factory.makeString("abc")).isPresent());
             assertFalse(TermUtils.asAppl(factory.makeInt(42)).isPresent());
-            assertFalse(TermUtils.asInt(factory.makeReal(4.2)).isPresent());
+            assertFalse(TermUtils.asAppl(factory.makeReal(4.2)).isPresent());
             assertFalse(TermUtils.asAppl(factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))).isPresent());
             assertFalse(TermUtils.asAppl(factory.makeList(factory.makeString("abc"), factory.makeString("def"))).isPresent());
         }
@@ -401,9 +401,130 @@ public final class TermUtilsTests {
         public void whenTermIsNotAListTerm_returnsNothing() {
             assertFalse(TermUtils.asList(factory.makeString("abc")).isPresent());
             assertFalse(TermUtils.asList(factory.makeInt(42)).isPresent());
-            assertFalse(TermUtils.asInt(factory.makeReal(4.2)).isPresent());
-            assertFalse(TermUtils.asReal(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))).isPresent());
+            assertFalse(TermUtils.asList(factory.makeReal(4.2)).isPresent());
+            assertFalse(TermUtils.asList(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))).isPresent());
             assertFalse(TermUtils.asList(factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))).isPresent());
+        }
+
+    }
+
+
+
+    /** Tests the {@link TermUtils#asJavaString(IStrategoTerm)} method. */
+    @Nested
+    @DisplayName("asJavaString(IStrategoTerm)")
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    public final class AsJavaStringTests {
+
+        @Test
+        @DisplayName("when term is a string term, returns the term value")
+        public void whenTermIsAStringTerm_returnsTheTermValue() {
+            String v1 = "";
+            String v2 = "abc";
+            String v3 = "DEF";
+
+            assertEquals(v1, TermUtils.asJavaString(factory.makeString(v1)).get());
+            assertEquals(v2, TermUtils.asJavaString(factory.makeString(v2)).get());
+            assertEquals(v3, TermUtils.asJavaString(factory.makeString(v3)).get());
+        }
+
+        @Test
+        @DisplayName("when term is not a string term, returns nothing")
+        public void whenTermIsNotAStringTerm_returnsNothing() {
+            assertFalse(TermUtils.asJavaString(factory.makeInt(42)).isPresent());
+            assertFalse(TermUtils.asJavaString(factory.makeReal(4.2)).isPresent());
+            assertFalse(TermUtils.asJavaString(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))).isPresent());
+            assertFalse(TermUtils.asJavaString(factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))).isPresent());
+            assertFalse(TermUtils.asJavaString(factory.makeList(factory.makeString("abc"), factory.makeString("def"))).isPresent());
+        }
+
+    }
+
+    /** Tests the {@link TermUtils#asJavaInt(IStrategoTerm)} method. */
+    @Nested
+    @DisplayName("asJavaInt(IStrategoTerm)")
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    public final class AsJavaIntTests {
+
+        @Test
+        @DisplayName("when term is an int term, returns the term value")
+        public void whenTermIsAnIntTerm_returnsTheTermValue() {
+            int v1 = 0;
+            int v2 = -10;
+            int v3 = 42;
+
+            assertEquals(v1, TermUtils.asJavaInt(factory.makeInt(v1)).get());
+            assertEquals(v2, TermUtils.asJavaInt(factory.makeInt(v2)).get());
+            assertEquals(v3, TermUtils.asJavaInt(factory.makeInt(v3)).get());
+        }
+
+        @Test
+        @DisplayName("when term is not an int term, returns nothing")
+        public void whenTermIsNotAnIntTerm_returnsNothing() {
+            assertFalse(TermUtils.asJavaInt(factory.makeString("abc")).isPresent());
+            assertFalse(TermUtils.asJavaInt(factory.makeReal(4.2)).isPresent());
+            assertFalse(TermUtils.asJavaInt(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))).isPresent());
+            assertFalse(TermUtils.asJavaInt(factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))).isPresent());
+            assertFalse(TermUtils.asJavaInt(factory.makeList(factory.makeString("abc"), factory.makeString("def"))).isPresent());
+        }
+
+    }
+
+    /** Tests the {@link TermUtils#asJavaReal(IStrategoTerm)} method. */
+    @Nested
+    @DisplayName("asJavaReal(IStrategoTerm)")
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    public final class AsJavaRealTests {
+
+        @Test
+        @DisplayName("when term is a real term, returns the term value")
+        public void whenTermIsARealTerm_returnsTheTermValue() {
+            double v1 = 0.0;
+            double v2 = -10.2;
+            double v3 = 4.2;
+
+            assertEquals(v1, TermUtils.asJavaReal(factory.makeReal(v1)).get());
+            assertEquals(v2, TermUtils.asJavaReal(factory.makeReal(v2)).get());
+            assertEquals(v3, TermUtils.asJavaReal(factory.makeReal(v3)).get());
+        }
+
+        @Test
+        @DisplayName("when term is not a real term, returns nothing")
+        public void whenTermIsNotARealTerm_returnsNothing() {
+            assertFalse(TermUtils.asJavaReal(factory.makeString("abc")).isPresent());
+            assertFalse(TermUtils.asJavaReal(factory.makeInt(42)).isPresent());
+            assertFalse(TermUtils.asJavaReal(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))).isPresent());
+            assertFalse(TermUtils.asJavaReal(factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))).isPresent());
+            assertFalse(TermUtils.asJavaReal(factory.makeList(factory.makeString("abc"), factory.makeString("def"))).isPresent());
+        }
+
+    }
+
+    /** Tests the {@link TermUtils#asJavaList(IStrategoTerm)} method. */
+    @Nested
+    @DisplayName("asJavaList(IStrategoTerm)")
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    public final class AsJavaListTests {
+
+        @Test
+        @DisplayName("when term is a list term, returns the list")
+        public void whenTermIsAListTerm_returnsTheList() {
+            IStrategoString e1 = factory.makeString("abc");
+            IStrategoString e2 = factory.makeString("def");
+
+            assertEquals(Collections.emptyList(), TermUtils.asJavaList(factory.makeList()).get());
+            assertEquals(Collections.singletonList(e1), TermUtils.asJavaList(factory.makeList(e1)).get());
+            assertEquals(Arrays.asList(e1, e2), TermUtils.asJavaList(factory.makeList(e1, e2)).get());
+        }
+
+        @Test
+        @DisplayName("when term is not a list term, returns nothing")
+        public void whenTermIsNotAListTerm_returnsNothing() {
+            assertFalse(TermUtils.asJavaList(factory.makeString("abc")).isPresent());
+            assertFalse(TermUtils.asJavaList(factory.makeInt(42)).isPresent());
+            assertFalse(TermUtils.asJavaList(factory.makeReal(4.2)).isPresent());
+            assertFalse(TermUtils.asJavaList(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))).isPresent());
+            assertFalse(TermUtils.asJavaList(factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))).isPresent());
         }
 
     }
@@ -1244,6 +1365,204 @@ public final class TermUtilsTests {
         public void whenIndexIsOutOfBounds_returnsNothing() {
             assertFalse(TermUtils.asListAt(testTerm, -1).isPresent());
             assertFalse(TermUtils.asListAt(testTerm, 10).isPresent());
+        }
+
+    }
+
+
+
+
+    /** Tests the {@link TermUtils#asJavaStringAt(IStrategoTerm, int)} method. */
+    @Nested
+    @DisplayName("asJavaStringAt(IStrategoTerm)")
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    public final class AsJavaStringAtTests {
+
+        private final String v1 = "";
+        private final String v2 = "abc";
+        private final String v3 = "DEF";
+
+        private final IStrategoTuple testTerm = factory.makeTuple(
+                factory.makeString(v1),
+                factory.makeString(v2),
+                factory.makeString(v3),
+
+                factory.makeInt(42),
+                factory.makeReal(4.2),
+                factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")),
+                factory.makeTuple(factory.makeString("abc"), factory.makeString("def")),
+                factory.makeList(factory.makeString("abc"), factory.makeString("def"))
+        );
+
+        @Test
+        @DisplayName("when subterm is a string term, returns the subterm value")
+        public void whenSubtermIsAStringTerm_returnsTheSubtermValue() {
+            assertEquals(v1, TermUtils.asJavaStringAt(testTerm, 0).get());
+            assertEquals(v2, TermUtils.asJavaStringAt(testTerm, 1).get());
+            assertEquals(v3, TermUtils.asJavaStringAt(testTerm, 2).get());
+        }
+
+        @Test
+        @DisplayName("when subterm is not a string term, returns nothing")
+        public void whenSubtermIsNotAStringTerm_returnsNothing() {
+            assertFalse(TermUtils.asJavaStringAt(testTerm, 3).isPresent());
+            assertFalse(TermUtils.asJavaStringAt(testTerm, 4).isPresent());
+            assertFalse(TermUtils.asJavaStringAt(testTerm, 5).isPresent());
+            assertFalse(TermUtils.asJavaStringAt(testTerm, 6).isPresent());
+            assertFalse(TermUtils.asJavaStringAt(testTerm, 7).isPresent());
+        }
+
+        @Test
+        @DisplayName("when index is out of bounds, returns nothing")
+        public void whenIndexIsOutOfBounds_returnsNothing() {
+            assertFalse(TermUtils.asJavaStringAt(testTerm, -1).isPresent());
+            assertFalse(TermUtils.asJavaStringAt(testTerm, 10).isPresent());
+        }
+
+    }
+
+    /** Tests the {@link TermUtils#asJavaIntAt(IStrategoTerm, int)} method. */
+    @Nested
+    @DisplayName("asJavaIntAt(IStrategoTerm, int)")
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    public final class AsJavaIntAtTests {
+
+        private final int v1 = 0;
+        private final int v2 = -10;
+        private final int v3 = 42;
+
+        private final IStrategoTuple testTerm = factory.makeTuple(
+                factory.makeInt(v1),
+                factory.makeInt(v2),
+                factory.makeInt(v3),
+
+                factory.makeString("abc"),
+                factory.makeReal(4.2),
+                factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")),
+                factory.makeTuple(factory.makeString("abc"), factory.makeString("def")),
+                factory.makeList(factory.makeString("abc"), factory.makeString("def"))
+        );
+
+        @Test
+        @DisplayName("when subterm is an int term, returns the subterm value")
+        public void whenSubtermIsAnIntTerm_returnsTheSubtermValue() {
+            assertEquals(v1, TermUtils.asJavaIntAt(testTerm, 0).get());
+            assertEquals(v2, TermUtils.asJavaIntAt(testTerm, 1).get());
+            assertEquals(v3, TermUtils.asJavaIntAt(testTerm, 2).get());
+        }
+
+        @Test
+        @DisplayName("when subterm is not an int term, returns nothing")
+        public void whenSubtermIsNotAnIntTerm_returnsNothing() {
+            assertFalse(TermUtils.asJavaIntAt(testTerm, 3).isPresent());
+            assertFalse(TermUtils.asJavaIntAt(testTerm, 4).isPresent());
+            assertFalse(TermUtils.asJavaIntAt(testTerm, 5).isPresent());
+            assertFalse(TermUtils.asJavaIntAt(testTerm, 6).isPresent());
+            assertFalse(TermUtils.asJavaIntAt(testTerm, 7).isPresent());
+        }
+
+        @Test
+        @DisplayName("when index is out of bounds, returns nothing")
+        public void whenIndexIsOutOfBounds_returnsNothing() {
+            assertFalse(TermUtils.asJavaIntAt(testTerm, -1).isPresent());
+            assertFalse(TermUtils.asJavaIntAt(testTerm, 10).isPresent());
+        }
+
+    }
+
+    /** Tests the {@link TermUtils#asJavaRealAt(IStrategoTerm, int)} method. */
+    @Nested
+    @DisplayName("asJavaRealAt(IStrategoTerm)")
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    public final class AsJavaRealAtTests {
+
+        private final double v1 = 0.0;
+        private final double v2 = -10.2;
+        private final double v3 = 4.2;
+
+        private final IStrategoTuple testTerm = factory.makeTuple(
+                factory.makeReal(v1),
+                factory.makeReal(v2),
+                factory.makeReal(v3),
+
+                factory.makeString("abc"),
+                factory.makeInt(42),
+                factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")),
+                factory.makeTuple(factory.makeString("abc"), factory.makeString("def")),
+                factory.makeList(factory.makeString("abc"), factory.makeString("def"))
+        );
+
+        @Test
+        @DisplayName("when subterm is a real term, returns the subterm value")
+        public void whenSubtermIsARealTerm_returnsTheSubtermValue() {
+            assertEquals(v1, TermUtils.asJavaRealAt(testTerm, 0).get());
+            assertEquals(v2, TermUtils.asJavaRealAt(testTerm, 1).get());
+            assertEquals(v3, TermUtils.asJavaRealAt(testTerm, 2).get());
+        }
+
+        @Test
+        @DisplayName("when subterm is not a real term, returns nothing")
+        public void whenSubtermIsNotARealTerm_returnsNothing() {
+            assertFalse(TermUtils.asJavaRealAt(testTerm, 3).isPresent());
+            assertFalse(TermUtils.asJavaRealAt(testTerm, 4).isPresent());
+            assertFalse(TermUtils.asJavaRealAt(testTerm, 5).isPresent());
+            assertFalse(TermUtils.asJavaRealAt(testTerm, 6).isPresent());
+            assertFalse(TermUtils.asJavaRealAt(testTerm, 7).isPresent());
+        }
+
+        @Test
+        @DisplayName("when index is out of bounds, returns nothing")
+        public void whenIndexIsOutOfBounds_returnsNothing() {
+            assertFalse(TermUtils.asJavaRealAt(testTerm, -1).isPresent());
+            assertFalse(TermUtils.asJavaRealAt(testTerm, 10).isPresent());
+        }
+
+    }
+
+    /** Tests the {@link TermUtils#asJavaListAt(IStrategoTerm, int)} method. */
+    @Nested
+    @DisplayName("asJavaListAt(IStrategoTerm, int)")
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    public final class AsJavaListAtTests {
+
+        private final IStrategoString e1 = factory.makeString("abc");
+        private final IStrategoString e2 = factory.makeString("def");
+
+        private final IStrategoTuple testTerm = factory.makeTuple(
+                factory.makeList(),
+                factory.makeList(e1),
+                factory.makeList(e1, e2),
+
+                factory.makeString("abc"),
+                factory.makeInt(42),
+                factory.makeReal(4.2),
+                factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")),
+                factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))
+        );
+
+        @Test
+        @DisplayName("when subterm is a list term, returns the subterm Java list")
+        public void whenSubtermIsAListTerm_returnsTheSubtermJavaList() {
+            assertEquals(Collections.emptyList(), TermUtils.asJavaListAt(testTerm, 0).get());
+            assertEquals(Collections.singletonList(e1), TermUtils.asJavaListAt(testTerm, 1).get());
+            assertEquals(Arrays.asList(e1, e2), TermUtils.asJavaListAt(testTerm, 2).get());
+        }
+
+        @Test
+        @DisplayName("when subterm is not a list term, returns nothing")
+        public void whenSubtermIsNotAListTerm_returnsNothing() {
+            assertFalse(TermUtils.asJavaListAt(testTerm, 3).isPresent());
+            assertFalse(TermUtils.asJavaListAt(testTerm, 4).isPresent());
+            assertFalse(TermUtils.asJavaListAt(testTerm, 5).isPresent());
+            assertFalse(TermUtils.asJavaListAt(testTerm, 6).isPresent());
+            assertFalse(TermUtils.asJavaListAt(testTerm, 7).isPresent());
+        }
+
+        @Test
+        @DisplayName("when index is out of bounds, returns nothing")
+        public void whenIndexIsOutOfBounds_returnsNothing() {
+            assertFalse(TermUtils.asJavaListAt(testTerm, -1).isPresent());
+            assertFalse(TermUtils.asJavaListAt(testTerm, 10).isPresent());
         }
 
     }

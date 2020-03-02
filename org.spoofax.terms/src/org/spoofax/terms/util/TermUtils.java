@@ -2,6 +2,7 @@ package org.spoofax.terms.util;
 
 import org.spoofax.interpreter.terms.*;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -119,20 +120,33 @@ public final class TermUtils {
     }
 
     /**
+     * Determines whether the given term is a constructor application term with the specified constructor name
+     * and any arity.
+     *
+     * @param term the term to check
+     * @param constructorName the expected constructor name; or {@code null} to accept any constructor name
+     * @return {@code true} when the term is a constructor application term with the specified constructor name and any arity;
+     * otherwise, {@code false}
+     */
+    public static boolean isAppl(IStrategoTerm term, @Nullable String constructorName) {
+        return isAppl(term, constructorName, -1);
+    }
+
+    /**
      * Determines whether the given term is a constructor application term with the specified constructor name and arity.
      *
      * @param term the term to check
-     * @param constructorName the expected constructor name
-     * @param arity the expected arity
+     * @param constructorName the expected constructor name; or {@code null} to accept any constructor name
+     * @param arity the expected arity; or -1 to accept any arity
      * @return {@code true} when the term is a constructor application term with the specified constructor name and arity;
      * otherwise, {@code false}
      */
-    public static boolean isAppl(IStrategoTerm term, String constructorName, int arity) {
+    public static boolean isAppl(IStrategoTerm term, @Nullable String constructorName, int arity) {
         if (!isAppl(term)) return false;
         IStrategoConstructor constructor = ((IStrategoAppl) term).getConstructor();
         // @formatter:off
         return (constructorName == null || constructor.getName().equals(constructorName))
-                && (arity < 0 || constructor.getArity() == arity);
+            && (arity < 0 || constructor.getArity() == arity);
         // @formatter:on
     }
 
@@ -211,6 +225,53 @@ public final class TermUtils {
     }
 
 
+
+    /// Term Conversions to Java
+
+    /**
+     * Returns the given term as a Java string, if possible.
+     *
+     * @param term the term
+     * @return an option with the Java string when the term is a String term; otherwise, nothing
+     */
+    public static Optional<String> asJavaString(IStrategoTerm term) {
+        return asString(term).map(IStrategoString::stringValue);
+    }
+
+    /**
+     * Returns the given term as a Java integer, if possible.
+     *
+     * @param term the term
+     * @return an option with the Java integer when the term is a Int term; otherwise, nothing
+     */
+    public static Optional<Integer> asJavaInt(IStrategoTerm term) {
+        return asInt(term).map(IStrategoInt::intValue);
+    }
+
+    /**
+     * Returns the given term as a Java real value (double), if possible.
+     *
+     * @param term the term
+     * @return an option with the Java real value (double) when the term is a Real term; otherwise, nothing
+     */
+    public static Optional<Double> asJavaReal(IStrategoTerm term) {
+        return asReal(term).map(IStrategoReal::realValue);
+    }
+
+    /**
+     * Returns the given term as a Java list, if possible.
+     *
+     * @param term the term
+     * @return an option with the Java unmodifiable list when the term is a List term; otherwise, nothing
+     */
+    public static Optional<List<IStrategoTerm>> asJavaList(IStrategoTerm term) {
+        return asList(term).map(t -> {
+            // TODO: Get the term's immutable subterm list instead
+            return Collections.unmodifiableList(Arrays.asList(t.getAllSubterms()));
+        });
+    }
+
+
     /// Term Conversions or Exception
 
     /**
@@ -221,7 +282,7 @@ public final class TermUtils {
      * @throws ClassCastException The term is not a List term.
      */
     public static IStrategoString toString(IStrategoTerm term) {
-        return asString(term).orElseThrow(() -> new ClassCastException("The given term cannot be converted to a String term."));
+        return asString(term).orElseThrow(() -> newTermCastException(IStrategoTerm.STRING, term.getTermType()));
     }
 
     /**
@@ -232,7 +293,7 @@ public final class TermUtils {
      * @throws ClassCastException The term is not a List term.
      */
     public static IStrategoInt toInt(IStrategoTerm term) {
-        return asInt(term).orElseThrow(() -> new ClassCastException("The given term cannot be converted to an Int term."));
+        return asInt(term).orElseThrow(() -> newTermCastException(IStrategoTerm.INT, term.getTermType()));
     }
 
     /**
@@ -243,7 +304,7 @@ public final class TermUtils {
      * @throws ClassCastException The term is not a List term.
      */
     public static IStrategoReal toReal(IStrategoTerm term) {
-        return asReal(term).orElseThrow(() -> new ClassCastException("The given term cannot be converted to a Real term."));
+        return asReal(term).orElseThrow(() -> newTermCastException(IStrategoTerm.REAL, term.getTermType()));
     }
 
     /**
@@ -254,7 +315,7 @@ public final class TermUtils {
      * @throws ClassCastException The term is not a List term.
      */
     public static IStrategoAppl toAppl(IStrategoTerm term) {
-        return asAppl(term).orElseThrow(() -> new ClassCastException("The given term cannot be converted to a constructor Application term."));
+        return asAppl(term).orElseThrow(() -> newTermCastException(IStrategoTerm.APPL, term.getTermType()));
     }
 
     /**
@@ -265,7 +326,7 @@ public final class TermUtils {
      * @throws ClassCastException The term is not a List term.
      */
     public static IStrategoList toList(IStrategoTerm term) {
-        return asList(term).orElseThrow(() -> new ClassCastException("The given term cannot be converted to a List term."));
+        return asList(term).orElseThrow(() -> newTermCastException(IStrategoTerm.LIST, term.getTermType()));
     }
 
 
@@ -280,7 +341,7 @@ public final class TermUtils {
      * @throws ClassCastException The term is not a String term.
      */
     public static String toJavaString(IStrategoTerm term) {
-        return toString(term).stringValue();
+        return asJavaString(term).orElseThrow(() -> newTermCastException(IStrategoTerm.STRING, term.getTermType()));
     }
 
     /**
@@ -291,7 +352,7 @@ public final class TermUtils {
      * @throws ClassCastException The term is not an Int term.
      */
     public static int toJavaInt(IStrategoTerm term) {
-        return toInt(term).intValue();
+        return asJavaInt(term).orElseThrow(() -> newTermCastException(IStrategoTerm.INT, term.getTermType()));
     }
 
     /**
@@ -302,7 +363,7 @@ public final class TermUtils {
      * @throws ClassCastException The term is not a Real term.
      */
     public static double toJavaReal(IStrategoTerm term) {
-        return toReal(term).realValue();
+        return asJavaReal(term).orElseThrow(() -> newTermCastException(IStrategoTerm.REAL, term.getTermType()));
     }
 
     /**
@@ -313,8 +374,7 @@ public final class TermUtils {
      * @throws ClassCastException The term is not a List term.
      */
     public static List<IStrategoTerm> toJavaList(IStrategoTerm term) {
-        // TODO: Get the term's immutable subterm list instead
-        return Collections.unmodifiableList(Arrays.asList(toList(term).getAllSubterms()));
+        return asJavaList(term).orElseThrow(() -> newTermCastException(IStrategoTerm.LIST, term.getTermType()));
     }
 
 
@@ -325,7 +385,7 @@ public final class TermUtils {
      * @param index the zero-based index of the subterm
      * @return an option with the subterm when found; otherwise, nothing
      */
-    private static Optional<IStrategoTerm> getTermAt(IStrategoTerm term, int index) {
+    private static Optional<IStrategoTerm> tryGetTermAt(IStrategoTerm term, int index) {
         try {
             if (0 <= index && index < term.getSubtermCount())
                 return Optional.of(term.getSubterm(index));
@@ -347,7 +407,7 @@ public final class TermUtils {
      * @return {@code true} when the subterm with the given index exists and is a String term; otherwise, {@code false}
      */
     public static boolean isStringAt(IStrategoTerm term, int index) {
-        return getTermAt(term, index).map(TermUtils::isString).orElse(false);
+        return tryGetTermAt(term, index).map(TermUtils::isString).orElse(false);
     }
 
     /**
@@ -359,7 +419,7 @@ public final class TermUtils {
      * @return {@code true} when the subterm with the given index exists and is a String term with the specified value; otherwise, {@code false}
      */
     public static boolean isStringAt(IStrategoTerm term, int index, String value) {
-        return getTermAt(term, index).map(t -> isString(t, value)).orElse(false);
+        return tryGetTermAt(term, index).map(t -> isString(t, value)).orElse(false);
     }
 
     /**
@@ -370,7 +430,7 @@ public final class TermUtils {
      * @return {@code true} when the subterm with the given index exists and is an Int term; otherwise, {@code false}
      */
     public static boolean isIntAt(IStrategoTerm term, int index) {
-        return getTermAt(term, index).map(TermUtils::isInt).orElse(false);
+        return tryGetTermAt(term, index).map(TermUtils::isInt).orElse(false);
     }
 
     /**
@@ -382,7 +442,7 @@ public final class TermUtils {
      * @return {@code true} when the subterm with the given index exists and is an Int term with the specified value; otherwise, {@code false}
      */
     public static boolean isIntAt(IStrategoTerm term, int index, int value) {
-        return getTermAt(term, index).map(t -> isInt(t, value)).orElse(false);
+        return tryGetTermAt(term, index).map(t -> isInt(t, value)).orElse(false);
     }
 
     /**
@@ -393,7 +453,7 @@ public final class TermUtils {
      * @return {@code true} when the subterm with the given index exists and is a Real term; otherwise, {@code false}
      */
     public static boolean isRealAt(IStrategoTerm term, int index) {
-        return getTermAt(term, index).map(TermUtils::isReal).orElse(false);
+        return tryGetTermAt(term, index).map(TermUtils::isReal).orElse(false);
     }
 
     /**
@@ -405,7 +465,7 @@ public final class TermUtils {
      * @return {@code true} when the subterm with the given index exists and is a Real term with the specified value; otherwise, {@code false}
      */
     public static boolean isRealAt(IStrategoTerm term, int index, double value) {
-        return getTermAt(term, index).map(t -> isReal(t, value)).orElse(false);
+        return tryGetTermAt(term, index).map(t -> isReal(t, value)).orElse(false);
     }
 
     /**
@@ -416,7 +476,7 @@ public final class TermUtils {
      * @return {@code true} when the subterm with the given index exists and is a constructor application term; otherwise, {@code false}
      */
     public static boolean isApplAt(IStrategoTerm term, int index) {
-        return getTermAt(term, index).map(TermUtils::isAppl).orElse(false);
+        return tryGetTermAt(term, index).map(TermUtils::isAppl).orElse(false);
     }
 
     /**
@@ -428,7 +488,20 @@ public final class TermUtils {
      * @return {@code true} when the subterm with the given index exists and is a constructor application term with the specified constructor; otherwise, {@code false}
      */
     public static boolean isApplAt(IStrategoTerm term, int index, IStrategoConstructor constructor) {
-        return getTermAt(term, index).map(t -> isAppl(t, constructor)).orElse(false);
+        return tryGetTermAt(term, index).map(t -> isAppl(t, constructor)).orElse(false);
+    }
+
+    /**
+     * Determines whether the given subterm is a constructor application term with the specified constructor name and any arity.
+     *
+     * @param term            the term whose subterm to check
+     * @param index           the zero-based index of the subterm
+     * @param constructorName the expected constructor name; or {@code null} to accept any constructor name
+     * @return {@code true} when the subterm with the given index exists and is a constructor application term with the specified constructor name and any arity;
+     * otherwise, {@code false}
+     */
+    public static boolean isApplAt(IStrategoTerm term, int index, @Nullable String constructorName) {
+        return isApplAt(term, index, constructorName, -1);
     }
 
     /**
@@ -436,13 +509,13 @@ public final class TermUtils {
      *
      * @param term            the term whose subterm to check
      * @param index           the zero-based index of the subterm
-     * @param constructorName the expected constructor name
-     * @param arity           the expected arity
+     * @param constructorName the expected constructor name; or {@code null} to accept any constructor name
+     * @param arity           the expected arity; or -1 to accept any arity
      * @return {@code true} when the subterm with the given index exists and is a constructor application term with the specified constructor name and arity;
      * otherwise, {@code false}
      */
-    public static boolean isApplAt(IStrategoTerm term, int index, String constructorName, int arity) {
-        return getTermAt(term, index).map(t -> isAppl(t, constructorName, arity)).orElse(false);
+    public static boolean isApplAt(IStrategoTerm term, int index, @Nullable String constructorName, int arity) {
+        return tryGetTermAt(term, index).map(t -> isAppl(t, constructorName, arity)).orElse(false);
     }
 
     /**
@@ -453,7 +526,7 @@ public final class TermUtils {
      * @return {@code true} when the subterm with the given index exists and is a List term; otherwise, {@code false}
      */
     public static boolean isListAt(IStrategoTerm term, int index) {
-        return getTermAt(term, index).map(TermUtils::isList).orElse(false);
+        return tryGetTermAt(term, index).map(TermUtils::isList).orElse(false);
     }
 
     /**
@@ -465,7 +538,7 @@ public final class TermUtils {
      * @return {@code true} when the subterm with the given index exists and is a List term with the specified size; otherwise, {@code false}
      */
     public static boolean isListAt(IStrategoTerm term, int index, int size) {
-        return getTermAt(term, index).map(t -> isList(t, size)).orElse(false);
+        return tryGetTermAt(term, index).map(t -> isList(t, size)).orElse(false);
     }
 
 
@@ -480,7 +553,7 @@ public final class TermUtils {
      * and is a String term; otherwise, nothing
      */
     public static Optional<IStrategoString> asStringAt(IStrategoTerm term, int index) {
-        return getTermAt(term, index).flatMap(TermUtils::asString);
+        return tryGetTermAt(term, index).flatMap(TermUtils::asString);
     }
 
     /**
@@ -492,7 +565,7 @@ public final class TermUtils {
      * and is an Int term; otherwise, nothing
      */
     public static Optional<IStrategoInt> asIntAt(IStrategoTerm term, int index) {
-        return getTermAt(term, index).flatMap(TermUtils::asInt);
+        return tryGetTermAt(term, index).flatMap(TermUtils::asInt);
     }
 
     /**
@@ -504,7 +577,7 @@ public final class TermUtils {
      * and is a Real term; otherwise, nothing
      */
     public static Optional<IStrategoReal> asRealAt(IStrategoTerm term, int index) {
-        return getTermAt(term, index).flatMap(TermUtils::asReal);
+        return tryGetTermAt(term, index).flatMap(TermUtils::asReal);
     }
 
     /**
@@ -516,7 +589,7 @@ public final class TermUtils {
      * and is a constructor Application term; otherwise, nothing
      */
     public static Optional<IStrategoAppl> asApplAt(IStrategoTerm term, int index) {
-        return getTermAt(term, index).flatMap(TermUtils::asAppl);
+        return tryGetTermAt(term, index).flatMap(TermUtils::asAppl);
     }
 
     /**
@@ -528,7 +601,58 @@ public final class TermUtils {
      * and is a List term; otherwise, nothing
      */
     public static Optional<IStrategoList> asListAt(IStrategoTerm term, int index) {
-        return getTermAt(term, index).flatMap(TermUtils::asList);
+        return tryGetTermAt(term, index).flatMap(TermUtils::asList);
+    }
+
+
+    /// Indexed Subterm Conversions to Java
+
+    /**
+     * Returns the given subterm as a Java string.
+     *
+     * @param term the term whose subterm to get
+     * @param index the zero-based index of the subterm
+     * @return an option with the subterm as a Java string when the subterm with the given index exists
+     * and is a String term; otherwise, nothing
+     */
+    public static Optional<String> asJavaStringAt(IStrategoTerm term, int index) {
+        return tryGetTermAt(term, index).flatMap(TermUtils::asJavaString);
+    }
+
+    /**
+     * Returns the given subterm as a Java integer.
+     *
+     * @param term the term whose subterm to get
+     * @param index the zero-based index of the subterm
+     * @return an option with the subterm as a Java integer when the subterm with the given index exists
+     * and is an Int term; otherwise, nothing
+     */
+    public static Optional<Integer> asJavaIntAt(IStrategoTerm term, int index) {
+        return tryGetTermAt(term, index).flatMap(TermUtils::asJavaInt);
+    }
+
+    /**
+     * Returns the given subterm as a Java real value (double).
+     *
+     * @param term the term whose subterm to get
+     * @param index the zero-based index of the subterm
+     * @return an option with the subterm as a Java real value (double) when the subterm with the given index exists
+     * and is a Real term; otherwise, nothing
+     */
+    public static Optional<Double> asJavaRealAt(IStrategoTerm term, int index) {
+        return tryGetTermAt(term, index).flatMap(TermUtils::asJavaReal);
+    }
+
+    /**
+     * Returns the given subterm as a Java list.
+     *
+     * @param term the term whose subterm to get
+     * @param index the zero-based index of the subterm
+     * @return an option with the subterm as a Java unmodifiable list when the subterm with the given index exists
+     * and is a List term; otherwise, nothing
+     */
+    public static Optional<List<IStrategoTerm>> asJavaListAt(IStrategoTerm term, int index) {
+        return tryGetTermAt(term, index).flatMap(TermUtils::asJavaList);
     }
 
 
@@ -544,7 +668,7 @@ public final class TermUtils {
      * @throws IndexOutOfBoundsException The index is is out of bounds.
      */
     public static IStrategoString toStringAt(IStrategoTerm term, int index) {
-        return asString(term.getSubterm(index)).orElseThrow(() -> new ClassCastException("The subterm at index " + index + " cannot be converted to a String term."));
+        return asString(term.getSubterm(index)).orElseThrow(() -> newTermCastException(IStrategoTerm.STRING, term.getTermType(), index));
     }
 
     /**
@@ -557,7 +681,7 @@ public final class TermUtils {
      * @throws IndexOutOfBoundsException The index is is out of bounds.
      */
     public static IStrategoInt toIntAt(IStrategoTerm term, int index) {
-        return asInt(term.getSubterm(index)).orElseThrow(() -> new ClassCastException("The subterm at index " + index + " cannot be converted to an Int term."));
+        return asInt(term.getSubterm(index)).orElseThrow(() -> newTermCastException(IStrategoTerm.INT, term.getTermType(), index));
     }
 
     /**
@@ -570,7 +694,7 @@ public final class TermUtils {
      * @throws IndexOutOfBoundsException The index is is out of bounds.
      */
     public static IStrategoReal toRealAt(IStrategoTerm term, int index) {
-        return asReal(term.getSubterm(index)).orElseThrow(() -> new ClassCastException("The subterm at index " + index + " cannot be converted to a Real term."));
+        return asReal(term.getSubterm(index)).orElseThrow(() -> newTermCastException(IStrategoTerm.REAL, term.getTermType(), index));
     }
 
     /**
@@ -583,7 +707,7 @@ public final class TermUtils {
      * @throws IndexOutOfBoundsException The index is is out of bounds.
      */
     public static IStrategoAppl toApplAt(IStrategoTerm term, int index) {
-        return asAppl(term.getSubterm(index)).orElseThrow(() -> new ClassCastException("The subterm at index " + index + " cannot be converted to a constructor Application term."));
+        return asAppl(term.getSubterm(index)).orElseThrow(() -> newTermCastException(IStrategoTerm.APPL, term.getTermType(), index));
     }
 
     /**
@@ -596,7 +720,7 @@ public final class TermUtils {
      * @throws IndexOutOfBoundsException The index is is out of bounds.
      */
     public static IStrategoList toListAt(IStrategoTerm term, int index) {
-        return asList(term.getSubterm(index)).orElseThrow(() -> new ClassCastException("The subterm at index " + index + " cannot be converted to a List term."));
+        return asList(term.getSubterm(index)).orElseThrow(() -> newTermCastException(IStrategoTerm.LIST, term.getTermType(), index));
     }
 
 
@@ -613,7 +737,7 @@ public final class TermUtils {
      * @throws IndexOutOfBoundsException The index is is out of bounds.
      */
     public static String toJavaStringAt(IStrategoTerm term, int index) {
-        return toJavaString(term.getSubterm(index));
+        return asJavaString(term.getSubterm(index)).orElseThrow(() -> newTermCastException(IStrategoTerm.STRING, term.getTermType(), index));
     }
 
     /**
@@ -626,7 +750,7 @@ public final class TermUtils {
      * @throws IndexOutOfBoundsException The index is is out of bounds.
      */
     public static int toJavaIntAt(IStrategoTerm term, int index) {
-        return toJavaInt(term.getSubterm(index));
+        return asJavaInt(term.getSubterm(index)).orElseThrow(() -> newTermCastException(IStrategoTerm.INT, term.getTermType(), index));
     }
 
     /**
@@ -639,7 +763,7 @@ public final class TermUtils {
      * @throws IndexOutOfBoundsException The index is is out of bounds.
      */
     public static double toJavaRealAt(IStrategoTerm term, int index) {
-        return toJavaReal(term.getSubterm(index));
+        return asJavaReal(term.getSubterm(index)).orElseThrow(() -> newTermCastException(IStrategoTerm.REAL, term.getTermType(), index));
     }
 
     /**
@@ -652,7 +776,61 @@ public final class TermUtils {
      * @throws IndexOutOfBoundsException The index is is out of bounds.
      */
     public static List<IStrategoTerm> toJavaListAt(IStrategoTerm term, int index) {
-        return toJavaList(term.getSubterm(index));
+        return asJavaList(term.getSubterm(index)).orElseThrow(() -> newTermCastException(IStrategoTerm.LIST, term.getTermType(), index));
+    }
+
+    /**
+     * Creates a new {@link ClassCastException} for a term conversion.
+     *
+     * @param expectedType the expected term type
+     * @param actualType the actual term type
+     * @return the {@link ClassCastException}
+     */
+    private static ClassCastException newTermCastException(int expectedType, int actualType) {
+        return newTermCastException(expectedType, actualType, -1);
+    }
+
+    /**
+     * Creates a new {@link ClassCastException} for a term conversion.
+     *
+     * @param expectedType the expected term type
+     * @param actualType the actual term type
+     * @param index the zero-based index of the subterm; or -1 when it is not a subterm
+     * @return the {@link ClassCastException}
+     */
+    private static ClassCastException newTermCastException(int expectedType, int actualType, int index) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Expected ");
+        sb.append(termTypeToString(expectedType));
+        if (index >= 0) { sb.append(" subterm at index ").append(index); }
+        else { sb.append(" term"); }
+        sb.append(", but got ");
+        sb.append(termTypeToString(actualType));
+        if (index >= 0) { sb.append(" subterm."); }
+        else { sb.append(" term."); }
+        return new ClassCastException(sb.toString());
+    }
+
+    /**
+     * Converts a term type to a string representation.
+     *
+     * @param type the type to convert
+     * @return the string representation
+     */
+    private static String termTypeToString(int type) {
+        switch(type) {
+            case IStrategoTerm.APPL: return "a Constructor Application";
+            case IStrategoTerm.LIST: return "a List";
+            case IStrategoTerm.INT: return "an Int";
+            case IStrategoTerm.REAL: return "a Real";
+            case IStrategoTerm.STRING: return "a String";
+            case IStrategoTerm.CTOR: return "a Constructor";
+            case IStrategoTerm.TUPLE: return "a Tuple";
+            case IStrategoTerm.REF: return "a Ref";
+            case IStrategoTerm.BLOB: return "a Blob";
+            case IStrategoTerm.PLACEHOLDER: return "a Placeholder";
+            default: return "an unrecognized";
+        }
     }
 
 }
