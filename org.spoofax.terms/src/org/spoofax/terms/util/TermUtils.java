@@ -83,22 +83,6 @@ public final class TermUtils {
     }
 
     /**
-     * Determines whether two floating-point numbers are equal within 1e-30.
-     * @param a the first number to compare
-     * @param b the second number to compare
-     * @return {@code true} when they are nearly equal or equal; otherwise, {@code false}
-     */
-    private static boolean fuzzyEquals(double a, double b) {
-        // Inspired by Guava's DoubleMath.fuzzyEquals()
-        double EPSILON = 1e-30;
-        // @formatter:off
-        return Math.copySign(a - b, 1.0) <= EPSILON
-            || (a == b)
-            || (Double.isNaN(a) && Double.isNaN(b));
-        // @formatter:on
-    }
-
-    /**
      * Determines whether the given term is a constructor application term.
      *
      * @param term the term to check
@@ -171,6 +155,27 @@ public final class TermUtils {
         return isList(term) && ((IStrategoList)term).size() == size;
     }
 
+    /**
+     * Determines whether the given term is a Tuple term.
+     *
+     * @param term the term to check
+     * @return {@code true} when the term is a Tuple term; otherwise, {@code false}
+     */
+    public static boolean isTuple(IStrategoTerm term) {
+        return term instanceof IStrategoTuple;
+    }
+
+    /**
+     * Determines whether the given term is a Tuple term with the specified size.
+     *
+     * @param term the term to check
+     * @param size the expected size of the term
+     * @return {@code true} when the term is a Tuple term with the specified size; otherwise, {@code false}
+     */
+    public static boolean isTuple(IStrategoTerm term, int size) {
+        return isTuple(term) && ((IStrategoTuple)term).size() == size;
+    }
+
 
     /// Term Conversions
 
@@ -222,6 +227,16 @@ public final class TermUtils {
      */
     public static Optional<IStrategoList> asList(IStrategoTerm term) {
         return isList(term) ? Optional.of((IStrategoList)term) : Optional.empty();
+    }
+
+    /**
+     * Converts the term to a Tuple term, if possible.
+     *
+     * @param term the term
+     * @return an option with the converted term when the term is a Tuple term; otherwise, nothing
+     */
+    public static Optional<IStrategoTuple> asTuple(IStrategoTerm term) {
+        return isTuple(term) ? Optional.of((IStrategoTuple)term) : Optional.empty();
     }
 
 
@@ -327,6 +342,17 @@ public final class TermUtils {
      */
     public static IStrategoList toList(IStrategoTerm term) {
         return asList(term).orElseThrow(() -> newTermCastException(IStrategoTerm.LIST, term.getTermType()));
+    }
+
+    /**
+     * Converts the term to a Tuple term.
+     *
+     * @param term the term
+     * @return the converted term
+     * @throws ClassCastException The term is not a Tuple term.
+     */
+    public static IStrategoTuple toTuple(IStrategoTerm term) {
+        return asTuple(term).orElseThrow(() -> newTermCastException(IStrategoTerm.TUPLE, term.getTermType()));
     }
 
 
@@ -541,6 +567,29 @@ public final class TermUtils {
         return tryGetTermAt(term, index).map(t -> isList(t, size)).orElse(false);
     }
 
+    /**
+     * Determines whether the given subterm is a Tuple term.
+     *
+     * @param term the term whose subterm to check
+     * @param index the zero-based index of the subterm
+     * @return {@code true} when the subterm with the given index exists and is a Tuple term; otherwise, {@code false}
+     */
+    public static boolean isTupleAt(IStrategoTerm term, int index) {
+        return tryGetTermAt(term, index).map(TermUtils::isTuple).orElse(false);
+    }
+
+    /**
+     * Determines whether the given subterm is a Tuple term with the specified size.
+     *
+     * @param term the term whose subterm to check
+     * @param index the zero-based index of the subterm
+     * @param size the expected size of the subterm
+     * @return {@code true} when the subterm with the given index exists and is a Tuple term with the specified size; otherwise, {@code false}
+     */
+    public static boolean isTupleAt(IStrategoTerm term, int index, int size) {
+        return tryGetTermAt(term, index).map(t -> isTuple(t, size)).orElse(false);
+    }
+
 
     /// Indexed Subterm Conversions
 
@@ -602,6 +651,18 @@ public final class TermUtils {
      */
     public static Optional<IStrategoList> asListAt(IStrategoTerm term, int index) {
         return tryGetTermAt(term, index).flatMap(TermUtils::asList);
+    }
+
+    /**
+     * Converts the subterm to a Tuple term, if possible.
+     *
+     * @param term the term whose subterm to get
+     * @param index the zero-based index of the subterm
+     * @return an option with the converted subterm when the subterm with the given index exists
+     * and is a Tuple term; otherwise, nothing
+     */
+    public static Optional<IStrategoTuple> asTupleAt(IStrategoTerm term, int index) {
+        return tryGetTermAt(term, index).flatMap(TermUtils::asTuple);
     }
 
 
@@ -723,6 +784,19 @@ public final class TermUtils {
         return asList(term.getSubterm(index)).orElseThrow(() -> newTermCastException(IStrategoTerm.LIST, term.getTermType(), index));
     }
 
+    /**
+     * Converts the subterm to a Tuple term.
+     *
+     * @param term the term whose subterm to get
+     * @param index the zero-based index of the subterm
+     * @return the converted subterm
+     * @throws ClassCastException The subterm is not a Tuple term.
+     * @throws IndexOutOfBoundsException The index is is out of bounds.
+     */
+    public static IStrategoTuple toTupleAt(IStrategoTerm term, int index) {
+        return asTuple(term.getSubterm(index)).orElseThrow(() -> newTermCastException(IStrategoTerm.TUPLE, term.getTermType(), index));
+    }
+
 
 
     /// Indexed Subterm Conversions to Java
@@ -777,6 +851,25 @@ public final class TermUtils {
      */
     public static List<IStrategoTerm> toJavaListAt(IStrategoTerm term, int index) {
         return asJavaList(term.getSubterm(index)).orElseThrow(() -> newTermCastException(IStrategoTerm.LIST, term.getTermType(), index));
+    }
+
+
+
+
+    /**
+     * Determines whether two floating-point numbers are equal within 1e-30.
+     * @param a the first number to compare
+     * @param b the second number to compare
+     * @return {@code true} when they are nearly equal or equal; otherwise, {@code false}
+     */
+    private static boolean fuzzyEquals(double a, double b) {
+        // Inspired by Guava's DoubleMath.fuzzyEquals()
+        double EPSILON = 1e-30;
+        // @formatter:off
+        return Math.copySign(a - b, 1.0) <= EPSILON
+                || (a == b)
+                || (Double.isNaN(a) && Double.isNaN(b));
+        // @formatter:on
     }
 
     /**

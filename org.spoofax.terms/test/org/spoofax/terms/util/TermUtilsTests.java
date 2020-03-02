@@ -257,6 +257,48 @@ public final class TermUtilsTests {
     }
 
 
+    /** Tests the {@link TermUtils#isTuple} methods. */
+    @Nested
+    @DisplayName("isTuple(..)")
+    public final class IsTupleTests {
+
+        @Test
+        @DisplayName("when term is a tuple term, returns true")
+        public void whenTermIsATupleTerm_returnsTrue() {
+            assertTrue(TermUtils.isTuple(factory.makeTuple()));
+            assertTrue(TermUtils.isTuple(factory.makeTuple(factory.makeString("abc"))));
+            assertTrue(TermUtils.isTuple(factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))));
+        }
+
+        @Test
+        @DisplayName("when term is not a tuple term, returns false")
+        public void whenTermIsNotATupleTerm_returnsFalse() {
+            assertFalse(TermUtils.isTuple(factory.makeString("abc")));
+            assertFalse(TermUtils.isTuple(factory.makeInt(42)));
+            assertFalse(TermUtils.isTuple(factory.makeReal(4.2)));
+            assertFalse(TermUtils.isTuple(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))));
+            assertFalse(TermUtils.isTuple(factory.makeList(factory.makeString("abc"), factory.makeString("def"))));
+        }
+
+        @Test
+        @DisplayName("when term is a tuple term and size matches, returns true")
+        public void whenTermIsATupleTermAndSizeMatches_returnsTrue() {
+            assertTrue(TermUtils.isTuple(factory.makeTuple(), 0));
+            assertTrue(TermUtils.isTuple(factory.makeTuple(factory.makeString("abc")), 1));
+            assertTrue(TermUtils.isTuple(factory.makeTuple(factory.makeString("abc"), factory.makeString("def")), 2));
+        }
+
+        @Test
+        @DisplayName("when term is a tuple term but size does not match, returns false")
+        public void whenTermIsATupleTermButSizeDoesNotMatch_returnsFalse() {
+            assertFalse(TermUtils.isTuple(factory.makeTuple(), 3));
+            assertFalse(TermUtils.isTuple(factory.makeTuple(factory.makeString("abc")), 3));
+            assertFalse(TermUtils.isTuple(factory.makeTuple(factory.makeString("abc"), factory.makeString("def")), 3));
+        }
+
+    }
+
+
 
     /** Tests the {@link TermUtils#asString(IStrategoTerm)} method. */
     @Nested
@@ -404,6 +446,38 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.asList(factory.makeReal(4.2)).isPresent());
             assertFalse(TermUtils.asList(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))).isPresent());
             assertFalse(TermUtils.asList(factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))).isPresent());
+        }
+
+    }
+
+
+
+    /** Tests the {@link TermUtils#asTuple(IStrategoTerm)} method. */
+    @Nested
+    @DisplayName("asTuple(IStrategoTerm)")
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    public final class AsTupleTests {
+
+        @Test
+        @DisplayName("when term is a tuple term, returns the term")
+        public void whenTermIsATupleTerm_returnsTheTerm() {
+            IStrategoTuple t1 = factory.makeTuple();
+            IStrategoTuple t2 = factory.makeTuple(factory.makeString("abc"));
+            IStrategoTuple t3 = factory.makeTuple(factory.makeString("abc"), factory.makeString("def"));
+
+            assertEquals(t1, TermUtils.asTuple(t1).get());
+            assertEquals(t2, TermUtils.asTuple(t2).get());
+            assertEquals(t3, TermUtils.asTuple(t3).get());
+        }
+
+        @Test
+        @DisplayName("when term is not a tuple term, returns nothing")
+        public void whenTermIsNotATupleTerm_returnsNothing() {
+            assertFalse(TermUtils.asTuple(factory.makeString("abc")).isPresent());
+            assertFalse(TermUtils.asTuple(factory.makeInt(42)).isPresent());
+            assertFalse(TermUtils.asTuple(factory.makeReal(4.2)).isPresent());
+            assertFalse(TermUtils.asTuple(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))).isPresent());
+            assertFalse(TermUtils.asTuple(factory.makeList(factory.makeString("abc"), factory.makeString("def"))).isPresent());
         }
 
     }
@@ -673,6 +747,35 @@ public final class TermUtilsTests {
             assertThrows(ClassCastException.class, () -> TermUtils.toList(factory.makeReal(4.2)));
             assertThrows(ClassCastException.class, () -> TermUtils.toList(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))));
             assertThrows(ClassCastException.class, () -> TermUtils.toList(factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))));
+        }
+
+    }
+
+    /** Tests the {@link TermUtils#toTuple(IStrategoTerm)} method. */
+    @Nested
+    @DisplayName("toTuple(IStrategoTerm)")
+    public final class ToTupleTests {
+
+        @Test
+        @DisplayName("when term is a tuple term, returns the term")
+        public void whenTermIsATupleTerm_returnsTheTerm() {
+            IStrategoTuple t1 = factory.makeTuple();
+            IStrategoTuple t2 = factory.makeTuple(factory.makeString("abc"));
+            IStrategoTuple t3 = factory.makeTuple(factory.makeString("abc"), factory.makeString("def"));
+
+            assertEquals(t1, TermUtils.toTuple(t1));
+            assertEquals(t2, TermUtils.toTuple(t2));
+            assertEquals(t3, TermUtils.toTuple(t3));
+        }
+
+        @Test
+        @DisplayName("when term is not a tuple term, throws exception")
+        public void whenTermIsNotATupleTerm_throwsException() {
+            assertThrows(ClassCastException.class, () -> TermUtils.toTuple(factory.makeString("abc")));
+            assertThrows(ClassCastException.class, () -> TermUtils.toTuple(factory.makeInt(42)));
+            assertThrows(ClassCastException.class, () -> TermUtils.toTuple(factory.makeReal(4.2)));
+            assertThrows(ClassCastException.class, () -> TermUtils.toTuple(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))));
+            assertThrows(ClassCastException.class, () -> TermUtils.toTuple(factory.makeList(factory.makeString("abc"), factory.makeString("def"))));
         }
 
     }
@@ -1129,6 +1232,69 @@ public final class TermUtilsTests {
     }
 
 
+    /** Tests the {@link TermUtils#isTupleAt} methods. */
+    @Nested
+    @DisplayName("isTupleAt(..)")
+    public final class IsTupleAtTests {
+
+        private final IStrategoTuple testTerm = factory.makeTuple(
+                factory.makeTuple(),
+                factory.makeTuple(factory.makeString("abc")),
+                factory.makeTuple(factory.makeString("abc"), factory.makeString("def")),
+
+                factory.makeString("abc"),
+                factory.makeInt(42),
+                factory.makeReal(4.2),
+                factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")),
+                factory.makeList(factory.makeString("abc"), factory.makeString("def"))
+        );
+
+        @Test
+        @DisplayName("when subterm is a tuple term, returns true")
+        public void whenSubtermIsATupleTerm_returnsTrue() {
+            assertTrue(TermUtils.isTupleAt(testTerm, 0));
+            assertTrue(TermUtils.isTupleAt(testTerm, 1));
+            assertTrue(TermUtils.isTupleAt(testTerm, 2));
+        }
+
+        @Test
+        @DisplayName("when subterm is not a tuple term, returns false")
+        public void whenSubtermIsNotATupleTerm_returnsFalse() {
+            assertFalse(TermUtils.isTupleAt(testTerm, 4));
+            assertFalse(TermUtils.isTupleAt(testTerm, 5));
+            assertFalse(TermUtils.isTupleAt(testTerm, 6));
+            assertFalse(TermUtils.isTupleAt(testTerm, 7));
+            assertFalse(TermUtils.isTupleAt(testTerm, 8));
+        }
+
+        @Test
+        @DisplayName("when subterm is a tuple term and size matches, returns true")
+        public void whenSubtermIsATupleTermAndSizeMatches_returnsTrue() {
+            assertTrue(TermUtils.isTupleAt(testTerm, 0, 0));
+            assertTrue(TermUtils.isTupleAt(testTerm, 1, 1));
+            assertTrue(TermUtils.isTupleAt(testTerm, 2, 2));
+        }
+
+        @Test
+        @DisplayName("when subterm is a tuple term but size does not match, returns false")
+        public void whenSubtermIsATupleTermButSizeDoesNotMatch_returnsFalse() {
+            assertFalse(TermUtils.isTupleAt(testTerm, 0, 3));
+            assertFalse(TermUtils.isTupleAt(testTerm, 1, 3));
+            assertFalse(TermUtils.isTupleAt(testTerm, 2, 3));
+        }
+
+        @Test
+        @DisplayName("when index is out of bounds, returns false")
+        public void whenIndexIsOutOfBounds_returnsFalse() {
+            assertFalse(TermUtils.isTupleAt(testTerm, -1));
+            assertFalse(TermUtils.isTupleAt(testTerm, 10));
+            assertFalse(TermUtils.isTupleAt(testTerm, -1,  2));
+            assertFalse(TermUtils.isTupleAt(testTerm, 10, 2));
+        }
+
+    }
+
+
 
     /** Tests the {@link TermUtils#asStringAt(IStrategoTerm, int)} method. */
     @Nested
@@ -1365,6 +1531,54 @@ public final class TermUtilsTests {
         public void whenIndexIsOutOfBounds_returnsNothing() {
             assertFalse(TermUtils.asListAt(testTerm, -1).isPresent());
             assertFalse(TermUtils.asListAt(testTerm, 10).isPresent());
+        }
+
+    }
+
+
+    /** Tests the {@link TermUtils#asTupleAt(IStrategoTerm, int)} method. */
+    @Nested
+    @DisplayName("asTupleAt(IStrategoTerm, int)")
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    public final class AsTupleAtTests {
+
+        private final IStrategoTuple t1 = factory.makeTuple();
+        private final IStrategoTuple t2 = factory.makeTuple(factory.makeString("abc"));
+        private final IStrategoTuple t3 = factory.makeTuple(factory.makeString("abc"), factory.makeString("def"));
+
+        private final IStrategoTuple testTerm = factory.makeTuple(
+                t1, t2, t3,
+
+                factory.makeString("abc"),
+                factory.makeInt(42),
+                factory.makeReal(4.2),
+                factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")),
+                factory.makeList(factory.makeString("abc"), factory.makeString("def"))
+        );
+
+        @Test
+        @DisplayName("when subterm is a tuple term, returns the subterm")
+        public void whenSubtermIsATupleTerm_returnsTheSubterm() {
+            assertEquals(t1, TermUtils.asTupleAt(testTerm, 0).get());
+            assertEquals(t2, TermUtils.asTupleAt(testTerm, 1).get());
+            assertEquals(t3, TermUtils.asTupleAt(testTerm, 2).get());
+        }
+
+        @Test
+        @DisplayName("when subterm is not a tuple term, returns nothing")
+        public void whenSubtermIsNotATupleTerm_returnsNothing() {
+            assertFalse(TermUtils.asTupleAt(testTerm, 3).isPresent());
+            assertFalse(TermUtils.asTupleAt(testTerm, 4).isPresent());
+            assertFalse(TermUtils.asTupleAt(testTerm, 5).isPresent());
+            assertFalse(TermUtils.asTupleAt(testTerm, 6).isPresent());
+            assertFalse(TermUtils.asTupleAt(testTerm, 7).isPresent());
+        }
+
+        @Test
+        @DisplayName("when index is out of bounds, returns nothing")
+        public void whenIndexIsOutOfBounds_returnsNothing() {
+            assertFalse(TermUtils.asTupleAt(testTerm, -1).isPresent());
+            assertFalse(TermUtils.asTupleAt(testTerm, 10).isPresent());
         }
 
     }
@@ -1799,6 +2013,53 @@ public final class TermUtilsTests {
         public void whenIndexIsOutOfBounds_throwsException() {
             assertThrows(IndexOutOfBoundsException.class, () -> TermUtils.toListAt(testTerm, -1));
             assertThrows(IndexOutOfBoundsException.class, () -> TermUtils.toListAt(testTerm, 10));
+        }
+
+    }
+
+
+    /** Tests the {@link TermUtils#toTupleAt(IStrategoTerm, int)} method. */
+    @Nested
+    @DisplayName("toTupleAt(IStrategoTerm, int)")
+    public final class ToTupleAtTests {
+
+        private final IStrategoTuple t1 = factory.makeTuple();
+        private final IStrategoTuple t2 = factory.makeTuple(factory.makeString("abc"));
+        private final IStrategoTuple t3 = factory.makeTuple(factory.makeString("abc"), factory.makeString("def"));
+
+        private final IStrategoTuple testTerm = factory.makeTuple(
+                t1, t2, t3,
+
+                factory.makeString("abc"),
+                factory.makeInt(42),
+                factory.makeReal(4.2),
+                factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")),
+                factory.makeList(factory.makeString("abc"), factory.makeString("def"))
+        );
+
+        @Test
+        @DisplayName("when subterm is a tuple term, returns the subterm")
+        public void whenSubtermIsATupleTerm_returnsTheSubterm() {
+            assertEquals(t1, TermUtils.toTupleAt(testTerm, 0));
+            assertEquals(t2, TermUtils.toTupleAt(testTerm, 1));
+            assertEquals(t3, TermUtils.toTupleAt(testTerm, 2));
+        }
+
+        @Test
+        @DisplayName("when suberm is not a tuple term, throws exception")
+        public void whenSubtermIsNotATupleTerm_throwsException() {
+            assertThrows(ClassCastException.class, () -> TermUtils.toTupleAt(testTerm, 3));
+            assertThrows(ClassCastException.class, () -> TermUtils.toTupleAt(testTerm, 4));
+            assertThrows(ClassCastException.class, () -> TermUtils.toTupleAt(testTerm, 5));
+            assertThrows(ClassCastException.class, () -> TermUtils.toTupleAt(testTerm, 6));
+            assertThrows(ClassCastException.class, () -> TermUtils.toTupleAt(testTerm, 7));
+        }
+
+        @Test
+        @DisplayName("when index is out of bounds, throws exception")
+        public void whenIndexIsOutOfBounds_throwsException() {
+            assertThrows(IndexOutOfBoundsException.class, () -> TermUtils.toTupleAt(testTerm, -1));
+            assertThrows(IndexOutOfBoundsException.class, () -> TermUtils.toTupleAt(testTerm, 10));
         }
 
     }
