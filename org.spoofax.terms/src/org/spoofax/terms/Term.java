@@ -1,94 +1,124 @@
 package org.spoofax.terms;
 
-import static org.spoofax.interpreter.terms.IStrategoTerm.APPL;
-import static org.spoofax.interpreter.terms.IStrategoTerm.INT;
-import static org.spoofax.interpreter.terms.IStrategoTerm.LIST;
-import static org.spoofax.interpreter.terms.IStrategoTerm.REAL;
-import static org.spoofax.interpreter.terms.IStrategoTerm.STRING;
+import org.spoofax.interpreter.terms.*;
+import org.spoofax.terms.util.TermUtils;
+
 import static org.spoofax.interpreter.terms.IStrategoTerm.TUPLE;
 
-import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoConstructor;
-import org.spoofax.interpreter.terms.IStrategoInt;
-import org.spoofax.interpreter.terms.IStrategoString;
-import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.ITermFactory;
-
+/** @deprecated Use {@link TermUtils} */
+@Deprecated
 public class Term {
+
+    /** @deprecated Use {@link TermUtils#toJavaStringAt} */
+    @Deprecated
     public static String stringAt(IStrategoTerm t, int i) {
-        return ((IStrategoString) t.getSubterm(i)).stringValue();
+        return TermUtils.toJavaStringAt(t, i);
     }
 
+    /** @deprecated Use {@link TermUtils#toJavaIntAt} */
+    @Deprecated
     public static int intAt(IStrategoTerm t, int i) {
-        return ((IStrategoInt) t.getSubterm(i)).intValue();
+        return TermUtils.toJavaIntAt(t, i);
     }
 
+    /** @deprecated Use {@link IStrategoTerm#getSubterm} */
+    @Deprecated
     @SuppressWarnings("unchecked") // casting is inherently unsafe, but doesn't warrant a warning here
     public static<T extends IStrategoTerm> T termAt(IStrategoTerm t, int i) {
         return (T) t.getSubterm(i);
     }
-    
+
+    /** @deprecated Use {@link TermUtils#toApplAt} */
+    @Deprecated
     public static IStrategoAppl applAt(IStrategoTerm t, int i) {
-    	return (IStrategoAppl) t.getSubterm(i);
+        return TermUtils.toApplAt(t, i);
     }
 
+    /** @deprecated Use {@link TermUtils#isString} */
+    @Deprecated
     public static boolean isTermString(IStrategoTerm t) {
-        return t.getTermType() == STRING;
+        return TermUtils.isString(t);
     }
 
+    /** @deprecated Use {@link TermUtils#toJavaString} */
+    @Deprecated
     public static String javaString(IStrategoTerm t) {
-        return ((IStrategoString)t).stringValue();
+        return TermUtils.toJavaString(t);
     }
 
+    /** @deprecated Use {@link TermUtils#isList} */
+    @Deprecated
     public static boolean isTermList(IStrategoTerm t) {
-        return t.getTermType() == LIST;
+        return TermUtils.isList(t);
     }
-    
+
+    /** @deprecated Use {@link TermUtils#isInt} */
+    @Deprecated
     public static boolean isTermInt(IStrategoTerm t) {
-        return t.getTermType() == INT;
+        return TermUtils.isInt(t);
     }
 
+    /** @deprecated Use {@link TermUtils#isReal} */
+    @Deprecated
     public static boolean isTermReal(IStrategoTerm t) {
-        return t.getTermType() == REAL;
+        return TermUtils.isReal(t);
     }
 
+    /** @deprecated Use {@link TermUtils#isAppl} */
+    @Deprecated
     public static boolean isTermAppl(IStrategoTerm t) {
-        return t.getTermType() == APPL;
+        return TermUtils.isAppl(t);
     }
-    
+
+    /** @deprecated */
+    @Deprecated
     public static boolean isTermNamed(IStrategoTerm t) {
-    	int type = t.getTermType();
-    	return type == APPL || type == STRING;
+        return TermUtils.isAppl(t) || TermUtils.isString(t);
     }
 
+    /** @deprecated Use {@link TermUtils#toJavaInt} */
+    @Deprecated
     public static int javaInt(IStrategoTerm term) {
-        return ((IStrategoInt)term).intValue();
+        return TermUtils.toJavaInt(term);
     }
 
+    /** @deprecated Use {@link TermUtils#isAppl} */
+    @Deprecated
     public static boolean hasConstructor(IStrategoAppl t, String ctorName) {
-        return t.getConstructor().getName().equals(ctorName);
+        return TermUtils.isAppl(t, ctorName);
     }
 
+    /** @deprecated Use {@link TermUtils#isTuple} */
+    @Deprecated
     public static boolean isTermTuple(IStrategoTerm t) {
-        return t.getTermType() == TUPLE;
+        return TermUtils.isTuple(t);
     }
 
+    /** @deprecated Use {@link TermUtils#toJavaInt} */
+    @Deprecated
     public static int asJavaInt(IStrategoTerm term) {
-        return ((IStrategoInt)term).intValue();
+        return TermUtils.toJavaInt(term);
     }
 
+    /** @deprecated Use {@link TermUtils#toJavaString} */
+    @Deprecated
     public static String asJavaString(IStrategoTerm term) {
-        return ((IStrategoString)term).stringValue();
+        return TermUtils.toJavaString(term);
     }
 
+    /** @deprecated Use {@link TermUtils#asAppl} with {@link IStrategoAppl#getConstructor()}. */
+    @Deprecated
     public static IStrategoConstructor tryGetConstructor(IStrategoTerm term) {
-    	return term != null && term.getTermType() == APPL ? ((IStrategoAppl) term).getConstructor() : null;
+        return TermUtils.asAppl(term).map(IStrategoAppl::getConstructor).orElse(null);
     }
 
+    /** @deprecated Use {@link TermUtils#asAppl} with {@link IStrategoAppl#getConstructor()}. */
+    @Deprecated
     public static String tryGetName(IStrategoTerm term) {
-    	return term != null && term.getTermType() == APPL ? ((IStrategoAppl) term).getConstructor().getName() : null;
+        return TermUtils.asAppl(term).map(a -> a.getConstructor().getName()).orElse(null);
     }
- 
+
+    @Deprecated
     public static IStrategoTerm removeAnnotations(IStrategoTerm inTerm, final ITermFactory factory) {
         TermTransformer trans = new TermTransformer(factory, true) {
             @Override public IStrategoTerm preTransform(IStrategoTerm term) {

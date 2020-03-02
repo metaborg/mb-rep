@@ -27,8 +27,6 @@
 
 package org.spoofax.terms.io.binary;
 
-import static org.spoofax.terms.Term.isTermList;
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -45,6 +43,7 @@ import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.terms.util.TermUtils;
 
 /**
  * A term reader that uses IStrategoTerms.
@@ -496,8 +495,8 @@ class SAFReader {
                 // Remove?
                 if (!hasAnnos)
                     parent.annos = factory.makeList();
-            } else if (hasAnnos && isTermList(term)) {
-                parent.annos = (IStrategoList) term;
+            } else if (hasAnnos && TermUtils.isList(term)) {
+                parent.annos = TermUtils.toList(term);
             } else {
                 throw new RuntimeException(
                         "Encountered a term that didn't fit anywhere. Type: "

@@ -2,7 +2,6 @@ package org.spoofax.terms.attachments;
 
 import static org.spoofax.terms.attachments.ParentAttachment.getParent;
 import static org.spoofax.terms.attachments.ParentAttachment.putParent;
-import static org.spoofax.terms.Term.*;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
@@ -17,6 +16,7 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.AbstractTermFactory;
 import org.spoofax.terms.StrategoListIterator;
 import org.spoofax.terms.StrategoSubList;
+import org.spoofax.terms.util.TermUtils;
 
 /** 
  * @author Lennart Kats <lennart add lclnet.nl>
@@ -56,8 +56,8 @@ public class ParentTermFactory extends AbstractTermFactory {
 		// This is a strange case
 		// SpoofaxTestingJSGLRI.parseTestedFragments() might depend on it
 		IStrategoTerm result = baseFactory.annotateTerm(term, annotations);
-		if (isTermList(term)) {
-			for (IStrategoTerm subterm : StrategoListIterator.iterable((IStrategoList) term))
+		if (TermUtils.isList(term)) {
+			for (IStrategoTerm subterm : StrategoListIterator.iterable(TermUtils.toList(term)))
 				configure(result, subterm);
 		} else {
 			configure(result, result.getAllSubterms());

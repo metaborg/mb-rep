@@ -11,7 +11,9 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.StrategoTerm;
 import org.spoofax.terms.TermTransformer;
-import static org.spoofax.terms.Term.*;
+import org.spoofax.terms.util.TermUtils;
+
+import javax.annotation.Nullable;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>
@@ -80,8 +82,8 @@ public class TermAttachmentSerializer {
 				IStrategoList annotations = source.getAnnotations();
 				while (!annotations.isEmpty()) {
 					IStrategoTerm head = annotations.head();
-					if (isTermAppl(head)) {
-						IStrategoAppl appl = (IStrategoAppl) head;
+					if (TermUtils.isAppl(head)) {
+						IStrategoAppl appl = TermUtils.toAppl(head);
 						IStrategoConstructor cons = appl.getConstructor();
 						TermAttachmentType<?> type = getAttachmentType(cons);
 						if (type != null) {
@@ -97,7 +99,7 @@ public class TermAttachmentSerializer {
 				return target;
 			}
 			
-			private TermAttachmentType<?> getAttachmentType(IStrategoConstructor cons) {
+			private @Nullable TermAttachmentType<?> getAttachmentType(@Nullable IStrategoConstructor cons) {
 				if (cons == null) return null;
 				for (TermAttachmentType<?> type : types) {
 					if (type.getTermConstructor() == cons)
@@ -121,7 +123,7 @@ public class TermAttachmentSerializer {
 				List<IStrategoTerm> newAnnos = null; 
 				while (!annotations.isEmpty()) {
 					final IStrategoTerm annotation = annotations.head();
-					if (getAttachmentType(tryGetConstructor(annotation)) == null) {
+					if (getAttachmentType(TermUtils.asAppl(annotation).map(IStrategoAppl::getConstructor).orElse(null)) == null) {
 						if (newAnnos == null) newAnnos = new ArrayList<IStrategoTerm>(annotations.size());
 						newAnnos.add(annotation);
 					}
