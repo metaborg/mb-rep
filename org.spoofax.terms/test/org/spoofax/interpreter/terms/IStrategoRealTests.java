@@ -117,7 +117,7 @@ public interface IStrategoRealTests {
      * Tests the {@link IStrategoReal#getAllSubterms()} method.
      */
     @DisplayName("getAllSubterms(int)")
-    interface GetAllSubtermTests extends Fixture, IStrategoTermTests.GetAllSubtermTests {
+    interface GetAllSubtermsTests extends Fixture, IStrategoTermTests.GetAllSubtermsTests {
 
         @Test
         @DisplayName("always returns empty array")
@@ -130,6 +130,27 @@ public interface IStrategoRealTests {
 
             // Assert
             assertEquals(0, result.length);
+        }
+
+    }
+
+    /**
+     * Tests the {@link IStrategoReal#getSubterms()} method.
+     */
+    @DisplayName("getSubterms(int)")
+    interface GetSubtermsTests extends Fixture, IStrategoTermTests.GetSubtermsTests {
+
+        @Test
+        @DisplayName("always returns empty list")
+        default void alwaysReturnsEmptyList() {
+            // Arrange
+            IStrategoTerm sut = createIStrategoReal(null, null, null);
+
+            // Act
+            List<IStrategoTerm> result = sut.getSubterms();
+
+            // Assert
+            assertEquals(0, result.size());
         }
 
     }

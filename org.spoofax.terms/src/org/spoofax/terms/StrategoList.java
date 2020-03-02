@@ -1,10 +1,3 @@
-/*
- * Created on 9. okt.. 2006
- *
- * Copyright (c) 2005, Karl Trygve Kalleberg <karltk near strategoxt.org>
- *
- * Licensed under the GNU Lesser General Public License, v2.1
- */
 package org.spoofax.terms;
 
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -14,6 +7,7 @@ import org.spoofax.interpreter.terms.ITermPrinter;
 import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
@@ -58,16 +52,19 @@ public class StrategoList extends StrategoTerm implements IStrategoList {
         this(null, null, annotations);
     }
 
+    @Override
     public IStrategoTerm head() {
         if(head == null)
             throw new NoSuchElementException();
         return head;
     }
 
+    @Override
     public boolean isEmpty() {
         return head == null;
     }
 
+    @Override
     public IStrategoList tail() {
         if(tail == null)
             throw new IllegalStateException();
@@ -75,14 +72,17 @@ public class StrategoList extends StrategoTerm implements IStrategoList {
     }
 
     @Deprecated
+    @Override
     public IStrategoList prepend(IStrategoTerm prefix) {
         return new StrategoList(prefix, this, null);
     }
 
+    @Override
     public final IStrategoTerm get(int index) {
         return getSubterm(index);
     }
 
+    @Override
     public IStrategoTerm[] getAllSubterms() {
         int size = size();
         IStrategoTerm[] clone = new IStrategoTerm[size];
@@ -94,11 +94,18 @@ public class StrategoList extends StrategoTerm implements IStrategoList {
         return clone;
     }
 
+    @Override
+    public List<IStrategoTerm> getSubterms() {
+        return TermList.fromIterable(this);
+    }
 
+
+    @Override
     public final int size() {
         return size;
     }
 
+    @Override
     public IStrategoTerm getSubterm(int index) {
         IStrategoList list = this;
         if(index < 0 || index >= size)
@@ -111,10 +118,12 @@ public class StrategoList extends StrategoTerm implements IStrategoList {
         return list.head();
     }
 
+    @Override
     public int getSubtermCount() {
         return size;
     }
 
+    @Override
     public int getTermType() {
         return IStrategoTerm.LIST;
     }
@@ -155,6 +164,7 @@ public class StrategoList extends StrategoTerm implements IStrategoList {
     }
 
     @Deprecated
+    @Override
     public void prettyPrint(ITermPrinter pp) {
         if(!isEmpty()) {
             pp.println("[");
@@ -176,6 +186,7 @@ public class StrategoList extends StrategoTerm implements IStrategoList {
         printAnnotations(pp);
     }
 
+    @Override
     public void writeAsString(Appendable output, int maxDepth) throws IOException {
         output.append('[');
         if(!isEmpty()) {
@@ -213,6 +224,7 @@ public class StrategoList extends StrategoTerm implements IStrategoList {
         return result;
     }
 
+    @Override
     public Iterator<IStrategoTerm> iterator() {
         return new StrategoListIterator(this);
     }

@@ -1,54 +1,60 @@
-/*
- * Created on 9. okt.. 2006
- *
- * Copyright (c) 2005, Karl Trygve Kalleberg <karltk near strategoxt.org>
- *
- * Licensed under the GNU Lesser General Public License, v2.1
- */
 package org.spoofax.terms;
 
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermPrinter;
-import org.spoofax.terms.util.ArrayIterator;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 
 public class StrategoTuple extends StrategoTerm implements IStrategoTuple {
 
     private static final long serialVersionUID = -6034069486754146955L;
 
-    private IStrategoTerm[] kids;
+    private final TermList kids;
 
     public StrategoTuple(IStrategoTerm[] kids, IStrategoList annotations) {
+        this(TermList.of(kids), annotations);
+    }
+
+    public StrategoTuple(List<IStrategoTerm> kids, IStrategoList annotations) {
         super(annotations);
-        this.kids = kids;
+        this.kids = TermList.fromIterable(kids);
     }
 
+    @Override
     public IStrategoTerm get(int index) {
-        return kids[index];
+        return kids.get(index);
     }
 
+    @Override
     public IStrategoTerm[] getAllSubterms() {
-        IStrategoTerm[] r = new IStrategoTerm[kids.length];
-        System.arraycopy(kids, 0, r, 0, kids.length);
-        return r;
+        return kids.toArray(new IStrategoTerm[0]);
     }
 
+    @Override
+    public List<IStrategoTerm> getSubterms() {
+        return kids;
+    }
+
+    @Override
     public int size() {
-        return kids.length;
+        return kids.size();
     }
 
+    @Override
     public IStrategoTerm getSubterm(int index) {
-        return kids[index];
+        return kids.get(index);
     }
 
+    @Override
     public int getSubtermCount() {
-        return kids.length;
+        return kids.size();
     }
 
+    @Override
     public int getTermType() {
         return IStrategoTerm.TUPLE;
     }
@@ -62,12 +68,13 @@ public class StrategoTuple extends StrategoTerm implements IStrategoTuple {
         if(size() != snd.size())
             return false;
 
-        IStrategoTerm[] kids = this.kids;
-        IStrategoTerm[] secondKids = snd.getAllSubterms();
-        if(kids != secondKids) {
-            for(int i = 0, sz = kids.length; i < sz; i++) {
-                IStrategoTerm kid = kids[i];
-                IStrategoTerm secondKid = secondKids[i];
+        List<IStrategoTerm> kids = this.kids;
+        List<IStrategoTerm> secondKids = snd.getSubterms();
+        if (kids.size() != secondKids.size()) return false;
+        if(!kids.equals(secondKids)) {
+            for(int i = 0, sz = kids.size(); i < sz; i++) {
+                IStrategoTerm kid = kids.get(i);
+                IStrategoTerm secondKid = secondKids.get(i);
                 if(kid != secondKid && !kid.match(secondKid)) {
                     return false;
                 }
@@ -83,6 +90,7 @@ public class StrategoTuple extends StrategoTerm implements IStrategoTuple {
     }
 
     @Deprecated
+    @Override
     public void prettyPrint(ITermPrinter pp) {
         int sz = size();
         if(sz > 0) {
@@ -105,17 +113,17 @@ public class StrategoTuple extends StrategoTerm implements IStrategoTuple {
         printAnnotations(pp);
     }
 
+    @Override
     public void writeAsString(Appendable output, int maxDepth) throws IOException {
         output.append('(');
-        IStrategoTerm[] kids = getAllSubterms();
-        if(kids.length > 0) {
+        if(kids.size() > 0) {
             if(maxDepth == 0) {
                 output.append("...");
             } else {
-                kids[0].writeAsString(output, maxDepth - 1);
-                for(int i = 1; i < kids.length; i++) {
+                kids.get(0).writeAsString(output, maxDepth - 1);
+                for(int i = 1; i < kids.size(); i++) {
                     output.append(',');
-                    kids[i].writeAsString(output, maxDepth - 1);
+                    kids.get(i).writeAsString(output, maxDepth - 1);
                 }
             }
         }
@@ -126,14 +134,14 @@ public class StrategoTuple extends StrategoTerm implements IStrategoTuple {
     @Override
     public int hashFunction() {
         long hc = 4831;
-        IStrategoTerm[] kids = getAllSubterms();
-        for(int i = 0; i < kids.length; i++) {
-            hc *= kids[i].hashCode();
+        for (IStrategoTerm kid : this.kids) {
+            hc *= kid.hashCode();
         }
         return (int) (hc >> 10);
     }
 
+    @Override
     public Iterator<IStrategoTerm> iterator() {
-        return new ArrayIterator<IStrategoTerm>(kids);
+        return this.kids.iterator();
     }
 }

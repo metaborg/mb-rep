@@ -12,6 +12,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
 
 import java.io.IOException;
+import java.util.List;
 
 import static org.spoofax.terms.TermFactory.EMPTY_LIST;
 
@@ -36,9 +37,16 @@ public abstract class StrategoTerm extends AbstractSimpleTerm implements IStrate
         this(null);
     }
 
+    @Override
+    public List<IStrategoTerm> getSubterms() {
+        // Override this implementation to provide a more efficient one.
+        return TermList.of(getAllSubterms());
+    }
+
     /**
      * Equality test.
      */
+    @Override
     public final boolean match(IStrategoTerm second) {
         if(this == second)
             return true;
@@ -83,6 +91,7 @@ public abstract class StrategoTerm extends AbstractSimpleTerm implements IStrate
         return toString(Integer.MAX_VALUE);
     }
 
+    @Override
     public String toString(int maxDepth) {
         StringBuilder result = new StringBuilder();
         try {
@@ -142,6 +151,7 @@ public abstract class StrategoTerm extends AbstractSimpleTerm implements IStrate
         return result;
     }
 
+    @Override
     public final IStrategoList getAnnotations() {
         return annotations == null ? TermFactory.EMPTY_LIST : annotations;
     }
@@ -157,6 +167,7 @@ public abstract class StrategoTerm extends AbstractSimpleTerm implements IStrate
     }
 
     @Deprecated
+    @Override
     public final boolean isList() {
         return getTermType() == LIST;
     }

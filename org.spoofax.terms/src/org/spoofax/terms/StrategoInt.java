@@ -14,7 +14,9 @@ import org.spoofax.interpreter.terms.ITermPrinter;
 import org.spoofax.terms.util.EmptyIterator;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 
 public class StrategoInt extends StrategoTerm implements IStrategoInt {
@@ -32,26 +34,37 @@ public class StrategoInt extends StrategoTerm implements IStrategoInt {
         this(value, null);
     }
 
+    @Override
     public int intValue() {
         return value;
     }
 
+    @Override
     public IStrategoTerm[] getAllSubterms() {
         return TermFactory.EMPTY;
     }
 
+    @Override
+    public List<IStrategoTerm> getSubterms() {
+        return Collections.emptyList();
+    }
+
+    @Override
     public IStrategoTerm getSubterm(int index) {
         throw new IndexOutOfBoundsException();
     }
 
+    @Override
     public int getSubtermCount() {
         return 0;
     }
 
+    @Override
     public int getTermType() {
         return IStrategoTerm.INT;
     }
 
+    @Override
     public boolean isUniqueValueTerm() {
         return false;
     }
@@ -73,11 +86,13 @@ public class StrategoInt extends StrategoTerm implements IStrategoInt {
     }
 
     @Deprecated
+    @Override
     public void prettyPrint(ITermPrinter pp) {
         pp.print(String.valueOf(intValue()));
         printAnnotations(pp);
     }
 
+    @Override
     public void writeAsString(Appendable output, int maxDepth) throws IOException {
         output.append(Integer.toString(intValue()));
         appendAnnotations(output, maxDepth);
@@ -88,6 +103,7 @@ public class StrategoInt extends StrategoTerm implements IStrategoInt {
         return 449 * intValue() ^ 7841;
     }
 
+    @Override
     public Iterator<IStrategoTerm> iterator() {
         return new EmptyIterator<IStrategoTerm>();
     }

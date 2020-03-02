@@ -12,9 +12,10 @@ public class StrategoPlaceholder extends StrategoAppl implements IStrategoPlaceh
     private static final long serialVersionUID = -1212433450601997725L;
 
     public StrategoPlaceholder(IStrategoConstructor ctor, IStrategoTerm template, IStrategoList annotations) {
-        super(ctor, new IStrategoTerm[] { template }, annotations);
+        super(ctor, TermList.of(template), annotations);
     }
 
+    @Override
     public IStrategoTerm getTemplate() {
         return getSubterm(0);
     }

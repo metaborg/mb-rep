@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.Writer;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * A Stratego annotated term.
@@ -54,6 +55,14 @@ public interface IStrategoTerm extends ISimpleTerm, Serializable, Iterable<IStra
      * or an empty array when the term does not support subterms
      */
     IStrategoTerm[] getAllSubterms();
+
+    /**
+     * Gets an immutable list with all subterms of this term.
+     *
+     * @return an immutable list with all subterms;
+     * or an empty list when the term does not support subterms
+     */
+    List<IStrategoTerm> getSubterms();
 
     /**
      * Gets the type of term.
@@ -115,7 +124,7 @@ public interface IStrategoTerm extends ISimpleTerm, Serializable, Iterable<IStra
     void writeAsString(Appendable output, int maxDepth) throws IOException;
 
     // TODO: Remove Iterable<IStrategoTerm>
-    /** @deprecated Use {@link #getAllSubterms()} instead. */
+    /** @deprecated Use {@link #getSubterms()} instead. */
     @Override @Deprecated
     Iterator<IStrategoTerm> iterator();
 
