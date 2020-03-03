@@ -1,6 +1,7 @@
 package org.spoofax.terms;
 
 import org.spoofax.interpreter.terms.*;
+import org.spoofax.terms.util.TermUtils;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -40,11 +41,6 @@ public class StrategoAppl extends StrategoTerm implements IStrategoAppl {
     }
 
     @Override
-    public IStrategoTerm[] getAllSubterms() {
-        return kids.toArray(new IStrategoTerm[0]);
-    }
-
-    @Override
     public List<IStrategoTerm> getSubterms() {
         return kids;
     }
@@ -66,7 +62,7 @@ public class StrategoAppl extends StrategoTerm implements IStrategoAppl {
 
     @Override
     protected boolean doSlowMatch(IStrategoTerm second) {
-        if(second.getTermType() != IStrategoTerm.APPL)
+        if(!TermUtils.isAppl(second))
             return false;
         IStrategoAppl o = (IStrategoAppl) second;
         if(!ctor.equals(o.getConstructor()))
@@ -140,10 +136,5 @@ public class StrategoAppl extends StrategoTerm implements IStrategoAppl {
             accum *= 7703;
         }
         return (int) (r >> 12);
-    }
-
-    @Override
-    public Iterator<IStrategoTerm> iterator() {
-        return kids.iterator();
     }
 }

@@ -4,6 +4,7 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermPrinter;
+import org.spoofax.terms.util.TermUtils;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -27,11 +28,6 @@ public class StrategoTuple extends StrategoTerm implements IStrategoTuple {
     @Override
     public IStrategoTerm get(int index) {
         return kids.get(index);
-    }
-
-    @Override
-    public IStrategoTerm[] getAllSubterms() {
-        return kids.toArray(new IStrategoTerm[0]);
     }
 
     @Override
@@ -61,7 +57,7 @@ public class StrategoTuple extends StrategoTerm implements IStrategoTuple {
 
     @Override
     protected boolean doSlowMatch(IStrategoTerm second) {
-        if(second.getTermType() != IStrategoTerm.TUPLE)
+        if(!TermUtils.isTuple(second))
             return false;
 
         IStrategoTuple snd = (IStrategoTuple) second;
@@ -138,10 +134,5 @@ public class StrategoTuple extends StrategoTerm implements IStrategoTuple {
             hc *= kid.hashCode();
         }
         return (int) (hc >> 10);
-    }
-
-    @Override
-    public Iterator<IStrategoTerm> iterator() {
-        return this.kids.iterator();
     }
 }

@@ -13,6 +13,7 @@ import org.spoofax.terms.StrategoTerm;
 import org.spoofax.terms.attachments.ITermAttachment;
 import org.spoofax.terms.attachments.TermAttachmentType;
 import org.spoofax.terms.util.NotImplementedException;
+import org.spoofax.terms.util.TermUtils;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -55,7 +56,7 @@ public abstract class SkeletonStrategoList extends StrategoTerm implements IStra
 
     @Override
     protected boolean doSlowMatch(IStrategoTerm second) {
-        if(second.getTermType() != IStrategoTerm.LIST)
+        if(!TermUtils.isList(second))
             return false;
 
         final IStrategoList snd = (IStrategoList) second;
@@ -124,10 +125,6 @@ public abstract class SkeletonStrategoList extends StrategoTerm implements IStra
         result = prime * result + ((head == null) ? 0 : head.hashCode());
         result = prime * result + ((tail == null) ? 0 : tail.hashCode());
         return result;
-    }
-
-    public final Iterator<IStrategoTerm> iterator() {
-        return new StrategoListIterator(this);
     }
 
     @Override

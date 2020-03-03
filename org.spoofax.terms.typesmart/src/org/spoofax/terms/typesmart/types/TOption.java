@@ -3,6 +3,7 @@ package org.spoofax.terms.typesmart.types;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.typesmart.TypesmartContext;
+import org.spoofax.terms.util.TermUtils;
 
 public class TOption implements SortType {
     private static final long serialVersionUID = 5629000565986671549L;
@@ -30,7 +31,7 @@ public class TOption implements SortType {
     }
 
     @Override public boolean matches(IStrategoTerm t, TypesmartContext context) {
-        if(t.getTermType() == IStrategoTerm.APPL) {
+        if(TermUtils.isAppl(t)) {
             IStrategoAppl appl = (IStrategoAppl) t;
             if("None".equals(appl.getName()) && appl.getSubtermCount() == 0) {
                 return true;

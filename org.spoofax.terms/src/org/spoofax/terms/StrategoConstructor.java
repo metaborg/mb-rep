@@ -42,11 +42,6 @@ public final class StrategoConstructor extends StrategoTerm implements IStratego
     }
 
     @Override
-    public IStrategoTerm[] getAllSubterms() {
-        return TermFactory.EMPTY;
-    }
-
-    @Override
     public List<IStrategoTerm> getSubterms() {
         return Collections.emptyList();
     }
@@ -115,11 +110,6 @@ public final class StrategoConstructor extends StrategoTerm implements IStratego
     @Override
     public IStrategoAppl instantiate(ITermFactory factory, IStrategoList kids) {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Iterator<IStrategoTerm> iterator() {
-        return new EmptyIterator<IStrategoTerm>();
     }
 
     private Object readResolve() {

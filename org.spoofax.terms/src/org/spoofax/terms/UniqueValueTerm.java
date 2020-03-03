@@ -28,10 +28,6 @@ public final class UniqueValueTerm extends AbstractSimpleTerm implements IStrate
 		return value;
 	}
 
-	public IStrategoTerm[] getAllSubterms() {
-		return TermFactory.EMPTY;
-	}
-
 	@Override
 	public List<IStrategoTerm> getSubterms() {
 		return Collections.emptyList();
@@ -94,8 +90,5 @@ public final class UniqueValueTerm extends AbstractSimpleTerm implements IStrate
 		return false;
 	}
 
-	public Iterator<IStrategoTerm> iterator() {
-		return new EmptyIterator<IStrategoTerm>();
-	}
 	
 }

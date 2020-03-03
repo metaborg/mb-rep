@@ -11,6 +11,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.util.StringInterner;
+import org.spoofax.terms.util.TermUtils;
 
 import static org.spoofax.interpreter.terms.IStrategoTerm.STRING;
 
@@ -102,7 +103,7 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
         IStrategoList currentAnnos = term.getAnnotations();
         if(currentAnnos == annotations) { // cheap check
             return term;
-        } else if((annotations == EMPTY_LIST || annotations.isEmpty()) && term.getTermType() == STRING) {
+        } else if((annotations == EMPTY_LIST || annotations.isEmpty()) && TermUtils.isString(term)) {
             return makeString(((IStrategoString) term).stringValue());
         } else if(term instanceof StrategoTerm) {
             StrategoTerm result = ((StrategoTerm) term).clone(true);

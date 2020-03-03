@@ -14,8 +14,6 @@ public class StrategoListIterator implements Iterator<IStrategoTerm> {
 	}
 	
 	public static Iterable<IStrategoTerm> iterable(final IStrategoList list) {
-		if (list instanceof Iterable)
-			return list;
 		return () -> new StrategoListIterator(list);
 	}
 

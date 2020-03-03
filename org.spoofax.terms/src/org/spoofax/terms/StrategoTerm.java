@@ -27,9 +27,7 @@ public abstract class StrategoTerm extends AbstractSimpleTerm implements IStrate
     private IStrategoList annotations;
 
     protected StrategoTerm(IStrategoList annotations) {
-        // FIXME: remove assert (annotations == TermFactory.EMPTY_LIST)
-        assert annotations == null || !annotations.isEmpty() || annotations == TermFactory.EMPTY_LIST;
-        if(annotations != TermFactory.EMPTY_LIST)
+        if(annotations != null && !annotations.isEmpty())
             this.annotations = annotations;
     }
 

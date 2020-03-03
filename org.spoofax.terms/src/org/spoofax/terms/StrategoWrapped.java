@@ -205,10 +205,4 @@ public class StrategoWrapped extends StrategoTerm implements IStrategoAppl, IStr
 		return ((IStrategoString) wrapped).stringValue();
 	}
 
-	@Override
-	@Deprecated
-	public Iterator<IStrategoTerm> iterator() {
-		return wrapped.iterator();
-	}
-
 }

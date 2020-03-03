@@ -22,11 +22,6 @@ public class DummyStrategoTerm extends DummySimpleTerm implements IStrategoTerm 
     }
 
     @Override
-    public IStrategoTerm[] getAllSubterms() {
-        return new IStrategoTerm[0];
-    }
-
-    @Override
     public List<IStrategoTerm> getSubterms() {
         return Collections.emptyList();
     }
@@ -75,11 +70,6 @@ public class DummyStrategoTerm extends DummySimpleTerm implements IStrategoTerm 
     @Override
     public void writeAsString(Appendable output, int maxDepth) throws IOException {
         output.append("<dummy>");
-    }
-
-    @Override
-    public Iterator<IStrategoTerm> iterator() {
-        return Arrays.asList(getAllSubterms()).iterator();
     }
 
 }

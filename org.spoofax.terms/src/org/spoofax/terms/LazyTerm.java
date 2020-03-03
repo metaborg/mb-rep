@@ -16,6 +16,7 @@ import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermPrinter;
 import org.spoofax.terms.attachments.ITermAttachment;
 import org.spoofax.terms.attachments.TermAttachmentType;
+import org.spoofax.terms.util.TermUtils;
 
 /**
  * A lazily initialized term,
@@ -116,86 +117,85 @@ public abstract class LazyTerm implements IStrategoAppl, IStrategoInt, IStratego
 
 	@Override
 	public IStrategoTerm head() {
-		if(getTermType() != LIST)
-			throw new TermWrapperException("Called head() on a term that is not of type LIST");
-		return ((IStrategoList) getWrapped()).head();
+		return TermUtils.asList(getWrapped())
+				.map(IStrategoList::head)
+				.orElseThrow(() -> new TermWrapperException("Called head() on a term that is not of type LIST"));
 	}
 
 	@Override
 	public IStrategoList tail() {
-		if(getTermType() != LIST)
-			throw new TermWrapperException("Called tail() on a term that is not of type LIST");
-		return ((IStrategoList) getWrapped()).tail();
+		return TermUtils.asList(getWrapped())
+				.map(IStrategoList::tail)
+				.orElseThrow(() -> new TermWrapperException("Called tail() on a term that is not of type LIST"));
 	}
 
 	@Override
 	public boolean isEmpty() {
-		if(getTermType() != LIST)
-			throw new TermWrapperException("Called isEmpty() on a term that is not of type LIST");
-		return ((IStrategoList) getWrapped()).isEmpty();
+		return TermUtils.asList(getWrapped())
+				.map(IStrategoList::isEmpty)
+				.orElseThrow(() -> new TermWrapperException("Called isEmpty() on a term that is not of type LIST"));
 	}
 
 	@Deprecated
 	@Override
 	public IStrategoList prepend(IStrategoTerm prefix) {
-		if(getTermType() != LIST)
-			throw new TermWrapperException("Called prepend() on a term that is not of type LIST");
-		return ((IStrategoList) getWrapped()).prepend(prefix);
+		return TermUtils.asList(getWrapped())
+				.map(l -> l.prepend(prefix))
+				.orElseThrow(() -> new TermWrapperException("Called prepend() on a term that is not of type LIST"));
 	}
 
 	@Override
 	public int size() {
-		switch(getTermType()) {
-			case LIST:
-				return ((IStrategoList) getWrapped()).size();
-			case TUPLE:
-				return ((IStrategoTuple) getWrapped()).size();
-			default:
-				throw new TermWrapperException("Called size() on a term that is not a LIST or TUPLE");
-		}
+		return TermUtils.asList(getWrapped())
+				.map(IStrategoList::size)
+				.orElse(TermUtils.asTuple(getWrapped())
+						.map(IStrategoTuple::size)
+						.orElseThrow(() -> new TermWrapperException("Called size() on a term that is not a LIST or TUPLE")));
 	}
 
 	@Override
 	public IStrategoConstructor getConstructor() {
-		if(getTermType() != APPL)
-			throw new TermWrapperException("Called getConstructor() on a term that is not of type APPL");
-		return ((IStrategoAppl) getWrapped()).getConstructor();
+		return TermUtils.asAppl(getWrapped())
+				.map(IStrategoAppl::getConstructor)
+				.orElseThrow(() -> new TermWrapperException("Called getConstructor() on a term that is not of type APPL"));
 	}
 
 	@Override
 	public String getName() {
-		if(getTermType() != STRING && getTermType() != APPL)
-			throw new TermWrapperException("Called getName() on a term that is not of type STRING or APPL");
-		return ((IStrategoNamed) getWrapped()).getName();
+		return TermUtils.asString(getWrapped())
+				.map(IStrategoString::stringValue)
+				.orElse(TermUtils.asAppl(getWrapped())
+						.map(t -> t.getConstructor().getName())
+						.orElseThrow(() -> new TermWrapperException("Called getName() on a term that is not of type STRING or APPL")));
 	}
 
 	@Override
 	public int intValue() {
-		if(getTermType() != INT)
-			throw new TermWrapperException("Called intValue() on a term that is not of type INT");
-		return ((IStrategoInt) getWrapped()).intValue();
+		return TermUtils.asInt(getWrapped())
+				.map(IStrategoInt::intValue)
+				.orElseThrow(() -> new TermWrapperException("Called intValue() on a term that is not of type INT"));
 	}
 
 	@Override
 	@Deprecated
 	public boolean isUniqueValueTerm() {
-		if(getTermType() != INT)
-			throw new TermWrapperException("Called isUniqueValueTerm() on a term that is not of type INT");
-		return ((IStrategoInt) getWrapped()).isUniqueValueTerm();
+		return TermUtils.asInt(getWrapped())
+				.map(IStrategoInt::isUniqueValueTerm)
+				.orElseThrow(() -> new TermWrapperException("Called isUniqueValueTerm() on a term that is not of type INT"));
 	}
 
 	@Override
 	public double realValue() {
-		if(getTermType() != REAL)
-			throw new TermWrapperException("Called realValue() on a term that is not of type REAL");
-		return ((IStrategoReal) getWrapped()).realValue();
+		return TermUtils.asReal(getWrapped())
+				.map(IStrategoReal::realValue)
+				.orElseThrow(() -> new TermWrapperException("Called realValue() on a term that is not of type REAL"));
 	}
 
 	@Override
 	public String stringValue() {
-		if(getTermType() != STRING)
-			throw new TermWrapperException("Called stringValue() on a term that is not of type STRING");
-		return ((IStrategoString) getWrapped()).stringValue();
+		return TermUtils.asString(getWrapped())
+				.map(IStrategoString::stringValue)
+				.orElseThrow(() -> new TermWrapperException("Called stringValue() on a term that is not of type STRING"));
 	}
 
 	@Override
@@ -227,11 +227,6 @@ public abstract class LazyTerm implements IStrategoAppl, IStrategoInt, IStratego
 	@Deprecated
 	public boolean isList() {
 		return getWrapped().isList();
-	}
-
-	@Override
-	public Iterator<IStrategoTerm> iterator() {
-		return getWrapped().iterator();
 	}
 
 }

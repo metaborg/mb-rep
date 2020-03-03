@@ -12,6 +12,7 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
 import org.spoofax.terms.util.EmptyIterator;
+import org.spoofax.terms.util.TermUtils;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -37,11 +38,6 @@ public class StrategoInt extends StrategoTerm implements IStrategoInt {
     @Override
     public int intValue() {
         return value;
-    }
-
-    @Override
-    public IStrategoTerm[] getAllSubterms() {
-        return TermFactory.EMPTY;
     }
 
     @Override
@@ -71,7 +67,7 @@ public class StrategoInt extends StrategoTerm implements IStrategoInt {
 
     @Override
     protected boolean doSlowMatch(IStrategoTerm second) {
-        if(second.getTermType() != IStrategoTerm.INT)
+        if(!TermUtils.isInt(second))
             return false;
 
         if(intValue() != ((IStrategoInt) second).intValue())
@@ -103,8 +99,4 @@ public class StrategoInt extends StrategoTerm implements IStrategoInt {
         return 449 * intValue() ^ 7841;
     }
 
-    @Override
-    public Iterator<IStrategoTerm> iterator() {
-        return new EmptyIterator<IStrategoTerm>();
-    }
 }
