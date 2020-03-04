@@ -33,7 +33,7 @@ public abstract class SimpleTermVisitor implements ISimpleTermVisitor {
 		if (term instanceof Iterable) {
 			return ((Iterable<ISimpleTerm>) term).iterator();
 		} else if (term instanceof IStrategoTerm && TermUtils.isList((IStrategoTerm)term)) {
-			Iterator<?> iterator = TermUtils.toList((IStrategoTerm)term).getSubterms().iterator();
+			Iterator<?> iterator = TermUtils.toList((IStrategoTerm)term).iterator();
 			return (Iterator<ISimpleTerm>)iterator;
 		}
 		return null;

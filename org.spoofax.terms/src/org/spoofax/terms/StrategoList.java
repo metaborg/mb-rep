@@ -98,7 +98,7 @@ public class StrategoList extends StrategoTerm implements IStrategoList {
     @Override
     public List<IStrategoTerm> getSubterms() {
         if (this.subterms == null) {
-            this.subterms = TermList.of(getAllSubtermsAsArray(this));
+            this.subterms = TermList.ofUnsafe(getAllSubtermsAsArray(this));
         }
         return this.subterms;
     }
@@ -113,6 +113,11 @@ public class StrategoList extends StrategoTerm implements IStrategoList {
     public IStrategoTerm getSubterm(int index) {
         if (index < 0 || index >= size) throw new IndexOutOfBoundsException();
         return getSubterms().get(index);
+    }
+
+    @Override
+    public IStrategoTerm[] getAllSubterms() {
+        return getSubterms().toArray(new IStrategoTerm[0]);
     }
 
     @Override

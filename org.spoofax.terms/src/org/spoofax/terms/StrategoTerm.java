@@ -12,6 +12,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.spoofax.terms.TermFactory.EMPTY_LIST;
@@ -38,7 +39,7 @@ public abstract class StrategoTerm extends AbstractSimpleTerm implements IStrate
     @Override
     public List<IStrategoTerm> getSubterms() {
         // Override this implementation to provide a more efficient one.
-        return TermList.of(getAllSubterms());
+        return TermList.ofUnsafe(getAllSubterms());
     }
 
     /**

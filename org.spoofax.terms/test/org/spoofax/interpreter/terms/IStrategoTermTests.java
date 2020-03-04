@@ -177,7 +177,7 @@ public interface IStrategoTermTests {
 
         @Test
         @DisplayName("when it has subterms, returns array of subterms")
-        default void whenItHasSubterms_returnsEmptyArray() {
+        default void whenItHasSubterms_returnsArrayOfSubterms() {
             // Arrange
             List<IStrategoTerm> subterms = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(),
                     new DummyStrategoTerm());

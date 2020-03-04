@@ -51,6 +51,11 @@ public class StrategoInt extends StrategoTerm implements IStrategoInt {
     }
 
     @Override
+    public IStrategoTerm[] getAllSubterms() {
+        return new IStrategoTerm[0];
+    }
+
+    @Override
     public int getSubtermCount() {
         return 0;
     }

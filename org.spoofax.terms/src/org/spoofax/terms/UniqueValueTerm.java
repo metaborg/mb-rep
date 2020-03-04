@@ -41,6 +41,11 @@ public final class UniqueValueTerm extends AbstractSimpleTerm implements IStrate
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
+	public IStrategoTerm[] getAllSubterms() {
+		return new IStrategoTerm[0];
+	}
+
 	public int getSubtermCount() {
 		return 0;
 	}

@@ -49,6 +49,11 @@ public class SkeletonStrategoInt extends StrategoTerm implements IStrategoInt {
         throw new IndexOutOfBoundsException();
     }
 
+    @Override
+    public IStrategoTerm[] getAllSubterms() {
+        return new IStrategoTerm[0];
+    }
+
     public int getSubtermCount() {
         return 0;
     }

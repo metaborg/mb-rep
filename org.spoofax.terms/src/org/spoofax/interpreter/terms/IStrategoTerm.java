@@ -12,6 +12,7 @@ import org.spoofax.terms.util.TermUtils;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.Writer;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -64,9 +65,7 @@ public interface IStrategoTerm extends ISimpleTerm, Serializable, Iterable<IStra
      * @return an array with all subterms;
      * or an empty array when the term does not support subterms
      */
-    default IStrategoTerm[] getAllSubterms() {
-        return getSubterms().toArray(new IStrategoTerm[0]);
-    }
+    IStrategoTerm[] getAllSubterms();
 
     /**
      * Gets an immutable list with all subterms of this term.

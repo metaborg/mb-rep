@@ -65,7 +65,7 @@ public class IndexFactory {
             throw new IOException("Cannot read index; root term is not a list");
         }
 
-        for(IStrategoTerm sourceTerm : term.getSubterms()) {
+        for(IStrategoTerm sourceTerm : term) {
             sourceFromTerm(index, sourceTerm);
         }
 
@@ -80,7 +80,7 @@ public class IndexFactory {
         final IStrategoTerm source = term.getSubterm(0);
         final IStrategoTerm entryList = term.getSubterm(1);
         final Collection<IndexEntry> entries = Lists.newArrayListWithCapacity(entryList.getSubtermCount());
-        for(IStrategoTerm entryTerm : term.getSubterm(1).getSubterms()) {
+        for(IStrategoTerm entryTerm : term.getSubterm(1)) {
             entries.add(entryFactory.fromTerm(entryTerm));
         }
         index.addAll(source, entries);

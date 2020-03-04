@@ -52,6 +52,11 @@ public final class StrategoConstructor extends StrategoTerm implements IStratego
     }
 
     @Override
+    public IStrategoTerm[] getAllSubterms() {
+        return new IStrategoTerm[0];
+    }
+
+    @Override
     public int getSubtermCount() {
         return 0;
     }

@@ -136,7 +136,7 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
             IStrategoTerm[] kids = new IStrategoTerm[term.getSubtermCount()];
             boolean changed = false;
             int i = 0;
-            for(IStrategoTerm kid : term.getSubterms()) {
+            for(IStrategoTerm kid : term) {
                 IStrategoTerm newkid = rebuildIfNecessary(kid);
                 kids[i] = newkid;
                 changed = changed || kid != newkid;

@@ -49,6 +49,20 @@ public final class TermList extends AbstractList<IStrategoTerm> implements Rando
     }
 
     /**
+     * Creates a new term list from the specified array of terms,
+     * without copying the array.
+     *
+     * Note: call this function only on arrays that you're sure will not be modified.
+     *
+     * @param terms the terms in the list
+     * @return the created list; or an empty list
+     */
+    public static TermList ofUnsafe(IStrategoTerm... terms) {
+        if (terms.length == 0) return EMPTY;
+        return new TermList(terms);
+    }
+
+    /**
      * Creates an empty term list.
      *
      * @return the empty list

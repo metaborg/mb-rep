@@ -59,11 +59,16 @@ public class TypesmartSortAttachment extends AbstractTermAttachment {
         }
 
         @Override
-        public List<IStrategoTerm> getSubterms() {
+        public IStrategoTerm[] getAllSubterms() {
             IStrategoTerm[] ts = new IStrategoTerm[ar.length];
             for(int i = 0; i < ar.length; i++)
                 ts[i] = getSubterm(i);
-            return TermList.of(ts);
+            return ts;
+        }
+
+        @Override
+        public List<IStrategoTerm> getSubterms() {
+            return TermList.ofUnsafe(getAllSubterms());
         }
 
         @Override public int getTermType() {
