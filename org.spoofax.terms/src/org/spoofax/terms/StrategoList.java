@@ -23,13 +23,9 @@ public class StrategoList extends StrategoTerm implements IStrategoList {
     @SuppressWarnings("PointlessArithmeticExpression")
     static final int EMPTY_LIST_HASH = 1 * 71 * 71;
     private static final long serialVersionUID = 624120573663698628L;
-    private final IStrategoTerm head;
-    private final IStrategoList tail;
-    // Do not access this field directly, but access it through getSubterms().
-    // This field is null until it is accessed for the first time.
-    private @Nullable TermList subterms = null;
-    // The size is calculated independently of the elements.
     private final int size;
+    private IStrategoTerm head;
+    private IStrategoList tail;
 
     /**
      * Creates a new list.
@@ -44,6 +40,7 @@ public class StrategoList extends StrategoTerm implements IStrategoList {
 
         this.head = head;
         this.tail = tail;
+
         this.size = (head == null ? 0 : 1) + (tail == null ? 0 : tail.size());
     }
 
@@ -56,30 +53,22 @@ public class StrategoList extends StrategoTerm implements IStrategoList {
         this(null, null, annotations);
     }
 
-    private static IStrategoTerm[] getAllSubtermsAsArray(StrategoList list) {
-        IStrategoTerm[] clone = new IStrategoTerm[list.size];
-        IStrategoList rest = list;
-        for(int i = 0; i < list.size; i++) {
-            clone[i] = rest.head();
-            rest = rest.tail();
-        }
-        return clone;
-    }
-
     @Override
     public IStrategoTerm head() {
-        if(head == null) throw new NoSuchElementException();
+        if(head == null)
+            throw new NoSuchElementException();
         return head;
     }
 
     @Override
     public boolean isEmpty() {
-        return getSubterms().isEmpty();
+        return head == null;
     }
 
     @Override
     public IStrategoList tail() {
-        if(tail == null) throw new IllegalStateException();
+        if(tail == null)
+            throw new IllegalStateException();
         return tail;
     }
 
@@ -91,38 +80,48 @@ public class StrategoList extends StrategoTerm implements IStrategoList {
 
     @Override
     public final IStrategoTerm get(int index) {
-        if (index < 0 || index >= size) throw new IndexOutOfBoundsException();
-        return getSubterms().get(index);
+        return getSubterm(index);
+    }
+
+    @Override
+    public IStrategoTerm[] getAllSubterms() {
+        int size = size();
+        IStrategoTerm[] clone = new IStrategoTerm[size];
+        IStrategoList list = this;
+        for(int i = 0; i < size; i++) {
+            clone[i] = list.head();
+            list = list.tail();
+        }
+        return clone;
     }
 
     @Override
     public List<IStrategoTerm> getSubterms() {
-        if (this.subterms == null) {
-            this.subterms = TermList.ofUnsafe(getAllSubtermsAsArray(this));
-        }
-        return this.subterms;
+        return TermList.ofUnsafe(getAllSubterms());
     }
 
 
     @Override
     public final int size() {
-        return this.size;
+        return size;
     }
 
     @Override
     public IStrategoTerm getSubterm(int index) {
-        if (index < 0 || index >= size) throw new IndexOutOfBoundsException();
-        return getSubterms().get(index);
-    }
-
-    @Override
-    public IStrategoTerm[] getAllSubterms() {
-        return getSubterms().toArray(new IStrategoTerm[0]);
+        IStrategoList list = this;
+        if(index < 0 || index >= size)
+            throw new IndexOutOfBoundsException("Index out of bounds: " + index);
+        for(int i = 0; i < index; i++) {
+            if(list.isEmpty())
+                throw new IndexOutOfBoundsException("Index out of bounds: " + index);
+            list = list.tail();
+        }
+        return list.head();
     }
 
     @Override
     public int getSubtermCount() {
-        return this.size;
+        return size;
     }
 
     @Override
@@ -132,7 +131,7 @@ public class StrategoList extends StrategoTerm implements IStrategoList {
 
     @Override
     protected boolean doSlowMatch(IStrategoTerm second) {
-        if(!TermUtils.isList(second))
+        if(second.getTermType() != IStrategoTerm.LIST)
             return false;
 
         final IStrategoList snd = (IStrategoList) second;
@@ -224,6 +223,11 @@ public class StrategoList extends StrategoTerm implements IStrategoList {
         }
 
         return result;
+    }
+
+    @Override
+    public Iterator<IStrategoTerm> iterator() {
+        return new StrategoListIterator(this);
     }
 
     private Object readResolve() throws ObjectStreamException {

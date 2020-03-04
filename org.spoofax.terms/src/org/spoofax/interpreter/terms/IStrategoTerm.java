@@ -134,9 +134,11 @@ public interface IStrategoTerm extends ISimpleTerm, Serializable, Iterable<IStra
      */
     void writeAsString(Appendable output, int maxDepth) throws IOException;
 
-    // TODO: Remove Iterable<IStrategoTerm>
-    /** @deprecated Use {@link #getSubterms()} instead. */
-    @Override @Deprecated
+    /**
+     * Gets the iterator for iterating over the subterms of this term.
+     *
+     * @return an iterator
+     */
     default Iterator<IStrategoTerm> iterator() { return getSubterms().iterator(); }
 
 }
