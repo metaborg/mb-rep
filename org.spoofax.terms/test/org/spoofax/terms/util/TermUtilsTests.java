@@ -39,6 +39,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.isString(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))));
             assertFalse(TermUtils.isString(factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))));
             assertFalse(TermUtils.isString(factory.makeList(factory.makeString("abc"), factory.makeString("def"))));
+            assertFalse(TermUtils.isString(null));
         }
 
         @Test
@@ -55,6 +56,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.isString(factory.makeString(""), "XYZ"));
             assertFalse(TermUtils.isString(factory.makeString("abc"), "XYZ"));
             assertFalse(TermUtils.isString(factory.makeString("DEF"), "XYZ"));
+            assertFalse(TermUtils.isString(null, "XYZ"));
         }
 
     }
@@ -81,6 +83,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.isInt(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))));
             assertFalse(TermUtils.isInt(factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))));
             assertFalse(TermUtils.isInt(factory.makeList(factory.makeString("abc"), factory.makeString("def"))));
+            assertFalse(TermUtils.isInt(null));
         }
 
         @Test
@@ -97,6 +100,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.isInt(factory.makeInt(0), 1337));
             assertFalse(TermUtils.isInt(factory.makeInt(-10), 1337));
             assertFalse(TermUtils.isInt(factory.makeInt(42), 1337));
+            assertFalse(TermUtils.isInt(null, 1337));
         }
 
     }
@@ -123,6 +127,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.isReal(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))));
             assertFalse(TermUtils.isReal(factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))));
             assertFalse(TermUtils.isReal(factory.makeList(factory.makeString("abc"), factory.makeString("def"))));
+            assertFalse(TermUtils.isReal(null));
         }
 
         @Test
@@ -139,6 +144,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.isReal(factory.makeReal(0.0), 133.7));
             assertFalse(TermUtils.isReal(factory.makeReal(-10.2), 133.7));
             assertFalse(TermUtils.isReal(factory.makeReal(4.2), 133.7));
+            assertFalse(TermUtils.isReal(null, 133.7));
         }
 
     }
@@ -170,6 +176,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.isAppl(factory.makeReal(4.2)));
             assertFalse(TermUtils.isAppl(factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))));
             assertFalse(TermUtils.isAppl(factory.makeList(factory.makeString("abc"), factory.makeString("def"))));
+            assertFalse(TermUtils.isAppl(null));
         }
 
         @Test
@@ -194,6 +201,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.isAppl(factory.makeAppl(factory.makeConstructor("Nil", 0)), Triplet));
             assertFalse(TermUtils.isAppl(factory.makeAppl(factory.makeConstructor("Singleton", 1), factory.makeString("abc")), Triplet));
             assertFalse(TermUtils.isAppl(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")), Triplet));
+            assertFalse(TermUtils.isAppl(null, Triplet));
         }
 
         @Test
@@ -202,6 +210,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.isAppl(factory.makeAppl(factory.makeConstructor("Nil", 0)), "Nil", 3));
             assertFalse(TermUtils.isAppl(factory.makeAppl(factory.makeConstructor("Singleton", 1), factory.makeString("abc")), "Singleton", 3));
             assertFalse(TermUtils.isAppl(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")), "Pair", 3));
+            assertFalse(TermUtils.isAppl(null, "Pair", 3));
         }
         
         @Test
@@ -210,6 +219,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.isAppl(factory.makeAppl(factory.makeConstructor("Nil", 0)), "Xyz", 0));
             assertFalse(TermUtils.isAppl(factory.makeAppl(factory.makeConstructor("Singleton", 1), factory.makeString("abc")), "Xyz", 1));
             assertFalse(TermUtils.isAppl(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")), "Xyz", 2));
+            assertFalse(TermUtils.isAppl(null, "Xyz", 2));
         }
 
     }
@@ -236,6 +246,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.isList(factory.makeReal(4.2)));
             assertFalse(TermUtils.isList(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))));
             assertFalse(TermUtils.isList(factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))));
+            assertFalse(TermUtils.isList(null));
         }
 
         @Test
@@ -252,6 +263,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.isList(factory.makeList(), 3));
             assertFalse(TermUtils.isList(factory.makeList(factory.makeString("abc")), 3));
             assertFalse(TermUtils.isList(factory.makeList(factory.makeString("abc"), factory.makeString("def")), 3));
+            assertFalse(TermUtils.isList(null, 3));
         }
 
     }
@@ -278,6 +290,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.isTuple(factory.makeReal(4.2)));
             assertFalse(TermUtils.isTuple(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))));
             assertFalse(TermUtils.isTuple(factory.makeList(factory.makeString("abc"), factory.makeString("def"))));
+            assertFalse(TermUtils.isTuple(null));
         }
 
         @Test
@@ -294,6 +307,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.isTuple(factory.makeTuple(), 3));
             assertFalse(TermUtils.isTuple(factory.makeTuple(factory.makeString("abc")), 3));
             assertFalse(TermUtils.isTuple(factory.makeTuple(factory.makeString("abc"), factory.makeString("def")), 3));
+            assertFalse(TermUtils.isTuple(null, 3));
         }
 
     }
@@ -326,6 +340,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.asString(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))).isPresent());
             assertFalse(TermUtils.asString(factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))).isPresent());
             assertFalse(TermUtils.asString(factory.makeList(factory.makeString("abc"), factory.makeString("def"))).isPresent());
+            assertFalse(TermUtils.asString(null).isPresent());
         }
 
     }
@@ -356,6 +371,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.asInt(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))).isPresent());
             assertFalse(TermUtils.asInt(factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))).isPresent());
             assertFalse(TermUtils.asInt(factory.makeList(factory.makeString("abc"), factory.makeString("def"))).isPresent());
+            assertFalse(TermUtils.asInt(null).isPresent());
         }
 
     }
@@ -386,6 +402,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.asReal(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))).isPresent());
             assertFalse(TermUtils.asReal(factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))).isPresent());
             assertFalse(TermUtils.asReal(factory.makeList(factory.makeString("abc"), factory.makeString("def"))).isPresent());
+            assertFalse(TermUtils.asReal(null).isPresent());
         }
 
     }
@@ -416,6 +433,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.asAppl(factory.makeReal(4.2)).isPresent());
             assertFalse(TermUtils.asAppl(factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))).isPresent());
             assertFalse(TermUtils.asAppl(factory.makeList(factory.makeString("abc"), factory.makeString("def"))).isPresent());
+            assertFalse(TermUtils.asAppl(null).isPresent());
         }
 
     }
@@ -446,6 +464,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.asList(factory.makeReal(4.2)).isPresent());
             assertFalse(TermUtils.asList(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))).isPresent());
             assertFalse(TermUtils.asList(factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))).isPresent());
+            assertFalse(TermUtils.asList(null).isPresent());
         }
 
     }
@@ -478,6 +497,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.asTuple(factory.makeReal(4.2)).isPresent());
             assertFalse(TermUtils.asTuple(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))).isPresent());
             assertFalse(TermUtils.asTuple(factory.makeList(factory.makeString("abc"), factory.makeString("def"))).isPresent());
+            assertFalse(TermUtils.asTuple(null).isPresent());
         }
 
     }
@@ -510,6 +530,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.asJavaString(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))).isPresent());
             assertFalse(TermUtils.asJavaString(factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))).isPresent());
             assertFalse(TermUtils.asJavaString(factory.makeList(factory.makeString("abc"), factory.makeString("def"))).isPresent());
+            assertFalse(TermUtils.asJavaString(null).isPresent());
         }
 
     }
@@ -540,6 +561,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.asJavaInt(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))).isPresent());
             assertFalse(TermUtils.asJavaInt(factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))).isPresent());
             assertFalse(TermUtils.asJavaInt(factory.makeList(factory.makeString("abc"), factory.makeString("def"))).isPresent());
+            assertFalse(TermUtils.asJavaInt(null).isPresent());
         }
 
     }
@@ -570,6 +592,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.asJavaReal(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))).isPresent());
             assertFalse(TermUtils.asJavaReal(factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))).isPresent());
             assertFalse(TermUtils.asJavaReal(factory.makeList(factory.makeString("abc"), factory.makeString("def"))).isPresent());
+            assertFalse(TermUtils.asJavaReal(null).isPresent());
         }
 
     }
@@ -599,6 +622,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.asJavaList(factory.makeReal(4.2)).isPresent());
             assertFalse(TermUtils.asJavaList(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))).isPresent());
             assertFalse(TermUtils.asJavaList(factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))).isPresent());
+            assertFalse(TermUtils.asJavaList(null).isPresent());
         }
 
     }
@@ -631,6 +655,7 @@ public final class TermUtilsTests {
             assertThrows(ClassCastException.class, () -> TermUtils.toString(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))));
             assertThrows(ClassCastException.class, () -> TermUtils.toString(factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))));
             assertThrows(ClassCastException.class, () -> TermUtils.toString(factory.makeList(factory.makeString("abc"), factory.makeString("def"))));
+            assertThrows(NullPointerException.class, () -> TermUtils.toString(null));
         }
 
     }
@@ -660,6 +685,7 @@ public final class TermUtilsTests {
             assertThrows(ClassCastException.class, () -> TermUtils.toInt(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))));
             assertThrows(ClassCastException.class, () -> TermUtils.toInt(factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))));
             assertThrows(ClassCastException.class, () -> TermUtils.toInt(factory.makeList(factory.makeString("abc"), factory.makeString("def"))));
+            assertThrows(NullPointerException.class, () -> TermUtils.toInt(null));
         }
 
     }
@@ -689,6 +715,7 @@ public final class TermUtilsTests {
             assertThrows(ClassCastException.class, () -> TermUtils.toReal(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))));
             assertThrows(ClassCastException.class, () -> TermUtils.toReal(factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))));
             assertThrows(ClassCastException.class, () -> TermUtils.toReal(factory.makeList(factory.makeString("abc"), factory.makeString("def"))));
+            assertThrows(NullPointerException.class, () -> TermUtils.toReal(null));
         }
 
     }
@@ -718,6 +745,7 @@ public final class TermUtilsTests {
             assertThrows(ClassCastException.class, () -> TermUtils.toAppl(factory.makeReal(4.2)));
             assertThrows(ClassCastException.class, () -> TermUtils.toAppl(factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))));
             assertThrows(ClassCastException.class, () -> TermUtils.toAppl(factory.makeList(factory.makeString("abc"), factory.makeString("def"))));
+            assertThrows(NullPointerException.class, () -> TermUtils.toAppl(null));
         }
 
     }
@@ -747,6 +775,7 @@ public final class TermUtilsTests {
             assertThrows(ClassCastException.class, () -> TermUtils.toList(factory.makeReal(4.2)));
             assertThrows(ClassCastException.class, () -> TermUtils.toList(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))));
             assertThrows(ClassCastException.class, () -> TermUtils.toList(factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))));
+            assertThrows(NullPointerException.class, () -> TermUtils.toList(null));
         }
 
     }
@@ -776,6 +805,7 @@ public final class TermUtilsTests {
             assertThrows(ClassCastException.class, () -> TermUtils.toTuple(factory.makeReal(4.2)));
             assertThrows(ClassCastException.class, () -> TermUtils.toTuple(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))));
             assertThrows(ClassCastException.class, () -> TermUtils.toTuple(factory.makeList(factory.makeString("abc"), factory.makeString("def"))));
+            assertThrows(NullPointerException.class, () -> TermUtils.toTuple(null));
         }
 
     }
@@ -803,6 +833,7 @@ public final class TermUtilsTests {
             assertThrows(ClassCastException.class, () -> TermUtils.toJavaString(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))));
             assertThrows(ClassCastException.class, () -> TermUtils.toJavaString(factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))));
             assertThrows(ClassCastException.class, () -> TermUtils.toJavaString(factory.makeList(factory.makeString("abc"), factory.makeString("def"))));
+            assertThrows(NullPointerException.class, () -> TermUtils.toJavaString(null));
         }
 
     }
@@ -828,6 +859,7 @@ public final class TermUtilsTests {
             assertThrows(ClassCastException.class, () -> TermUtils.toJavaInt(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))));
             assertThrows(ClassCastException.class, () -> TermUtils.toJavaInt(factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))));
             assertThrows(ClassCastException.class, () -> TermUtils.toJavaInt(factory.makeList(factory.makeString("abc"), factory.makeString("def"))));
+            assertThrows(NullPointerException.class, () -> TermUtils.toJavaInt(null));
         }
 
     }
@@ -853,6 +885,7 @@ public final class TermUtilsTests {
             assertThrows(ClassCastException.class, () -> TermUtils.toJavaReal(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))));
             assertThrows(ClassCastException.class, () -> TermUtils.toJavaReal(factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))));
             assertThrows(ClassCastException.class, () -> TermUtils.toJavaReal(factory.makeList(factory.makeString("abc"), factory.makeString("def"))));
+            assertThrows(NullPointerException.class, () -> TermUtils.toJavaReal(null));
         }
 
     }
@@ -881,11 +914,12 @@ public final class TermUtilsTests {
             assertThrows(ClassCastException.class, () -> TermUtils.toJavaList(factory.makeReal(4.2)));
             assertThrows(ClassCastException.class, () -> TermUtils.toJavaList(factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def"))));
             assertThrows(ClassCastException.class, () -> TermUtils.toJavaList(factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))));
+            assertThrows(NullPointerException.class, () -> TermUtils.toJavaList(null));
         }
 
     }
 
-    // ----- //
+
 
 
     /** Tests the {@link TermUtils#isStringAt} methods. */
@@ -902,7 +936,8 @@ public final class TermUtilsTests {
                 factory.makeReal(4.2),
                 factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")),
                 factory.makeTuple(factory.makeString("abc"), factory.makeString("def")),
-                factory.makeList(factory.makeString("abc"), factory.makeString("def"))
+                factory.makeList(factory.makeString("abc"), factory.makeString("def")),
+                null
         );
 
         @Test
@@ -940,6 +975,16 @@ public final class TermUtilsTests {
         }
 
         @Test
+        @DisplayName("when subterm is not a string term, with value, returns false")
+        public void whenSubtermIsNotAStringTerm_withValue_returnsFalse() {
+            assertFalse(TermUtils.isStringAt(testTerm, 4, "XYZ"));
+            assertFalse(TermUtils.isStringAt(testTerm, 5, "XYZ"));
+            assertFalse(TermUtils.isStringAt(testTerm, 6, "XYZ"));
+            assertFalse(TermUtils.isStringAt(testTerm, 7, "XYZ"));
+            assertFalse(TermUtils.isStringAt(testTerm, 8, "XYZ"));
+        }
+
+        @Test
         @DisplayName("when index is out of bounds, returns false")
         public void whenIndexIsOutOfBounds_returnsFalse() {
             assertFalse(TermUtils.isStringAt(testTerm, -1));
@@ -965,7 +1010,8 @@ public final class TermUtilsTests {
                 factory.makeReal(4.2),
                 factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")),
                 factory.makeTuple(factory.makeString("abc"), factory.makeString("def")),
-                factory.makeList(factory.makeString("abc"), factory.makeString("def"))
+                factory.makeList(factory.makeString("abc"), factory.makeString("def")),
+                null
         );
 
         @Test
@@ -1003,6 +1049,16 @@ public final class TermUtilsTests {
         }
 
         @Test
+        @DisplayName("when subterm is not an int term, with value, returns false")
+        public void whenSubtermIsNotAnIntTerm_withValue_returnsFalse() {
+            assertFalse(TermUtils.isIntAt(testTerm, 4, 1337));
+            assertFalse(TermUtils.isIntAt(testTerm, 5, 1337));
+            assertFalse(TermUtils.isIntAt(testTerm, 6, 1337));
+            assertFalse(TermUtils.isIntAt(testTerm, 7, 1337));
+            assertFalse(TermUtils.isIntAt(testTerm, 8, 1337));
+        }
+
+        @Test
         @DisplayName("when index is out of bounds, returns false")
         public void whenIndexIsOutOfBounds_returnsFalse() {
             assertFalse(TermUtils.isIntAt(testTerm, -1));
@@ -1028,7 +1084,8 @@ public final class TermUtilsTests {
                 factory.makeInt(42),
                 factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")),
                 factory.makeTuple(factory.makeString("abc"), factory.makeString("def")),
-                factory.makeList(factory.makeString("abc"), factory.makeString("def"))
+                factory.makeList(factory.makeString("abc"), factory.makeString("def")),
+                null
         );
 
         @Test
@@ -1066,6 +1123,16 @@ public final class TermUtilsTests {
         }
 
         @Test
+        @DisplayName("when subterm is not a real term, with value, returns false")
+        public void whenSubtermIsNotARealTerm_withValue_returnsFalse() {
+            assertFalse(TermUtils.isRealAt(testTerm, 4, 133.7));
+            assertFalse(TermUtils.isRealAt(testTerm, 5, 133.7));
+            assertFalse(TermUtils.isRealAt(testTerm, 6, 133.7));
+            assertFalse(TermUtils.isRealAt(testTerm, 7, 133.7));
+            assertFalse(TermUtils.isRealAt(testTerm, 8, 133.7));
+        }
+
+        @Test
         @DisplayName("when index is out of bounds, returns false")
         public void whenIndexIsOutOfBounds_returnsFalse() {
             assertFalse(TermUtils.isRealAt(testTerm, -1));
@@ -1096,7 +1163,8 @@ public final class TermUtilsTests {
                 factory.makeInt(42),
                 factory.makeReal(4.2),
                 factory.makeTuple(factory.makeString("abc"), factory.makeString("def")),
-                factory.makeList(factory.makeString("abc"), factory.makeString("def"))
+                factory.makeList(factory.makeString("abc"), factory.makeString("def")),
+                null
         );
         
         @Test
@@ -1134,11 +1202,45 @@ public final class TermUtilsTests {
         }
 
         @Test
+        @DisplayName("when subterm is not an appl term, with constructor, returns false")
+        public void whenSubtermIsNotAnApplTerm_withConstructor_returnsFalse() {
+            assertFalse(TermUtils.isApplAt(testTerm, 4, Triplet));
+            assertFalse(TermUtils.isApplAt(testTerm, 5, Triplet));
+            assertFalse(TermUtils.isApplAt(testTerm, 6, Triplet));
+            assertFalse(TermUtils.isApplAt(testTerm, 7, Triplet));
+            assertFalse(TermUtils.isApplAt(testTerm, 8, Triplet));
+        }
+
+        @Test
         @DisplayName("when subterm is an appl term and constructor name and arity match, returns true")
         public void whenSubtermIsAnApplTermAndConstructorNameAndArityMatch_returnsTrue() {
             assertTrue(TermUtils.isApplAt(testTerm, 0, "Nil", 0));
             assertTrue(TermUtils.isApplAt(testTerm, 1, "Singleton", 1));
             assertTrue(TermUtils.isApplAt(testTerm, 2, "Pair", 2));
+        }
+
+        @Test
+        @DisplayName("when subterm is an appl term and constructor name matches and arity is -1, returns true")
+        public void whenSubtermIsAnApplTermAndConstructorNameMatchesAndArityIsMinusOne_returnsTrue() {
+            assertTrue(TermUtils.isApplAt(testTerm, 0, "Nil", -1));
+            assertTrue(TermUtils.isApplAt(testTerm, 1, "Singleton", -1));
+            assertTrue(TermUtils.isApplAt(testTerm, 2, "Pair", -1));
+        }
+
+        @Test
+        @DisplayName("when subterm is an appl term and arity matches and name is null, returns true")
+        public void whenSubtermIsAnApplTermAndArityMatchesAndNameIsNull_returnsTrue() {
+            assertTrue(TermUtils.isApplAt(testTerm, 0, null, 0));
+            assertTrue(TermUtils.isApplAt(testTerm, 1, null, 1));
+            assertTrue(TermUtils.isApplAt(testTerm, 2, null, 2));
+        }
+
+        @Test
+        @DisplayName("when subterm is an appl term and name is null and arity is -1, returns true")
+        public void whenSubtermIsAnApplTermNameIsNullAndArityIsMinusOne_returnsTrue() {
+            assertTrue(TermUtils.isApplAt(testTerm, 0, null, -1));
+            assertTrue(TermUtils.isApplAt(testTerm, 1, null, -1));
+            assertTrue(TermUtils.isApplAt(testTerm, 2, null, -1));
         }
         
         @Test
@@ -1158,12 +1260,60 @@ public final class TermUtilsTests {
         }
 
         @Test
+        @DisplayName("when subterm is not an appl term, with constructor name and arity, returns false")
+        public void whenSubtermIsNotAnApplTerm_withConstructorNameAndArity_returnsFalse() {
+            assertFalse(TermUtils.isApplAt(testTerm, 4, "Xyz", 3));
+            assertFalse(TermUtils.isApplAt(testTerm, 5, "Xyz", 3));
+            assertFalse(TermUtils.isApplAt(testTerm, 6, "Xyz", 3));
+            assertFalse(TermUtils.isApplAt(testTerm, 7, "Xyz", 3));
+            assertFalse(TermUtils.isApplAt(testTerm, 8, "Xyz", 3));
+        }
+
+        @Test
+        @DisplayName("when subterm is an appl term and constructor name matches, returns true")
+        public void whenSubtermIsAnApplTermAndConstructorNameMatches_returnsTrue() {
+            assertTrue(TermUtils.isApplAt(testTerm, 0, "Nil"));
+            assertTrue(TermUtils.isApplAt(testTerm, 1, "Singleton"));
+            assertTrue(TermUtils.isApplAt(testTerm, 2, "Pair"));
+        }
+
+        @Test
+        @DisplayName("when subterm is an appl term and name is null, returns true")
+        public void whenSubtermIsAnApplTermNameIsNull_returnsTrue() {
+            assertTrue(TermUtils.isApplAt(testTerm, 0, (String)null));
+            assertTrue(TermUtils.isApplAt(testTerm, 1, (String)null));
+            assertTrue(TermUtils.isApplAt(testTerm, 2, (String)null));
+        }
+
+        @Test
+        @DisplayName("when subterm is an appl term but only constructor name does not match, returns false")
+        public void whenSubtermIsAnApplTermButOnlyConstructorNameDoesNotMatch_returnsFalse() {
+            assertFalse(TermUtils.isApplAt(testTerm, 0, "Xyz"));
+            assertFalse(TermUtils.isApplAt(testTerm, 1, "Xyz"));
+            assertFalse(TermUtils.isApplAt(testTerm, 2, "Xyz"));
+        }
+
+        @Test
+        @DisplayName("when subterm is not an appl term, with constructor name, returns false")
+        public void whenSubtermIsNotAnApplTerm_withConstructorName_returnsFalse() {
+            assertFalse(TermUtils.isApplAt(testTerm, 4, "Xyz"));
+            assertFalse(TermUtils.isApplAt(testTerm, 5, "Xyz"));
+            assertFalse(TermUtils.isApplAt(testTerm, 6, "Xyz"));
+            assertFalse(TermUtils.isApplAt(testTerm, 7, "Xyz"));
+            assertFalse(TermUtils.isApplAt(testTerm, 8, "Xyz"));
+        }
+
+        @Test
         @DisplayName("when index is out of bounds, returns false")
         public void whenIndexIsOutOfBounds_returnsFalse() {
             assertFalse(TermUtils.isApplAt(testTerm, -1));
             assertFalse(TermUtils.isApplAt(testTerm, 10));
             assertFalse(TermUtils.isApplAt(testTerm, -1,  Pair));
             assertFalse(TermUtils.isApplAt(testTerm, 10, Pair));
+            assertFalse(TermUtils.isApplAt(testTerm, -1, "Pair"));
+            assertFalse(TermUtils.isApplAt(testTerm, 10, "Pair"));
+            assertFalse(TermUtils.isApplAt(testTerm, -1, "Pair", 2));
+            assertFalse(TermUtils.isApplAt(testTerm, 10, "Pair", 2));
         }
 
     }
@@ -1183,7 +1333,8 @@ public final class TermUtilsTests {
                 factory.makeInt(42),
                 factory.makeReal(4.2),
                 factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")),
-                factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))
+                factory.makeTuple(factory.makeString("abc"), factory.makeString("def")),
+                null
         );
 
         @Test
@@ -1221,6 +1372,16 @@ public final class TermUtilsTests {
         }
 
         @Test
+        @DisplayName("when subterm is not a list term, with size, returns false")
+        public void whenSubtermIsNotAListTerm_withSize_returnsFalse() {
+            assertFalse(TermUtils.isListAt(testTerm, 4, 3));
+            assertFalse(TermUtils.isListAt(testTerm, 5, 3));
+            assertFalse(TermUtils.isListAt(testTerm, 6, 3));
+            assertFalse(TermUtils.isListAt(testTerm, 7, 3));
+            assertFalse(TermUtils.isListAt(testTerm, 8, 3));
+        }
+
+        @Test
         @DisplayName("when index is out of bounds, returns false")
         public void whenIndexIsOutOfBounds_returnsFalse() {
             assertFalse(TermUtils.isListAt(testTerm, -1));
@@ -1246,7 +1407,8 @@ public final class TermUtilsTests {
                 factory.makeInt(42),
                 factory.makeReal(4.2),
                 factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")),
-                factory.makeList(factory.makeString("abc"), factory.makeString("def"))
+                factory.makeList(factory.makeString("abc"), factory.makeString("def")),
+                null
         );
 
         @Test
@@ -1284,6 +1446,16 @@ public final class TermUtilsTests {
         }
 
         @Test
+        @DisplayName("when subterm is not a tuple term, with size, returns false")
+        public void whenSubtermIsNotATupleTerm_withSize_returnsFalse() {
+            assertFalse(TermUtils.isTupleAt(testTerm, 4, 3));
+            assertFalse(TermUtils.isTupleAt(testTerm, 5, 3));
+            assertFalse(TermUtils.isTupleAt(testTerm, 6, 3));
+            assertFalse(TermUtils.isTupleAt(testTerm, 7, 3));
+            assertFalse(TermUtils.isTupleAt(testTerm, 8, 3));
+        }
+
+        @Test
         @DisplayName("when index is out of bounds, returns false")
         public void whenIndexIsOutOfBounds_returnsFalse() {
             assertFalse(TermUtils.isTupleAt(testTerm, -1));
@@ -1313,7 +1485,8 @@ public final class TermUtilsTests {
                 factory.makeReal(4.2),
                 factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")),
                 factory.makeTuple(factory.makeString("abc"), factory.makeString("def")),
-                factory.makeList(factory.makeString("abc"), factory.makeString("def"))
+                factory.makeList(factory.makeString("abc"), factory.makeString("def")),
+                null
         );
 
         @Test
@@ -1332,6 +1505,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.asStringAt(testTerm, 5).isPresent());
             assertFalse(TermUtils.asStringAt(testTerm, 6).isPresent());
             assertFalse(TermUtils.asStringAt(testTerm, 7).isPresent());
+            assertFalse(TermUtils.asStringAt(testTerm, 8).isPresent());
         }
 
         @Test
@@ -1360,7 +1534,8 @@ public final class TermUtilsTests {
                 factory.makeReal(4.2),
                 factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")),
                 factory.makeTuple(factory.makeString("abc"), factory.makeString("def")),
-                factory.makeList(factory.makeString("abc"), factory.makeString("def"))
+                factory.makeList(factory.makeString("abc"), factory.makeString("def")),
+                null
         );
 
         @Test
@@ -1379,6 +1554,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.asIntAt(testTerm, 5).isPresent());
             assertFalse(TermUtils.asIntAt(testTerm, 6).isPresent());
             assertFalse(TermUtils.asIntAt(testTerm, 7).isPresent());
+            assertFalse(TermUtils.asIntAt(testTerm, 8).isPresent());
         }
 
         @Test
@@ -1407,7 +1583,8 @@ public final class TermUtilsTests {
                 factory.makeInt(42),
                 factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")),
                 factory.makeTuple(factory.makeString("abc"), factory.makeString("def")),
-                factory.makeList(factory.makeString("abc"), factory.makeString("def"))
+                factory.makeList(factory.makeString("abc"), factory.makeString("def")),
+                null
         );
 
         @Test
@@ -1426,6 +1603,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.asRealAt(testTerm, 5).isPresent());
             assertFalse(TermUtils.asRealAt(testTerm, 6).isPresent());
             assertFalse(TermUtils.asRealAt(testTerm, 7).isPresent());
+            assertFalse(TermUtils.asRealAt(testTerm, 8).isPresent());
         }
 
         @Test
@@ -1458,7 +1636,8 @@ public final class TermUtilsTests {
                 factory.makeInt(42),
                 factory.makeReal(4.2),
                 factory.makeTuple(factory.makeString("abc"), factory.makeString("def")),
-                factory.makeList(factory.makeString("abc"), factory.makeString("def"))
+                factory.makeList(factory.makeString("abc"), factory.makeString("def")),
+                null
         );
 
         @Test
@@ -1477,6 +1656,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.asApplAt(testTerm, 5).isPresent());
             assertFalse(TermUtils.asApplAt(testTerm, 6).isPresent());
             assertFalse(TermUtils.asApplAt(testTerm, 7).isPresent());
+            assertFalse(TermUtils.asApplAt(testTerm, 8).isPresent());
         }
 
         @Test
@@ -1505,7 +1685,8 @@ public final class TermUtilsTests {
                 factory.makeInt(42),
                 factory.makeReal(4.2),
                 factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")),
-                factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))
+                factory.makeTuple(factory.makeString("abc"), factory.makeString("def")),
+                null
         );
 
         @Test
@@ -1524,6 +1705,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.asListAt(testTerm, 5).isPresent());
             assertFalse(TermUtils.asListAt(testTerm, 6).isPresent());
             assertFalse(TermUtils.asListAt(testTerm, 7).isPresent());
+            assertFalse(TermUtils.asListAt(testTerm, 8).isPresent());
         }
 
         @Test
@@ -1553,7 +1735,8 @@ public final class TermUtilsTests {
                 factory.makeInt(42),
                 factory.makeReal(4.2),
                 factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")),
-                factory.makeList(factory.makeString("abc"), factory.makeString("def"))
+                factory.makeList(factory.makeString("abc"), factory.makeString("def")),
+                null
         );
 
         @Test
@@ -1572,6 +1755,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.asTupleAt(testTerm, 5).isPresent());
             assertFalse(TermUtils.asTupleAt(testTerm, 6).isPresent());
             assertFalse(TermUtils.asTupleAt(testTerm, 7).isPresent());
+            assertFalse(TermUtils.asTupleAt(testTerm, 8).isPresent());
         }
 
         @Test
@@ -1605,7 +1789,8 @@ public final class TermUtilsTests {
                 factory.makeReal(4.2),
                 factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")),
                 factory.makeTuple(factory.makeString("abc"), factory.makeString("def")),
-                factory.makeList(factory.makeString("abc"), factory.makeString("def"))
+                factory.makeList(factory.makeString("abc"), factory.makeString("def")),
+                null
         );
 
         @Test
@@ -1624,6 +1809,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.asJavaStringAt(testTerm, 5).isPresent());
             assertFalse(TermUtils.asJavaStringAt(testTerm, 6).isPresent());
             assertFalse(TermUtils.asJavaStringAt(testTerm, 7).isPresent());
+            assertFalse(TermUtils.asJavaStringAt(testTerm, 8).isPresent());
         }
 
         @Test
@@ -1654,7 +1840,8 @@ public final class TermUtilsTests {
                 factory.makeReal(4.2),
                 factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")),
                 factory.makeTuple(factory.makeString("abc"), factory.makeString("def")),
-                factory.makeList(factory.makeString("abc"), factory.makeString("def"))
+                factory.makeList(factory.makeString("abc"), factory.makeString("def")),
+                null
         );
 
         @Test
@@ -1673,6 +1860,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.asJavaIntAt(testTerm, 5).isPresent());
             assertFalse(TermUtils.asJavaIntAt(testTerm, 6).isPresent());
             assertFalse(TermUtils.asJavaIntAt(testTerm, 7).isPresent());
+            assertFalse(TermUtils.asJavaIntAt(testTerm, 8).isPresent());
         }
 
         @Test
@@ -1703,7 +1891,8 @@ public final class TermUtilsTests {
                 factory.makeInt(42),
                 factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")),
                 factory.makeTuple(factory.makeString("abc"), factory.makeString("def")),
-                factory.makeList(factory.makeString("abc"), factory.makeString("def"))
+                factory.makeList(factory.makeString("abc"), factory.makeString("def")),
+                null
         );
 
         @Test
@@ -1722,6 +1911,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.asJavaRealAt(testTerm, 5).isPresent());
             assertFalse(TermUtils.asJavaRealAt(testTerm, 6).isPresent());
             assertFalse(TermUtils.asJavaRealAt(testTerm, 7).isPresent());
+            assertFalse(TermUtils.asJavaRealAt(testTerm, 8).isPresent());
         }
 
         @Test
@@ -1751,7 +1941,8 @@ public final class TermUtilsTests {
                 factory.makeInt(42),
                 factory.makeReal(4.2),
                 factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")),
-                factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))
+                factory.makeTuple(factory.makeString("abc"), factory.makeString("def")),
+                null
         );
 
         @Test
@@ -1770,6 +1961,7 @@ public final class TermUtilsTests {
             assertFalse(TermUtils.asJavaListAt(testTerm, 5).isPresent());
             assertFalse(TermUtils.asJavaListAt(testTerm, 6).isPresent());
             assertFalse(TermUtils.asJavaListAt(testTerm, 7).isPresent());
+            assertFalse(TermUtils.asJavaListAt(testTerm, 8).isPresent());
         }
 
         @Test
@@ -1799,7 +1991,8 @@ public final class TermUtilsTests {
                 factory.makeReal(4.2),
                 factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")),
                 factory.makeTuple(factory.makeString("abc"), factory.makeString("def")),
-                factory.makeList(factory.makeString("abc"), factory.makeString("def"))
+                factory.makeList(factory.makeString("abc"), factory.makeString("def")),
+                null
         );
 
         @Test
@@ -1818,6 +2011,7 @@ public final class TermUtilsTests {
             assertThrows(ClassCastException.class, () -> TermUtils.toStringAt(testTerm, 5));
             assertThrows(ClassCastException.class, () -> TermUtils.toStringAt(testTerm, 6));
             assertThrows(ClassCastException.class, () -> TermUtils.toStringAt(testTerm, 7));
+            assertThrows(NullPointerException.class, () -> TermUtils.toStringAt(testTerm, 8));
         }
 
         @Test
@@ -1845,7 +2039,8 @@ public final class TermUtilsTests {
                 factory.makeReal(4.2),
                 factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")),
                 factory.makeTuple(factory.makeString("abc"), factory.makeString("def")),
-                factory.makeList(factory.makeString("abc"), factory.makeString("def"))
+                factory.makeList(factory.makeString("abc"), factory.makeString("def")),
+                null
         );
 
         @Test
@@ -1864,6 +2059,7 @@ public final class TermUtilsTests {
             assertThrows(ClassCastException.class, () -> TermUtils.toIntAt(testTerm, 5));
             assertThrows(ClassCastException.class, () -> TermUtils.toIntAt(testTerm, 6));
             assertThrows(ClassCastException.class, () -> TermUtils.toIntAt(testTerm, 7));
+            assertThrows(NullPointerException.class, () -> TermUtils.toIntAt(testTerm, 8));
         }
 
         @Test
@@ -1891,7 +2087,8 @@ public final class TermUtilsTests {
                 factory.makeInt(42),
                 factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")),
                 factory.makeTuple(factory.makeString("abc"), factory.makeString("def")),
-                factory.makeList(factory.makeString("abc"), factory.makeString("def"))
+                factory.makeList(factory.makeString("abc"), factory.makeString("def")),
+                null
         );
 
         @Test
@@ -1910,6 +2107,7 @@ public final class TermUtilsTests {
             assertThrows(ClassCastException.class, () -> TermUtils.toRealAt(testTerm, 5));
             assertThrows(ClassCastException.class, () -> TermUtils.toRealAt(testTerm, 6));
             assertThrows(ClassCastException.class, () -> TermUtils.toRealAt(testTerm, 7));
+            assertThrows(NullPointerException.class, () -> TermUtils.toRealAt(testTerm, 8));
         }
 
         @Test
@@ -1941,7 +2139,8 @@ public final class TermUtilsTests {
                 factory.makeInt(42),
                 factory.makeReal(4.2),
                 factory.makeTuple(factory.makeString("abc"), factory.makeString("def")),
-                factory.makeList(factory.makeString("abc"), factory.makeString("def"))
+                factory.makeList(factory.makeString("abc"), factory.makeString("def")),
+                null
         );
 
         @Test
@@ -1960,6 +2159,7 @@ public final class TermUtilsTests {
             assertThrows(ClassCastException.class, () -> TermUtils.toApplAt(testTerm, 5));
             assertThrows(ClassCastException.class, () -> TermUtils.toApplAt(testTerm, 6));
             assertThrows(ClassCastException.class, () -> TermUtils.toApplAt(testTerm, 7));
+            assertThrows(NullPointerException.class, () -> TermUtils.toApplAt(testTerm, 8));
         }
 
         @Test
@@ -1987,7 +2187,8 @@ public final class TermUtilsTests {
                 factory.makeInt(42),
                 factory.makeReal(4.2),
                 factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")),
-                factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))
+                factory.makeTuple(factory.makeString("abc"), factory.makeString("def")),
+                null
         );
 
         @Test
@@ -2006,6 +2207,7 @@ public final class TermUtilsTests {
             assertThrows(ClassCastException.class, () -> TermUtils.toListAt(testTerm, 5));
             assertThrows(ClassCastException.class, () -> TermUtils.toListAt(testTerm, 6));
             assertThrows(ClassCastException.class, () -> TermUtils.toListAt(testTerm, 7));
+            assertThrows(NullPointerException.class, () -> TermUtils.toListAt(testTerm, 8));
         }
 
         @Test
@@ -2034,7 +2236,8 @@ public final class TermUtilsTests {
                 factory.makeInt(42),
                 factory.makeReal(4.2),
                 factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")),
-                factory.makeList(factory.makeString("abc"), factory.makeString("def"))
+                factory.makeList(factory.makeString("abc"), factory.makeString("def")),
+                null
         );
 
         @Test
@@ -2053,6 +2256,7 @@ public final class TermUtilsTests {
             assertThrows(ClassCastException.class, () -> TermUtils.toTupleAt(testTerm, 5));
             assertThrows(ClassCastException.class, () -> TermUtils.toTupleAt(testTerm, 6));
             assertThrows(ClassCastException.class, () -> TermUtils.toTupleAt(testTerm, 7));
+            assertThrows(NullPointerException.class, () -> TermUtils.toTupleAt(testTerm, 8));
         }
 
         @Test
@@ -2081,7 +2285,8 @@ public final class TermUtilsTests {
                 factory.makeReal(4.2),
                 factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")),
                 factory.makeTuple(factory.makeString("abc"), factory.makeString("def")),
-                factory.makeList(factory.makeString("abc"), factory.makeString("def"))
+                factory.makeList(factory.makeString("abc"), factory.makeString("def")),
+                null
         );
 
         @Test
@@ -2100,6 +2305,7 @@ public final class TermUtilsTests {
             assertThrows(ClassCastException.class, () -> TermUtils.toJavaStringAt(testTerm, 5));
             assertThrows(ClassCastException.class, () -> TermUtils.toJavaStringAt(testTerm, 6));
             assertThrows(ClassCastException.class, () -> TermUtils.toJavaStringAt(testTerm, 7));
+            assertThrows(NullPointerException.class, () -> TermUtils.toJavaStringAt(testTerm, 8));
         }
 
         @Test
@@ -2127,7 +2333,8 @@ public final class TermUtilsTests {
                 factory.makeReal(4.2),
                 factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")),
                 factory.makeTuple(factory.makeString("abc"), factory.makeString("def")),
-                factory.makeList(factory.makeString("abc"), factory.makeString("def"))
+                factory.makeList(factory.makeString("abc"), factory.makeString("def")),
+                null
         );
 
         @Test
@@ -2146,6 +2353,7 @@ public final class TermUtilsTests {
             assertThrows(ClassCastException.class, () -> TermUtils.toJavaIntAt(testTerm, 5));
             assertThrows(ClassCastException.class, () -> TermUtils.toJavaIntAt(testTerm, 6));
             assertThrows(ClassCastException.class, () -> TermUtils.toJavaIntAt(testTerm, 7));
+            assertThrows(NullPointerException.class, () -> TermUtils.toJavaIntAt(testTerm, 8));
         }
 
         @Test
@@ -2173,7 +2381,8 @@ public final class TermUtilsTests {
                 factory.makeInt(42),
                 factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")),
                 factory.makeTuple(factory.makeString("abc"), factory.makeString("def")),
-                factory.makeList(factory.makeString("abc"), factory.makeString("def"))
+                factory.makeList(factory.makeString("abc"), factory.makeString("def")),
+                null
         );
 
         @Test
@@ -2192,6 +2401,7 @@ public final class TermUtilsTests {
             assertThrows(ClassCastException.class, () -> TermUtils.toJavaRealAt(testTerm, 5));
             assertThrows(ClassCastException.class, () -> TermUtils.toJavaRealAt(testTerm, 6));
             assertThrows(ClassCastException.class, () -> TermUtils.toJavaRealAt(testTerm, 7));
+            assertThrows(NullPointerException.class, () -> TermUtils.toJavaRealAt(testTerm, 8));
         }
 
         @Test
@@ -2222,7 +2432,8 @@ public final class TermUtilsTests {
                 factory.makeInt(42),
                 factory.makeReal(4.2),
                 factory.makeAppl(factory.makeConstructor("Pair", 2), factory.makeString("abc"), factory.makeString("def")),
-                factory.makeTuple(factory.makeString("abc"), factory.makeString("def"))
+                factory.makeTuple(factory.makeString("abc"), factory.makeString("def")),
+                null
         );
 
         @Test
@@ -2241,6 +2452,7 @@ public final class TermUtilsTests {
             assertThrows(ClassCastException.class, () -> TermUtils.toJavaListAt(testTerm, 5));
             assertThrows(ClassCastException.class, () -> TermUtils.toJavaListAt(testTerm, 6));
             assertThrows(ClassCastException.class, () -> TermUtils.toJavaListAt(testTerm, 7));
+            assertThrows(NullPointerException.class, () -> TermUtils.toJavaListAt(testTerm, 8));
         }
 
         @Test

@@ -7,13 +7,22 @@
  */
 package org.spoofax.interpreter.terms;
 
+import org.spoofax.terms.util.TermUtils;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.Writer;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * A Stratego annotated term.
+ *
+ * Note: to determine whether a term is of a particular type,
+ * use the functions in {@link TermUtils} such as {@link TermUtils#isAppl}, {@link TermUtils#isList},
+ * {@link TermUtils#isInt}, {@link TermUtils#isReal}, {@link TermUtils#isString} and {@link TermUtils#isTuple}.
+ * Do not compare the class of a term instance, as some classes implement multiple term interfaces.
  */
 public interface IStrategoTerm extends ISimpleTerm, Serializable, Iterable<IStrategoTerm> {
 
@@ -50,10 +59,21 @@ public interface IStrategoTerm extends ISimpleTerm, Serializable, Iterable<IStra
      *
      * Do not change the elements in the returned array.
      *
+     * This method is inefficient, as it often creates a copy of the internal array.
+     * Instead, use {@link #getSubterms()}.
+     *
      * @return an array with all subterms;
      * or an empty array when the term does not support subterms
      */
     IStrategoTerm[] getAllSubterms();
+
+    /**
+     * Gets an immutable list with all subterms of this term.
+     *
+     * @return an immutable list with all subterms;
+     * or an empty list when the term does not support subterms
+     */
+    List<IStrategoTerm> getSubterms();
 
     /**
      * Gets the type of term.
@@ -114,9 +134,11 @@ public interface IStrategoTerm extends ISimpleTerm, Serializable, Iterable<IStra
      */
     void writeAsString(Appendable output, int maxDepth) throws IOException;
 
-    // TODO: Remove Iterable<IStrategoTerm>
-    /** @deprecated Use {@link #getAllSubterms()} instead. */
-    @Override @Deprecated
+    /**
+     * Gets the iterator for iterating over the subterms of this term.
+     *
+     * @return an iterator
+     */
     Iterator<IStrategoTerm> iterator();
 
 }

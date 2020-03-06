@@ -2,6 +2,7 @@ package org.spoofax.terms.typesmart.types;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.typesmart.TypesmartContext;
+import org.spoofax.terms.util.TermUtils;
 
 public class TList implements SortType {
     private static final long serialVersionUID = 886205363941392393L;
@@ -29,7 +30,7 @@ public class TList implements SortType {
     }
 
     @Override public boolean matches(IStrategoTerm t, TypesmartContext context) {
-        if(t.getTermType() == IStrategoTerm.LIST) {
+        if(TermUtils.isList(t)) {
             for(IStrategoTerm sub : t)
                 if(!elemType.matches(sub, context))
                     return false;

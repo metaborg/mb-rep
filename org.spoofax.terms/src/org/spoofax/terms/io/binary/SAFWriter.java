@@ -55,6 +55,7 @@ import org.spoofax.interpreter.terms.IStrategoReal;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
+import org.spoofax.terms.util.TermUtils;
 
 /**
  * Writes the given ATerm to a (streamable) binary format. Supply the
@@ -164,7 +165,7 @@ public class SAFWriter {
 
                 visit(currentTerm);
 
-                if (currentTerm.getTermType() == IStrategoTerm.LIST)
+                if (TermUtils.isList(currentTerm))
                     stack[stackPosition].nextPartOfList = (IStrategoList) currentTerm; // <-
                 // for
                 // ATermList->next
@@ -249,7 +250,7 @@ public class SAFWriter {
 	    final boolean hasRemainigSubterms = current.subTermsAfter > 0
 		    || term.getSubtermCount() > current.subTermIndex + 1;
 	    if (hasRemainigSubterms) {
-                if (term.getTermType() != IStrategoTerm.LIST) {
+                if (!TermUtils.isList(term)) {
                     next = term.getSubterm(++current.subTermIndex);
                 } else {
                     IStrategoList nextList = current.nextPartOfList;
@@ -261,7 +262,7 @@ public class SAFWriter {
 
                 ATermMapping child = new ATermMapping();
                 child.term = next;
-		if (next.getTermType() == IStrategoTerm.LIST) {
+		if (TermUtils.isList(next)) {
 		    child.subTermsAfter = next.getSubtermCount();
 		}
                 stack[++stackPosition] = child;

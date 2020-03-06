@@ -7,6 +7,7 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.TermTransformer;
+import org.spoofax.terms.util.TermUtils;
 
 public class IndexParentKeyFactory {
 	private class ParentURITransformer extends TermTransformer {
@@ -42,7 +43,7 @@ public class IndexParentKeyFactory {
 		}
 
 		private boolean isURI(IStrategoTerm term) {
-			if(!Tools.isTermAppl(term))
+			if(!TermUtils.isAppl(term))
 				return false;
 			final IStrategoAppl appl = (IStrategoAppl) term;
 			return appl.getConstructor().equals(uriConstructor);

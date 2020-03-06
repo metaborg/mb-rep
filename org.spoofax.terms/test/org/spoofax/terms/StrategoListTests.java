@@ -95,7 +95,8 @@ public class StrategoListTests {
     @Nested class WriteAsStringTests     extends FixtureImpl implements IStrategoListTests.WriteAsStringTests {}
 
     // IStrategoTerm
-    @Nested class GetAllSubtermTests     extends FixtureImpl implements IStrategoTermTests.GetAllSubtermTests {}
+    @Nested class GetAllSubtermsTests    extends FixtureImpl implements IStrategoTermTests.GetAllSubtermsTests {}
+    @Nested class GetSubtermsTests       extends FixtureImpl implements IStrategoTermTests.GetSubtermsTests {}
     @Nested class GetAnnotationsTests    extends FixtureImpl implements IStrategoTermTests.GetAnnotationsTests {}
     @Nested class GetSubtermCountTests   extends FixtureImpl implements IStrategoTermTests.GetSubtermCountTests {}
     @Nested class GetSubtermTests        extends FixtureImpl implements IStrategoTermTests.GetSubtermTests {}

@@ -9,6 +9,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
 import com.google.common.collect.Lists;
+import org.spoofax.terms.util.TermUtils;
 
 public class IndexFactory {
     private final ITermFactory termFactory;
@@ -60,7 +61,7 @@ public class IndexFactory {
      * @throws Exception
      */
     public IIndex indexFromTerm(IIndex index, IStrategoTerm term) throws IOException {
-        if(!Tools.isTermList(term)) {
+        if(!TermUtils.isList(term)) {
             throw new IOException("Cannot read index; root term is not a list");
         }
 
@@ -72,7 +73,7 @@ public class IndexFactory {
     }
 
     private void sourceFromTerm(IIndex index, IStrategoTerm term) throws IOException {
-        if(!Tools.isTermTuple(term)) {
+        if(!TermUtils.isTuple(term)) {
             throw new IOException("Cannot read index; partition term is not a tuple");
         }
 

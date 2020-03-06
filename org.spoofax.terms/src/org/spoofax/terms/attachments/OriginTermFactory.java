@@ -10,6 +10,7 @@ import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.StrategoAppl;
 import org.spoofax.terms.util.NotImplementedException;
+import org.spoofax.terms.util.TermUtils;
 
 /**
  * A factory creating ATerms from AST nodes.
@@ -81,9 +82,9 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 			return term;
 		} else if (term == origin) {
 			return term;
-		} else if (term.isList()) {
+		} else if (TermUtils.isList(term)) {
 			if (term.getSubtermCount() == origin.getSubtermCount()
-					&& origin.isList()) {
+					&& TermUtils.isList(origin)) {
 				return makeListLink((IStrategoList) term, (IStrategoList) origin);
 			} else {
 				return term;
@@ -113,9 +114,9 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 	 */
 	public IStrategoTerm makeLink(IStrategoTerm term, IStrategoTerm origin) {
 		assert isOriginRoot(origin);
-		if (term.isList()) { 
+		if (TermUtils.isList(term)) {
 			if (term.getSubtermCount() == origin.getSubtermCount()
-				&& origin.isList()) {
+				&& TermUtils.isList(origin)) {
 				return makeListLink((IStrategoList) term, (IStrategoList) origin);
 			}
 		} else if (OriginAttachment.get(term) == null) {
@@ -137,7 +138,7 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 	 *            corresponding term with the same offset and length.
 	 */
 	public IStrategoTerm makeLinkDesugared(IStrategoTerm term, IStrategoTerm desugared) {
-		if (!term.isList() && DesugaredOriginAttachment.get(term) == null) {
+		if (!TermUtils.isList(term) && DesugaredOriginAttachment.get(term) == null) {
 			DesugaredOriginAttachment.setDesugaredOrigin(term, desugared);
 		} else if (REASSIGN_ORIGINS) {
 			throw new NotImplementedException("Not implemented: unwrapping of possibly already wrapped term");
@@ -178,7 +179,7 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 	}
 	
 	protected IStrategoTerm[] ensureChildLinks(IStrategoTerm[] kids, IStrategoTerm old) {
-		assert !old.isList(); // has an expensive getAllSubterms(); shouldn't use this method
+		assert !TermUtils.isList(old); // has an expensive getAllSubterms(); shouldn't use this method
 		
 		IStrategoTerm[] oldKids = old.getAllSubterms();
 		if (oldKids == kids) return kids; // no changes; happens with interpreter's all

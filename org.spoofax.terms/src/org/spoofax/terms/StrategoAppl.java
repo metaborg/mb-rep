@@ -1,17 +1,13 @@
-/*
- * Created on 28. jan.. 2007
- *
- * Copyright (c) 2005, Karl Trygve Kalleberg <karltk near strategoxt.org>
- *
- * Licensed under the GNU Lesser General Public License, v2.1
- */
 package org.spoofax.terms;
 
 import org.spoofax.interpreter.terms.*;
 import org.spoofax.terms.util.ArrayIterator;
+import org.spoofax.terms.util.TermUtils;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 public class StrategoAppl extends StrategoTerm implements IStrategoAppl {
 
@@ -19,7 +15,7 @@ public class StrategoAppl extends StrategoTerm implements IStrategoAppl {
 
     private final IStrategoConstructor ctor;
 
-    private IStrategoTerm[] kids;
+    private final IStrategoTerm[] kids;
 
     public StrategoAppl(IStrategoConstructor ctor, IStrategoTerm[] kids, IStrategoList annotations) {
         super(annotations);
@@ -32,35 +28,46 @@ public class StrategoAppl extends StrategoTerm implements IStrategoAppl {
         return kids;
     }
 
+    @Override
     public IStrategoConstructor getConstructor() {
         return ctor;
     }
 
+    @Override
     public String getName() {
         return ctor.getName();
     }
 
-    public IStrategoTerm[] getAllSubterms() {
-        return kids;
+    @Override
+    public List<IStrategoTerm> getSubterms() {
+        return TermList.ofUnsafe(kids);
     }
 
+    @Override
     public IStrategoTerm getSubterm(int index) {
         if(index < 0 || index >= kids.length)
             throw new IndexOutOfBoundsException("Index out of bounds: " + index);
         return kids[index];
     }
 
+    @Override
+    public IStrategoTerm[] getAllSubterms() {
+        return kids;
+    }
+
+    @Override
     public int getSubtermCount() {
         return kids.length;
     }
 
+    @Override
     public int getTermType() {
         return IStrategoTerm.APPL;
     }
 
     @Override
     protected boolean doSlowMatch(IStrategoTerm second) {
-        if(second.getTermType() != IStrategoTerm.APPL)
+        if(!TermUtils.isAppl(second))
             return false;
         IStrategoAppl o = (IStrategoAppl) second;
         if(!ctor.equals(o.getConstructor()))
@@ -68,7 +75,8 @@ public class StrategoAppl extends StrategoTerm implements IStrategoAppl {
 
         IStrategoTerm[] kids = getAllSubterms();
         IStrategoTerm[] secondKids = o.getAllSubterms();
-        if(kids != secondKids) {
+        if (kids.length != secondKids.length) return false;
+        if(!Arrays.equals(kids, secondKids)) {
             for(int i = 0, sz = kids.length; i < sz; i++) {
                 IStrategoTerm kid = kids[i];
                 IStrategoTerm secondKid = secondKids[i];
@@ -87,6 +95,7 @@ public class StrategoAppl extends StrategoTerm implements IStrategoAppl {
     }
 
     @Deprecated
+    @Override
     public void prettyPrint(ITermPrinter pp) {
         pp.print(ctor.getName());
         IStrategoTerm[] kids = getAllSubterms();
@@ -104,6 +113,7 @@ public class StrategoAppl extends StrategoTerm implements IStrategoAppl {
         printAnnotations(pp);
     }
 
+    @Override
     public void writeAsString(Appendable output, int maxDepth) throws IOException {
         output.append(ctor.getName());
         IStrategoTerm[] kids = getAllSubterms();

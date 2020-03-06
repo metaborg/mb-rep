@@ -1,7 +1,9 @@
 package org.spoofax.terms;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.spoofax.interpreter.terms.IStrategoInt;
@@ -26,8 +28,9 @@ public final class UniqueValueTerm extends AbstractSimpleTerm implements IStrate
 		return value;
 	}
 
-	public IStrategoTerm[] getAllSubterms() {
-		return TermFactory.EMPTY;
+	@Override
+	public List<IStrategoTerm> getSubterms() {
+		return Collections.emptyList();
 	}
 
 	public IStrategoList getAnnotations() {
@@ -36,6 +39,11 @@ public final class UniqueValueTerm extends AbstractSimpleTerm implements IStrate
 
 	public IStrategoTerm getSubterm(int index) {
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public IStrategoTerm[] getAllSubterms() {
+		return new IStrategoTerm[0];
 	}
 
 	public int getSubtermCount() {
