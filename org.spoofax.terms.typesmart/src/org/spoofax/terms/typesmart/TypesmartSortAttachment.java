@@ -3,7 +3,6 @@ package org.spoofax.terms.typesmart;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 
 import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -12,7 +11,6 @@ import org.spoofax.interpreter.terms.ITermPrinter;
 import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.terms.StrategoString;
 import org.spoofax.terms.StrategoTerm;
-import org.spoofax.terms.TermList;
 import org.spoofax.terms.attachments.AbstractTermAttachment;
 import org.spoofax.terms.attachments.OriginAttachment;
 import org.spoofax.terms.attachments.TermAttachmentType;
@@ -58,17 +56,11 @@ public class TypesmartSortAttachment extends AbstractTermAttachment {
             return new StrategoString(ar[index].toString(), null);
         }
 
-        @Override
-        public IStrategoTerm[] getAllSubterms() {
+        @Override public IStrategoTerm[] getAllSubterms() {
             IStrategoTerm[] ts = new IStrategoTerm[ar.length];
             for(int i = 0; i < ar.length; i++)
                 ts[i] = getSubterm(i);
             return ts;
-        }
-
-        @Override
-        public List<IStrategoTerm> getSubterms() {
-            return TermList.ofUnsafe(getAllSubterms());
         }
 
         @Override public int getTermType() {
@@ -81,6 +73,10 @@ public class TypesmartSortAttachment extends AbstractTermAttachment {
 
         @Override public void writeAsString(Appendable output, int maxDepth) throws IOException {
             output.append(Arrays.toString(ar));
+        }
+
+        @Override public Iterator<IStrategoTerm> iterator() {
+            return new ArrayIterator<>(getAllSubterms());
         }
 
         @Override protected boolean doSlowMatch(IStrategoTerm second) {

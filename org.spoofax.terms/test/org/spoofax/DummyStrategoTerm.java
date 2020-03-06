@@ -6,9 +6,7 @@ import org.spoofax.interpreter.terms.ITermPrinter;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 
 
 /**
@@ -24,11 +22,6 @@ public class DummyStrategoTerm extends DummySimpleTerm implements IStrategoTerm 
     @Override
     public IStrategoTerm[] getAllSubterms() {
         return new IStrategoTerm[0];
-    }
-
-    @Override
-    public List<IStrategoTerm> getSubterms() {
-        return Collections.emptyList();
     }
 
     @Override
@@ -75,6 +68,11 @@ public class DummyStrategoTerm extends DummySimpleTerm implements IStrategoTerm 
     @Override
     public void writeAsString(Appendable output, int maxDepth) throws IOException {
         output.append("<dummy>");
+    }
+
+    @Override
+    public Iterator<IStrategoTerm> iterator() {
+        return Arrays.asList(getAllSubterms()).iterator();
     }
 
 }

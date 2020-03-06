@@ -47,8 +47,7 @@ public class StrategoPlaceholderTests {
 
     // @formatter:off
     // IStrategoPlaceholder
-    @Nested class GetAllSubtermsTests    extends FixtureImpl implements IStrategoPlaceholderTests.GetAllSubtermsTests {}
-    @Nested class GetSubtermsTests       extends FixtureImpl implements IStrategoPlaceholderTests.GetSubtermsTests {}
+    @Nested class GetAllSubtermTests     extends FixtureImpl implements IStrategoPlaceholderTests.GetAllSubtermTests {}
     @Nested class GetSubtermCountTests   extends FixtureImpl implements IStrategoPlaceholderTests.GetSubtermCountTests {}
     @Nested class GetTemplateTests       extends FixtureImpl implements IStrategoPlaceholderTests.GetTemplateTests {}
     @Nested class GetTermTypeTests       extends FixtureImpl implements IStrategoPlaceholderTests.GetTermTypeTests {}

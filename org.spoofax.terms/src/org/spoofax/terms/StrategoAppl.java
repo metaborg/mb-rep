@@ -1,12 +1,17 @@
+/*
+ * Created on 28. jan.. 2007
+ *
+ * Copyright (c) 2005, Karl Trygve Kalleberg <karltk near strategoxt.org>
+ *
+ * Licensed under the GNU Lesser General Public License, v2.1
+ */
 package org.spoofax.terms;
 
 import org.spoofax.interpreter.terms.*;
-import org.spoofax.terms.util.TermUtils;
+import org.spoofax.terms.util.ArrayIterator;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 
 public class StrategoAppl extends StrategoTerm implements IStrategoAppl {
 
@@ -14,7 +19,7 @@ public class StrategoAppl extends StrategoTerm implements IStrategoAppl {
 
     private final IStrategoConstructor ctor;
 
-    private final IStrategoTerm[] kids;
+    private IStrategoTerm[] kids;
 
     public StrategoAppl(IStrategoConstructor ctor, IStrategoTerm[] kids, IStrategoList annotations) {
         super(annotations);
@@ -24,47 +29,38 @@ public class StrategoAppl extends StrategoTerm implements IStrategoAppl {
 
     @Deprecated
     public IStrategoTerm[] getArguments() {
-        return getAllSubterms();
+        return kids;
     }
 
-    @Override
     public IStrategoConstructor getConstructor() {
         return ctor;
     }
 
-    @Override
     public String getName() {
         return ctor.getName();
     }
 
-    @Override
-    public List<IStrategoTerm> getSubterms() {
-        return TermList.ofUnsafe(kids);
-    }
-
-    @Override
-    public IStrategoTerm getSubterm(int index) {
-        return kids[index];
-    }
-
-    @Override
     public IStrategoTerm[] getAllSubterms() {
         return kids;
     }
 
-    @Override
+    public IStrategoTerm getSubterm(int index) {
+        if(index < 0 || index >= kids.length)
+            throw new IndexOutOfBoundsException("Index out of bounds: " + index);
+        return kids[index];
+    }
+
     public int getSubtermCount() {
         return kids.length;
     }
 
-    @Override
     public int getTermType() {
         return IStrategoTerm.APPL;
     }
 
     @Override
     protected boolean doSlowMatch(IStrategoTerm second) {
-        if(!TermUtils.isAppl(second))
+        if(second.getTermType() != IStrategoTerm.APPL)
             return false;
         IStrategoAppl o = (IStrategoAppl) second;
         if(!ctor.equals(o.getConstructor()))
@@ -72,8 +68,7 @@ public class StrategoAppl extends StrategoTerm implements IStrategoAppl {
 
         IStrategoTerm[] kids = getAllSubterms();
         IStrategoTerm[] secondKids = o.getAllSubterms();
-        if (kids.length != secondKids.length) return false;
-        if(!Arrays.equals(kids, secondKids)) {
+        if(kids != secondKids) {
             for(int i = 0, sz = kids.length; i < sz; i++) {
                 IStrategoTerm kid = kids[i];
                 IStrategoTerm secondKid = secondKids[i];
@@ -92,7 +87,6 @@ public class StrategoAppl extends StrategoTerm implements IStrategoAppl {
     }
 
     @Deprecated
-    @Override
     public void prettyPrint(ITermPrinter pp) {
         pp.print(ctor.getName());
         IStrategoTerm[] kids = getAllSubterms();
@@ -110,9 +104,9 @@ public class StrategoAppl extends StrategoTerm implements IStrategoAppl {
         printAnnotations(pp);
     }
 
-    @Override
     public void writeAsString(Appendable output, int maxDepth) throws IOException {
         output.append(ctor.getName());
+        IStrategoTerm[] kids = getAllSubterms();
         if(kids.length > 0) {
             output.append('(');
             if(maxDepth == 0) {
@@ -133,10 +127,15 @@ public class StrategoAppl extends StrategoTerm implements IStrategoAppl {
     public int hashFunction() {
         long r = ctor.hashCode();
         int accum = 6673;
-        for (IStrategoTerm kid : this.kids) {
-            r += kid.hashCode() * accum;
+        IStrategoTerm[] kids = getAllSubterms();
+        for(int i = 0; i < kids.length; i++) {
+            r += kids[i].hashCode() * accum;
             accum *= 7703;
         }
         return (int) (r >> 12);
+    }
+
+    public Iterator<IStrategoTerm> iterator() {
+        return new ArrayIterator<IStrategoTerm>(kids);
     }
 }

@@ -11,9 +11,7 @@ import org.spoofax.interpreter.terms.*;
 import org.spoofax.terms.util.EmptyIterator;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 
 public final class StrategoConstructor extends StrategoTerm implements IStrategoConstructor {
 
@@ -31,37 +29,26 @@ public final class StrategoConstructor extends StrategoTerm implements IStratego
             throw new IllegalArgumentException("name cannot be null");
     }
 
-    @Override
     public int getArity() {
         return arity;
     }
 
-    @Override
     public String getName() {
         return name;
     }
 
-    @Override
-    public List<IStrategoTerm> getSubterms() {
-        return Collections.emptyList();
+    public IStrategoTerm[] getAllSubterms() {
+        return TermFactory.EMPTY;
     }
 
-    @Override
     public IStrategoTerm getSubterm(int index) {
         throw new IndexOutOfBoundsException();
     }
 
-    @Override
-    public IStrategoTerm[] getAllSubterms() {
-        return new IStrategoTerm[0];
-    }
-
-    @Override
     public int getSubtermCount() {
         return 0;
     }
 
-    @Override
     public final int getTermType() {
         return IStrategoTerm.CTOR;
     }
@@ -78,7 +65,6 @@ public final class StrategoConstructor extends StrategoTerm implements IStratego
         return name.equals(other.getName()) && arity == other.getArity();
     }
 
-    @Override
     public void prettyPrint(ITermPrinter pp) {
         throw new UnsupportedOperationException();
     }
@@ -88,7 +74,6 @@ public final class StrategoConstructor extends StrategoTerm implements IStratego
         return name + "`" + arity;
     }
 
-    @Override
     public void writeAsString(Appendable output, int maxDepth) throws IOException {
         output.append(name);
         output.append('`');
@@ -106,15 +91,17 @@ public final class StrategoConstructor extends StrategoTerm implements IStratego
     }
 
     @Deprecated
-    @Override
     public IStrategoAppl instantiate(ITermFactory factory, IStrategoTerm... kids) {
         throw new UnsupportedOperationException();
     }
 
     @Deprecated
-    @Override
     public IStrategoAppl instantiate(ITermFactory factory, IStrategoList kids) {
         throw new UnsupportedOperationException();
+    }
+
+    public Iterator<IStrategoTerm> iterator() {
+        return new EmptyIterator<IStrategoTerm>();
     }
 
     private Object readResolve() {

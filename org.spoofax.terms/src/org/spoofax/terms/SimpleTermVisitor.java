@@ -4,8 +4,6 @@ import java.util.Iterator;
 
 import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.terms.util.TermUtils;
 
 
 /**
@@ -30,11 +28,14 @@ public abstract class SimpleTermVisitor implements ISimpleTermVisitor {
 
 	@SuppressWarnings("unchecked")
 	public static Iterator<ISimpleTerm> tryGetListIterator(ISimpleTerm term) {
-		if (term instanceof Iterable) {
-			return ((Iterable<ISimpleTerm>) term).iterator();
-		} else if (term instanceof IStrategoTerm && TermUtils.isList((IStrategoTerm)term)) {
-			Iterator<?> iterator = TermUtils.toList((IStrategoTerm)term).iterator();
-			return (Iterator<ISimpleTerm>)iterator;
+		boolean isList = term.isList();
+		if (isList) {
+			if (term instanceof Iterable) {
+				return ((Iterable<ISimpleTerm>) term).iterator();
+			} else if (term.isList() && term instanceof IStrategoList) { // can't rely on 'instance of' only
+				Iterator<?> iterator = StrategoListIterator.iterable((IStrategoList) term).iterator();
+				return (Iterator<ISimpleTerm>) iterator;
+			}
 		}
 		return null;
 	}

@@ -160,7 +160,7 @@ public interface IStrategoTermTests {
      * Tests the {@link IStrategoTerm#getAllSubterms()} method.
      */
     @DisplayName("getAllSubterms(int)")
-    interface GetAllSubtermsTests extends Fixture {
+    interface GetAllSubtermTests extends Fixture {
 
         @Test
         @DisplayName("when it has no subterms, returns empty array")
@@ -177,7 +177,7 @@ public interface IStrategoTermTests {
 
         @Test
         @DisplayName("when it has subterms, returns array of subterms")
-        default void whenItHasSubterms_returnsArrayOfSubterms() {
+        default void whenItHasSubterms_returnsEmptyArray() {
             // Arrange
             List<IStrategoTerm> subterms = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(),
                     new DummyStrategoTerm());
@@ -206,75 +206,6 @@ public interface IStrategoTermTests {
 
             // Assert
             assertEquals(subterms, Arrays.asList(result));
-        }
-
-    }
-
-
-
-    /**
-     * Tests the {@link IStrategoTerm#getSubterms()} method.
-     */
-    @DisplayName("getSubterms(int)")
-    interface GetSubtermsTests extends Fixture {
-
-        @Test
-        @DisplayName("when it has no subterms, returns empty list")
-        default void whenItHasNoSubterms_returnsEmptyList() {
-            // Arrange
-            IStrategoTerm sut = createIStrategoTerm(Collections.emptyList(), null, null);
-
-            // Act
-            List<IStrategoTerm> result = sut.getSubterms();
-
-            // Assert
-            assertEquals(0, result.size());
-        }
-
-        @Test
-        @DisplayName("when it has subterms, returns list of subterms")
-        default void whenItHasSubterms_returnsListOfSubterms() {
-            // Arrange
-            List<IStrategoTerm> subterms = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(),
-                    new DummyStrategoTerm());
-            IStrategoTerm sut = createIStrategoTerm(subterms, null, null);
-
-            // Act
-            List<IStrategoTerm> result = sut.getSubterms();
-
-            // Assert
-            assertEquals(subterms, result);
-        }
-
-        @Test
-        @DisplayName("returned list is unmodifiable")
-        @SuppressWarnings("ComparatorMethodParameterNotUsed")
-        default void returnedListIsUnmodifiable() {
-            // Arrange
-            DummyStrategoTerm t = new DummyStrategoTerm();
-            List<IStrategoTerm> subterms = Arrays.asList(t, new DummyStrategoTerm(), new DummyStrategoTerm());
-            IStrategoTerm sut = createIStrategoTerm(subterms, null, null);
-            List<IStrategoTerm> result = sut.getSubterms();
-
-            // Act/Assert
-            assertThrows(RuntimeException.class, () -> result.add(t));
-            assertThrows(RuntimeException.class, () -> result.add(0, t));
-            assertThrows(RuntimeException.class, () -> result.clear());
-            assertThrows(RuntimeException.class, () -> result.replaceAll(x -> t));
-            assertThrows(RuntimeException.class, () -> result.sort((x, y) -> 1));
-            assertThrows(RuntimeException.class, () -> result.addAll(Collections.singletonList(t)));
-            assertThrows(RuntimeException.class, () -> result.addAll(0, Collections.singletonList(t)));
-            assertThrows(RuntimeException.class, () -> result.remove(t));
-            assertThrows(RuntimeException.class, () -> result.remove(0));
-            assertThrows(RuntimeException.class, () -> result.removeAll(Collections.singletonList(t)));
-            assertThrows(RuntimeException.class, () -> result.retainAll(Collections.singletonList(t)));
-            assertThrows(RuntimeException.class, () -> result.set(0, t));
-            assertThrows(RuntimeException.class, () -> result.removeIf(x -> true));
-            assertThrows(RuntimeException.class, () -> {
-                result.iterator().next();
-                result.iterator().remove();
-            });
-            assertThrows(RuntimeException.class, () -> result.subList(0, 1).set(0, t));
         }
 
     }

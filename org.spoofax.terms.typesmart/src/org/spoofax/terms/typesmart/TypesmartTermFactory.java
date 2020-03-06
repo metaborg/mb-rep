@@ -15,7 +15,6 @@ import org.spoofax.terms.Term;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.attachments.AbstractWrappedTermFactory;
 import org.spoofax.terms.typesmart.types.SortType;
-import org.spoofax.terms.util.TermUtils;
 
 /**
  * When constructing an application term, this term factory looks for the existence of a type-smart constructor. If such
@@ -116,7 +115,7 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
                 throw new RuntimeException(builder.toString());
             }
 
-            return resultingSorts.toArray(new SortType[0]);
+            return resultingSorts.toArray(new SortType[resultingSorts.size()]);
 
         } finally {
             long end = System.currentTimeMillis();
@@ -125,7 +124,7 @@ public class TypesmartTermFactory extends AbstractWrappedTermFactory {
     }
 
     private IStrategoTerm rebuildIfNecessary(IStrategoTerm term) {
-        if(TermUtils.isAppl(term)) {
+        if(term.getTermType() == IStrategoTerm.APPL) {
             IStrategoAppl appl = (IStrategoAppl) term;
             if(context.getConstructorSignatures().containsKey(appl.getConstructor().getName())
                 && TypesmartSortAttachment.getSorts(appl) == null)

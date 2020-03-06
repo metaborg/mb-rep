@@ -15,6 +15,8 @@ import org.spoofax.interpreter.terms.ITermFactory;
  * untransformed tree branches.
  * 
  * Basically works like the topdown(s) strategy.
+ * 
+ * @author Lennart Kats <lennart add lclnet.nl>
  */
 public abstract class TermTransformer {
 	

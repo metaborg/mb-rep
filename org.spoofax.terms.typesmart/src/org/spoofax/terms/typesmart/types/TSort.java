@@ -5,7 +5,6 @@ import java.util.Set;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.typesmart.TypesmartContext;
 import org.spoofax.terms.typesmart.TypesmartSortAttachment;
-import org.spoofax.terms.util.TermUtils;
 
 public class TSort implements SortType {
     private static final long serialVersionUID = 1784763837646076585L;
@@ -33,7 +32,7 @@ public class TSort implements SortType {
     }
 
     @Override public boolean matches(IStrategoTerm t, TypesmartContext context) {
-        if(TermUtils.isString(t)) {
+        if(t.getTermType() == IStrategoTerm.STRING) {
             return TLexical.instance.subtypeOf(this, context);
         }
 

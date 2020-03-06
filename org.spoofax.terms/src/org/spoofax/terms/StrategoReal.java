@@ -12,12 +12,9 @@ import org.spoofax.interpreter.terms.IStrategoReal;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
 import org.spoofax.terms.util.EmptyIterator;
-import org.spoofax.terms.util.TermUtils;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 
 
 public class StrategoReal extends StrategoTerm implements IStrategoReal {
@@ -35,39 +32,29 @@ public class StrategoReal extends StrategoTerm implements IStrategoReal {
         this(value, null);
     }
 
-    @Override
     public double realValue() {
         return value;
     }
 
-    @Override
-    public List<IStrategoTerm> getSubterms() {
-        return Collections.emptyList();
+    public IStrategoTerm[] getAllSubterms() {
+        return TermFactory.EMPTY;
     }
 
-    @Override
     public IStrategoTerm getSubterm(int index) {
         throw new IndexOutOfBoundsException();
     }
 
-    @Override
-    public IStrategoTerm[] getAllSubterms() {
-        return new IStrategoTerm[0];
-    }
-
-    @Override
     public int getSubtermCount() {
         return 0;
     }
 
-    @Override
     public int getTermType() {
         return IStrategoTerm.REAL;
     }
 
     @Override
     protected boolean doSlowMatch(IStrategoTerm second) {
-        if(!TermUtils.isReal(second))
+        if(second.getTermType() != IStrategoTerm.REAL)
             return false;
 
         if(realValue() != ((IStrategoReal) second).realValue())
@@ -82,13 +69,11 @@ public class StrategoReal extends StrategoTerm implements IStrategoReal {
     }
 
     @Deprecated
-    @Override
     public void prettyPrint(ITermPrinter pp) {
         pp.print("" + realValue());
         printAnnotations(pp);
     }
 
-    @Override
     public void writeAsString(Appendable output, int maxDepth) throws IOException {
         output.append(Double.toString(realValue()));
         appendAnnotations(output, maxDepth);
@@ -99,4 +84,7 @@ public class StrategoReal extends StrategoTerm implements IStrategoReal {
         return (int) (449 * value) ^ 7841;
     }
 
+    public Iterator<IStrategoTerm> iterator() {
+        return new EmptyIterator<IStrategoTerm>();
+    }
 }

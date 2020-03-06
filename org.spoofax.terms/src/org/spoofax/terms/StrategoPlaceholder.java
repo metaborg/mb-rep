@@ -15,7 +15,6 @@ public class StrategoPlaceholder extends StrategoAppl implements IStrategoPlaceh
         super(ctor, new IStrategoTerm[] { template }, annotations);
     }
 
-    @Override
     public IStrategoTerm getTemplate() {
         return getSubterm(0);
     }
