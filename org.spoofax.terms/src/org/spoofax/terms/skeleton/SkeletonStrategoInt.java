@@ -51,7 +51,7 @@ public class SkeletonStrategoInt extends StrategoTerm implements IStrategoInt {
 
     @Override
     public IStrategoTerm[] getAllSubterms() {
-        return new IStrategoTerm[0];
+        return TermFactory.EMPTY_TERM_ARRAY;
     }
 
     public int getSubtermCount() {

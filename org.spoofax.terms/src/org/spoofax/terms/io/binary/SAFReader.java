@@ -43,6 +43,7 @@ import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.util.TermUtils;
 
 /**
@@ -323,7 +324,7 @@ class SAFReader {
     }
 
     private IStrategoTerm convertAppl(StrategoSignature sig) {
-        return convertAppl(sig, new IStrategoTerm[0]);
+        return convertAppl(sig, TermFactory.EMPTY_TERM_ARRAY);
     }
 
     private IStrategoTerm convertAppl(StrategoSignature sig,

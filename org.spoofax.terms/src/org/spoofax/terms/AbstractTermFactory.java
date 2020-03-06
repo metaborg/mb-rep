@@ -11,7 +11,13 @@ public abstract class AbstractTermFactory implements ITermFactory {
     @Deprecated
     public static final IStrategoList EMPTY_LIST = new StrategoList(null);
 
+    /** @deprecated Use {@link #EMPTY_TERM_ARRAY} */
+    @Deprecated
     public static final IStrategoTerm[] EMPTY = new IStrategoTerm[0];
+    /** An empty array of terms. Use this instead of `new IStrategoTerm[0]` to avoid allocating a new array. */
+    public static final IStrategoTerm[] EMPTY_TERM_ARRAY = new IStrategoTerm[0];
+
+
     private static final HashMap<StrategoConstructor, StrategoConstructor> asyncCtorCache =
         new HashMap<StrategoConstructor, StrategoConstructor>();
     private final StringTermReader reader = new StringTermReader(this);

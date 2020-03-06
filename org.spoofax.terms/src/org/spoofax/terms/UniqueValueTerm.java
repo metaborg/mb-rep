@@ -43,7 +43,7 @@ public final class UniqueValueTerm extends AbstractSimpleTerm implements IStrate
 
 	@Override
 	public IStrategoTerm[] getAllSubterms() {
-		return new IStrategoTerm[0];
+		return TermFactory.EMPTY_TERM_ARRAY;
 	}
 
 	public int getSubtermCount() {

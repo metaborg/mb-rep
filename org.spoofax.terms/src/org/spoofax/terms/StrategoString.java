@@ -43,7 +43,7 @@ public class StrategoString extends StrategoTerm implements IStrategoString {
 
     @Override
     public IStrategoTerm[] getAllSubterms() {
-        return new IStrategoTerm[0];
+        return TermFactory.EMPTY_TERM_ARRAY;
     }
 
     @Override

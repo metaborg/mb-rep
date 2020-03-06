@@ -13,7 +13,7 @@ import java.util.stream.StreamSupport;
  */
 public final class TermList extends AbstractList<IStrategoTerm> implements RandomAccess, Serializable {
 
-    private static final TermList EMPTY = new TermList(new IStrategoTerm[0]);
+    private static final TermList EMPTY = new TermList(TermFactory.EMPTY_TERM_ARRAY);
 
     /**
      * Creates a new term list from the specified list of terms.

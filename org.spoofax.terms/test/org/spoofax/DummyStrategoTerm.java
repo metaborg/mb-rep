@@ -3,6 +3,7 @@ package org.spoofax;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
+import org.spoofax.terms.TermFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -23,7 +24,7 @@ public class DummyStrategoTerm extends DummySimpleTerm implements IStrategoTerm 
 
     @Override
     public IStrategoTerm[] getAllSubterms() {
-        return new IStrategoTerm[0];
+        return TermFactory.EMPTY_TERM_ARRAY;
     }
 
     @Override
