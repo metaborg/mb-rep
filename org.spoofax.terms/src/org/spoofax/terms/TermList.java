@@ -27,7 +27,7 @@ public final class TermList extends AbstractList<IStrategoTerm> implements Rando
         if (terms instanceof Collection<?>) {
             Collection<IStrategoTerm> collection = (Collection<IStrategoTerm>)terms;
             if (collection.size() == 0) return EMPTY;
-            IStrategoTerm[] array = collection.toArray(new IStrategoTerm[0]);
+            IStrategoTerm[] array = collection.toArray(AbstractTermFactory.EMPTY_TERM_ARRAY);
             return new TermList(array);
         } else {
             IStrategoTerm[] array = StreamSupport.stream(terms.spliterator(), false).toArray(IStrategoTerm[]::new);

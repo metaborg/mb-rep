@@ -59,7 +59,8 @@ public class StrategoApplTests {
             }
             return TestUtils.putAttachments(new StrategoAppl(
                     constructor,
-                    subterms != null ? subterms.toArray(new IStrategoTerm[0]) : new IStrategoTerm[0],
+                    subterms != null ? subterms.toArray(AbstractTermFactory.EMPTY_TERM_ARRAY) :
+                        AbstractTermFactory.EMPTY_TERM_ARRAY,
                     annotations != null ? annotations : TermFactory.EMPTY_LIST
             ), attachments);
         }

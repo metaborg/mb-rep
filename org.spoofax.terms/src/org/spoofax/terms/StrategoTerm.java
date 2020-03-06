@@ -12,6 +12,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
 
 import java.io.IOException;
+import java.lang.instrument.UnmodifiableClassException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -76,7 +77,7 @@ public abstract class StrategoTerm extends AbstractSimpleTerm implements IStrate
 
     protected final void initImmutableHashCode() {
         int hashCode = hashFunction();
-        if(annotations == null || annotations == EMPTY_LIST || annotations.isEmpty()) {
+        if(annotations == null || annotations.isEmpty()) {
             this.hashCode = hashCode;
         } else {
             this.hashCode = hashCode * 2423 + annotations.hashCode();
@@ -156,6 +157,9 @@ public abstract class StrategoTerm extends AbstractSimpleTerm implements IStrate
     }
 
     public final void internalSetAnnotations(IStrategoList annotations) {
+        if(annotations != null && !annotations.isEmpty() && this == EMPTY_LIST) {
+            throw new IllegalArgumentException("Attempting to internally mutate the shared EMPTY_LIST");
+        }
         if(annotations == TermFactory.EMPTY_LIST || annotations.isEmpty())
             annotations = null; // essential for hash code calculation
 

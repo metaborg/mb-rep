@@ -103,7 +103,7 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
         IStrategoList currentAnnos = term.getAnnotations();
         if(currentAnnos == annotations) { // cheap check
             return term;
-        } else if((annotations == EMPTY_LIST || annotations.isEmpty()) && TermUtils.isString(term)) {
+        } else if(annotations.isEmpty() && TermUtils.isString(term)) {
             return makeString(((IStrategoString) term).stringValue());
         } else if(term instanceof StrategoTerm) {
             StrategoTerm result = ((StrategoTerm) term).clone(true);

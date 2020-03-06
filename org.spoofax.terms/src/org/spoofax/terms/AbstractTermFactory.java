@@ -7,15 +7,14 @@ import java.util.Collection;
 import java.util.HashMap;
 
 public abstract class AbstractTermFactory implements ITermFactory {
-
-    @Deprecated
+    /** An empty Stratego list. Use this instead of `new StrategoList(null)` to avoid allocating a new object. */
     public static final IStrategoList EMPTY_LIST = new StrategoList(null);
 
-    /** @deprecated Use {@link #EMPTY_TERM_ARRAY} */
-    @Deprecated
-    public static final IStrategoTerm[] EMPTY = new IStrategoTerm[0];
     /** An empty array of terms. Use this instead of `new IStrategoTerm[0]` to avoid allocating a new array. */
     public static final IStrategoTerm[] EMPTY_TERM_ARRAY = new IStrategoTerm[0];
+    /** @deprecated Use {@link #EMPTY_TERM_ARRAY} */
+    @Deprecated
+    public static final IStrategoTerm[] EMPTY = EMPTY_TERM_ARRAY;
 
 
     private static final HashMap<StrategoConstructor, StrategoConstructor> asyncCtorCache =
@@ -84,7 +83,7 @@ public abstract class AbstractTermFactory implements ITermFactory {
     }
 
     public IStrategoList makeList() {
-        return makeList(EMPTY, null);
+        return makeList(EMPTY_TERM_ARRAY, null);
     }
 
     public IStrategoList makeList(Collection<? extends IStrategoTerm> terms) {

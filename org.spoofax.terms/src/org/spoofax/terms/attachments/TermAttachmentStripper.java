@@ -4,8 +4,8 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.interpreter.terms.TermConverter;
+import org.spoofax.terms.AbstractTermFactory;
 import org.spoofax.terms.StrategoListIterator;
-import org.spoofax.terms.TermFactory;
 
 /**
  * Strips all attachments from a term
@@ -32,7 +32,7 @@ public class TermAttachmentStripper {
 		
 		// Kids
 		boolean isRebuildNeeded = false;
-		IStrategoTerm[] kids = TermFactory.EMPTY;
+		IStrategoTerm[] kids = AbstractTermFactory.EMPTY_TERM_ARRAY;
 		if (term.getSubtermCount() > 0) {
 			kids = term.getAllSubterms();
 			IStrategoTerm[] newKids = tryStripKids(kids);

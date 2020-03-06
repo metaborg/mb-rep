@@ -202,7 +202,7 @@ public class TAFTermReader extends StringTermReader {
         } else {
             bis.unread(ch);
             IStrategoConstructor c = factory.makeConstructor(constructor, 0);
-            return factory.makeAppl(c, AbstractTermFactory.EMPTY);
+            return factory.makeAppl(c, AbstractTermFactory.EMPTY_TERM_ARRAY);
         }
     }
     
@@ -216,7 +216,7 @@ public class TAFTermReader extends StringTermReader {
 
     private IStrategoTerm parseTuple(PushbackInputStream bis) throws IOException, ParseError {
         //System.err.println("tuple");
-        return factory.makeTuple(parseTermSequence(bis, ')').toArray(AbstractTermFactory.EMPTY));
+        return factory.makeTuple(parseTermSequence(bis, ')').toArray(AbstractTermFactory.EMPTY_TERM_ARRAY));
     }
 
     private List<IStrategoTerm> parseTermSequence(PushbackInputStream bis, char endChar) throws IOException, ParseError {

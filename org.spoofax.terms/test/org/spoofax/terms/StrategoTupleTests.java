@@ -34,7 +34,7 @@ public class StrategoTupleTests {
                                                   @Nullable IStrategoList annotations,
                                                   @Nullable List<ITermAttachment> attachments) {
             return TestUtils.putAttachments(new StrategoTuple(
-                    elements != null ? elements.toArray(new IStrategoTerm[0]) :
+                    elements != null ? elements.toArray(AbstractTermFactory.EMPTY_TERM_ARRAY) :
                             new IStrategoTerm[]{new DummyStrategoTerm()},
                     annotations != null ? annotations : TermFactory.EMPTY_LIST
             ), attachments);
