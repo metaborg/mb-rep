@@ -106,8 +106,7 @@ public class TAFTermReader {
         int ch = bis.read();
         if(ch == '"')
             return factory.makeString("");
-        StringBuilder sb = sharedBuilder;
-        sb.setLength(0);
+        StringBuilder sb = getSharedBuilder();
         boolean escaped;
         do {
             escaped = false;
@@ -168,8 +167,7 @@ public class TAFTermReader {
 
     private IStrategoTerm parseAppl(PushbackReader bis) throws IOException, ParseError {
         // System.err.println("appl");
-        StringBuilder sb = sharedBuilder;
-        sb.setLength(0);
+        StringBuilder sb = getSharedBuilder();
         int ch;
 
         ch = bis.read();
@@ -264,8 +262,7 @@ public class TAFTermReader {
     }
 
     private String parseDigitSequence(PushbackReader bis) throws IOException {
-        StringBuilder sb = sharedBuilder;
-        sb.setLength(0);
+        StringBuilder sb = getSharedBuilder();
         int ch = bis.read();
         do {
             sb.append((char) ch);
@@ -318,6 +315,11 @@ public class TAFTermReader {
             default:
                 return false;
         }
+    }
+
+    private StringBuilder getSharedBuilder() {
+        sharedBuilder.setLength(0);
+        return sharedBuilder;
     }
 
     public void unparseToFile(IStrategoTerm t, OutputStream ous) throws IOException {
