@@ -22,7 +22,9 @@ import org.spoofax.terms.io.binary.TermReader;
 import org.spoofax.terms.util.NotImplementedException;
 
 /**
- * A Term Reader that reads a term in Textual ATerm Format. <br>
+ * An ATerm reader that reads a term in Textual ATerm Format. Despite the name of this class, it does not fully support
+ * the TAF ATerm format, as it does not support sharing. <br>
+ *
  * <b>A note on Unicode:</b> This class internally uses a {@link PushbackReader} to read the input string/stream,
  * character by character. Here, one "character" is one UTF-16 code unit, as used internally for representing Strings in
  * Java. No special handling of multi-character Unicode code points is needed, as the strings are literally copied.
