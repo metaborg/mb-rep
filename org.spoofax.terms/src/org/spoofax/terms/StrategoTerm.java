@@ -88,7 +88,7 @@ public abstract class StrategoTerm extends AbstractSimpleTerm implements IStrate
 
     @Override
     public String toString() {
-        return toString(Integer.MAX_VALUE);
+        return toString(-1);
     }
 
     @Override
@@ -103,7 +103,7 @@ public abstract class StrategoTerm extends AbstractSimpleTerm implements IStrate
     }
 
     public final void writeToString(Appendable output) throws IOException {
-        writeAsString(output, Integer.MAX_VALUE);
+        writeAsString(output, -1);
     }
 
     protected void appendAnnotations(Appendable sb, int maxDepth) throws IOException {
