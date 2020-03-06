@@ -58,8 +58,8 @@ public class StrategoAnnotation extends StrategoWrapped {
     public String toString() {
         StringBuilder result = new StringBuilder();
         try {
-            getWrapped().writeAsString(result, Integer.MAX_VALUE);
-            appendAnnotations(result, Integer.MAX_VALUE);
+            getWrapped().writeAsString(result, -1);
+            appendAnnotations(result, -1);
         } catch(IOException e) {
             throw new RuntimeException(e); // shan't happen
         }
