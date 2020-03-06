@@ -123,14 +123,14 @@ public interface IStrategoTerm extends ISimpleTerm, Serializable, Iterable<IStra
      * @param output the {@link Appendable} to write to
      */
     default void writeAsString(Appendable output) throws IOException {
-        writeAsString(output, Integer.MAX_VALUE);
+        writeAsString(output, -1);
     }
 
     /**
      * Write a term to some output, such as a {@link Writer}.
      *
      * @param output the {@link Appendable} to write to
-     * @param maxDepth how many levels of the tree to write, or {@link Integer#MAX_VALUE} for infinitely many
+     * @param maxDepth how many levels of the tree to write, or -1 for infinitely many
      */
     void writeAsString(Appendable output, int maxDepth) throws IOException;
 
