@@ -119,7 +119,7 @@ public interface IStrategoPlaceholderTests {
      * Tests the {@link IStrategoPlaceholder#getAllSubterms()} method.
      */
     @DisplayName("getAllSubterms(int)")
-    interface GetAllSubtermTests extends Fixture, IStrategoTermTests.GetAllSubtermTests {
+    interface GetAllSubtermsTests extends Fixture, IStrategoTermTests.GetAllSubtermsTests {
 
         @Test
         @DisplayName("always returns one element array")
@@ -132,6 +132,28 @@ public interface IStrategoPlaceholderTests {
 
             // Assert
             assertEquals(1, result.length);
+        }
+
+    }
+
+
+    /**
+     * Tests the {@link IStrategoPlaceholder#getSubterms()} method.
+     */
+    @DisplayName("getSubterms(int)")
+    interface GetSubtermsTests extends Fixture, IStrategoTermTests.GetSubtermsTests {
+
+        @Test
+        @DisplayName("always returns one element list")
+        default void alwaysReturnsOneElementList() {
+            // Arrange
+            IStrategoTerm sut = createIStrategoPlaceholder(null, null, null);
+
+            // Act
+            List<IStrategoTerm> result = sut.getSubterms();
+
+            // Assert
+            assertEquals(1, result.size());
         }
 
     }

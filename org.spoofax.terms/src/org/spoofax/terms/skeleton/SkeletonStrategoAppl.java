@@ -11,6 +11,7 @@ import org.spoofax.interpreter.terms.ITermPrinter;
 import org.spoofax.terms.StrategoTerm;
 import org.spoofax.terms.util.ArrayIterator;
 import org.spoofax.terms.util.NotImplementedException;
+import org.spoofax.terms.util.TermUtils;
 
 public abstract class SkeletonStrategoAppl extends StrategoTerm implements IStrategoAppl {
 
@@ -39,7 +40,7 @@ public abstract class SkeletonStrategoAppl extends StrategoTerm implements IStra
 
 	@Override
 	final protected boolean doSlowMatch(IStrategoTerm second) {
-		if(second.getTermType() != IStrategoTerm.APPL)
+		if(!TermUtils.isAppl(second))
 			return false;
 		final IStrategoAppl o = (IStrategoAppl) second;
 		if(getConstructor() != o.getConstructor())
