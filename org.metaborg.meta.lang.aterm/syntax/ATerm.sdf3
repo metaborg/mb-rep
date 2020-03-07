@@ -1,0 +1,82 @@
+//
+// Stratego-ATerm syntax
+//
+// Makes parentheses after terms optional, and supports tuples.
+
+module ATerm
+
+// ATerms
+
+context-free start-symbols ATerm
+
+context-free syntax
+
+	ATerm.Int         = IntCon
+	ATerm.Real        = RealCon
+	ATerm.Fun         = fun:AFun
+	ATerm.Appl        = fun:AFun "(" args:{ATerm ","}* ")"
+	ATerm.Tuple       =          "(" args:{ATerm ","}* ")"
+	ATerm.Placeholder = "<" type:ATerm ">"
+	ATerm.List        = "[" elems:{ATerm ","}* "]"
+	ATerm.Annotated   = trm:ATerm Annotation
+
+	AFun.Quoted   = StrCon
+	AFun.Unquoted = IdCon
+
+	Annotation.Annotation = "{" annos:{ ATerm ","}+ "}"
+
+// Identifiers
+
+lexical syntax
+
+    IdCon = head:[A-Za-z] tail:[A-Za-z\-0-9\_]*
+
+lexical restrictions
+
+    IdCon -/- [A-Za-z\-0-9\_]
+
+// Strings
+
+lexical syntax
+
+    StrChar = "\\n"
+    StrChar = "\\t"
+    StrChar = "\\\""
+    StrChar = "\\\\"
+    StrChar = "\\" a:[0-9] b:[0-9] c:[0-9]
+    StrChar = ~[\0-\31\n\t\"\\]
+
+    StrCon = [\"] chars:StrChar* [\"]
+
+// Reals
+
+lexical syntax
+
+    RealCon = base:IntCon "." decimal:NatCon exp:OptExp
+
+    OptExp = "e" IntCon
+    OptExp =
+
+// Integers
+
+lexical syntax
+
+    IntCon = NatCon
+    IntCon = pos:"+" NatCon
+    IntCon = neg:"-" NatCon
+
+    NatCon = [0-9]+
+
+lexical restrictions
+
+    NatCon -/- [0-9]
+
+// Whitespace
+
+lexical syntax
+
+    LAYOUT = [\ \t\n\r]
+
+context-free restrictions
+
+    LAYOUT? -/- [\ \t\n\r]

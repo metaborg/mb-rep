@@ -5,7 +5,11 @@ imports
   libspoofax/color/default
 
 colorer
-  
-  _.quoted : 0 0 192
-  _.tuple  : 0 128 0 bold
-  _.list   : 0 128 0 bold
+
+  _.Tuple       : 0 128 0 bold
+  _.List        : 0 128 0 bold
+  _.Placeholder : 0 128 0 bold
+
+  _.Quoted : 0 0 192
+  IntCon   : 0 128 0
+  RealCon  : 0 128 0
