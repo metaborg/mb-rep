@@ -13,6 +13,7 @@ import org.spoofax.terms.StrategoArrayList;
 import org.spoofax.terms.StrategoInt;
 import org.spoofax.terms.StrategoString;
 import org.spoofax.terms.StrategoTuple;
+import java.util.Collection;
 
 /**
  * A Stratego Term building class. The static methods can build anything but stratego application constructors.
@@ -24,7 +25,7 @@ import org.spoofax.terms.StrategoTuple;
  * supposed to create globally unique strings.
  */
 public class B {
-    protected final ITermFactory tf;
+    public final ITermFactory tf;
 
     public B(ITermFactory tf) {
         this.tf = tf;
@@ -49,6 +50,10 @@ public class B {
 
     public static IStrategoList list(IStrategoTerm... terms) {
         return new StrategoArrayList(terms);
+    }
+
+    public static IStrategoList list(Collection<IStrategoTerm> terms) {
+        return StrategoArrayList.fromList(terms);
     }
 
     public IStrategoAppl applShared(String cons, IStrategoTerm... children) {
