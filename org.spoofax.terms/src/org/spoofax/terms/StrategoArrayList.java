@@ -261,7 +261,6 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
          * @param size initial size of the backing array
          */
         public ArrayListBuilder(int size) {
-            size = Math.min(2, size);
             this.array = new IStrategoTerm[size];
         }
 
@@ -277,7 +276,11 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
                 throw new UnsupportedOperationException("Cannot add to a built list.");
             }
             if(index >= array.length) {
-                array = Arrays.copyOf(array, array.length * 2);
+                if(array.length == 0) {
+                    array = new IStrategoTerm[2];
+                } else {
+                    array = Arrays.copyOf(array, array.length * 2);
+                }
             }
             array[index] = term;
             index++;
