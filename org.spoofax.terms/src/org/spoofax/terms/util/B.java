@@ -52,7 +52,7 @@ public class B {
         return new StrategoArrayList(terms);
     }
 
-    public static IStrategoList list(Collection<IStrategoTerm> terms) {
+    public static IStrategoList list(Collection<? extends IStrategoTerm> terms) {
         return StrategoArrayList.fromCollection(terms);
     }
 
