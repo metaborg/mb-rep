@@ -1,18 +1,22 @@
 package org.spoofax.terms;
 
-import java.io.IOException;
-import java.util.*;
-
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
 import org.spoofax.terms.util.TermUtils;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.RandomAccess;
 
 import static org.spoofax.terms.AbstractTermFactory.EMPTY_TERM_ARRAY;
 
 public class StrategoArrayList extends StrategoTerm implements IStrategoList, RandomAccess {
     private final IStrategoTerm[] terms;
-    final int offset;
+    private final int offset;
+    private final int length;
     private final int subtermCount;
 
     public StrategoArrayList(IStrategoTerm... terms) {
@@ -24,14 +28,35 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
     }
 
     protected StrategoArrayList(IStrategoTerm[] terms, IStrategoList annotations, int offset) {
-        super(annotations);
-        this.terms = terms;
-        this.offset = offset;
-        this.subtermCount = terms.length - offset;
+        this(terms, annotations, offset, terms.length);
     }
 
-    public static StrategoArrayList fromList(Collection<? extends IStrategoTerm> terms) {
+    protected StrategoArrayList(IStrategoTerm[] terms, IStrategoList annotations, int offset, int length) {
+        super(annotations);
+        if(offset > terms.length) {
+            throw new IllegalArgumentException(
+                "Offset (" + offset + ") is larger than backing array (" + terms.length + ")");
+        }
+        if(length > terms.length) {
+            throw new IllegalArgumentException(
+                "Length (" + length + ") is larger than backing array (" + terms.length + ")");
+        }
+        this.terms = terms;
+        this.offset = offset;
+        this.length = length;
+        this.subtermCount = this.length - offset;
+    }
+
+    public static StrategoArrayList fromCollection(Collection<? extends IStrategoTerm> terms) {
         return new StrategoArrayList(terms.toArray(EMPTY_TERM_ARRAY));
+    }
+
+    public static ArrayListBuilder arrayListBuilder() {
+        return new ArrayListBuilder(16);
+    }
+
+    public static ArrayListBuilder arrayListBuilder(int size) {
+        return new ArrayListBuilder(size);
     }
 
     @Override public int getSubtermCount() {
@@ -39,12 +64,17 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
     }
 
     @Override public IStrategoTerm getSubterm(int index) {
-        return terms[offset + index];
+        final int i = offset + index;
+        if(i < length) {
+            return terms[i];
+        } else {
+            throw new ArrayIndexOutOfBoundsException();
+        }
     }
 
     @Override
     public IStrategoTerm[] getAllSubterms() {
-        return Arrays.copyOfRange(terms, offset, terms.length);
+        return Arrays.copyOfRange(terms, offset, length);
     }
 
     @Override
@@ -60,7 +90,7 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
         if(!isEmpty()) {
             pp.println("[");
             pp.indent(2);
-            Iterator<IStrategoTerm> iter = getSubterms().iterator();
+            Iterator<IStrategoTerm> iter = iterator();
             iter.next().prettyPrint(pp);
             while(iter.hasNext()) {
                 IStrategoTerm element = iter.next();
@@ -85,7 +115,7 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
             if(maxDepth == 0) {
                 output.append("...");
             } else {
-                Iterator<IStrategoTerm> iter = getSubterms().iterator();
+                Iterator<IStrategoTerm> iter = iterator();
                 iter.next().writeAsString(output, maxDepth - 1);
                 while(iter.hasNext()) {
                     IStrategoTerm element = iter.next();
@@ -196,7 +226,7 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
             return 0;
 
         int result = 1;
-        for(int i = offset; i < terms.length; i++) {
+        for(int i = offset; i < length; i++) {
             IStrategoTerm element = terms[i];
             result = 31 * result + (element == null ? 0 : element.hashCode());
         }
@@ -206,5 +236,65 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
 
     @Override public Iterator<IStrategoTerm> iterator() {
         return new StrategoArrayListIterator(this);
+    }
+
+    /**
+     * Builds an IStrategoList by building up an internal array like ArrayList (doubling the size when we run out of
+     * space) and then sharing that array
+     */
+    public static class ArrayListBuilder implements IStrategoList.Builder {
+        private IStrategoTerm[] array;
+        private int index = 0;
+        private boolean built = false;
+
+        /**
+         * Create an array-backed IStrategoList builder. Initializes the array with the given size.
+         * @param size initial size of the backing array
+         */
+        public ArrayListBuilder(int size) {
+            if(size < 1) {
+                throw new IllegalArgumentException("Initial size must be 1 to greater.");
+            }
+            this.array = new IStrategoTerm[size];
+        }
+
+        /**
+         * Adds a term to the builder. If this terms doesn't fit in the backing array, the array is copied to an array
+         * of twice the size.
+         * @param term The term to add
+         * @throws UnsupportedOperationException when one of the build methods was called on this builder previously
+         * @see #build(), {@link #build(IStrategoList)}
+         */
+        public void add(IStrategoTerm term) {
+            if(built) {
+                throw new UnsupportedOperationException("Cannot add to a built list.");
+            }
+            if(index >= array.length) {
+                array = Arrays.copyOf(array, array.length * 2);
+            }
+            array[index] = term;
+            index++;
+        }
+
+        /**
+         * This finalizes the internally accumulated terms and builds a List.
+         * After calling this method, you can no longer {@link #add(IStrategoTerm)} to this builder.
+         * @return The array backed IStrategoList
+         */
+        public IStrategoList build() {
+            built = true;
+            return new StrategoArrayList(array, null, 0, index);
+        }
+
+        /**
+         * This finalizes the internally accumulated terms and builds a List.
+         * After calling this method, you can no longer {@link #add(IStrategoTerm)} to this builder.
+         * @param annotations Annotations to put on the list that is built
+         * @return The (annotated) array backed IStrategoList
+         */
+        public IStrategoList build(IStrategoList annotations) {
+            built = true;
+            return new StrategoArrayList(array, annotations, 0, index);
+        }
     }
 }

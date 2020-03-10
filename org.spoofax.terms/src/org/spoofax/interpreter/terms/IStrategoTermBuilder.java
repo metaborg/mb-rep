@@ -42,6 +42,9 @@ public interface IStrategoTermBuilder {
     default IStrategoAppl makeAppl(String cons, IStrategoTerm... children) {
         return makeAppl(makeConstructor(cons, children.length), children, null);
     }
+
+    IStrategoList.Builder arrayListBuilder();
+    IStrategoList.Builder arrayListBuilder(int size);
 }
 
 

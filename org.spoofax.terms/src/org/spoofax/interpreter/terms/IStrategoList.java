@@ -58,4 +58,12 @@ public interface IStrategoList extends IStrategoTerm {
     @Deprecated // useless; only causes incompatibility with other base classes
     IStrategoTerm get(int index);
 
+    /**
+     * A Builder for lists that may build a more efficiently represent the list internally than head-tail
+     */
+    interface Builder {
+        void add(IStrategoTerm term);
+        IStrategoList build();
+    }
+
 }

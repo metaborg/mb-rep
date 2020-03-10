@@ -53,11 +53,7 @@ public class B {
     }
 
     public static IStrategoList list(Collection<IStrategoTerm> terms) {
-        return StrategoArrayList.fromList(terms);
-    }
-
-    public static FixedSizeListBuilder fixedSizeListBuilder(int size) {
-        return new FixedSizeListBuilder(size);
+        return StrategoArrayList.fromCollection(terms);
     }
 
     public IStrategoAppl applShared(String cons, IStrategoTerm... children) {
@@ -80,32 +76,4 @@ public class B {
         return tf.makeInt(value);
     }
 
-    public static class FixedSizeListBuilder {
-        private final IStrategoTerm[] array;
-        private int index = 0;
-        private boolean built = false;
-
-        public FixedSizeListBuilder(int size) {
-            this.array = new IStrategoTerm[size];
-        }
-
-        public void add(IStrategoTerm term) {
-            if(index >= array.length) {
-                throw new ArrayIndexOutOfBoundsException();
-            }
-            if(built) {
-                throw new UnsupportedOperationException("Cannot add to a built list.");
-            }
-            array[index] = term;
-            index++;
-        }
-
-        public IStrategoList build() {
-            if(index != array.length) {
-                throw new UnsupportedOperationException("Cannot build a partially filled list.");
-            }
-            built = true;
-            return new StrategoArrayList(array);
-        }
-    }
 }
