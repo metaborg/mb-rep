@@ -63,7 +63,7 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
     }
 
     @Override public IStrategoTerm getSubterm(int index) {
-        if(offset <= subtermCount) {
+        if(index <= subtermCount) {
             return terms[offset + index];
         } else {
             throw new IndexOutOfBoundsException();
