@@ -56,6 +56,18 @@ public class B {
         return StrategoArrayList.fromCollection(terms);
     }
 
+    public static IStrategoList list(IStrategoList.Builder builder) {
+        return builder.build();
+    }
+
+    public static IStrategoList.Builder listBuilder(int size) {
+        return StrategoArrayList.arrayListBuilder(size);
+    }
+
+    public static IStrategoList.Builder listBuilder() {
+        return StrategoArrayList.arrayListBuilder();
+    }
+
     public IStrategoAppl applShared(String cons, IStrategoTerm... children) {
         return tf.makeAppl(tf.makeConstructor(cons, children.length), children, null);
     }
