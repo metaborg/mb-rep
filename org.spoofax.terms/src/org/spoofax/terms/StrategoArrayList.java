@@ -286,6 +286,11 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
             return new StrategoArrayList(array, null, 0, index);
         }
 
+        @Override
+        public boolean isEmpty() {
+            return index == 0;
+        }
+
         /**
          * This finalizes the internally accumulated terms and builds a List.
          * After calling this method, you can no longer {@link #add(IStrategoTerm)} to this builder.

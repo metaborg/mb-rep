@@ -64,6 +64,7 @@ public interface IStrategoList extends IStrategoTerm {
     interface Builder {
         void add(IStrategoTerm term);
         IStrategoList build();
+        boolean isEmpty();
     }
 
 }

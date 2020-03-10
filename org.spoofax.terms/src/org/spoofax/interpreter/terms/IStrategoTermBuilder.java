@@ -45,6 +45,9 @@ public interface IStrategoTermBuilder {
 
     IStrategoList.Builder arrayListBuilder();
     IStrategoList.Builder arrayListBuilder(int size);
+    default IStrategoList makeList(IStrategoList.Builder builder) {
+        return builder.build();
+    }
 }
 
 
