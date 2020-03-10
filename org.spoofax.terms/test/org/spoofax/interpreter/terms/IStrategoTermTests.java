@@ -116,6 +116,21 @@ public interface IStrategoTermTests {
         }
 
         @Test
+        @DisplayName("returns the subterm at the specified index (last element)")
+        default void returnsTheSubtermAtTheSpecifiedIndexLastElement() {
+            // Arrange
+            List<IStrategoTerm> subterms = Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm(),
+                new DummyStrategoTerm());
+            IStrategoTerm sut = createIStrategoTerm(subterms, null, null);
+
+            // Act
+            IStrategoTerm result = sut.getSubterm(2);
+
+            // Assert
+            assertSame(subterms.get(2), result);
+        }
+
+        @Test
         @DisplayName("throws exception when below bounds")
         default void throwsExceptionWhenBelowBounds() {
             // Arrange
