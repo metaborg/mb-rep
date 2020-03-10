@@ -222,13 +222,13 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
     }
 
     @Override protected int hashFunction() {
-        if(terms == null)
-            return 0;
+        if(subtermCount == 0)
+            return 1;
 
-        int result = 1;
-        for(int i = offset; i < length; i++) {
-            IStrategoTerm element = terms[i];
-            result = 31 * result + (element == null ? 0 : element.hashCode());
+        int i = offset;
+        int result = 31 * terms[i].hashCode();
+        for(i++; i < length; i++) {
+            result = 31 * result + terms[i].hashCode();
         }
 
         return result;
