@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.spoofax.DummyStrategoTerm;
+import org.spoofax.DummyStrategoTermWithHashCode;
 import org.spoofax.DummyTermAttachment;
 import org.spoofax.DummyTermAttachmentType;
 import org.spoofax.terms.TermFactory;
@@ -443,6 +444,42 @@ public interface IStrategoListTests {
 
             // Assert
             assertFalse(result);
+        }
+
+    }
+
+
+    /**
+     * Tests the {@link IStrategoList#hashCode()} method.
+     */
+    @DisplayName("hashCode()")
+    interface HashCodeTests extends Fixture {
+
+        @Test
+        @DisplayName("when the list is empty, returns one")
+        default void whenTheListIsEmpty_returnsOne() {
+            // Arrange
+            IStrategoList sut = createEmptyIStrategoList(null, null);
+
+            // Act
+            int result = sut.hashCode();
+
+            // Assert
+            assertEquals(1, result);
+        }
+
+        @Test
+        @DisplayName("when the list is not empty, returns the hashCode")
+        default void whenTheListIsNotEmpty_returnsTheHashCode() {
+            // Arrange
+            List<IStrategoTerm> elements = Arrays.asList(new DummyStrategoTermWithHashCode(0xCAFEBABE), new DummyStrategoTermWithHashCode(0xDEADBEEF));
+            IStrategoList sut = createIStrategoList(elements, null, null);
+
+            // Act
+            int result = sut.hashCode();
+
+            // Assert
+            assertEquals(-454507987, result);
         }
 
     }

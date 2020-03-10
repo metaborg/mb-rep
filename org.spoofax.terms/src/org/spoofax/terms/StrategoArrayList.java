@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.RandomAccess;
 
 import static org.spoofax.terms.AbstractTermFactory.EMPTY_TERM_ARRAY;
@@ -16,7 +17,6 @@ import static org.spoofax.terms.AbstractTermFactory.EMPTY_TERM_ARRAY;
 public class StrategoArrayList extends StrategoTerm implements IStrategoList, RandomAccess {
     private final IStrategoTerm[] terms;
     private final int offset;
-    private final int length;
     private final int subtermCount;
 
     public StrategoArrayList(IStrategoTerm... terms) {
@@ -31,20 +31,19 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
         this(terms, annotations, offset, terms.length);
     }
 
-    protected StrategoArrayList(IStrategoTerm[] terms, IStrategoList annotations, int offset, int length) {
+    protected StrategoArrayList(IStrategoTerm[] terms, IStrategoList annotations, int offset, int endOffset) {
         super(annotations);
         if(offset > terms.length) {
             throw new IllegalArgumentException(
                 "Offset (" + offset + ") is larger than backing array (" + terms.length + ")");
         }
-        if(length > terms.length) {
+        if(endOffset > terms.length) {
             throw new IllegalArgumentException(
-                "Length (" + length + ") is larger than backing array (" + terms.length + ")");
+                "Length (" + endOffset + ") is larger than backing array (" + terms.length + ")");
         }
         this.terms = terms;
         this.offset = offset;
-        this.length = length;
-        this.subtermCount = this.length - offset;
+        this.subtermCount = endOffset - offset;
     }
 
     public static StrategoArrayList fromCollection(Collection<? extends IStrategoTerm> terms) {
@@ -64,17 +63,16 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
     }
 
     @Override public IStrategoTerm getSubterm(int index) {
-        final int i = offset + index;
-        if(i < length) {
-            return terms[i];
+        if(offset < subtermCount) {
+            return terms[offset + index];
         } else {
-            throw new ArrayIndexOutOfBoundsException();
+            throw new IndexOutOfBoundsException();
         }
     }
 
     @Override
     public IStrategoTerm[] getAllSubterms() {
-        return Arrays.copyOfRange(terms, offset, length);
+        return Arrays.copyOfRange(terms, offset, offset + subtermCount);
     }
 
     @Override
@@ -141,15 +139,22 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
     }
 
     @Override public IStrategoTerm head() {
-        return getSubterm(0);
+        try {
+            return getSubterm(0);
+        } catch(IndexOutOfBoundsException e) {
+            throw new NoSuchElementException();
+        }
     }
 
     @Override public IStrategoList tail() {
+        if(isEmpty()) {
+            throw new IllegalStateException();
+        }
         return new StrategoArrayList(terms, null, offset + 1);
     }
 
     @Override public boolean isEmpty() {
-        return getSubtermCount() == 0;
+        return subtermCount == 0;
     }
 
     @Override protected boolean doSlowMatch(IStrategoTerm second) {
@@ -172,7 +177,7 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
 
             //noinspection ArrayEquality
             if(this.terms == other.terms) {
-                return this.offset == other.offset;
+                return this.offset == other.offset && this.subtermCount == other.subtermCount;
             }
 
             Iterator<IStrategoTerm> termsThis = this.iterator();
@@ -221,13 +226,17 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
             return annotations.match(secondAnnotations);
     }
 
+    /**
+     * N.B. this implementation may look strange but it's designed to return the same hashcode as {@link StrategoList#hashFunction()}
+     */
     @Override protected int hashFunction() {
-        if(subtermCount == 0)
+        if(isEmpty())
             return 1;
 
         int i = offset;
         int result = 31 * terms[i].hashCode();
-        for(i++; i < length; i++) {
+        final int endOffset = offset + subtermCount;
+        for(i++; i < endOffset; i++) {
             result = 31 * result + terms[i].hashCode();
         }
 
@@ -252,9 +261,7 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
          * @param size initial size of the backing array
          */
         public ArrayListBuilder(int size) {
-            if(size < 1) {
-                throw new IllegalArgumentException("Initial size must be 1 to greater.");
-            }
+            size = Math.min(2, size);
             this.array = new IStrategoTerm[size];
         }
 

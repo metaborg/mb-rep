@@ -91,6 +91,7 @@ public class StrategoListTests {
     @Nested class MatchTests             extends FixtureImpl implements IStrategoListTests.MatchTests {}
     @Nested class SizeTests              extends FixtureImpl implements IStrategoListTests.SizeTests {}
     @Nested class TailTests              extends FixtureImpl implements IStrategoListTests.TailTests {}
+    @Nested class HashCodeTests          extends FixtureImpl implements IStrategoListTests.HashCodeTests {}
     @Nested class ToStringTests          extends FixtureImpl implements IStrategoListTests.ToStringTests {}
     @Nested class WriteAsStringTests     extends FixtureImpl implements IStrategoListTests.WriteAsStringTests {}
 

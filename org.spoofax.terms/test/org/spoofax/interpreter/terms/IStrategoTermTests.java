@@ -323,7 +323,7 @@ public interface IStrategoTermTests {
 
         @Test
         @DisplayName("returns the annotation list term that was used to construct it")
-        default void returnsAValidTermType() {
+        default void returnsTheAnnotationListTermThatWasUsedToConstructIt() {
             // Arrange
             IStrategoList annotations = getTermBuilder().makeList(
                     new DummyStrategoTerm(), new DummyStrategoTerm(), new DummyStrategoTerm());
