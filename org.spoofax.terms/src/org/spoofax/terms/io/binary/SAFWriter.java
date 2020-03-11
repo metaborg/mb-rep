@@ -43,6 +43,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -63,7 +64,7 @@ import org.spoofax.terms.util.TermUtils;
  * until the finished() method returns true.<br />
  * <br />
  * For example (yes I know this code is crappy, but it's simple):<blockquote>
- * 
+ *
  * <pre>
  * ByteBuffer buffer = ByteBuffer.allocate(8192);
  * BinaryWriter bw = new BinaryWriter(aterm);
@@ -74,9 +75,9 @@ import org.spoofax.terms.util.TermUtils;
  *         channel.write(buffer); // Write the chunk of data to a channel
  * }
  * </pre>
- * 
+ *
  * </blockquote>
- * 
+ *
  * @author Arnold Lankamp
  * @author Nathan Bruning (ported to use IStrategoTerm)
  */
@@ -115,7 +116,7 @@ public class SAFWriter {
 
     /**
      * Constructor.
-     * 
+     *
      * @param root
      *            The ATerm that needs to be serialized.
      */
@@ -143,7 +144,7 @@ public class SAFWriter {
     /**
      * Serializes the term from the position where it left of the last time this
      * method was called. Note that the buffer will be flipped before returned.
-     * 
+     *
      * @param buffer
      *            The buffer that will be filled with data.
      */
@@ -226,7 +227,7 @@ public class SAFWriter {
 
     /**
      * Checks if we are done serializing.
-     * 
+     *
      * @return true when we are done serializing; false otherwise.
      */
     public boolean isFinished() {
@@ -236,7 +237,7 @@ public class SAFWriter {
     /**
      * Finds the next term we are going to serialize, based on the current state
      * of the stack.
-     * 
+     *
      * @return The next term we are going to serialize.
      */
     private IStrategoTerm getNextTerm() {
@@ -297,7 +298,7 @@ public class SAFWriter {
 
     /**
      * Returns a header for the given term.
-     * 
+     *
      * @param term
      *            The term we are requesting a header for.
      * @return The constructed header.
@@ -312,7 +313,7 @@ public class SAFWriter {
 
     /**
      * Structure that holds information about the state of the contained term.
-     * 
+     *
      * @author Arnold Lankamp
      */
     protected static class ATermMapping {
@@ -330,14 +331,14 @@ public class SAFWriter {
 
     /**
      * Write appl or string or tuple.
-     * 
+     *
      * @param term
      *            the term
      * @param fun
      *            the constructor key, can be a IStrategoConstructor (for
      *            applications), a IStrategoString (for strings) or an integer,
      *            for tuples
-     * @param name the constructor name, or string value, or empty string for a tuple 
+     * @param name the constructor name, or string value, or empty string for a tuple
      * @param isString true if the term is a string
      */
     protected void writeAppl(IStrategoTerm term, Object fun, String name,
@@ -354,7 +355,7 @@ public class SAFWriter {
 
                 writeInt(term.getSubtermCount());
 
-                byte[] nameBytes = name.getBytes();
+                byte[] nameBytes = name.getBytes(StandardCharsets.UTF_8);
                 int length = nameBytes.length;
                 writeInt(length);
 
@@ -399,7 +400,7 @@ public class SAFWriter {
     /**
      * Serializes the given appl. The function name of the appl can be
      * serialized in chunks.
-     * 
+     *
      */
     public void voidVisitAppl(IStrategoAppl arg) {
         writeAppl(arg, arg.getConstructor(), arg.getConstructor().getName(), false);
@@ -417,7 +418,7 @@ public class SAFWriter {
     /**
      * Serializes the given list. List information will always be serialized in
      * one piece.
-     * 
+     *
      */
     public void voidVisitList(IStrategoList arg) {
         byte header = getHeader(arg);
@@ -449,7 +450,7 @@ public class SAFWriter {
      * writing small values, this will save a considerable amount of space. On
      * the other hand a large number will occupy 5 bytes instead of the regular
      * 4.
-     * 
+     *
      * @param value
      *            The integer that needs to be split and written.
      */
@@ -488,7 +489,7 @@ public class SAFWriter {
      * Doubles will always occupy 8 bytes, since the convertion of a floating
      * point number to a long will always cause the high order bits to be
      * occupied.
-     * 
+     *
      * @param value
      *            The integer that needs to be split and written.
      */
@@ -506,14 +507,14 @@ public class SAFWriter {
     /**
      * Writes the given aterm to the given file. Blocks of 65536 bytes will be
      * used.
-     * 
+     *
      * @param aTerm
      *            The ATerm that needs to be writen to file.
      * @param file
      *            The file to write to.
      * @throws IOException
      *             Thrown when an error occurs while writing to the given file.
-     * 
+     *
      */
     public static void writeTermToSAFFile(IStrategoTerm aTerm, File file)
             throws IOException {
@@ -562,12 +563,12 @@ public class SAFWriter {
      * would be corrupted, since it would be automatically encoded in UTF-16
      * format (which would completely mess everything up). Blocks of 65536 bytes
      * will be used.
-     * 
+     *
      * @param aTerm
      *            The ATerm that needs to be written to a byte array.
      * @return The serialized representation of the given ATerm contained in a
      *         byte array.
-     * 
+     *
      */
     public static byte[] writeTermToSAFString(IStrategoTerm aTerm) {
         List<ByteBuffer> buffers = new ArrayList<ByteBuffer>();
@@ -602,7 +603,7 @@ public class SAFWriter {
 
     /**
      * Write to stream. Uses buffer of 65535 bytes.
-     * 
+     *
      * @param term
      * @param out
      * @throws IOException

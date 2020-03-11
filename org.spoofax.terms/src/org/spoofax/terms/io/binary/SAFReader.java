@@ -36,6 +36,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -297,11 +298,11 @@ class SAFReader {
                 ATermConstruct ac = stack[stackPosition];
 
                 StrategoSignature sig = new StrategoSignature();
-                sig.cons = factory.makeConstructor(new String(tempBytes),
-                        tempArity);
+                String constructorName = new String(tempBytes, StandardCharsets.UTF_8);
+                sig.cons = factory.makeConstructor(constructorName, tempArity);
                 sig.isString = tempIsQuoted;
                 if (debug)
-                    System.out.print(new String(tempBytes) + "/" + tempArity);
+                    System.out.print(constructorName + "/" + tempArity);
 
                 applSignatures.add(sig);
 
