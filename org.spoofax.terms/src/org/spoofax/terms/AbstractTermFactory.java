@@ -1,10 +1,11 @@
 package org.spoofax.terms;
 
-import org.spoofax.interpreter.terms.*;
-import org.spoofax.terms.attachments.ITermAttachment;
-
 import java.util.Collection;
 import java.util.HashMap;
+
+import org.spoofax.interpreter.terms.*;
+import org.spoofax.terms.attachments.ITermAttachment;
+import org.spoofax.terms.io.TAFTermReader;
 
 public abstract class AbstractTermFactory implements ITermFactory {
     /** An empty Stratego list. Use this instead of `new StrategoList(null)` to avoid allocating a new object. */
@@ -13,13 +14,11 @@ public abstract class AbstractTermFactory implements ITermFactory {
     /** An empty array of terms. Use this instead of `new IStrategoTerm[0]` to avoid allocating a new array. */
     public static final IStrategoTerm[] EMPTY_TERM_ARRAY = new IStrategoTerm[0];
     /** @deprecated Use {@link #EMPTY_TERM_ARRAY} */
-    @Deprecated
-    public static final IStrategoTerm[] EMPTY = EMPTY_TERM_ARRAY;
+    @Deprecated public static final IStrategoTerm[] EMPTY = EMPTY_TERM_ARRAY;
 
 
-    private static final HashMap<StrategoConstructor, StrategoConstructor> asyncCtorCache =
-        new HashMap<StrategoConstructor, StrategoConstructor>();
-    private final StringTermReader reader = new StringTermReader(this);
+    private static final HashMap<StrategoConstructor, StrategoConstructor> asyncCtorCache = new HashMap<>();
+    private final TAFTermReader reader = new TAFTermReader(this);
 
     static StrategoConstructor createCachedConstructor(String name, int arity) {
         StrategoConstructor result = new StrategoConstructor(name, arity);

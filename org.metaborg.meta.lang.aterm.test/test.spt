@@ -1,0 +1,27 @@
+module test
+
+language ATerm
+
+
+test integration [[
+  Big(<"str">, (42, [3.14])){1}
+]] parse to Annotated(
+  Appl(
+    Unquoted("Big")
+  , [ Placeholder(Fun(Quoted("\"str\"")))
+    , Tuple([Int("42"), List([Real("3.14")])])
+    ]
+  )
+, Annotation([Int("1")])
+)
+
+test string normal        [[ "Hello World!" ]]        parse to Fun(Quoted("\"Hello World!\""))
+test string escaped quote [[ "\"" ]]                  parse to Fun(Quoted("\"\\"\"")) // This is escaping horror 😱
+test string other escapes [[ "Escapes: \n\t\\\123" ]] parse to Fun(Quoted("\"Escapes: \n\t\\\123\""))
+test string unicode       [[ "¡Heλλo 👋 Worλd 🌍!" ]] parse to Fun(Quoted("\"¡Heλλo 👋 Worλd 🌍!\""))
+
+test real normal [[ -42.0e+42 ]]       parse to Real("-42.0e+42")
+test real spaced [[ - 42 . 0 e + 42 ]] parse fails
+
+test int normal [[ -42 ]]  parse to Int("-42")
+test int spaced [[ - 42 ]] parse fails

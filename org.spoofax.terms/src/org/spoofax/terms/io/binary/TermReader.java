@@ -15,11 +15,11 @@ import org.spoofax.terms.io.TAFTermReader;
  * @author Lennart Kats <lennart add lclnet.nl>
  */
 public class TermReader extends TAFTermReader {
-	
+
 	public TermReader(ITermFactory factory) {
 		super(factory);
 	}
-    
+
     @Override
 	public IStrategoTerm parseFromStream(InputStream inputStream) throws IOException, ParseError {
         /*
@@ -49,9 +49,9 @@ public class TermReader extends TAFTermReader {
 	            bis = (BufferedInputStream) inputStream;
 	        else
 	            bis = new BufferedInputStream(inputStream);
-	        
+
 	        if (BAFReader.isBinaryATerm(bis)) {
-	            return new BAFReader(getFactory(), bis).readFromBinaryFile(true);
+	            return new BAFReader(factory, bis).readFromBinaryFile(true);
 	        } else if (SAFReader.isStreamingATerm(bis)) {
 	        	return SAFReader.readTermFromSAFStream(factory, bis);
 	        } else {

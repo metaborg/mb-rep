@@ -2,7 +2,7 @@ module outline
 
 imports
 
-  signatures/ATerm
+  signatures/ATerm-sig
   libspoofax/editor/outline
 
 rules
@@ -13,28 +13,21 @@ rules
       outline := <outline> ast
   
   outline = custom-label-outline(to-outline-label, to-outline-node)
-  
-  outline-expand-to-level = // heuristic: expand to level 3 if the second level has less than four nodes. Otherwise, expand to level 2.
+
+  // heuristic: expand to level 3 if the second level has less than four nodes.
+  // Otherwise, expand to level 2.
+  outline-expand-to-level =
     ?[Node(_, children)]; !(<length> children, 4); lt; !3 
       <+
     !2
-  
+
 rules  
-  
-  to-outline-label:
-    appl(fun, args) -> fun{"icons/application.gif"}
-    where
-      not("" := fun)
-    
-  to-outline-label:
-  	appl("", args) -> "( )"{"icons/tuple.gif"}
-    
-  to-outline-label:
-  	list(args) -> "[ ]"{"icons/list.gif"}
-      
-  to-outline-label: int(value) -> value{"icons/int.png"}
-  to-outline-label: real(value) -> value{"icons/int.png"}
-  to-outline-label: fun(value) -> value{"icons/string.png"}
-  	
-  to-outline-node:
-  	annotated(trm, _) -> <outline; Hd> trm
+
+  to-outline-label: Appl(fun, args) -> fun{"icons/application.gif"}
+  to-outline-label: Tuple(args)     -> "( )"{"icons/tuple.gif"}
+  to-outline-label: List(args)      -> "[ ]"{"icons/list.gif"}
+  to-outline-label: Int(value)      -> value{"icons/int.png"}
+  to-outline-label: Real(value)     -> value{"icons/int.png"}
+  to-outline-label: Fun(value)      -> value{"icons/string.png"}
+
+  to-outline-node:  Annotated(trm, _) -> <outline; Hd> trm
