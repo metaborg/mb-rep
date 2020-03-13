@@ -12,8 +12,6 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
 
 import java.io.IOException;
-import java.lang.instrument.UnmodifiableClassException;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.spoofax.terms.TermFactory.EMPTY_LIST;

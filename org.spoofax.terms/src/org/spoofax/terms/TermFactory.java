@@ -38,12 +38,28 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
 
     @Override
     public IStrategoList makeList() {
-        return new StrategoArrayList();
+        return new StrategoList(null);
     }
 
     @Override
     public IStrategoList makeList(IStrategoTerm[] terms, IStrategoList outerAnnos) {
-        return new StrategoArrayList(terms, outerAnnos);
+        IStrategoList result = makeList();
+        int i = terms.length - 1;
+        while(i > 0) {
+            IStrategoTerm head = terms[i--];
+            result = new StrategoList(head, result, null);
+        }
+        if(i == 0) {
+            IStrategoTerm head = terms[0];
+            result = new StrategoList(head, result, outerAnnos);
+        } else {
+            if(outerAnnos == null || outerAnnos.isEmpty()) {
+                return makeList();
+            } else {
+                return new StrategoList(outerAnnos);
+            }
+        }
+        return result;
     }
 
     @Override

@@ -19,6 +19,8 @@ import javax.annotation.Nullable;
 import static org.spoofax.terms.AbstractTermFactory.EMPTY_TERM_ARRAY;
 
 public class StrategoArrayList extends StrategoTerm implements IStrategoList, RandomAccess {
+    private static final long serialVersionUID = -1746012089187246512L;
+
     final IStrategoTerm[] terms;
     private final int offset;
     final int endOffset;
