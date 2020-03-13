@@ -261,7 +261,7 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
 
     @Override
     public void putAttachment(ITermAttachment attachment) {
-        tailAttachments[offset-1] = attachment;
+        setTailAttachment(attachment);
         super.putAttachment(attachment);
     }
 
@@ -269,14 +269,20 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
     @Nullable
     public ITermAttachment removeAttachment(TermAttachmentType<?> type) {
         final ITermAttachment attachment = super.removeAttachment(type);
-        tailAttachments[offset-1] = attachment();
+        setTailAttachment(attachment());
         return attachment;
     }
 
     @Override
     protected void clearAttachments() {
-        tailAttachments[offset-1] = null;
+        setTailAttachment(null);
         super.clearAttachments();
+    }
+
+    private void setTailAttachment(ITermAttachment attachment) {
+        if(offset > 0) {
+            tailAttachments[offset-1] = attachment;
+        }
     }
 
     /**
