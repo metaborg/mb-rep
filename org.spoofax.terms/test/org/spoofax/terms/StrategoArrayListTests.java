@@ -115,7 +115,7 @@ public class StrategoArrayListTests {
     @DisplayName("builder with extra capacity makes correct size list")
     void builderWithExtraCapaxity_makesCorrectSizeList() {
         // Arrange
-        StrategoArrayList.ArrayListBuilder b = StrategoArrayList.arrayListBuilder(10);
+        IStrategoList.Builder b = StrategoArrayList.arrayListBuilder(10);
         b.add(new DummyStrategoTerm());
         b.add(new DummyStrategoTerm());
         b.add(new DummyStrategoTerm());
@@ -132,7 +132,7 @@ public class StrategoArrayListTests {
     @DisplayName("builder with extra capacity makes list with correct size tails")
     void builderWithExtraCapaxity_makesListWithCorrectSizeTails() {
         // Arrange
-        StrategoArrayList.ArrayListBuilder b = StrategoArrayList.arrayListBuilder(10);
+        IStrategoList.Builder b = StrategoArrayList.arrayListBuilder(10);
         b.add(new DummyStrategoTerm());
         b.add(new DummyStrategoTerm());
         b.add(new DummyStrategoTerm());
