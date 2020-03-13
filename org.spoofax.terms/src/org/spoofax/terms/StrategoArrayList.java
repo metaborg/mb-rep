@@ -19,10 +19,10 @@ import javax.annotation.Nullable;
 import static org.spoofax.terms.AbstractTermFactory.EMPTY_TERM_ARRAY;
 
 public class StrategoArrayList extends StrategoTerm implements IStrategoList, RandomAccess {
-    private final IStrategoTerm[] terms;
+    final IStrategoTerm[] terms;
     private final int offset;
-    private final int subtermCount;
-    private final ITermAttachment[] tailAttachments;
+    final int endOffset;
+    final ITermAttachment[] tailAttachments;
 
     public StrategoArrayList(IStrategoTerm... terms) {
         this(terms, null);
@@ -48,7 +48,7 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
         }
         this.terms = terms;
         this.offset = offset;
-        this.subtermCount = endOffset - offset;
+        this.endOffset = endOffset;
         this.tailAttachments = tailAttachments;
         if(offset > 0) {
             final ITermAttachment attachment = tailAttachments[offset-1];
@@ -71,11 +71,11 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
     }
 
     @Override public int getSubtermCount() {
-        return subtermCount;
+        return endOffset - offset;
     }
 
     @Override public IStrategoTerm getSubterm(int index) {
-        if(index < subtermCount) {
+        if(index < getSubtermCount()) {
             return terms[offset + index];
         } else {
             throw new IndexOutOfBoundsException();
@@ -84,7 +84,7 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
 
     @Override
     public IStrategoTerm[] getAllSubterms() {
-        return Arrays.copyOfRange(terms, offset, offset + subtermCount);
+        return Arrays.copyOfRange(terms, offset, endOffset);
     }
 
     @Override
@@ -162,11 +162,11 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
         if(isEmpty()) {
             throw new IllegalStateException();
         }
-        return new StrategoArrayList(terms, null, offset + 1, offset + subtermCount, tailAttachments);
+        return new StrategoArrayList(terms, null, offset + 1, endOffset, tailAttachments);
     }
 
     @Override public boolean isEmpty() {
-        return subtermCount == 0;
+        return getSubtermCount() == 0;
     }
 
     @Override protected boolean doSlowMatch(IStrategoTerm second) {
@@ -189,7 +189,7 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
 
             //noinspection ArrayEquality
             if(this.terms == other.terms) {
-                return this.offset == other.offset && this.subtermCount == other.subtermCount;
+                return offset == other.offset && this.endOffset == other.endOffset;
             }
 
             Iterator<IStrategoTerm> termsThis = this.iterator();
@@ -247,7 +247,6 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
 
         int i = offset;
         int result = 31 * terms[i].hashCode();
-        final int endOffset = offset + subtermCount;
         for(i++; i < endOffset; i++) {
             result = 31 * result + terms[i].hashCode();
         }
@@ -281,7 +280,7 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
 
     private void setTailAttachment(ITermAttachment attachment) {
         if(offset > 0) {
-            tailAttachments[offset-1] = attachment;
+            tailAttachments[offset -1] = attachment;
         }
     }
 
