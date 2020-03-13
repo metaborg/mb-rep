@@ -1,7 +1,10 @@
 package org.spoofax.terms;
 
+import java.util.List;
+import javax.annotation.Nullable;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.spoofax.DummyStrategoTerm;
 import org.spoofax.TestUtils;
 import org.spoofax.interpreter.terms.ISimpleTermTests;
@@ -10,8 +13,8 @@ import org.spoofax.interpreter.terms.IStrategoListTests;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTermTests;
 import org.spoofax.terms.attachments.ITermAttachment;
-import javax.annotation.Nullable;
-import java.util.List;
+
+import static org.spoofax.terms.util.Assert.assertEquals;
 
 
 /**
@@ -107,4 +110,39 @@ public class StrategoArrayListTests {
     @Nested class RemoveAttachmentTests  extends FixtureImpl implements ISimpleTermTests.RemoveAttachmentTests {}
     // @formatter:on
 
+
+    @Test
+    @DisplayName("builder with extra capacity makes correct size list")
+    void builderWithExtraCapaxity_makesCorrectSizeList() {
+        // Arrange
+        StrategoArrayList.ArrayListBuilder b = StrategoArrayList.arrayListBuilder(10);
+        b.add(new DummyStrategoTerm());
+        b.add(new DummyStrategoTerm());
+        b.add(new DummyStrategoTerm());
+
+        // Act
+        IStrategoList l = b.build();
+
+        // Assert
+        assertEquals(3, l.size());
+    }
+
+
+    @Test
+    @DisplayName("builder with extra capacity makes list with correct size tails")
+    void builderWithExtraCapaxity_makesListWithCorrectSizeTails() {
+        // Arrange
+        StrategoArrayList.ArrayListBuilder b = StrategoArrayList.arrayListBuilder(10);
+        b.add(new DummyStrategoTerm());
+        b.add(new DummyStrategoTerm());
+        b.add(new DummyStrategoTerm());
+
+        // Act
+        IStrategoList l = b.build();
+
+        // Assert
+        assertEquals(2, l.tail().size());
+        assertEquals(1, l.tail().tail().size());
+        assertEquals(0, l.tail().tail().tail().size());
+    }
 }

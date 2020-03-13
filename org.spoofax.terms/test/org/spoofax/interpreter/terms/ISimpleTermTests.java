@@ -1,5 +1,9 @@
 package org.spoofax.interpreter.terms;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.spoofax.DummySimpleTerm;
@@ -7,12 +11,11 @@ import org.spoofax.DummyTermAttachment;
 import org.spoofax.terms.attachments.ITermAttachment;
 import org.spoofax.terms.attachments.TermAttachmentType;
 
-import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 /**
@@ -132,6 +135,17 @@ public interface ISimpleTermTests {
             assertThrows(IndexOutOfBoundsException.class, () -> {
                 sut.getSubterm(3);
             });
+        }
+
+        @Test
+        @DisplayName("return equal children")
+        default void returnEqualChildren() {
+            // Arrange
+            ISimpleTerm sut = createISimpleTerm(Arrays.asList(new DummySimpleTerm(), new DummySimpleTerm()), null);
+
+            // Assert
+            assertEquals(sut.getSubterm(0), sut.getSubterm(0));
+            assertEquals(sut.getSubterm(1), sut.getSubterm(1));
         }
 
     }
@@ -256,6 +270,22 @@ public interface ISimpleTermTests {
 
             // Assert
             assertSame(addition, sut.getAttachment(DummyTermAttachment.Type4));
+        }
+
+        @Test
+        @DisplayName("when an attachment is put on a child, renavigating to that child, it still has the attachment")
+        default void whenAnAttachmentPutOnChild_renavigatingToChild_stillHasAttachment() {
+            // Arrange
+            DummyTermAttachment attachment =
+                new DummyTermAttachment(DummyTermAttachment.Type1);
+            ISimpleTerm sut =
+                createISimpleTerm(Arrays.asList(createISimpleTerm(null, null), createISimpleTerm(null, null)), null);
+
+            // Act
+            sut.getSubterm(1).putAttachment(attachment);
+
+            // Assert
+            assertSame(attachment, sut.getSubterm(1).getAttachment(DummyTermAttachment.Type1));
         }
 
     }

@@ -77,6 +77,10 @@ public abstract class AbstractSimpleTerm implements ISimpleTerm, Cloneable {
         return null;
     }
 
+    protected final ITermAttachment attachment() {
+        return attachment;
+    }
+
     protected void clearAttachments() {
         attachment = null;
     }

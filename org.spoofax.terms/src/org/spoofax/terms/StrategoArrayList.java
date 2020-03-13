@@ -3,6 +3,8 @@ package org.spoofax.terms;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
+import org.spoofax.terms.attachments.ITermAttachment;
+import org.spoofax.terms.attachments.TermAttachmentType;
 import org.spoofax.terms.util.TermUtils;
 import java.io.IOException;
 import java.util.Arrays;
@@ -12,26 +14,29 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.RandomAccess;
 
+import javax.annotation.Nullable;
+
 import static org.spoofax.terms.AbstractTermFactory.EMPTY_TERM_ARRAY;
 
 public class StrategoArrayList extends StrategoTerm implements IStrategoList, RandomAccess {
     private final IStrategoTerm[] terms;
     private final int offset;
     private final int subtermCount;
+    private final ITermAttachment[] tailAttachments;
 
     public StrategoArrayList(IStrategoTerm... terms) {
-        this(terms, null, 0);
+        this(terms, null);
     }
 
     public StrategoArrayList(IStrategoTerm[] terms, IStrategoList annotations) {
-        this(terms, annotations, 0);
-    }
-
-    protected StrategoArrayList(IStrategoTerm[] terms, IStrategoList annotations, int offset) {
-        this(terms, annotations, offset, terms.length);
+        this(terms, annotations, 0, terms.length, new ITermAttachment[terms.length]);
     }
 
     protected StrategoArrayList(IStrategoTerm[] terms, IStrategoList annotations, int offset, int endOffset) {
+        this(terms, annotations, offset, endOffset, new ITermAttachment[terms.length]);
+    }
+
+    protected StrategoArrayList(IStrategoTerm[] terms, IStrategoList annotations, int offset, int endOffset, ITermAttachment[] tailAttachments) {
         super(annotations);
         if(offset > terms.length) {
             throw new IllegalArgumentException(
@@ -44,6 +49,13 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
         this.terms = terms;
         this.offset = offset;
         this.subtermCount = endOffset - offset;
+        this.tailAttachments = tailAttachments;
+        if(offset > 0) {
+            final ITermAttachment attachment = tailAttachments[offset-1];
+            if(attachment != null) {
+                super.putAttachment(attachment);
+            }
+        }
     }
 
     public static StrategoArrayList fromCollection(Collection<? extends IStrategoTerm> terms) {
@@ -63,7 +75,7 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
     }
 
     @Override public IStrategoTerm getSubterm(int index) {
-        if(index <= subtermCount) {
+        if(index < subtermCount) {
             return terms[offset + index];
         } else {
             throw new IndexOutOfBoundsException();
@@ -150,7 +162,7 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
         if(isEmpty()) {
             throw new IllegalStateException();
         }
-        return new StrategoArrayList(terms, null, offset + 1);
+        return new StrategoArrayList(terms, null, offset + 1, offset + subtermCount, tailAttachments);
     }
 
     @Override public boolean isEmpty() {
@@ -245,6 +257,26 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
 
     @Override public Iterator<IStrategoTerm> iterator() {
         return new StrategoArrayListIterator(this);
+    }
+
+    @Override
+    public void putAttachment(ITermAttachment attachment) {
+        tailAttachments[offset-1] = attachment;
+        super.putAttachment(attachment);
+    }
+
+    @Override
+    @Nullable
+    public ITermAttachment removeAttachment(TermAttachmentType<?> type) {
+        final ITermAttachment attachment = super.removeAttachment(type);
+        tailAttachments[offset-1] = attachment();
+        return attachment;
+    }
+
+    @Override
+    protected void clearAttachments() {
+        tailAttachments[offset-1] = null;
+        super.clearAttachments();
     }
 
     /**

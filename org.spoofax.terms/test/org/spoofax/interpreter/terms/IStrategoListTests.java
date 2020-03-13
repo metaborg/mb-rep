@@ -1,6 +1,12 @@
 package org.spoofax.interpreter.terms;
 
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.NoSuchElementException;
+import javax.annotation.Nullable;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,14 +17,11 @@ import org.spoofax.DummyTermAttachmentType;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.attachments.ITermAttachment;
 
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.NoSuchElementException;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.spoofax.TestUtils.getTermBuilder;
 
 
@@ -528,6 +531,32 @@ public interface IStrategoListTests {
 
             // Assert
             assertEquals("[<dummy>,<dummy>]", sb.toString());
+        }
+
+    }
+
+
+    /**
+     * Tests the {@link ISimpleTerm#putAttachment(ITermAttachment)} method.
+     */
+    @DisplayName("putAttachment(ITermAttachment)")
+    interface PutAttachmentTests extends Fixture {
+
+        @Test
+        @DisplayName("when an attachment is put on a tail, renavigating to that tail, it still has the attachment")
+        default void whenAnAttachmentPutOnTail_renavigatingToTail_stillHasAttachment() {
+            // Arrange
+            DummyTermAttachment attachment =
+                new DummyTermAttachment(DummyTermAttachment.Type1);
+            IStrategoList sut = createIStrategoList(
+                Arrays.asList(createIStrategoTerm(null, null, null), createIStrategoTerm(null, null, null)), null,
+                null);
+
+            // Act
+            sut.tail().putAttachment(attachment);
+
+            // Assert
+            assertSame(attachment, sut.tail().getAttachment(DummyTermAttachment.Type1));
         }
 
     }
