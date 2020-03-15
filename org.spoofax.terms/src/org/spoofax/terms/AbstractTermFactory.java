@@ -86,7 +86,7 @@ public abstract class AbstractTermFactory implements ITermFactory {
     }
 
     public IStrategoList makeList(Collection<? extends IStrategoTerm> terms) {
-        return StrategoArrayList.fromCollection(terms);
+        return IStrategoArrayList.fromCollection(terms);
     }
 
     public final IStrategoList makeListCons(IStrategoTerm head, IStrategoList tail) {
@@ -118,10 +118,10 @@ public abstract class AbstractTermFactory implements ITermFactory {
     }
 
     public IStrategoList.Builder arrayListBuilder() {
-        return StrategoArrayList.arrayListBuilder();
+        return IStrategoArrayList.arrayListBuilder();
     }
 
     public IStrategoList.Builder arrayListBuilder(int size) {
-        return StrategoArrayList.arrayListBuilder(size);
+        return IStrategoArrayList.arrayListBuilder(size);
     }
 }

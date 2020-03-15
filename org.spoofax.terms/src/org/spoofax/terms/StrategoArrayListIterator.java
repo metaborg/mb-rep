@@ -2,13 +2,14 @@ package org.spoofax.terms;
 
 import java.util.Iterator;
 
+import org.spoofax.interpreter.terms.IStrategoArrayList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-final class StrategoArrayListIterator implements Iterator<IStrategoTerm> {
-    private final StrategoArrayList strategoArrayList;
+public final class StrategoArrayListIterator implements Iterator<IStrategoTerm> {
+    private final IStrategoArrayList strategoArrayList;
     private int position;
 
-    StrategoArrayListIterator(StrategoArrayList strategoArrayList) {
+    public StrategoArrayListIterator(IStrategoArrayList strategoArrayList) {
         this.strategoArrayList = strategoArrayList;
         this.position = 0;
     }

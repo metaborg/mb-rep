@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.spoofax.DummyStrategoTerm;
 import org.spoofax.TestUtils;
 import org.spoofax.interpreter.terms.ISimpleTermTests;
+import org.spoofax.interpreter.terms.IStrategoArrayList;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoListTests;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -27,26 +28,26 @@ public class StrategoArrayListTests {
     public interface Fixture extends IStrategoListTests.Fixture {
 
         @Override
-        StrategoArrayList createIStrategoList(@Nullable List<IStrategoTerm> elements, @Nullable IStrategoList annotations,
-            @Nullable List<ITermAttachment> attachments);
+        IStrategoArrayList createIStrategoList(@Nullable List<IStrategoTerm> elements, @Nullable IStrategoList annotations,
+                                               @Nullable List<ITermAttachment> attachments);
 
         @Override
         StrategoList createConsNilIStrategoList(@Nullable IStrategoTerm head, @Nullable IStrategoList tail,
             @Nullable IStrategoList annotations, @Nullable List<ITermAttachment> attachments);
 
         @Override
-        StrategoArrayList createEmptyIStrategoList(@Nullable IStrategoList annotations,
-            @Nullable List<ITermAttachment> attachments);
+        IStrategoArrayList createEmptyIStrategoList(@Nullable IStrategoList annotations,
+                                                    @Nullable List<ITermAttachment> attachments);
 
     }
 
 
-    public static class FixtureImpl extends StrategoTermTests.FixtureImpl implements Fixture {
+    public static class FixtureImpl implements Fixture, StrategoTermTests.Fixture {
 
         @Override
-        public StrategoArrayList createIStrategoList(@Nullable List<IStrategoTerm> elements,
-                                                @Nullable IStrategoList annotations,
-                                                @Nullable List<ITermAttachment> attachments) {
+        public IStrategoArrayList createIStrategoList(@Nullable List<IStrategoTerm> elements,
+                                                      @Nullable IStrategoList annotations,
+                                                      @Nullable List<ITermAttachment> attachments) {
             if (elements == null || elements.isEmpty()) {
                 return createEmptyIStrategoList(annotations, attachments);
             }
@@ -65,15 +66,15 @@ public class StrategoArrayListTests {
         }
 
         @Override
-        public StrategoArrayList createEmptyIStrategoList(@Nullable IStrategoList annotations,
-                                                     @Nullable List<ITermAttachment> attachments) {
+        public IStrategoArrayList createEmptyIStrategoList(@Nullable IStrategoList annotations,
+                                                           @Nullable List<ITermAttachment> attachments) {
             return TestUtils.putAttachments(new StrategoArrayList(new IStrategoTerm[0],
                     annotations != null ? annotations : TermFactory.EMPTY_LIST
             ), attachments);
         }
 
         @Override
-        public StrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms,
+        public IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms,
                                                 @Nullable IStrategoList annotations,
                                                 @Nullable List<ITermAttachment> attachments) {
             if (subterms == null || subterms.isEmpty()) {
@@ -115,7 +116,7 @@ public class StrategoArrayListTests {
     @DisplayName("builder with extra capacity makes correct size list")
     void builderWithExtraCapaxity_makesCorrectSizeList() {
         // Arrange
-        IStrategoList.Builder b = StrategoArrayList.arrayListBuilder(10);
+        IStrategoList.Builder b = IStrategoArrayList.arrayListBuilder(10);
         b.add(new DummyStrategoTerm());
         b.add(new DummyStrategoTerm());
         b.add(new DummyStrategoTerm());
@@ -132,7 +133,7 @@ public class StrategoArrayListTests {
     @DisplayName("builder with extra capacity makes list with correct size tails")
     void builderWithExtraCapaxity_makesListWithCorrectSizeTails() {
         // Arrange
-        IStrategoList.Builder b = StrategoArrayList.arrayListBuilder(10);
+        IStrategoList.Builder b = IStrategoArrayList.arrayListBuilder(10);
         b.add(new DummyStrategoTerm());
         b.add(new DummyStrategoTerm());
         b.add(new DummyStrategoTerm());

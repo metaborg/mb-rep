@@ -1,6 +1,8 @@
 package org.spoofax.terms.util;
 
+import java.util.Collection;
 import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoArrayList;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoInt;
 import org.spoofax.interpreter.terms.IStrategoList;
@@ -13,7 +15,6 @@ import org.spoofax.terms.StrategoArrayList;
 import org.spoofax.terms.StrategoInt;
 import org.spoofax.terms.StrategoString;
 import org.spoofax.terms.StrategoTuple;
-import java.util.Collection;
 
 /**
  * A Stratego Term building class. The static methods can build anything but stratego application constructors.
@@ -53,7 +54,7 @@ public class B {
     }
 
     public static IStrategoList list(Collection<? extends IStrategoTerm> terms) {
-        return StrategoArrayList.fromCollection(terms);
+        return IStrategoArrayList.fromCollection(terms);
     }
 
     public static IStrategoList list(IStrategoList.Builder builder) {
@@ -61,11 +62,11 @@ public class B {
     }
 
     public static IStrategoList.Builder listBuilder(int size) {
-        return StrategoArrayList.arrayListBuilder(size);
+        return IStrategoArrayList.arrayListBuilder(size);
     }
 
     public static IStrategoList.Builder listBuilder() {
-        return StrategoArrayList.arrayListBuilder();
+        return IStrategoArrayList.arrayListBuilder();
     }
 
     public IStrategoAppl applShared(String cons, IStrategoTerm... children) {

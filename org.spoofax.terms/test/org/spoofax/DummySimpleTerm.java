@@ -2,7 +2,6 @@ package org.spoofax;
 
 import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.terms.attachments.ITermAttachment;
-import org.spoofax.terms.attachments.TermAttachmentType;
 
 
 /**
@@ -21,16 +20,13 @@ public class DummySimpleTerm implements ISimpleTerm {
     }
 
     @Override
-    public <T extends ITermAttachment> T getAttachment(TermAttachmentType<T> type) {
+    public ITermAttachment internalGetAttachment() {
         return null;
     }
 
     @Override
-    public void putAttachment(ITermAttachment resourceAttachment) { /* Ignored */ }
+    public void internalSetAttachment(ITermAttachment attachment) {
 
-    @Override
-    public ITermAttachment removeAttachment(TermAttachmentType<?> attachmentType) {
-        return null;
     }
 
     @Override

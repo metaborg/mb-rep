@@ -22,7 +22,7 @@ public abstract class StrategoTermTests {
     public interface Fixture extends IStrategoTermTests.Fixture {
 
         @Override
-        StrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms,
+        IStrategoTerm createIStrategoTerm(@Nullable List<IStrategoTerm> subterms,
                                          @Nullable IStrategoList annotations,
                                          @Nullable List<ITermAttachment> attachments);
 
