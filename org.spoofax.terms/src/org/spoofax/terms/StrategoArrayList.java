@@ -26,7 +26,7 @@ public class StrategoArrayList extends AbstractStrategoList implements RandomAcc
     final int endOffset;
     final ITermAttachment[] tailAttachments;
 
-    public StrategoArrayList(IStrategoTerm[] terms) {
+    public StrategoArrayList(IStrategoTerm... terms) {
         this(terms, null);
     }
 
