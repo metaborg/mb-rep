@@ -8,7 +8,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
  * Builds an IStrategoList by building up an internal array like ArrayList (doubling the size when we run out of
  * space) and then sharing that array
  */
-public class StrategoArrayListBuilder implements IStrategoList.Builder {
+class StrategoArrayListBuilder implements IStrategoList.Builder {
     private IStrategoTerm[] array;
     private int index = 0;
     private boolean built = false;
@@ -17,7 +17,7 @@ public class StrategoArrayListBuilder implements IStrategoList.Builder {
      * Create an array-backed IStrategoList builder. Initializes the array with the given size.
      * @param size initial size of the backing array
      */
-    public StrategoArrayListBuilder(int size) {
+    StrategoArrayListBuilder(int size) {
         this.array = new IStrategoTerm[size];
     }
 
