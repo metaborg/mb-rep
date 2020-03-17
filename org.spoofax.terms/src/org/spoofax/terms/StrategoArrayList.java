@@ -18,7 +18,7 @@ import javax.annotation.Nullable;
 
 import static org.spoofax.terms.AbstractTermFactory.EMPTY_TERM_ARRAY;
 
-public class StrategoArrayList extends StrategoTerm implements IStrategoList, RandomAccess {
+public class StrategoArrayList extends AbstractStrategoList implements RandomAccess {
     private static final long serialVersionUID = -1746012089187246512L;
 
     final IStrategoTerm[] terms;
@@ -89,63 +89,12 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
         return Arrays.copyOfRange(terms, offset, endOffset);
     }
 
-    @Override
-    public List<IStrategoTerm> getSubterms() {
-        return TermList.ofUnsafe(getAllSubterms());
-    }
-
     @Override public int getTermType() {
         return IStrategoTerm.LIST;
     }
 
-    @Deprecated @Override public void prettyPrint(ITermPrinter pp) {
-        if(!isEmpty()) {
-            pp.println("[");
-            pp.indent(2);
-            Iterator<IStrategoTerm> iter = iterator();
-            iter.next().prettyPrint(pp);
-            while(iter.hasNext()) {
-                IStrategoTerm element = iter.next();
-                pp.print(",");
-                pp.nextIndentOff();
-                element.prettyPrint(pp);
-                pp.println("");
-            }
-            pp.println("");
-            pp.print("]");
-            pp.outdent(2);
-
-        } else {
-            pp.print("[]");
-        }
-        printAnnotations(pp);
-    }
-
-    @Override public void writeAsString(Appendable output, int maxDepth) throws IOException {
-        output.append('[');
-        if(!isEmpty()) {
-            if(maxDepth == 0) {
-                output.append("...");
-            } else {
-                Iterator<IStrategoTerm> iter = iterator();
-                iter.next().writeAsString(output, maxDepth - 1);
-                while(iter.hasNext()) {
-                    IStrategoTerm element = iter.next();
-                    output.append(',');
-                    element.writeAsString(output, maxDepth - 1);
-                }
-            }
-        }
-        output.append(']');
-        appendAnnotations(output, maxDepth);
-    }
-
     @Deprecated @Override public IStrategoTerm get(int index) {
         return getSubterm(index);
-    }
-
-    @Deprecated @Override public int size() {
-        return getSubtermCount();
     }
 
     @Deprecated @Override public IStrategoList prepend(IStrategoTerm prefix) {
@@ -172,63 +121,37 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
     }
 
     @Override protected boolean doSlowMatch(IStrategoTerm second) {
+        if(!(second instanceof StrategoArrayList)) {
+            return super.doSlowMatch(second);
+        }
         if(this == second) {
             return true;
-        }
-        if(!TermUtils.isList(second)) {
-            return false;
         }
         if(this.getSubtermCount() != second.getSubtermCount()) {
             return false;
         }
 
-        if(second instanceof StrategoArrayList) {
-            StrategoArrayList other = (StrategoArrayList) second;
+        StrategoArrayList other = (StrategoArrayList) second;
 
-            if(!this.getAnnotations().match(other.getAnnotations())) {
-                return false;
-            }
-
-            //noinspection ArrayEquality
-            if(this.terms == other.terms) {
-                return offset == other.offset && this.endOffset == other.endOffset;
-            }
-
-            Iterator<IStrategoTerm> termsThis = this.iterator();
-            Iterator<IStrategoTerm> termsOther = other.iterator();
-
-            if(!this.isEmpty()) {
-                for(IStrategoTerm thisNext = termsThis.next(), otherNext = termsOther.next()
-                   ; termsThis.hasNext()
-                   ; thisNext = termsThis.next(), otherNext = termsOther.next()) {
-                    if(thisNext != otherNext && !thisNext.match(otherNext)) {
-                        return false;
-                    }
-                }
-            }
-
-            return true;
+        if(!this.getAnnotations().match(other.getAnnotations())) {
+            return false;
         }
 
-        final IStrategoList snd = (IStrategoList) second;
+        //noinspection ArrayEquality
+        if(this.terms == other.terms) {
+            return offset == other.offset && this.endOffset == other.endOffset;
+        }
 
-        if(!isEmpty()) {
-            IStrategoTerm head = head();
-            IStrategoTerm head2 = snd.head();
-            if(head != head2 && !head.match(head2))
-                return false;
+        Iterator<IStrategoTerm> termsThis = this.iterator();
+        Iterator<IStrategoTerm> termsOther = other.iterator();
 
-            IStrategoList tail = tail();
-            IStrategoList tail2 = snd.tail();
-
-            for(IStrategoList cons = tail, cons2 = tail2; !cons.isEmpty(); cons = cons.tail(), cons2 = cons2.tail()) {
-                IStrategoTerm consHead = cons.head();
-                IStrategoTerm cons2Head = cons2.head();
-                if(!cons.getAnnotations().match(cons2.getAnnotations())) {
+        if(!this.isEmpty()) {
+            for(IStrategoTerm thisNext = termsThis.next(), otherNext = termsOther.next()
+               ; termsThis.hasNext()
+               ; thisNext = termsThis.next(), otherNext = termsOther.next()) {
+                if(thisNext != otherNext && !thisNext.match(otherNext)) {
                     return false;
                 }
-                if(consHead != cons2Head && !consHead.match(cons2Head))
-                    return false;
             }
         }
 
@@ -238,22 +161,6 @@ public class StrategoArrayList extends StrategoTerm implements IStrategoList, Ra
             return true;
         } else
             return annotations.match(secondAnnotations);
-    }
-
-    /**
-     * N.B. this implementation may look strange but it's designed to return the same hashcode as {@link StrategoList#hashFunction()}
-     */
-    @Override protected int hashFunction() {
-        if(isEmpty())
-            return 1;
-
-        int i = offset;
-        int result = 31 * terms[i].hashCode();
-        for(i++; i < endOffset; i++) {
-            result = 31 * result + terms[i].hashCode();
-        }
-
-        return result;
     }
 
     @Override public Iterator<IStrategoTerm> iterator() {

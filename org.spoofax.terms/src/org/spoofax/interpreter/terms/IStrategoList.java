@@ -23,7 +23,9 @@ public interface IStrategoList extends IStrategoTerm {
      *
      * @return the size of the list
      */
-    int size();
+    default int size() {
+        return getSubtermCount();
+    }
 
     // FIXME: Should be named getHead() for Kotlin compatibility
     /**

@@ -14,7 +14,7 @@ import java.util.*;
 /**
  * A basic stratego list implementation using a linked-list data structure.
  */
-public class StrategoList extends StrategoTerm implements IStrategoList {
+public class StrategoList extends AbstractStrategoList {
 
     /**
      * @see #hashFunction()
@@ -96,17 +96,6 @@ public class StrategoList extends StrategoTerm implements IStrategoList {
     }
 
     @Override
-    public List<IStrategoTerm> getSubterms() {
-        return TermList.ofUnsafe(getAllSubterms());
-    }
-
-
-    @Override
-    public final int size() {
-        return size;
-    }
-
-    @Override
     public IStrategoTerm getSubterm(int index) {
         IStrategoList list = this;
         if(index < 0 || index >= size)
@@ -162,67 +151,6 @@ public class StrategoList extends StrategoTerm implements IStrategoList {
             return true;
         } else
             return annotations.match(secondAnnotations);
-    }
-
-    @Deprecated
-    @Override
-    public void prettyPrint(ITermPrinter pp) {
-        if(!isEmpty()) {
-            pp.println("[");
-            pp.indent(2);
-            head().prettyPrint(pp);
-            for(IStrategoList cur = tail(); !cur.isEmpty(); cur = cur.tail()) {
-                pp.print(",");
-                pp.nextIndentOff();
-                cur.head().prettyPrint(pp);
-                pp.println("");
-            }
-            pp.println("");
-            pp.print("]");
-            pp.outdent(2);
-
-        } else {
-            pp.print("[]");
-        }
-        printAnnotations(pp);
-    }
-
-    @Override
-    public void writeAsString(Appendable output, int maxDepth) throws IOException {
-        output.append('[');
-        if(!isEmpty()) {
-            if(maxDepth == 0) {
-                output.append("...");
-            } else {
-                head().writeAsString(output, maxDepth - 1);
-                for(IStrategoList cur = tail(); !cur.isEmpty(); cur = cur.tail()) {
-                    output.append(',');
-                    cur.head().writeAsString(output, maxDepth - 1);
-                }
-            }
-        }
-        output.append(']');
-        appendAnnotations(output, maxDepth);
-    }
-
-    @Override
-    public int hashFunction() {
-        if(head == null)
-            return 1;
-
-        final int prime = 31;
-        int result = prime * head.hashCode();
-
-        if(tail == null)
-            return result;
-
-        IStrategoList tail = this.tail;
-        while(!tail.isEmpty()) {
-            result = prime * result + tail.head().hashCode();
-            tail = tail.tail();
-        }
-
-        return result;
     }
 
     @Override
