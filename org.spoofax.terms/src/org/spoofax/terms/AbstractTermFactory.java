@@ -121,7 +121,7 @@ public abstract class AbstractTermFactory implements ITermFactory {
         return StrategoArrayList.arrayListBuilder();
     }
 
-    public IStrategoList.Builder arrayListBuilder(int size) {
-        return StrategoArrayList.arrayListBuilder(size);
+    public IStrategoList.Builder arrayListBuilder(int initialCapacity) {
+        return StrategoArrayList.arrayListBuilder(initialCapacity);
     }
 }
