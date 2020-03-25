@@ -30,6 +30,8 @@ public class DummyTermAttachmentType<T extends ITermAttachment> extends TermAtta
         throw new UnsupportedOperationException();
     }
 
+    public String getName() { return this.name; }
+
     @Override
     public boolean equals(Object obj) {
         // Identity

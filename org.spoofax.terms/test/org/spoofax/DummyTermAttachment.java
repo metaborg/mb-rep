@@ -39,4 +39,12 @@ public class DummyTermAttachment extends AbstractTermAttachment {
         return System.identityHashCode(this);
     }
 
+    @Override
+    public String toString() {
+        if (this.attachmentType instanceof DummyTermAttachmentType) {
+            return ((DummyTermAttachmentType<?>)this.attachmentType).getName();
+        } else {
+            return this.attachmentType.toString();
+        }
+    }
 }
