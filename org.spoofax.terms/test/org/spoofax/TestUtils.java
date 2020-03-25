@@ -1,7 +1,6 @@
 package org.spoofax;
 
-import org.spoofax.interpreter.terms.ISimpleTerm;
-import org.spoofax.interpreter.terms.IStrategoTermBuilder;
+import org.spoofax.interpreter.terms.*;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.attachments.ITermAttachment;
 
@@ -41,6 +40,23 @@ public final class TestUtils {
         } catch (ClassCastException e) {
             return null;
         }
+    }
+
+    /**
+     * Puts all given annotations on the given term and returns the resulting term.
+     *
+     * @param term        the term to modify
+     * @param termFactory the term factory to use
+     * @param annotations the annotations to add; or {@code null}
+     * @param <T>         the type of term
+     * @return the resulting term
+     */
+    @SuppressWarnings("unchecked")
+    @Nullable
+    public static <T extends IStrategoTerm> T putAnnotations(@Nullable T term, ITermFactory termFactory,
+                                                           @Nullable List<IStrategoTerm> annotations) {
+        if (term == null) return null;
+        return (T)termFactory.annotateTerm(term, termFactory.makeList(annotations));
     }
 
     /**
