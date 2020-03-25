@@ -10,22 +10,81 @@ import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 
+/**
+ * Term visitor.
+ */
 public interface IStrategoTermVisitor {
-    public abstract boolean visit(IStrategoAppl term);
 
-    public abstract boolean visit(IStrategoList term);
+    /**
+     * Visits a constructor application term.
+     *
+     * @param term the term being visited
+     * @return {@code true} when a top-down traversal should visit the subterms;
+     * otherwise, {@code false}
+     */
+    boolean visit(IStrategoAppl term);
 
-    public abstract boolean visit(IStrategoTuple term);
+    /**
+     * Visits a list term.
+     *
+     * @param term the term being visited
+     * @return {@code true} when a top-down traversal should visit the subterms;
+     * otherwise, {@code false}
+     */
+    boolean visit(IStrategoList term);
 
-    public abstract void visit(IStrategoInt term);
+    /**
+     * Visits a tuple term.
+     *
+     * @param term the term being visited
+     * @return {@code true} when a top-down traversal should visit the subterms;
+     * otherwise, {@code false}
+     */
+    boolean visit(IStrategoTuple term);
 
-    public abstract void visit(IStrategoReal term);
+    /**
+     * Visits an Int term.
+     *
+     * @param term the term being visited
+     */
+    void visit(IStrategoInt term);
 
-    public abstract void visit(IStrategoString term);
+    /**
+     * Visits a Real term.
+     *
+     * @param term the term being visited
+     */
+    void visit(IStrategoReal term);
 
-    public abstract void visit(IStrategoRef term);
+    /**
+     * Visits a String term.
+     *
+     * @param term the term being visited
+     */
+    void visit(IStrategoString term);
 
-    public abstract boolean visit(IStrategoPlaceholder term);
-    
-    public abstract boolean visit(IStrategoTerm term);
+    /**
+     * Visits a Ref term.
+     *
+     * @param term the term being visited
+     */
+    void visit(IStrategoRef term);
+
+    /**
+     * Visits a placeholder term.
+     *
+     * @param term the term being visited
+     * @return {@code true} when a top-down traversal should visit the subterms;
+     * otherwise, {@code false}
+     */
+    boolean visit(IStrategoPlaceholder term);
+
+    /**
+     * Visits a term.
+     *
+     * @param term the term being visited
+     * @return {@code true} when a top-down traversal should visit the subterms;
+     * otherwise, {@code false}
+     */
+    boolean visit(IStrategoTerm term);
 }
