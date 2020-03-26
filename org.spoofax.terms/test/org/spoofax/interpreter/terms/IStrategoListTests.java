@@ -54,6 +54,25 @@ public interface IStrategoListTests {
         }
 
         /**
+         * Creates a new instance of {@link IStrategoList} for testing.
+         *
+         * @param elements    the elements of the list; or {@code null} to use a sensible default
+         * @param annotations the annotations of the term; or {@code null} to use a sensible default
+         * @param attachments the attachments of the term; or {@code null} to use a sensible default
+         * @return the created object
+         * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
+         */
+        default IStrategoList createIStrategoListWithHashCode(@Nullable List<IStrategoTerm> elements,
+            @Nullable IStrategoList annotations,
+            @Nullable List<ITermAttachment> attachments) {
+            if (elements == null || elements.isEmpty()) {
+                return createEmptyIStrategoList(annotations, attachments);
+            }
+            return createConsNilIStrategoListWithHashCode(elements.get(0), createIStrategoList(elements.subList(1,
+                elements.size()), null, null), annotations, attachments);
+        }
+
+        /**
          * Creates a new instance of a cons-nil {@link IStrategoList} for testing.
          *
          * @param head        the head of the list; or {@code null} to use a sensible default
@@ -66,6 +85,20 @@ public interface IStrategoListTests {
         IStrategoList createConsNilIStrategoList(@Nullable IStrategoTerm head, @Nullable IStrategoList tail,
                                                  @Nullable IStrategoList annotations,
                                                  @Nullable List<ITermAttachment> attachments);
+
+        /**
+         * Creates a new instance of a cons-nil {@link IStrategoList} for testing.
+         *
+         * @param head        the head of the list; or {@code null} to use a sensible default
+         * @param tail        the tail of the list; or {@code null} to use a sensible default
+         * @param annotations the annotations of the term; or {@code null} to use a sensible default
+         * @param attachments the attachments of the term; or {@code null} to use a sensible default
+         * @return the created object
+         * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
+         */
+        IStrategoList createConsNilIStrategoListWithHashCode(@Nullable IStrategoTerm head, @Nullable IStrategoList tail,
+            @Nullable IStrategoList annotations,
+            @Nullable List<ITermAttachment> attachments);
 
         /**
          * Creates a new instance of an empty {@link IStrategoList} for testing.
@@ -86,6 +119,19 @@ public interface IStrategoListTests {
                                                   @Nullable List<ITermAttachment> attachments) {
             return createIStrategoList(subterms, annotations, attachments);
         }
+
+        /**
+         * Creates a new instance of an empty {@link IStrategoList} for testing.
+         * <p>
+         * This creates an empty list.
+         *
+         * @param annotations the annotations of the term; or {@code null} to use a sensible default
+         * @param attachments the attachments of the term; or {@code null} to use a sensible default
+         * @return the created object
+         * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
+         */
+        IStrategoList createEmptyIStrategoListWithHashCode(@Nullable IStrategoList annotations,
+            @Nullable List<ITermAttachment> attachments);
 
     }
 
@@ -495,7 +541,7 @@ public interface IStrategoListTests {
         @DisplayName("when the list is empty, returns one")
         default void whenTheListIsEmpty_returnsOne() {
             // Arrange
-            IStrategoList sut = createEmptyIStrategoList(null, null);
+            IStrategoList sut = createEmptyIStrategoListWithHashCode(null, null);
 
             // Act
             int result = sut.hashCode();
@@ -509,7 +555,7 @@ public interface IStrategoListTests {
         default void whenTheListIsNotEmpty_returnsTheHashCode() {
             // Arrange
             List<IStrategoTerm> elements = Arrays.asList(new DummyStrategoTermWithHashCode(0xCAFEBABE), new DummyStrategoTermWithHashCode(0xDEADBEEF));
-            IStrategoList sut = createIStrategoList(elements, null, null);
+            IStrategoList sut = createIStrategoListWithHashCode(elements, null, null);
 
             // Act
             int result = sut.hashCode();
