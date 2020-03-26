@@ -25,7 +25,7 @@ public interface IStrategoTupleTests {
     interface Fixture extends IStrategoTermTests.Fixture {
 
         /**
-         * Creates a new instance of {@link IStrategoTuple} for testing.
+         * Creates a new instance of {@link IStrategoTuple} for testing (with fixed hashCode 0).
          *
          * @param elements    the elements of the tuple; or {@code null} to use a sensible default
          * @param annotations the annotations of the term; or {@code null} to use a sensible default

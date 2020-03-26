@@ -1,14 +1,19 @@
 package org.spoofax.terms;
 
+import java.util.List;
+
+import javax.annotation.Nullable;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.spoofax.DummyStrategoTerm;
 import org.spoofax.TestUtils;
-import org.spoofax.interpreter.terms.*;
+import org.spoofax.interpreter.terms.ISimpleTermTests;
+import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.IStrategoTermTests;
+import org.spoofax.interpreter.terms.IStrategoTupleTests;
 import org.spoofax.terms.attachments.ITermAttachment;
-
-import javax.annotation.Nullable;
-import java.util.List;
 
 
 /**
@@ -33,11 +38,16 @@ public class StrategoTupleTests {
         public StrategoTuple createIStrategoTuple(@Nullable List<IStrategoTerm> elements,
                                                   @Nullable IStrategoList annotations,
                                                   @Nullable List<ITermAttachment> attachments) {
+            //noinspection EqualsAndHashcode
             return TestUtils.putAttachments(new StrategoTuple(
-                    elements != null ? elements.toArray(AbstractTermFactory.EMPTY_TERM_ARRAY) :
-                            new IStrategoTerm[]{new DummyStrategoTerm()},
-                    annotations != null ? annotations : TermFactory.EMPTY_LIST
-            ), attachments);
+                elements != null ? elements.toArray(AbstractTermFactory.EMPTY_TERM_ARRAY) :
+                    new IStrategoTerm[] { new DummyStrategoTerm() },
+                annotations != null ? annotations : TermFactory.EMPTY_LIST) {
+                @Override
+                public int hashCode() {
+                    return 0;
+                }
+            }, attachments);
         }
 
         @Override

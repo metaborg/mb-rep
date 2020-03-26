@@ -1,14 +1,19 @@
 package org.spoofax.terms;
 
+import java.util.List;
+
+import javax.annotation.Nullable;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.spoofax.DummyStrategoTerm;
 import org.spoofax.TestUtils;
-import org.spoofax.interpreter.terms.*;
+import org.spoofax.interpreter.terms.ISimpleTermTests;
+import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoPlaceholderTests;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.IStrategoTermTests;
 import org.spoofax.terms.attachments.ITermAttachment;
-
-import javax.annotation.Nullable;
-import java.util.List;
 
 import static org.spoofax.TestUtils.getTermBuilder;
 
@@ -35,11 +40,15 @@ public class StrategoPlaceholderTests {
         public StrategoPlaceholder createIStrategoPlaceholder(@Nullable IStrategoTerm template,
                                                               @Nullable IStrategoList annotations,
                                                               @Nullable List<ITermAttachment> attachments) {
-            return TestUtils.putAttachments(new StrategoPlaceholder(
-                    getTermBuilder().makeConstructor("<>", 1),
-                    template != null ? template : new DummyStrategoTerm(),
-                    annotations != null ? annotations : TermFactory.EMPTY_LIST
-            ), attachments);
+            //noinspection EqualsAndHashcode
+            return TestUtils.putAttachments(new StrategoPlaceholder(getTermBuilder().makeConstructor("<>", 1),
+                template != null ? template : new DummyStrategoTerm(),
+                annotations != null ? annotations : TermFactory.EMPTY_LIST) {
+                @Override
+                public int hashCode() {
+                    return 0;
+                }
+            }, attachments);
         }
 
     }

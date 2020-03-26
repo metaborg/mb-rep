@@ -1,21 +1,24 @@
 package org.spoofax.terms.io.binary;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+
+import javax.annotation.Nullable;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.io.AbstractTermReaderTests;
+import org.spoofax.terms.io.TAFTermReader;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /** Tests the {@link SAFReader} class. */
 @DisplayName("SAFReader")
 public final class SAFReaderTests extends AbstractTermReaderTests {
-
-    private final SAFReader termReader = new SAFReader(factory);
 
     @Override protected void testString(String str) {
         serializeAndDeserialize(factory.makeString(str));
@@ -44,5 +47,15 @@ public final class SAFReaderTests extends AbstractTermReaderTests {
         } catch(IOException e) {
             fail(e);
         }
+    }
+
+    @Test
+    public void testTermFromFile() throws IOException {
+        final IStrategoTerm ptTerm;
+        try(final @Nullable InputStream fileStream = this.getClass().getResourceAsStream("/Sdf2.tbl")) {
+            assert fileStream != null : "Cannot find required test resource Sdf2.tbl";
+            ptTerm = new TAFTermReader(factory).parseFromStream(fileStream);
+        }
+        serializeAndDeserialize(ptTerm);
     }
 }

@@ -33,10 +33,14 @@ public class StrategoRealTests {
         @Override
         public StrategoReal createIStrategoReal(@Nullable Double value, @Nullable IStrategoList annotations,
                                                 @Nullable List<ITermAttachment> attachments) {
-            return TestUtils.putAttachments(new StrategoReal(
-                    value != null ? value : 4.2,
-                    annotations != null ? annotations : TermFactory.EMPTY_LIST
-            ), attachments);
+            //noinspection EqualsAndHashcode
+            return TestUtils.putAttachments(new StrategoReal(value != null ? value : 4.2,
+                annotations != null ? annotations : TermFactory.EMPTY_LIST) {
+                @Override
+                public int hashCode() {
+                    return 0;
+                }
+            }, attachments);
         }
 
         @Override

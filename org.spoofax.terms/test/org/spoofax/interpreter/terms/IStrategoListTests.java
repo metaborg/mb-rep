@@ -6,7 +6,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+
 import javax.annotation.Nullable;
+
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,7 +37,7 @@ public interface IStrategoListTests {
     interface Fixture extends IStrategoTermTests.Fixture {
 
         /**
-         * Creates a new instance of {@link IStrategoList} for testing.
+         * Creates a new instance of {@link IStrategoList} for testing (with fixed hashCode 0).
          *
          * @param elements    the elements of the list; or {@code null} to use a sensible default
          * @param annotations the annotations of the term; or {@code null} to use a sensible default
@@ -54,7 +56,26 @@ public interface IStrategoListTests {
         }
 
         /**
-         * Creates a new instance of a cons-nil {@link IStrategoList} for testing.
+         * Creates a new instance of {@link IStrategoList} for testing with proper hashcode from the implementation.
+         *
+         * @param elements    the elements of the list; or {@code null} to use a sensible default
+         * @param annotations the annotations of the term; or {@code null} to use a sensible default
+         * @param attachments the attachments of the term; or {@code null} to use a sensible default
+         * @return the created object
+         * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
+         */
+        default IStrategoList createIStrategoListWithProperHashCode(@Nullable List<IStrategoTerm> elements,
+            @Nullable IStrategoList annotations,
+            @Nullable List<ITermAttachment> attachments) {
+            if (elements == null || elements.isEmpty()) {
+                return createEmptyIStrategoList(annotations, attachments);
+            }
+            return createConsNilIStrategoListWithProperHashCode(elements.get(0), createIStrategoList(elements.subList(1,
+                elements.size()), null, null), annotations, attachments);
+        }
+
+        /**
+         * Creates a new instance of a cons-nil {@link IStrategoList} for testing (with fixed hashCode 0).
          *
          * @param head        the head of the list; or {@code null} to use a sensible default
          * @param tail        the tail of the list; or {@code null} to use a sensible default
@@ -68,7 +89,22 @@ public interface IStrategoListTests {
                                                  @Nullable List<ITermAttachment> attachments);
 
         /**
-         * Creates a new instance of an empty {@link IStrategoList} for testing.
+         * Creates a new instance of a cons-nil {@link IStrategoList} for testing with proper HashCode from the
+         * implementation.
+         *
+         * @param head        the head of the list; or {@code null} to use a sensible default
+         * @param tail        the tail of the list; or {@code null} to use a sensible default
+         * @param annotations the annotations of the term; or {@code null} to use a sensible default
+         * @param attachments the attachments of the term; or {@code null} to use a sensible default
+         * @return the created object
+         * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
+         */
+        IStrategoList createConsNilIStrategoListWithProperHashCode(@Nullable IStrategoTerm head, @Nullable IStrategoList tail,
+            @Nullable IStrategoList annotations,
+            @Nullable List<ITermAttachment> attachments);
+
+        /**
+         * Creates a new instance of an empty {@link IStrategoList} for testing (with fixed hashCode 0).
          * <p>
          * This creates an empty list.
          *
@@ -86,6 +122,20 @@ public interface IStrategoListTests {
                                                   @Nullable List<ITermAttachment> attachments) {
             return createIStrategoList(subterms, annotations, attachments);
         }
+
+        /**
+         * Creates a new instance of an empty {@link IStrategoList} for testing with proper hashCode from the
+         * implementation.
+         * <p>
+         * This creates an empty list.
+         *
+         * @param annotations the annotations of the term; or {@code null} to use a sensible default
+         * @param attachments the attachments of the term; or {@code null} to use a sensible default
+         * @return the created object
+         * @throws org.opentest4j.TestAbortedException when an instance with the given parameters could not be created
+         */
+        IStrategoList createEmptyIStrategoListWithHashCode(@Nullable IStrategoList annotations,
+            @Nullable List<ITermAttachment> attachments);
 
     }
 
@@ -366,9 +416,42 @@ public interface IStrategoListTests {
         default void whenOtherHasDifferingElements_returnsFalse() {
             // Arrange
             IStrategoList sut = createIStrategoList(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()),
-                    null, null);
+                null, null);
             IStrategoList other = createIStrategoList(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm())
-                    , null, null);
+                , null, null);
+
+            // Act
+            boolean result = sut.match(other);
+
+            // Assert
+            assertFalse(result);
+        }
+
+        @Test
+        @DisplayName("when other has differing element, returns false")
+        default void whenOtherHasDifferingElement_returnsFalse() {
+            // Arrange
+            IStrategoList sut = createIStrategoList(Collections.singletonList(new DummyStrategoTerm()),
+                null, null);
+            IStrategoList other = createIStrategoList(Collections.singletonList(new DummyStrategoTerm())
+                , null, null);
+
+            // Act
+            boolean result = sut.match(other);
+
+            // Assert
+            assertFalse(result);
+        }
+
+        @Test
+        @DisplayName("when other has differing first element, returns false")
+        default void whenOtherHasFirstDifferingElement_returnsFalse() {
+            // Arrange
+            IStrategoTerm sameElem = new DummyStrategoTerm();
+            IStrategoList sut = createIStrategoList(Arrays.asList(new DummyStrategoTerm(), sameElem),
+                null, null);
+            IStrategoList other = createIStrategoList(Arrays.asList(new DummyStrategoTerm(), sameElem)
+                , null, null);
 
             // Act
             boolean result = sut.match(other);
@@ -462,7 +545,7 @@ public interface IStrategoListTests {
         @DisplayName("when the list is empty, returns one")
         default void whenTheListIsEmpty_returnsOne() {
             // Arrange
-            IStrategoList sut = createEmptyIStrategoList(null, null);
+            IStrategoList sut = createEmptyIStrategoListWithHashCode(null, null);
 
             // Act
             int result = sut.hashCode();
@@ -476,7 +559,7 @@ public interface IStrategoListTests {
         default void whenTheListIsNotEmpty_returnsTheHashCode() {
             // Arrange
             List<IStrategoTerm> elements = Arrays.asList(new DummyStrategoTermWithHashCode(0xCAFEBABE), new DummyStrategoTermWithHashCode(0xDEADBEEF));
-            IStrategoList sut = createIStrategoList(elements, null, null);
+            IStrategoList sut = createIStrategoListWithProperHashCode(elements, null, null);
 
             // Act
             int result = sut.hashCode();
