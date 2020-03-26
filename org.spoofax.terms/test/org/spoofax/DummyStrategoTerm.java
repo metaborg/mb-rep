@@ -44,13 +44,13 @@ public class DummyStrategoTerm extends DummySimpleTerm implements IStrategoTerm 
 
     @Override
     public boolean match(IStrategoTerm second) {
-        return true;
+        return this == second;
     }
 
     @Override
     public void prettyPrint(ITermPrinter pp) {
         try {
-            pp.append("<dummy>");
+            pp.append(this.toString());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -64,18 +64,24 @@ public class DummyStrategoTerm extends DummySimpleTerm implements IStrategoTerm 
 
     @Override
     public int hashCode() {
-        // Identity
-        return System.identityHashCode(this);
+        // Force hash collisions.
+        // This is a valid (but inefficient) implementation of hashCode(),
+        // to ensure code that bails out on hash code inequality will still run.
+        return 0;
     }
 
-    @Override
-    public String toString(int maxDepth) {
+    @Override public String toString() {
         return "<dummy>";
     }
 
     @Override
+    public String toString(int maxDepth) {
+        return this.toString();
+    }
+
+    @Override
     public void writeAsString(Appendable output, int maxDepth) throws IOException {
-        output.append("<dummy>");
+        output.append(this.toString());
     }
 
     @Override
