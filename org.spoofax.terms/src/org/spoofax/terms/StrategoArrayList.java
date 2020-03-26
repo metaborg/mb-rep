@@ -142,16 +142,14 @@ public class StrategoArrayList extends AbstractStrategoList implements RandomAcc
         Iterator<IStrategoTerm> termsThis = this.iterator();
         Iterator<IStrategoTerm> termsOther = other.iterator();
 
-        if(!this.isEmpty()) {
-            IStrategoTerm thisNext;
-            IStrategoTerm otherNext;
-            do {
-                thisNext = termsThis.next();
-                otherNext = termsOther.next();
-                if(thisNext != otherNext && !thisNext.match(otherNext)) {
-                    return false;
-                }
-            } while(termsThis.hasNext());
+        IStrategoTerm thisNext;
+        IStrategoTerm otherNext;
+        while(termsThis.hasNext()) {
+            thisNext = termsThis.next();
+            otherNext = termsOther.next();
+            if(thisNext != otherNext && !thisNext.match(otherNext)) {
+                return false;
+            }
         }
 
         IStrategoList annotations = getAnnotations();
