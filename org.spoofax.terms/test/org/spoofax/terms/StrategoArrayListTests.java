@@ -77,7 +77,7 @@ public class StrategoArrayListTests {
         }
 
         @Override
-        public IStrategoList createConsNilIStrategoListWithHashCode(@Nullable IStrategoTerm head,
+        public IStrategoList createConsNilIStrategoListWithProperHashCode(@Nullable IStrategoTerm head,
             @Nullable IStrategoList tail, @Nullable IStrategoList annotations,
             @Nullable List<ITermAttachment> attachments) {
             return TestUtils.putAttachments(new StrategoList(

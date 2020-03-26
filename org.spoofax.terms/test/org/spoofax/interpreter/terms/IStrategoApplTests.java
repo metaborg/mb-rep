@@ -25,7 +25,7 @@ public interface IStrategoApplTests {
     interface Fixture extends IStrategoNamedTests.Fixture {
 
         /**
-         * Creates a new instance of {@link IStrategoAppl} for testing.
+         * Creates a new instance of {@link IStrategoAppl} for testing (with fixed hashCode 0).
          *
          * @param constructor the constructor of the term; or {@code null} to use a sensible default
          * @param subterms    the subterms of the term; or {@code null} to use a sensible default
