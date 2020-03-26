@@ -1,237 +1,176 @@
 package org.spoofax.terms.io;
 
-import org.junit.jupiter.api.*;
-import org.spoofax.DummyTermAttachment;
-import org.spoofax.interpreter.terms.*;
-import org.spoofax.terms.TermFactory;
-import org.spoofax.terms.attachments.ITermAttachment;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.TestFactory;
+import org.opentest4j.TestAbortedException;
+import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.spoofax.TestUtils.putAnnotations;
-import static org.spoofax.TestUtils.putAttachments;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.spoofax.terms.util.Assert.assertEquals;
 
-/** Tests the {@link TextTermWriter} class. */
+/** Tests the {@link TextTermWriter} interface. */
 @DisplayName("TextTermWriter")
-public class TextTermWriterTests {
+public interface TextTermWriterTests {
 
-    public interface Fixture extends TermWriterTests.Fixture {
-
+    interface Fixture extends TermWriterTests.Fixture {
+        /**
+         * Creates a new instance of the {@link TextTermWriter} for testing.
+         *
+         * @return the created object
+         * @throws TestAbortedException when an instance with the given parameters could not be created
+         */
         @Override
         TextTermWriter createTermWriter();
-
-        TextTermWriter createTermWriter(int maxDepth);
-
-        TextTermWriter createTermWriter(int maxDepth, boolean ignoreAnnotations, boolean ignoreAttachments);
-
-        TextTermWriter createTermWriter(int maxDepth, boolean ignoreAnnotations, boolean ignoreAttachments, boolean ignoreListTailAttributes, boolean ignoreAnnotationAttributes);
-
     }
 
-    public static class FixtureImpl implements Fixture {
-
-        @Override
-        public TextTermWriter createTermWriter() {
-            return new TextTermWriter();
-        }
-
-        @Override
-        public TextTermWriter createTermWriter(int maxDepth) {
-            return new TextTermWriter(maxDepth);
-        }
-
-        @Override
-        public TextTermWriter createTermWriter(int maxDepth, boolean ignoreAnnotations, boolean ignoreAttachments) {
-            return new TextTermWriter(maxDepth, ignoreAnnotations, ignoreAttachments);
-        }
-
-        @Override
-        public TextTermWriter createTermWriter(int maxDepth, boolean ignoreAnnotations, boolean ignoreAttachments, boolean ignoreListTailAttributes, boolean ignoreAnnotationAttributes) {
-            return new TextTermWriter(maxDepth, ignoreAnnotations, ignoreAttachments, ignoreListTailAttributes, ignoreAnnotationAttributes);
-        }
-
-        @Override
-        public ITermFactory getFactory() {
-            return new TermFactory();
-        }
-
-    }
-
-    /** Tests the {@link TermWriter#write(IStrategoTerm, Appendable)} method. */
-    @DisplayName("write(IStrategoTerm, Appendable)")
-    @Nested class WriteTests extends FixtureImpl {
-
-        private final IStrategoAppl APPL0 = getFactory().makeAppl("MyCons");
-        private final IStrategoAppl APPL1 = getFactory().makeAppl("MyCons", getFactory().makeInt(42));
-        private final IStrategoAppl APPL2 = getFactory().makeAppl("MyCons", getFactory().makeInt(42), getFactory().makeString("mystring"));
-
-        private final IStrategoList LIST0 = getFactory().makeList();
-        private final IStrategoList LIST1 = getFactory().makeList(getFactory().makeInt(42));
-        private final IStrategoList LIST2 = getFactory().makeList(getFactory().makeInt(42), getFactory().makeString("mystring"));
-
-        private final IStrategoTuple TUPLE0 = getFactory().makeTuple();
-        private final IStrategoTuple TUPLE1 = getFactory().makeTuple(getFactory().makeInt(42));
-        private final IStrategoTuple TUPLE2 = getFactory().makeTuple(getFactory().makeInt(42), getFactory().makeString("mystring"));
-
-        private final IStrategoInt INT = getFactory().makeInt(42);
-        private final IStrategoReal REAL = getFactory().makeReal(13.37);
-        private final IStrategoString STRING = getFactory().makeString("mystring");
-        private final IStrategoPlaceholder PLACEHOLDER = getFactory().makePlaceholder(getFactory().makeInt(42));
-
-        private final List<IStrategoTerm> ANNO0 = Collections.emptyList();
-        private final List<IStrategoTerm> ANNO1 = Collections.singletonList(getFactory().makeString("anno"));
-        private final List<IStrategoTerm> ANNO2 = Arrays.asList(getFactory().makeString("anno1"), getFactory().makeString("anno2"));
-
-        private final List<ITermAttachment> ATTACH0 = Collections.emptyList();
-        private final List<ITermAttachment> ATTACH1 = Collections.singletonList(new DummyTermAttachment(DummyTermAttachment.Type1));
-        private final List<ITermAttachment> ATTACH2 = Arrays.asList(new DummyTermAttachment(DummyTermAttachment.Type1), new DummyTermAttachment(DummyTermAttachment.Type2));
+    /** Tests the {@link TextTermWriter#writeToString} method. */
+    @DisplayName("writeToString()")
+    interface WriteToStringTests extends Fixture {
 
         @TestFactory
-        Stream<DynamicTest> write() {
+        default Stream<DynamicTest> writesAStringRepresentation() throws IOException {
             return Stream.of(
-                    write("MyCons()", APPL0),
-                    write("MyCons(42)", APPL1),
-                    write("MyCons(42,\"mystring\")", APPL2),
-                    write("[]", LIST0),
-                    write("[42]", LIST1),
-                    write("[42,\"mystring\"]", LIST2),
-                    write("()", TUPLE0),
-                    write("(42)", TUPLE1),
-                    write("(42,\"mystring\")", TUPLE2),
-                    write("42", INT),
-                    write("13.37", REAL),
-                    write("\"mystring\"", STRING),
-                    write("<42>", PLACEHOLDER)
-            ).flatMap(s -> s);
-        }
-
-        Stream<DynamicTest> write(String expected, IStrategoTerm term) {
-            return Stream.of(
-                    // Simple
-                    DynamicTest.dynamicTest("simple term: " + expected, () -> {
-                        // Arrange
-                        TermWriter sut = createTermWriter(Integer.MAX_VALUE, true, true);
-
-                        // Act
-                        String result = sut.writeToString(term);
-
-                        // Assert
-                        assertEquals(expected, result);
-                    }),
-                    // Annotations
-                    DynamicTest.dynamicTest("term with no annotations: " + expected, () -> {
-                        // Arrange
-                        TermWriter sut = createTermWriter(Integer.MAX_VALUE, false, true);
-
-                        // Act
-                        String result = sut.writeToString(putAnnotations(term, getFactory(), ANNO0));
-
-                        // Assert
-                        assertEquals(expected, result);
-                    }),
-                    DynamicTest.dynamicTest("term with one annotation: " + expected + "{\"anno\"}", () -> {
-                        // Arrange
-                        TermWriter sut = createTermWriter(Integer.MAX_VALUE, false, true);
-
-                        // Act
-                        String result = sut.writeToString(putAnnotations(term, getFactory(), ANNO1));
-
-                        // Assert
-                        assertEquals(expected + "{\"anno\"}", result);
-                    }),
-                    DynamicTest.dynamicTest("term with two annotations: " + expected + "{\"anno1\",\"anno2\"}", () -> {
-                        // Arrange
-                        TermWriter sut = createTermWriter(Integer.MAX_VALUE, false, true);
-
-                        // Act
-                        String result = sut.writeToString(putAnnotations(term, getFactory(), ANNO2));
-
-                        // Assert
-                        assertEquals(expected + "{\"anno1\",\"anno2\"}", result);
-                    }),
-                    // Attachments
-                    DynamicTest.dynamicTest("term with no attachments: " + expected, () -> {
-                        // Arrange
-                        TermWriter sut = createTermWriter(Integer.MAX_VALUE, true, false);
-
-                        // Act
-                        String result = sut.writeToString(putAttachments(term, ATTACH0));
-
-                        // Assert
-                        assertEquals(expected, result);
-                    }),
-                    DynamicTest.dynamicTest("term with one attachment: " + expected + "«DummyTermAttachment<Type1>»", () -> {
-                        // Arrange
-                        TermWriter sut = createTermWriter(Integer.MAX_VALUE, true, false);
-
-                        // Act
-                        String result = sut.writeToString(putAttachments(term, ATTACH1));
-
-                        // Assert
-                        assertEquals(expected + "«DummyTermAttachment<Type1>»", result);
-                    }),
-                    DynamicTest.dynamicTest("term with two attachments: " + expected + "«DummyTermAttachment<Type1>,DummyTermAttachment<Type2>»", () -> {
-                        // Arrange
-                        TermWriter sut = createTermWriter(Integer.MAX_VALUE, true, false);
-
-                        // Act
-                        String result = sut.writeToString(putAttachments(term, ATTACH2));
-
-                        // Assert
-                        assertEquals(expected + "«DummyTermAttachment<Type1>,DummyTermAttachment<Type2>»", result);
-                    }),
-                    // Annotations and Attachments
-                    DynamicTest.dynamicTest("term with two attachments and two annotations: " + expected + "{\"anno1\",\"anno2\"}«DummyTermAttachment<Type1>,DummyTermAttachment<Type2>»", () -> {
-                        // Arrange
-                        TermWriter sut = createTermWriter(Integer.MAX_VALUE, false, false);
-
-                        // Act
-                        String result = sut.writeToString(putAttachments(putAnnotations(term, getFactory(), ANNO2), ATTACH2));
-
-                        // Assert
-                        assertEquals(expected + "{\"anno1\",\"anno2\"}«DummyTermAttachment<Type1>,DummyTermAttachment<Type2>»", result);
-                    })
+                    writesAStringRepresentationTest(getFactory().makeAppl("MyCons", getFactory().makeString("mystring"))),
+                    writesAStringRepresentationTest(getFactory().makeTuple(getFactory().makeString("mystring"))),
+                    writesAStringRepresentationTest(getFactory().makeList(getFactory().makeString("mystring"))),
+                    writesAStringRepresentationTest(getFactory().makePlaceholder(getFactory().makeString("mystring"))),
+                    writesAStringRepresentationTest(getFactory().makeString("mystring")),
+                    writesAStringRepresentationTest(getFactory().makeInt(42)),
+                    writesAStringRepresentationTest(getFactory().makeReal(13.37))
             );
         }
 
-        @Test
-        @DisplayName("uses correct depth")
-        public void usesCorrectDepth() {
-            // Arrange
-            // A(B(C(){X(Y(Z()))}){X(Y(Z()))}){X(Y(Z()))}
-            IStrategoList annotations = getFactory().makeList(getFactory().makeAppl("X", getFactory().makeAppl("Y", getFactory().makeAppl("Z"))));
-            IStrategoTerm term = getFactory().makeAppl(getFactory().makeConstructor("A", 1),
-                    Collections.singletonList(getFactory().makeAppl(getFactory().makeConstructor("B", 1),
-                            Collections.singletonList(getFactory().makeAppl(getFactory().makeConstructor("C", 0), new IStrategoTerm[0], annotations)).toArray(new IStrategoTerm[0]), annotations)).toArray(new IStrategoTerm[0]), annotations);
-            TermWriter sut0 = createTermWriter(0, false, false);
-            TermWriter sut1 = createTermWriter(1, false, false);
-            TermWriter sut2 = createTermWriter(2, false, false);
-            TermWriter sut3 = createTermWriter(3, false, false);
+        default DynamicTest writesAStringRepresentationTest(IStrategoTerm term) throws IOException {
+            return DynamicTest.dynamicTest("writes a string representation of " + term.toString(), () -> {
+                // Arrange
+                TextTermWriter sut = createTermWriter();
 
-            // Act
-            String result0 = sut0.writeToString(term);
-            String result1 = sut1.writeToString(term);
-            String result2 = sut2.writeToString(term);
-            String result3 = sut3.writeToString(term);
+                // Act
+                String result = sut.writeToString(term);
 
-            // Assert
-            assertEquals("…", result0);
-            assertEquals("A(…)", result1);  // Empty {…} are elided.
-            assertEquals("A(B(…)){X(…)}", result2);
-            assertEquals("A(B(C()){X(…)}){X(Y(…))}", result3);
+                // Assert
+                assertFalse(result.isEmpty());
+            });
         }
 
     }
 
-    // @formatter:off
-    // TermWriter
-    @Nested class WriteToStringTests extends FixtureImpl implements TermWriterTests.WriteToStringTests {}
-    @Nested class WriteTests1 extends FixtureImpl implements TermWriterTests.WriteTests1 {}
-    @Nested class WriteTests2 extends FixtureImpl implements TermWriterTests.WriteTests2 {}
-    // @formatter:on
+    /** Tests the {@link TextTermWriter#write(IStrategoTerm, OutputStream)} method. */
+    @DisplayName("write(IStrategoTerm, OutputStream)")
+    interface WriteStreamTests extends TermWriterTests.WriteStreamTests, Fixture {
+
+        @TestFactory
+        default Stream<DynamicTest> writesAStringRepresentation() throws IOException {
+            return Stream.of(
+                    writesAStringRepresentationTest(getFactory().makeAppl("MyCons", getFactory().makeString("mystring"))),
+                    writesAStringRepresentationTest(getFactory().makeTuple(getFactory().makeString("mystring"))),
+                    writesAStringRepresentationTest(getFactory().makeList(getFactory().makeString("mystring"))),
+                    writesAStringRepresentationTest(getFactory().makePlaceholder(getFactory().makeString("mystring"))),
+                    writesAStringRepresentationTest(getFactory().makeString("mystring")),
+                    writesAStringRepresentationTest(getFactory().makeInt(42)),
+                    writesAStringRepresentationTest(getFactory().makeReal(13.37))
+            );
+        }
+
+        default DynamicTest writesAStringRepresentationTest(IStrategoTerm term) throws IOException {
+            return DynamicTest.dynamicTest("writes an UTF-8 string representation of " + term.toString(), () -> {
+                // Arrange
+                TextTermWriter sut = createTermWriter();
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+
+                // Act
+                sut.write(term, stream);
+
+                // Assert
+                stream.flush();
+                String result = new String(stream.toByteArray(), StandardCharsets.UTF_8);
+                assertFalse(result.isEmpty());
+            });
+        }
+
+    }
+
+    /** Tests the {@link TextTermWriter#write(IStrategoTerm, OutputStream, Charset)} method. */
+    @DisplayName("write(IStrategoTerm, OutputStream, Charset)")
+    interface WriteStreamCharsetTests extends TermWriterTests.WriteStreamTests, Fixture {
+
+        @TestFactory
+        default Stream<DynamicTest> writesAnEncodedStringRepresentationInCharset() throws IOException {
+            return Stream.of(
+                    writesAnEncodedStringRepresentationInCharsetTest(getFactory().makeAppl("MyCons", getFactory().makeString("mystring"))),
+                    writesAnEncodedStringRepresentationInCharsetTest(getFactory().makeTuple(getFactory().makeString("mystring"))),
+                    writesAnEncodedStringRepresentationInCharsetTest(getFactory().makeList(getFactory().makeString("mystring"))),
+                    writesAnEncodedStringRepresentationInCharsetTest(getFactory().makePlaceholder(getFactory().makeString("mystring"))),
+                    writesAnEncodedStringRepresentationInCharsetTest(getFactory().makeString("mystring")),
+                    writesAnEncodedStringRepresentationInCharsetTest(getFactory().makeInt(42)),
+                    writesAnEncodedStringRepresentationInCharsetTest(getFactory().makeReal(13.37))
+            );
+        }
+
+        default DynamicTest writesAnEncodedStringRepresentationInCharsetTest(IStrategoTerm term) throws IOException {
+            return DynamicTest.dynamicTest("writes an encoded string representation of " + term.toString(), () -> {
+                // Arrange
+                TextTermWriter sut = createTermWriter();
+                ByteArrayOutputStream stream1 = new ByteArrayOutputStream();
+                ByteArrayOutputStream stream2 = new ByteArrayOutputStream();
+                Charset charset1 = StandardCharsets.UTF_8;
+                Charset charset2 = StandardCharsets.UTF_16BE;
+
+                // Act
+                sut.write(term, stream1, charset1);
+                sut.write(term, stream2, charset2);
+
+                // Assert
+                stream1.flush();
+                stream2.flush();
+                String result1 = new String(stream1.toByteArray(), charset1);
+                String result2 = new String(stream2.toByteArray(), charset2);
+                assertEquals(result1, result2);
+            });
+        }
+
+    }
+
+    /** Tests the {@link TextTermWriter#write(IStrategoTerm, Appendable)} method. */
+    @DisplayName("write(IStrategoTerm, Appendable)")
+    interface WriteAppendableTests extends Fixture {
+
+        @TestFactory
+        default Stream<DynamicTest> writesAStringRepresentation() throws IOException {
+            return Stream.of(
+                    writesAStringRepresentationTest(getFactory().makeAppl("MyCons", getFactory().makeString("mystring"))),
+                    writesAStringRepresentationTest(getFactory().makeTuple(getFactory().makeString("mystring"))),
+                    writesAStringRepresentationTest(getFactory().makeList(getFactory().makeString("mystring"))),
+                    writesAStringRepresentationTest(getFactory().makePlaceholder(getFactory().makeString("mystring"))),
+                    writesAStringRepresentationTest(getFactory().makeString("mystring")),
+                    writesAStringRepresentationTest(getFactory().makeInt(42)),
+                    writesAStringRepresentationTest(getFactory().makeReal(13.37))
+            );
+        }
+
+        default DynamicTest writesAStringRepresentationTest(IStrategoTerm term) throws IOException {
+            return DynamicTest.dynamicTest("writes a string representation of " + term.toString(), () -> {
+                // Arrange
+                TextTermWriter sut = createTermWriter();
+                StringBuilder sb = new StringBuilder();
+
+                // Act
+                sut.write(term, sb);
+
+                // Assert
+                String result = sb.toString();
+                assertFalse(result.isEmpty());
+            });
+        }
+
+    }
 
 }
