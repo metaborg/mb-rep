@@ -10,6 +10,16 @@ import org.spoofax.terms.attachments.TermAttachmentType;
  */
 public class DummySimpleTerm implements ISimpleTerm {
 
+    private final String name;
+
+    public DummySimpleTerm() {
+        this.name = "dummy-" + System.identityHashCode(this);
+    }
+
+    public DummySimpleTerm(String name) {
+        this.name = name;
+    }
+
     @Override
     public int getSubtermCount() {
         return 0;
@@ -46,8 +56,14 @@ public class DummySimpleTerm implements ISimpleTerm {
 
     @Override
     public int hashCode() {
-        // Identity
-        return System.identityHashCode(this);
+        // Force hash collisions.
+        // This is a valid (but inefficient) implementation of hashCode(),
+        // to ensure code that bails out on hash code inequality will still run.
+        return 0;
+    }
+
+    @Override public String toString() {
+        return "<" + this.name + ">";
     }
 
 }

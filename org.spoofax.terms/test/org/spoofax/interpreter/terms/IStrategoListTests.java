@@ -498,14 +498,14 @@ public interface IStrategoListTests {
         @DisplayName("returns the correct string representation")
         default void returnsTheCorrectStringRepresentation() {
             // Arrange
-            IStrategoList sut = createIStrategoList(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()),
+            IStrategoList sut = createIStrategoList(Arrays.asList(new DummyStrategoTerm("Dummy1"), new DummyStrategoTerm("Dummy2")),
                     null, null);
 
             // Act
             String result = sut.toString();
 
             // Assert
-            assertEquals("[<dummy>,<dummy>]", result);
+            assertEquals("[<Dummy1>,<Dummy2>]", result);
         }
 
     }
@@ -523,14 +523,14 @@ public interface IStrategoListTests {
         default void returnsTheCorrectStringRepresentation() throws IOException {
             // Arrange
             StringBuilder sb = new StringBuilder();
-            IStrategoList sut = createIStrategoList(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()),
+            IStrategoList sut = createIStrategoList(Arrays.asList(new DummyStrategoTerm("Dummy1"), new DummyStrategoTerm("Dummy2")),
                     null, null);
 
             // Act
             sut.writeAsString(sb);
 
             // Assert
-            assertEquals("[<dummy>,<dummy>]", sb.toString());
+            assertEquals("[<Dummy1>,<Dummy2>]", sb.toString());
         }
 
     }

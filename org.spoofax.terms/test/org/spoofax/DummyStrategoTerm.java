@@ -17,6 +17,14 @@ import java.util.List;
  */
 public class DummyStrategoTerm extends DummySimpleTerm implements IStrategoTerm {
 
+    public DummyStrategoTerm() {
+        super();
+    }
+
+    public DummyStrategoTerm(String name) {
+        super(name);
+    }
+
     @Override
     public IStrategoTerm getSubterm(int i) {
         throw new IndexOutOfBoundsException();
@@ -44,6 +52,7 @@ public class DummyStrategoTerm extends DummySimpleTerm implements IStrategoTerm 
 
     @Override
     public boolean match(IStrategoTerm second) {
+        // Identity
         return this == second;
     }
 
@@ -58,20 +67,7 @@ public class DummyStrategoTerm extends DummySimpleTerm implements IStrategoTerm 
 
     @Override
     public boolean equals(Object obj) {
-        // Identity
-        return this == obj;
-    }
-
-    @Override
-    public int hashCode() {
-        // Force hash collisions.
-        // This is a valid (but inefficient) implementation of hashCode(),
-        // to ensure code that bails out on hash code inequality will still run.
-        return 0;
-    }
-
-    @Override public String toString() {
-        return "<dummy>";
+        return obj instanceof IStrategoTerm && match((IStrategoTerm)obj);
     }
 
     @Override
