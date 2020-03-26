@@ -1,20 +1,17 @@
 package org.spoofax.terms;
 
-import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.ITermPrinter;
-import org.spoofax.terms.attachments.ITermAttachment;
-import org.spoofax.terms.attachments.TermAttachmentType;
-import org.spoofax.terms.util.TermUtils;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.RandomAccess;
 
 import javax.annotation.Nullable;
+
+import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.terms.attachments.ITermAttachment;
+import org.spoofax.terms.attachments.TermAttachmentType;
 
 import static org.spoofax.terms.AbstractTermFactory.EMPTY_TERM_ARRAY;
 
@@ -146,13 +143,15 @@ public class StrategoArrayList extends AbstractStrategoList implements RandomAcc
         Iterator<IStrategoTerm> termsOther = other.iterator();
 
         if(!this.isEmpty()) {
-            for(IStrategoTerm thisNext = termsThis.next(), otherNext = termsOther.next()
-               ; termsThis.hasNext()
-               ; thisNext = termsThis.next(), otherNext = termsOther.next()) {
+            IStrategoTerm thisNext;
+            IStrategoTerm otherNext;
+            do {
+                thisNext = termsThis.next();
+                otherNext = termsOther.next();
                 if(thisNext != otherNext && !thisNext.match(otherNext)) {
                     return false;
                 }
-            }
+            } while(termsThis.hasNext());
         }
 
         IStrategoList annotations = getAnnotations();

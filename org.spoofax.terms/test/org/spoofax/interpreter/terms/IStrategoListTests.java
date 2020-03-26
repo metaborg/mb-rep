@@ -366,9 +366,42 @@ public interface IStrategoListTests {
         default void whenOtherHasDifferingElements_returnsFalse() {
             // Arrange
             IStrategoList sut = createIStrategoList(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()),
-                    null, null);
+                null, null);
             IStrategoList other = createIStrategoList(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm())
-                    , null, null);
+                , null, null);
+
+            // Act
+            boolean result = sut.match(other);
+
+            // Assert
+            assertFalse(result);
+        }
+
+        @Test
+        @DisplayName("when other has differing element, returns false")
+        default void whenOtherHasDifferingElement_returnsFalse() {
+            // Arrange
+            IStrategoList sut = createIStrategoList(Collections.singletonList(new DummyStrategoTerm()),
+                null, null);
+            IStrategoList other = createIStrategoList(Collections.singletonList(new DummyStrategoTerm())
+                , null, null);
+
+            // Act
+            boolean result = sut.match(other);
+
+            // Assert
+            assertFalse(result);
+        }
+
+        @Test
+        @DisplayName("when other has differing first element, returns false")
+        default void whenOtherHasFirstDifferingElement_returnsFalse() {
+            // Arrange
+            IStrategoTerm sameElem = new DummyStrategoTerm();
+            IStrategoList sut = createIStrategoList(Arrays.asList(new DummyStrategoTerm(), sameElem),
+                null, null);
+            IStrategoList other = createIStrategoList(Arrays.asList(new DummyStrategoTerm(), sameElem)
+                , null, null);
 
             // Act
             boolean result = sut.match(other);
