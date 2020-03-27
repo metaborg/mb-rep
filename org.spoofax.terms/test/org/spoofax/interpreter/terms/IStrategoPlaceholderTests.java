@@ -26,7 +26,7 @@ public interface IStrategoPlaceholderTests {
     interface Fixture extends IStrategoTermTests.Fixture {
 
         /**
-         * Creates a new instance of {@link IStrategoPlaceholder} for testing.
+         * Creates a new instance of {@link IStrategoPlaceholder} for testing (with fixed hashCode 0).
          *
          * @param template    the template of the placeholder; or {@code null} to use a sensible default
          * @param annotations the annotations of the term; or {@code null} to use a sensible default

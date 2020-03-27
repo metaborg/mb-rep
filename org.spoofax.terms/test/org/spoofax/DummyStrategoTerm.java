@@ -17,6 +17,14 @@ import java.util.List;
  */
 public class DummyStrategoTerm extends DummySimpleTerm implements IStrategoTerm {
 
+    public DummyStrategoTerm() {
+        super();
+    }
+
+    public DummyStrategoTerm(String name) {
+        super(name);
+    }
+
     @Override
     public IStrategoTerm getSubterm(int i) {
         throw new IndexOutOfBoundsException();
@@ -44,13 +52,14 @@ public class DummyStrategoTerm extends DummySimpleTerm implements IStrategoTerm 
 
     @Override
     public boolean match(IStrategoTerm second) {
-        return true;
+        // Identity
+        return this == second;
     }
 
     @Override
     public void prettyPrint(ITermPrinter pp) {
         try {
-            pp.append("<dummy>");
+            pp.append(this.toString());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -58,24 +67,17 @@ public class DummyStrategoTerm extends DummySimpleTerm implements IStrategoTerm 
 
     @Override
     public boolean equals(Object obj) {
-        // Identity
-        return this == obj;
-    }
-
-    @Override
-    public int hashCode() {
-        // Identity
-        return System.identityHashCode(this);
+        return obj instanceof IStrategoTerm && match((IStrategoTerm)obj);
     }
 
     @Override
     public String toString(int maxDepth) {
-        return "<dummy>";
+        return this.toString();
     }
 
     @Override
     public void writeAsString(Appendable output, int maxDepth) throws IOException {
-        output.append("<dummy>");
+        output.append(this.toString());
     }
 
     @Override

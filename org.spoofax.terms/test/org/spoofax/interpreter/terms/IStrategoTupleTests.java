@@ -25,7 +25,7 @@ public interface IStrategoTupleTests {
     interface Fixture extends IStrategoTermTests.Fixture {
 
         /**
-         * Creates a new instance of {@link IStrategoTuple} for testing.
+         * Creates a new instance of {@link IStrategoTuple} for testing (with fixed hashCode 0).
          *
          * @param elements    the elements of the tuple; or {@code null} to use a sensible default
          * @param annotations the annotations of the term; or {@code null} to use a sensible default
@@ -261,14 +261,14 @@ public interface IStrategoTupleTests {
         @DisplayName("returns the correct string representation")
         default void returnsTheCorrectStringRepresentation() {
             // Arrange
-            IStrategoTuple sut = createIStrategoTuple(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm())
+            IStrategoTuple sut = createIStrategoTuple(Arrays.asList(new DummyStrategoTerm("Dummy1"), new DummyStrategoTerm("Dummy2"))
                     , null, null);
 
             // Act
             String result = sut.toString();
 
             // Assert
-            assertEquals("(<dummy>,<dummy>)", result);
+            assertEquals("(<Dummy1>,<Dummy2>)", result);
         }
 
     }
@@ -286,14 +286,14 @@ public interface IStrategoTupleTests {
         default void returnsTheCorrectStringRepresentation() throws IOException {
             // Arrange
             StringBuilder sb = new StringBuilder();
-            IStrategoTuple sut = createIStrategoTuple(Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm())
+            IStrategoTuple sut = createIStrategoTuple(Arrays.asList(new DummyStrategoTerm("Dummy1"), new DummyStrategoTerm("Dummy2"))
                     , null, null);
 
             // Act
             sut.writeAsString(sb);
 
             // Assert
-            assertEquals("(<dummy>,<dummy>)", sb.toString());
+            assertEquals("(<Dummy1>,<Dummy2>)", sb.toString());
         }
 
     }

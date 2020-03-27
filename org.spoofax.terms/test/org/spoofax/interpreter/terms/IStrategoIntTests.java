@@ -24,7 +24,7 @@ public interface IStrategoIntTests {
     interface Fixture extends IStrategoTermTests.Fixture {
 
         /**
-         * Creates a new instance of {@link IStrategoInt} for testing.
+         * Creates a new instance of {@link IStrategoInt} for testing (with fixed hashCode 0).
          *
          * @param value       the value of the term; or {@code null} to use a sensible default
          * @param annotations the annotations of the term; or {@code null} to use a sensible default

@@ -25,7 +25,7 @@ public interface IStrategoApplTests {
     interface Fixture extends IStrategoNamedTests.Fixture {
 
         /**
-         * Creates a new instance of {@link IStrategoAppl} for testing.
+         * Creates a new instance of {@link IStrategoAppl} for testing (with fixed hashCode 0).
          *
          * @param constructor the constructor of the term; or {@code null} to use a sensible default
          * @param subterms    the subterms of the term; or {@code null} to use a sensible default
@@ -190,13 +190,13 @@ public interface IStrategoApplTests {
         default void returnsTheCorrectStringRepresentation() {
             // Arrange
             IStrategoAppl sut = createIStrategoAppl(DummyStrategoConstructor.Dummy2,
-                    Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
+                    Arrays.asList(new DummyStrategoTerm("Dummy1"), new DummyStrategoTerm("Dummy2")), null, null);
 
             // Act
             String result = sut.toString();
 
             // Assert
-            assertEquals("Dummy(<dummy>,<dummy>)", result);
+            assertEquals("Dummy(<Dummy1>,<Dummy2>)", result);
         }
 
     }
@@ -215,13 +215,13 @@ public interface IStrategoApplTests {
             // Arrange
             StringBuilder sb = new StringBuilder();
             IStrategoAppl sut = createIStrategoAppl(DummyStrategoConstructor.Dummy2,
-                    Arrays.asList(new DummyStrategoTerm(), new DummyStrategoTerm()), null, null);
+                    Arrays.asList(new DummyStrategoTerm("Dummy1"), new DummyStrategoTerm("Dummy2")), null, null);
 
             // Act
             sut.writeAsString(sb);
 
             // Assert
-            assertEquals("Dummy(<dummy>,<dummy>)", sb.toString());
+            assertEquals("Dummy(<Dummy1>,<Dummy2>)", sb.toString());
         }
 
     }

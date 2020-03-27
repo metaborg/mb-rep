@@ -1,7 +1,9 @@
 package org.spoofax.terms;
 
 import java.util.List;
+
 import javax.annotation.Nullable;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -50,26 +52,60 @@ public class StrategoArrayListTests {
             if (elements == null || elements.isEmpty()) {
                 return createEmptyIStrategoList(annotations, attachments);
             }
-            return TestUtils.putAttachments(new StrategoArrayList(elements.toArray(new IStrategoTerm[0]), annotations), attachments);
+            //noinspection EqualsAndHashcode
+            return TestUtils.putAttachments(new StrategoArrayList(elements.toArray(new IStrategoTerm[0]), annotations) {
+                @Override
+                public int hashCode() {
+                    return 0;
+                }
+            }, attachments);
         }
 
         @Override
         public StrategoList createConsNilIStrategoList(@Nullable IStrategoTerm head, @Nullable IStrategoList tail,
                                                        @Nullable IStrategoList annotations,
                                                        @Nullable List<ITermAttachment> attachments) {
+            //noinspection EqualsAndHashcode
+            return TestUtils.putAttachments(new StrategoList(head != null ? head : new DummyStrategoTerm(),
+                tail != null ? tail : createEmptyIStrategoList(null, null),
+                annotations != null ? annotations : TermFactory.EMPTY_LIST) {
+                @Override
+                public int hashCode() {
+                    return 0;
+                }
+            }, attachments);
+        }
+
+        @Override
+        public IStrategoList createConsNilIStrategoListWithProperHashCode(@Nullable IStrategoTerm head,
+            @Nullable IStrategoList tail, @Nullable IStrategoList annotations,
+            @Nullable List<ITermAttachment> attachments) {
             return TestUtils.putAttachments(new StrategoList(
-                    head != null ? head : new DummyStrategoTerm(),
-                    tail != null ? tail : createEmptyIStrategoList(null, null),
-                    annotations != null ? annotations : TermFactory.EMPTY_LIST
+                head != null ? head : new DummyStrategoTerm(),
+                tail != null ? tail : createEmptyIStrategoList(null, null),
+                annotations != null ? annotations : TermFactory.EMPTY_LIST
             ), attachments);
         }
 
         @Override
         public StrategoArrayList createEmptyIStrategoList(@Nullable IStrategoList annotations,
                                                      @Nullable List<ITermAttachment> attachments) {
+            //noinspection EqualsAndHashcode
             return TestUtils.putAttachments(new StrategoArrayList(new IStrategoTerm[0],
-                    annotations != null ? annotations : TermFactory.EMPTY_LIST
-            ), attachments);
+                annotations != null ? annotations : TermFactory.EMPTY_LIST) {
+                @Override
+                public int hashCode() {
+                    return 0;
+                }
+            }, attachments);
+        }
+
+        @Override
+        public IStrategoList createEmptyIStrategoListWithHashCode(@Nullable IStrategoList annotations,
+            @Nullable List<ITermAttachment> attachments) {
+            return TestUtils.putAttachments(
+                new StrategoArrayList(new IStrategoTerm[0], annotations != null ? annotations : TermFactory.EMPTY_LIST),
+                attachments);
         }
 
         @Override

@@ -1,14 +1,19 @@
 package org.spoofax.terms;
 
+import java.util.List;
+
+import javax.annotation.Nullable;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.opentest4j.TestAbortedException;
 import org.spoofax.TestUtils;
-import org.spoofax.interpreter.terms.*;
+import org.spoofax.interpreter.terms.ISimpleTermTests;
+import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoStringTests;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.IStrategoTermTests;
 import org.spoofax.terms.attachments.ITermAttachment;
-
-import javax.annotation.Nullable;
-import java.util.List;
 
 import static org.spoofax.TestUtils.TEST_INSTANCE_NOT_CREATED;
 
@@ -33,10 +38,14 @@ public class StrategoStringTests {
         @Override
         public StrategoString createIStrategoString(@Nullable String value, @Nullable IStrategoList annotations,
                                                     @Nullable List<ITermAttachment> attachments) {
-            return TestUtils.putAttachments(new StrategoString(
-                    value != null ? value : "abc",
-                    annotations != null ? annotations : TermFactory.EMPTY_LIST
-            ), attachments);
+            //noinspection EqualsAndHashcode
+            return TestUtils.putAttachments(new StrategoString(value != null ? value : "abc",
+                annotations != null ? annotations : TermFactory.EMPTY_LIST) {
+                @Override
+                public int hashCode() {
+                    return 0;
+                }
+            }, attachments);
         }
 
         @Override
