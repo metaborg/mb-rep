@@ -63,7 +63,7 @@ public class SimpleTextTermWriterTests {
 
     /** Tests the {@link TextTermWriter#write(IStrategoTerm, Appendable)} method. */
     @DisplayName("write(IStrategoTerm, Appendable)")
-    @Nested class WriteTests extends FixtureImpl {
+    @Nested class WriteTests2 extends FixtureImpl {
 
         private final IStrategoAppl APPL0 = getFactory().makeAppl("MyCons");
         private final IStrategoAppl APPL1 = getFactory().makeAppl("MyCons", getFactory().makeInt(42));
@@ -230,8 +230,8 @@ public class SimpleTextTermWriterTests {
     // @formatter:off
     // TermWriter
     @Nested class WriteAppendableTests    extends FixtureImpl implements TextTermWriterTests.WriteAppendableTests {}
-    @Nested class WriteStreamCharsetTests extends FixtureImpl implements TextTermWriterTests.WriteStreamCharsetTests {}
-    @Nested class WriteStreamTests        extends FixtureImpl implements TextTermWriterTests.WriteStreamTests {}
+    @Nested class WriteCharsetTests       extends FixtureImpl implements TextTermWriterTests.WriteCharsetTests {}
+    @Nested class WriteTests              extends FixtureImpl implements TextTermWriterTests.WriteTests {}
     @Nested class WriteToStringTests      extends FixtureImpl implements TextTermWriterTests.WriteToStringTests {}
     @Nested class WriteToBytesTests       extends FixtureImpl implements TermWriterTests.WriteToBytesTests {}
     // @formatter:on

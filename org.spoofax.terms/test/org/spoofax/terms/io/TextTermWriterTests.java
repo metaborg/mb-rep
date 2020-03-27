@@ -65,7 +65,7 @@ public interface TextTermWriterTests {
 
     /** Tests the {@link TextTermWriter#write(IStrategoTerm, OutputStream)} method. */
     @DisplayName("write(IStrategoTerm, OutputStream)")
-    interface WriteStreamTests extends TermWriterTests.WriteStreamTests, Fixture {
+    interface WriteTests extends TermWriterTests.WriteTests, Fixture {
 
         @TestFactory
         default Stream<DynamicTest> writesAStringRepresentation() throws IOException {
@@ -100,7 +100,7 @@ public interface TextTermWriterTests {
 
     /** Tests the {@link TextTermWriter#write(IStrategoTerm, OutputStream, Charset)} method. */
     @DisplayName("write(IStrategoTerm, OutputStream, Charset)")
-    interface WriteStreamCharsetTests extends TermWriterTests.WriteStreamTests, Fixture {
+    interface WriteCharsetTests extends TermWriterTests.WriteTests, Fixture {
 
         @TestFactory
         default Stream<DynamicTest> writesAnEncodedStringRepresentationInCharset() throws IOException {

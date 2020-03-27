@@ -70,7 +70,7 @@ public interface TermWriterTests {
 
     /** Tests the {@link TermWriter#write(IStrategoTerm, OutputStream)} method. */
     @DisplayName("write(IStrategoTerm, OutputStream)")
-    interface WriteStreamTests extends Fixture {
+    interface WriteTests extends Fixture {
 
         @TestFactory
         default Stream<DynamicTest> writesARepresentation() throws IOException {
