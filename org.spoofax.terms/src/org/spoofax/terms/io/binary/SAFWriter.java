@@ -585,8 +585,9 @@ public class SAFWriter {
             // length spec.
         } while (!binaryWriter.isFinished());
 
-        byte[] data = new byte[totalBytesWritten];
-        int position = 0;
+        byte[] data = new byte[totalBytesWritten + 1];
+        data[0] = (byte)'?';
+        int position = 1;
         int numberOfBuffers = buffers.size();
         for (int i = 0; i < numberOfBuffers; i++) {
             ByteBuffer buffer = buffers.get(i);

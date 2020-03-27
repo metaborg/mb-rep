@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.spoofax.TestUtils;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.io.AbstractTermReaderTests;
 import org.spoofax.terms.io.TAFTermReader;
@@ -51,11 +52,7 @@ public final class SAFReaderTests extends AbstractTermReaderTests {
 
     @Test
     public void testTermFromFile() throws IOException {
-        final IStrategoTerm ptTerm;
-        try(final @Nullable InputStream fileStream = this.getClass().getResourceAsStream("/Sdf2.tbl")) {
-            assert fileStream != null : "Cannot find required test resource Sdf2.tbl";
-            ptTerm = new TAFTermReader(factory).parseFromStream(fileStream);
-        }
+        final IStrategoTerm ptTerm = TestUtils.readTermFromTestResource("/Sdf2.tbl", factory);
         serializeAndDeserialize(ptTerm);
     }
 }

@@ -1,13 +1,22 @@
 package org.spoofax;
 
-import org.spoofax.interpreter.terms.*;
+import org.spoofax.interpreter.terms.ISimpleTerm;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.IStrategoTermBuilder;
+import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.attachments.ITermAttachment;
+import org.spoofax.terms.io.TAFTermReader;
 
 import javax.annotation.Nullable;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 /**
@@ -80,6 +89,42 @@ public final class TestUtils {
             }
         }
         return term;
+    }
+
+    /**
+     * Reads a term from a test resource.
+     *
+     * @param resourcePath the path to the test resource
+     * @param termFactory the term factory
+     * @return the read term
+     * @throws IOException an I/O exception occurred
+     */
+    public static IStrategoTerm readTermFromTestResource(String resourcePath, ITermFactory termFactory) throws IOException {
+        try(final @Nullable InputStream stream = TestUtils.class.getResourceAsStream(resourcePath)) {
+            assertNotNull(stream, "Cannot find required test resource " + resourcePath);
+            return new TAFTermReader(termFactory).parseFromStream(stream);
+        }
+    }
+
+    /**
+     * Reads a term from a test resource.
+     *
+     * @param resourcePath the path to the test resource
+     * @return the read term
+     * @throws IOException an I/O exception occurred
+     */
+    public static byte[] readBytesFromTestResource(String resourcePath) throws IOException {
+        try(final @Nullable InputStream stream = TestUtils.class.getResourceAsStream(resourcePath)) {
+            assertNotNull(stream, "Cannot find required test resource " + resourcePath);
+
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            int read;
+            byte[] data = new byte[0x4000];
+            while ((read = stream.read(data, 0, data.length)) != -1) {
+                buffer.write(data, 0, read);
+            }
+            return buffer.toByteArray();
+        }
     }
 
 }
