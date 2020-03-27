@@ -19,9 +19,8 @@ public final class TermUtilsTests {
     public TermFactory factory = new TermFactory();
 
     /** Tests the {@link TermUtils#isString} methods. */
-    @Nested
     @DisplayName("isString(..)")
-    public final class IsStringTests {
+    @Nested public final class IsStringTests {
 
         @Test
         @DisplayName("when term is a string term, returns true")
@@ -63,9 +62,8 @@ public final class TermUtilsTests {
 
 
     /** Tests the {@link TermUtils#isInt} methods. */
-    @Nested
     @DisplayName("isInt(..)")
-    public final class IsIntTests {
+    @Nested public final class IsIntTests {
 
         @Test
         @DisplayName("when term is an int term, returns true")
@@ -107,9 +105,8 @@ public final class TermUtilsTests {
 
 
     /** Tests the {@link TermUtils#isReal} methods. */
-    @Nested
     @DisplayName("isReal(..)")
-    public final class IsRealTests {
+    @Nested public final class IsRealTests {
 
         @Test
         @DisplayName("when term is a real term, returns true")
@@ -151,9 +148,8 @@ public final class TermUtilsTests {
 
 
     /** Tests the {@link TermUtils#isAppl} methods. */
-    @Nested
     @DisplayName("isAppl(..)")
-    public final class IsApplTests {
+    @Nested public final class IsApplTests {
 
         private final StrategoConstructor Nil = factory.makeConstructor("Nil", 0);
         private final StrategoConstructor Singleton = factory.makeConstructor("Singleton", 1);
@@ -226,9 +222,8 @@ public final class TermUtilsTests {
 
 
     /** Tests the {@link TermUtils#isList} methods. */
-    @Nested
     @DisplayName("isList(..)")
-    public final class IsListTests {
+    @Nested public final class IsListTests {
 
         @Test
         @DisplayName("when term is a list term, returns true")
@@ -270,9 +265,8 @@ public final class TermUtilsTests {
 
 
     /** Tests the {@link TermUtils#isTuple} methods. */
-    @Nested
     @DisplayName("isTuple(..)")
-    public final class IsTupleTests {
+    @Nested public final class IsTupleTests {
 
         @Test
         @DisplayName("when term is a tuple term, returns true")
@@ -315,10 +309,9 @@ public final class TermUtilsTests {
 
 
     /** Tests the {@link TermUtils#asString(IStrategoTerm)} method. */
-    @Nested
     @DisplayName("asString(IStrategoTerm)")
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public final class AsStringTests {
+    @Nested public final class AsStringTests {
 
         @Test
         @DisplayName("when term is a string term, returns the term")
@@ -346,10 +339,9 @@ public final class TermUtilsTests {
     }
     
     /** Tests the {@link TermUtils#asInt(IStrategoTerm)} method. */
-    @Nested
     @DisplayName("asInt(IStrategoTerm)")
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public final class AsIntTests {
+    @Nested public final class AsIntTests {
 
         @Test
         @DisplayName("when term is an int term, returns the term")
@@ -377,10 +369,9 @@ public final class TermUtilsTests {
     }
     
     /** Tests the {@link TermUtils#asReal(IStrategoTerm)} method. */
-    @Nested
     @DisplayName("asReal(IStrategoTerm)")
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public final class AsRealTests {
+    @Nested public final class AsRealTests {
 
         @Test
         @DisplayName("when term is a real term, returns the term")
@@ -408,10 +399,9 @@ public final class TermUtilsTests {
     }
     
     /** Tests the {@link TermUtils#asAppl(IStrategoTerm)} method. */
-    @Nested
     @DisplayName("asAppl(IStrategoTerm)")
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public final class AsApplTests {
+    @Nested public final class AsApplTests {
 
         @Test
         @DisplayName("when term is an appl term, returns the term")
@@ -439,10 +429,9 @@ public final class TermUtilsTests {
     }
 
     /** Tests the {@link TermUtils#asList(IStrategoTerm)} method. */
-    @Nested
     @DisplayName("asList(IStrategoTerm)")
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public final class AsListTests {
+    @Nested public final class AsListTests {
 
         @Test
         @DisplayName("when term is a list term, returns the term")
@@ -472,10 +461,9 @@ public final class TermUtilsTests {
 
 
     /** Tests the {@link TermUtils#asTuple(IStrategoTerm)} method. */
-    @Nested
     @DisplayName("asTuple(IStrategoTerm)")
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public final class AsTupleTests {
+    @Nested public final class AsTupleTests {
 
         @Test
         @DisplayName("when term is a tuple term, returns the term")
@@ -505,10 +493,9 @@ public final class TermUtilsTests {
 
 
     /** Tests the {@link TermUtils#asJavaString(IStrategoTerm)} method. */
-    @Nested
     @DisplayName("asJavaString(IStrategoTerm)")
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public final class AsJavaStringTests {
+    @Nested public final class AsJavaStringTests {
 
         @Test
         @DisplayName("when term is a string term, returns the term value")
@@ -536,10 +523,9 @@ public final class TermUtilsTests {
     }
 
     /** Tests the {@link TermUtils#asJavaInt(IStrategoTerm)} method. */
-    @Nested
     @DisplayName("asJavaInt(IStrategoTerm)")
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public final class AsJavaIntTests {
+    @Nested public final class AsJavaIntTests {
 
         @Test
         @DisplayName("when term is an int term, returns the term value")
@@ -567,10 +553,9 @@ public final class TermUtilsTests {
     }
 
     /** Tests the {@link TermUtils#asJavaReal(IStrategoTerm)} method. */
-    @Nested
     @DisplayName("asJavaReal(IStrategoTerm)")
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public final class AsJavaRealTests {
+    @Nested public final class AsJavaRealTests {
 
         @Test
         @DisplayName("when term is a real term, returns the term value")
@@ -598,10 +583,9 @@ public final class TermUtilsTests {
     }
 
     /** Tests the {@link TermUtils#asJavaList(IStrategoTerm)} method. */
-    @Nested
     @DisplayName("asJavaList(IStrategoTerm)")
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public final class AsJavaListTests {
+    @Nested public final class AsJavaListTests {
 
         @Test
         @DisplayName("when term is a list term, returns the list")
@@ -630,9 +614,8 @@ public final class TermUtilsTests {
 
     
     /** Tests the {@link TermUtils#toString(IStrategoTerm)} method. */
-    @Nested
     @DisplayName("toString(IStrategoTerm)")
-    public final class ToStringTests {
+    @Nested public final class ToStringTests {
 
         @Test
         @DisplayName("when term is a string term, returns the term")
@@ -661,9 +644,8 @@ public final class TermUtilsTests {
     }
 
     /** Tests the {@link TermUtils#toInt(IStrategoTerm)} method. */
-    @Nested
     @DisplayName("toInt(IStrategoTerm)")
-    public final class ToIntTests {
+    @Nested public final class ToIntTests {
 
         @Test
         @DisplayName("when term is an int term, returns the term")
@@ -691,9 +673,8 @@ public final class TermUtilsTests {
     }
 
     /** Tests the {@link TermUtils#toReal(IStrategoTerm)} method. */
-    @Nested
     @DisplayName("toReal(IStrategoTerm)")
-    public final class ToRealTests {
+    @Nested public final class ToRealTests {
 
         @Test
         @DisplayName("when term is a real term, returns the term")
@@ -721,9 +702,8 @@ public final class TermUtilsTests {
     }
 
     /** Tests the {@link TermUtils#toAppl(IStrategoTerm)} method. */
-    @Nested
     @DisplayName("toAppl(IStrategoTerm)")
-    public final class ToApplTests {
+    @Nested public final class ToApplTests {
 
         @Test
         @DisplayName("when term is an appl term, returns the term")
@@ -751,9 +731,8 @@ public final class TermUtilsTests {
     }
 
     /** Tests the {@link TermUtils#toList(IStrategoTerm)} method. */
-    @Nested
     @DisplayName("toList(IStrategoTerm)")
-    public final class ToListTests {
+    @Nested public final class ToListTests {
 
         @Test
         @DisplayName("when term is a list term, returns the term")
@@ -781,9 +760,8 @@ public final class TermUtilsTests {
     }
 
     /** Tests the {@link TermUtils#toTuple(IStrategoTerm)} method. */
-    @Nested
     @DisplayName("toTuple(IStrategoTerm)")
-    public final class ToTupleTests {
+    @Nested public final class ToTupleTests {
 
         @Test
         @DisplayName("when term is a tuple term, returns the term")
@@ -813,9 +791,8 @@ public final class TermUtilsTests {
 
 
     /** Tests the {@link TermUtils#toJavaString(IStrategoTerm)} method. */
-    @Nested
     @DisplayName("toJavaString(IStrategoTerm)")
-    public final class ToJavaStringTests {
+    @Nested public final class ToJavaStringTests {
 
         @Test
         @DisplayName("when term is a string term, returns the value")
@@ -839,9 +816,8 @@ public final class TermUtilsTests {
     }
 
     /** Tests the {@link TermUtils#toJavaInt(IStrategoTerm)} method. */
-    @Nested
     @DisplayName("toJavaInt(IStrategoTerm)")
-    public final class ToJavaIntTests {
+    @Nested public final class ToJavaIntTests {
 
         @Test
         @DisplayName("when term is an int term, returns the value")
@@ -865,9 +841,8 @@ public final class TermUtilsTests {
     }
 
     /** Tests the {@link TermUtils#toJavaReal(IStrategoTerm)} method. */
-    @Nested
     @DisplayName("toJavaReal(IStrategoTerm)")
-    public final class ToJavaRealTests {
+    @Nested public final class ToJavaRealTests {
 
         @Test
         @DisplayName("when term is a real term, returns the value")
@@ -891,9 +866,8 @@ public final class TermUtilsTests {
     }
 
     /** Tests the {@link TermUtils#toJavaList(IStrategoTerm)} method. */
-    @Nested
     @DisplayName("toJavaList(IStrategoTerm)")
-    public final class ToJavaListTests {
+    @Nested public final class ToJavaListTests {
 
         @Test
         @DisplayName("when term is a list term, returns a list of subterms")
@@ -923,9 +897,8 @@ public final class TermUtilsTests {
 
 
     /** Tests the {@link TermUtils#isStringAt} methods. */
-    @Nested
     @DisplayName("isStringAt(..)")
-    public final class IsStringAtTests {
+    @Nested public final class IsStringAtTests {
 
         private final IStrategoTuple testTerm = factory.makeTuple(
                 factory.makeString(""),
@@ -997,9 +970,8 @@ public final class TermUtilsTests {
 
 
     /** Tests the {@link TermUtils#isIntAt} methods. */
-    @Nested
     @DisplayName("isIntAt(..)")
-    public final class IsIntAtTests {
+    @Nested public final class IsIntAtTests {
 
         private final IStrategoTuple testTerm = factory.makeTuple(
                 factory.makeInt(0),
@@ -1071,9 +1043,8 @@ public final class TermUtilsTests {
 
 
     /** Tests the {@link TermUtils#isRealAt} methods. */
-    @Nested
     @DisplayName("isRealAt(..)")
-    public final class IsRealAtTests {
+    @Nested public final class IsRealAtTests {
 
         private final IStrategoTuple testTerm = factory.makeTuple(
                 factory.makeReal(0.0),
@@ -1145,9 +1116,8 @@ public final class TermUtilsTests {
 
 
     /** Tests the {@link TermUtils#isApplAt} methods. */
-    @Nested
     @DisplayName("isApplAt(..)")
-    public final class IsApplAtTests {
+    @Nested public final class IsApplAtTests {
 
         private final StrategoConstructor Nil = factory.makeConstructor("Nil", 0);
         private final StrategoConstructor Singleton = factory.makeConstructor("Singleton", 1);
@@ -1320,9 +1290,8 @@ public final class TermUtilsTests {
 
 
     /** Tests the {@link TermUtils#isListAt} methods. */
-    @Nested
     @DisplayName("isListAt(..)")
-    public final class IsListAtTests {
+    @Nested public final class IsListAtTests {
 
         private final IStrategoTuple testTerm = factory.makeTuple(
                 factory.makeList(),
@@ -1394,9 +1363,8 @@ public final class TermUtilsTests {
 
 
     /** Tests the {@link TermUtils#isTupleAt} methods. */
-    @Nested
     @DisplayName("isTupleAt(..)")
-    public final class IsTupleAtTests {
+    @Nested public final class IsTupleAtTests {
 
         private final IStrategoTuple testTerm = factory.makeTuple(
                 factory.makeTuple(),
@@ -1469,10 +1437,9 @@ public final class TermUtilsTests {
 
 
     /** Tests the {@link TermUtils#asStringAt(IStrategoTerm, int)} method. */
-    @Nested
     @DisplayName("asStringAt(IStrategoTerm)")
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public final class AsStringAtTests {
+    @Nested public final class AsStringAtTests {
 
         private final IStrategoString t1 = factory.makeString("");
         private final IStrategoString t2 = factory.makeString("abc");
@@ -1518,10 +1485,9 @@ public final class TermUtilsTests {
     }
 
     /** Tests the {@link TermUtils#asIntAt(IStrategoTerm, int)} method. */
-    @Nested
     @DisplayName("asIntAt(IStrategoTerm, int)")
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public final class AsIntAtTests {
+    @Nested public final class AsIntAtTests {
 
         private final IStrategoInt t1 = factory.makeInt(0);
         private final IStrategoInt t2 = factory.makeInt(-10);
@@ -1567,10 +1533,9 @@ public final class TermUtilsTests {
     }
 
     /** Tests the {@link TermUtils#asRealAt(IStrategoTerm, int)} method. */
-    @Nested
     @DisplayName("asRealAt(IStrategoTerm)")
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public final class AsRealAtTests {
+    @Nested public final class AsRealAtTests {
 
         private final IStrategoReal t1 = factory.makeReal(0.0);
         private final IStrategoReal t2 = factory.makeReal(-10.2);
@@ -1616,10 +1581,9 @@ public final class TermUtilsTests {
     }
 
     /** Tests the {@link TermUtils#asApplAt(IStrategoTerm, int)} method. */
-    @Nested
     @DisplayName("asApplAt(IStrategoTerm, int)")
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public final class AsApplAtTests {
+    @Nested public final class AsApplAtTests {
 
         private final StrategoConstructor Nil = factory.makeConstructor("Nil", 0);
         private final StrategoConstructor Singleton = factory.makeConstructor("Singleton", 1);
@@ -1669,10 +1633,9 @@ public final class TermUtilsTests {
     }
 
     /** Tests the {@link TermUtils#asListAt(IStrategoTerm, int)} method. */
-    @Nested
     @DisplayName("asListAt(IStrategoTerm, int)")
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public final class AsListAtTests {
+    @Nested public final class AsListAtTests {
 
         private final IStrategoList t1 = factory.makeList();
         private final IStrategoList t2 = factory.makeList(factory.makeString("abc"));
@@ -1719,10 +1682,9 @@ public final class TermUtilsTests {
 
 
     /** Tests the {@link TermUtils#asTupleAt(IStrategoTerm, int)} method. */
-    @Nested
     @DisplayName("asTupleAt(IStrategoTerm, int)")
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public final class AsTupleAtTests {
+    @Nested public final class AsTupleAtTests {
 
         private final IStrategoTuple t1 = factory.makeTuple();
         private final IStrategoTuple t2 = factory.makeTuple(factory.makeString("abc"));
@@ -1771,10 +1733,9 @@ public final class TermUtilsTests {
 
 
     /** Tests the {@link TermUtils#asJavaStringAt(IStrategoTerm, int)} method. */
-    @Nested
     @DisplayName("asJavaStringAt(IStrategoTerm)")
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public final class AsJavaStringAtTests {
+    @Nested public final class AsJavaStringAtTests {
 
         private final String v1 = "";
         private final String v2 = "abc";
@@ -1822,10 +1783,9 @@ public final class TermUtilsTests {
     }
 
     /** Tests the {@link TermUtils#asJavaIntAt(IStrategoTerm, int)} method. */
-    @Nested
     @DisplayName("asJavaIntAt(IStrategoTerm, int)")
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public final class AsJavaIntAtTests {
+    @Nested public final class AsJavaIntAtTests {
 
         private final int v1 = 0;
         private final int v2 = -10;
@@ -1873,10 +1833,9 @@ public final class TermUtilsTests {
     }
 
     /** Tests the {@link TermUtils#asJavaRealAt(IStrategoTerm, int)} method. */
-    @Nested
     @DisplayName("asJavaRealAt(IStrategoTerm)")
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public final class AsJavaRealAtTests {
+    @Nested public final class AsJavaRealAtTests {
 
         private final double v1 = 0.0;
         private final double v2 = -10.2;
@@ -1924,10 +1883,9 @@ public final class TermUtilsTests {
     }
 
     /** Tests the {@link TermUtils#asJavaListAt(IStrategoTerm, int)} method. */
-    @Nested
     @DisplayName("asJavaListAt(IStrategoTerm, int)")
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public final class AsJavaListAtTests {
+    @Nested public final class AsJavaListAtTests {
 
         private final IStrategoString e1 = factory.makeString("abc");
         private final IStrategoString e2 = factory.makeString("def");
@@ -1976,9 +1934,8 @@ public final class TermUtilsTests {
 
 
     /** Tests the {@link TermUtils#toStringAt(IStrategoTerm, int)} method. */
-    @Nested
     @DisplayName("toStringAt(IStrategoTerm, int)")
-    public final class ToStringAtTests {
+    @Nested public final class ToStringAtTests {
 
         private final IStrategoString t1 = factory.makeString("");
         private final IStrategoString t2 = factory.makeString("abc");
@@ -2024,9 +1981,8 @@ public final class TermUtilsTests {
     }
 
     /** Tests the {@link TermUtils#toIntAt(IStrategoTerm, int)} method. */
-    @Nested
     @DisplayName("toIntAt(IStrategoTerm, int)")
-    public final class ToIntAtTests {
+    @Nested public final class ToIntAtTests {
 
         private final IStrategoInt t1 = factory.makeInt(0);
         private final IStrategoInt t2 = factory.makeInt(-10);
@@ -2072,9 +2028,8 @@ public final class TermUtilsTests {
     }
 
     /** Tests the {@link TermUtils#toRealAt(IStrategoTerm, int)} method. */
-    @Nested
     @DisplayName("toRealAt(IStrategoTerm, int)")
-    public final class ToRealAtTests {
+    @Nested public final class ToRealAtTests {
 
         private final IStrategoReal t1 = factory.makeReal(0.0);
         private final IStrategoReal t2 = factory.makeReal(-10.2);
@@ -2120,9 +2075,8 @@ public final class TermUtilsTests {
     }
 
     /** Tests the {@link TermUtils#toApplAt(IStrategoTerm, int)} method. */
-    @Nested
     @DisplayName("toApplAt(IStrategoTerm, int)")
-    public final class ToApplAtTests {
+    @Nested public final class ToApplAtTests {
 
         private final StrategoConstructor Nil = factory.makeConstructor("Nil", 0);
         private final StrategoConstructor Singleton = factory.makeConstructor("Singleton", 1);
@@ -2172,9 +2126,8 @@ public final class TermUtilsTests {
     }
 
     /** Tests the {@link TermUtils#toListAt(IStrategoTerm, int)} method. */
-    @Nested
     @DisplayName("toListAt(IStrategoTerm, int)")
-    public final class ToListAtTests {
+    @Nested public final class ToListAtTests {
 
         private final IStrategoList t1 = factory.makeList();
         private final IStrategoList t2 = factory.makeList(factory.makeString("abc"));
@@ -2221,9 +2174,8 @@ public final class TermUtilsTests {
 
 
     /** Tests the {@link TermUtils#toTupleAt(IStrategoTerm, int)} method. */
-    @Nested
     @DisplayName("toTupleAt(IStrategoTerm, int)")
-    public final class ToTupleAtTests {
+    @Nested public final class ToTupleAtTests {
 
         private final IStrategoTuple t1 = factory.makeTuple();
         private final IStrategoTuple t2 = factory.makeTuple(factory.makeString("abc"));
@@ -2270,9 +2222,8 @@ public final class TermUtilsTests {
 
 
     /** Tests the {@link TermUtils#toJavaStringAt(IStrategoTerm, int)} method. */
-    @Nested
     @DisplayName("toJavaStringAt(IStrategoTerm, int)")
-    public final class ToJavaStringAtTests {
+    @Nested public final class ToJavaStringAtTests {
 
         private final IStrategoString t1 = factory.makeString("");
         private final IStrategoString t2 = factory.makeString("abc");
@@ -2318,9 +2269,8 @@ public final class TermUtilsTests {
     }
 
     /** Tests the {@link TermUtils#toJavaIntAt(IStrategoTerm, int)} method. */
-    @Nested
     @DisplayName("toJavaInt(IStrategoTerm, int)")
-    public final class ToJavaIntAtTests {
+    @Nested public final class ToJavaIntAtTests {
 
         private final IStrategoInt t1 = factory.makeInt(0);
         private final IStrategoInt t2 = factory.makeInt(-10);
@@ -2366,9 +2316,8 @@ public final class TermUtilsTests {
     }
 
     /** Tests the {@link TermUtils#toJavaRealAt(IStrategoTerm, int)} method. */
-    @Nested
     @DisplayName("toJavaRealAt(IStrategoTerm, int)")
-    public final class ToJavaRealAtTests {
+    @Nested public final class ToJavaRealAtTests {
 
         private final IStrategoReal t1 = factory.makeReal(0.0);
         private final IStrategoReal t2 = factory.makeReal(-10.2);
@@ -2414,9 +2363,8 @@ public final class TermUtilsTests {
     }
 
     /** Tests the {@link TermUtils#toJavaListAt(IStrategoTerm, int)} method. */
-    @Nested
     @DisplayName("toJavaListAt(IStrategoTerm, int)")
-    public final class ToJavaListAtTests {
+    @Nested public final class ToJavaListAtTests {
 
         private final IStrategoString e0 = factory.makeString("abc");
         private final IStrategoString e1 = factory.makeString("def");
