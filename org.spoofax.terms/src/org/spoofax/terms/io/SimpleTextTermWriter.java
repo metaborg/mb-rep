@@ -341,11 +341,12 @@ public class SimpleTextTermWriter implements TextTermWriter {
      * @throws IOException an I/O exception occurred
      */
     private void writeSubterms(IStrategoTerm term, Appendable writer, int depth, boolean isAnnotation) throws IOException {
-        if (term.getSubtermCount() > 0) {
-            writeTerm(term.getSubterm(0), writer, depth, isAnnotation);
-            for (int i = 1; i < term.getSubtermCount(); i++) {
+        Iterator<IStrategoTerm> iterator = term.iterator();
+        if(iterator.hasNext()) {
+            writeTerm(iterator.next(), writer, depth, isAnnotation);
+            while(iterator.hasNext()) {
                 writer.append(LIST_SEPARATOR);
-                writeTerm(term.getSubterm(i), writer, depth, isAnnotation);
+                writeTerm(iterator.next(), writer, depth, isAnnotation);
             }
         }
     }
