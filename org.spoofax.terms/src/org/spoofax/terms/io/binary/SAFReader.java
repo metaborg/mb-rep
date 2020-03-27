@@ -691,8 +691,16 @@ class SAFReader {
             byte[] data) {
         SAFReader binaryReader = new SAFReader(factory);
 
+
+        // Consume the SAF identification token.
+        if (data.length == 0)
+            throw new RuntimeException("Unable to read SAF identification token.\n");
+        byte identifier = data[0];
+        if (identifier != (byte)'?')
+            throw new RuntimeException("Not a SAF byte array.");
+
         int length = data.length;
-        int position = 0;
+        int position = 1;
         do {
 
             int blockSize = data[position++] & 0x000000ff;

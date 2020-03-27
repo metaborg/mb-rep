@@ -56,7 +56,13 @@ import org.spoofax.interpreter.terms.IStrategoReal;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
+import org.spoofax.terms.io.TermWriter;
 import org.spoofax.terms.util.TermUtils;
+
+/**
+ * Writes a term in the binary Streamable ATerm Format (SAF).
+ */
+public final class SAFWriter implements TermWriter {
 
 /**
  * Writes the given ATerm to a (streamable) binary format. Supply the
@@ -81,7 +87,7 @@ import org.spoofax.terms.util.TermUtils;
  * @author Arnold Lankamp
  * @author Nathan Bruning (ported to use IStrategoTerm)
  */
-public class SAFWriter {
+private final static class SAFWriterInternal {
     private final static int ISSHAREDFLAG = 0x00000080;
 
     private final static int ANNOSFLAG = 0x00000010;
@@ -120,7 +126,7 @@ public class SAFWriter {
      * @param root
      *            The ATerm that needs to be serialized.
      */
-    public SAFWriter(IStrategoTerm root) {
+    private SAFWriterInternal(IStrategoTerm root) {
         super();
 
         sharedTerms = new HashMap<IStrategoTerm, Integer>();
@@ -504,134 +510,55 @@ public class SAFWriter {
         }
     }
 
+}
+
     /**
-     * Writes the given aterm to the given file. Blocks of 65536 bytes will be
-     * used.
-     *
-     * @param aTerm
-     *            The ATerm that needs to be writen to file.
-     * @param file
-     *            The file to write to.
-     * @throws IOException
-     *             Thrown when an error occurs while writing to the given file.
-     *
+     * @deprecated Use {@code new SAFWriter().writeToFile(term, file)} instead.
      */
-    public static void writeTermToSAFFile(IStrategoTerm aTerm, File file)
-            throws IOException {
-        SAFWriter binaryWriter = new SAFWriter(aTerm);
-
-        ByteBuffer byteBuffer = ByteBuffer.allocate(65536);
-        ByteBuffer sizeBuffer = ByteBuffer.allocate(2);
-
-        FileOutputStream fos = null;
-        FileChannel fc = null;
-        try {
-            fos = new FileOutputStream(file);
-            fc = fos.getChannel();
-
-            byteBuffer.put((byte) '?');
-            byteBuffer.flip();
-            fc.write(byteBuffer);
-
-            do {
-                byteBuffer.clear();
-                binaryWriter.serialize(byteBuffer);
-
-                int blockSize = byteBuffer.limit();
-                sizeBuffer.clear();
-                sizeBuffer.put((byte) (blockSize & 0x000000ff));
-                sizeBuffer.put((byte) ((blockSize >>> 8) & 0x000000ff));
-                sizeBuffer.flip();
-
-                fc.write(sizeBuffer);
-
-                fc.write(byteBuffer);
-            } while (!binaryWriter.isFinished());
-        } finally {
-            if (fc != null) {
-                fc.close();
-            }
-            if (fos != null) {
-                fos.close();
-            }
-        }
+    @Deprecated
+    public static void writeTermToSAFFile(IStrategoTerm term, File file) throws IOException {
+        SAFWriter writer = new SAFWriter();
+        writer.writeToFile(term, file);
     }
 
     /**
-     * Writes the given aterm to a byte array. The reason this method returns a
-     * byte array instead of a Java String is because otherwise the binary data
-     * would be corrupted, since it would be automatically encoded in UTF-16
-     * format (which would completely mess everything up). Blocks of 65536 bytes
-     * will be used.
-     *
-     * @param aTerm
-     *            The ATerm that needs to be written to a byte array.
-     * @return The serialized representation of the given ATerm contained in a
-     *         byte array.
-     *
+     * @deprecated Use {@code new SAFWriter().writeToBytes(term)} instead.
      */
-    public static byte[] writeTermToSAFString(IStrategoTerm aTerm) {
-        List<ByteBuffer> buffers = new ArrayList<ByteBuffer>();
-        int totalBytesWritten = 0;
-
-        SAFWriter binaryWriter = new SAFWriter(aTerm);
-        do {
-            ByteBuffer byteBuffer = ByteBuffer.allocate(65536);
-            binaryWriter.serialize(byteBuffer);
-
-            buffers.add(byteBuffer);
-            totalBytesWritten += byteBuffer.limit() + 2; // Increment by: buffer
-            // size + 2 bytes
-            // length spec.
-        } while (!binaryWriter.isFinished());
-
-        byte[] data = new byte[totalBytesWritten + 1];
-        data[0] = (byte)'?';
-        int position = 1;
-        int numberOfBuffers = buffers.size();
-        for (int i = 0; i < numberOfBuffers; i++) {
-            ByteBuffer buffer = buffers.get(i);
-            int blockSize = buffer.limit();
-            data[position++] = (byte) (blockSize & 0x000000ff);
-            data[position++] = (byte) ((blockSize >>> 8) & 0x000000ff);
-
-            System.arraycopy(buffer.array(), 0, data, position, blockSize);
-            position += blockSize;
-        }
-
-        return data;
+    @Deprecated
+    public static byte[] writeTermToSAFString(IStrategoTerm term) {
+        SAFWriter writer = new SAFWriter();
+        return writer.writeToBytes(term);
     }
 
     /**
-     * Write to stream. Uses buffer of 65535 bytes.
-     *
-     * @param term
-     * @param out
-     * @throws IOException
+     * @deprecated Use {@code new SAFWriter().write(term, outputStream)} instead.
      */
-    public static void writeTermToSAFStream(IStrategoTerm term, OutputStream out)
-            throws IOException {
+    @Deprecated
+    public static void writeTermToSAFStream(IStrategoTerm term, OutputStream outputStream) throws IOException {
+        SAFWriter writer = new SAFWriter();
+        writer.write(term, outputStream);
+    }
 
-        SAFWriter binaryWriter = new SAFWriter(term);
+    @Override public void write(IStrategoTerm term, OutputStream outputStream) throws IOException {
+        SAFWriterInternal binaryWriter = new SAFWriterInternal(term);
         ByteBuffer byteBuffer = ByteBuffer.allocate(65536);
-        WritableByteChannel channel = Channels.newChannel(out);
+        WritableByteChannel channel = Channels.newChannel(outputStream);
 
-        out.write((byte) '?');
+        outputStream.write((byte)'?');
 
         do {
             byteBuffer.clear();
             binaryWriter.serialize(byteBuffer);
 
             int blockSize = byteBuffer.limit();
-            out.write((byte) (blockSize & 0x000000ff));
-            out.write((byte) ((blockSize >>> 8) & 0x000000ff));
+            outputStream.write((byte)(blockSize & 0x000000ff));
+            outputStream.write((byte)((blockSize >>> 8) & 0x000000ff));
 
             channel.write(byteBuffer);
 
-        } while (!binaryWriter.isFinished());
+        } while(!binaryWriter.isFinished());
 
         // Do not close the channel, doing so will also close the backing
         // stream.
-
     }
 }
