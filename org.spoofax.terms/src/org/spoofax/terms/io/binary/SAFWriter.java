@@ -512,29 +512,6 @@ private final static class SAFWriterInternal {
 
 }
 
-    @Override public void write(IStrategoTerm term, OutputStream outputStream) throws IOException {
-        SAFWriterInternal binaryWriter = new SAFWriterInternal(term);
-        ByteBuffer byteBuffer = ByteBuffer.allocate(65536);
-        WritableByteChannel channel = Channels.newChannel(outputStream);
-
-        outputStream.write((byte)'?');
-
-        do {
-            byteBuffer.clear();
-            binaryWriter.serialize(byteBuffer);
-
-            int blockSize = byteBuffer.limit();
-            outputStream.write((byte)(blockSize & 0x000000ff));
-            outputStream.write((byte)((blockSize >>> 8) & 0x000000ff));
-
-            channel.write(byteBuffer);
-
-        } while(!binaryWriter.isFinished());
-
-        // Do not close the channel, doing so will also close the backing
-        // stream.
-    }
-
     /**
      * @deprecated Use {@code new SAFWriter().writeToFile(term, file)} instead.
      */
@@ -560,5 +537,28 @@ private final static class SAFWriterInternal {
     public static void writeTermToSAFStream(IStrategoTerm term, OutputStream outputStream) throws IOException {
         SAFWriter writer = new SAFWriter();
         writer.write(term, outputStream);
+    }
+
+    @Override public void write(IStrategoTerm term, OutputStream outputStream) throws IOException {
+        SAFWriterInternal binaryWriter = new SAFWriterInternal(term);
+        ByteBuffer byteBuffer = ByteBuffer.allocate(65536);
+        WritableByteChannel channel = Channels.newChannel(outputStream);
+
+        outputStream.write((byte)'?');
+
+        do {
+            byteBuffer.clear();
+            binaryWriter.serialize(byteBuffer);
+
+            int blockSize = byteBuffer.limit();
+            outputStream.write((byte)(blockSize & 0x000000ff));
+            outputStream.write((byte)((blockSize >>> 8) & 0x000000ff));
+
+            channel.write(byteBuffer);
+
+        } while(!binaryWriter.isFinished());
+
+        // Do not close the channel, doing so will also close the backing
+        // stream.
     }
 }
