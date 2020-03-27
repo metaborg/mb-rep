@@ -42,13 +42,13 @@ public interface TermWriterTests {
         @TestFactory
         default Stream<DynamicTest> returnsABinaryRepresentation() throws IOException {
             return Stream.of(
-                    returnsABinaryRepresentationTest(getFactory().makeAppl("MyCons", getFactory().makeString("mystring"))),
-                    returnsABinaryRepresentationTest(getFactory().makeTuple(getFactory().makeString("mystring"))),
-                    returnsABinaryRepresentationTest(getFactory().makeList(getFactory().makeString("mystring"))),
-                    returnsABinaryRepresentationTest(getFactory().makePlaceholder(getFactory().makeString("mystring"))),
-                    returnsABinaryRepresentationTest(getFactory().makeString("mystring")),
-                    returnsABinaryRepresentationTest(getFactory().makeInt(42)),
-                    returnsABinaryRepresentationTest(getFactory().makeReal(13.37))
+                returnsABinaryRepresentationTest(getFactory().makeAppl("MyCons", getFactory().makeString("mystring"))),
+                returnsABinaryRepresentationTest(getFactory().makeTuple(getFactory().makeString("mystring"))),
+                returnsABinaryRepresentationTest(getFactory().makeList(getFactory().makeString("mystring"))),
+                returnsABinaryRepresentationTest(getFactory().makePlaceholder(getFactory().makeString("mystring"))),
+                returnsABinaryRepresentationTest(getFactory().makeString("mystring")),
+                returnsABinaryRepresentationTest(getFactory().makeInt(42)),
+                returnsABinaryRepresentationTest(getFactory().makeReal(13.37))
             );
         }
 
@@ -75,13 +75,13 @@ public interface TermWriterTests {
         @TestFactory
         default Stream<DynamicTest> writesARepresentation() throws IOException {
             return Stream.of(
-                    writesARepresentationTest(getFactory().makeAppl("MyCons", getFactory().makeString("mystring"))),
-                    writesARepresentationTest(getFactory().makeTuple(getFactory().makeString("mystring"))),
-                    writesARepresentationTest(getFactory().makeList(getFactory().makeString("mystring"))),
-                    writesARepresentationTest(getFactory().makePlaceholder(getFactory().makeString("mystring"))),
-                    writesARepresentationTest(getFactory().makeString("mystring")),
-                    writesARepresentationTest(getFactory().makeInt(42)),
-                    writesARepresentationTest(getFactory().makeReal(13.37))
+                writesARepresentationTest(getFactory().makeAppl("MyCons", getFactory().makeString("mystring"))),
+                writesARepresentationTest(getFactory().makeTuple(getFactory().makeString("mystring"))),
+                writesARepresentationTest(getFactory().makeList(getFactory().makeString("mystring"))),
+                writesARepresentationTest(getFactory().makePlaceholder(getFactory().makeString("mystring"))),
+                writesARepresentationTest(getFactory().makeString("mystring")),
+                writesARepresentationTest(getFactory().makeInt(42)),
+                writesARepresentationTest(getFactory().makeReal(13.37))
             );
         }
 

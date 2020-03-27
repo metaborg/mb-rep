@@ -38,13 +38,13 @@ public interface TextTermWriterTests {
         @TestFactory
         default Stream<DynamicTest> writesAStringRepresentation() throws IOException {
             return Stream.of(
-                    writesAStringRepresentationTest(getFactory().makeAppl("MyCons", getFactory().makeString("mystring"))),
-                    writesAStringRepresentationTest(getFactory().makeTuple(getFactory().makeString("mystring"))),
-                    writesAStringRepresentationTest(getFactory().makeList(getFactory().makeString("mystring"))),
-                    writesAStringRepresentationTest(getFactory().makePlaceholder(getFactory().makeString("mystring"))),
-                    writesAStringRepresentationTest(getFactory().makeString("mystring")),
-                    writesAStringRepresentationTest(getFactory().makeInt(42)),
-                    writesAStringRepresentationTest(getFactory().makeReal(13.37))
+                writesAStringRepresentationTest(getFactory().makeAppl("MyCons", getFactory().makeString("mystring"))),
+                writesAStringRepresentationTest(getFactory().makeTuple(getFactory().makeString("mystring"))),
+                writesAStringRepresentationTest(getFactory().makeList(getFactory().makeString("mystring"))),
+                writesAStringRepresentationTest(getFactory().makePlaceholder(getFactory().makeString("mystring"))),
+                writesAStringRepresentationTest(getFactory().makeString("mystring")),
+                writesAStringRepresentationTest(getFactory().makeInt(42)),
+                writesAStringRepresentationTest(getFactory().makeReal(13.37))
             );
         }
 
@@ -70,13 +70,13 @@ public interface TextTermWriterTests {
         @TestFactory
         default Stream<DynamicTest> writesAStringRepresentation() throws IOException {
             return Stream.of(
-                    writesAStringRepresentationTest(getFactory().makeAppl("MyCons", getFactory().makeString("mystring"))),
-                    writesAStringRepresentationTest(getFactory().makeTuple(getFactory().makeString("mystring"))),
-                    writesAStringRepresentationTest(getFactory().makeList(getFactory().makeString("mystring"))),
-                    writesAStringRepresentationTest(getFactory().makePlaceholder(getFactory().makeString("mystring"))),
-                    writesAStringRepresentationTest(getFactory().makeString("mystring")),
-                    writesAStringRepresentationTest(getFactory().makeInt(42)),
-                    writesAStringRepresentationTest(getFactory().makeReal(13.37))
+                writesAStringRepresentationTest(getFactory().makeAppl("MyCons", getFactory().makeString("mystring"))),
+                writesAStringRepresentationTest(getFactory().makeTuple(getFactory().makeString("mystring"))),
+                writesAStringRepresentationTest(getFactory().makeList(getFactory().makeString("mystring"))),
+                writesAStringRepresentationTest(getFactory().makePlaceholder(getFactory().makeString("mystring"))),
+                writesAStringRepresentationTest(getFactory().makeString("mystring")),
+                writesAStringRepresentationTest(getFactory().makeInt(42)),
+                writesAStringRepresentationTest(getFactory().makeReal(13.37))
             );
         }
 
@@ -105,13 +105,13 @@ public interface TextTermWriterTests {
         @TestFactory
         default Stream<DynamicTest> writesAnEncodedStringRepresentationInCharset() throws IOException {
             return Stream.of(
-                    writesAnEncodedStringRepresentationInCharsetTest(getFactory().makeAppl("MyCons", getFactory().makeString("mystring"))),
-                    writesAnEncodedStringRepresentationInCharsetTest(getFactory().makeTuple(getFactory().makeString("mystring"))),
-                    writesAnEncodedStringRepresentationInCharsetTest(getFactory().makeList(getFactory().makeString("mystring"))),
-                    writesAnEncodedStringRepresentationInCharsetTest(getFactory().makePlaceholder(getFactory().makeString("mystring"))),
-                    writesAnEncodedStringRepresentationInCharsetTest(getFactory().makeString("mystring")),
-                    writesAnEncodedStringRepresentationInCharsetTest(getFactory().makeInt(42)),
-                    writesAnEncodedStringRepresentationInCharsetTest(getFactory().makeReal(13.37))
+                writesAnEncodedStringRepresentationInCharsetTest(getFactory().makeAppl("MyCons", getFactory().makeString("mystring"))),
+                writesAnEncodedStringRepresentationInCharsetTest(getFactory().makeTuple(getFactory().makeString("mystring"))),
+                writesAnEncodedStringRepresentationInCharsetTest(getFactory().makeList(getFactory().makeString("mystring"))),
+                writesAnEncodedStringRepresentationInCharsetTest(getFactory().makePlaceholder(getFactory().makeString("mystring"))),
+                writesAnEncodedStringRepresentationInCharsetTest(getFactory().makeString("mystring")),
+                writesAnEncodedStringRepresentationInCharsetTest(getFactory().makeInt(42)),
+                writesAnEncodedStringRepresentationInCharsetTest(getFactory().makeReal(13.37))
             );
         }
 
@@ -146,13 +146,13 @@ public interface TextTermWriterTests {
         @TestFactory
         default Stream<DynamicTest> writesAStringRepresentation() throws IOException {
             return Stream.of(
-                    writesAStringRepresentationTest(getFactory().makeAppl("MyCons", getFactory().makeString("mystring"))),
-                    writesAStringRepresentationTest(getFactory().makeTuple(getFactory().makeString("mystring"))),
-                    writesAStringRepresentationTest(getFactory().makeList(getFactory().makeString("mystring"))),
-                    writesAStringRepresentationTest(getFactory().makePlaceholder(getFactory().makeString("mystring"))),
-                    writesAStringRepresentationTest(getFactory().makeString("mystring")),
-                    writesAStringRepresentationTest(getFactory().makeInt(42)),
-                    writesAStringRepresentationTest(getFactory().makeReal(13.37))
+                writesAStringRepresentationTest(getFactory().makeAppl("MyCons", getFactory().makeString("mystring"))),
+                writesAStringRepresentationTest(getFactory().makeTuple(getFactory().makeString("mystring"))),
+                writesAStringRepresentationTest(getFactory().makeList(getFactory().makeString("mystring"))),
+                writesAStringRepresentationTest(getFactory().makePlaceholder(getFactory().makeString("mystring"))),
+                writesAStringRepresentationTest(getFactory().makeString("mystring")),
+                writesAStringRepresentationTest(getFactory().makeInt(42)),
+                writesAStringRepresentationTest(getFactory().makeReal(13.37))
             );
         }
 

@@ -2,8 +2,10 @@ package org.spoofax.terms.io;
 
 import org.spoofax.interpreter.terms.*;
 import org.spoofax.terms.attachments.ITermAttachment;
+import org.spoofax.terms.util.StringUtils;
 
 import java.io.IOException;
+import java.util.Iterator;
 
 /**
  * A simple text term writer that writes terms and their annotations and attachments
@@ -12,6 +14,7 @@ import java.io.IOException;
  * @implSpec Override members of this class to influence term writing.
  * Overriding implementation should make sure to call {@link #writeTerm} to write subterms,
  * as this method checks the depth and writes the annotations and attachments, if applicable.
+ * @implNote The exact format used by this implementation is subject to change.
  */
 public class SimpleTextTermWriter implements TextTermWriter {
 
@@ -23,7 +26,9 @@ public class SimpleTextTermWriter implements TextTermWriter {
      *
      * @return the singleton instance
      */
-    public static SimpleTextTermWriter getInstance() { return INSTANCE; }
+    public static SimpleTextTermWriter getInstance() {
+        return INSTANCE;
+    }
 
     private static final String ELLIPSIS = "…";
     private static final String LIST_SEPARATOR = ",";
@@ -99,12 +104,12 @@ public class SimpleTextTermWriter implements TextTermWriter {
      * @throws IOException an I/O exception occurred
      */
     protected void writeTerm(IStrategoTerm term, Appendable writer, int depth, boolean isAnnotation) throws IOException {
-        if (depth <= 0) {
+        if(depth <= 0) {
             writeElided(writer);
             return;
         }
 
-        switch (term.getTermType()) {
+        switch(term.getTermType()) {
             case IStrategoTerm.APPL:
                 writeApplBody((IStrategoAppl)term, writer, depth, isAnnotation);
                 break;
@@ -133,8 +138,8 @@ public class SimpleTextTermWriter implements TextTermWriter {
                 throw new RuntimeException("Unknown term type: " + term.getTermType() + " for term of type " + term.getClass().getSimpleName());
         }
 
-        if (termHasAnnotations(term, isAnnotation)) writeAnnotations(term, writer, depth, isAnnotation);
-        if (termHasAttachments(term, isAnnotation)) writeAttachments(term, writer, depth, isAnnotation);
+        if(termHasAnnotations(term, isAnnotation)) writeAnnotations(term, writer, depth, isAnnotation);
+        if(termHasAttachments(term, isAnnotation)) writeAttachments(term, writer, depth, isAnnotation);
     }
 
     /**
@@ -164,12 +169,12 @@ public class SimpleTextTermWriter implements TextTermWriter {
      */
     protected void writeListBody(IStrategoList term, Appendable writer, int depth, boolean isAnnotation) throws IOException {
         writer.append('[');
-        if (!term.isEmpty()) {
+        if(!term.isEmpty()) {
             writeTerm(term.head(), writer, depth - 1, isAnnotation);
 
             IStrategoList tail = term.tail();
-            while (!tail.isEmpty()) {
-                if (tailHasTermAttributes(tail, isAnnotation)) {
+            while(!tail.isEmpty()) {
+                if(tailHasTermAttributes(tail, isAnnotation)) {
                     // We have to print annotations and/or attachments, so we will instead display the tail
                     // as a new list with its own annotations/attachments.
                     writer.append(LIST_TAIL_SEPARATOR);
@@ -281,7 +286,7 @@ public class SimpleTextTermWriter implements TextTermWriter {
      */
     protected void writeAnnotations(IStrategoTerm term, Appendable writer, int depth, boolean isAnnotation) throws IOException {
         IStrategoList annos = term.getAnnotations();
-        if (depth <= 1 || annos.isEmpty()) {
+        if(depth <= 1 || annos.isEmpty()) {
             return;
         }
 
@@ -301,14 +306,14 @@ public class SimpleTextTermWriter implements TextTermWriter {
      */
     protected void writeAttachments(IStrategoTerm term, Appendable writer, int depth, boolean isAnnotation) throws IOException {
         ITermAttachment attachment = term.getAttachment(null);
-        if (depth <= 1 || attachment == null) {
+        if(depth <= 1 || attachment == null) {
             return;
         }
 
         writer.append('«');
         writeAttachment(attachment, writer, depth - 1);
         attachment = attachment.getNext();
-        while (attachment != null) {
+        while(attachment != null) {
             writer.append(LIST_SEPARATOR);
             writeAttachment(attachment, writer, depth - 1);
             attachment = attachment.getNext();

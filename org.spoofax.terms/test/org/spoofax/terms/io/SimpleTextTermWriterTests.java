@@ -93,108 +93,108 @@ public class SimpleTextTermWriterTests {
         @TestFactory
         Stream<DynamicTest> write() {
             return Stream.of(
-                    write("MyCons()", APPL0),
-                    write("MyCons(42)", APPL1),
-                    write("MyCons(42,\"mystring\")", APPL2),
-                    write("[]", LIST0),
-                    write("[42]", LIST1),
-                    write("[42,\"mystring\"]", LIST2),
-                    write("()", TUPLE0),
-                    write("(42)", TUPLE1),
-                    write("(42,\"mystring\")", TUPLE2),
-                    write("42", INT),
-                    write("13.37", REAL),
-                    write("\"mystring\"", STRING),
-                    write("<42>", PLACEHOLDER)
+                write("MyCons()", APPL0),
+                write("MyCons(42)", APPL1),
+                write("MyCons(42,\"mystring\")", APPL2),
+                write("[]", LIST0),
+                write("[42]", LIST1),
+                write("[42,\"mystring\"]", LIST2),
+                write("()", TUPLE0),
+                write("(42)", TUPLE1),
+                write("(42,\"mystring\")", TUPLE2),
+                write("42", INT),
+                write("13.37", REAL),
+                write("\"mystring\"", STRING),
+                write("<42>", PLACEHOLDER)
             ).flatMap(s -> s);
         }
 
         Stream<DynamicTest> write(String expected, IStrategoTerm term) {
             return Stream.of(
-                    // Simple
-                    DynamicTest.dynamicTest("simple term: " + expected, () -> {
-                        // Arrange
-                        SimpleTextTermWriter sut = createTermWriter(Integer.MAX_VALUE, true, true);
+                // Simple
+                DynamicTest.dynamicTest("simple term: " + expected, () -> {
+                    // Arrange
+                    SimpleTextTermWriter sut = createTermWriter(Integer.MAX_VALUE, true, true);
 
-                        // Act
-                        String result = sut.writeToString(term);
+                    // Act
+                    String result = sut.writeToString(term);
 
-                        // Assert
-                        assertEquals(expected, result);
-                    }),
-                    // Annotations
-                    DynamicTest.dynamicTest("term with no annotations: " + expected, () -> {
-                        // Arrange
-                        SimpleTextTermWriter sut = createTermWriter(Integer.MAX_VALUE, false, true);
+                    // Assert
+                    assertEquals(expected, result);
+                }),
+                // Annotations
+                DynamicTest.dynamicTest("term with no annotations: " + expected, () -> {
+                    // Arrange
+                    SimpleTextTermWriter sut = createTermWriter(Integer.MAX_VALUE, false, true);
 
-                        // Act
-                        String result = sut.writeToString(putAnnotations(term, getFactory(), ANNO0));
+                    // Act
+                    String result = sut.writeToString(putAnnotations(term, getFactory(), ANNO0));
 
-                        // Assert
-                        assertEquals(expected, result);
-                    }),
-                    DynamicTest.dynamicTest("term with one annotation: " + expected + "{\"anno\"}", () -> {
-                        // Arrange
-                        SimpleTextTermWriter sut = createTermWriter(Integer.MAX_VALUE, false, true);
+                    // Assert
+                    assertEquals(expected, result);
+                }),
+                DynamicTest.dynamicTest("term with one annotation: " + expected + "{\"anno\"}", () -> {
+                    // Arrange
+                    SimpleTextTermWriter sut = createTermWriter(Integer.MAX_VALUE, false, true);
 
-                        // Act
-                        String result = sut.writeToString(putAnnotations(term, getFactory(), ANNO1));
+                    // Act
+                    String result = sut.writeToString(putAnnotations(term, getFactory(), ANNO1));
 
-                        // Assert
-                        assertEquals(expected + "{\"anno\"}", result);
-                    }),
-                    DynamicTest.dynamicTest("term with two annotations: " + expected + "{\"anno1\",\"anno2\"}", () -> {
-                        // Arrange
-                        SimpleTextTermWriter sut = createTermWriter(Integer.MAX_VALUE, false, true);
+                    // Assert
+                    assertEquals(expected + "{\"anno\"}", result);
+                }),
+                DynamicTest.dynamicTest("term with two annotations: " + expected + "{\"anno1\",\"anno2\"}", () -> {
+                    // Arrange
+                    SimpleTextTermWriter sut = createTermWriter(Integer.MAX_VALUE, false, true);
 
-                        // Act
-                        String result = sut.writeToString(putAnnotations(term, getFactory(), ANNO2));
+                    // Act
+                    String result = sut.writeToString(putAnnotations(term, getFactory(), ANNO2));
 
-                        // Assert
-                        assertEquals(expected + "{\"anno1\",\"anno2\"}", result);
-                    }),
-                    // Attachments
-                    DynamicTest.dynamicTest("term with no attachments: " + expected, () -> {
-                        // Arrange
-                        SimpleTextTermWriter sut = createTermWriter(Integer.MAX_VALUE, true, false);
+                    // Assert
+                    assertEquals(expected + "{\"anno1\",\"anno2\"}", result);
+                }),
+                // Attachments
+                DynamicTest.dynamicTest("term with no attachments: " + expected, () -> {
+                    // Arrange
+                    SimpleTextTermWriter sut = createTermWriter(Integer.MAX_VALUE, true, false);
 
-                        // Act
-                        String result = sut.writeToString(putAttachments(term, ATTACH0));
+                    // Act
+                    String result = sut.writeToString(putAttachments(term, ATTACH0));
 
-                        // Assert
-                        assertEquals(expected, result);
-                    }),
-                    DynamicTest.dynamicTest("term with one attachment: " + expected + "«DummyTermAttachment<Type1>»", () -> {
-                        // Arrange
-                        SimpleTextTermWriter sut = createTermWriter(Integer.MAX_VALUE, true, false);
+                    // Assert
+                    assertEquals(expected, result);
+                }),
+                DynamicTest.dynamicTest("term with one attachment: " + expected + "«DummyTermAttachment<Type1>»", () -> {
+                    // Arrange
+                    SimpleTextTermWriter sut = createTermWriter(Integer.MAX_VALUE, true, false);
 
-                        // Act
-                        String result = sut.writeToString(putAttachments(term, ATTACH1));
+                    // Act
+                    String result = sut.writeToString(putAttachments(term, ATTACH1));
 
-                        // Assert
-                        assertEquals(expected + "«DummyTermAttachment<Type1>»", result);
-                    }),
-                    DynamicTest.dynamicTest("term with two attachments: " + expected + "«DummyTermAttachment<Type1>,DummyTermAttachment<Type2>»", () -> {
-                        // Arrange
-                        SimpleTextTermWriter sut = createTermWriter(Integer.MAX_VALUE, true, false);
+                    // Assert
+                    assertEquals(expected + "«DummyTermAttachment<Type1>»", result);
+                }),
+                DynamicTest.dynamicTest("term with two attachments: " + expected + "«DummyTermAttachment<Type1>,DummyTermAttachment<Type2>»", () -> {
+                    // Arrange
+                    SimpleTextTermWriter sut = createTermWriter(Integer.MAX_VALUE, true, false);
 
-                        // Act
-                        String result = sut.writeToString(putAttachments(term, ATTACH2));
+                    // Act
+                    String result = sut.writeToString(putAttachments(term, ATTACH2));
 
-                        // Assert
-                        assertEquals(expected + "«DummyTermAttachment<Type1>,DummyTermAttachment<Type2>»", result);
-                    }),
-                    // Annotations and Attachments
-                    DynamicTest.dynamicTest("term with two attachments and two annotations: " + expected + "{\"anno1\",\"anno2\"}«DummyTermAttachment<Type1>,DummyTermAttachment<Type2>»", () -> {
-                        // Arrange
-                        SimpleTextTermWriter sut = createTermWriter(Integer.MAX_VALUE, false, false);
+                    // Assert
+                    assertEquals(expected + "«DummyTermAttachment<Type1>,DummyTermAttachment<Type2>»", result);
+                }),
+                // Annotations and Attachments
+                DynamicTest.dynamicTest("term with two attachments and two annotations: " + expected + "{\"anno1\",\"anno2\"}«DummyTermAttachment<Type1>,DummyTermAttachment<Type2>»", () -> {
+                    // Arrange
+                    SimpleTextTermWriter sut = createTermWriter(Integer.MAX_VALUE, false, false);
 
-                        // Act
-                        String result = sut.writeToString(putAttachments(putAnnotations(term, getFactory(), ANNO2), ATTACH2));
+                    // Act
+                    String result = sut.writeToString(putAttachments(putAnnotations(term, getFactory(), ANNO2), ATTACH2));
 
-                        // Assert
-                        assertEquals(expected + "{\"anno1\",\"anno2\"}«DummyTermAttachment<Type1>,DummyTermAttachment<Type2>»", result);
-                    })
+                    // Assert
+                    assertEquals(expected + "{\"anno1\",\"anno2\"}«DummyTermAttachment<Type1>,DummyTermAttachment<Type2>»", result);
+                })
             );
         }
 
@@ -205,8 +205,8 @@ public class SimpleTextTermWriterTests {
             // A(B(C(){X(Y(Z()))}){X(Y(Z()))}){X(Y(Z()))}
             IStrategoList annotations = getFactory().makeList(getFactory().makeAppl("X", getFactory().makeAppl("Y", getFactory().makeAppl("Z"))));
             IStrategoTerm term = getFactory().makeAppl(getFactory().makeConstructor("A", 1),
-                    Collections.singletonList(getFactory().makeAppl(getFactory().makeConstructor("B", 1),
-                            Collections.singletonList(getFactory().makeAppl(getFactory().makeConstructor("C", 0), new IStrategoTerm[0], annotations)).toArray(new IStrategoTerm[0]), annotations)).toArray(new IStrategoTerm[0]), annotations);
+                Collections.singletonList(getFactory().makeAppl(getFactory().makeConstructor("B", 1),
+                    Collections.singletonList(getFactory().makeAppl(getFactory().makeConstructor("C", 0), new IStrategoTerm[0], annotations)).toArray(new IStrategoTerm[0]), annotations)).toArray(new IStrategoTerm[0]), annotations);
             SimpleTextTermWriter sut0 = createTermWriter(0, false, false);
             SimpleTextTermWriter sut1 = createTermWriter(1, false, false);
             SimpleTextTermWriter sut2 = createTermWriter(2, false, false);
