@@ -64,56 +64,6 @@ import org.spoofax.terms.util.TermUtils;
  */
 public final class SAFWriter implements TermWriter {
 
-    @Override public void write(IStrategoTerm term, OutputStream outputStream) throws IOException {
-        Writer binaryWriter = new Writer(term);
-        ByteBuffer byteBuffer = ByteBuffer.allocate(65536);
-        WritableByteChannel channel = Channels.newChannel(outputStream);
-
-        outputStream.write((byte)'?');
-
-        do {
-            byteBuffer.clear();
-            binaryWriter.serialize(byteBuffer);
-
-            int blockSize = byteBuffer.limit();
-            outputStream.write((byte)(blockSize & 0x000000ff));
-            outputStream.write((byte)((blockSize >>> 8) & 0x000000ff));
-
-            channel.write(byteBuffer);
-
-        } while(!binaryWriter.isFinished());
-
-        // Do not close the channel, doing so will also close the backing
-        // stream.
-    }
-
-    /**
-     * @deprecated Use {@code new SAFWriter().writeToFile(term, file)} instead.
-     */
-    @Deprecated
-    public static void writeTermToSAFFile(IStrategoTerm term, File file) throws IOException {
-        SAFWriter writer = new SAFWriter();
-        writer.writeToFile(term, file);
-    }
-
-    /**
-     * @deprecated Use {@code new SAFWriter().writeToBytes(term)} instead.
-     */
-    @Deprecated
-    public static byte[] writeTermToSAFString(IStrategoTerm term) {
-        SAFWriter writer = new SAFWriter();
-        return writer.writeToBytes(term);
-    }
-
-    /**
-     * @deprecated Use {@code new SAFWriter().write(term, outputStream)} instead.
-     */
-    @Deprecated
-    public static void writeTermToSAFStream(IStrategoTerm term, OutputStream outputStream) throws IOException {
-        SAFWriter writer = new SAFWriter();
-        writer.write(term, outputStream);
-    }
-
     /**
      * Internal writer that writes the given ATerm to a (streamable) binary format. Supply the
      * constructor of this class with a ATerm and keep calling the serialize method
@@ -549,5 +499,55 @@ public final class SAFWriter implements TermWriter {
             }
         }
 
+    }
+
+    @Override public void write(IStrategoTerm term, OutputStream outputStream) throws IOException {
+        Writer binaryWriter = new Writer(term);
+        ByteBuffer byteBuffer = ByteBuffer.allocate(65536);
+        WritableByteChannel channel = Channels.newChannel(outputStream);
+
+        outputStream.write((byte)'?');
+
+        do {
+            byteBuffer.clear();
+            binaryWriter.serialize(byteBuffer);
+
+            int blockSize = byteBuffer.limit();
+            outputStream.write((byte)(blockSize & 0x000000ff));
+            outputStream.write((byte)((blockSize >>> 8) & 0x000000ff));
+
+            channel.write(byteBuffer);
+
+        } while(!binaryWriter.isFinished());
+
+        // Do not close the channel, doing so will also close the backing
+        // stream.
+    }
+
+    /**
+     * @deprecated Use {@code new SAFWriter().writeToFile(term, file)} instead.
+     */
+    @Deprecated
+    public static void writeTermToSAFFile(IStrategoTerm term, File file) throws IOException {
+        SAFWriter writer = new SAFWriter();
+        writer.writeToFile(term, file);
+    }
+
+    /**
+     * @deprecated Use {@code new SAFWriter().writeToBytes(term)} instead.
+     */
+    @Deprecated
+    public static byte[] writeTermToSAFString(IStrategoTerm term) {
+        SAFWriter writer = new SAFWriter();
+        return writer.writeToBytes(term);
+    }
+
+    /**
+     * @deprecated Use {@code new SAFWriter().write(term, outputStream)} instead.
+     */
+    @Deprecated
+    public static void writeTermToSAFStream(IStrategoTerm term, OutputStream outputStream) throws IOException {
+        SAFWriter writer = new SAFWriter();
+        writer.write(term, outputStream);
     }
 }
