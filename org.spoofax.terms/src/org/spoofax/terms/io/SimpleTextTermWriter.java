@@ -238,12 +238,7 @@ public class SimpleTextTermWriter implements TextTermWriter {
      */
     protected void writeStringBody(IStrategoString term, Appendable writer, int depth, boolean isAnnotation) throws IOException {
         writer.append('"');
-        String escapedValue = term.stringValue()
-                .replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r");
-        writer.append(escapedValue);
+        writer.append(StringUtils.escape(term.stringValue()));
         writer.append('"');
     }
 
