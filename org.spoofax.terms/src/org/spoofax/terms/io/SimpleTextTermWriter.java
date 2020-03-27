@@ -2,7 +2,6 @@ package org.spoofax.terms.io;
 
 import org.spoofax.interpreter.terms.*;
 import org.spoofax.terms.attachments.ITermAttachment;
-import org.spoofax.terms.util.StringUtils;
 
 import java.io.IOException;
 import java.util.Iterator;
