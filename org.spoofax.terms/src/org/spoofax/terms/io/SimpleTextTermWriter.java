@@ -2,6 +2,7 @@ package org.spoofax.terms.io;
 
 import org.spoofax.interpreter.terms.*;
 import org.spoofax.terms.attachments.ITermAttachment;
+import org.spoofax.terms.util.StringUtils;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -242,12 +243,7 @@ public class SimpleTextTermWriter implements TextTermWriter {
      */
     protected void writeStringBody(IStrategoString term, Appendable writer, int depth, boolean isAnnotation) throws IOException {
         writer.append('"');
-        String escapedValue = term.stringValue()
-                .replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r");
-        writer.append(escapedValue);
+        StringUtils.appendEscape(term.stringValue(), writer);
         writer.append('"');
     }
 
