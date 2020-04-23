@@ -1,18 +1,22 @@
 package org.spoofax.terms.util;
 
+import javax.annotation.Nullable;
+
 /**
  * Functionality copied from {@link org.junit.Assert} and added {@link Assert#assertInstanceOf(Object, Class)}
  * Copied so we don't have a dependency on junit in normal code, which would look strange.
  * Copied from junit 4.12, which is distributed under the Eclipse Public License v1.0. 
  * All methods except {@link Assert#assertInstanceOf(Object, Class)} are copyright of the JUnit team.
+ * We use {@link Assert.Failure} instead of {@link AssertionError}, which doesn't construct a stacktrace, because we
+ *  use this failure as control-flow instead of exceptional behaviour, so it should be cheap.
  */
 public class Assert {
     /**
-     * Asserts that two objects are equal. If they are not, an {@link AssertionError} is thrown with the given message.
+     * Asserts that two objects are equal. If they are not, an {@link Failure} is thrown with the given message.
      * If <code>expected</code> and <code>actual</code> are <code>null</code>, they are considered equal.
      *
      * @param message
-     *            the identifying message for the {@link AssertionError} (<code>null</code> okay)
+     *            the identifying message for the {@link Failure} (<code>null</code> okay)
      * @param expected
      *            expected value
      * @param actual
@@ -43,7 +47,7 @@ public class Assert {
 
     /**
      * Asserts that two objects are equal. If they are not, an
-     * {@link AssertionError} without a message is thrown. If
+     * {@link Failure} without a message is thrown. If
      * <code>expected</code> and <code>actual</code> are <code>null</code>,
      * they are considered equal.
      *
@@ -80,7 +84,7 @@ public class Assert {
 
     /**
      * Asserts that two longs are equal. If they are not, an
-     * {@link AssertionError} is thrown.
+     * {@link Failure} is thrown.
      *
      * @param expected expected long value.
      * @param actual actual long value
@@ -91,9 +95,9 @@ public class Assert {
 
     /**
      * Asserts that two longs are equal. If they are not, an
-     * {@link AssertionError} is thrown with the given message.
+     * {@link Failure} is thrown with the given message.
      *
-     * @param message the identifying message for the {@link AssertionError} (<code>null</code>
+     * @param message the identifying message for the {@link Failure} (<code>null</code>
      * okay)
      * @param expected long expected value.
      * @param actual long actual value
@@ -108,18 +112,18 @@ public class Assert {
      * Fails a test with the given message.
      *
      * @param message
-     *            the identifying message for the {@link AssertionError} (<code>null</code> okay)
-     * @see AssertionError
+     *            the identifying message for the {@link Failure} (<code>null</code> okay)
+     * @see Failure
      */
     static public void fail(String message) {
         if(message == null) {
-            throw new AssertionError();
+            throw new Failure();
         }
-        throw new AssertionError(message);
+        throw new Failure(message);
     }
 
     /**
-     * Asserts that an object is an instance of the given class. If they are not, an {@link AssertionError} is thrown.
+     * Asserts that an object is an instance of the given class. If they are not, an {@link Failure} is thrown.
      *
      * @param object
      *            object to test.
@@ -131,5 +135,19 @@ public class Assert {
             return;
         }
         fail(object.getClass().getName() + " is not instance of " + clazz.getName());
+    }
+
+    /**
+     * A {@link RuntimeException} that does not have a stacktrace, making it cheap to construct and therefore usable for
+     * control-flow.
+     */
+    public static final class Failure extends RuntimeException {
+        public Failure() {
+            this(null);
+        }
+
+        public Failure(@Nullable String message) {
+            super(message, null, false, false);
+        }
     }
 }

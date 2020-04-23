@@ -12,11 +12,12 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
+import org.spoofax.terms.util.Assert.Failure;
 
 /**
- * A Stratego Term matching class that throws {@link AssertionError}s when it fails to match.
+ * A Stratego Term matching class that throws {@link Failure} or {@link ClassCastException} when it fails to match.
  * Can be used to match larger term structures (imperatively) and only wrap that in the call to {@link #maybe(Supplier)}
- * which will catch the errors and {@link ClassCastException}s and return an Optional instead.
+ * which will catch the thrown exceptions and return an Optional instead.
  */
 public class M {
     public static IStrategoAppl appl(IStrategoTerm term) {
@@ -78,7 +79,7 @@ public class M {
         final R result;
         try {
             result = matcher.get();
-        } catch(AssertionError | ClassCastException e) {
+        } catch(Failure | ClassCastException e) {
             return Optional.empty();
         }
         return Optional.of(result);
