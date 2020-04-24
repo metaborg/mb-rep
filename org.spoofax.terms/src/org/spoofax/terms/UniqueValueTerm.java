@@ -1,7 +1,9 @@
 package org.spoofax.terms;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.spoofax.interpreter.terms.IStrategoInt;
@@ -11,8 +13,9 @@ import org.spoofax.interpreter.terms.ITermPrinter;
 import org.spoofax.terms.util.EmptyIterator;
 
 /**
- * @author Lennart Kats <lennart add lclnet.nl>
+ * Used by the SRTS_EXT_newint_0_0 compatibility strategy.
  */
+@Deprecated
 public final class UniqueValueTerm extends AbstractSimpleTerm implements IStrategoInt {
 	
 	private static final long serialVersionUID = 2464633689395266636L;
@@ -25,20 +28,22 @@ public final class UniqueValueTerm extends AbstractSimpleTerm implements IStrate
 		return value;
 	}
 
-	public IStrategoTerm[] getAllSubterms() {
-		return TermFactory.EMPTY;
+	@Override
+	public List<IStrategoTerm> getSubterms() {
+		return Collections.emptyList();
 	}
 
 	public IStrategoList getAnnotations() {
 		return TermFactory.EMPTY_LIST;
 	}
 
-	public int getStorageType() {
-		return MUTABLE; // allow attachments
-	}
-
 	public IStrategoTerm getSubterm(int index) {
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public IStrategoTerm[] getAllSubterms() {
+		return TermFactory.EMPTY_TERM_ARRAY;
 	}
 
 	public int getSubtermCount() {

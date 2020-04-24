@@ -1,55 +1,34 @@
 package org.spoofax.terms;
 
-import static java.lang.Math.min;
-import static org.spoofax.interpreter.terms.IStrategoTerm.MAXIMALLY_SHARED;
-import static org.spoofax.interpreter.terms.IStrategoTerm.MUTABLE;
-
 import java.util.Collection;
 import java.util.HashMap;
 
-import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoConstructor;
-import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.IStrategoTuple;
-import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.interpreter.terms.*;
 import org.spoofax.terms.attachments.ITermAttachment;
+import org.spoofax.terms.io.TAFTermReader;
 
 public abstract class AbstractTermFactory implements ITermFactory {
+    /** An empty Stratego list. Use this instead of `new StrategoList(null)` to avoid allocating a new object. */
+    public static final IStrategoList EMPTY_LIST = new StrategoList(null);
 
-	@Deprecated
-	public static final IStrategoList EMPTY_LIST = new StrategoList(null, null, null, IStrategoTerm.MAXIMALLY_SHARED);
+    /** An empty array of terms. Use this instead of `new IStrategoTerm[0]` to avoid allocating a new array. */
+    public static final IStrategoTerm[] EMPTY_TERM_ARRAY = new IStrategoTerm[0];
+    /** @deprecated Use {@link #EMPTY_TERM_ARRAY} */
+    @Deprecated public static final IStrategoTerm[] EMPTY = EMPTY_TERM_ARRAY;
 
-    public static final IStrategoTerm[] EMPTY = new IStrategoTerm[0];
-    
-    private final StringTermReader reader = new StringTermReader(this);
 
-    private static final HashMap<StrategoConstructor, StrategoConstructor> asyncCtorCache =
-        new HashMap<StrategoConstructor, StrategoConstructor>();
-    
-    protected int defaultStorageType;
-    
-    public AbstractTermFactory(int defaultStorageType) {
-		this.defaultStorageType = defaultStorageType;
-	}
-    
-    public final int getDefaultStorageType() {
-		return defaultStorageType;
-	}
-    
-    protected final boolean isTermSharingAllowed() {
-    	return defaultStorageType != MUTABLE;
-    }
-    
+    private static final HashMap<StrategoConstructor, StrategoConstructor> asyncCtorCache = new HashMap<>();
+    private final TAFTermReader reader = new TAFTermReader(this);
+
     static StrategoConstructor createCachedConstructor(String name, int arity) {
         StrategoConstructor result = new StrategoConstructor(name, arity);
-        synchronized (TermFactory.class) {
-	        StrategoConstructor cached = asyncCtorCache.get(result);
-	        if (cached == null) {
-	            asyncCtorCache.put(result, result);
-	        } else {
-	            result = cached;
-	        }
+        synchronized(TermFactory.class) {
+            StrategoConstructor cached = asyncCtorCache.get(result);
+            if(cached == null) {
+                asyncCtorCache.put(result, result);
+            } else {
+                result = cached;
+            }
         }
         return result;
     }
@@ -58,38 +37,35 @@ public abstract class AbstractTermFactory implements ITermFactory {
         return createCachedConstructor(name, arity);
     }
 
-    public abstract IStrategoAppl makeAppl(IStrategoConstructor constructor,
-			IStrategoTerm[] kids, IStrategoList annotations);
+    public abstract IStrategoAppl makeAppl(IStrategoConstructor constructor, IStrategoTerm[] kids,
+        IStrategoList annotations);
 
-    public abstract IStrategoTuple makeTuple(
-			IStrategoTerm[] kids, IStrategoList annotations);
+    public abstract IStrategoTuple makeTuple(IStrategoTerm[] kids, IStrategoList annotations);
 
-    public abstract IStrategoList makeList(
-			IStrategoTerm[] kids, IStrategoList annotations);
+    public abstract IStrategoList makeList(IStrategoTerm[] kids, IStrategoList annotations);
 
-    public IStrategoAppl replaceAppl(IStrategoConstructor constructor, IStrategoTerm[] kids,
-            IStrategoAppl old) {
+    public IStrategoAppl replaceAppl(IStrategoConstructor constructor, IStrategoTerm[] kids, IStrategoAppl old) {
         return makeAppl(constructor, kids, old.getAnnotations());
     }
 
-	public IStrategoTuple replaceTuple(IStrategoTerm[] kids, IStrategoTuple old) {
+    public IStrategoTuple replaceTuple(IStrategoTerm[] kids, IStrategoTuple old) {
         return makeTuple(kids, old.getAnnotations());
     }
-    
+
     public IStrategoList replaceList(IStrategoTerm[] kids, IStrategoList old) {
         return makeList(kids, old.getAnnotations());
     }
-    
-    public IStrategoList replaceListCons(IStrategoTerm head, IStrategoList tail, IStrategoTerm oldHead, IStrategoList oldTail) {
+
+    public IStrategoList replaceListCons(IStrategoTerm head, IStrategoList tail, IStrategoTerm oldHead,
+        IStrategoList oldTail) {
         return makeListCons(head, tail);
     }
-    
+
     public IStrategoTerm replaceTerm(IStrategoTerm term, IStrategoTerm old) {
-    	return term;
+        return term;
     }
 
-    public final IStrategoAppl makeAppl(IStrategoConstructor ctr, IStrategoList kids,
-            IStrategoList annotations) {
+    public final IStrategoAppl makeAppl(IStrategoConstructor ctr, IStrategoList kids, IStrategoList annotations) {
         return makeAppl(ctr, kids.getAllSubterms(), annotations);
     }
 
@@ -106,72 +82,46 @@ public abstract class AbstractTermFactory implements ITermFactory {
     }
 
     public IStrategoList makeList() {
-        return makeList(EMPTY, null);
+        return new StrategoArrayList();
     }
 
     public IStrategoList makeList(Collection<? extends IStrategoTerm> terms) {
-        return makeList(terms.toArray(new IStrategoTerm[terms.size()]));
+        return StrategoArrayList.fromCollection(terms);
     }
 
     public final IStrategoList makeListCons(IStrategoTerm head, IStrategoList tail) {
-        return makeListCons (head, tail, null);
+        return makeListCons(head, tail, null);
     }
 
     public abstract IStrategoList makeListCons(IStrategoTerm head, IStrategoList tail, IStrategoList annos);
 
-	public final IStrategoTuple makeTuple(IStrategoTerm... terms) {
+    public final IStrategoTuple makeTuple(IStrategoTerm... terms) {
         return makeTuple(terms, null);
     }
-    
+
     public IStrategoTerm parseFromString(String text) throws ParseError {
-    	return reader.parseFromString(text);
-    }
-    
-    protected static int getStorageType(IStrategoTerm term) {
-    	return term == null ? MAXIMALLY_SHARED : term.getStorageType();
-    }
-    
-    protected static int getStorageType(IStrategoTerm term1, IStrategoTerm term2) {
-    	int result = term1.getStorageType();
-    	if (result == 0) return 0;
-    	return min(result, term2.getStorageType());
-    }
-    
-    protected int getStorageType(IStrategoTerm[] terms) {
-    	int result = defaultStorageType;
-    	for (IStrategoTerm term : terms) {
-    		int type = term.getStorageType();
-    		if (type < result) { 
-        		if (type == 0) return 0;
-    			result = type;
-    		}
-    	}
-    	return result;
-    }
-    
-    public IStrategoTerm copyAttachments(IStrategoTerm from, IStrategoTerm to) {
-    	if (to.getStorageType() != MUTABLE)
-    		throw new IllegalArgumentException("Target term is not mutable and does not support attachments");
-    	ITermAttachment attach = from.getAttachment(null);
-    	while (attach != null) {
-    		try {
-				to.putAttachment(attach.clone());
-			} catch (CloneNotSupportedException e) {
-				throw new IllegalArgumentException("Copying attachments of this type is not supported: " + attach.getAttachmentType(), e);
-			}
-    		attach = attach.getNext();
-    	}
-    	return to;
+        return reader.parseFromString(text);
     }
 
-	/**
-	 * Performs a sanity check on a factory,
-	 * testing if it produces terms with a storage type
-	 * smaller or equal than the given value.
-	 */
-    public static boolean checkStorageType(ITermFactory factory, int storageType) {
-		return factory.getDefaultStorageType() <= storageType
-				&& factory.makeList(EMPTY).getStorageType() <= storageType
-				&& factory.makeString("Sanity").getStorageType() <= storageType;
-	}
+    public IStrategoTerm copyAttachments(IStrategoTerm from, IStrategoTerm to) {
+        ITermAttachment attach = from.getAttachment(null);
+        while(attach != null) {
+            try {
+                to.putAttachment(attach.clone());
+            } catch(CloneNotSupportedException e) {
+                throw new IllegalArgumentException(
+                    "Copying attachments of this type is not supported: " + attach.getAttachmentType(), e);
+            }
+            attach = attach.getNext();
+        }
+        return to;
+    }
+
+    public IStrategoList.Builder arrayListBuilder() {
+        return StrategoArrayList.arrayListBuilder();
+    }
+
+    public IStrategoList.Builder arrayListBuilder(int initialCapacity) {
+        return StrategoArrayList.arrayListBuilder(initialCapacity);
+    }
 }

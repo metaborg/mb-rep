@@ -7,8 +7,17 @@
  */
 package org.spoofax.interpreter.terms;
 
+/**
+ * A Stratego Real term.
+ */
 public interface IStrategoReal extends IStrategoTerm {
 
-    public double realValue();
+    // FIXME: Should be named getValue() for Kotlin compatibility
+    /**
+     * Gets the value of this term.
+     *
+     * @return the value
+     */
+    double realValue();
 
 }

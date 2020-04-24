@@ -7,73 +7,138 @@
  */
 package org.spoofax.interpreter.terms;
 
+import org.spoofax.terms.util.TermUtils;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.Writer;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
+/**
+ * A Stratego annotated term.
+ *
+ * Note: to determine whether a term is of a particular type,
+ * use the functions in {@link TermUtils} such as {@link TermUtils#isAppl}, {@link TermUtils#isList},
+ * {@link TermUtils#isInt}, {@link TermUtils#isReal}, {@link TermUtils#isString} and {@link TermUtils#isTuple}.
+ * Do not compare the class of a term instance, as some classes implement multiple term interfaces.
+ */
 public interface IStrategoTerm extends ISimpleTerm, Serializable, Iterable<IStrategoTerm> {
 
-    public static final int APPL = 1;
-    public static final int LIST = 2;
-    public static final int INT = 3;
-    public static final int REAL = 4;
-    public static final int STRING = 5;
-    public static final int CTOR = 6;
-    public static final int TUPLE = 7;
-    public static final int REF = 8;
-    public static final int BLOB = 9;
-    public static final int PLACEHOLDER = 10;
-    
-    public static final int MUTABLE = 0;
-    public static final int IMMUTABLE = 1;
-    public static final int SHARABLE = 2;
-    public static final int MAXIMALLY_SHARED = 3;
-    
-    public static final int INFINITE = Integer.MAX_VALUE;
+    /** A Constructor Application term type. */
+    int APPL = 1;
+    /** A List term type. */
+    int LIST = 2;
+    /** An Int term type. */
+    int INT = 3;
+    /** A Real term type. */
+    int REAL = 4;
+    /** A String term type. */
+    int STRING = 5;
+    /** A Term Constructor term type. */
+    int CTOR = 6;
+    /** A Tuple term type. */
+    int TUPLE = 7;
+    /** A Ref term type. */
+    int REF = 8;
+    /** A Blob term type. */
+    int BLOB = 9;
+    /** A Placeholder term type. */
+    int PLACEHOLDER = 10;
 
-    public int getSubtermCount();
-    public IStrategoTerm getSubterm(int index);
-    public IStrategoTerm[] getAllSubterms();
-    
-    public int getTermType();
-    
+    /** @deprecated Use {@link Integer#MAX_VALUE} instead. */
+    @Deprecated int INFINITE = Integer.MAX_VALUE;
+
+    @Override int getSubtermCount();
+
+    @Override IStrategoTerm getSubterm(int index);
+
     /**
-     * Indicates the assumptions that can be made about how this term is stored.
-     * 
-     * One of {@value #MUTABLE}, {@value #IMMUTABLE}, {@value #SHARABLE} and
-     * {@value #MAXIMALLY_SHARED}. For each a specific contract exists; 
-     * only {@value #MUTABLE} poses no restrictions on the implementation.
-     * 
-     * All non-{@value #MUTABLE} terms are expected to have an O(1)
-     * {@link #hashCode()} implementation.
-     * 
-     * A general contract is that the storage type of a term must always 
-     * be smaller than or equal to the storage types of its subterms.
-     * 
-     * Finally, when multiple term factories are used together,
-     * they should use the same hash codes for equal terms: 
-     * the TermFactory classes should be used as a reference.
+     * Gets an array with all subterms of this term.
+     *
+     * Do not change the elements in the returned array.
+     *
+     * This method is inefficient, as it often creates a copy of the internal array.
+     * Instead, use {@link #getSubterms()}.
+     *
+     * @return an array with all subterms;
+     * or an empty array when the term does not support subterms
      */
-    public int getStorageType();
-    
-    public IStrategoList getAnnotations();
-    
-    public boolean match(IStrategoTerm second);
-    
+    IStrategoTerm[] getAllSubterms();
+
     /**
-     * @see org.spoofax.terms.io.TAFTermReader#unparseToFile(IStrategoTerm, java.io.OutputStream)
-     * @see org.spoofax.terms.io.TAFTermReader#unparseToFile(IStrategoTerm, java.io.Writer)
-     * @see #writeAsString(Appendable, int)
+     * Gets an immutable list with all subterms of this term.
+     *
+     * @return an immutable list with all subterms;
+     * or an empty list when the term does not support subterms
      */
+    List<IStrategoTerm> getSubterms();
+
+    /**
+     * Gets the type of term.
+     *
+     * @return an integer value, one of: {@link #APPL}, {@link #LIST}, {@link #INT}, {@link #REAL},
+     * {@link #STRING}, {@link #CTOR}, {@link #TUPLE}, {@link #REF}, or {@link #BLOB}.
+     */
+    int getTermType();
+
+    /**
+     * Gets the annnotations on this term.
+     *
+     * @return a List term with the annotations; or an empty List term when there are none
+     */
+    IStrategoList getAnnotations();
+
+    /**
+     * Performs a match of this tree against the specified tree.
+     *
+     * Two trees match if they have the same structure and annotations,
+     * irrespective of the term factory used to create them.
+     *
+     * @param second the other tree to match
+     * @return {@code true} when this tree matches the specified tree;
+     * otherwise, {@code false}
+     */
+    boolean match(IStrategoTerm second);
+    
+    /** @deprecated Use {@link #writeAsString(Appendable, int)} instead. */
     @Deprecated
-    public void prettyPrint(ITermPrinter pp);
-    
-    public String toString(int maxDepth);
-    
+    void prettyPrint(ITermPrinter pp);
+
+    /**
+     * Creates a string representation of this term up to the specified depth.
+     *
+     * Use this representation only for debugging. To write a term to disk,
+     * use an {@link ITermPrinter} implementation.
+     *
+     * @param maxDepth how many levels of the tree to write, or {@link Integer#MAX_VALUE} for infinitely many
+     * @return the created string representation
+     */
+    String toString(int maxDepth);
+
     /**
      * Write a term to some output, such as a {@link Writer}.
-     * 
-     * @param maxDepth How many levels of the tree to write, or {@link #INFINITE} for infinitely many.
+     *
+     * @param output the {@link Appendable} to write to
      */
-    public void writeAsString(Appendable output, int maxDepth) throws IOException;
+    default void writeAsString(Appendable output) throws IOException {
+        writeAsString(output, -1);
+    }
+
+    /**
+     * Write a term to some output, such as a {@link Writer}.
+     *
+     * @param output the {@link Appendable} to write to
+     * @param maxDepth how many levels of the tree to write, or -1 for infinitely many
+     */
+    void writeAsString(Appendable output, int maxDepth) throws IOException;
+
+    /**
+     * Gets the iterator for iterating over the subterms of this term.
+     *
+     * @return an iterator
+     */
+    Iterator<IStrategoTerm> iterator();
+
 }

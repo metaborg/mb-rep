@@ -7,9 +7,19 @@
  */
 package org.spoofax.interpreter.terms;
 
+/**
+ * A Stratego Int term.
+ */
 public interface IStrategoInt extends IStrategoTerm {
 
-    public int intValue();
-    
-    public boolean isUniqueValueTerm();
+    // FIXME: Should be named getValue() for Kotlin compatibility
+    /**
+     * Gets the value of this term.
+     *
+     * @return the value
+     */
+    int intValue();
+
+    @Deprecated
+    boolean isUniqueValueTerm();
 }

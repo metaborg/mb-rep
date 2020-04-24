@@ -7,9 +7,16 @@
  */
 package org.spoofax.interpreter.terms;
 
+/**
+ * A Stratego constructor application term.
+ */
+public interface IStrategoAppl extends IStrategoNamed {
 
-public interface IStrategoAppl extends IStrategoTerm, IStrategoNamed {
-
-    public IStrategoConstructor getConstructor();
+    /**
+     * Gets the constructor being applied.
+     *
+     * @return a term constructor
+     */
+    IStrategoConstructor getConstructor();
 
 }

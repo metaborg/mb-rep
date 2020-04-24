@@ -7,14 +7,30 @@
  */
 package org.spoofax.interpreter.terms;
 
+/**
+ * A Stratego term constructor.
+ */
 public interface IStrategoConstructor extends IStrategoTerm {
 
-    @Deprecated
-    public IStrategoAppl instantiate(ITermFactory factory, IStrategoTerm... kids);
-    @Deprecated
-    public IStrategoAppl instantiate(ITermFactory factory, IStrategoList kids);
+    /**
+     * Gets the name of the constructor.
+     *
+     * The empty string is reserved for use with tuples.
+     *
+     * @return the name of the constructor
+     */
+    String getName();
 
-    public String getName();
-    public int getArity();
+    /**
+     * Gets the arity of the constructor.
+     *
+     * @return the arity of the constructor
+     */
+    int getArity();
+
+    @Deprecated
+    IStrategoAppl instantiate(ITermFactory factory, IStrategoTerm... kids);
+    @Deprecated
+    IStrategoAppl instantiate(ITermFactory factory, IStrategoList kids);
 
 }

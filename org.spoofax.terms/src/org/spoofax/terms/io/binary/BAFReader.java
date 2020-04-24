@@ -19,8 +19,6 @@
  */
 package org.spoofax.terms.io.binary;
 
-import static org.spoofax.terms.Term.isTermString;
-
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;
@@ -36,6 +34,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.ParseError;
 import org.spoofax.terms.util.NotImplementedException;
+import org.spoofax.terms.util.TermUtils;
 
 /**
  * A term reader that uses IStrategoTerms.
@@ -263,7 +262,7 @@ class BAFReader {
       }
       */
 
-      if (isTermString(e.fun)) {
+      if (TermUtils.isString(e.fun)) {
           level--;
           return e.fun;
       }

@@ -19,10 +19,8 @@ public abstract class AbstractWrappedTermFactory extends AbstractTermFactory {
 	
 	private final ITermFactory baseFactory;
 	
-	public AbstractWrappedTermFactory(int storageType, ITermFactory baseFactory) {
-		super(storageType);
-		this.baseFactory = baseFactory.getFactoryWithStorageType(storageType);
-		assert checkStorageType(this.baseFactory, storageType);
+	public AbstractWrappedTermFactory(ITermFactory baseFactory) {
+		this.baseFactory = baseFactory;
 	}
 
 	public IStrategoPlaceholder makePlaceholder(IStrategoTerm template) {

@@ -23,16 +23,19 @@ public class StrategoListIterator implements Iterator<IStrategoTerm> {
 		};
 	}
 
+	@Override
 	public boolean hasNext() {
 		return !current.isEmpty();
 	}
 
+	@Override
 	public IStrategoTerm next() {
 		IStrategoTerm result = current.head();
 		current = current.tail();
 		return result;
 	}
 
+	@Override
 	public void remove() {
 		throw new UnsupportedOperationException();
 	}

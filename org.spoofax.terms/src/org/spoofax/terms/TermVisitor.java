@@ -1,11 +1,10 @@
 package org.spoofax.terms;
 
-import static org.spoofax.terms.Term.isTermList;
-
 import java.util.Iterator;
 
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.terms.util.TermUtils;
 
 
 /**
@@ -29,8 +28,8 @@ public abstract class TermVisitor implements ITermVisitor {
 	}
 
 	public static Iterator<IStrategoTerm> tryGetListIterator(IStrategoTerm term) {
-		if (isTermList(term)) {
-			return StrategoListIterator.iterable((IStrategoList) term).iterator();
+		if (TermUtils.isList(term)) {
+			return StrategoListIterator.iterable(TermUtils.toList(term)).iterator();
 		} else {
 			return null;
 		}

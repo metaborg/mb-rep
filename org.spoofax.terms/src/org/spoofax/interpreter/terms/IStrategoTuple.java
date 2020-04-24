@@ -7,9 +7,28 @@
  */
 package org.spoofax.interpreter.terms;
 
+// TODO: A Tuple is nothing more than an Appl with an empty string as the constructor.
+// Therefore, this interface and the distinction should be removed.
+/**
+ * A Stratego Tuple term.
+ */
 public interface IStrategoTuple extends IStrategoTerm {
 
-    public int size();
-    public IStrategoTerm get(int index);
+    // FIXME: Should be named getSize() for Kotlin compatibility
+    /**
+     * Gets the size of the tuple.
+     *
+     * @return the size of the tuple.
+     */
+    int size();
+
+    /**
+     * Gets the element of the tuple with the specified index.
+     *
+     * @param index the index to look for
+     * @return the term at the specified index
+     * @throws IndexOutOfBoundsException the index is out of bounds
+     */
+    IStrategoTerm get(int index);
 
 }
