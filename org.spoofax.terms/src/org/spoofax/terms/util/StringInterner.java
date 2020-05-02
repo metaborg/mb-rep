@@ -1,5 +1,6 @@
 package org.spoofax.terms.util;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
@@ -37,13 +38,20 @@ public class StringInterner extends AbstractSet<String> implements Set<String>, 
      * @return the interned string instance; or the existing interned string instance, if any
      */
     public String intern(String e) {
-        WeakReference<String> internedString = m.get(e);
+        @Nullable WeakReference<String> internedString = m.get(e);
         if(internedString != null) {
-            return internedString.get();
-        } else {
-            add(e);
-            return e;
+            // An interned value for the string is present in the map
+            @Nullable String stringValue = internedString.get();
+            if (stringValue != null) {
+                // The interned value has not been garbage collected
+                return stringValue;
+            }
         }
+
+        // No interned value for the string was present in the map,
+        // or the interned value has been garbage collected
+        add(e);
+        return e;
     }
 
     /**
