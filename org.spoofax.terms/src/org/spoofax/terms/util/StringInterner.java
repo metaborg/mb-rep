@@ -87,8 +87,15 @@ public class StringInterner extends AbstractSet<String> implements Set<String>, 
         return m.remove(o) != null;
     }
 
-    public boolean add(String e) {
-        return m.put(e, new WeakReference<>(e)) == null;
+    @Override public boolean add(String e) {
+        if (map.get(e) == null) {
+            // Put a new mapping in the map
+            map.put(e, new WeakReference<>(e));
+            return true;
+        } else {
+            // Retain the existing mapping in the map
+            return false;
+        }
     }
 
     public Iterator<String> iterator() {
