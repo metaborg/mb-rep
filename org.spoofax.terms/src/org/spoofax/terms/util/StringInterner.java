@@ -4,31 +4,30 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
-import java.util.AbstractSet;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.Spliterator;
-import java.util.WeakHashMap;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
- * Based on {@see java.util.Collections.SetFromMap}. Pretends to be a HashSet, but can also be asked to intern a string
- * or see if a string is interned already.
+ * Pretends to be a Set, but can also be asked to intern a string
+ * or determine if a string has been interned already.
+ *
+ * Based on {@see java.util.Collections.SetFromMap}.
  */
-public class StringInterner extends AbstractSet<String> implements Set<String>, Serializable {
+public final class StringInterner extends AbstractSet<String> implements Set<String> {
     // INVARIANT: key == value. The value is mapped in a WeakReference so it doesn't count as a strong ref. But if you
     // can access the entry, you can get that key out of the value. This can be used to properly intern strings,
     // returning the equivalent String object
-    private final Map<String, WeakReference<String>> m;
-    private transient Set<String> s;
+    private final WeakHashMap<String, WeakReference<String>> map;
+    private final Set<String> mapKeys;
 
+    /**
+     * Initializes a new instance of the {@link StringInterner} class.
+     */
     public StringInterner() {
-        m = new WeakHashMap<>();
-        s = m.keySet();
+        this.map = new WeakHashMap<>();
+        this.mapKeys = map.keySet();
     }
 
     /**
@@ -38,7 +37,7 @@ public class StringInterner extends AbstractSet<String> implements Set<String>, 
      * @return the interned string instance; or the existing interned string instance, if any
      */
     public String intern(String e) {
-        @Nullable WeakReference<String> internedString = m.get(e);
+        @Nullable WeakReference<String> internedString = map.get(e);
         if(internedString != null) {
             // An interned value for the string is present in the map
             @Nullable String stringValue = internedString.get();
@@ -50,7 +49,7 @@ public class StringInterner extends AbstractSet<String> implements Set<String>, 
 
         // No interned value for the string was present in the map,
         // or the interned value has been garbage collected
-        add(e);
+        map.put(e, new WeakReference<>(e));
         return e;
     }
 
@@ -62,29 +61,29 @@ public class StringInterner extends AbstractSet<String> implements Set<String>, 
      * otherwise, {@code false} when it is a different instance
      */
     public boolean isInterned(String e) {
-        WeakReference<String> internedString = m.get(e);
+        WeakReference<String> internedString = map.get(e);
         //noinspection StringEquality
         return internedString != null && internedString.get() == e;
     }
 
-    public void clear() {
-        m.clear();
+    @Override public void clear() {
+        map.clear();
     }
 
-    public int size() {
-        return m.size();
+    @Override public int size() {
+        return map.size();
     }
 
-    public boolean isEmpty() {
-        return m.isEmpty();
+    @Override public boolean isEmpty() {
+        return map.isEmpty();
     }
 
-    public boolean contains(Object o) {
-        return m.containsKey(o);
+    @Override public boolean contains(Object o) {
+        return map.containsKey(o);
     }
 
-    public boolean remove(Object o) {
-        return m.remove(o) != null;
+    @Override public boolean remove(Object o) {
+        return map.remove(o) != null;
     }
 
     @Override public boolean add(String e) {
@@ -98,68 +97,68 @@ public class StringInterner extends AbstractSet<String> implements Set<String>, 
         }
     }
 
-    public Iterator<String> iterator() {
-        return s.iterator();
+    @Override public Iterator<String> iterator() {
+        return mapKeys.iterator();
     }
 
-    public Object[] toArray() {
-        return s.toArray();
+    @Override public Object[] toArray() {
+        return mapKeys.toArray();
     }
 
-    public <T> T[] toArray(T[] a) {
-        return s.toArray(a);
+    @Override public <T> T[] toArray(T[] a) {
+        return mapKeys.toArray(a);
     }
 
-    public String toString() {
-        return s.toString();
+    @Override public String toString() {
+        return mapKeys.toString();
     }
 
-    public int hashCode() {
-        return s.hashCode();
+    @Override public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof StringInterner)) return false;
+        // Use the normal implementation for Set equals
+        return super.equals(o);
     }
 
-    public boolean equals(Object o) {
-        return o == this || s.equals(o);
+    @Override public int hashCode() {
+        return mapKeys.hashCode();
     }
 
-    public boolean containsAll(Collection<?> c) {
-        return s.containsAll(c);
+    @Override public boolean containsAll(Collection<?> c) {
+        return mapKeys.containsAll(c);
     }
 
-    public boolean removeAll(Collection<?> c) {
-        return s.removeAll(c);
+    @Override public boolean removeAll(Collection<?> c) {
+        return mapKeys.removeAll(c);
     }
 
-    public boolean retainAll(Collection<?> c) {
-        return s.retainAll(c);
+    @Override public boolean retainAll(Collection<?> c) {
+        return mapKeys.retainAll(c);
     }
-    // addAll is the inherited
+
+    @Override public boolean addAll(Collection<? extends String> c) {
+        return super.addAll(c);
+    }
 
     // Override default methods in Collection
     @Override public void forEach(Consumer<? super String> action) {
-        s.forEach(action);
+        mapKeys.forEach(action);
     }
 
     @Override public boolean removeIf(Predicate<? super String> filter) {
-        return s.removeIf(filter);
+        return mapKeys.removeIf(filter);
     }
 
     @Override public Spliterator<String> spliterator() {
-        return s.spliterator();
+        return mapKeys.spliterator();
     }
 
     @Override public Stream<String> stream() {
-        return s.stream();
+        return mapKeys.stream();
     }
 
     @Override public Stream<String> parallelStream() {
-        return s.parallelStream();
+        return mapKeys.parallelStream();
     }
 
-    private static final long serialVersionUID = 2454657854757543876L;
-
-    private void readObject(java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException {
-        stream.defaultReadObject();
-        s = m.keySet();
-    }
 }
