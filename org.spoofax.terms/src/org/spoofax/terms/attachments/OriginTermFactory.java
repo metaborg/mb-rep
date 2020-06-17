@@ -53,6 +53,7 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 	public abstract boolean isOriginRoot(IStrategoTerm term);
 
 	@Override
+	@Deprecated
 	public IStrategoAppl replaceAppl(IStrategoConstructor constructor, IStrategoTerm[] kids,
 			IStrategoAppl oldTerm) {
 		
@@ -61,22 +62,25 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 		//TODO: child links only when same signature
 		return (IStrategoAppl) ensureLink(result, oldTerm, false);
 	}
-	
+
 	@Override
+	@Deprecated
 	public IStrategoTuple replaceTuple(IStrategoTerm[] kids, IStrategoTuple old) {
 		IStrategoTuple result = makeTuple(ensureChildLinks(kids, old), old.getAnnotations());
 		return (IStrategoTuple) ensureLink(result, old, false);
 	}
-	
+
 	@Override
+	@Deprecated
 	public IStrategoList replaceListCons(IStrategoTerm head, IStrategoList tail, IStrategoTerm oldHead, IStrategoList oldTail) {
 		IStrategoList result = makeListCons(head, tail);
 		if (oldHead != head)
 			replaceTerm(head, oldHead); // HACK: origin track one level extra in lists...
 		return result;
 	}
-	
+
 	@Override
+	@Deprecated
 	public IStrategoTerm replaceTerm(IStrategoTerm term, IStrategoTerm origin) {
 		if (term == null) {
 			return term;
@@ -151,6 +155,7 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 	 * maintaining only the outer annotations.
 	 */
 	@Override
+	@Deprecated
 	public IStrategoList replaceList(IStrategoTerm[] terms, IStrategoList old) {
 		assert terms.length == old.getSubtermCount();
 		for (int i = 0; i < terms.length; i++) {

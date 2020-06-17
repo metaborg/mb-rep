@@ -14,11 +14,13 @@ import org.spoofax.terms.util.ArrayIterator;
 import org.spoofax.terms.util.NotImplementedException;
 import org.spoofax.terms.util.TermUtils;
 
+import javax.annotation.Nullable;
+
 public abstract class SkeletonStrategoAppl extends StrategoTerm implements IStrategoAppl {
 
 	private static final long serialVersionUID = -2522680523775044390L;
 
-	public SkeletonStrategoAppl(IStrategoList annotations) {
+	public SkeletonStrategoAppl(@Nullable IStrategoList annotations) {
 		super(annotations);
 	}
 

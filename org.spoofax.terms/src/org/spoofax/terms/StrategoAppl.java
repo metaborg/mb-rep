@@ -9,6 +9,7 @@ import org.spoofax.interpreter.terms.TermType;
 import org.spoofax.terms.util.ArrayIterator;
 import org.spoofax.terms.util.TermUtils;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -22,7 +23,7 @@ public class StrategoAppl extends StrategoTerm implements IStrategoAppl {
 
     private final IStrategoTerm[] kids;
 
-    public StrategoAppl(IStrategoConstructor ctor, IStrategoTerm[] kids, IStrategoList annotations) {
+    public StrategoAppl(IStrategoConstructor ctor, IStrategoTerm[] kids, @Nullable IStrategoList annotations) {
         super(annotations);
         this.ctor = ctor;
         this.kids = kids;

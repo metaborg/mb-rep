@@ -3,17 +3,19 @@ package org.spoofax.terms.attachments;
 import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-/** 
- * @author Lennart Kats <lennart add lclnet.nl>
+import javax.annotation.Nullable;
+
+/**
+ * Origin term attachment.
  */
-public class OriginAttachment extends AbstractTermAttachment {
+public final class OriginAttachment extends AbstractTermAttachment {
 	
 	private static final long serialVersionUID = 1180953352629370705L;
 
 	public static TermAttachmentType<OriginAttachment> TYPE =
 		new VolatileTermAttachmentType<OriginAttachment>(OriginAttachment.class);
-	
-	private IStrategoTerm origin;
+
+	@Nullable private IStrategoTerm origin;
 
 	/**
 	 * Creates a new origin attachment.
@@ -23,7 +25,7 @@ public class OriginAttachment extends AbstractTermAttachment {
 	 * 
 	 * @see #setOrigin(ISimpleTerm, IStrategoTerm)
 	 */
-	private OriginAttachment(IStrategoTerm origin) {
+	private OriginAttachment(@Nullable IStrategoTerm origin) {
 		this.origin = origin;
 	}
 	
@@ -34,16 +36,16 @@ public class OriginAttachment extends AbstractTermAttachment {
 	public static OriginAttachment get(ISimpleTerm term) {
 		return term.getAttachment(TYPE);
 	}
-	
-	public IStrategoTerm getOrigin() {
+
+	@Nullable public IStrategoTerm getOrigin() {
 		return origin;
 	}
 
-	public void setOrigin(IStrategoTerm origin) {
+	public void setOrigin(@Nullable IStrategoTerm origin) {
 		this.origin = origin;
 	}
-	
-	public static IStrategoTerm getOrigin(ISimpleTerm term) {
+
+	@Nullable public static IStrategoTerm getOrigin(ISimpleTerm term) {
 		OriginAttachment attachment = term.getAttachment(TYPE);
 		return attachment == null ? null : attachment.getOrigin();
 	}
@@ -81,13 +83,10 @@ public class OriginAttachment extends AbstractTermAttachment {
         if(getClass() != obj.getClass())
             return false;
         OriginAttachment other = (OriginAttachment) obj;
-        if(origin == null) {
-            if(other.origin != null)
-                return false;
-        } else if(!origin.equals(other.origin))
-            return false;
-        return true;
-    }
+        if (origin == null) return other.origin == null;
+        if (origin == other.origin) return true;
+        return origin.equals(other.origin);
+	}
 
     @Override
 	public String toString() {

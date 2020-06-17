@@ -16,6 +16,7 @@ import org.spoofax.terms.util.EmptyIterator;
 import org.spoofax.terms.util.NotImplementedException;
 import org.spoofax.terms.util.TermUtils;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Collections;
@@ -28,7 +29,7 @@ public class SkeletonStrategoInt extends StrategoTerm implements IStrategoInt {
 
     private final BigInteger value;
 
-    public SkeletonStrategoInt(long value, IStrategoList annotations) {
+    public SkeletonStrategoInt(long value, @Nullable IStrategoList annotations) {
         super(annotations);
         this.value = BigInteger.valueOf(value);
     }

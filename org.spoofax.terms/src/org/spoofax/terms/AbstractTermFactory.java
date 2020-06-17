@@ -11,6 +11,9 @@ import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.attachments.ITermAttachment;
 import org.spoofax.terms.io.TAFTermReader;
+import org.spoofax.terms.util.IterableUtils;
+
+import javax.annotation.Nullable;
 
 public abstract class AbstractTermFactory implements ITermFactory {
     /** An empty Stratego list. Use this instead of `new StrategoList(null)` to avoid allocating a new object. */
@@ -38,34 +41,51 @@ public abstract class AbstractTermFactory implements ITermFactory {
         return result;
     }
 
+    @Override
     public StrategoConstructor makeConstructor(String name, int arity) {
         return createCachedConstructor(name, arity);
     }
 
+    @Override
+    @Deprecated
     public abstract IStrategoAppl makeAppl(IStrategoConstructor constructor, IStrategoTerm[] kids,
         IStrategoList annotations);
 
+    @Override
+    @Deprecated
     public abstract IStrategoTuple makeTuple(IStrategoTerm[] kids, IStrategoList annotations);
 
+    @Override
+    @Deprecated
     public abstract IStrategoList makeList(IStrategoTerm[] kids, IStrategoList annotations);
 
+    @Override
+    @Deprecated
     public IStrategoAppl replaceAppl(IStrategoConstructor constructor, IStrategoTerm[] kids, IStrategoAppl old) {
         return makeAppl(constructor, kids, old.getAnnotations());
     }
 
+    @Override
+    @Deprecated
     public IStrategoTuple replaceTuple(IStrategoTerm[] kids, IStrategoTuple old) {
         return makeTuple(kids, old.getAnnotations());
     }
 
+    @Override
+    @Deprecated
     public IStrategoList replaceList(IStrategoTerm[] kids, IStrategoList old) {
         return makeList(kids, old.getAnnotations());
     }
 
+    @Override
+    @Deprecated
     public IStrategoList replaceListCons(IStrategoTerm head, IStrategoList tail, IStrategoTerm oldHead,
         IStrategoList oldTail) {
         return makeListCons(head, tail);
     }
 
+    @Override
+    @Deprecated
     public IStrategoTerm replaceTerm(IStrategoTerm term, IStrategoTerm old) {
         return term;
     }
@@ -74,40 +94,51 @@ public abstract class AbstractTermFactory implements ITermFactory {
         return makeAppl(ctr, kids.getAllSubterms(), annotations);
     }
 
+    @Deprecated
     public final IStrategoAppl makeAppl(IStrategoConstructor ctr, IStrategoList kids) {
         return makeAppl(ctr, kids, null);
     }
 
+    @Override
+    @Deprecated
     public final IStrategoAppl makeAppl(IStrategoConstructor ctr, IStrategoTerm... terms) {
         return makeAppl(ctr, terms, null);
     }
 
+    @Override
+    @Deprecated
     public final IStrategoList makeList(IStrategoTerm... terms) {
         return makeList(terms, null);
     }
 
-    public IStrategoList makeList() {
-        return new StrategoArrayList();
-    }
-
+    @Override
+    @Deprecated
     public IStrategoList makeList(Collection<? extends IStrategoTerm> terms) {
         return StrategoArrayList.fromCollection(terms);
     }
 
+    @Override
+    @Deprecated
     public final IStrategoList makeListCons(IStrategoTerm head, IStrategoList tail) {
         return makeListCons(head, tail, null);
     }
 
+    @Override
+    @Deprecated
     public abstract IStrategoList makeListCons(IStrategoTerm head, IStrategoList tail, IStrategoList annos);
 
+    @Override
+    @Deprecated
     public final IStrategoTuple makeTuple(IStrategoTerm... terms) {
         return makeTuple(terms, null);
     }
 
+    @Override
     public IStrategoTerm parseFromString(String text) throws ParseError {
         return reader.parseFromString(text);
     }
 
+    @Override
     public IStrategoTerm copyAttachments(IStrategoTerm from, IStrategoTerm to) {
         ITermAttachment attach = from.getAttachment(null);
         while(attach != null) {
@@ -122,11 +153,51 @@ public abstract class AbstractTermFactory implements ITermFactory {
         return to;
     }
 
+    @Override
     public IStrategoList.Builder arrayListBuilder() {
         return StrategoArrayList.arrayListBuilder();
     }
 
+    @Override
     public IStrategoList.Builder arrayListBuilder(int initialCapacity) {
         return StrategoArrayList.arrayListBuilder(initialCapacity);
+    }
+
+
+    @Override
+    public IStrategoAppl buildAppl(String constructorName, IStrategoTerm[] subterms, @Nullable IStrategoTerm replacee, @Nullable IStrategoList annotations) {
+        return buildAppl(new StrategoConstructor(constructorName, subterms.length), subterms, replacee, annotations);
+    }
+
+    @Override
+    public IStrategoAppl buildAppl(String constructorName, Iterable<IStrategoTerm> subterms, @Nullable IStrategoTerm replacee, @Nullable IStrategoList annotations) {
+        return buildAppl(constructorName, termsIterableToArray(subterms), replacee, annotations);
+    }
+
+    @Override
+    public IStrategoAppl buildAppl(IStrategoConstructor constructor, Iterable<IStrategoTerm> subterms, @Nullable IStrategoTerm replacee, @Nullable IStrategoList annotations) {
+        return buildAppl(constructor, termsIterableToArray(subterms), replacee, annotations);
+    }
+
+    @Override
+    public IStrategoList buildList(Iterable<IStrategoTerm> subterms, @Nullable IStrategoTerm replacee, @Nullable IStrategoList annotations) {
+        return buildList(termsIterableToArray(subterms), replacee, annotations);
+    }
+
+    @Override
+    public IStrategoTuple buildTuple(Iterable<IStrategoTerm> subterms, @Nullable IStrategoTerm replacee, @Nullable IStrategoList annotations) {
+        return buildTuple(termsIterableToArray(subterms), replacee, annotations);
+    }
+
+
+
+    /**
+     * Converts an iterable of terms to an array.
+     *
+     * @param terms the iterable to convert
+     * @return the resulting array
+     */
+    protected static IStrategoTerm[] termsIterableToArray(Iterable<IStrategoTerm> terms) {
+        return IterableUtils.toArray(terms, EMPTY_TERM_ARRAY);
     }
 }
