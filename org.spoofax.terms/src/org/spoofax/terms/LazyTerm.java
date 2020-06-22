@@ -77,6 +77,11 @@ public abstract class LazyTerm implements IStrategoAppl, IStrategoInt, IStratego
 		return getWrapped().getType();
 	}
 
+	@Override
+	public TermType getType() {
+		return getWrapped().getType();
+	}
+
 	@Deprecated
 	@Override
 	public void prettyPrint(ITermPrinter pp) {
