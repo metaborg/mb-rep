@@ -234,25 +234,17 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
             return term;
         }
 
-        // Ordered from most likely to least likely:
-        if (TermUtils.isAppl(term)) {
-            return buildAppl(((IStrategoAppl)term).getConstructor(), term.getAllSubterms(), term, annotations);
-        } else if (TermUtils.isList(term)) {
-            return buildList(term.getAllSubterms(), term, annotations);
-        } else if (TermUtils.isString(term)) {
-            return buildString(((IStrategoString)term).stringValue(), term, annotations);
-        } else if (TermUtils.isInt(term)) {
-            return buildInt(((IStrategoInt)term).intValue(), term, annotations);
-        } else if (TermUtils.isTuple(term)) {
-            return buildTuple(term.getAllSubterms(), term, annotations);
-        } else if (TermUtils.isReal(term)) {
-            return buildReal(((IStrategoReal)term).realValue(), term, annotations);
-        } else if (term instanceof IStrategoPlaceholder) {
-            return buildPlaceholder(((IStrategoPlaceholder)term).getTemplate(), term, annotations);
+        switch(term.getType()) {
+            case APPL: return buildAppl(((IStrategoAppl)term).getConstructor(), term.getAllSubterms(), term, annotations);
+            case LIST: return buildList(term.getAllSubterms(), term, annotations);
+            case INT: return buildInt(((IStrategoInt)term).intValue(), term, annotations);
+            case REAL: return buildReal(((IStrategoReal)term).realValue(), term, annotations);
+            case STRING: return buildString(((IStrategoString)term).stringValue(), term, annotations);
+            case TUPLE: return buildTuple(term.getAllSubterms(), term, annotations);
+            case PLACEHOLDER: return buildPlaceholder(((IStrategoPlaceholder)term).getTemplate(), term, annotations);
+            default: throw new UnsupportedOperationException(
+                        "Unable to annotate term of type " + term.getClass().getName() + " in " + getClass().getName());
         }
-
-        throw new UnsupportedOperationException(
-                "Unable to annotate term of type " + term.getClass().getName() + " in " + getClass().getName());
     }
 
     @Override
