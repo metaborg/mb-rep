@@ -13,8 +13,6 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.util.StringInterner;
 import org.spoofax.terms.util.TermUtils;
 
-import static org.spoofax.interpreter.terms.IStrategoTerm.STRING;
-
 public class TermFactory extends AbstractTermFactory implements ITermFactory {
     private static final int MAX_POOLED_STRING_LENGTH = 200;
     private static final StringInterner usedStrings = new StringInterner();

@@ -63,7 +63,7 @@ public interface ISimpleTerm extends Serializable {
      *
      * @return {@code true} when this term is a list term;
      * otherwise, {@code false}.
-     * @deprecated Use {@link IStrategoTerm#getTermType()} instead.
+     * @deprecated Use {@link IStrategoTerm#getType()} instead.
      */
 	@Deprecated
 	boolean isList();

@@ -103,7 +103,7 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 				return false;
 		}
 		return 	
-			term.getTermType() == origin.getTermType() && 
+			term.getType() == origin.getType() &&
 			term.getSubtermCount() == origin.getSubtermCount();
 	}
 

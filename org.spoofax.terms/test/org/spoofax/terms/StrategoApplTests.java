@@ -88,7 +88,7 @@ public class StrategoApplTests {
     // IStrategoAppl
     @Nested class GetConstructorTests    extends FixtureImpl implements IStrategoApplTests.GetConstructorTests {}
     @Nested class GetNameTests           extends FixtureImpl implements IStrategoApplTests.GetNameTests {}
-    @Nested class GetTermTypeTests       extends FixtureImpl implements IStrategoApplTests.GetTermTypeTests {}
+    @Nested class GetTypeTests           extends FixtureImpl implements IStrategoApplTests.GetTypeTests {}
     @Nested class MatchTests             extends FixtureImpl implements IStrategoApplTests.MatchTests {}
     @Nested class ToStringTests          extends FixtureImpl implements IStrategoApplTests.ToStringTests {}
     @Nested class WriteAsStringTests     extends FixtureImpl implements IStrategoApplTests.WriteAsStringTests {}

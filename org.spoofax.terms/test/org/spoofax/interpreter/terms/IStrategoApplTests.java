@@ -102,10 +102,10 @@ public interface IStrategoApplTests {
 
 
     /**
-     * Tests the {@link IStrategoAppl#getTermType()} method.
+     * Tests the {@link IStrategoAppl#getType()} method.
      */
-    @DisplayName("getTermType()")
-    interface GetTermTypeTests extends Fixture, IStrategoTermTests.GetTermTypeTests {
+    @DisplayName("getType()")
+    interface GetTypeTests extends Fixture, IStrategoTermTests.GetTypeTests {
 
         @Test
         @DisplayName("returns the correct term type")
@@ -114,10 +114,10 @@ public interface IStrategoApplTests {
             IStrategoAppl sut = createIStrategoAppl(null, null, null, null);
 
             // Act
-            int result = sut.getTermType();
+            TermType result = sut.getType();
 
             // Assert
-            assertEquals(IStrategoTerm.APPL, result);
+            assertEquals(TermType.APPL, result);
         }
 
     }

@@ -109,33 +109,33 @@ public class SimpleTextTermWriter implements TextTermWriter {
             return;
         }
 
-        switch(term.getTermType()) {
-            case IStrategoTerm.APPL:
+        switch(term.getType()) {
+            case APPL:
                 writeApplBody((IStrategoAppl)term, writer, depth, isAnnotation);
                 break;
-            case IStrategoTerm.LIST:
+            case LIST:
                 writeListBody((IStrategoList)term, writer, depth, isAnnotation);
                 break;
-            case IStrategoTerm.TUPLE:
+            case TUPLE:
                 writeTupleBody((IStrategoTuple)term, writer, depth, isAnnotation);
                 break;
-            case IStrategoTerm.INT:
+            case INT:
                 writeIntBody((IStrategoInt)term, writer, depth, isAnnotation);
                 break;
-            case IStrategoTerm.REAL:
+            case REAL:
                 writeRealBody((IStrategoReal)term, writer, depth, isAnnotation);
                 break;
-            case IStrategoTerm.STRING:
+            case STRING:
                 writeStringBody((IStrategoString)term, writer, depth, isAnnotation);
                 break;
-            case IStrategoTerm.REF:
+            case REF:
                 writeRefBody((IStrategoRef)term, writer, depth, isAnnotation);
                 break;
-            case IStrategoTerm.PLACEHOLDER:
+            case PLACEHOLDER:
                 writePlaceholderBody((IStrategoPlaceholder)term, writer, depth, isAnnotation);
                 break;
             default:
-                throw new RuntimeException("Unknown term type: " + term.getTermType() + " for term of type " + term.getClass().getSimpleName());
+                throw new RuntimeException("Unknown term type: " + term.getType() + " for term of type " + term.getClass().getSimpleName());
         }
 
         if(termHasAnnotations(term, isAnnotation)) writeAnnotations(term, writer, depth, isAnnotation);

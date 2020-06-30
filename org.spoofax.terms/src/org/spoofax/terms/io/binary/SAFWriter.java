@@ -28,25 +28,14 @@
 
 package org.spoofax.terms.io.binary;
 
-import static org.spoofax.interpreter.terms.IStrategoTerm.APPL;
-import static org.spoofax.interpreter.terms.IStrategoTerm.INT;
-import static org.spoofax.interpreter.terms.IStrategoTerm.LIST;
-import static org.spoofax.interpreter.terms.IStrategoTerm.REAL;
-import static org.spoofax.interpreter.terms.IStrategoTerm.STRING;
-import static org.spoofax.interpreter.terms.IStrategoTerm.TUPLE;
-
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
@@ -197,7 +186,7 @@ private final static class SAFWriterInternal {
      */
     protected void visit(IStrategoTerm term) {
 
-        switch (term.getTermType()) {
+        switch (term.getType()) {
         	case APPL:
         		voidVisitAppl((IStrategoAppl) term);
         		break;
@@ -217,7 +206,7 @@ private final static class SAFWriterInternal {
         		voidVisitTuple((IStrategoTuple) term);
         		break;
         	default:
-        		throw new RuntimeException("Could not serializate term of type "
+        		throw new RuntimeException("Could not serialize term of type "
                     + term.getClass().getName() + " to SAF format.");
         }
 

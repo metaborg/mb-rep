@@ -4,15 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
 
-import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoInt;
-import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoPlaceholder;
-import org.spoofax.interpreter.terms.IStrategoReal;
-import org.spoofax.interpreter.terms.IStrategoRef;
-import org.spoofax.interpreter.terms.IStrategoString;
-import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.IStrategoTuple;
+import org.spoofax.interpreter.terms.*;
 
 public class StrategoTermVisitee {
     public static void topdown(IStrategoTermVisitor visitor, IStrategoTerm initialTerm) {
@@ -49,26 +41,26 @@ public class StrategoTermVisitee {
     }
 
     private static boolean dispatch(IStrategoTermVisitor visitor, IStrategoTerm term) {
-        switch(term.getTermType()) {
-            case IStrategoTerm.APPL:
+        switch(term.getType()) {
+            case APPL:
                 return visitor.visit((IStrategoAppl) term);
-            case IStrategoTerm.LIST:
+            case LIST:
                 return visitor.visit((IStrategoList) term);
-            case IStrategoTerm.TUPLE:
+            case TUPLE:
                 return visitor.visit((IStrategoTuple) term);
-            case IStrategoTerm.INT:
+            case INT:
                 visitor.visit((IStrategoInt) term);
                 return false;
-            case IStrategoTerm.REAL:
+            case REAL:
                 visitor.visit((IStrategoReal) term);
                 return false;
-            case IStrategoTerm.STRING:
+            case STRING:
                 visitor.visit((IStrategoString) term);
                 return false;
-            case IStrategoTerm.REF:
+            case REF:
                 visitor.visit((IStrategoRef) term);
                 return false;
-            case IStrategoTerm.PLACEHOLDER:
+            case PLACEHOLDER:
                 return visitor.visit((IStrategoPlaceholder) term);
             default:
                 return visitor.visit(term);

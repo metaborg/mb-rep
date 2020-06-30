@@ -60,7 +60,7 @@ public abstract class LazyTerm implements IStrategoAppl, IStrategoInt, IStratego
 	@Deprecated
 	@Override
 	public int getTermType() {
-		return getWrapped().getTermType();
+		return getType().getValue();
 	}
 
 	@Override
@@ -114,21 +114,21 @@ public abstract class LazyTerm implements IStrategoAppl, IStrategoInt, IStratego
 
 	@Override
 	public IStrategoTerm head() {
-		if(getTermType() != LIST)
+		if(getType() != TermType.LIST)
 			throw new TermWrapperException("Called head() on a term that is not of type LIST");
 		return ((IStrategoList) getWrapped()).head();
 	}
 
 	@Override
 	public IStrategoList tail() {
-		if(getTermType() != LIST)
+		if(getType() != TermType.LIST)
 			throw new TermWrapperException("Called tail() on a term that is not of type LIST");
 		return ((IStrategoList) getWrapped()).tail();
 	}
 
 	@Override
 	public boolean isEmpty() {
-		if(getTermType() != LIST)
+		if(getType() != TermType.LIST)
 			throw new TermWrapperException("Called isEmpty() on a term that is not of type LIST");
 		return ((IStrategoList) getWrapped()).isEmpty();
 	}
@@ -136,14 +136,14 @@ public abstract class LazyTerm implements IStrategoAppl, IStrategoInt, IStratego
 	@Deprecated
 	@Override
 	public IStrategoList prepend(IStrategoTerm prefix) {
-		if(getTermType() != LIST)
+		if(getType() != TermType.LIST)
 			throw new TermWrapperException("Called prepend() on a term that is not of type LIST");
 		return ((IStrategoList) getWrapped()).prepend(prefix);
 	}
 
 	@Override
 	public int size() {
-		switch(getTermType()) {
+		switch(getType()) {
 			case LIST:
 				return ((IStrategoList) getWrapped()).size();
 			case TUPLE:
@@ -155,21 +155,21 @@ public abstract class LazyTerm implements IStrategoAppl, IStrategoInt, IStratego
 
 	@Override
 	public IStrategoConstructor getConstructor() {
-		if(getTermType() != APPL)
+		if(getType() != TermType.APPL)
 			throw new TermWrapperException("Called getConstructor() on a term that is not of type APPL");
 		return ((IStrategoAppl) getWrapped()).getConstructor();
 	}
 
 	@Override
 	public String getName() {
-		if(getTermType() != STRING && getTermType() != APPL)
+		if(getType() != TermType.STRING && getType() != TermType.APPL)
 			throw new TermWrapperException("Called getName() on a term that is not of type STRING or APPL");
 		return ((IStrategoNamed) getWrapped()).getName();
 	}
 
 	@Override
 	public int intValue() {
-		if(getTermType() != INT)
+		if(getType() != TermType.INT)
 			throw new TermWrapperException("Called intValue() on a term that is not of type INT");
 		return ((IStrategoInt) getWrapped()).intValue();
 	}
@@ -177,21 +177,21 @@ public abstract class LazyTerm implements IStrategoAppl, IStrategoInt, IStratego
 	@Override
 	@Deprecated
 	public boolean isUniqueValueTerm() {
-		if(getTermType() != INT)
+		if(getType() != TermType.INT)
 			throw new TermWrapperException("Called isUniqueValueTerm() on a term that is not of type INT");
 		return ((IStrategoInt) getWrapped()).isUniqueValueTerm();
 	}
 
 	@Override
 	public double realValue() {
-		if(getTermType() != REAL)
+		if(getType() != TermType.REAL)
 			throw new TermWrapperException("Called realValue() on a term that is not of type REAL");
 		return ((IStrategoReal) getWrapped()).realValue();
 	}
 
 	@Override
 	public String stringValue() {
-		if(getTermType() != STRING)
+		if(getType() != TermType.STRING)
 			throw new TermWrapperException("Called stringValue() on a term that is not of type STRING");
 		return ((IStrategoString) getWrapped()).stringValue();
 	}

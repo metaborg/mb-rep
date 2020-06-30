@@ -118,8 +118,7 @@ public interface IStrategoTerm extends ISimpleTerm, Serializable, Iterable<IStra
     /**
      * Gets the type of term.
      *
-     * @return an integer value, one of: {@link #APPL}, {@link #LIST}, {@link #INT}, {@link #REAL},
-     * {@link #STRING}, {@link #CTOR}, {@link #TUPLE}, {@link #REF}, or {@link #BLOB}.
+     * @return an integer value, the value of {@link TermType#getValue()}
      * @deprecated Use {@link #getType()} instead.
      */
     @Deprecated

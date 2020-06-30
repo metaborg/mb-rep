@@ -70,7 +70,7 @@ public final class StrategoConstructor extends StrategoTerm implements IStratego
     protected boolean doSlowMatch(IStrategoTerm second) {
         if(second == this)
             return true;
-        if(second == null || second.getTermType() != CTOR)
+        if(second == null || second.getType() != TermType.CTOR)
             return false;
 
         IStrategoConstructor other = (IStrategoConstructor) second;

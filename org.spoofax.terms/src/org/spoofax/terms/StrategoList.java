@@ -116,7 +116,7 @@ public class StrategoList extends AbstractStrategoList {
 
     @Override
     protected boolean doSlowMatch(IStrategoTerm second) {
-        if(second.getTermType() != IStrategoTerm.LIST)
+        if(second.getType() != TermType.LIST)
             return false;
 
         final IStrategoList snd = (IStrategoList) second;
