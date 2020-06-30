@@ -62,8 +62,8 @@ public final class StrategoConstructor extends StrategoTerm implements IStratego
     }
 
     @Override
-    public final int getTermType() {
-        return IStrategoTerm.CTOR;
+    public TermType getType() {
+        return TermType.CTOR;
     }
 
     @Override

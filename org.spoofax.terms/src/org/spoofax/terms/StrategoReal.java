@@ -7,10 +7,7 @@
  */
 package org.spoofax.terms;
 
-import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoReal;
-import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.ITermPrinter;
+import org.spoofax.interpreter.terms.*;
 import org.spoofax.terms.util.EmptyIterator;
 import org.spoofax.terms.util.TermUtils;
 
@@ -61,8 +58,8 @@ public class StrategoReal extends StrategoTerm implements IStrategoReal {
     }
 
     @Override
-    public int getTermType() {
-        return IStrategoTerm.REAL;
+    public TermType getType() {
+        return TermType.REAL;
     }
 
     @Override
@@ -100,6 +97,6 @@ public class StrategoReal extends StrategoTerm implements IStrategoReal {
     }
 
     public Iterator<IStrategoTerm> iterator() {
-        return new EmptyIterator<IStrategoTerm>();
+        return new EmptyIterator<>();
     }
 }

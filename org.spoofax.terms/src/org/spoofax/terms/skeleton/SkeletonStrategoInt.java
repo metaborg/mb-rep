@@ -5,10 +5,7 @@
  */
 package org.spoofax.terms.skeleton;
 
-import org.spoofax.interpreter.terms.IStrategoInt;
-import org.spoofax.interpreter.terms.IStrategoList;
-import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.ITermPrinter;
+import org.spoofax.interpreter.terms.*;
 import org.spoofax.terms.StrategoTerm;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.util.EmptyIterator;
@@ -58,8 +55,9 @@ public class SkeletonStrategoInt extends StrategoTerm implements IStrategoInt {
         return 0;
     }
 
-    public int getTermType() {
-        return IStrategoTerm.INT;
+    @Override
+    public TermType getType() {
+        return TermType.INT;
     }
 
     public boolean isUniqueValueTerm() {

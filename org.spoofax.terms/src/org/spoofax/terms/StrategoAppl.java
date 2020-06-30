@@ -61,8 +61,8 @@ public class StrategoAppl extends StrategoTerm implements IStrategoAppl {
     }
 
     @Override
-    public int getTermType() {
-        return IStrategoTerm.APPL;
+    public TermType getType() {
+        return TermType.APPL;
     }
 
     @Override

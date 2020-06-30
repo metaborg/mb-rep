@@ -3,6 +3,7 @@ package org.spoofax.terms;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
+import org.spoofax.interpreter.terms.TermType;
 import org.spoofax.terms.util.TermUtils;
 
 import javax.annotation.Nullable;
@@ -111,11 +112,6 @@ public class StrategoList extends AbstractStrategoList {
     @Override
     public int getSubtermCount() {
         return size;
-    }
-
-    @Override
-    public int getTermType() {
-        return IStrategoTerm.LIST;
     }
 
     @Override

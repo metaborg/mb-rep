@@ -10,6 +10,7 @@ package org.spoofax.terms;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
+import org.spoofax.interpreter.terms.TermType;
 
 import java.io.IOException;
 import java.util.List;
@@ -167,9 +168,18 @@ public abstract class StrategoTerm extends AbstractSimpleTerm implements IStrate
         }
     }
 
+    @Override
+    @Deprecated
+    public int getTermType() {
+        return getType().getValue();
+    }
+
+    @Override
+    public abstract TermType getType();
+
     @Deprecated
     @Override
     public final boolean isList() {
-        return getTermType() == LIST;
+        return getType() == TermType.LIST;
     }
 }

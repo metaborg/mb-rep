@@ -21,13 +21,13 @@ public class StrategoPlaceholder extends StrategoAppl implements IStrategoPlaceh
     }
 
     @Override
-    public int getTermType() {
-        return PLACEHOLDER;
+    public TermType getType() {
+        return TermType.PLACEHOLDER;
     }
 
     @Override
     protected boolean doSlowMatch(IStrategoTerm second) {
-        if(second.getTermType() != PLACEHOLDER)
+        if(second.getType() != TermType.PLACEHOLDER)
             return false;
 
         if(!getTemplate().match(((IStrategoPlaceholder) second).getTemplate()))
