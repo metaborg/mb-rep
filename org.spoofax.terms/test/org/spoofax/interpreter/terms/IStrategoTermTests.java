@@ -296,10 +296,10 @@ public interface IStrategoTermTests {
 
 
     /**
-     * Tests the {@link IStrategoTerm#getTermType()} method.
+     * Tests the {@link IStrategoTerm#getType()} method.
      */
-    @DisplayName("getTermType()")
-    interface GetTermTypeTests extends Fixture {
+    @DisplayName("getType()")
+    interface GetTypeTests extends Fixture {
 
         @Test
         @DisplayName("returns a valid term type")
@@ -308,21 +308,21 @@ public interface IStrategoTermTests {
             IStrategoTerm sut = createIStrategoTerm(null, null, null);
 
             // Act
-            int result = sut.getTermType();
+            TermType result = sut.getType();
 
             // Assert
             assertTrue(
                 // @formatter:off
-                result == IStrategoTerm.APPL ||
-                result == IStrategoTerm.LIST ||
-                result == IStrategoTerm.INT ||
-                result == IStrategoTerm.REAL ||
-                result == IStrategoTerm.STRING ||
-                result == IStrategoTerm.CTOR ||
-                result == IStrategoTerm.TUPLE ||
-                result == IStrategoTerm.REF ||
-                result == IStrategoTerm.BLOB ||
-                result == IStrategoTerm.PLACEHOLDER
+                result == TermType.APPL ||
+                result == TermType.LIST ||
+                result == TermType.INT ||
+                result == TermType.REAL ||
+                result == TermType.STRING ||
+                result == TermType.CTOR ||
+                result == TermType.TUPLE ||
+                result == TermType.REF ||
+                result == TermType.BLOB ||
+                result == TermType.PLACEHOLDER
                 // @formatter:on
             );
         }

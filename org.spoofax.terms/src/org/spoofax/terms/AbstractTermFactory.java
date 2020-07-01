@@ -3,7 +3,12 @@ package org.spoofax.terms;
 import java.util.Collection;
 import java.util.HashMap;
 
-import org.spoofax.interpreter.terms.*;
+import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
+import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.IStrategoTuple;
+import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.attachments.ITermAttachment;
 import org.spoofax.terms.io.TAFTermReader;
 

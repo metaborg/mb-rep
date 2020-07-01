@@ -1,8 +1,6 @@
 package org.spoofax.terms.util;
 
 import javax.annotation.Nullable;
-import java.io.IOException;
-import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.function.Consumer;

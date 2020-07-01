@@ -62,7 +62,7 @@ public class StrategoTupleTests {
 
     // @formatter:off
     // IStrategoTuple
-    @Nested class GetTermTypeTests       extends FixtureImpl implements IStrategoTupleTests.GetTermTypeTests {}
+    @Nested class GetTypeTests           extends FixtureImpl implements IStrategoTupleTests.GetTypeTests {}
     @Nested class GetTests               extends FixtureImpl implements IStrategoTupleTests.GetTests {}
     @Nested class MatchTests             extends FixtureImpl implements IStrategoTupleTests.MatchTests {}
     @Nested class SizeTests              extends FixtureImpl implements IStrategoTupleTests.SizeTests {}

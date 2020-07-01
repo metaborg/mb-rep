@@ -1,14 +1,5 @@
 package org.spoofax.interpreter.terms;
 
-import static org.spoofax.interpreter.terms.IStrategoTerm.APPL;
-import static org.spoofax.interpreter.terms.IStrategoTerm.BLOB;
-import static org.spoofax.interpreter.terms.IStrategoTerm.CTOR;
-import static org.spoofax.interpreter.terms.IStrategoTerm.INT;
-import static org.spoofax.interpreter.terms.IStrategoTerm.LIST;
-import static org.spoofax.interpreter.terms.IStrategoTerm.REAL;
-import static org.spoofax.interpreter.terms.IStrategoTerm.STRING;
-import static org.spoofax.interpreter.terms.IStrategoTerm.TUPLE;
-
 import java.util.HashMap;
 
 import org.spoofax.terms.StrategoAnnotation;
@@ -53,7 +44,7 @@ public class TermConverter {
     
     public IStrategoTerm convert(IStrategoTerm term) {
     	IStrategoTerm result;
-        switch (term.getTermType()) {
+        switch (term.getType()) {
             // APPL and LIST are inlined to help stack usage
             case APPL:
                 IStrategoAppl appl = (IStrategoAppl) term;
@@ -87,7 +78,7 @@ public class TermConverter {
     }
     
     public IStrategoTerm convertShallow(IStrategoTerm term, IStrategoTerm[] kids, IStrategoList annos) {
-		switch (term.getTermType()) {
+		switch (term.getType()) {
 			case APPL:
 				IStrategoConstructor cons = ((IStrategoAppl)term).getConstructor();
 				return factory.makeAppl(cons, kids, annos);

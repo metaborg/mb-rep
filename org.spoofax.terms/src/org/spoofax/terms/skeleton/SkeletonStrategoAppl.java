@@ -8,6 +8,7 @@ import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
+import org.spoofax.interpreter.terms.TermType;
 import org.spoofax.terms.StrategoTerm;
 import org.spoofax.terms.util.ArrayIterator;
 import org.spoofax.terms.util.NotImplementedException;
@@ -26,20 +27,24 @@ public abstract class SkeletonStrategoAppl extends StrategoTerm implements IStra
 		throw new NotImplementedException();
 	}
 
-	final public String getName() {
+	@Override final public String getName() {
 		return getConstructor().getName();
 	}
 
-	final public int getSubtermCount() {
+	@Override final public int getSubtermCount() {
 		return getConstructor().getArity();
 	}
 
-	final public int getTermType() {
-		return IStrategoTerm.APPL;
+	@Deprecated
+	@Override final public int getTermType() {
+		return getType().getValue();
 	}
 
-	@Override
-	final protected boolean doSlowMatch(IStrategoTerm second) {
+	@Override final public TermType getType() {
+		return TermType.APPL;
+	}
+
+	@Override final protected boolean doSlowMatch(IStrategoTerm second) {
 		if(!TermUtils.isAppl(second))
 			return false;
 		final IStrategoAppl o = (IStrategoAppl) second;
@@ -66,7 +71,7 @@ public abstract class SkeletonStrategoAppl extends StrategoTerm implements IStra
 			return annotations.match(secondAnnotations);
 	}
 
-	final public void writeAsString(Appendable output, int maxDepth) throws IOException {
+	@Override final public void writeAsString(Appendable output, int maxDepth) throws IOException {
 		output.append(getName());
 		final IStrategoTerm[] kids = getAllSubterms();
 		if(kids.length > 0) {
@@ -86,12 +91,11 @@ public abstract class SkeletonStrategoAppl extends StrategoTerm implements IStra
 	}
 
 	@Deprecated
-	public final void prettyPrint(ITermPrinter pp) {
+	@Override public final void prettyPrint(ITermPrinter pp) {
 		new NotImplementedException();
 	}
 
-	@Override
-	final protected int hashFunction() {
+	@Override final protected int hashFunction() {
 		long r = getConstructor().hashCode();
 		int accum = 6673;
 		final IStrategoTerm[] kids = getAllSubterms();
@@ -102,7 +106,7 @@ public abstract class SkeletonStrategoAppl extends StrategoTerm implements IStra
 		return (int) (r >> 12);
 	}
 
-	public Iterator<IStrategoTerm> iterator() {
+	@Override public Iterator<IStrategoTerm> iterator() {
 		return new ArrayIterator<IStrategoTerm>(getAllSubterms());
 	}
 

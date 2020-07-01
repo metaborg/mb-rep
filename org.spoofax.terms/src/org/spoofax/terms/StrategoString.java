@@ -11,6 +11,7 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
+import org.spoofax.interpreter.terms.TermType;
 import org.spoofax.terms.util.EmptyIterator;
 import org.spoofax.terms.util.StringUtils;
 import org.spoofax.terms.util.TermUtils;
@@ -58,8 +59,8 @@ public class StrategoString extends StrategoTerm implements IStrategoString {
     }
 
     @Override
-    public int getTermType() {
-        return IStrategoTerm.STRING;
+    public TermType getType() {
+        return TermType.STRING;
     }
 
     @Override

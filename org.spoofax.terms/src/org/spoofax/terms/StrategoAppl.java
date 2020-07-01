@@ -1,6 +1,11 @@
 package org.spoofax.terms;
 
-import org.spoofax.interpreter.terms.*;
+import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
+import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermPrinter;
+import org.spoofax.interpreter.terms.TermType;
 import org.spoofax.terms.util.ArrayIterator;
 import org.spoofax.terms.util.TermUtils;
 
@@ -61,8 +66,8 @@ public class StrategoAppl extends StrategoTerm implements IStrategoAppl {
     }
 
     @Override
-    public int getTermType() {
-        return IStrategoTerm.APPL;
+    public TermType getType() {
+        return TermType.APPL;
     }
 
     @Override

@@ -1,13 +1,10 @@
 package org.spoofax.terms;
 
-import static org.spoofax.interpreter.terms.IStrategoTerm.APPL;
-import static org.spoofax.interpreter.terms.IStrategoTerm.LIST;
-import static org.spoofax.interpreter.terms.IStrategoTerm.TUPLE;
-
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.interpreter.terms.TermType;
 
 /**
  * An abstract, top-down transformation class
@@ -39,10 +36,10 @@ public abstract class TermTransformer {
 	}
 
 	public IStrategoTerm simpleAll(IStrategoTerm current) {
-		int termType = current.getTermType();
+		TermType termType = current.getType();
 		IStrategoTerm result;
 		
-		if (termType == LIST) {
+		if (termType == TermType.LIST) {
 			result = simpleMapIgnoreAnnos((IStrategoList) current);
 		} else {
 			IStrategoTerm[] inputs = current.getAllSubterms();

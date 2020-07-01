@@ -121,7 +121,7 @@ public class StrategoListTests {
 
     // @formatter:off
     // IStrategoList
-    @Nested class GetTermTypeTests       extends FixtureImpl implements IStrategoListTests.GetTermTypeTests {}
+    @Nested class GetTypeTests           extends FixtureImpl implements IStrategoListTests.GetTypeTests {}
     @Nested class HeadTests              extends FixtureImpl implements IStrategoListTests.HeadTests {}
     @Nested class IsEmptyTests           extends FixtureImpl implements IStrategoListTests.IsEmptyTests {}
     @Nested class MatchTests             extends FixtureImpl implements IStrategoListTests.MatchTests {}

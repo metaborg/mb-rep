@@ -1,6 +1,11 @@
 package org.spoofax.terms;
 
-import org.spoofax.interpreter.terms.*;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
+import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoPlaceholder;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermPrinter;
+import org.spoofax.interpreter.terms.TermType;
 
 import java.io.IOException;
 
@@ -21,13 +26,13 @@ public class StrategoPlaceholder extends StrategoAppl implements IStrategoPlaceh
     }
 
     @Override
-    public int getTermType() {
-        return PLACEHOLDER;
+    public TermType getType() {
+        return TermType.PLACEHOLDER;
     }
 
     @Override
     protected boolean doSlowMatch(IStrategoTerm second) {
-        if(second.getTermType() != PLACEHOLDER)
+        if(second.getType() != TermType.PLACEHOLDER)
             return false;
 
         if(!getTemplate().match(((IStrategoPlaceholder) second).getTemplate()))

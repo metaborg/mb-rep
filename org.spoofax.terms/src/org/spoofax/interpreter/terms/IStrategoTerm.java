@@ -12,7 +12,6 @@ import org.spoofax.terms.util.TermUtils;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.Writer;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -26,25 +25,65 @@ import java.util.List;
  */
 public interface IStrategoTerm extends ISimpleTerm, Serializable, Iterable<IStrategoTerm> {
 
-    /** A Constructor Application term type. */
+    /**
+     * A Constructor Application term type.
+     * @deprecated Use {@link TermType} instead.
+     */
+    @Deprecated
     int APPL = 1;
-    /** A List term type. */
+    /**
+     * A List term type.
+     * @deprecated Use {@link TermType} instead.
+     */
+    @Deprecated
     int LIST = 2;
-    /** An Int term type. */
+    /**
+     * An Int term type.
+     * @deprecated Use {@link TermType} instead.
+     */
+    @Deprecated
     int INT = 3;
-    /** A Real term type. */
+    /**
+     * A Real term type.
+     * @deprecated Use {@link TermType} instead.
+     */
+    @Deprecated
     int REAL = 4;
-    /** A String term type. */
+    /**
+     * A String term type.
+     * @deprecated Use {@link TermType} instead.
+     */
+    @Deprecated
     int STRING = 5;
-    /** A Term Constructor term type. */
+    /**
+     * A Term Constructor term type.
+     * @deprecated Use {@link TermType} instead.
+     */
+    @Deprecated
     int CTOR = 6;
-    /** A Tuple term type. */
+    /**
+     * A Tuple term type.
+     * @deprecated Use {@link TermType} instead.
+     */
+    @Deprecated
     int TUPLE = 7;
-    /** A Ref term type. */
+    /**
+     * A Ref term type.
+     * @deprecated Use {@link TermType} instead.
+     */
+    @Deprecated
     int REF = 8;
-    /** A Blob term type. */
+    /**
+     * A Blob term type.
+     * @deprecated Use {@link TermType} instead.
+     */
+    @Deprecated
     int BLOB = 9;
-    /** A Placeholder term type. */
+    /**
+     * A Placeholder term type.
+     * @deprecated Use {@link TermType} instead.
+     */
+    @Deprecated
     int PLACEHOLDER = 10;
 
     /** @deprecated Use {@link Integer#MAX_VALUE} instead. */
@@ -78,10 +117,18 @@ public interface IStrategoTerm extends ISimpleTerm, Serializable, Iterable<IStra
     /**
      * Gets the type of term.
      *
-     * @return an integer value, one of: {@link #APPL}, {@link #LIST}, {@link #INT}, {@link #REAL},
-     * {@link #STRING}, {@link #CTOR}, {@link #TUPLE}, {@link #REF}, or {@link #BLOB}.
+     * @return an integer value, the value of {@link TermType#getValue()}
+     * @deprecated Use {@link #getType()} instead.
      */
+    @Deprecated
     int getTermType();
+
+    /**
+     * Gets the type of term.
+     *
+     * @return a member of the {@link TermType} enum.
+     */
+    TermType getType();
 
     /**
      * Gets the annnotations on this term.

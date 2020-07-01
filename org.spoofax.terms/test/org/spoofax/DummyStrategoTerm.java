@@ -3,6 +3,7 @@ package org.spoofax;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
+import org.spoofax.interpreter.terms.TermType;
 import org.spoofax.terms.TermFactory;
 
 import java.io.IOException;
@@ -41,8 +42,14 @@ public class DummyStrategoTerm extends DummySimpleTerm implements IStrategoTerm 
     }
 
     @Override
+    @Deprecated
     public int getTermType() {
-        return 9;
+        return getType().getValue();
+    }
+
+    @Override
+    public TermType getType() {
+        return TermType.BLOB;
     }
 
     @Override

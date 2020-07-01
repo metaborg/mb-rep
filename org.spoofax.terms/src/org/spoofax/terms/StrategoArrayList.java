@@ -86,10 +86,6 @@ public class StrategoArrayList extends AbstractStrategoList implements RandomAcc
         return Arrays.copyOfRange(terms, offset, endOffset);
     }
 
-    @Override public int getTermType() {
-        return IStrategoTerm.LIST;
-    }
-
     @Deprecated @Override public IStrategoTerm get(int index) {
         return getSubterm(index);
     }

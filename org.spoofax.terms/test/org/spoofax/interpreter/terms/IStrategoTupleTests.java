@@ -146,10 +146,10 @@ public interface IStrategoTupleTests {
 
 
     /**
-     * Tests the {@link IStrategoTuple#getTermType()} method.
+     * Tests the {@link IStrategoTuple#getType()} method.
      */
-    @DisplayName("getTermType()")
-    interface GetTermTypeTests extends Fixture, IStrategoTermTests.GetTermTypeTests {
+    @DisplayName("getType()")
+    interface GetTypeTests extends Fixture, IStrategoTermTests.GetTypeTests {
 
         @Test
         @DisplayName("returns the correct term type")
@@ -158,10 +158,10 @@ public interface IStrategoTupleTests {
             IStrategoTuple sut = createIStrategoTuple(null, null, null);
 
             // Act
-            int result = sut.getTermType();
+            TermType result = sut.getType();
 
             // Assert
-            assertEquals(IStrategoTerm.TUPLE, result);
+            assertEquals(TermType.TUPLE, result);
         }
 
     }

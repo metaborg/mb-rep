@@ -4,11 +4,11 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermPrinter;
+import org.spoofax.interpreter.terms.TermType;
 import org.spoofax.terms.util.ArrayIterator;
 import org.spoofax.terms.util.TermUtils;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -53,8 +53,8 @@ public class StrategoTuple extends StrategoTerm implements IStrategoTuple {
     }
 
     @Override
-    public int getTermType() {
-        return IStrategoTerm.TUPLE;
+    public TermType getType() {
+        return TermType.TUPLE;
     }
 
     @Override

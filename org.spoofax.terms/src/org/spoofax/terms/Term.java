@@ -1,9 +1,11 @@
 package org.spoofax.terms;
 
-import org.spoofax.interpreter.terms.*;
+import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
+import org.spoofax.interpreter.terms.IStrategoString;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.util.TermUtils;
-
-import static org.spoofax.interpreter.terms.IStrategoTerm.TUPLE;
 
 /** @deprecated Use {@link TermUtils} */
 @Deprecated
@@ -122,14 +124,14 @@ public class Term {
     public static IStrategoTerm removeAnnotations(IStrategoTerm inTerm, final ITermFactory factory) {
         TermTransformer trans = new TermTransformer(factory, true) {
             @Override public IStrategoTerm preTransform(IStrategoTerm term) {
-                switch(term.getTermType()) {
-                    case IStrategoTerm.APPL:
+                switch(term.getType()) {
+                    case APPL:
                         return factory.makeAppl(((IStrategoAppl) term).getConstructor(), term.getAllSubterms(), null);
-                    case IStrategoTerm.LIST:
+                    case LIST:
                         return factory.makeList(term.getAllSubterms(), null);
-                    case IStrategoTerm.STRING:
+                    case STRING:
                         return factory.makeString(((IStrategoString) term).stringValue());
-                    case IStrategoTerm.TUPLE:
+                    case TUPLE:
                         return factory.makeTuple(term.getAllSubterms(), null);
                     default:
                         return term;
