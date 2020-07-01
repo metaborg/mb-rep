@@ -12,7 +12,6 @@ import org.spoofax.terms.util.TermUtils;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.Writer;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 

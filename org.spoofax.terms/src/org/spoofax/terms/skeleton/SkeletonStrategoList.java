@@ -18,7 +18,6 @@ import org.spoofax.terms.util.TermUtils;
 
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.List;
 
 public abstract class SkeletonStrategoList extends StrategoTerm implements IStrategoList, Iterable<IStrategoTerm> {
 

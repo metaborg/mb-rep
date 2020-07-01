@@ -2,14 +2,9 @@ package org.spoofax.terms;
 
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.ITermPrinter;
 import org.spoofax.interpreter.terms.TermType;
-import org.spoofax.terms.util.TermUtils;
 
-import javax.annotation.Nullable;
-import java.io.IOException;
 import java.io.ObjectStreamException;
-import java.io.Serializable;
 import java.util.*;
 
 /**

@@ -4,7 +4,11 @@ package org.spoofax.terms.skeleton;
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.spoofax.interpreter.terms.*;
+import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermPrinter;
+import org.spoofax.interpreter.terms.TermType;
 import org.spoofax.terms.StrategoTerm;
 import org.spoofax.terms.util.ArrayIterator;
 import org.spoofax.terms.util.NotImplementedException;

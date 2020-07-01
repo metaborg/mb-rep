@@ -4,7 +4,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.opentest4j.TestAbortedException;
 import org.spoofax.TestUtils;
-import org.spoofax.interpreter.terms.*;
+import org.spoofax.interpreter.terms.ISimpleTermTests;
+import org.spoofax.interpreter.terms.IStrategoConstructorTests;
+import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.IStrategoTermTests;
 import org.spoofax.terms.attachments.ITermAttachment;
 
 import javax.annotation.Nullable;
