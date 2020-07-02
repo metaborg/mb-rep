@@ -16,6 +16,8 @@ import org.spoofax.terms.util.TermUtils;
 import javax.annotation.Nullable;
 import java.util.Collection;
 
+import javax.annotation.Nullable;
+
 /** 
  * @author Lennart Kats <lennart add lclnet.nl>
  */

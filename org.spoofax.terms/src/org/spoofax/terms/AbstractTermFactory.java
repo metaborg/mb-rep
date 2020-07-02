@@ -41,8 +41,7 @@ public abstract class AbstractTermFactory implements ITermFactory {
         return result;
     }
 
-    @Override
-    public StrategoConstructor makeConstructor(String name, int arity) {
+    @Override public StrategoConstructor makeConstructor(String name, int arity) {
         return createCachedConstructor(name, arity);
     }
 
@@ -90,7 +89,7 @@ public abstract class AbstractTermFactory implements ITermFactory {
         return term;
     }
 
-    public final IStrategoAppl makeAppl(IStrategoConstructor ctr, IStrategoList kids, IStrategoList annotations) {
+    public final IStrategoAppl makeAppl(IStrategoConstructor ctr, IStrategoList kids, @Nullable IStrategoList annotations) {
         return makeAppl(ctr, kids.getAllSubterms(), annotations);
     }
 
