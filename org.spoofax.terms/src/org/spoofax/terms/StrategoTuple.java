@@ -8,6 +8,7 @@ import org.spoofax.interpreter.terms.TermType;
 import org.spoofax.terms.util.ArrayIterator;
 import org.spoofax.terms.util.TermUtils;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
@@ -18,7 +19,7 @@ public class StrategoTuple extends StrategoTerm implements IStrategoTuple {
 
     private final IStrategoTerm[] kids;
 
-    public StrategoTuple(IStrategoTerm[] kids, IStrategoList annotations) {
+    public StrategoTuple(IStrategoTerm[] kids, @Nullable IStrategoList annotations) {
         super(annotations);
         this.kids = kids;
     }

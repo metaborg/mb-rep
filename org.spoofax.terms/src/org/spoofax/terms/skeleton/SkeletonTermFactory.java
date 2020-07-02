@@ -9,6 +9,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.AbstractTermFactory;
 import org.spoofax.terms.util.NotImplementedException;
 
+@Deprecated
 public abstract class SkeletonTermFactory extends AbstractTermFactory {
 
     public SkeletonTermFactory() {

@@ -16,6 +16,8 @@ import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermPrinter;
 import org.spoofax.interpreter.terms.TermType;
 
+import javax.annotation.Nullable;
+
 /**
  * A wrapped Stratego term of any type that supports attachments separate from its base term.
  * 
@@ -47,7 +49,7 @@ public class StrategoWrapped extends StrategoTerm implements IStrategoAppl, IStr
 	 * {@link #toString()}, and
 	 * {@link #prettyPrint(ITermPrinter)}.
 	 */
-	protected StrategoWrapped(IStrategoTerm wrapped, IStrategoList annotations) {
+	protected StrategoWrapped(IStrategoTerm wrapped, @Nullable IStrategoList annotations) {
 		super(annotations);
 		this.wrapped = wrapped;
 	}

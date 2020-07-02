@@ -16,6 +16,7 @@ import org.spoofax.terms.util.EmptyIterator;
 import org.spoofax.terms.util.StringUtils;
 import org.spoofax.terms.util.TermUtils;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Iterator;
@@ -28,7 +29,7 @@ public class StrategoString extends StrategoTerm implements IStrategoString {
 
     private final String value;
 
-    public StrategoString(String value, IStrategoList annotations) {
+    public StrategoString(String value, @Nullable IStrategoList annotations) {
         super(annotations);
         this.value = value;
         initImmutableHashCode();

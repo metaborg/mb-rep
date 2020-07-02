@@ -12,6 +12,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
 import org.spoofax.interpreter.terms.TermType;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.List;
 
@@ -25,9 +26,9 @@ public abstract class StrategoTerm extends AbstractSimpleTerm implements IStrate
 
     private transient int hashCode = UNKNOWN_HASH;
 
-    private IStrategoList annotations;
+    @Nullable private IStrategoList annotations = null;
 
-    protected StrategoTerm(IStrategoList annotations) {
+    protected StrategoTerm(@Nullable IStrategoList annotations) {
         if(annotations != null && !annotations.isEmpty())
             this.annotations = annotations;
     }
@@ -159,7 +160,7 @@ public abstract class StrategoTerm extends AbstractSimpleTerm implements IStrate
         if(annotations != null && !annotations.isEmpty() && this == EMPTY_LIST) {
             throw new IllegalArgumentException("Attempting to internally mutate the shared EMPTY_LIST");
         }
-        if(annotations == TermFactory.EMPTY_LIST || annotations.isEmpty())
+        if(annotations == TermFactory.EMPTY_LIST || annotations == null || annotations.isEmpty())
             annotations = null; // essential for hash code calculation
 
         if(this.annotations != annotations) {

@@ -15,6 +15,7 @@ import org.spoofax.interpreter.terms.TermType;
 import org.spoofax.terms.util.EmptyIterator;
 import org.spoofax.terms.util.TermUtils;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Iterator;
@@ -27,7 +28,7 @@ public class StrategoReal extends StrategoTerm implements IStrategoReal {
 
     private final double value;
 
-    public StrategoReal(double value, IStrategoList annotations) {
+    public StrategoReal(double value, @Nullable IStrategoList annotations) {
         super(annotations);
         this.value = value;
     }

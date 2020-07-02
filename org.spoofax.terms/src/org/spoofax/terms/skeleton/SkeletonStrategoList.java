@@ -16,6 +16,7 @@ import org.spoofax.terms.attachments.TermAttachmentType;
 import org.spoofax.terms.util.NotImplementedException;
 import org.spoofax.terms.util.TermUtils;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Iterator;
 
@@ -32,7 +33,7 @@ public abstract class SkeletonStrategoList extends StrategoTerm implements IStra
      *
      * @see #prepend(IStrategoTerm) Adds a new head element to a list.
      */
-    protected SkeletonStrategoList(IStrategoList annotations) {
+    protected SkeletonStrategoList(@Nullable IStrategoList annotations) {
         super(annotations);
     }
 

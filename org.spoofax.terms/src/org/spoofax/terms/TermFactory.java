@@ -13,6 +13,8 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.util.StringInterner;
 import org.spoofax.terms.util.TermUtils;
 
+import javax.annotation.Nullable;
+
 public class TermFactory extends AbstractTermFactory implements ITermFactory {
     private static final int MAX_POOLED_STRING_LENGTH = 200;
     private static final StringInterner usedStrings = new StringInterner();
@@ -24,23 +26,20 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
         super();
     }
 
-    @Override
-    public IStrategoAppl makeAppl(IStrategoConstructor ctr, IStrategoTerm[] terms, IStrategoList annotations) {
+    @Override public IStrategoAppl makeAppl(IStrategoConstructor ctr, IStrategoTerm[] terms, @Nullable IStrategoList annotations) {
         assert ctr.getArity() == terms.length;
         return new StrategoAppl(ctr, terms, annotations);
     }
 
-    public IStrategoInt makeInt(int i) {
+    @Override public IStrategoInt makeInt(int i) {
         return new StrategoInt(i, null);
     }
 
-    @Override
-    public IStrategoList makeList() {
+    @Override public IStrategoList makeList() {
         return new StrategoList(null);
     }
 
-    @Override
-    public IStrategoList makeList(IStrategoTerm[] terms, IStrategoList outerAnnos) {
+    @Override public IStrategoList makeList(IStrategoTerm[] terms, @Nullable IStrategoList outerAnnos) {
         IStrategoList result = makeList();
         int i = terms.length - 1;
         while(i > 0) {
@@ -60,18 +59,17 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
         return result;
     }
 
-    @Override
-    public IStrategoList makeListCons(IStrategoTerm head, IStrategoList tail, IStrategoList annotations) {
+    @Override public IStrategoList makeListCons(IStrategoTerm head, IStrategoList tail, @Nullable IStrategoList annotations) {
         if(head == null)
             return makeList();
         return new StrategoList(head, tail, annotations);
     }
 
-    public IStrategoReal makeReal(double d) {
+    @Override public IStrategoReal makeReal(double d) {
         return new StrategoReal(d, null);
     }
 
-    public IStrategoString makeString(String s) {
+    @Override public IStrategoString makeString(String s) {
         if(s.length() <= MAX_POOLED_STRING_LENGTH) {
             synchronized(usedStrings) {
                 s = usedStrings.intern(s);
@@ -80,7 +78,7 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
         return new StrategoString(s, null);
     }
 
-    public IStrategoString tryMakeUniqueString(String s) {
+    @Override public IStrategoString tryMakeUniqueString(String s) {
         synchronized(usedStrings) {
             if(usedStrings.contains(s)) {
                 return null;
@@ -92,12 +90,11 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
         }
     }
 
-    @Override
-    public IStrategoTuple makeTuple(IStrategoTerm[] terms, IStrategoList annos) {
+    @Override public IStrategoTuple makeTuple(IStrategoTerm[] terms, @Nullable IStrategoList annos) {
         return new StrategoTuple(terms, annos);
     }
 
-    public IStrategoTerm annotateTerm(IStrategoTerm term, IStrategoList annotations) {
+    @Override public IStrategoTerm annotateTerm(IStrategoTerm term, @Nullable IStrategoList annotations) {
         IStrategoList currentAnnos = term.getAnnotations();
         if(currentAnnos == annotations) { // cheap check
             return term;
@@ -113,7 +110,7 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
         }
     }
 
-    public IStrategoPlaceholder makePlaceholder(IStrategoTerm template) {
+    @Override public IStrategoPlaceholder makePlaceholder(IStrategoTerm template) {
         if(placeholderConstructor == null)
             placeholderConstructor = makeConstructor("<>", 1);
         return new StrategoPlaceholder(placeholderConstructor, template, TermFactory.EMPTY_LIST);
