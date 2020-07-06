@@ -14,6 +14,9 @@ import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermPrinter;
+import org.spoofax.interpreter.terms.TermType;
+
+import javax.annotation.Nullable;
 
 /**
  * A wrapped Stratego term of any type that supports attachments separate from its base term.
@@ -46,7 +49,7 @@ public class StrategoWrapped extends StrategoTerm implements IStrategoAppl, IStr
 	 * {@link #toString()}, and
 	 * {@link #prettyPrint(ITermPrinter)}.
 	 */
-	protected StrategoWrapped(IStrategoTerm wrapped, IStrategoList annotations) {
+	protected StrategoWrapped(IStrategoTerm wrapped, @Nullable IStrategoList annotations) {
 		super(annotations);
 		this.wrapped = wrapped;
 	}
@@ -88,8 +91,8 @@ public class StrategoWrapped extends StrategoTerm implements IStrategoAppl, IStr
 	}
 
 	@Override
-	public int getTermType() {
-		return wrapped.getTermType();
+	public TermType getType() {
+		return wrapped.getType();
 	}
 
 	@Deprecated
@@ -123,21 +126,21 @@ public class StrategoWrapped extends StrategoTerm implements IStrategoAppl, IStr
 
 	@Override
 	public IStrategoTerm head() {
-		if (getTermType() != LIST)
+		if (getType() != TermType.LIST)
 			throw new TermWrapperException("Called head() on a term that is not of type LIST");
 		return ((IStrategoList) wrapped).head();
 	}
 
 	@Override
 	public IStrategoList tail() {
-		if (getTermType() != LIST)
+		if (getType() != TermType.LIST)
 			throw new TermWrapperException("Called tail() on a term that is not of type LIST");
 		return ((IStrategoList) wrapped).tail();
 	}
 
 	@Override
 	public boolean isEmpty() {
-		if (getTermType() != LIST)
+		if (getType() != TermType.LIST)
 			throw new TermWrapperException("Called isEmpty() on a term that is not of type LIST");
 		return ((IStrategoList) wrapped).isEmpty();
 	}
@@ -145,14 +148,14 @@ public class StrategoWrapped extends StrategoTerm implements IStrategoAppl, IStr
 	@Deprecated
 	@Override
 	public IStrategoList prepend(IStrategoTerm prefix) {
-		if (getTermType() != LIST)
+		if (getType() != TermType.LIST)
 			throw new TermWrapperException("Called prepend() on a term that is not of type LIST");
 		return ((IStrategoList) wrapped).prepend(prefix);
 	}
 
 	@Override
 	public int size() {
-		switch (getTermType()) {
+		switch (getType()) {
 			case LIST:
 				return ((IStrategoList) wrapped).size();
 			case TUPLE:
@@ -164,14 +167,14 @@ public class StrategoWrapped extends StrategoTerm implements IStrategoAppl, IStr
 
 	@Override
 	public IStrategoConstructor getConstructor() {
-		if (getTermType() != APPL)
+		if (getType() != TermType.APPL)
 			throw new TermWrapperException("Called getConstructor() on a term that is not of type APPL");
 		return ((IStrategoAppl) wrapped).getConstructor();
 	}
 
 	@Override
 	public int intValue() {
-		if (getTermType() != INT)
+		if (getType() != TermType.INT)
 			throw new TermWrapperException("Called intValue() on a term that is not of type INT");
 		return ((IStrategoInt) wrapped).intValue();
 	}
@@ -179,28 +182,28 @@ public class StrategoWrapped extends StrategoTerm implements IStrategoAppl, IStr
 	@Override
 	@Deprecated
 	public boolean isUniqueValueTerm() {
-		if (getTermType() != INT)
+		if (getType() != TermType.INT)
 			throw new TermWrapperException("Called isUniqueValueTerm() on a term that is not of type INT");
 		return ((IStrategoInt) wrapped).isUniqueValueTerm();
 	}
 
 	@Override
 	public double realValue() {
-		if (getTermType() != REAL)
+		if (getType() != TermType.REAL)
 			throw new TermWrapperException("Called realValue() on a term that is not of type REAL");
 		return ((IStrategoReal) wrapped).realValue();
 	}
 
 	@Override
 	public String getName() {
-		if (getTermType() != STRING && getTermType() != APPL)
+		if (getType() != TermType.STRING && getType() != TermType.APPL)
 			throw new TermWrapperException("Called getName() on a term that is not of type STRING or APPL");
 		return ((IStrategoNamed) wrapped).getName();
 	}
 
 	@Override
 	public String stringValue() {
-		if (getTermType() != STRING)
+		if (getType() != TermType.STRING)
 			throw new TermWrapperException("Called stringValue() on a term that is not of type STRING");
 		return ((IStrategoString) wrapped).stringValue();
 	}

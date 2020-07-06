@@ -9,12 +9,14 @@ import org.spoofax.interpreter.terms.IStrategoInt;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
+import org.spoofax.interpreter.terms.TermType;
 import org.spoofax.terms.StrategoTerm;
 import org.spoofax.terms.TermFactory;
 import org.spoofax.terms.util.EmptyIterator;
 import org.spoofax.terms.util.NotImplementedException;
 import org.spoofax.terms.util.TermUtils;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Collections;
@@ -27,7 +29,7 @@ public class SkeletonStrategoInt extends StrategoTerm implements IStrategoInt {
 
     private final BigInteger value;
 
-    public SkeletonStrategoInt(long value, IStrategoList annotations) {
+    public SkeletonStrategoInt(long value, @Nullable IStrategoList annotations) {
         super(annotations);
         this.value = BigInteger.valueOf(value);
     }
@@ -58,8 +60,9 @@ public class SkeletonStrategoInt extends StrategoTerm implements IStrategoInt {
         return 0;
     }
 
-    public int getTermType() {
-        return IStrategoTerm.INT;
+    @Override
+    public TermType getType() {
+        return TermType.INT;
     }
 
     public boolean isUniqueValueTerm() {

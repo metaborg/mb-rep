@@ -12,6 +12,8 @@ import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.AbstractTermFactory;
 
+import javax.annotation.Nullable;
+
 /** 
  * @author Lennart Kats <lennart add lclnet.nl>
  */
@@ -23,52 +25,54 @@ public abstract class AbstractWrappedTermFactory extends AbstractTermFactory {
 		this.baseFactory = baseFactory;
 	}
 
-	public IStrategoPlaceholder makePlaceholder(IStrategoTerm template) {
+	@Override public IStrategoPlaceholder makePlaceholder(IStrategoTerm template) {
 		return baseFactory.makePlaceholder(template);
 	}
 
-	public IStrategoInt makeInt(int i) {
+	@Override public IStrategoInt makeInt(int i) {
 		return baseFactory.makeInt(i);
 	}
 
-	public IStrategoReal makeReal(double d) {
+	@Override public IStrategoReal makeReal(double d) {
 		return baseFactory.makeReal(d);
 	}
 
-	public IStrategoString makeString(String s) {
+	@Override public IStrategoString makeString(String s) {
 		return baseFactory.makeString(s);
 	}
 
-	public IStrategoTerm annotateTerm(IStrategoTerm term, IStrategoList annotations) {
+	@Override public IStrategoTerm annotateTerm(IStrategoTerm term, @Nullable IStrategoList annotations) {
 		return baseFactory.annotateTerm(term, annotations);
 	}
 
-	@Override
-	public IStrategoAppl makeAppl(IStrategoConstructor constructor, IStrategoTerm[] kids, IStrategoList annotations) {
+	@Override public IStrategoAppl makeAppl(IStrategoConstructor constructor, IStrategoTerm[] kids, @Nullable IStrategoList annotations) {
 		return baseFactory.makeAppl(constructor, kids, annotations);
 	}
 
-	@Override
-	public IStrategoTuple makeTuple(IStrategoTerm[] kids, IStrategoList annotations) {
+	@Override public IStrategoTuple makeTuple(IStrategoTerm[] kids, IStrategoList annotations) {
 		return baseFactory.makeTuple(kids, annotations);
 	}
 
-	@Override
-	public IStrategoList makeList(IStrategoTerm[] kids, IStrategoList annotations) {
+	@Override public IStrategoList makeList() {
+		return baseFactory.makeList();
+	}
+
+	@Override public IStrategoList makeList(IStrategoTerm[] kids, @Nullable IStrategoList annotations) {
 		return baseFactory.makeList(kids, annotations);
 	}
 
-	@Override
-	public IStrategoList makeListCons(IStrategoTerm head, IStrategoList tail, IStrategoList annos) {
+	@Override public IStrategoList makeListCons(IStrategoTerm head, IStrategoList tail, @Nullable IStrategoList annos) {
 		return baseFactory.makeListCons(head, tail, annos);
 	}
 
 	public IStrategoString tryMakeUniqueString(String name) {
 		return baseFactory.tryMakeUniqueString(name);
 	}
-	
-	@Override
-	public IStrategoTerm replaceTerm(IStrategoTerm term, IStrategoTerm old) {
+
+	@Override public IStrategoTerm replaceTerm(IStrategoTerm term, IStrategoTerm old) {
 		return baseFactory.replaceTerm(term, old);
 	}
+
+
+
 }

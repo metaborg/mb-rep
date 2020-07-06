@@ -49,26 +49,26 @@ public class StrategoTermVisitee {
     }
 
     private static boolean dispatch(IStrategoTermVisitor visitor, IStrategoTerm term) {
-        switch(term.getTermType()) {
-            case IStrategoTerm.APPL:
+        switch(term.getType()) {
+            case APPL:
                 return visitor.visit((IStrategoAppl) term);
-            case IStrategoTerm.LIST:
+            case LIST:
                 return visitor.visit((IStrategoList) term);
-            case IStrategoTerm.TUPLE:
+            case TUPLE:
                 return visitor.visit((IStrategoTuple) term);
-            case IStrategoTerm.INT:
+            case INT:
                 visitor.visit((IStrategoInt) term);
                 return false;
-            case IStrategoTerm.REAL:
+            case REAL:
                 visitor.visit((IStrategoReal) term);
                 return false;
-            case IStrategoTerm.STRING:
+            case STRING:
                 visitor.visit((IStrategoString) term);
                 return false;
-            case IStrategoTerm.REF:
+            case REF:
                 visitor.visit((IStrategoRef) term);
                 return false;
-            case IStrategoTerm.PLACEHOLDER:
+            case PLACEHOLDER:
                 return visitor.visit((IStrategoPlaceholder) term);
             default:
                 return visitor.visit(term);

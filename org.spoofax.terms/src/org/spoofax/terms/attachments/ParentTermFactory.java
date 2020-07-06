@@ -18,9 +18,12 @@ import org.spoofax.terms.StrategoListIterator;
 import org.spoofax.terms.StrategoSubList;
 import org.spoofax.terms.util.TermUtils;
 
+import javax.annotation.Nullable;
+
 /** 
  * @author Lennart Kats <lennart add lclnet.nl>
  */
+@Deprecated // Used only in JSGLR1
 public class ParentTermFactory extends AbstractTermFactory {
 	
 	// (doesn't implement WrappedTermFactory since it crucially needs
@@ -50,6 +53,11 @@ public class ParentTermFactory extends AbstractTermFactory {
 
 	public IStrategoString makeString(String s) {
 		return baseFactory.makeString(s);
+	}
+
+	@Override
+	public IStrategoList makeList() {
+		return null;
 	}
 
 	public IStrategoTerm annotateTerm(IStrategoTerm term, IStrategoList annotations) {

@@ -1,6 +1,14 @@
 package org.spoofax.terms.util;
 
-import org.spoofax.interpreter.terms.*;
+import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
+import org.spoofax.interpreter.terms.IStrategoInt;
+import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoReal;
+import org.spoofax.interpreter.terms.IStrategoString;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.IStrategoTuple;
+import org.spoofax.interpreter.terms.TermType;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -26,8 +34,8 @@ public final class TermUtils {
      * @return {@code true} when the term is a String term; otherwise, {@code false}
      */
     public static boolean isString(IStrategoTerm term) {
-        boolean isString = (term != null && term.getTermType() == IStrategoTerm.STRING);
-        assert !isString || (term instanceof IStrategoString) : getTypeMismatchAssertionMessage(IStrategoString.class, IStrategoList.STRING, term);
+        boolean isString = (term != null && term.getType() == TermType.STRING);
+        assert !isString || (term instanceof IStrategoString) : getTypeMismatchAssertionMessage(IStrategoString.class, TermType.STRING, term);
         return isString;
     }
 
@@ -49,8 +57,8 @@ public final class TermUtils {
      * @return {@code true} when the term is an Int term; otherwise, {@code false}
      */
     public static boolean isInt(IStrategoTerm term) {
-        boolean isInt = (term != null && term.getTermType() == IStrategoTerm.INT);
-        assert !isInt || (term instanceof IStrategoInt) : getTypeMismatchAssertionMessage(IStrategoInt.class, IStrategoList.INT, term);
+        boolean isInt = (term != null && term.getType() == TermType.INT);
+        assert !isInt || (term instanceof IStrategoInt) : getTypeMismatchAssertionMessage(IStrategoInt.class, TermType.INT, term);
         return isInt;
     }
 
@@ -72,8 +80,8 @@ public final class TermUtils {
      * @return {@code true} when the term is a Real term; otherwise, {@code false}
      */
     public static boolean isReal(IStrategoTerm term) {
-        boolean isReal = (term != null && term.getTermType() == IStrategoTerm.REAL);
-        assert !isReal || (term instanceof IStrategoReal) : getTypeMismatchAssertionMessage(IStrategoReal.class, IStrategoList.REAL, term);
+        boolean isReal = (term != null && term.getType() == TermType.REAL);
+        assert !isReal || (term instanceof IStrategoReal) : getTypeMismatchAssertionMessage(IStrategoReal.class, TermType.REAL, term);
         return isReal;
     }
 
@@ -95,8 +103,8 @@ public final class TermUtils {
      * @return {@code true} when the term is a constructor application term; otherwise, {@code false}
      */
     public static boolean isAppl(IStrategoTerm term) {
-        boolean isAppl = (term != null && term.getTermType() == IStrategoTerm.APPL);
-        assert !isAppl || (term instanceof IStrategoAppl) : getTypeMismatchAssertionMessage(IStrategoAppl.class, IStrategoList.APPL, term);
+        boolean isAppl = (term != null && term.getType() == TermType.APPL);
+        assert !isAppl || (term instanceof IStrategoAppl) : getTypeMismatchAssertionMessage(IStrategoAppl.class, TermType.APPL, term);
         return isAppl;
     }
 
@@ -149,8 +157,8 @@ public final class TermUtils {
      * @return {@code true} when the term is a List term; otherwise, {@code false}
      */
     public static boolean isList(IStrategoTerm term) {
-        boolean isList = (term != null && term.getTermType() == IStrategoTerm.LIST);
-        assert !isList || (term instanceof IStrategoList) : getTypeMismatchAssertionMessage(IStrategoList.class, IStrategoList.LIST, term);
+        boolean isList = (term != null && term.getType() == TermType.LIST);
+        assert !isList || (term instanceof IStrategoList) : getTypeMismatchAssertionMessage(IStrategoList.class, TermType.LIST, term);
         return isList;
     }
 
@@ -172,8 +180,8 @@ public final class TermUtils {
      * @return {@code true} when the term is a Tuple term; otherwise, {@code false}
      */
     public static boolean isTuple(IStrategoTerm term) {
-        boolean isTuple = (term != null && term.getTermType() == IStrategoTerm.TUPLE);
-        assert !isTuple || (term instanceof IStrategoTuple) : getTypeMismatchAssertionMessage(IStrategoTuple.class, IStrategoList.TUPLE, term);
+        boolean isTuple = (term != null && term.getType() == TermType.TUPLE);
+        assert !isTuple || (term instanceof IStrategoTuple) : getTypeMismatchAssertionMessage(IStrategoTuple.class, TermType.TUPLE, term);
         return isTuple;
     }
 
@@ -310,8 +318,8 @@ public final class TermUtils {
      * @throws NullPointerException The term is null.
      */
     public static IStrategoString toString(IStrategoTerm term) {
-        if (term == null) throw newTermNullException(IStrategoTerm.STRING);
-        return asString(term).orElseThrow(() -> newTermCastException(IStrategoTerm.STRING, term.getTermType()));
+        if (term == null) throw newTermNullException(TermType.STRING);
+        return asString(term).orElseThrow(() -> newTermCastException(TermType.STRING, term.getType()));
     }
 
     /**
@@ -323,8 +331,8 @@ public final class TermUtils {
      * @throws NullPointerException The term is null.
      */
     public static IStrategoInt toInt(IStrategoTerm term) {
-        if (term == null) throw newTermNullException(IStrategoTerm.INT);
-        return asInt(term).orElseThrow(() -> newTermCastException(IStrategoTerm.INT, term.getTermType()));
+        if (term == null) throw newTermNullException(TermType.INT);
+        return asInt(term).orElseThrow(() -> newTermCastException(TermType.INT, term.getType()));
     }
 
     /**
@@ -336,8 +344,8 @@ public final class TermUtils {
      * @throws NullPointerException The term is null.
      */
     public static IStrategoReal toReal(IStrategoTerm term) {
-        if (term == null) throw newTermNullException(IStrategoTerm.REAL);
-        return asReal(term).orElseThrow(() -> newTermCastException(IStrategoTerm.REAL, term.getTermType()));
+        if (term == null) throw newTermNullException(TermType.REAL);
+        return asReal(term).orElseThrow(() -> newTermCastException(TermType.REAL, term.getType()));
     }
 
     /**
@@ -349,8 +357,8 @@ public final class TermUtils {
      * @throws NullPointerException The term is null.
      */
     public static IStrategoAppl toAppl(IStrategoTerm term) {
-        if (term == null) throw newTermNullException(IStrategoTerm.APPL);
-        return asAppl(term).orElseThrow(() -> newTermCastException(IStrategoTerm.APPL, term.getTermType()));
+        if (term == null) throw newTermNullException(TermType.APPL);
+        return asAppl(term).orElseThrow(() -> newTermCastException(TermType.APPL, term.getType()));
     }
 
     /**
@@ -362,8 +370,8 @@ public final class TermUtils {
      * @throws NullPointerException The term is null.
      */
     public static IStrategoList toList(IStrategoTerm term) {
-        if (term == null) throw newTermNullException(IStrategoTerm.LIST);
-        return asList(term).orElseThrow(() -> newTermCastException(IStrategoTerm.LIST, term.getTermType()));
+        if (term == null) throw newTermNullException(TermType.LIST);
+        return asList(term).orElseThrow(() -> newTermCastException(TermType.LIST, term.getType()));
     }
 
     /**
@@ -375,8 +383,8 @@ public final class TermUtils {
      * @throws NullPointerException The term is null.
      */
     public static IStrategoTuple toTuple(IStrategoTerm term) {
-        if (term == null) throw newTermNullException(IStrategoTerm.TUPLE);
-        return asTuple(term).orElseThrow(() -> newTermCastException(IStrategoTerm.TUPLE, term.getTermType()));
+        if (term == null) throw newTermNullException(TermType.TUPLE);
+        return asTuple(term).orElseThrow(() -> newTermCastException(TermType.TUPLE, term.getType()));
     }
 
 
@@ -392,8 +400,8 @@ public final class TermUtils {
      * @throws NullPointerException The term is null.
      */
     public static String toJavaString(IStrategoTerm term) {
-        if (term == null) throw newTermNullException(IStrategoTerm.STRING);
-        return asJavaString(term).orElseThrow(() -> newTermCastException(IStrategoTerm.STRING, term.getTermType()));
+        if (term == null) throw newTermNullException(TermType.STRING);
+        return asJavaString(term).orElseThrow(() -> newTermCastException(TermType.STRING, term.getType()));
     }
 
     /**
@@ -405,8 +413,8 @@ public final class TermUtils {
      * @throws NullPointerException The term is null.
      */
     public static int toJavaInt(IStrategoTerm term) {
-        if (term == null) throw newTermNullException(IStrategoTerm.INT);
-        return asJavaInt(term).orElseThrow(() -> newTermCastException(IStrategoTerm.INT, term.getTermType()));
+        if (term == null) throw newTermNullException(TermType.INT);
+        return asJavaInt(term).orElseThrow(() -> newTermCastException(TermType.INT, term.getType()));
     }
 
     /**
@@ -418,8 +426,8 @@ public final class TermUtils {
      * @throws NullPointerException The term is null.
      */
     public static double toJavaReal(IStrategoTerm term) {
-        if (term == null) throw newTermNullException(IStrategoTerm.REAL);
-        return asJavaReal(term).orElseThrow(() -> newTermCastException(IStrategoTerm.REAL, term.getTermType()));
+        if (term == null) throw newTermNullException(TermType.REAL);
+        return asJavaReal(term).orElseThrow(() -> newTermCastException(TermType.REAL, term.getType()));
     }
 
     /**
@@ -431,8 +439,8 @@ public final class TermUtils {
      * @throws NullPointerException The term is null.
      */
     public static List<IStrategoTerm> toJavaList(IStrategoTerm term) {
-        if (term == null) throw newTermNullException(IStrategoTerm.LIST);
-        return asJavaList(term).orElseThrow(() -> newTermCastException(IStrategoTerm.LIST, term.getTermType()));
+        if (term == null) throw newTermNullException(TermType.LIST);
+        return asJavaList(term).orElseThrow(() -> newTermCastException(TermType.LIST, term.getType()));
     }
 
 
@@ -764,8 +772,8 @@ public final class TermUtils {
     public static IStrategoString toStringAt(IStrategoTerm term, int index) {
         if (term == null) throw newTermNullException();
         IStrategoTerm subterm = term.getSubterm(index);
-        if (subterm == null) throw newTermNullException(IStrategoTerm.STRING, index);
-        return asString(subterm).orElseThrow(() -> newTermCastException(IStrategoTerm.STRING, term.getTermType(), index));
+        if (subterm == null) throw newTermNullException(TermType.STRING, index);
+        return asString(subterm).orElseThrow(() -> newTermCastException(TermType.STRING, term.getType(), index));
     }
 
     /**
@@ -781,8 +789,8 @@ public final class TermUtils {
     public static IStrategoInt toIntAt(IStrategoTerm term, int index) {
         if (term == null) throw newTermNullException();
         IStrategoTerm subterm = term.getSubterm(index);
-        if (subterm == null) throw newTermNullException(IStrategoTerm.INT, index);
-        return asInt(subterm).orElseThrow(() -> newTermCastException(IStrategoTerm.INT, term.getTermType(), index));
+        if (subterm == null) throw newTermNullException(TermType.INT, index);
+        return asInt(subterm).orElseThrow(() -> newTermCastException(TermType.INT, term.getType(), index));
     }
 
     /**
@@ -798,8 +806,8 @@ public final class TermUtils {
     public static IStrategoReal toRealAt(IStrategoTerm term, int index) {
         if (term == null) throw newTermNullException();
         IStrategoTerm subterm = term.getSubterm(index);
-        if (subterm == null) throw newTermNullException(IStrategoTerm.REAL, index);
-        return asReal(subterm).orElseThrow(() -> newTermCastException(IStrategoTerm.REAL, term.getTermType(), index));
+        if (subterm == null) throw newTermNullException(TermType.REAL, index);
+        return asReal(subterm).orElseThrow(() -> newTermCastException(TermType.REAL, term.getType(), index));
     }
 
     /**
@@ -815,8 +823,8 @@ public final class TermUtils {
     public static IStrategoAppl toApplAt(IStrategoTerm term, int index) {
         if (term == null) throw newTermNullException();
         IStrategoTerm subterm = term.getSubterm(index);
-        if (subterm == null) throw newTermNullException(IStrategoTerm.APPL, index);
-        return asAppl(subterm).orElseThrow(() -> newTermCastException(IStrategoTerm.APPL, term.getTermType(), index));
+        if (subterm == null) throw newTermNullException(TermType.APPL, index);
+        return asAppl(subterm).orElseThrow(() -> newTermCastException(TermType.APPL, term.getType(), index));
     }
 
     /**
@@ -832,8 +840,8 @@ public final class TermUtils {
     public static IStrategoList toListAt(IStrategoTerm term, int index) {
         if (term == null) throw newTermNullException();
         IStrategoTerm subterm = term.getSubterm(index);
-        if (subterm == null) throw newTermNullException(IStrategoTerm.LIST, index);
-        return asList(subterm).orElseThrow(() -> newTermCastException(IStrategoTerm.LIST, term.getTermType(), index));
+        if (subterm == null) throw newTermNullException(TermType.LIST, index);
+        return asList(subterm).orElseThrow(() -> newTermCastException(TermType.LIST, term.getType(), index));
     }
 
     /**
@@ -849,8 +857,8 @@ public final class TermUtils {
     public static IStrategoTuple toTupleAt(IStrategoTerm term, int index) {
         if (term == null) throw newTermNullException();
         IStrategoTerm subterm = term.getSubterm(index);
-        if (subterm == null) throw newTermNullException(IStrategoTerm.TUPLE, index);
-        return asTuple(subterm).orElseThrow(() -> newTermCastException(IStrategoTerm.TUPLE, term.getTermType(), index));
+        if (subterm == null) throw newTermNullException(TermType.TUPLE, index);
+        return asTuple(subterm).orElseThrow(() -> newTermCastException(TermType.TUPLE, term.getType(), index));
     }
 
 
@@ -870,8 +878,8 @@ public final class TermUtils {
     public static String toJavaStringAt(IStrategoTerm term, int index) {
         if (term == null) throw newTermNullException();
         IStrategoTerm subterm = term.getSubterm(index);
-        if (subterm == null) throw newTermNullException(IStrategoTerm.STRING, index);
-        return asJavaString(subterm).orElseThrow(() -> newTermCastException(IStrategoTerm.STRING, term.getTermType(), index));
+        if (subterm == null) throw newTermNullException(TermType.STRING, index);
+        return asJavaString(subterm).orElseThrow(() -> newTermCastException(TermType.STRING, term.getType(), index));
     }
 
     /**
@@ -887,8 +895,8 @@ public final class TermUtils {
     public static int toJavaIntAt(IStrategoTerm term, int index) {
         if (term == null) throw newTermNullException();
         IStrategoTerm subterm = term.getSubterm(index);
-        if (subterm == null) throw newTermNullException(IStrategoTerm.INT, index);
-        return asJavaInt(subterm).orElseThrow(() -> newTermCastException(IStrategoTerm.INT, term.getTermType(), index));
+        if (subterm == null) throw newTermNullException(TermType.INT, index);
+        return asJavaInt(subterm).orElseThrow(() -> newTermCastException(TermType.INT, term.getType(), index));
     }
 
     /**
@@ -904,8 +912,8 @@ public final class TermUtils {
     public static double toJavaRealAt(IStrategoTerm term, int index) {
         if (term == null) throw newTermNullException();
         IStrategoTerm subterm = term.getSubterm(index);
-        if (subterm == null) throw newTermNullException(IStrategoTerm.REAL, index);
-        return asJavaReal(subterm).orElseThrow(() -> newTermCastException(IStrategoTerm.REAL, term.getTermType(), index));
+        if (subterm == null) throw newTermNullException(TermType.REAL, index);
+        return asJavaReal(subterm).orElseThrow(() -> newTermCastException(TermType.REAL, term.getType(), index));
     }
 
     /**
@@ -921,8 +929,8 @@ public final class TermUtils {
     public static List<IStrategoTerm> toJavaListAt(IStrategoTerm term, int index) {
         if (term == null) throw newTermNullException();
         IStrategoTerm subterm = term.getSubterm(index);
-        if (subterm == null) throw newTermNullException(IStrategoTerm.LIST, index);
-        return asJavaList(subterm).orElseThrow(() -> newTermCastException(IStrategoTerm.LIST, term.getTermType(), index));
+        if (subterm == null) throw newTermNullException(TermType.LIST, index);
+        return asJavaList(subterm).orElseThrow(() -> newTermCastException(TermType.LIST, term.getType(), index));
     }
 
     // Speciality functions
@@ -963,7 +971,7 @@ public final class TermUtils {
      * @param actualType the actual term type
      * @return the {@link ClassCastException}
      */
-    private static ClassCastException newTermCastException(int expectedType, int actualType) {
+    private static ClassCastException newTermCastException(TermType expectedType, TermType actualType) {
         return newTermCastException(expectedType, actualType, -1);
     }
 
@@ -975,7 +983,7 @@ public final class TermUtils {
      * @param index the zero-based index of the subterm; or -1 when it is not a subterm
      * @return the {@link ClassCastException}
      */
-    private static ClassCastException newTermCastException(int expectedType, int actualType, int index) {
+    private static ClassCastException newTermCastException(TermType expectedType, TermType actualType, int index) {
         StringBuilder sb = new StringBuilder();
         sb.append("Expected ");
         sb.append(termTypeToString(expectedType));
@@ -1003,7 +1011,7 @@ public final class TermUtils {
      * @param expectedType the expected term type
      * @return the {@link NullPointerException}
      */
-    private static NullPointerException newTermNullException(int expectedType) {
+    private static NullPointerException newTermNullException(TermType expectedType) {
         return newTermNullException(expectedType, -1);
     }
 
@@ -1014,7 +1022,7 @@ public final class TermUtils {
      * @param index the zero-based index of the subterm; or -1 when it is not a subterm
      * @return the {@link NullPointerException}
      */
-    private static NullPointerException newTermNullException(int expectedType, int index) {
+    private static NullPointerException newTermNullException(TermType expectedType, int index) {
         StringBuilder sb = new StringBuilder();
         sb.append("Expected ");
         sb.append(termTypeToString(expectedType));
@@ -1032,7 +1040,7 @@ public final class TermUtils {
      * @param term the term that failed the assertion
      * @return the assertion message
      */
-    private static String getTypeMismatchAssertionMessage(Class<?> expectedClass, int expectedType, IStrategoTerm term) {
+    private static String getTypeMismatchAssertionMessage(Class<?> expectedClass, TermType expectedType, IStrategoTerm term) {
         return "Expected " +
                 termTypeToString(expectedType) +
                 " term to implement interface " +
@@ -1047,18 +1055,18 @@ public final class TermUtils {
      * @param type the type to convert
      * @return the string representation
      */
-    private static String termTypeToString(int type) {
+    private static String termTypeToString(TermType type) {
         switch(type) {
-            case IStrategoTerm.APPL: return "a Constructor Application";
-            case IStrategoTerm.LIST: return "a List";
-            case IStrategoTerm.INT: return "an Int";
-            case IStrategoTerm.REAL: return "a Real";
-            case IStrategoTerm.STRING: return "a String";
-            case IStrategoTerm.CTOR: return "a Constructor";
-            case IStrategoTerm.TUPLE: return "a Tuple";
-            case IStrategoTerm.REF: return "a Ref";
-            case IStrategoTerm.BLOB: return "a Blob";
-            case IStrategoTerm.PLACEHOLDER: return "a Placeholder";
+            case APPL: return "a Constructor Application";
+            case LIST: return "a List";
+            case INT: return "an Int";
+            case REAL: return "a Real";
+            case STRING: return "a String";
+            case CTOR: return "a Constructor";
+            case TUPLE: return "a Tuple";
+            case REF: return "a Ref";
+            case BLOB: return "a Blob";
+            case PLACEHOLDER: return "a Placeholder";
             default: return "an unrecognized";
         }
     }

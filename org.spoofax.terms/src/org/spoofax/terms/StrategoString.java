@@ -11,10 +11,12 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
+import org.spoofax.interpreter.terms.TermType;
 import org.spoofax.terms.util.EmptyIterator;
 import org.spoofax.terms.util.StringUtils;
 import org.spoofax.terms.util.TermUtils;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Iterator;
@@ -27,7 +29,7 @@ public class StrategoString extends StrategoTerm implements IStrategoString {
 
     private final String value;
 
-    public StrategoString(String value, IStrategoList annotations) {
+    public StrategoString(String value, @Nullable IStrategoList annotations) {
         super(annotations);
         this.value = value;
         initImmutableHashCode();
@@ -58,8 +60,8 @@ public class StrategoString extends StrategoTerm implements IStrategoString {
     }
 
     @Override
-    public int getTermType() {
-        return IStrategoTerm.STRING;
+    public TermType getType() {
+        return TermType.STRING;
     }
 
     @Override

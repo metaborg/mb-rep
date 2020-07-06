@@ -7,7 +7,13 @@
  */
 package org.spoofax.terms;
 
-import org.spoofax.interpreter.terms.*;
+import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoConstructor;
+import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.interpreter.terms.ITermPrinter;
+import org.spoofax.interpreter.terms.TermType;
 import org.spoofax.terms.util.EmptyIterator;
 
 import java.io.IOException;
@@ -62,15 +68,15 @@ public final class StrategoConstructor extends StrategoTerm implements IStratego
     }
 
     @Override
-    public final int getTermType() {
-        return IStrategoTerm.CTOR;
+    public TermType getType() {
+        return TermType.CTOR;
     }
 
     @Override
     protected boolean doSlowMatch(IStrategoTerm second) {
         if(second == this)
             return true;
-        if(second == null || second.getTermType() != CTOR)
+        if(second == null || second.getType() != TermType.CTOR)
             return false;
 
         IStrategoConstructor other = (IStrategoConstructor) second;

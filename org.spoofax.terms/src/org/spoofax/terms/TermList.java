@@ -4,8 +4,6 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import java.io.Serializable;
 import java.util.*;
-import java.util.function.Predicate;
-import java.util.function.UnaryOperator;
 import java.util.stream.StreamSupport;
 
 /**

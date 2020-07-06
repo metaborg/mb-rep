@@ -72,10 +72,10 @@ public interface IStrategoPlaceholderTests {
 
 
     /**
-     * Tests the {@link IStrategoPlaceholder#getTermType()} method.
+     * Tests the {@link IStrategoPlaceholder#getType()} method.
      */
-    @DisplayName("getTermType()")
-    interface GetTermTypeTests extends Fixture, IStrategoTermTests.GetTermTypeTests {
+    @DisplayName("getType()")
+    interface GetTypeTests extends Fixture, IStrategoTermTests.GetTypeTests {
 
         @Test
         @DisplayName("returns the correct term type")
@@ -84,10 +84,10 @@ public interface IStrategoPlaceholderTests {
             IStrategoPlaceholder sut = createIStrategoPlaceholder(null, null, null);
 
             // Act
-            int result = sut.getTermType();
+            TermType result = sut.getType();
 
             // Assert
-            assertEquals(IStrategoTerm.PLACEHOLDER, result);
+            assertEquals(TermType.PLACEHOLDER, result);
         }
 
     }

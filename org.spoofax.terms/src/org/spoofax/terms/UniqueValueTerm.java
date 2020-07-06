@@ -10,6 +10,7 @@ import org.spoofax.interpreter.terms.IStrategoInt;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
+import org.spoofax.interpreter.terms.TermType;
 import org.spoofax.terms.util.EmptyIterator;
 
 /**
@@ -50,8 +51,14 @@ public final class UniqueValueTerm extends AbstractSimpleTerm implements IStrate
 		return 0;
 	}
 
+	@Deprecated
 	public int getTermType() {
-		return INT;
+		return getType().getValue();
+	}
+
+	@Override
+	public TermType getType() {
+		return TermType.INT;
 	}
 	
 	public boolean isUniqueValueTerm() {
@@ -96,7 +103,7 @@ public final class UniqueValueTerm extends AbstractSimpleTerm implements IStrate
 	}
 
 	public Iterator<IStrategoTerm> iterator() {
-		return new EmptyIterator<IStrategoTerm>();
+		return new EmptyIterator<>();
 	}
 	
 }

@@ -27,15 +27,15 @@ public class StrategoArrayList extends AbstractStrategoList implements RandomAcc
         this(terms, null);
     }
 
-    public StrategoArrayList(IStrategoTerm[] terms, IStrategoList annotations) {
+    public StrategoArrayList(IStrategoTerm[] terms, @Nullable IStrategoList annotations) {
         this(terms, annotations, 0, terms.length, new ITermAttachment[terms.length]);
     }
 
-    protected StrategoArrayList(IStrategoTerm[] terms, IStrategoList annotations, int offset, int endOffset) {
+    protected StrategoArrayList(IStrategoTerm[] terms, @Nullable IStrategoList annotations, int offset, int endOffset) {
         this(terms, annotations, offset, endOffset, new ITermAttachment[terms.length]);
     }
 
-    protected StrategoArrayList(IStrategoTerm[] terms, IStrategoList annotations, int offset, int endOffset, ITermAttachment[] tailAttachments) {
+    protected StrategoArrayList(IStrategoTerm[] terms, @Nullable IStrategoList annotations, int offset, int endOffset, ITermAttachment[] tailAttachments) {
         super(annotations);
         if(offset > terms.length) {
             throw new IllegalArgumentException(
@@ -84,10 +84,6 @@ public class StrategoArrayList extends AbstractStrategoList implements RandomAcc
     @Override
     public IStrategoTerm[] getAllSubterms() {
         return Arrays.copyOfRange(terms, offset, endOffset);
-    }
-
-    @Override public int getTermType() {
-        return IStrategoTerm.LIST;
     }
 
     @Deprecated @Override public IStrategoTerm get(int index) {

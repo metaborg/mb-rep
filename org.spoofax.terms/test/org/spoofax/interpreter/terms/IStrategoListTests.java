@@ -341,10 +341,10 @@ public interface IStrategoListTests {
 
 
     /**
-     * Tests the {@link IStrategoList#getTermType()} method.
+     * Tests the {@link IStrategoList#getType()} method.
      */
-    @DisplayName("getTermType()")
-    interface GetTermTypeTests extends Fixture, IStrategoTermTests.GetTermTypeTests {
+    @DisplayName("getType()")
+    interface GetTypeTests extends Fixture, IStrategoTermTests.GetTypeTests {
 
         @Test
         @DisplayName("empty list, returns the correct term type")
@@ -353,10 +353,10 @@ public interface IStrategoListTests {
             IStrategoList sut = createEmptyIStrategoList(null, null);
 
             // Act
-            int result = sut.getTermType();
+            TermType result = sut.getType();
 
             // Assert
-            assertEquals(IStrategoTerm.LIST, result);
+            assertEquals(TermType.LIST, result);
         }
 
         @Test
@@ -367,10 +367,10 @@ public interface IStrategoListTests {
             IStrategoList sut = createIStrategoList(elements, null, null);
 
             // Act
-            int result = sut.getTermType();
+            TermType result = sut.getType();
 
             // Assert
-            assertEquals(IStrategoTerm.LIST, result);
+            assertEquals(TermType.LIST, result);
         }
 
     }

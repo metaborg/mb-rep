@@ -6,11 +6,19 @@ import java.util.List;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
+import org.spoofax.interpreter.terms.TermType;
 import org.spoofax.terms.util.TermUtils;
 
+import javax.annotation.Nullable;
+
 public abstract class AbstractStrategoList extends StrategoTerm implements IStrategoList {
-    public AbstractStrategoList(IStrategoList annotations) {
+    public AbstractStrategoList(@Nullable IStrategoList annotations) {
         super(annotations);
+    }
+
+    @Override
+    public TermType getType() {
+        return TermType.LIST;
     }
 
     @Override

@@ -11,9 +11,11 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoReal;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermPrinter;
+import org.spoofax.interpreter.terms.TermType;
 import org.spoofax.terms.util.EmptyIterator;
 import org.spoofax.terms.util.TermUtils;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Iterator;
@@ -26,7 +28,7 @@ public class StrategoReal extends StrategoTerm implements IStrategoReal {
 
     private final double value;
 
-    public StrategoReal(double value, IStrategoList annotations) {
+    public StrategoReal(double value, @Nullable IStrategoList annotations) {
         super(annotations);
         this.value = value;
     }
@@ -61,8 +63,8 @@ public class StrategoReal extends StrategoTerm implements IStrategoReal {
     }
 
     @Override
-    public int getTermType() {
-        return IStrategoTerm.REAL;
+    public TermType getType() {
+        return TermType.REAL;
     }
 
     @Override
@@ -100,6 +102,6 @@ public class StrategoReal extends StrategoTerm implements IStrategoReal {
     }
 
     public Iterator<IStrategoTerm> iterator() {
-        return new EmptyIterator<IStrategoTerm>();
+        return new EmptyIterator<>();
     }
 }

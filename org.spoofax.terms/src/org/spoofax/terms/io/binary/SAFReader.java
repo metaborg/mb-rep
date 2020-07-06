@@ -502,7 +502,7 @@ class SAFReader {
             } else {
                 throw new RuntimeException(
                         "Encountered a term that didn't fit anywhere. Type: "
-                                + term.getTermType() + ", term " + term);
+                                + term.getType() + ", term " + term);
             }
 
             term = buildTerm(parent);
