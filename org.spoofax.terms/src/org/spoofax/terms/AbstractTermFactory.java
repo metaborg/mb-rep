@@ -111,6 +111,10 @@ public abstract class AbstractTermFactory implements ITermFactory {
     }
 
     @Override public IStrategoTerm copyAttachments(IStrategoTerm from, IStrategoTerm to) {
+        return staticCopyAttachments(from, to);
+    }
+
+    public static IStrategoTerm staticCopyAttachments(IStrategoTerm from, IStrategoTerm to) {
         ITermAttachment attach = from.getAttachment(null);
         while(attach != null) {
             try {
