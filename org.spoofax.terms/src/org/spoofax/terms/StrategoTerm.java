@@ -183,4 +183,14 @@ public abstract class StrategoTerm extends AbstractSimpleTerm implements IStrate
     public final boolean isList() {
         return getType() == TermType.LIST;
     }
+
+    private void readObject(java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException {
+        stream.defaultReadObject();
+        // Set hashCode to UNKNOWN_HASH here because the no-arg constructor of this class is not called when an object
+        // of this class is deserialized, causing the hashCode to be instantiated with the default value for an int: 0,
+        // instead of UNKNOWN_HASH, which then causes all equality checks against this object to fail. The no-arg
+        // constructor is not called because according to the JLS on serialization "For serializable objects, the no-arg
+        // constructor for the first non-serializable supertype is run.", which in this case is the Object class.
+        this.hashCode = UNKNOWN_HASH;
+    }
 }
