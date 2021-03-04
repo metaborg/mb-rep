@@ -6,6 +6,7 @@ import java.util.HashMap;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoPlaceholder;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
@@ -70,6 +71,10 @@ public abstract class AbstractTermFactory implements ITermFactory {
 
     @Override public IStrategoTerm replaceTerm(IStrategoTerm term, IStrategoTerm old) {
         return term;
+    }
+
+    @Override public IStrategoPlaceholder replacePlaceholder(IStrategoTerm template, IStrategoPlaceholder old) {
+        return makePlaceholder(template);
     }
 
     public final IStrategoAppl makeAppl(IStrategoConstructor ctr, IStrategoList kids, @Nullable IStrategoList annotations) {
