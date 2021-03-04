@@ -4,6 +4,7 @@ import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoInt;
 import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoPlaceholder;
 import org.spoofax.interpreter.terms.IStrategoReal;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
@@ -196,6 +197,17 @@ public final class TermUtils {
         return isTuple(term) && ((IStrategoTuple)term).size() == size;
     }
 
+    /**
+     * Determines whether the given term is a Placeholder term.
+     *
+     * @param term the term to check
+     * @return {@code true} when the term is a Placeholder term; otherwise, {@code false}
+     */
+    public static boolean isPlaceholder(IStrategoTerm term) {
+        boolean isTuple = (term != null && term.getType() == TermType.PLACEHOLDER);
+        assert !isTuple || (term instanceof IStrategoPlaceholder) : getTypeMismatchAssertionMessage(IStrategoTuple.class, TermType.PLACEHOLDER, term);
+        return isTuple;
+    }
 
     /// Term Conversions
 
@@ -257,6 +269,16 @@ public final class TermUtils {
      */
     public static Optional<IStrategoTuple> asTuple(IStrategoTerm term) {
         return isTuple(term) ? Optional.of((IStrategoTuple)term) : Optional.empty();
+    }
+
+    /**
+     * Converts the term to a Placeholder term, if possible.
+     *
+     * @param term the term
+     * @return an option with the converted term when the term is a Placeholder term; otherwise, nothing
+     */
+    public static Optional<IStrategoPlaceholder> asPlaceholder(IStrategoTerm term) {
+        return isPlaceholder(term) ? Optional.of((IStrategoPlaceholder)term) : Optional.empty();
     }
 
 
@@ -385,6 +407,19 @@ public final class TermUtils {
     public static IStrategoTuple toTuple(IStrategoTerm term) {
         if (term == null) throw newTermNullException(TermType.TUPLE);
         return asTuple(term).orElseThrow(() -> newTermCastException(TermType.TUPLE, term.getType()));
+    }
+
+    /**
+     * Converts the term to a Placeholder term.
+     *
+     * @param term the term
+     * @return the converted term
+     * @throws ClassCastException The term is not a Placeholder term.
+     * @throws NullPointerException The term is null.
+     */
+    public static IStrategoPlaceholder toPlaceholder(IStrategoTerm term) {
+        if (term == null) throw newTermNullException(TermType.PLACEHOLDER);
+        return asPlaceholder(term).orElseThrow(() -> newTermCastException(TermType.PLACEHOLDER, term.getType()));
     }
 
 
@@ -630,6 +665,17 @@ public final class TermUtils {
         return tryGetTermAt(term, index).map(t -> isTuple(t, size)).orElse(false);
     }
 
+    /**
+     * Determines whether the given subterm is a Placeholder term.
+     *
+     * @param term the term whose subterm to check
+     * @param index the zero-based index of the subterm
+     * @return {@code true} when the subterm with the given index exists and is a Placeholder term; otherwise, {@code false}
+     */
+    public static boolean isPlaceholderAt(IStrategoTerm term, int index) {
+        return tryGetTermAt(term, index).map(TermUtils::isPlaceholder).orElse(false);
+    }
+
 
     /// Indexed Subterm Conversions
 
@@ -703,6 +749,18 @@ public final class TermUtils {
      */
     public static Optional<IStrategoTuple> asTupleAt(IStrategoTerm term, int index) {
         return tryGetTermAt(term, index).flatMap(TermUtils::asTuple);
+    }
+
+    /**
+     * Converts the subterm to a Placeholder term, if possible.
+     *
+     * @param term the term whose subterm to get
+     * @param index the zero-based index of the subterm
+     * @return an option with the converted subterm when the subterm with the given index exists
+     * and is a Placeholder term; otherwise, nothing
+     */
+    public static Optional<IStrategoPlaceholder> asPlaceholderAt(IStrategoTerm term, int index) {
+        return tryGetTermAt(term, index).flatMap(TermUtils::asPlaceholder);
     }
 
 
@@ -859,6 +917,23 @@ public final class TermUtils {
         IStrategoTerm subterm = term.getSubterm(index);
         if (subterm == null) throw newTermNullException(TermType.TUPLE, index);
         return asTuple(subterm).orElseThrow(() -> newTermCastException(TermType.TUPLE, term.getType(), index));
+    }
+
+    /**
+     * Converts the subterm to a Placeholder term.
+     *
+     * @param term the term whose subterm to get
+     * @param index the zero-based index of the subterm
+     * @return the converted subterm
+     * @throws ClassCastException The subterm is not a Placeholder term.
+     * @throws IndexOutOfBoundsException The index is is out of bounds.
+     * @throws NullPointerException The term or the subterm is null.
+     */
+    public static IStrategoPlaceholder toPlaceholderAt(IStrategoTerm term, int index) {
+        if (term == null) throw newTermNullException();
+        IStrategoTerm subterm = term.getSubterm(index);
+        if (subterm == null) throw newTermNullException(TermType.PLACEHOLDER, index);
+        return asPlaceholder(subterm).orElseThrow(() -> newTermCastException(TermType.PLACEHOLDER, term.getType(), index));
     }
 
 

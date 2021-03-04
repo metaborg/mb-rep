@@ -35,4 +35,6 @@ public interface ITermFactory extends IStrategoTermBuilder {
     IStrategoTerm replaceTerm(IStrategoTerm term, IStrategoTerm old);
 
     IStrategoTuple replaceTuple(IStrategoTerm[] kids, IStrategoTuple old);
+
+    IStrategoPlaceholder replacePlaceholder(IStrategoTerm template, IStrategoPlaceholder old);
 }

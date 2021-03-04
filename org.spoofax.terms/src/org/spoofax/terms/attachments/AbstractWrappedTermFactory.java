@@ -73,6 +73,4 @@ public abstract class AbstractWrappedTermFactory extends AbstractTermFactory {
 		return baseFactory.replaceTerm(term, old);
 	}
 
-
-
 }
