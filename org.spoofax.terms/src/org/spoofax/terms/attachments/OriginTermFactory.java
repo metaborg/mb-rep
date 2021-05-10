@@ -5,6 +5,7 @@ import static org.spoofax.terms.attachments.OriginAttachment.getOrigin;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
+import org.spoofax.interpreter.terms.IStrategoPlaceholder;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
@@ -91,6 +92,13 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 		} else {
 			return ensureLink(term, origin, false);
 		}
+	}
+
+	@Override
+	public IStrategoPlaceholder replacePlaceholder(IStrategoTerm template, IStrategoPlaceholder old) {
+		IStrategoList annos = old.getAnnotations();
+		IStrategoPlaceholder result = (IStrategoPlaceholder)annotateTerm(makePlaceholder(ensureLink(template, old, true)), annos);
+		return (IStrategoPlaceholder) ensureLink(result, old, false);
 	}
 
 	private boolean haveSameSignature(IStrategoTerm term, IStrategoTerm origin) {

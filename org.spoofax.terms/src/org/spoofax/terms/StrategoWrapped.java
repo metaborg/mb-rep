@@ -44,7 +44,7 @@ public class StrategoWrapped extends StrategoTerm implements IStrategoAppl, IStr
 	 * Creates a new wrapped Stratego term with custom annotations.
 	 * Inheritor classes using this constructor should reimplement the
 	 * following methods
-	 * {@link #match(IStrategoTerm second)},
+	 * {@link #doSlowMatch(IStrategoTerm second)},
 	 * {@link #hashFunction()},
 	 * {@link #toString()}, and
 	 * {@link #prettyPrint(ITermPrinter)}.
