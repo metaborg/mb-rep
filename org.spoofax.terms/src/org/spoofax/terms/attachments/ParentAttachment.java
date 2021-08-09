@@ -137,8 +137,16 @@ public class ParentAttachment extends AbstractTermAttachment {
 		
 		return null;
 	}
-	
-	
+
+    public static void setParentAttachments(IStrategoTerm trm){
+        IStrategoTerm[] subterms = trm.getAllSubterms();
+        for(IStrategoTerm subterm : subterms) {
+            ParentAttachment.putParent(subterm, trm, null);
+            setParentAttachments(subterm);
+        }
+    }
+
+
 	@Override public int hashCode() {
         final int prime = 31;
         int result = 1;
