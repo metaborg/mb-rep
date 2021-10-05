@@ -33,9 +33,9 @@ public interface TermWriter {
      * @return the byte representation of the term
      */
     default byte[] writeToBytes(IStrategoTerm term) {
-        try(ByteArrayOutputStream stream = new ByteArrayOutputStream()) {
-            write(term, stream);
-            return stream.toByteArray();
+        try(final ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            write(term, outputStream);
+            return outputStream.toByteArray();
         } catch(IOException e) {
             // The ByteArrayOutputStream implementation never throws an IOException.
             throw new RuntimeException("Unexpected exception: " + e.getMessage(), e);
@@ -53,8 +53,8 @@ public interface TermWriter {
      * @throws SecurityException     access to the file is denied
      */
     default void writeToFile(IStrategoTerm term, File file) throws IOException, SecurityException {
-        try(FileOutputStream fileStream = new FileOutputStream(file)) {
-            try(BufferedOutputStream outputStream = new BufferedOutputStream(fileStream)) {
+        try(final FileOutputStream fileStream = new FileOutputStream(file)) {
+            try(final BufferedOutputStream outputStream = new BufferedOutputStream(fileStream)) {
                 write(term, outputStream);
             }
         }
@@ -71,8 +71,8 @@ public interface TermWriter {
      * @throws SecurityException     access to the file is denied
      */
     default void writeToPath(IStrategoTerm term, Path path) throws IOException, SecurityException {
-        try(OutputStream fileStream = Files.newOutputStream(path)) {
-            try(BufferedOutputStream outputStream = new BufferedOutputStream(fileStream)) {
+        try(final OutputStream fileStream = Files.newOutputStream(path)) {
+            try(final BufferedOutputStream outputStream = new BufferedOutputStream(fileStream)) {
                 write(term, outputStream);
             }
         }
@@ -84,7 +84,7 @@ public interface TermWriter {
      * This method does not close the stream.
      *
      * @param term         the term to write
-     * @param outputStream the output stream
+     * @param outputStream the output stream to write to
      * @throws IOException an I/O exception occurred
      */
     void write(IStrategoTerm term, OutputStream outputStream) throws IOException;

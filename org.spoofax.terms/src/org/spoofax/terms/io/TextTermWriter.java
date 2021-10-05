@@ -150,7 +150,7 @@ public interface TextTermWriter extends TermWriter {
      * This method does not close the stream.
      *
      * @param term         the term to write
-     * @param outputStream the output stream
+     * @param outputStream the output stream to write to
      * @throws IOException an I/O exception occurred
      */
     @Override default void write(IStrategoTerm term, OutputStream outputStream) throws IOException {
@@ -163,21 +163,24 @@ public interface TextTermWriter extends TermWriter {
      * This method does not close the stream.
      *
      * @param term         the term to write
-     * @param outputStream the output stream
+     * @param outputStream the output stream to write to
      * @param characterSet the character set to use
      * @throws IOException an I/O exception occurred
      */
     default void write(IStrategoTerm term, OutputStream outputStream, Charset characterSet) throws IOException {
-        try(OutputStreamWriter writer = new OutputStreamWriter(outputStream, characterSet)) {
-            write(term, writer);
-        }
+        final OutputStreamWriter writer = new OutputStreamWriter(outputStream, characterSet);
+        write(term, writer);
+        writer.flush();
+        // Do not close the writer, doing so will also close the backing stream.
     }
 
     /**
      * Writes the term to the specified appendable.
+     * <p>
+     * This method does not close the appendable.
      *
      * @param term   the term to write
-     * @param writer the appendable
+     * @param writer the appendable to write to
      * @throws IOException an I/O exception occurred
      */
     void write(IStrategoTerm term, Appendable writer) throws IOException;
