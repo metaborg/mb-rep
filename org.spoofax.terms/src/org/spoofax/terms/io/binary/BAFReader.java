@@ -1,17 +1,17 @@
 /*
  * Java version of the ATerm library
  * Copyright (C) 2006-2007, UiB, CWI, LORIA-INRIA
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
  * License as published by the Free Software Foundation; either
  * version 2 of the License, or (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Library General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Library General Public
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -33,24 +33,25 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.ParseError;
+import org.spoofax.terms.io.TermReader;
 import org.spoofax.terms.util.NotImplementedException;
 import org.spoofax.terms.util.TermUtils;
 
 /**
  * A term reader that uses IStrategoTerms.
- * 
+ *
  * @see TermReader A helper class that supports both binary and textual ATerms.
  */
 class BAFReader {
 
     private static final int BAF_MAGIC = 0xBAF;
-    
+
     public static final int BAF_MAGIC_SIZE = 8; // bytes in BAF header magic
 
     private static final int BAF_VERSION = 0x300;
 
     private static final int HEADER_BITS = 32;
-    
+
     private static final ThreadLocal<ArrayList<ReadTermFrame>> readerStacks =
         new ThreadLocal<ArrayList<ReadTermFrame>>();
 
@@ -152,10 +153,10 @@ class BAFReader {
 
     public static boolean isBinaryATerm(PushbackInputStream in) throws IOException {
         byte[] header = new byte[BAF_MAGIC_SIZE];
-        
+
         in.read(header);
         in.unread(header);
-        
+
         return isBinaryATerm(new BitStream(new ByteArrayInputStream(header)));
     }
 
@@ -165,30 +166,30 @@ class BAFReader {
     }
 
     int level = 0;
-    
+
     static class ReadTermFrame {
         final SymEntry input;
         final IStrategoTerm[] outputArgs;
-        
+
         int index;
         SymEntry argSym;
         int val;
-        
+
         public ReadTermFrame(SymEntry input) {
             this.input = input;
             this.outputArgs = new IStrategoTerm[input.arity];
         }
     }
-    
+
     private IStrategoTerm readTerm(SymEntry e) throws ParseError, IOException {
         // TODO: Optimize readTerm?
         //       e.g., throw in some rounds of native-stack based reading
         ArrayList<ReadTermFrame> stack = readerStacks.get();
         if (stack == null) readerStacks.set(stack = new ArrayList<ReadTermFrame>());
-        
+
         ReadTermFrame frame = new ReadTermFrame(e);
         boolean resumingFrame = false;
-        
+
      readTerm:
         for(;;) {
             final SymEntry input = frame.input;
@@ -198,21 +199,21 @@ class BAFReader {
                 level++;
                 if(isDebugging()) debug("readTerm()/" + level + " - " + input.fun + "[" + input.arity + "]");
             }
-            
+
             for (int i = frame.index, arity = input.arity; i < arity; i++) {
                 final SymEntry argSym;
                 final int val;
-                
+
                 if (!resumingFrame) {
                     final int symVal = reader.readBits(input.symWidth[i]);
                     if(isDebugging()) {
                         debug(" [" + i + "] - " + symVal);
                         debug(" [" + i + "] - " + input.topSyms[i].length);
                     }
-                    
+
                     argSym = symbols[input.topSyms[i][symVal]];
                     val = reader.readBits(argSym.termWidth);
-                    
+
                     if (argSym.terms[val] == null) {
                         if(isDebugging()) debug(" [" + i+  "] - recurse");
 
@@ -220,7 +221,7 @@ class BAFReader {
                         frame.argSym = argSym;
                         frame.val = val;
                         stack.add(frame);
-                        
+
                         frame = new ReadTermFrame(argSym); // recurse: argSym.terms[val] = readTerm(argSym);
                         continue readTerm;
                     }
@@ -230,15 +231,15 @@ class BAFReader {
                     argSym = frame.argSym;
                     val = frame.val;
                 }
-    
-                if (argSym.terms[val] == null) 
+
+                if (argSym.terms[val] == null)
                     throw new ParseError("Malformed ATerm: Cannot be null");
-    
+
                 outputArgs[i] = argSym.terms[val];
             }
-            
+
             final IStrategoTerm result = readTermTop(input, outputArgs);
-            
+
             if (stack.isEmpty()) {
                 return result;
             } else {
@@ -266,11 +267,11 @@ class BAFReader {
           level--;
           return e.fun;
       }
-      
+
       IStrategoConstructor fun = (IStrategoConstructor) e.fun;
       final String name = fun.getName();
       final int LONGEST_BUILTIN_NAME = 6; // longest string length of "<int>", etc.
-      
+
       if (name.length() <= LONGEST_BUILTIN_NAME) {
           if (name.equals("<int>")) {
               int val = reader.readBits(HEADER_BITS);

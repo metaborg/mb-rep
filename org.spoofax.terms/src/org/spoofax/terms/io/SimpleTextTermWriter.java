@@ -100,6 +100,7 @@ public class SimpleTextTermWriter implements TextTermWriter {
 
     @Override public void write(IStrategoTerm term, Appendable writer) throws IOException {
         writeTerm(term, writer, this.maxDepth, false);
+        // Do not close the appendable.
     }
 
     /**

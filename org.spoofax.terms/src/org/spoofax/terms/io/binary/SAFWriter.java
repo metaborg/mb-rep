@@ -501,27 +501,21 @@ private final static class SAFWriterInternal {
 
 }
 
-    /**
-     * @deprecated Use {@code new SAFWriter().writeToFile(term, file)} instead.
-     */
+    /** @deprecated Use {@link TermWriter#writeToFile} instead. */
     @Deprecated
     public static void writeTermToSAFFile(IStrategoTerm term, File file) throws IOException {
         SAFWriter writer = new SAFWriter();
         writer.writeToFile(term, file);
     }
 
-    /**
-     * @deprecated Use {@code new SAFWriter().writeToBytes(term)} instead.
-     */
+    /** @deprecated Use {@link TermWriter#writeToBytes} instead. */
     @Deprecated
     public static byte[] writeTermToSAFString(IStrategoTerm term) {
         SAFWriter writer = new SAFWriter();
         return writer.writeToBytes(term);
     }
 
-    /**
-     * @deprecated Use {@code new SAFWriter().write(term, outputStream)} instead.
-     */
+    /** @deprecated Use {@link TermWriter#write} instead. */
     @Deprecated
     public static void writeTermToSAFStream(IStrategoTerm term, OutputStream outputStream) throws IOException {
         SAFWriter writer = new SAFWriter();
@@ -547,7 +541,6 @@ private final static class SAFWriterInternal {
 
         } while(!binaryWriter.isFinished());
 
-        // Do not close the channel, doing so will also close the backing
-        // stream.
+        // Do not close the channel, doing so will also close the backing stream.
     }
 }

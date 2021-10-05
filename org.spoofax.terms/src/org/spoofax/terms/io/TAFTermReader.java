@@ -2,7 +2,7 @@
  * Created on 27. jan.. 2007
  *
  * Copyright (c) 2005, Karl Trygve Kalleberg <karltk near strategoxt.org>
- * 
+ *
  * Licensed under the GNU Lesser General Public License, v2.1
  */
 package org.spoofax.terms.io;
@@ -10,6 +10,7 @@ package org.spoofax.terms.io;
 import static org.spoofax.terms.AbstractTermFactory.EMPTY_TERM_ARRAY;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,6 +20,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.ParseError;
 import org.spoofax.terms.io.binary.TermReader;
+import org.spoofax.terms.util.IOStreamExt;
 import org.spoofax.terms.util.NotImplementedException;
 
 /**
@@ -28,11 +30,11 @@ import org.spoofax.terms.util.NotImplementedException;
  * <b>A note on Unicode:</b> This class internally uses a {@link PushbackReader} to read the input string/stream,
  * character by character. Here, one "character" is one UTF-16 code unit, as used internally for representing Strings in
  * Java. No special handling of multi-character Unicode code points is needed, as the strings are literally copied.
- * 
+ *
  * @see TermReader An extension of this class that also supports binary ATerms.
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-public class TAFTermReader {
+public class TAFTermReader implements TextTermReader {
 
     protected final StringBuilder sharedBuilder = new StringBuilder();
     protected final ITermFactory factory;
@@ -41,12 +43,23 @@ public class TAFTermReader {
         this.factory = factory;
     }
 
+    @Override
+    public IStrategoTerm read(Reader reader) throws IOException {
+        final PushbackReader bis = new PushbackReader(reader);
+        return parseFromStream(bis);
+        // Do not close the PushbackReader, doing so will also close the backing reader
+    }
+
+    /** @deprecated Use {@link #readFromFile} instead. */
+    @Deprecated
     public IStrategoTerm parseFromFile(String path) throws IOException, ParseError {
         try(InputStream stream = new FileInputStream(path)) {
             return parseFromStream(stream);
         }
     }
 
+    /** @deprecated Use {@link #readFromString} instead. */
+    @Deprecated
     public IStrategoTerm parseFromString(String s) throws ParseError {
         try(PushbackReader reader = new PushbackReader(new StringReader(s))) {
             return parseFromStream(reader);
@@ -56,11 +69,12 @@ public class TAFTermReader {
         }
     }
 
+    /** @deprecated Use {@link #read} instead. */
+    @Deprecated
     public IStrategoTerm parseFromStream(InputStream inputStream) throws IOException, ParseError {
         try {
-            if(!(inputStream instanceof BufferedInputStream))
-                inputStream = new BufferedInputStream(inputStream);
-            PushbackReader bis = new PushbackReader(new InputStreamReader(inputStream));
+            final BufferedInputStream bufferedInputStream = IOStreamExt.ensureBuffered(inputStream);
+            PushbackReader bis = new PushbackReader(new InputStreamReader(bufferedInputStream));
 
             return parseFromStream(bis);
         } finally {
@@ -324,14 +338,17 @@ public class TAFTermReader {
         return sharedBuilder;
     }
 
+    /** @deprecated Use {@link TermWriter#write} instead. */
+    @Deprecated
     public void unparseToFile(IStrategoTerm t, OutputStream ous) throws IOException {
         Writer out = new BufferedWriter(new OutputStreamWriter(ous));
         unparseToFile(t, out);
         out.flush();
     }
 
+    /** @deprecated Use {@link TextTermWriter#write} instead. */
+    @Deprecated
     public void unparseToFile(IStrategoTerm t, Writer out) throws IOException {
         t.writeAsString(out, Integer.MAX_VALUE);
     }
-
 }
