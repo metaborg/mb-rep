@@ -107,8 +107,18 @@ public final class StrategoConstructor extends StrategoTerm implements IStratego
 
     @Override
     public int hashFunction() {
-        // TODO: hash code that is reproducible from Stratego
-        return name.hashCode() + 5407 * arity;
+        return stableStringHashCode(name) + 5407 * arity;
+    }
+
+    // this is current used in v 1.8.0_65 but we want to keep this stable
+    public static int stableStringHashCode(String s) {
+        int h = 0;
+        if (s.length() > 0) {
+            for (int i = 0; i < s.length(); i++) {
+                h = 31 * h + s.charAt(i);
+            }
+        }
+        return h;
     }
 
     @Deprecated
