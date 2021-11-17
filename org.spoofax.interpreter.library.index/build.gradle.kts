@@ -14,6 +14,7 @@ dependencies {
   implementation(compositeBuild("org.metaborg.util"))
 
   implementation("com.google.guava:guava")
+  implementation("com.google.guava:failureaccess")
 
   compileOnly("com.google.code.findbugs:jsr305")
 
