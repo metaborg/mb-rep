@@ -31,6 +31,7 @@ package org.spoofax.terms.io.binary;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
@@ -147,7 +148,7 @@ private final static class SAFWriterInternal {
         currentBuffer = buffer;
 
         while (currentTerm != null) {
-            if (buffer.remaining() < MINIMUMFREESPACE)
+            if (((Buffer) buffer).remaining() < MINIMUMFREESPACE)
                 break;
 
             Integer id = sharedTerms.get(currentTerm);
@@ -178,7 +179,7 @@ private final static class SAFWriterInternal {
             currentTerm = getNextTerm();
         }
 
-        buffer.flip();
+        ((Buffer) buffer).flip();
     }
 
     /**
@@ -355,7 +356,7 @@ private final static class SAFWriterInternal {
                 writeInt(length);
 
                 int endIndex = length;
-                int remaining = currentBuffer.remaining();
+                int remaining = ((Buffer) currentBuffer).remaining();
                 if (remaining < endIndex)
                     endIndex = remaining;
 
@@ -377,7 +378,7 @@ private final static class SAFWriterInternal {
             int length = tempNameWriteBuffer.length;
 
             int endIndex = length;
-            int remaining = currentBuffer.remaining();
+            int remaining = ((Buffer) currentBuffer).remaining();
             if ((indexInTerm + remaining) < endIndex)
                 endIndex = (indexInTerm + remaining);
 
@@ -530,10 +531,10 @@ private final static class SAFWriterInternal {
         outputStream.write((byte)'?');
 
         do {
-            byteBuffer.clear();
+            ((Buffer) byteBuffer).clear();
             binaryWriter.serialize(byteBuffer);
 
-            int blockSize = byteBuffer.limit();
+            int blockSize = ((Buffer) byteBuffer).limit();
             outputStream.write((byte)(blockSize & 0x000000ff));
             outputStream.write((byte)((blockSize >>> 8) & 0x000000ff));
 

@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
@@ -171,7 +172,7 @@ class SAFReader {
         if (tempType != -1)
             readData();
 
-        while (buffer.hasRemaining()) {
+        while (((Buffer) buffer).hasRemaining()) {
             byte header = buffer.get();
 
             if (debug) {
@@ -220,7 +221,7 @@ class SAFReader {
                 default:
                     throw new RuntimeException("Unknown type id: " + type
                             + ". Current buffer position: "
-                            + currentBuffer.position());
+                            + ((Buffer) currentBuffer).position());
                 }
                 if (debug)
                     System.out.println();
@@ -285,7 +286,7 @@ class SAFReader {
     private void readData() {
         int length = tempBytes.length;
         int bytesToRead = (length - tempBytesIndex);
-        int remaining = currentBuffer.remaining();
+        int remaining = ((Buffer) currentBuffer).remaining();
         if (remaining < bytesToRead)
             bytesToRead = remaining;
 
@@ -631,14 +632,14 @@ class SAFReader {
             fc = fis.getChannel();
 
             // Consume the SAF identification token.
-            byteBuffer.limit(1);
+            ((Buffer) byteBuffer).limit(1);
             int bytesRead = fc.read(byteBuffer);
             if (bytesRead != 1)
                 throw new IOException(
                         "Unable to read SAF identification token.\n");
 
             do {
-                sizeBuffer.clear();
+                ((Buffer) sizeBuffer).clear();
                 bytesRead = fc.read(sizeBuffer);
                 if (bytesRead <= 0)
                     break;
@@ -646,17 +647,17 @@ class SAFReader {
                     throw new IOException(
                             "Unable to read block size bytes from file: "
                                     + bytesRead + ".\n");
-                sizeBuffer.flip();
+                ((Buffer) sizeBuffer).flip();
 
                 int blockSize = (sizeBuffer.get() & 0x000000ff)
                         + ((sizeBuffer.get() & 0x000000ff) << 8);
                 if (blockSize == 0)
                     blockSize = 65536;
 
-                byteBuffer.clear();
-                byteBuffer.limit(blockSize);
+                ((Buffer) byteBuffer).clear();
+                ((Buffer) byteBuffer).limit(blockSize);
                 bytesRead = fc.read(byteBuffer);
-                byteBuffer.flip();
+                ((Buffer) byteBuffer).flip();
                 if (bytesRead != blockSize)
                     throw new IOException("Unable to read bytes from file "
                             + bytesRead + " vs " + blockSize + ".");
@@ -712,7 +713,7 @@ class SAFReader {
 
             byteBuffer.put(data, position, blockSize);
             position += blockSize;
-            byteBuffer.flip();
+            ((Buffer) byteBuffer).flip();
 
             binaryReader.deserialize(byteBuffer);
         } while (position < length);
@@ -736,7 +737,7 @@ class SAFReader {
         ByteBuffer byteBuffer = ByteBuffer.allocate(65536);
 
         // Consume the SAF identification token.
-        byteBuffer.limit(1);
+        ((Buffer) byteBuffer).limit(1);
         char identifier = (char) in.read();
         if (identifier == -1)
             throw new IOException("Unable to read SAF identification token.\n");
@@ -754,8 +755,8 @@ class SAFReader {
             if (blockSize == 0)
                 blockSize = 65536;
 
-            byteBuffer.clear();
-            byteBuffer.limit(blockSize);
+            ((Buffer) byteBuffer).clear();
+            ((Buffer) byteBuffer).limit(blockSize);
 
             // Use multiple reads to fill buffers (the channel apparently only
             // reads 8192 bytes per call)
@@ -771,7 +772,7 @@ class SAFReader {
                 throw new IOException("Unable to read bytes from file "
                         + bytesRead + " vs " + blockSize + ".");
 
-            byteBuffer.flip();
+            ((Buffer) byteBuffer).flip();
             binaryReader.deserialize(byteBuffer);
 
         } while (bytesRead > 0);
