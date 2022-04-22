@@ -9,7 +9,8 @@ import java.util.stream.Stream;
 
 /**
  * Pretends to be a Set, but can also be asked to intern a string
- * or determine if a string has been interned already.
+ * or determine if a string has been interned already. This interner
+ * does not keep strong references to the Strings in it, only weak ones.
  *
  * Based on {@see java.util.Collections.SetFromMap}.
  */
@@ -18,6 +19,7 @@ public final class StringInterner extends AbstractSet<String> implements Set<Str
     // can access the entry, you can get that key out of the value. This can be used to properly intern strings,
     // returning the equivalent String object
     private final WeakHashMap<String, WeakReference<String>> map;
+    // N.B. this is the keySet of the WeakHashMap and does not make strong references to the keys either.
     private final Set<String> mapKeys;
 
     /**
