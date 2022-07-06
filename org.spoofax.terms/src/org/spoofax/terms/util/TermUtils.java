@@ -1130,7 +1130,7 @@ public final class TermUtils {
      * @param type the type to convert
      * @return the string representation
      */
-    private static String termTypeToString(TermType type) {
+    public static String termTypeToString(TermType type) {
         switch(type) {
             case APPL: return "a Constructor Application";
             case LIST: return "a List";
