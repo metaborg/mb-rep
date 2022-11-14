@@ -1,9 +1,9 @@
-id: org.example:org.metaborg.meta.lang.aterm.test:2.6.0-SNAPSHOT
+id: org.example:org.metaborg.meta.lang.aterm.test:2.5.18
 name: ATerm
-metaborgVersion: 2.6.0-SNAPSHOT
+metaborgVersion: 2.5.18
 dependencies:
   compile:
-  - org.metaborg:org.metaborg.meta.lang.aterm:2.6.0-SNAPSHOT
+  - org.metaborg:org.metaborg.meta.lang.aterm:2.5.18
   - org.metaborg:org.metaborg.meta.lang.spt:${metaborgVersion}
 build:
   useBuildSystemSpec: true
