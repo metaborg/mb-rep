@@ -90,6 +90,7 @@ public abstract class AbstractTermFactory implements ITermFactory {
     }
 
     @Override public final IStrategoList makeList(IStrategoTerm... terms) {
+        // TODO: test if we can just use StrategoArrayList here (maybe copy the array to make sure it's not modifiable)
         return makeList(terms, null);
     }
 
