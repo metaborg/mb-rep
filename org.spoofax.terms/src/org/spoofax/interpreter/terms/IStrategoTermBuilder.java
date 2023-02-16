@@ -8,6 +8,7 @@
 package org.spoofax.interpreter.terms;
 
 import java.util.Collection;
+import java.util.function.Function;
 
 
 public interface IStrategoTermBuilder {
@@ -25,10 +26,20 @@ public interface IStrategoTermBuilder {
     public IStrategoList makeList(IStrategoTerm... terms);
     public IStrategoList makeList(Collection<? extends IStrategoTerm> terms);
 
-	public IStrategoAppl makeAppl(IStrategoConstructor constructor, IStrategoTerm[] kids, IStrategoList annotations);
-	public IStrategoList makeList(IStrategoTerm[] kids, IStrategoList annotations);
-	public IStrategoList makeListCons(IStrategoTerm head, IStrategoList tail, IStrategoList annotations);
-	public IStrategoTuple makeTuple(IStrategoTerm[] kids, IStrategoList annotations);
+    default <T> IStrategoList makeList(Collection<T> items, Function<T, ? extends IStrategoTerm> f) {
+        final IStrategoList.Builder b = arrayListBuilder(items.size());
+
+        for(T item : items) {
+            b.add(f.apply(item));
+        }
+
+        return makeList(b);
+    }
+
+    public IStrategoAppl makeAppl(IStrategoConstructor constructor, IStrategoTerm[] kids, IStrategoList annotations);
+    public IStrategoList makeList(IStrategoTerm[] kids, IStrategoList annotations);
+    public IStrategoList makeListCons(IStrategoTerm head, IStrategoList tail, IStrategoList annotations);
+    public IStrategoTuple makeTuple(IStrategoTerm[] kids, IStrategoList annotations);
 
     // @Deprecated public IStrategoList makeList(IStrategoTerm head, IStrategoList tail);
     public IStrategoList makeListCons(IStrategoTerm head, IStrategoList tail);
