@@ -70,12 +70,20 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
     }
 
     @Override public IStrategoString makeString(String s) {
-        if(s.length() <= MAX_POOLED_STRING_LENGTH) {
+        if(s.length() <= MAX_POOLED_STRING_LENGTH && endsWithNumber(s)) {
             synchronized(usedStrings) {
                 s = usedStrings.intern(s);
             }
         }
         return new StrategoString(s, null);
+    }
+
+    protected static boolean endsWithNumber(String s) {
+        if(s.isEmpty()) {
+            return false;
+        }
+        char lastChar = s.charAt(s.length() - 1);
+        return '0' <= lastChar && lastChar <= '9';
     }
 
     @Override public IStrategoString tryMakeUniqueString(String s) {
