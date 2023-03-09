@@ -70,7 +70,7 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
     }
 
     @Override public IStrategoString makeString(String s) {
-        if(s.length() <= MAX_POOLED_STRING_LENGTH && endsWithNumber(s)) {
+        if(s.length() <= MAX_POOLED_STRING_LENGTH && endsWithDigit(s)) {
             synchronized(usedStrings) {
                 s = usedStrings.intern(s);
             }
@@ -78,7 +78,7 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
         return new StrategoString(s, null);
     }
 
-    protected static boolean endsWithNumber(String s) {
+    public static final boolean endsWithDigit(String s) {
         if(s.isEmpty()) {
             return false;
         }
