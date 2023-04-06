@@ -6,6 +6,7 @@ import java.util.List;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runners.Parameterized.Parameters;
+import org.metaborg.util.iterators.Iterables2;
 import org.spoofax.interpreter.core.Interpreter;
 import org.spoofax.interpreter.library.index.IIndex;
 import org.spoofax.interpreter.library.index.IndexEntry;
@@ -16,8 +17,6 @@ import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
-
-import com.google.common.collect.Iterables;
 
 public class IndexTest {
     protected static Interpreter interpreter;
@@ -240,6 +239,6 @@ public class IndexTest {
     }
 
     public static int size(Iterable<IndexEntry> entries) {
-        return Iterables.size(entries);
+        return Iterables2.size(entries);
     }
 }

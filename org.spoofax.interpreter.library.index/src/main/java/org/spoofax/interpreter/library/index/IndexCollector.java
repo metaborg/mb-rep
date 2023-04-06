@@ -3,22 +3,18 @@ package org.spoofax.interpreter.library.index;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import org.metaborg.util.collection.MultiSet;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
-
-import com.google.common.collect.HashMultiset;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Multiset;
-import com.google.common.collect.Multisets;
 
 public class IndexCollector {
     private final ITermFactory termFactory;
     private final IndexEntryFactory entryFactory;
 
-    private final Multiset<IndexEntry> addedEntries = HashMultiset.create();
-    private final Multiset<IndexEntry> removedEntries = HashMultiset.create();
-    private final Multiset<IndexEntry> oldEntries = HashMultiset.create();
+    private MultiSet.Transient<IndexEntry> addedEntries = MultiSet.Transient.of();
+    private MultiSet.Transient<IndexEntry> removedEntries = MultiSet.Transient.of();
+    private MultiSet.Transient<IndexEntry> oldEntries = MultiSet.Transient.of();
 
     private IStrategoTerm sourceInCollection = null;
 
@@ -28,11 +24,9 @@ public class IndexCollector {
     }
 
     public void start(IStrategoTerm source, Iterable<IndexEntry> currentEntries) {
-        addedEntries.clear();
-        removedEntries.clear();
-        oldEntries.clear();
-        Iterables.addAll(removedEntries, currentEntries);
-        Iterables.addAll(oldEntries, currentEntries);
+        reset();
+        currentEntries.forEach(removedEntries::add);
+        currentEntries.forEach(oldEntries::add);
 
         sourceInCollection = source;
     }
@@ -40,14 +34,7 @@ public class IndexCollector {
     public IStrategoTuple stop() {
         sourceInCollection = null;
 
-        // Use reflection to choose right method to call, because in Guava 18 the type of the second argument of the
-        // removeOccurrences was changed.
-        final Method method = getRemoveOccurrencesMethod();
-        try {
-            method.invoke(null, addedEntries, oldEntries);
-        } catch(IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            throw new RuntimeException("Could not invoke remove occurrences", e);
-        }
+        addedEntries.removeAll(oldEntries);
 
         // TODO: Use an IStrategoList implementation that iterates over the collections instead of constructing it.
         return termFactory.makeTuple(entryFactory.toKeyTerms(removedEntries), entryFactory.toKeyTerms(addedEntries));
@@ -82,24 +69,10 @@ public class IndexCollector {
     }
 
     public void reset() {
-        addedEntries.clear();
-        removedEntries.clear();
-        oldEntries.clear();
+        addedEntries = MultiSet.Transient.of();
+        removedEntries = MultiSet.Transient.of();
+        oldEntries = MultiSet.Transient.of();
 
         sourceInCollection = null;
-    }
-
-
-    private static Method getRemoveOccurrencesMethod() {
-        final String methodName = "removeOccurrences";
-        try {
-            return Multisets.class.getDeclaredMethod(methodName, Multiset.class, Multiset.class);
-        } catch(NoSuchMethodException e1) {
-            try {
-                return Multisets.class.getDeclaredMethod(methodName, Multiset.class, Iterable.class);
-            } catch(NoSuchMethodException e2) {
-                throw new RuntimeException("Cannot find " + methodName + " method via reflection", e2);
-            }
-        }
     }
 }
