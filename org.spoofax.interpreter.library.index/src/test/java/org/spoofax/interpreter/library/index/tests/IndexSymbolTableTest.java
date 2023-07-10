@@ -4,11 +4,10 @@ import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.metaborg.util.iterators.Iterables2;
 import org.spoofax.interpreter.library.index.IndexEntry;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-
-import com.google.common.collect.Iterables;
 
 public class IndexSymbolTableTest extends IndexTest {
     public IndexSymbolTableTest() {
@@ -26,16 +25,16 @@ public class IndexSymbolTableTest extends IndexTest {
 
         // Sources have not been added yet.
         Iterable<IStrategoTerm> all1 = index.getAllSources();
-        assertFalse(Iterables.contains(all1, source1));
-        assertFalse(Iterables.contains(all1, source2));
+        assertFalse(Iterables2.contains(all1, source1));
+        assertFalse(Iterables2.contains(all1, source2));
 
         add(def, source1);
         add(def, source2);
 
         // Sources have been added by calling getSource.
         Iterable<IStrategoTerm> all2 = index.getAllSources();
-        assertTrue(Iterables.contains(all2, source1));
-        assertTrue(Iterables.contains(all2, source2));
+        assertTrue(Iterables2.contains(all2, source1));
+        assertTrue(Iterables2.contains(all2, source2));
     }
 
     @Test public void getEntries() {
@@ -105,7 +104,7 @@ public class IndexSymbolTableTest extends IndexTest {
         assertFalse(matchAll(ret3, def));
         assertFalse(matchAll(ret3, read));
 
-        for(IndexEntry entry : Iterables.toArray(ret2, IndexEntry.class))
+        for(IndexEntry entry : Iterables2.toArray(ret2, IndexEntry.class))
             index.add(entry);
 
         Iterable<IndexEntry> ret4 = index.get(read);

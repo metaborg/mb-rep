@@ -1,8 +1,9 @@
 package org.spoofax.terms.visitor;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Stack;
 
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoInt;
@@ -16,9 +17,9 @@ import org.spoofax.interpreter.terms.IStrategoTuple;
 
 public class StrategoTermVisitee {
     public static void topdown(IStrategoTermVisitor visitor, IStrategoTerm initialTerm) {
-        final Stack<IStrategoTerm> stack = new Stack<IStrategoTerm>();
+        final Deque<IStrategoTerm> stack = new ArrayDeque<>();
         stack.push(initialTerm);
-        while(!stack.empty()) {
+        while(!stack.isEmpty()) {
             final IStrategoTerm term = stack.pop();
             if(!dispatch(visitor, term)) {
                 continue;
@@ -30,8 +31,8 @@ public class StrategoTermVisitee {
     }
     
     public static void bottomup(IStrategoTermVisitor visitor, IStrategoTerm initialTerm) {
-        final Stack<IStrategoTerm> stack = new Stack<IStrategoTerm>();
-        final Set<IStrategoTerm> visited = new HashSet<IStrategoTerm>();
+        final Deque<IStrategoTerm> stack = new ArrayDeque<>();
+        final Set<IStrategoTerm> visited = new HashSet<>();
         stack.push(initialTerm);
         while(!stack.isEmpty()) {
             final IStrategoTerm term = stack.peek();

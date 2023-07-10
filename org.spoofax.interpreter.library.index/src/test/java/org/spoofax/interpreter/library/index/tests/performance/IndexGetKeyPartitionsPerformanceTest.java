@@ -2,19 +2,19 @@ package org.spoofax.interpreter.library.index.tests.performance;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.metaborg.util.iterators.Iterables2;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.BenchmarkRule;
 import com.carrotsearch.junitbenchmarks.Clock;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 
 @BenchmarkOptions(benchmarkRounds = 5, warmupRounds = 3, callgc = true, clock = Clock.CPU_TIME)
 @RunWith(value = Parameterized.class)
@@ -46,11 +46,11 @@ public class IndexGetKeyPartitionsPerformanceTest extends IndexPerformanceTest {
 
 	@Test
 	public void getKeyPartitions() {
-		Set<IStrategoTerm> sources = Sets.newHashSet();
-		Iterables.addAll(sources, index.getSourcesOf(def1));
-		Iterables.addAll(sources, index.getSourcesOf(def2));
-		Iterables.addAll(sources, index.getSourcesOf(def3));
-		Iterables.addAll(sources, index.getSourcesOf(use1));
-		Iterables.addAll(sources, index.getSourcesOf(typeTemplate1));
+        Set<IStrategoTerm> sources = new HashSet<IStrategoTerm>();
+		Iterables2.addAll(sources, index.getSourcesOf(def1));
+		Iterables2.addAll(sources, index.getSourcesOf(def2));
+		Iterables2.addAll(sources, index.getSourcesOf(def3));
+		Iterables2.addAll(sources, index.getSourcesOf(use1));
+		Iterables2.addAll(sources, index.getSourcesOf(typeTemplate1));
 	}
 }
