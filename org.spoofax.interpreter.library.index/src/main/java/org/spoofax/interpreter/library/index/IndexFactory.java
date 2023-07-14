@@ -1,6 +1,7 @@
 package org.spoofax.interpreter.library.index;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.spoofax.interpreter.core.Tools;
@@ -8,7 +9,6 @@ import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 
-import com.google.common.collect.Lists;
 import org.spoofax.terms.util.TermUtils;
 
 public class IndexFactory {
@@ -79,7 +79,7 @@ public class IndexFactory {
 
         final IStrategoTerm source = term.getSubterm(0);
         final IStrategoTerm entryList = term.getSubterm(1);
-        final Collection<IndexEntry> entries = Lists.newArrayListWithCapacity(entryList.getSubtermCount());
+        final Collection<IndexEntry> entries = new ArrayList<>(entryList.getSubtermCount());
         for(IStrategoTerm entryTerm : term.getSubterm(1)) {
             entries.add(entryFactory.fromTerm(entryTerm));
         }
