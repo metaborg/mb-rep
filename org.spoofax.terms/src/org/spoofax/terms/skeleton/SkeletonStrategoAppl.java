@@ -14,7 +14,7 @@ import org.spoofax.terms.util.ArrayIterator;
 import org.spoofax.terms.util.NotImplementedException;
 import org.spoofax.terms.util.TermUtils;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 public abstract class SkeletonStrategoAppl extends StrategoTerm implements IStrategoAppl {
 

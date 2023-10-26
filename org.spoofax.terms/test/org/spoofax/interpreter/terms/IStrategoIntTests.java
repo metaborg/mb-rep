@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.opentest4j.TestAbortedException;
 import org.spoofax.terms.attachments.ITermAttachment;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.io.IOException;
 import java.util.List;
 

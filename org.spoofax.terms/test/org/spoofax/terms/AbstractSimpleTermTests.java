@@ -6,7 +6,7 @@ import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.interpreter.terms.ISimpleTermTests;
 import org.spoofax.terms.attachments.ITermAttachment;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.util.List;
 
 

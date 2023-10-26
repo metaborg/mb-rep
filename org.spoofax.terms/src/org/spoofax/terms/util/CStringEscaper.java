@@ -1,6 +1,6 @@
 package org.spoofax.terms.util;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.io.IOException;
 
 /**
