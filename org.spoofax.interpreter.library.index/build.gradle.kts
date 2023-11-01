@@ -13,7 +13,7 @@ dependencies {
   api(compositeBuild("org.spoofax.interpreter.core"))
   implementation(compositeBuild("org.metaborg.util"))
 
-  compileOnly("jakarta.annotation:jakarta.annotation-api")
+  implementation("jakarta.annotation:jakarta.annotation-api")
 
   testCompileOnly("junit:junit")
   testImplementation("com.carrotsearch:junit-benchmarks")

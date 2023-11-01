@@ -20,7 +20,7 @@ val spoofax2Version: String by ext
 dependencies {
   api(platform("org.metaborg:parent:$spoofax2Version"))
 
-  compileOnly("jakarta.annotation:jakarta.annotation-api")
+  implementation("jakarta.annotation:jakarta.annotation-api")
 
   testCompileOnly("jakarta.annotation:jakarta.annotation-api")
 }
