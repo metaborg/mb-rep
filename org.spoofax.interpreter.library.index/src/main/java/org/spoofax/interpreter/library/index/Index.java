@@ -1,20 +1,19 @@
 package org.spoofax.interpreter.library.index;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
+import org.metaborg.util.collection.MultiSet;
+import org.metaborg.util.collection.SetMultimap;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
-
 public class Index implements IIndex {
-    private final Multimap<IStrategoTerm, IndexEntry> entries = HashMultimap.create();
-    private final Multimap<IStrategoTerm, IndexEntry> childs = HashMultimap.create();
-    private final Multimap<IStrategoTerm, IndexEntry> entriesPerSource = HashMultimap.create();
+    private final SetMultimap<IStrategoTerm, IndexEntry> entries = new SetMultimap<>();
+    private final SetMultimap<IStrategoTerm, IndexEntry> childs = new SetMultimap<>();
+    private final SetMultimap<IStrategoTerm, IndexEntry> entriesPerSource = new SetMultimap<>();
 
     private final IndexEntryFactory entryFactory;
     private final IndexParentKeyFactory parentKeyFactory;
@@ -62,7 +61,6 @@ public class Index implements IIndex {
     }
 
     @Override public void addAll(IStrategoTerm source, Iterable<IndexEntry> entriesToAdd) {
-        final Collection<IndexEntry> entriesInSource = entriesPerSource.get(source);
         for(final IndexEntry entry : entriesToAdd) {
             entries.put(entry.key, entry);
 
@@ -71,7 +69,7 @@ public class Index implements IIndex {
                 childs.put(parentKey, entry);
             }
 
-            entriesInSource.add(entry);
+            entriesPerSource.put(source, entry);
         }
     }
 
@@ -88,7 +86,7 @@ public class Index implements IIndex {
     }
 
     @Override public Set<IStrategoTerm> getSourcesOf(IStrategoTerm key) {
-        final Set<IStrategoTerm> sources = Sets.newHashSet();
+        final Set<IStrategoTerm> sources = new HashSet<>();
         for(final IndexEntry entry : get(key)) {
             sources.add(entry.source);
         }
@@ -107,7 +105,7 @@ public class Index implements IIndex {
                 childs.remove(parentKey, entry);
             }
         }
-        entriesPerSource.removeAll(source);
+        entriesPerSource.remove(source);
     }
 
     @Override public Iterable<IStrategoTerm> getAllSources() {

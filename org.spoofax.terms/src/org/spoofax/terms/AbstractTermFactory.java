@@ -13,7 +13,7 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.attachments.ITermAttachment;
 import org.spoofax.terms.io.TAFTermReader;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 public abstract class AbstractTermFactory implements ITermFactory {
     /** An empty Stratego list. Use this instead of `new StrategoList(null)` to avoid allocating a new object. */

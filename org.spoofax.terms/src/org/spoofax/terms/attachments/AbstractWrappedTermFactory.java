@@ -12,7 +12,7 @@ import org.spoofax.interpreter.terms.IStrategoTuple;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.AbstractTermFactory;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /** 
  * @author Lennart Kats <lennart add lclnet.nl>

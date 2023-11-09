@@ -13,15 +13,11 @@ dependencies {
   api(compositeBuild("org.spoofax.interpreter.core"))
   implementation(compositeBuild("org.metaborg.util"))
 
-  implementation("com.google.guava:guava")
-  // Required for Guava >= 27.0:
-  // implementation("com.google.guava:failureaccess")
-
-  compileOnly("com.google.code.findbugs:jsr305")
+  implementation("jakarta.annotation:jakarta.annotation-api")
 
   testCompileOnly("junit:junit")
   testImplementation("com.carrotsearch:junit-benchmarks")
-  testCompileOnly("com.google.code.findbugs:jsr305")
+  testCompileOnly("jakarta.annotation:jakarta.annotation-api")
   testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.1.0")
 }
 

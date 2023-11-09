@@ -13,7 +13,7 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.util.StringInterner;
 import org.spoofax.terms.util.TermUtils;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 public class TermFactory extends AbstractTermFactory implements ITermFactory {
     private static final int MAX_POOLED_STRING_LENGTH = 200;
@@ -70,12 +70,20 @@ public class TermFactory extends AbstractTermFactory implements ITermFactory {
     }
 
     @Override public IStrategoString makeString(String s) {
-        if(s.length() <= MAX_POOLED_STRING_LENGTH) {
+        if(s.length() <= MAX_POOLED_STRING_LENGTH && endsWithDigit(s)) {
             synchronized(usedStrings) {
                 s = usedStrings.intern(s);
             }
         }
         return new StrategoString(s, null);
+    }
+
+    public static final boolean endsWithDigit(String s) {
+        if(s.isEmpty()) {
+            return false;
+        }
+        char lastChar = s.charAt(s.length() - 1);
+        return '0' <= lastChar && lastChar <= '9';
     }
 
     @Override public IStrategoString tryMakeUniqueString(String s) {
