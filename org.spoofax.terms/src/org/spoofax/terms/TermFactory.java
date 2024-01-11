@@ -13,7 +13,7 @@ import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.util.StringInterner;
 import org.spoofax.terms.util.TermUtils;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 public class TermFactory extends AbstractTermFactory implements ITermFactory {
     private static final int MAX_POOLED_STRING_LENGTH = 200;

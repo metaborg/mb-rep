@@ -20,9 +20,9 @@ val spoofax2Version: String by ext
 dependencies {
   api(platform("org.metaborg:parent:$spoofax2Version"))
 
-  compileOnly("com.google.code.findbugs:jsr305")
+  implementation("jakarta.annotation:jakarta.annotation-api")
 
-  testCompileOnly("com.google.code.findbugs:jsr305")
+  testCompileOnly("jakarta.annotation:jakarta.annotation-api")
 }
 
 // Copy test resources into classes directory, to make them accessible as classloader resources at runtime.

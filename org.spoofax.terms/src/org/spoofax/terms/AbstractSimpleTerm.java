@@ -4,7 +4,7 @@ import org.spoofax.interpreter.terms.ISimpleTerm;
 import org.spoofax.terms.attachments.ITermAttachment;
 import org.spoofax.terms.attachments.TermAttachmentType;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 
 /**

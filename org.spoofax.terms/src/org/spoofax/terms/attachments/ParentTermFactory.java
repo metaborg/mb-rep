@@ -18,7 +18,7 @@ import org.spoofax.terms.StrategoListIterator;
 import org.spoofax.terms.StrategoSubList;
 import org.spoofax.terms.util.TermUtils;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /** 
  * @author Lennart Kats <lennart add lclnet.nl>

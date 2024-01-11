@@ -9,7 +9,7 @@ import org.spoofax.interpreter.terms.ITermPrinter;
 import org.spoofax.interpreter.terms.TermType;
 import org.spoofax.terms.util.TermUtils;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 public abstract class AbstractStrategoList extends StrategoTerm implements IStrategoList {
     public AbstractStrategoList(@Nullable IStrategoList annotations) {

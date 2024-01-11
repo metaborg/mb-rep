@@ -9,7 +9,7 @@ import org.spoofax.interpreter.terms.TermType;
 import org.spoofax.terms.util.ArrayIterator;
 import org.spoofax.terms.util.TermUtils;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;

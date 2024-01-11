@@ -13,7 +13,7 @@ import org.spoofax.terms.StrategoTerm;
 import org.spoofax.terms.TermTransformer;
 import org.spoofax.terms.util.TermUtils;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  * @author Lennart Kats <lennart add lclnet.nl>

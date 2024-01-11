@@ -7,7 +7,7 @@
  */
 package org.spoofax.terms.util;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  * Exception indicating that something was not implemented.
