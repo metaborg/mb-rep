@@ -3,7 +3,8 @@ package org.spoofax.interpreter.library.index;
 import java.io.Serializable;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.jsglr.client.imploder.ImploderAttachment;
+
+import jsglr.shared.ImploderAttachment;
 
 /**
  * A key-value pair that can be stored in an {@link IIndex}.

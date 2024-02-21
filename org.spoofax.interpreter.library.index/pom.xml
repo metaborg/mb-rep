@@ -25,7 +25,7 @@
     </dependency>
     <dependency>
       <groupId>org.metaborg</groupId>
-      <artifactId>org.spoofax.jsglr</artifactId>
+      <artifactId>jsglr.shared</artifactId>
       <version>${metaborg-version}</version>
     </dependency>
     <dependency>
