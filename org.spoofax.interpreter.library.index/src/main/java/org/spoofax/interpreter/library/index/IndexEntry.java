@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
 
-import jsglr.shared.ImploderAttachment;
+import mb.jsglr.shared.ImploderAttachment;
 
 /**
  * A key-value pair that can be stored in an {@link IIndex}.
