@@ -10,7 +10,7 @@ import org.spoofax.terms.StrategoListIterator;
 /**
  * Strips all attachments from a term
  * 
- * @see org.spoofax.jsglr.client.imploder.ImploderAttachment#getCompressedPositionAttachment()
+ * @see jsglr.shared.ImploderAttachment#getCompressedPositionAttachment()
  *      Creates a compact position information attachment for a term.
  * 
  * @author Lennart Kats <lennart add lclnet.nl>
