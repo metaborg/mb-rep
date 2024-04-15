@@ -9,7 +9,7 @@ dependencies {
   api(platform("org.metaborg:parent:$spoofax2Version"))
 
   api(project(":org.spoofax.terms"))
-  implementation(compositeBuild("org.spoofax.jsglr"))
+  implementation(compositeBuild("jsglr.shared"))
   api(compositeBuild("org.spoofax.interpreter.core"))
   implementation(compositeBuild("org.metaborg.util"))
 
