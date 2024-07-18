@@ -5,22 +5,21 @@ plugins {
     id("org.metaborg.convention.maven-publish")
 }
 
-fun compositeBuild(name: String) = "$group:$name:$version"
-val spoofax2Version: String by ext
 dependencies {
     api(platform(libs.metaborg.platform)) { version { require("latest.integration") } }
 
     api(project(":org.spoofax.terms"))
-    implementation(compositeBuild("jsglr.shared"))
-    api(compositeBuild("org.spoofax.interpreter.core"))
-    implementation(compositeBuild("org.metaborg.util"))
+    implementation(libs.jsglr.shared)
+    api(libs.interpreter.core)
+    implementation(libs.metaborg.util)
 
-    implementation("jakarta.annotation:jakarta.annotation-api")
+    implementation(libs.jakarta.annotation)
 
-    testCompileOnly("junit:junit")
-    testImplementation("com.carrotsearch:junit-benchmarks")
-    testCompileOnly("jakarta.annotation:jakarta.annotation-api")
-    testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.1.0")
+    testImplementation(libs.junit)
+    testCompileOnly(libs.junit4)
+    testImplementation(libs.junit4.benchmarks)
+    testCompileOnly(libs.jakarta.annotation)
+    testRuntimeOnly(libs.junit.vintage)
 }
 
 tasks.test {

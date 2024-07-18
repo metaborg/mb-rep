@@ -18,13 +18,12 @@ sourceSets {
     }
 }
 
-val spoofax2Version: String by ext
 dependencies {
     api(platform(libs.metaborg.platform)) { version { require("latest.integration") } }
 
-    implementation("jakarta.annotation:jakarta.annotation-api")
-
-    testCompileOnly("jakarta.annotation:jakarta.annotation-api")
+    implementation(libs.jakarta.annotation)
+    testImplementation(libs.junit)
+    testCompileOnly(libs.jakarta.annotation)
 }
 
 // Copy test resources into classes directory, to make them accessible as classloader resources at runtime.
