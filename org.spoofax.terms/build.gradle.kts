@@ -3,6 +3,7 @@ plugins {
     `maven-publish`
     id("org.metaborg.convention.java")
     id("org.metaborg.convention.maven-publish")
+    id("org.metaborg.convention.junit")
 }
 
 sourceSets {
@@ -22,7 +23,6 @@ dependencies {
     api(platform(libs.metaborg.platform)) { version { require("latest.integration") } }
 
     implementation(libs.jakarta.annotation)
-    testImplementation(libs.junit)
     testCompileOnly(libs.jakarta.annotation)
 }
 

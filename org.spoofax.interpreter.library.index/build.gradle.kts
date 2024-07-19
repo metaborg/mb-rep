@@ -3,6 +3,7 @@ plugins {
     `maven-publish`
     id("org.metaborg.convention.java")
     id("org.metaborg.convention.maven-publish")
+    id("org.metaborg.convention.junit")
 }
 
 dependencies {
@@ -15,7 +16,6 @@ dependencies {
 
     implementation(libs.jakarta.annotation)
 
-    testImplementation(libs.junit)
     testCompileOnly(libs.junit4)
     testImplementation(libs.junit4.benchmarks)
     testCompileOnly(libs.jakarta.annotation)
