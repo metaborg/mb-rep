@@ -79,13 +79,11 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 			return term;
 		} else if (term == origin) {
 			return term;
-		} else if (TermUtils.isList(term)) {
-			if (term.getSubtermCount() == origin.getSubtermCount()
+		} else
+			// N.B. This used to not track origins for lists if the origin was something else
+			if (TermUtils.isList(term) && term.getSubtermCount() == origin.getSubtermCount()
 					&& TermUtils.isList(origin)) {
-				return makeListLink((IStrategoList) term, (IStrategoList) origin);
-			} else {
-				return term;
-			}
+			return makeListLink((IStrategoList) term, (IStrategoList) origin);
 		} else if (haveSameSignature(term, origin)) {
 			ensureChildLinks(term.getAllSubterms(), origin);
 			return ensureLink(term, origin, false);
@@ -118,11 +116,10 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 	 */
 	public IStrategoTerm makeLink(IStrategoTerm term, IStrategoTerm origin) {
 		assert isOriginRoot(origin);
-		if (TermUtils.isList(term)) {
-			if (term.getSubtermCount() == origin.getSubtermCount()
+		// N.B. This used to not track origins for lists if the origin was something else
+		if (TermUtils.isList(term) && term.getSubtermCount() == origin.getSubtermCount()
 				&& TermUtils.isList(origin)) {
-				return makeListLink((IStrategoList) term, (IStrategoList) origin);
-			}
+			return makeListLink((IStrategoList) term, (IStrategoList) origin);
 		} else if (OriginAttachment.get(term) == null) {
 			OriginAttachment.setOrigin(term, origin);
 		} else if (REASSIGN_ORIGINS) {
@@ -137,7 +134,7 @@ public abstract class OriginTermFactory extends AbstractWrappedTermFactory {
 	}
 	
 	/**
-	 * @param origin
+	 * @param desugared
 	 *            The origin term. For lists, this must be the exact
 	 *            corresponding term with the same offset and length.
 	 */
