@@ -21,6 +21,14 @@ dependencies {
     testRuntimeOnly(libs.junit.vintage)
 }
 
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+        }
+    }
+}
+
 tasks.test {
     exclude("**/performance/**") // Ignore performance benchmarks.
 }
