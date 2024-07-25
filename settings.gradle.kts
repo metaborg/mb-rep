@@ -1,4 +1,4 @@
-rootProject.name = "esv-project"
+rootProject.name = "mb-rep-project"
 
 dependencyResolutionManagement {
     repositories {
