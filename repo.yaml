@@ -1,0 +1,65 @@
+---
+repoOwner: "metaborg"
+repoName: "mb-rep"
+mainBranch: "master"
+mavenGroup: "org.metaborg.devenv"
+releaseTagPrefix: "devenv-release/"
+
+title: "MB Rep"
+description: |
+  The Metaborg Rep libraries.
+inceptionYear: "2006"
+
+spoofax3Libraries:
+  - group: "org.metaborg.devenv"
+    name: "org.spoofax.interpreter.library.index"
+  - group: "org.metaborg.devenv"
+    name: "org.spoofax.terms"
+
+spoofax2Libraries:
+  - group: "org.metaborg"
+    name: "org.metaborg.meta.lang.aterm"
+  - group: "org.metaborg"
+    name: "org.metaborg.meta.lang.aterm.eclipse"
+  - group: "org.metaborg"
+    name: "org.spoofax.interpreter.library.index"
+  - group: "org.metaborg"
+    name: "org.spoofax.terms"
+
+contributors:
+  - id: "Gohla"
+    name: "Gabriel Konat"
+  - id: "lennartcl"
+    name: "Lennart Kats"
+  - id: "adilakhter"
+    name: "Adil Akhter"
+  - id: "karltk"
+    name: "Karl Trygve Kalleberg"
+  - id: "hendrikvanantwerpen"
+    name: "Hendrik van Antwerpen"
+  - id: "Apanatshka"
+    name: "Jeff Smits"
+  - id: "Virtlink"
+    name: "Daniel A. A. Pelsmaeker"
+  - id: "seba--"
+    name: "Sebastian Erdweg"
+  - id: "Apanatshka"
+    name: "Jeff Smits"
+  - id: "udesou"
+    name: "Eduardo Souza"
+
+developers:
+  - id: "Apanatshka"
+    name: "Jeff Smits"
+
+files:
+  githubWorkflows:
+    publishRelease: true
+    publishSnapshot: true
+  gradleRootProject:
+    generate: true
+    rootProjectName: "mb-rep-project"
+    includedProjects:
+      - name: ":org.spoofax.interpreter.library.index"
+      - name: ":org.spoofax.terms"
+

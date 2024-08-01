@@ -1,4 +1,6 @@
-rootProject.name = "mb-rep-project"
+// !! THIS FILE WAS GENERATED USING repoman !!
+// Modify `repo.yaml` instead and use `repoman` to update this file
+// See: https://github.com/metaborg/metaborg-gradle/
 
 dependencyResolutionManagement {
     repositories {
@@ -18,6 +20,6 @@ plugins {
     id("org.metaborg.convention.settings") version "latest.integration"
 }
 
-include("org.spoofax.terms")
-include("org.spoofax.interpreter.library.index")
-
+rootProject.name = "mb-rep-project"
+include(":org.spoofax.interpreter.library.index")
+include(":org.spoofax.terms")
